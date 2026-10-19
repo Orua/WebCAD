@@ -1,5 +1,23 @@
 {
   "version": 1,
+  "catalogHistoryCompatibility20261019": {
+    "localImpact": "Classify the entire public tool catalog into explicit comparison families; preserve timeline consistency when non-user rebuilds regenerate checkpoints or metadata",
+    "servicesImpact": "none; no backend algorithm, dispatcher or authorization changes",
+    "logoImpact": "none; catalog distinctions describe existing capabilities without changing glyphs or geometry",
+    "contractImpact": "Page API 1.52.3 adds selectionGuide to all tool cards and discovery results, api.tool-selection docs, and host forwarding of full selection criteria; no new execution gate",
+    "documentImpact": "Normalize missing legacy metadata with a retained history transition; preserve v1/v2 JSON and v3/v4 source assets, undo/redo and bounded history; reject genuine missing resources or inconsistent geometry",
+    "cacheImpact": "Regenerate knowledge, catalog and docs hashes; use one verified candidate package on 17674; 113/production remain pending authorization",
+    "requiredTests": ["entire-catalog classification and comparison references", "native catalog selection forwarding", "legacy v1-v4 cold open/restore/edit/save", "100-state pruning and branch", "import source retention", "checkpoint regeneration on open/undo/refresh", "17674 single focused browser acceptance"]
+  },
+  "keyringHistory20261019": {
+    "localImpact": "Bake pending rebuild checkpoints without recording them against the old timeline; record the complete transaction once at commit",
+    "servicesImpact": "none; local WASM checkpoint creation and host discovery summaries only",
+    "logoImpact": "none; source glyphs and Logo execution unchanged",
+    "contractImpact": "Clarify similar template names and key ring aliases; native Agent receives discovery summaries for every verified tool ID and reads full candidate cards before execution",
+    "documentImpact": "Preserve history validation, previous states and source assets; fix adding a checkpointed feature and allow removing the mistaken feature",
+    "cacheImpact": "Regenerate catalog and docs hashes; 113 runtime remains unchanged until authorized release",
+    "requiredTests": ["keyring-history", "local-checkpoint", "tool-discovery", "native resident catalog", "17674 targeted browser check"]
+  },
   "uiLayout20261019": {
     "localImpact": "Anchor the assistant resize indicator to its separator; keep selection and move controls visible without overlapping labels",
     "servicesImpact": "none; CSS and pointer hint placement only",

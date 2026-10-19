@@ -3,7 +3,7 @@
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -41,5 +41,57 @@
     "工作基准",
     "基准点"
   ],
-  "docsHash": "sha256:2509c949360663bdaa125901b184917503266c30200ac0bbfdafd1b698858ea3"
+  "selectionGuide": {
+    "groupId": "references",
+    "groupTitle": "插入锚点与对象参考",
+    "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。",
+    "alternatives": [
+      {
+        "id": "reference.resetWorkFrame",
+        "chooseWhen": "只重置指定的位置、方向或全部工作锚点。"
+      },
+      {
+        "id": "reference.setLocked",
+        "chooseWhen": "锁定工作锚点的自动避让，仍为可撤销参考元数据。"
+      },
+      {
+        "id": "reference.saveFrame",
+        "chooseWhen": "将明确标架保存为具名参考，不等于激活。"
+      },
+      {
+        "id": "reference.activateFrame",
+        "chooseWhen": "将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。"
+      },
+      {
+        "id": "reference.renameFrame",
+        "chooseWhen": "只改具名标架名称，须用当前标架版本。"
+      },
+      {
+        "id": "reference.deleteFrame",
+        "chooseWhen": "删除具名标架记录，已冻结特征不受影响。"
+      },
+      {
+        "id": "reference.setBodyAnchor",
+        "chooseWhen": "在指定实体上创建/更新对象锚点；不同于全局插入锚点。"
+      },
+      {
+        "id": "reference.deleteBodyAnchor",
+        "chooseWhen": "删除对象锚点元数据，不删除实体。"
+      },
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:65f091ec213a2d8d675d478bb98c49c6274881c1fcc6f675df70fbd2f0c2bae1"
 }

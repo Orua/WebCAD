@@ -2,7 +2,7 @@
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -82,5 +82,57 @@
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
-  "docsHash": "sha256:9f687e3d5dfde44c9c7380b1c52f3dcca6ddca70ff5fce9c977dcd6415855c01"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:ba05177c70a4cf08ef2d5fe31f2d4050379d4820972f4ca0998a66eb0008f828"
 }

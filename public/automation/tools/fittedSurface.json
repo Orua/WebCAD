@@ -669,5 +669,49 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5300544983caab546081ff634a69e3a9db39ca31bec767fba615e8404c849364"
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。",
+    "alternatives": [
+      {
+        "id": "subdBody",
+        "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:16f10774d011e007c0ed8aa229e4d150656a10af473f39925e9e9e0cb6872c33"
 }

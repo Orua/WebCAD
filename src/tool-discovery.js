@@ -93,6 +93,7 @@ export function createToolLibrary(snapshot) {
       return index.search(query, { category }).slice(0, limit).map(item => {
         const card = cards.get(item.id);
         return { ...item, title: card.title, label: card.label, category: card.category,
+          selectionGuide:clone(card.selectionGuide),
           version: card.version, docsHash: card.docsHash, runtimeAvailability: 'unknown' };
       });
     },

@@ -426,7 +426,7 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -444,5 +444,33 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:24796979ec154618b38dd130625977e7eeb83d9c722c33ecdddb264257519c29"
+  "selectionGuide": {
+    "groupId": "pins-components",
+    "groupTitle": "钉、针与独立连接件",
+    "chooseWhen": "单件平底凸面钉头，直径与拱高独立。",
+    "alternatives": [
+      {
+        "id": "template.nippleStud",
+        "chooseWhen": "头、颈、底座及配套槽头杆的两件组合；名义孔/杆不代表真实牙型。"
+      },
+      {
+        "id": "template.mushroomRivet",
+        "chooseWhen": "蘑菇盖空心套筒及腰形钉脚两件套，可装配或拉开展示。"
+      },
+      {
+        "id": "template.buckleTongue",
+        "chooseWhen": "独立环头扁针，长度从轴心到针尖；不含扣框。"
+      },
+      {
+        "id": "template.pullCoreBar",
+        "chooseWhen": "独立活动芯，中间扁带连接两端开放卷眼；不与扣框融合。"
+      },
+      {
+        "id": "template.hangingRod",
+        "chooseWhen": "水平圆杆与上方收窄 U 吊环融合；不是独立扁针或卷眼芯。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:bd4819e07bfb7ac3d31999e284f470aa1afd2e0e458b637384421b6ee2df7a64"
 }

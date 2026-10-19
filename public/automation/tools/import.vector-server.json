@@ -3,12 +3,48 @@
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:8a329c59ca1513225aa9bef6c98668401be4662af2bc85f9167dcd52b550d321"
+  "selectionGuide": {
+    "groupId": "file-input",
+    "groupTitle": "文件登记、打开与导入",
+    "chooseWhen": "当前静态版不可用的旧服务端矢量入口；应查当前 readVector/Services 实际能力。",
+    "alternatives": [
+      {
+        "id": "files.capabilities",
+        "chooseWhen": "读文件格式、大小与宿主写入能力，不证明某文件已读到。"
+      },
+      {
+        "id": "files.register",
+        "chooseWhen": "登记获授权原始字节，返回资源 ID；尚未打开/导入。"
+      },
+      {
+        "id": "files.new",
+        "chooseWhen": "新建空工程并替换当前设计；不默默丢弃未保存更改。"
+      },
+      {
+        "id": "files.open",
+        "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      },
+      {
+        "id": "import",
+        "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
+      },
+      {
+        "id": "import.iges",
+        "chooseWhen": "当前静态版不可用的 IGES 入口；不能宣称直接导入成功。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:903a63b476048a28b97d2242bc35d5d7aea03d24acb8d8933dabdb75e636dedc"
 }

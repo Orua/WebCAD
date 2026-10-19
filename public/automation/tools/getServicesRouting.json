@@ -2,7 +2,7 @@
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
   "synonyms": [
@@ -20,5 +20,65 @@
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:249f213f610713087bd63b4ce5837fe65be4cf520547665999e55071437f38cd"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:3c18cbda11fc65cd8bec7a5099ffed868026f53c05561646dfb79e95957eea86"
 }

@@ -735,7 +735,7 @@ export class CadKernel {
     const shape=this.shapes.get(featureId);if(!shape)throw Object.assign(new Error('来源特征几何已失效'),{code:'STALE_REFERENCE'});
     return {data:new TextEncoder().encode(this.geometrySourceSnapshot(shape))};
   }
-  bakeProject(document,{thresholdMs=1000}={}){
+  bakeProject(document,{thresholdMs=1000,recordHistory=true}={}){
     const result={...document,features:document.features.map(f=>({...f})),compiledArtifacts:{...document.compiledArtifacts}},baked=[],skipped=[];
     for(const feature of result.features){
       const timing=this.lastFeatureTimings?.find(row=>row.featureId===feature.id),shape=this.shapes.get(feature.id);
@@ -746,7 +746,7 @@ export class CadKernel {
       feature.compiledCheckpoint={kind:'local-rebuild',codec:GEOMETRY_CODEC,brepVersion:3,kernelBuildId:LOCAL_KERNEL_BUILD_ID,semanticVersion:LOCAL_REBUILD_SEMANTICS,recipeFingerprint:localCheckpointFingerprint(result,feature.id),artifactSha256,inputSha256,sourceSnapshotVersion:2,faceOriginSignatures:originSignatures(shape),reports:checkpointReports(shape)};
       result.compiledArtifacts[artifactSha256]=bytes;baked.push(feature.id);
     }
-    if(baked.length){result.version=4;result.binaryAssets={...document.binaryAssets};if(document.timeline)recordTimeline(document,result,{label:'保留重建检查点'});}
+    if(baked.length){result.version=4;result.binaryAssets={...document.binaryAssets};if(recordHistory&&document.timeline)recordTimeline(document,result,{label:'保留重建检查点'});}
     return {document:result,baked,skipped};
   }
   sourceComplexity(featureId,faceId){

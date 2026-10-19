@@ -2,7 +2,7 @@
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
   "synonyms": [
@@ -18,5 +18,21 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:c7540b76d15a9074039456d9be4ff88b76eecf78b333f95ab52708b1e2b23313"
+  "selectionGuide": {
+    "groupId": "assistant",
+    "groupTitle": "助手面板",
+    "chooseWhen": "配置助手页面地址，不代表已经连接或控制当前工程。",
+    "alternatives": [
+      {
+        "id": "getAgentPanel",
+        "chooseWhen": "读助手面板配置与显示状态，不发起建模任务。"
+      },
+      {
+        "id": "setAgentPanel",
+        "chooseWhen": "按已有配置显示/断开助手面板；与几何 API 操作分离。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d8775839a3e83433354c90713965c0145d088af35b62f7d15d3bc6d86f65d7ff"
 }

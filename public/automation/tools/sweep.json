@@ -634,5 +634,41 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:e7b934437a4bf6eac372723484831deab3a55f2f3644714dca3c31ca306de9f9"
+  "selectionGuide": {
+    "groupId": "sweep-loft",
+    "groupTitle": "扫掠、放样及导向曲面",
+    "chooseWhen": "参数截面沿显式三维折线路径扫掠；折线路径不同于精确曲线来源。",
+    "alternatives": [
+      {
+        "id": "curveSweep",
+        "chooseWhen": "沿解析/曲线脊线扫掠恒截面或有序自定义截面，可用旋转最小标架。"
+      },
+      {
+        "id": "profileSweep",
+        "chooseWhen": "复用已保存截面及精确路径；保留面孔，显式决定新建/加减料。"
+      },
+      {
+        "id": "loft",
+        "chooseWhen": "平行 XY 参数轮廓间的直纹放样。"
+      },
+      {
+        "id": "referenceLoft",
+        "chooseWhen": "复用 2–12 个有序精确单外环截面，保留来源；不支持截面内孔。"
+      },
+      {
+        "id": "profileLoft",
+        "chooseWhen": "2–12 个已保存精确截面依次成型，明确新建/材料运算。"
+      },
+      {
+        "id": "advancedLoft",
+        "chooseWhen": "手工定义 XY 截面序列，生成实体或开放壳。"
+      },
+      {
+        "id": "guidedLoft",
+        "chooseWhen": "显式截面标架、边界导向与来源 G1/G2 信息；不是仅靠截面插值。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:7b37a5bbcfcc12595121578958929a554565ebd5d68114ed8916354d7e0022b0"
 }

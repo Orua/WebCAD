@@ -581,5 +581,45 @@
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e9b34f9cda81f5c0e3ea4571249d9a4d49d85e144be104e8d9beac5ee7037368"
+  "selectionGuide": {
+    "groupId": "extrusion",
+    "groupTitle": "拉伸与旋转成型",
+    "chooseWhen": "对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。",
+    "alternatives": [
+      {
+        "id": "extrude",
+        "chooseWhen": "按参数定义的闭合轮廓及所选平面法向拉伸。"
+      },
+      {
+        "id": "referenceExtrude",
+        "chooseWhen": "复用已有闭合精确线框/平面面，按世界向量拉伸，保留来源；带孔须用面。"
+      },
+      {
+        "id": "faceExtrude",
+        "chooseWhen": "推拉已有实体的一张平面面，沿其法向改体；不是独立轮廓拉伸。"
+      },
+      {
+        "id": "revolve",
+        "chooseWhen": "旋转参数闭合轮廓，按工具定义的轴及角度创建。"
+      },
+      {
+        "id": "profileRevolve",
+        "chooseWhen": "绕显式世界轴旋转已有精确截面，保留来源并指定材料运算。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:04e75aa784eed5a47ee50f9c424990a60656f708c4cff1bfbd087913c656c7b0"
 }

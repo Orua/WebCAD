@@ -540,7 +540,7 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -565,5 +565,33 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:888191180fe500517d6700f994d6442a8b28be555ec15c358a12e87652d5f2c3"
+  "selectionGuide": {
+    "groupId": "bar-frames",
+    "groupTitle": "双窗与带横杆框",
+    "chooseWhen": "正视鼓弧侧边与跑道形孔的平板双窗；不是侧视圆筒拱弯。",
+    "alternatives": [
+      {
+        "id": "template.twinWindowPlate",
+        "chooseWhen": "平板一体对称双窗；中横条是板的一部分。"
+      },
+      {
+        "id": "template.sliderBuckle",
+        "chooseWhen": "圆线矩形框加固定圆横杆；横杆可偏移，不是平板双窗。"
+      },
+      {
+        "id": "template.ringBar",
+        "chooseWhen": "圆形恒截面框加固定圆杆；杆沿 X，可按 Y/Z 偏移。"
+      },
+      {
+        "id": "template.ellipseBar",
+        "chooseWhen": "内孔真椭圆的圆线框加居中固定圆杆。"
+      },
+      {
+        "id": "template.archedTwinWindowPlate",
+        "chooseWhen": "双窗板沿圆筒薄壁形成侧向拱弯；径向厚度不同于平板厚度。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:dec0a90da94b610a63df803a6b02442a303663f89674889081acf82402a3b9f3"
 }

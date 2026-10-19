@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.52.2 · sha256:54bad628efbec4b411b64feaa21330ba1ef61f220498eba389f0b9323bea2a2a
+API 1.52.3 · sha256:45dcf7494d3c3acce61b7f78f42440f1c92e37f5f4c2df2d55f16277bb93a707
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -1401,6 +1401,7 @@ files.release: contextPolicy=none
 
 ## api.knowledge-cache
 
+工具辨识与纠错：同一个叫法或近似名称可能对应多个工具；先比较候选工具的用途、结构、截面、参数含义和不适用情况，不能凭第一个名称相似的结果直接选用。全目录的结构、输入、结果及操作阶段区别见 api.tool-selection 和每张工具卡的 selectionGuide。用户指出选错时重新核对候选卡；只删除或撤销本次误建项，保留原有工程。删除、撤销和添加都使用公开 API 与真实回执，不能因担心选错而拒绝普通建模。具体程序错误应报告并保留当前工程，不凭空解释为权限限制。
 首次握手本地知识库与路由
 connect().onboarding.knowledge.policy=required-on-first-handshake。Agent首次连接当前WebCAD来源后，下载automation/agent-knowledge.json，再下载清单内index.json、agent-routing.json、routes.json到宿主存储；逐文件验证SHA-256和字节数。只把轻量路由及命中的完整文档/工具卡送进模型上下文，不打印1–2MiB全库。没有宿主下载或存储能力时报告具体限制，不假称已下载，也不为此安装后台服务。
 缓存按当前页面base URL、catalogHash、docsHash隔离。重连时哈希匹配且本地文件验证成功就复用；变更、缺文件或损坏时更新完整包。调用仍读新鲜context，静态库不包含活文档、当前实体编号或拓扑快照。静态库里的示例编号不是当前ID。
@@ -3980,6 +3981,425 @@ files.release: contextPolicy=none
 ## api.text-command
 
 executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口，不执行任意 JS 或 shell。每行一条，最多 20 行、总长 16384 字符。语法：add <操作ID> key=value ...；measure <bodyId|$last>。示例：add box width=30 depth=20 height=2.5 name="牌子"，下一行 measure $last。复杂参数可用 JSON 值，例如 points=[[[0,0,0],[1,0,0],[2,0,0]],[[0,1,0],[1,1,0],[2,1,0]],[[0,2,0],[1,2,0],[2,2,0]]]。refs 可用 JSON 数组或 $last。dryRun:true 仅返回解析后的步骤；正常执行交给同一 api.run/CommandService，返回逐步回执，非原子，已提交步骤保留。每次执行需新 idempotencyKey，重试同一请求可复用原 key。
+
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+probeBlendRadius: contextPolicy=identity
+recoverKernel: contextPolicy=revision
+sampleMeshRelief: contextPolicy=identity
+getModelLibrary: contextPolicy=none
+updateModelLibrary: contextPolicy=revision
+resolveModelLibrary: contextPolicy=identity
+planPatternMachining: contextPolicy=identity
+decideServicesWait: contextPolicy=none
+recoverServicesJob: contextPolicy=none
+prepareReliefTopologyUpgrade: contextPolicy=identity
+sampleReliefHeight: contextPolicy=identity
+prepareReliefSculpt: contextPolicy=identity
+readRelief: contextPolicy=identity
+getHistory: contextPolicy=none
+planAlignment: contextPolicy=identity
+selectRectangle: contextPolicy=identity
+createDrawing: contextPolicy=revision
+exportDrawing: contextPolicy=revision
+getQuickModelUsage: contextPolicy=none
+copySelection: contextPolicy=revision
+pasteSelection: contextPolicy=revision
+createRequestContext: contextPolicy=none
+getUILayout: contextPolicy=none
+setRenderQuality: contextPolicy=identity
+invoke: contextPolicy=none
+submit: contextPolicy=none
+getJob: contextPolicy=none
+cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
+connect: contextPolicy=none
+info: contextPolicy=none
+getState: contextPolicy=none
+searchTools: contextPolicy=none
+getTools: contextPolicy=none
+getTool: contextPolicy=none
+readDocs: contextPolicy=none
+queryGeometry: contextPolicy=identity
+queryReferences: contextPolicy=identity
+resolvePlacement: contextPolicy=identity
+execute: contextPolicy=revision
+measure: contextPolicy=identity
+measureRelation: contextPolicy=identity
+inspectDesign: contextPolicy=identity
+inspectPrintability: contextPolicy=identity
+inspectProfile: contextPolicy=identity
+prepareProfileEdit: contextPolicy=identity
+inspectConstraints: contextPolicy=identity
+projectProfile: contextPolicy=identity
+inspectFit: contextPolicy=identity
+inspectThickness: contextPolicy=identity
+inspectDraft: contextPolicy=identity
+inspectRound: contextPolicy=identity
+readVector: contextPolicy=identity
+connectVector: contextPolicy=none
+fitProfile: contextPolicy=identity
+traceTwinWindow: contextPolicy=identity
+executeText: contextPolicy=revision
+setDisplayPreferences: contextPolicy=identity
+getAgentPanel: contextPolicy=none
+configureAgentPanel: contextPolicy=revision
+setAgentPanel: contextPolicy=revision
+getServices: contextPolicy=none
+setServices: contextPolicy=revision
+getServicesCapabilities: contextPolicy=none
+getServicesRouting: contextPolicy=none
+clearServicesCredential: contextPolicy=revision
+getServicesJob: contextPolicy=none
+getServicesRequest: contextPolicy=none
+cancelServicesJob: contextPolicy=revision
+getLogoConverter: contextPolicy=none
+setLogoConverter: contextPolicy=revision
+convertLogoPdf: contextPolicy=revision
+setView: contextPolicy=identity
+redraw: contextPolicy=identity
+capture: contextPolicy=identity
+run: contextPolicy=revision
+files.capabilities: contextPolicy=none
+files.register: contextPolicy=none
+files.new: contextPolicy=none
+files.open: contextPolicy=revision
+files.import: contextPolicy=revision
+files.save: contextPolicy=revision
+files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
+files.read: contextPolicy=none
+files.download: contextPolicy=none
+files.write: contextPolicy=none
+files.confirmWritten: contextPolicy=none
+files.release: contextPolicy=none
+
+## api.tool-selection
+
+工具选择：相同或近似叫法可能属于不同结构、输入、结果或操作阶段。先读候选的 selectionGuide，比较输入几何、路径与截面、参数量纲、加减料/只读/提交的区别；再读取候选完整合同。不得按名称第一命中直接选型，不把预览/规划/文件生成冒充提交/写盘。用户纠正时核对并编辑、撤销或删除本次误建项，保留其它工程内容。此说明不新增执行限制。
+
+## 基础实体与参数模型
+- box：用宽、深、高创建长方体；不是空壳或带孔板。
+- cylinder：用半径、高度创建实心直圆柱；圆筒用内外径模板。
+- cone：用两端半径和高度创建圆锥或圆台。
+- sphere：单一半径的球；三轴半径独立时用 ellipsoid。
+- ellipsoid：三个独立半轴的精确椭球；不是球的显示拉伸。
+- torus：中心线大半径与截面小半径定义的圆截面闭环。
+- quickModel：参数模板的执行入口；先比较 template.* 具体结构，再传 kind；不是任意形状生成器。
+
+## 环、环片及开口圈
+- template.washer：平面环片；径向宽度与轴向高度独立，不是圆线环。
+- template.ring：同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。
+- template.openArcRing：按开口角度截取的圆弧 C 环；与按线性缝宽切口不同。
+- template.ellipseOpenWire：内孔真椭圆、圆线截面及底部平切缝；不是外轮廓真椭圆。
+- template.ellipseSectionRing：圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。
+- template.keyRing：双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。
+- template.ovalBuckle：四段相切圆弧组成的旦形环；不是数学椭圆或两端半圆的跑道圈。
+- template.capsuleWire：跑道路径（两端半圆、两条直边）的圆线闭环。
+- template.profileLoop：跑道路径的方/扁线截面；正面料宽、侧面厚度、截面 R 独立。
+
+## 矩形框与截面
+- template.flatFrame：平板矩形框，内外轮廓和板厚独立；可形成跑道孔。
+- template.roundedFlatFrame：平面框加三维棱边圆角；内外平面 R 与棱边 R 不同。
+- template.rectBuckle：恒截面圆角矩形线框，按线径/截面沿中心线路径扫掠。
+- template.ellipseSectionRectFrame：圆角矩形路径加椭圆截面；孔角 R 不是截面深度或截面 R。
+
+## D形、U形与开口框
+- template.dFlatFrame：平板 D 框；板厚、内外平面轮廓与底部切口独立。
+- template.dBuckle：半圆冠、直腿和底弯组成的恒截面 D 框；内高量到横杠上沿。
+- template.dBarBuckle：方线 U 主体与固定圆横杆融合；主框和横杆截面不同。
+- template.archedBridge：圆线直腿加半圆冠的开口拱桥，可选端部轴向光孔。
+- template.squareArchedBridge：平顶方线 U 桥；内外转角、前后厚度及棱边 R 独立。
+- template.uEndHolePlate：单片平板 U 轮廓，两腿末端沿板厚贯穿孔；不是圆杆拱桥。
+- template.gableOpenFrame：斜肩屋顶轮廓的开口平板框；肩高和峰高独立，不是半圆冠。
+- template.arcBandPlate：同心圆弧带板与两端孔；按角度截取的环段，不是两腿 U 框。
+
+## 双窗与带横杆框
+- template.twinWindowPlate：平板一体对称双窗；中横条是板的一部分。
+- template.sliderBuckle：圆线矩形框加固定圆横杆；横杆可偏移，不是平板双窗。
+- template.ringBar：圆形恒截面框加固定圆杆；杆沿 X，可按 Y/Z 偏移。
+- template.ellipseBar：内孔真椭圆的圆线框加居中固定圆杆。
+- template.archedTwinWindowPlate：双窗板沿圆筒薄壁形成侧向拱弯；径向厚度不同于平板厚度。
+- template.bowedTwinWindowPlate：正视鼓弧侧边与跑道形孔的平板双窗；不是侧视圆筒拱弯。
+
+## 孔板、凸柱板与薄壁壳
+- template.mountingPlate：平板上两个对称贯穿光孔；孔中心距独立。
+- template.fourHolePlate：平板四角贯穿光孔；边距与外角 R 独立。
+- template.bossPlate：平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。
+- template.thinWallTray：顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。
+- template.roundedBossTray：圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。
+- template.roundBadge：圆形牌体、边框与背柱组合；不是只有两个通孔的底片。
+- template.ironFoot：顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。
+- template.uStrapClip：恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。
+
+## 面框与两件式鸡眼
+- template.frameEyelet：单件面框、短颈与安装柱及直孔；不是两件套或内螺纹。
+- template.twoPieceEyelet：薄壁翻边长脚件与底片两件套；平面/弧面可选，不模拟压铆变形。
+- template.alloyEyelet：实体合金面框与底片两件套；独立实体与套接间距，不是薄皮翻边结构。
+
+## 钉、针与独立连接件
+- template.domedPin：单件平底凸面钉头，直径与拱高独立。
+- template.nippleStud：头、颈、底座及配套槽头杆的两件组合；名义孔/杆不代表真实牙型。
+- template.mushroomRivet：蘑菇盖空心套筒及腰形钉脚两件套，可装配或拉开展示。
+- template.buckleTongue：独立环头扁针，长度从轴心到针尖；不含扣框。
+- template.pullCoreBar：独立活动芯，中间扁带连接两端开放卷眼；不与扣框融合。
+- template.hangingRod：水平圆杆与上方收窄 U 吊环融合；不是独立扁针或卷眼芯。
+
+## 筒、螺纹与弹簧模板
+- template.tube：同轴光孔圆筒，用内外径与高度定义；无凸缘或牙型。
+- template.flangedBushing：带法兰的光孔轴套，孔贯穿；不是内螺纹丝筒。
+- template.threadedSleeve：支持名义 M 粗牙的内螺纹筒；面端朝本地 -Z。
+- template.screw：螺钉头与真实 V 槽牙杆；头在下端、杆朝本地 +Z；不包含配合公差。
+- template.spring：参数化圆线螺旋弹簧；半径为中心线半径、螺距须大于线径。
+- template.counterboreTool：用于后续布尔切削的沉孔/沉头孔刀具实体；创建刀具本身不等于已在目标上打孔。
+
+## 链环的空间结构
+- template.oChain：平面椭圆孔圆线链环；外宽外长不是内孔尺寸。
+- template.twistedChain：链环具有对角高低起伏及扭转曲面；不是平面圈整体旋转。
+- template.groundChain：扭链上下平磨，保留圆线侧面；磨后总厚不是原线径，也不是压扁。
+
+## 轮廓创建、提取与修复
+- sketchProfile：保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。
+- vectorProfile：从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。
+- arcProfile：由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。
+- faceBoundary：提取已有面的外环或全部边界线框；选 outer 会排除内孔。
+- planeSection：取实体与指定平面的真实交线；不是表面边界或剖切显示。
+- profileOffset：对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。
+- profileRepair：在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。
+- profileConstraints：求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。
+- readVector：读取已登记矢量资源/文本并解析来源，尚未创建实体。
+- connectVector：将显式解析图元连接成闭环；不读取文件，不猜缺失边。
+- fitProfile：从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。
+- traceTwinWindow：根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。
+- projectProfile：将当前选定边投影为派生解析轮廓，保留来源关系。
+- prepareProfileEdit：计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。
+
+## 拉伸与旋转成型
+- extrude：按参数定义的闭合轮廓及所选平面法向拉伸。
+- referenceExtrude：复用已有闭合精确线框/平面面，按世界向量拉伸，保留来源；带孔须用面。
+- profileExtrude：对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。
+- faceExtrude：推拉已有实体的一张平面面，沿其法向改体；不是独立轮廓拉伸。
+- revolve：旋转参数闭合轮廓，按工具定义的轴及角度创建。
+- profileRevolve：绕显式世界轴旋转已有精确截面，保留来源并指定材料运算。
+
+## 扫掠、放样及导向曲面
+- sweep：参数截面沿显式三维折线路径扫掠；折线路径不同于精确曲线来源。
+- curveSweep：沿解析/曲线脊线扫掠恒截面或有序自定义截面，可用旋转最小标架。
+- profileSweep：复用已保存截面及精确路径；保留面孔，显式决定新建/加减料。
+- loft：平行 XY 参数轮廓间的直纹放样。
+- referenceLoft：复用 2–12 个有序精确单外环截面，保留来源；不支持截面内孔。
+- profileLoft：2–12 个已保存精确截面依次成型，明确新建/材料运算。
+- advancedLoft：手工定义 XY 截面序列，生成实体或开放壳。
+- guidedLoft：显式截面标架、边界导向与来源 G1/G2 信息；不是仅靠截面插值。
+
+## 曲面、壳与厚度
+- fittedSurface：由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。
+- subdBody：由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。
+- extractFaces：复制明确选定面，保留孔及来源；不自动缝合或补洞。
+- extractShell：按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。
+- sewFaces：按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。
+- thickenFace：一张来源面沿法向加厚成新实体。
+- offsetSurface：复制一张面并做法向偏移，结果仍是面，保留源对象。
+- offsetSolid：整体偏移一个实体的所有边界面；不是只移单面或抽空。
+- shell：从实体移除指定面并抽壳；不是独立面的加厚。
+- surfaceTrim：用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。
+
+## 布尔、分割与组合
+- union：融合实体并去除重叠内部；与只分组不同。
+- cut：从首个目标实体减去后续刀具；目标/刀具顺序有意义。
+- intersect：保留输入实体公共体积，不是切除或分组。
+- meshBoolean：三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。
+- group：组合为复合体但不融合；各实体重叠不会消除。
+- split：用显式世界平面分割实体；不是拆出已有独立 solid。
+- extractSolid：从复合体按索引提取一个已有实心体。
+- body.explode：将多实心体组合一次拆为独立对象；不是布尔分割。
+- refineShape：合并同域面和冗余分割边；不改变成型目标或修补任意坏体。
+- remove：兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。
+- feature.remove：删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。
+- body.visibility：仅改显隐，几何与依赖保留；不是删除。
+
+## 实体、相机与对齐
+- transform：按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。
+- copy：复制实体后施加变换，原件保留；不是直接移动。
+- mirror：关于指定坐标平面及偏置镜像；不是绕轴旋转。
+- linearPattern：按直线方向和间距阵列，显式复合或融合。
+- circularPattern：按中心轴和角度圆周阵列，显式复合或融合。
+- body.align：执行沿世界轴的实体平移对齐，提交几何历史。
+- planAlignment：只计算对齐位移方案；需 body.align 才执行。
+- copySelection：复制当前明确实体到页面剪贴板；尚未新增对象。
+- pasteSelection：将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。
+- resolvePlacement：只解析来源锚点到目标定位的变换；尚未添加或移动实体。
+
+## 孔、槽、凸台与车削
+- hole：从世界坐标起点沿方向切圆孔。
+- faceHole：从指定平面面向内打孔，定位依据当前面。
+- holeWizard：直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。
+- multiHole：在多个世界起点依次切圆孔；不是孔向导的孔型选择。
+- slot：切两半圆加两直边的胶囊形槽。
+- faceGroove：在指定平面面上铣矩形凹槽。
+- multiPocket：多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。
+- multiBoss：向实体融合多个实心圆柱凸台，是加料。
+- innerTurn：在指定平面截面处移除内圆柱材料形成内孔。
+- outerTurn：在指定深度内去除给定直径以外材料形成外车。
+- draftFaces：受限四侧平面棱柱拔模，固定底平面。
+- draftByPlane：绕明确中性平面对选定解析面拔模；不默认扩大为全体。
+- tap：从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。
+- thread：在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。
+- helix：创建精确螺旋线框，本身不是弹簧实心体。
+- coil：沿精确螺旋线扫掠圆截面成单个弹簧实体。
+
+## 圆角、端头与平滑过渡
+- fillet：按精确 R 对选边、面边界或整件尖边倒圆。
+- autoRound：按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。
+- round：统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。
+- roundEnd：按杆件截面重建自由端头；不等于普通固定 R 倒圆。
+- rounding：既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。
+- smoothTransition：多相邻面联合处理公共尖缝，生成真实过渡面。
+- chamfer：直线切角，支持等距/双距/角度；不是弧形圆角。
+- probeBlendRadius：只探测指定范围内可行半径并返回证据；不提交倒圆。
+- inspectRound：只读检查当前倒圆选择/范围；不是执行或自动缩小半径。
+- badge：把指定平面面加厚成带边缘圆角的牌体。
+- bumpSet：向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。
+
+## LOGO、矢量浮雕与网格精修
+- logo：在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。
+- curvedLogo：旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。
+- relief：精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。
+- meshHeightfieldRelief：高度图生成三角网格浮雕；图像亮度须先解释成设计高度。
+- meshReliefPlate：创建网格浮雕底板，不是修高既有浮雕。
+- meshReliefEdit：对已有网格浮雕局部修高；不生成精确 BRep 曲面。
+- reliefShoulder：已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。
+- reliefSculpt：精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。
+- heightfieldSculpt：高度图精修发现入口；用 feature.edit 更新原特征。
+- prepareReliefSculpt：准备有明确 domain/mask 的精修草稿，尚未应用。
+- prepareReliefTopologyUpgrade：评估/准备浮雕拓扑升级；不等同已提交升级成功。
+- sampleReliefHeight：读取浮雕参数/草稿指定点的控制高度，不是修改高度。
+- sampleMeshRelief：按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。
+- readRelief：读取已登记高度图资源及采样定义，尚未创建浮雕实体。
+- planPatternMachining：根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。
+
+## 测量、拓扑与质量检查
+- measure：读取一个体/面/边的尺寸面积体积，或明确点间距离。
+- measureRelation：读取两个目标的最短距、中心距、平行度、轴关系等相互关系。
+- queryGeometry：按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。
+- queryReferences：查询点、轴、标架等几何参考；不直接修改工作锚点。
+- inspectDesign：按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。
+- inspectFit：检查两体干涉/配合关系；不是单体壁厚。
+- inspectThickness：沿明确射线测局部厚度；不代表整件最小壁厚证明。
+- inspectDraft：按指定脱模方向检查拔模；不是修改斜度。
+- inspectPrintability：按过程合同检查打印相关几何；不能替代一般产品验收。
+- inspectProfile：只读解析轮廓的闭合、交点等情况，不修复图元。
+- inspectConstraints：只读已有轮廓约束及自由度；求解修改用 profileConstraints。
+
+## 历史、编辑与恢复
+- getHistory：列出保留状态 ID；不是完整几何文件，也不会撤销。
+- history.undo：撤销最近一次已提交操作；不是删除任意历史状态。
+- history.redo：重做刚被撤销的操作；新编辑可能清空重做栈。
+- history.restore：恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。
+- feature.edit：修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。
+- feature.add：按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。
+- feature.addMany：一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。
+- document.parameters：设置命名参数/表达式并联动尺寸；不是显示精度设置。
+- document.refresh：重建当前工程历史，不回到更早状态、不重启内核。
+- recoverKernel：重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。
+
+## 未提交预览生命周期
+- preview.start：新建几何/原特征编辑/文件插入草稿，尚未提交工程。
+- preview.update：更新同一个 previewId 的当前代次草稿，旧代次不可应用。
+- preview.commit：将指定当前草稿应用为一次历史操作。
+- preview.cancel：丢弃未提交草稿，不删除已提交实体、不增加几何修订。
+
+## 插入锚点与对象参考
+- reference.setWorkFrame：设置后续插入的工作锚点位置/方向，不移动已有实体。
+- reference.resetWorkFrame：只重置指定的位置、方向或全部工作锚点。
+- reference.setLocked：锁定工作锚点的自动避让，仍为可撤销参考元数据。
+- reference.saveFrame：将明确标架保存为具名参考，不等于激活。
+- reference.activateFrame：将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。
+- reference.renameFrame：只改具名标架名称，须用当前标架版本。
+- reference.deleteFrame：删除具名标架记录，已冻结特征不受影响。
+- reference.setBodyAnchor：在指定实体上创建/更新对象锚点；不同于全局插入锚点。
+- reference.deleteBodyAnchor：删除对象锚点元数据，不删除实体。
+
+## 名称、外观与显示
+- document.rename：只改工程名，不改每个实体名称。
+- feature.rename：只改指定历史步骤及同 ID 实体名称。
+- body.appearance：指定实体颜色/材质覆盖，保存于工程且可撤销。
+- document.appearance：工程材质默认覆盖，仅作用于无单独覆盖的实体。
+- setDisplayPreferences：浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。
+- setView：相机、投影、显示、选择及剖切视图；不移动几何或执行切割。
+- setRenderQuality：调整显示网格质量，不改变精确几何精度。
+- redraw：重绘当前显示，不重建特征历史。
+- selectRectangle：按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。
+- capture：生成当前已渲染画面的截图资源，不导出三维几何。
+- getUILayout：读界面区域及动作映射，不代表当前几何状态。
+
+## 连接、目录与文档
+- connect：握手取得版本、能力、当前上下文及候选工具；不等于执行建模。
+- info：读页面版本、能力与显示修订，不返回完整工程。
+- getState：读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。
+- createRequestContext：从当前或给定身份生成写入上下文，不修改 revision。
+- searchTools：按名称/用途检索候选摘要；排名第一不等于选型正确。
+- getTool：取一个工具完整合同；不执行该工具。
+- getTools：批量取具体 ID 的完整卡并检查静态哈希，不是搜索。
+- readDocs：按登记 docId 读工作流说明；多页须按 cursor 读取。
+- getModelLibrary：读可用模型库条目及版本，不插入实体。
+- updateModelLibrary：修改支持的显示排序/恢复等库设置；不是修改模型源码。
+- resolveModelLibrary：解析指定库项及参数到可执行定义，尚未创建。
+- getQuickModelUsage：只读本浏览器已成功创建次数，非产品覆盖率。
+
+## 执行、批次与异步作业
+- execute：提交一个明确 action 的命令；不接收任意脚本。
+- run：按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。
+- invoke：公开方法的结构化调用封装；不是任意函数/代码执行。
+- executeText：执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。
+- submit：提交一个具有 jobId 的异步页面作业，须追踪原 job。
+- getJob：只读页面异步作业原回执；未知写入先查，不重复提交。
+- awaitJob：等待同一个页面 job 结束；超时返回当前状态，不取消或重提。
+- waitFor：等待指定修订变化或 job 变化；不是持续执行建模。
+- cancelJob：请求取消指定页面作业；是否停止/提交以最终回执为准。
+
+## 统一服务与远程作业
+- getServices：读统一 Services 配置及授权状态，不代表服务支持全部操作。
+- setServices：设置统一服务地址、凭证与模式；配置不等于能力验收。
+- clearServicesCredential：清除当前服务授权，不删除工程或服务器任务。
+- getServicesCapabilities：读已配置后端实际协议与能力，不能用工具名猜支持。
+- getServicesRouting：读实际分流规则和最近决策；不是强制把所有操作转远程。
+- feature.compileServices：按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。
+- getServicesJob：读远程 Services job；与页面 getJob 的作业域不同。
+- getServicesRequest：按原幂等键查询远程接收记录，用于断线未知结果对账。
+- cancelServicesJob：对指定远程 job 请求受控停止，不等于暂停内核。
+- decideServicesWait：对等待中的原 job 继续或停止；继续不会重新提交计算。
+- recoverServicesJob：按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。
+- getLogoConverter：旧配置读取兼容入口，委托统一 Services；不是独立授权。
+- setLogoConverter：已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。
+- convertLogoPdf：通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。
+
+## 助手面板
+- getAgentPanel：读助手面板配置与显示状态，不发起建模任务。
+- configureAgentPanel：配置助手页面地址，不代表已经连接或控制当前工程。
+- setAgentPanel：按已有配置显示/断开助手面板；与几何 API 操作分离。
+
+## 文件登记、打开与导入
+- files.capabilities：读文件格式、大小与宿主写入能力，不证明某文件已读到。
+- files.register：登记获授权原始字节，返回资源 ID；尚未打开/导入。
+- files.new：新建空工程并替换当前设计；不默默丢弃未保存更改。
+- files.open：替换整个当前设计，原工程文件可带历史；不是合并插入。
+- files.import：把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。
+- import：旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。
+- import.iges：当前静态版不可用的 IGES 入口；不能宣称直接导入成功。
+- import.vector-server：当前静态版不可用的旧服务端矢量入口；应查当前 readVector/Services 实际能力。
+
+## 工程保存、导出与送达
+- files.save：生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。
+- files.export：生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。
+- files.read：读取现有资源字节/Blob，不重新计算或证明磁盘写入。
+- files.download：发起浏览器下载生成资源，只证明下载动作已启动。
+- files.write：通过已授权文件句柄写盘；结果仍须按合同回读核验。
+- files.confirmWritten：核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。
+- files.reattach：把尚未过期的同一产物重新附加送达，不重算几何。
+- files.release：释放临时资源；不删除工程实体或已下载磁盘文件。
+- createDrawing：按当前几何创建投影、剖视和尺寸工程图定义。
+- exportDrawing：导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 probeBlendRadius: contextPolicy=identity
@@ -14337,7 +14757,43 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:ea112bfa85a48426d92260e98ebbe9981bdc6425c90b082a84611e9c6ed35eaa"
+  "selectionGuide": {
+    "groupId": "sweep-loft",
+    "groupTitle": "扫掠、放样及导向曲面",
+    "chooseWhen": "手工定义 XY 截面序列，生成实体或开放壳。",
+    "alternatives": [
+      {
+        "id": "sweep",
+        "chooseWhen": "参数截面沿显式三维折线路径扫掠；折线路径不同于精确曲线来源。"
+      },
+      {
+        "id": "curveSweep",
+        "chooseWhen": "沿解析/曲线脊线扫掠恒截面或有序自定义截面，可用旋转最小标架。"
+      },
+      {
+        "id": "profileSweep",
+        "chooseWhen": "复用已保存截面及精确路径；保留面孔，显式决定新建/加减料。"
+      },
+      {
+        "id": "loft",
+        "chooseWhen": "平行 XY 参数轮廓间的直纹放样。"
+      },
+      {
+        "id": "referenceLoft",
+        "chooseWhen": "复用 2–12 个有序精确单外环截面，保留来源；不支持截面内孔。"
+      },
+      {
+        "id": "profileLoft",
+        "chooseWhen": "2–12 个已保存精确截面依次成型，明确新建/材料运算。"
+      },
+      {
+        "id": "guidedLoft",
+        "chooseWhen": "显式截面标架、边界导向与来源 G1/G2 信息；不是仅靠截面插值。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4b6d220581126827d1cfb9b4311159e83a9ac6e853dca28e4434d5a567cdcaf2"
 }
 ```
 
@@ -15107,7 +15563,75 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0b409f4f723627b23f3f2abb54ecf6e7be82e64c927d5709bec9896ae17913ac"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      },
+      {
+        "id": "extrude",
+        "chooseWhen": "按参数定义的闭合轮廓及所选平面法向拉伸。"
+      },
+      {
+        "id": "profileExtrude",
+        "chooseWhen": "对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:35f55b0594b4d2284b5b4b1d87bb9d750142bb790d6a2d71438dc0f59440358d"
 }
 ```
 
@@ -15547,7 +16071,55 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:42f8154a3a47d1a567bcc6da5d9f167c690f1b845c5274ff114eb0cada747c44"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:21fbe48714129b3b836a9b92dcf2d573b2a592eb8603b001d77d19fd978dc611"
 }
 ```
 
@@ -16133,7 +16705,55 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:855729c54eee4384803b06a021e6feabced05fb9ea6b308eab5168a088f3e627"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c3bceb8651478e465b7f89adb8c12ff550567e08b5661d158950b8e61e47ef2b"
 }
 ```
 
@@ -16610,7 +17230,39 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:33e5a299b30f323b2425ed1149b43bccf4d00df3e43acd182b2a2d563a674b1a"
+  "selectionGuide": {
+    "groupId": "primitives",
+    "groupTitle": "基础实体与参数模型",
+    "chooseWhen": "用宽、深、高创建长方体；不是空壳或带孔板。",
+    "alternatives": [
+      {
+        "id": "cylinder",
+        "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。"
+      },
+      {
+        "id": "cone",
+        "chooseWhen": "用两端半径和高度创建圆锥或圆台。"
+      },
+      {
+        "id": "sphere",
+        "chooseWhen": "单一半径的球；三轴半径独立时用 ellipsoid。"
+      },
+      {
+        "id": "ellipsoid",
+        "chooseWhen": "三个独立半轴的精确椭球；不是球的显示拉伸。"
+      },
+      {
+        "id": "torus",
+        "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。"
+      },
+      {
+        "id": "quickModel",
+        "chooseWhen": "参数模板的执行入口；先比较 template.* 具体结构，再传 kind；不是任意形状生成器。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:3cf169c0efea5a4a27a9e0ce420c65ca905f05748fad0f6d72cf1e205794158a"
 }
 ```
 
@@ -17223,7 +17875,55 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:570646a470c2c0deddafe5e311ab988fc713ab65407e1adaa7d338599f8f452c"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:33f3883c4a3c38d6e577946649f5741ebedc328e800fbcbdaedb5676f0f69b47"
 }
 ```
 
@@ -17924,7 +18624,55 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:5803ec103b4d63aa6156c2fd769accdf47a7b366fc56a93d830160cef2fad258"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e41fbdbdf34c25cf557fcc369734e61f2fa6d35b1ea6ea0fcb5a9fe8f5d7dfa9"
 }
 ```
 
@@ -18491,7 +19239,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:9d584a2828d21da51e018e008fb1bb3f040bce83efbe5f50a59f4dd86fe7044a"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:ef4e9bcafb56ef7f97842b72ebde09da62c7359857d83be560dda81eab4f5b67"
 }
 ```
 
@@ -19005,7 +19797,79 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f77366ee1164da10a8dcc0bdff4a2a376e7fc16599f2528839f7b3ec5eec7368"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "template.spring",
+        "chooseWhen": "参数化圆线螺旋弹簧；半径为中心线半径、螺距须大于线径。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4a09f9d2aa8229b27e81241668fdf74be0e1fb1cb80adcbd9f7ea088a2035572"
 }
 ```
 
@@ -19504,7 +20368,39 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:3d9d5825f10e4c090584a897f13719caff29c2f93c5adaf41535cee44bdb4b1a"
+  "selectionGuide": {
+    "groupId": "primitives",
+    "groupTitle": "基础实体与参数模型",
+    "chooseWhen": "用两端半径和高度创建圆锥或圆台。",
+    "alternatives": [
+      {
+        "id": "box",
+        "chooseWhen": "用宽、深、高创建长方体；不是空壳或带孔板。"
+      },
+      {
+        "id": "cylinder",
+        "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。"
+      },
+      {
+        "id": "sphere",
+        "chooseWhen": "单一半径的球；三轴半径独立时用 ellipsoid。"
+      },
+      {
+        "id": "ellipsoid",
+        "chooseWhen": "三个独立半轴的精确椭球；不是球的显示拉伸。"
+      },
+      {
+        "id": "torus",
+        "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。"
+      },
+      {
+        "id": "quickModel",
+        "chooseWhen": "参数模板的执行入口；先比较 template.* 具体结构，再传 kind；不是任意形状生成器。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:213dcdf69989b06e87df574362b556c78998349f3dcd016fa36b7ef231ae3524"
 }
 ```
 
@@ -20412,7 +21308,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:954eb3ca8c0b23bd8ef72af9c08f2df7db1b5f6c3c248cf4d62ef0e76dd9d819"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:5e60fd3ea673bdf497736e603ec1bb13cba48f511f7a4bcb3fe71acafbb7858a"
 }
 ```
 
@@ -21899,7 +22839,43 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:cca42175c4fadaa92bd3506533ed59459dfcf6708065068276ceab498ee6e8a9"
+  "selectionGuide": {
+    "groupId": "sweep-loft",
+    "groupTitle": "扫掠、放样及导向曲面",
+    "chooseWhen": "沿解析/曲线脊线扫掠恒截面或有序自定义截面，可用旋转最小标架。",
+    "alternatives": [
+      {
+        "id": "sweep",
+        "chooseWhen": "参数截面沿显式三维折线路径扫掠；折线路径不同于精确曲线来源。"
+      },
+      {
+        "id": "profileSweep",
+        "chooseWhen": "复用已保存截面及精确路径；保留面孔，显式决定新建/加减料。"
+      },
+      {
+        "id": "loft",
+        "chooseWhen": "平行 XY 参数轮廓间的直纹放样。"
+      },
+      {
+        "id": "referenceLoft",
+        "chooseWhen": "复用 2–12 个有序精确单外环截面，保留来源；不支持截面内孔。"
+      },
+      {
+        "id": "profileLoft",
+        "chooseWhen": "2–12 个已保存精确截面依次成型，明确新建/材料运算。"
+      },
+      {
+        "id": "advancedLoft",
+        "chooseWhen": "手工定义 XY 截面序列，生成实体或开放壳。"
+      },
+      {
+        "id": "guidedLoft",
+        "chooseWhen": "显式截面标架、边界导向与来源 G1/G2 信息；不是仅靠截面插值。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:0f87ded509751f0ed95585e9512a922892edb62335b0c801d8c64269298c6da4"
 }
 ```
 
@@ -22889,7 +23865,71 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:2e7e61dc48758452e91a7a755db414b304f17f587b1a74b6162364027454725a"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:67aa360454e5ed3afadd1aeb3e4b06016c01e52ea6a1a70de12d4c79ad92106b"
 }
 ```
 
@@ -23390,7 +24430,67 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:c85ee24113d9a2b03a34ed471e5820d16d459f0fd2aa348936c4cf13d9e1cbe8"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "template.counterboreTool",
+        "chooseWhen": "用于后续布尔切削的沉孔/沉头孔刀具实体；创建刀具本身不等于已在目标上打孔。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:74fbd3c241058d81308e9506cd88e0de9ab25de2a5217d72bca8fb2afc08c162"
 }
 ```
 
@@ -23842,7 +24942,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:a65e745d6608744823aa648b204a0d1e9b937a9b8a0548d62ab0f22f6d987187"
+  "selectionGuide": {
+    "groupId": "primitives",
+    "groupTitle": "基础实体与参数模型",
+    "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。",
+    "alternatives": [
+      {
+        "id": "box",
+        "chooseWhen": "用宽、深、高创建长方体；不是空壳或带孔板。"
+      },
+      {
+        "id": "cone",
+        "chooseWhen": "用两端半径和高度创建圆锥或圆台。"
+      },
+      {
+        "id": "sphere",
+        "chooseWhen": "单一半径的球；三轴半径独立时用 ellipsoid。"
+      },
+      {
+        "id": "ellipsoid",
+        "chooseWhen": "三个独立半轴的精确椭球；不是球的显示拉伸。"
+      },
+      {
+        "id": "torus",
+        "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。"
+      },
+      {
+        "id": "quickModel",
+        "chooseWhen": "参数模板的执行入口；先比较 template.* 具体结构，再传 kind；不是任意形状生成器。"
+      },
+      {
+        "id": "template.tube",
+        "chooseWhen": "同轴光孔圆筒，用内外径与高度定义；无凸缘或牙型。"
+      },
+      {
+        "id": "template.flangedBushing",
+        "chooseWhen": "带法兰的光孔轴套，孔贯穿；不是内螺纹丝筒。"
+      },
+      {
+        "id": "template.threadedSleeve",
+        "chooseWhen": "支持名义 M 粗牙的内螺纹筒；面端朝本地 -Z。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:99a29ddb837b616127d62c2641754eb0159870efa263deab9fdc15630ee25fec"
 }
 ```
 
@@ -24475,7 +25619,79 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:a8d3ee01efe298a9f10f53f8a75b313e6fd01eae76a6a33f2f23068ef153e950"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2fb5aa21b57b5ef5fa2ead113ad84871610f84ebd6916f49681e0cb96a816ba0"
 }
 ```
 
@@ -25048,7 +26264,79 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:7d4161732f86af2bbd461cc81e015f1d666a33997c74ea804d6114e9a358ff63"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:8a12a292fbab8c4e4b02912d5ede45c02df34341c602dad30b3fb16578fdd14a"
 }
 ```
 
@@ -25528,7 +26816,39 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:d59750d3ac062167ad88ba81358ee2ea7350ba5f4a8b9bc56c332c1521f13028"
+  "selectionGuide": {
+    "groupId": "primitives",
+    "groupTitle": "基础实体与参数模型",
+    "chooseWhen": "三个独立半轴的精确椭球；不是球的显示拉伸。",
+    "alternatives": [
+      {
+        "id": "box",
+        "chooseWhen": "用宽、深、高创建长方体；不是空壳或带孔板。"
+      },
+      {
+        "id": "cylinder",
+        "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。"
+      },
+      {
+        "id": "cone",
+        "chooseWhen": "用两端半径和高度创建圆锥或圆台。"
+      },
+      {
+        "id": "sphere",
+        "chooseWhen": "单一半径的球；三轴半径独立时用 ellipsoid。"
+      },
+      {
+        "id": "torus",
+        "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。"
+      },
+      {
+        "id": "quickModel",
+        "chooseWhen": "参数模板的执行入口；先比较 template.* 具体结构，再传 kind；不是任意形状生成器。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:22528a38d03bae94bea9fd0af5bf8c408b3d78feb7a5ab14f4bb3b66fcac570a"
 }
 ```
 
@@ -25988,7 +27308,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:8a794066446d5a9e996db4fff9a34c657a84b793d709f5e4c56a8d2703b620d1"
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:58ff4b39454910437745b2b073179ceb5613f3f870159251eefbbaeaae0b29ae"
 }
 ```
 
@@ -26427,7 +27791,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f0cec69dc7e76706c7f97b720ffdff644c65e65ad79bac380035232381fe671d"
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:60b7bc8aef033f5c49e82f343bc16a451a29d23d021ad28b68075e4b1616dc43"
 }
 ```
 
@@ -26880,7 +28288,59 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:464111db2174e2fe807c565bc4739d6ec8f159a7dae0e93d6faf5964e2ad55d8"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "从复合体按索引提取一个已有实心体。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:8fe45a9d2fc0dc10b859d967f72c92565b5f4a7b0b76c45ba59220a0c24ca5f9"
 }
 ```
 
@@ -27521,7 +28981,47 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:aba4c09451332a95ec723e1acc7e3d3a8f147bea561f0600f7b30d4af28c0ea8"
+  "selectionGuide": {
+    "groupId": "extrusion",
+    "groupTitle": "拉伸与旋转成型",
+    "chooseWhen": "按参数定义的闭合轮廓及所选平面法向拉伸。",
+    "alternatives": [
+      {
+        "id": "referenceExtrude",
+        "chooseWhen": "复用已有闭合精确线框/平面面，按世界向量拉伸，保留来源；带孔须用面。"
+      },
+      {
+        "id": "profileExtrude",
+        "chooseWhen": "对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。"
+      },
+      {
+        "id": "faceExtrude",
+        "chooseWhen": "推拉已有实体的一张平面面，沿其法向改体；不是独立轮廓拉伸。"
+      },
+      {
+        "id": "revolve",
+        "chooseWhen": "旋转参数闭合轮廓，按工具定义的轴及角度创建。"
+      },
+      {
+        "id": "profileRevolve",
+        "chooseWhen": "绕显式世界轴旋转已有精确截面，保留来源并指定材料运算。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:9cc0399e99198ca163032ef45fecb07fb2800cb5ce4b1ea1afd9aebad1509ec4"
 }
 ```
 
@@ -27972,7 +29472,67 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:3a6dc3e19233a739c22733d1151c58898b1e64fb10f72f2acbd74766e74d4372"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:1ead8e227549ce027aabe3d581005e518ee7c726778cc8882444e50994285f79"
 }
 ```
 
@@ -28426,7 +29986,35 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:673a7395d373ee5a7efdfe3990561eec7519999c7cfdd079cf991dfd916fdaaf"
+  "selectionGuide": {
+    "groupId": "extrusion",
+    "groupTitle": "拉伸与旋转成型",
+    "chooseWhen": "推拉已有实体的一张平面面，沿其法向改体；不是独立轮廓拉伸。",
+    "alternatives": [
+      {
+        "id": "extrude",
+        "chooseWhen": "按参数定义的闭合轮廓及所选平面法向拉伸。"
+      },
+      {
+        "id": "referenceExtrude",
+        "chooseWhen": "复用已有闭合精确线框/平面面，按世界向量拉伸，保留来源；带孔须用面。"
+      },
+      {
+        "id": "profileExtrude",
+        "chooseWhen": "对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。"
+      },
+      {
+        "id": "revolve",
+        "chooseWhen": "旋转参数闭合轮廓，按工具定义的轴及角度创建。"
+      },
+      {
+        "id": "profileRevolve",
+        "chooseWhen": "绕显式世界轴旋转已有精确截面，保留来源并指定材料运算。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:54227ccf86834a08f2c8381c9ded297a58e0bcbd60e9be961b4143dc9e10386c"
 }
 ```
 
@@ -28943,7 +30531,75 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6bf4d9ac0d87e8659e0e93164d3089a716c8b849ad0ec635d009d8c55bee6e34"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "在指定平面面上铣矩形凹槽。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:701ea9d596b163f09a1ceb0a42a849012fc457c4a4d3b48363cc99df311f058e"
 }
 ```
 
@@ -29575,7 +31231,75 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:6228f8bdf9f408882a0f661f497add5a7af038245e6bbf8259604281967d892f"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "从指定平面面向内打孔，定位依据当前面。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:b68ceb5152ed7a05862c4157cd010711a2355f6733941758a652d8116ea8b892"
 }
 ```
 
@@ -30416,7 +32140,55 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:aa1554d5250571ba112a3d9818648fe5d2569ef6bf95b399087389e9e1ffe6a8"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。",
+    "alternatives": [
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:7cbda09494fa8bcfbc92901d7ccf8f3da414ba33ae72ccbd95b8e038b89473bd"
 }
 ```
 
@@ -31094,7 +32866,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:5300544983caab546081ff634a69e3a9db39ca31bec767fba615e8404c849364"
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。",
+    "alternatives": [
+      {
+        "id": "subdBody",
+        "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:16f10774d011e007c0ed8aa229e4d150656a10af473f39925e9e9e0cb6872c33"
 }
 ```
 
@@ -31506,7 +33322,63 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:755fe48185d0aa373da41e26110d651b317ccfb2455dce6e2e15eaedeb3b79fb"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:631099453dc14b2dc789425580db60ef8fb7ce008071c8823045fe26e3ae9052"
 }
 ```
 
@@ -32717,7 +34589,43 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:52e89a503991575f88626618aa9ff98ee237a90d10e1166365105792112f7cee"
+  "selectionGuide": {
+    "groupId": "sweep-loft",
+    "groupTitle": "扫掠、放样及导向曲面",
+    "chooseWhen": "显式截面标架、边界导向与来源 G1/G2 信息；不是仅靠截面插值。",
+    "alternatives": [
+      {
+        "id": "sweep",
+        "chooseWhen": "参数截面沿显式三维折线路径扫掠；折线路径不同于精确曲线来源。"
+      },
+      {
+        "id": "curveSweep",
+        "chooseWhen": "沿解析/曲线脊线扫掠恒截面或有序自定义截面，可用旋转最小标架。"
+      },
+      {
+        "id": "profileSweep",
+        "chooseWhen": "复用已保存截面及精确路径；保留面孔，显式决定新建/加减料。"
+      },
+      {
+        "id": "loft",
+        "chooseWhen": "平行 XY 参数轮廓间的直纹放样。"
+      },
+      {
+        "id": "referenceLoft",
+        "chooseWhen": "复用 2–12 个有序精确单外环截面，保留来源；不支持截面内孔。"
+      },
+      {
+        "id": "profileLoft",
+        "chooseWhen": "2–12 个已保存精确截面依次成型，明确新建/材料运算。"
+      },
+      {
+        "id": "advancedLoft",
+        "chooseWhen": "手工定义 XY 截面序列，生成实体或开放壳。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:3259bd4924696d088eb711eff9cc0d57023d11b9ae49fe50e5bbc17ac9ee630f"
 }
 ```
 
@@ -33208,7 +35116,79 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:e298e51b7ed3a242d63b0a7ce403ed1ffd0f590e33ebcba26bb5e5466b237a8c"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      },
+      {
+        "id": "template.spring",
+        "chooseWhen": "参数化圆线螺旋弹簧；半径为中心线半径、螺距须大于线径。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:42ee67a538d549ad715772c1aa1467b8c9f1d3d1f49b71b63b5ea782c9eafa85"
 }
 ```
 
@@ -33813,7 +35793,75 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:d0cc70619ebb2c2daa416ed5299f692fc812c0129b5c9f7d925e61bad840675a"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "从世界坐标起点沿方向切圆孔。",
+    "alternatives": [
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e03b29d06f6f24896f3b118ec5f6f5c91f17b931a982eabd7c6bf2861ad3be19"
 }
 ```
 
@@ -34572,7 +36620,83 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:88352175f973d093c6886347c6a8318fcc049fe339a914f415c8b10965956f88"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      },
+      {
+        "id": "template.counterboreTool",
+        "chooseWhen": "用于后续布尔切削的沉孔/沉头孔刀具实体；创建刀具本身不等于已在目标上打孔。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:72c619081af24893ba08bdf72728600150f085e4bc50b15a7cda0a6d45f3f5c8"
 }
 ```
 
@@ -34967,7 +37091,43 @@ files.release: contextPolicy=none
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "用files.register和files.import；不要调用add op:import",
-  "docsHash": "sha256:bef26779683bda80cbd36c99f751f0049b20d235ecb5ff7e810939ea842bdee4"
+  "selectionGuide": {
+    "groupId": "file-input",
+    "groupTitle": "文件登记、打开与导入",
+    "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。",
+    "alternatives": [
+      {
+        "id": "files.capabilities",
+        "chooseWhen": "读文件格式、大小与宿主写入能力，不证明某文件已读到。"
+      },
+      {
+        "id": "files.register",
+        "chooseWhen": "登记获授权原始字节，返回资源 ID；尚未打开/导入。"
+      },
+      {
+        "id": "files.new",
+        "chooseWhen": "新建空工程并替换当前设计；不默默丢弃未保存更改。"
+      },
+      {
+        "id": "files.open",
+        "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      },
+      {
+        "id": "import.iges",
+        "chooseWhen": "当前静态版不可用的 IGES 入口；不能宣称直接导入成功。"
+      },
+      {
+        "id": "import.vector-server",
+        "chooseWhen": "当前静态版不可用的旧服务端矢量入口；应查当前 readVector/Services 实际能力。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:74194848271382c17eff7e071665f0c687a265d939cff53d08e14a223c9234cc"
 }
 ```
 
@@ -35461,7 +37621,75 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:cc452e1df58634a2d23cc3b10794c290f65d4c666911d96f67d64d3f03a6dd03"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:caa1565f2fb6159f005e3b027d29cf8d815a1771e8f7d6b2f10168dc984f4a7a"
 }
 ```
 
@@ -35893,7 +38121,59 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:c69f502226ff0e255549d25b479e68d398917b20782f00a60aaf0bf8e98e9b08"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "保留输入实体公共体积，不是切除或分组。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:33c89274977b9d430d015e5f6bab1f15cfaef98b6e68c8325d6499cdf7e49f12"
 }
 ```
 
@@ -36414,7 +38694,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:4c69e6d03ec53d394ecc920c7969eb59895b6ac9d137f1a605f9fa5e562448e5"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "按直线方向和间距阵列，显式复合或融合。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:bed055bac1f0cd22a556509e0dec149b41bfe581e635c4c83f83e51f373d6344"
 }
 ```
 
@@ -37010,7 +39334,43 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:a975205ec74e084d61d32ee1e94928956d5c74b902b2d07f94a41b6781db267a"
+  "selectionGuide": {
+    "groupId": "sweep-loft",
+    "groupTitle": "扫掠、放样及导向曲面",
+    "chooseWhen": "平行 XY 参数轮廓间的直纹放样。",
+    "alternatives": [
+      {
+        "id": "sweep",
+        "chooseWhen": "参数截面沿显式三维折线路径扫掠；折线路径不同于精确曲线来源。"
+      },
+      {
+        "id": "curveSweep",
+        "chooseWhen": "沿解析/曲线脊线扫掠恒截面或有序自定义截面，可用旋转最小标架。"
+      },
+      {
+        "id": "profileSweep",
+        "chooseWhen": "复用已保存截面及精确路径；保留面孔，显式决定新建/加减料。"
+      },
+      {
+        "id": "referenceLoft",
+        "chooseWhen": "复用 2–12 个有序精确单外环截面，保留来源；不支持截面内孔。"
+      },
+      {
+        "id": "profileLoft",
+        "chooseWhen": "2–12 个已保存精确截面依次成型，明确新建/材料运算。"
+      },
+      {
+        "id": "advancedLoft",
+        "chooseWhen": "手工定义 XY 截面序列，生成实体或开放壳。"
+      },
+      {
+        "id": "guidedLoft",
+        "chooseWhen": "显式截面标架、边界导向与来源 G1/G2 信息；不是仅靠截面插值。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:bfa3726e63791c34bba93997716502309e022fab0cac0e5aca3ea16e4ee21030"
 }
 ```
 
@@ -38208,7 +40568,71 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:77e9aea4b97909d5282aef7a7c5bbe898175e31d35824901fad8713eeda16625"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。",
+    "alternatives": [
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:ab3f47826394dbb491749fc55f083f0819d3ecb89274967487f7ac37ebdac1e3"
 }
 ```
 
@@ -38772,7 +41196,59 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:49c9e06860d3384cd1789daa4574bf6ecd0b309105297118009fb605b98bb1e3"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:0576c80a2d3fc70f14a5e784014e34cff2c6bec8b10b28a41605ebee2cbb2027"
 }
 ```
 
@@ -39590,7 +42066,71 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:85ef1e8f5dccdf99aec15a6014a43682e108019bfad5d1082aca4d0ae0ae0ffa"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:ee9e7832a944421c1f12ee933094c52a618a87bd40dda89c3b8b9a4d33e6fc02"
 }
 ```
 
@@ -41689,7 +44229,71 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:38974a811d45239bff28ff1f2e6907467e4b90f927274d4158dd35ee061918c7"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:3dc6af8025df6062833a8f79f460ece1f614822d76d12625fb5d51801370f893"
 }
 ```
 
@@ -42328,7 +44932,71 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:eec9a29a1155cae836e39fb10b7a373225c8d82eb8cb64aa3bc79222d052a43f"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:beb9c3ca7dd8fab1d63853353fa3beeba0f5ab68db085eb9736bf7456a10ec42"
 }
 ```
 
@@ -42881,7 +45549,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:42921d2b512f6e080a1116f3460710f0b56c4dd792df7c84e624bba57a3698cd"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:bdd5ea273f1b6d6fb696665f5dbb9dcd8f3d84c464f83e67259988898c77e905"
 }
 ```
 
@@ -43515,7 +46227,75 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:8d52040e9be0f33ebbbe61165588ff0d2d03da3960f1a49c93183c179bf229ac"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:1401b218012bf08fd4d73306a10533972a8f162b4db6f0b8adfd602726d67ba1"
 }
 ```
 
@@ -44212,7 +46992,75 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:f6ac5715bee0f2e5cd0e56e5fb2d1618abb561bb39a19d1e02d3fdd180a7a2a2"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4401425b551a2dffa4ca9b1fd1e7e8b03077527564beb2a192d3bc54760b59c8"
 }
 ```
 
@@ -44895,7 +47743,75 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:20d2ea90ce8d99d1c5f435410a2b14e4c5c78a6fd207cdb8d8cb68eb007ca581"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:21d687c26fa2b6159a8101a6cc4d055c6671c7223365f76e950922e170baf46b"
 }
 ```
 
@@ -45361,7 +48277,51 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:a1fd57a724f1cbbf712627695e7332d2e986922b38440173805dd8ade437e3ea"
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:953b3fef252e0e80d7958b5ef2b1fc8938753735a8179de602b527b9ec5bba7e"
 }
 ```
 
@@ -45827,7 +48787,51 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:4dd19fc8cd8c0b35c90cc48afcd118d6bcc0404dac50d89a59c6cf3b37f1d768"
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:f013398615d4297a57707dc0acd0ec71e365f9355784992577c57476822ddd0a"
 }
 ```
 
@@ -46321,7 +49325,75 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:3bb2b004bc78f3f873c31e5657cd34107c529eac30ff827bc117baec0863c074"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4eb128165891a43c922ac9275f22a16c7a99dc3d3df31841c01d599676dcb887"
 }
 ```
 
@@ -46774,7 +49846,67 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:1898463c666f93c565253eb8bf1709a706ea31d84c39a4f803e8c69a549229ac"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:771fdb1281412585fa3a3b8a5fb02e220ccc42e9dd77a90f578da7ac27a4fcb7"
 }
 ```
 
@@ -48150,7 +51282,75 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:a2a4c37b18138c12207bb91bad571703bf1dc91a11b5fa4ba067bdc3a10e6fc9"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a2584f63878faf69d48ba9dd3505dca6cbbf1602372b6881505ebfef79a9b9de"
 }
 ```
 
@@ -48740,7 +51940,47 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e9b34f9cda81f5c0e3ea4571249d9a4d49d85e144be104e8d9beac5ee7037368"
+  "selectionGuide": {
+    "groupId": "extrusion",
+    "groupTitle": "拉伸与旋转成型",
+    "chooseWhen": "对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。",
+    "alternatives": [
+      {
+        "id": "extrude",
+        "chooseWhen": "按参数定义的闭合轮廓及所选平面法向拉伸。"
+      },
+      {
+        "id": "referenceExtrude",
+        "chooseWhen": "复用已有闭合精确线框/平面面，按世界向量拉伸，保留来源；带孔须用面。"
+      },
+      {
+        "id": "faceExtrude",
+        "chooseWhen": "推拉已有实体的一张平面面，沿其法向改体；不是独立轮廓拉伸。"
+      },
+      {
+        "id": "revolve",
+        "chooseWhen": "旋转参数闭合轮廓，按工具定义的轴及角度创建。"
+      },
+      {
+        "id": "profileRevolve",
+        "chooseWhen": "绕显式世界轴旋转已有精确截面，保留来源并指定材料运算。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:04e75aa784eed5a47ee50f9c424990a60656f708c4cff1bfbd087913c656c7b0"
 }
 ```
 
@@ -49234,7 +52474,43 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:2478692e63861b5cca2287c751fccdb81ab8539f87c6b28bc3c4ec3d0d7b93a1"
+  "selectionGuide": {
+    "groupId": "sweep-loft",
+    "groupTitle": "扫掠、放样及导向曲面",
+    "chooseWhen": "2–12 个已保存精确截面依次成型，明确新建/材料运算。",
+    "alternatives": [
+      {
+        "id": "sweep",
+        "chooseWhen": "参数截面沿显式三维折线路径扫掠；折线路径不同于精确曲线来源。"
+      },
+      {
+        "id": "curveSweep",
+        "chooseWhen": "沿解析/曲线脊线扫掠恒截面或有序自定义截面，可用旋转最小标架。"
+      },
+      {
+        "id": "profileSweep",
+        "chooseWhen": "复用已保存截面及精确路径；保留面孔，显式决定新建/加减料。"
+      },
+      {
+        "id": "loft",
+        "chooseWhen": "平行 XY 参数轮廓间的直纹放样。"
+      },
+      {
+        "id": "referenceLoft",
+        "chooseWhen": "复用 2–12 个有序精确单外环截面，保留来源；不支持截面内孔。"
+      },
+      {
+        "id": "advancedLoft",
+        "chooseWhen": "手工定义 XY 截面序列，生成实体或开放壳。"
+      },
+      {
+        "id": "guidedLoft",
+        "chooseWhen": "显式截面标架、边界导向与来源 G1/G2 信息；不是仅靠截面插值。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:96af988423b8bd57d0fa56577950867632fc7a4aaa9ca61041f746bc988eb7b6"
 }
 ```
 
@@ -49746,7 +53022,67 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:e1c16baaf05482a1b15b266ce8dfab496ba67aba2dc31dbab97d0839d68d8573"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:37fa8fd29ab5dd440b0551a4fcc466999409fc92e3d372f7794f7592af05a4fd"
 }
 ```
 
@@ -50209,7 +53545,71 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f438a596e09cebe29b7e701f6258e23ff2d9c280b77793bfd945dd0e509f90b6"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:b8094b17abe83eecdb607e701593a79fd4eebe576015537094bc80f0d8736921"
 }
 ```
 
@@ -50814,7 +54214,35 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:7366213cd186ed8db023c85c57ca33e50bfb844d4b38301e27d94b7d08245e5a"
+  "selectionGuide": {
+    "groupId": "extrusion",
+    "groupTitle": "拉伸与旋转成型",
+    "chooseWhen": "绕显式世界轴旋转已有精确截面，保留来源并指定材料运算。",
+    "alternatives": [
+      {
+        "id": "extrude",
+        "chooseWhen": "按参数定义的闭合轮廓及所选平面法向拉伸。"
+      },
+      {
+        "id": "referenceExtrude",
+        "chooseWhen": "复用已有闭合精确线框/平面面，按世界向量拉伸，保留来源；带孔须用面。"
+      },
+      {
+        "id": "profileExtrude",
+        "chooseWhen": "对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。"
+      },
+      {
+        "id": "faceExtrude",
+        "chooseWhen": "推拉已有实体的一张平面面，沿其法向改体；不是独立轮廓拉伸。"
+      },
+      {
+        "id": "revolve",
+        "chooseWhen": "旋转参数闭合轮廓，按工具定义的轴及角度创建。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6267bd2dd95c6cfdbb7309096f9ff7829982d8f03cf9ad0bd664020648e65775"
 }
 ```
 
@@ -51333,7 +54761,43 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:8ef0d3ef0c825c346493c24daea486a7a52cc4e6f75e879d4bb8d70194fd5501"
+  "selectionGuide": {
+    "groupId": "sweep-loft",
+    "groupTitle": "扫掠、放样及导向曲面",
+    "chooseWhen": "复用已保存截面及精确路径；保留面孔，显式决定新建/加减料。",
+    "alternatives": [
+      {
+        "id": "sweep",
+        "chooseWhen": "参数截面沿显式三维折线路径扫掠；折线路径不同于精确曲线来源。"
+      },
+      {
+        "id": "curveSweep",
+        "chooseWhen": "沿解析/曲线脊线扫掠恒截面或有序自定义截面，可用旋转最小标架。"
+      },
+      {
+        "id": "loft",
+        "chooseWhen": "平行 XY 参数轮廓间的直纹放样。"
+      },
+      {
+        "id": "referenceLoft",
+        "chooseWhen": "复用 2–12 个有序精确单外环截面，保留来源；不支持截面内孔。"
+      },
+      {
+        "id": "profileLoft",
+        "chooseWhen": "2–12 个已保存精确截面依次成型，明确新建/材料运算。"
+      },
+      {
+        "id": "advancedLoft",
+        "chooseWhen": "手工定义 XY 截面序列，生成实体或开放壳。"
+      },
+      {
+        "id": "guidedLoft",
+        "chooseWhen": "显式截面标架、边界导向与来源 G1/G2 信息；不是仅靠截面插值。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c5a8cdee44e86130d91941e6a637da758a5278f1590dde19377b4e9985320344"
 }
 ```
 
@@ -61928,7 +65392,39 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:dc041c8a0701db2b6fe17c18fd19724b8b9d66430968ad88c93df7d4301ee11c"
+  "selectionGuide": {
+    "groupId": "primitives",
+    "groupTitle": "基础实体与参数模型",
+    "chooseWhen": "参数模板的执行入口；先比较 template.* 具体结构，再传 kind；不是任意形状生成器。",
+    "alternatives": [
+      {
+        "id": "box",
+        "chooseWhen": "用宽、深、高创建长方体；不是空壳或带孔板。"
+      },
+      {
+        "id": "cylinder",
+        "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。"
+      },
+      {
+        "id": "cone",
+        "chooseWhen": "用两端半径和高度创建圆锥或圆台。"
+      },
+      {
+        "id": "sphere",
+        "chooseWhen": "单一半径的球；三轴半径独立时用 ellipsoid。"
+      },
+      {
+        "id": "ellipsoid",
+        "chooseWhen": "三个独立半轴的精确椭球；不是球的显示拉伸。"
+      },
+      {
+        "id": "torus",
+        "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:87144a605cdf5010942220a1ed5c6cd1982f24ff3d79eb3e89a853b2e9a1f008"
 }
 ```
 
@@ -62406,7 +65902,35 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0295908e38e76e13fe3a11492f6757c411197e3c96729ebac876d89b6ca05ed2"
+  "selectionGuide": {
+    "groupId": "extrusion",
+    "groupTitle": "拉伸与旋转成型",
+    "chooseWhen": "复用已有闭合精确线框/平面面，按世界向量拉伸，保留来源；带孔须用面。",
+    "alternatives": [
+      {
+        "id": "extrude",
+        "chooseWhen": "按参数定义的闭合轮廓及所选平面法向拉伸。"
+      },
+      {
+        "id": "profileExtrude",
+        "chooseWhen": "对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。"
+      },
+      {
+        "id": "faceExtrude",
+        "chooseWhen": "推拉已有实体的一张平面面，沿其法向改体；不是独立轮廓拉伸。"
+      },
+      {
+        "id": "revolve",
+        "chooseWhen": "旋转参数闭合轮廓，按工具定义的轴及角度创建。"
+      },
+      {
+        "id": "profileRevolve",
+        "chooseWhen": "绕显式世界轴旋转已有精确截面，保留来源并指定材料运算。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6418a3333734f8ecb79f053e97002e3fd0b3f1833c58cd3f4c9b8842d0bae082"
 }
 ```
 
@@ -62843,7 +66367,43 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:06d897abb8241f276bae1802dd6ff79fe9243294fb955705bf836ca872b82980"
+  "selectionGuide": {
+    "groupId": "sweep-loft",
+    "groupTitle": "扫掠、放样及导向曲面",
+    "chooseWhen": "复用 2–12 个有序精确单外环截面，保留来源；不支持截面内孔。",
+    "alternatives": [
+      {
+        "id": "sweep",
+        "chooseWhen": "参数截面沿显式三维折线路径扫掠；折线路径不同于精确曲线来源。"
+      },
+      {
+        "id": "curveSweep",
+        "chooseWhen": "沿解析/曲线脊线扫掠恒截面或有序自定义截面，可用旋转最小标架。"
+      },
+      {
+        "id": "profileSweep",
+        "chooseWhen": "复用已保存截面及精确路径；保留面孔，显式决定新建/加减料。"
+      },
+      {
+        "id": "loft",
+        "chooseWhen": "平行 XY 参数轮廓间的直纹放样。"
+      },
+      {
+        "id": "profileLoft",
+        "chooseWhen": "2–12 个已保存精确截面依次成型，明确新建/材料运算。"
+      },
+      {
+        "id": "advancedLoft",
+        "chooseWhen": "手工定义 XY 截面序列，生成实体或开放壳。"
+      },
+      {
+        "id": "guidedLoft",
+        "chooseWhen": "显式截面标架、边界导向与来源 G1/G2 信息；不是仅靠截面插值。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2f8930769a6d664c666086548a746e9fc796d255c679769b7e4b21ffb5bd5ff3"
 }
 ```
 
@@ -63305,7 +66865,59 @@ files.release: contextPolicy=none
   "docs": "api.refine",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:f5c452e406d8b6b88ca131c49a7f91c1419f827ccbc9ae9800629e6810737964"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d80eb42372b861239f7a620721f7e59f0294db23a7219c69b443b3e5cc4a0b83"
 }
 ```
 
@@ -65319,7 +68931,71 @@ files.release: contextPolicy=none
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:16f1921a2017d3bf602fc05fa90cf7fac4f643e2935249fd57a8d687556538e1"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c745800984a91e114eacc993baa9bc16da991e227ef8d7089725a2dbe5334b49"
 }
 ```
 
@@ -65960,7 +69636,71 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:8f218c1a22702582b3d56e1fbbd10a521b99d3bf939cfd3e45d4a5ffc80fa445"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:9a99455e4201f201b491d5445e69d560a3b7cb5c7c812da9c0bf5eb56b04430f"
 }
 ```
 
@@ -66363,7 +70103,59 @@ files.release: contextPolicy=none
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "用execute action:feature.remove；不要调用add op:remove",
-  "docsHash": "sha256:4d0c26ac0a5ae2e08d5375ccd2b625dfadf4e12a851b3251fd5f97d803b8c94e"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d1fa1a618a35fbd5d1fffeb20e28db03271e534055c1fe532d6310dfca992898"
 }
 ```
 
@@ -67029,7 +70821,35 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:4b8f8015f0f233334c071bc5be6670b33def77d7059dcd1b35754b8444929f17"
+  "selectionGuide": {
+    "groupId": "extrusion",
+    "groupTitle": "拉伸与旋转成型",
+    "chooseWhen": "旋转参数闭合轮廓，按工具定义的轴及角度创建。",
+    "alternatives": [
+      {
+        "id": "extrude",
+        "chooseWhen": "按参数定义的闭合轮廓及所选平面法向拉伸。"
+      },
+      {
+        "id": "referenceExtrude",
+        "chooseWhen": "复用已有闭合精确线框/平面面，按世界向量拉伸，保留来源；带孔须用面。"
+      },
+      {
+        "id": "profileExtrude",
+        "chooseWhen": "对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。"
+      },
+      {
+        "id": "faceExtrude",
+        "chooseWhen": "推拉已有实体的一张平面面，沿其法向改体；不是独立轮廓拉伸。"
+      },
+      {
+        "id": "profileRevolve",
+        "chooseWhen": "绕显式世界轴旋转已有精确截面，保留来源并指定材料运算。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:8e3bd125d95c33e4fbcaa137ee4cdf0d1c846d3d196f7cf477206e2e2982d126"
 }
 ```
 
@@ -67745,7 +71565,55 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:2bd848171ea6f327ab2273a2a92e988e1fd9bf2d3c0e85913cd195cf2c757da2"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:044ff88685f033b7a2a9444835e9c7c7850e3a549624e233ab6b101dbda0b858"
 }
 ```
 
@@ -68352,7 +72220,55 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:2a0180b9205bb2d6827d53cccb657d9b8c129ceac715932bc02fdcbafb2357f3"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:31e45d2bcc2bc1f928e4df9c56a13b0fd88c770ca26f9b2750243044e44973a5"
 }
 ```
 
@@ -69308,7 +73224,55 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:73f6a017b02079a14a19d1b450fe0ad48df761612ba069a048c4d2fc2a71dd5f"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:5223545e2c98943d2b5933b8df4969d910543093b32ab3e0e30afb687549a1a5"
 }
 ```
 
@@ -69764,7 +73728,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:0b7c5ca8d820b9514004095dfc4a3394adc52659da197315a372e34f0cc18149"
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:bad07d7347d6c9c8b6deb0974a38a20d6b9ac881991995962af3895cdc219833"
 }
 ```
 
@@ -70288,7 +74296,59 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:6452831f48f0fe0747323752c5aa01f63ba317211243d03bbf694b11df41293f"
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:94f6f04ac32a9377025f60c9a680bf6b3e268f1f216643e859c62493b4084ffc"
 }
 ```
 
@@ -71231,7 +75291,75 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:8ab20a8106ed56a29b2918e34200d624d5d34ed305bb0ed25cec971a1fe18310"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。",
+    "alternatives": [
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      },
+      {
+        "id": "extrude",
+        "chooseWhen": "按参数定义的闭合轮廓及所选平面法向拉伸。"
+      },
+      {
+        "id": "profileExtrude",
+        "chooseWhen": "对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:070b200e60ffe6e86220e5ec90aafecd1d4e3d25eba9ff19b88e4af8d078035d"
 }
 ```
 
@@ -71839,7 +75967,75 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:96058bfe8ce8cf346ec7e03fc2d9ac1290c1828f480d7f457585b4c3bdf00e95"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "切两半圆加两直边的胶囊形槽。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:9afcd2bc4d67175d662f4a7c553c23420822a58a3b4edf50bcfd8fa1bee8eb70"
 }
 ```
 
@@ -72584,7 +76780,55 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:db0b0d03910bb7a78fe67f157a0339af7e930cbc6560ae1a672df5132589d9bc"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:0a864327ae240158a17b6222786bc2dd12e3360f364bb1871ba4490bd689e3e3"
 }
 ```
 
@@ -73013,7 +77257,39 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:08c2cb1d94ca623a9a4e022becc205863693f3eb90be481eed7198e00169a594"
+  "selectionGuide": {
+    "groupId": "primitives",
+    "groupTitle": "基础实体与参数模型",
+    "chooseWhen": "单一半径的球；三轴半径独立时用 ellipsoid。",
+    "alternatives": [
+      {
+        "id": "box",
+        "chooseWhen": "用宽、深、高创建长方体；不是空壳或带孔板。"
+      },
+      {
+        "id": "cylinder",
+        "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。"
+      },
+      {
+        "id": "cone",
+        "chooseWhen": "用两端半径和高度创建圆锥或圆台。"
+      },
+      {
+        "id": "ellipsoid",
+        "chooseWhen": "三个独立半轴的精确椭球；不是球的显示拉伸。"
+      },
+      {
+        "id": "torus",
+        "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。"
+      },
+      {
+        "id": "quickModel",
+        "chooseWhen": "参数模板的执行入口；先比较 template.* 具体结构，再传 kind；不是任意形状生成器。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e032db6f12e4e92d0becc77933d85fe0d69d5449371f7629b96feb72c36af813"
 }
 ```
 
@@ -73471,7 +77747,59 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:db6bdb5025aac1fd356efd7ccf8e5586522cbe5f491c8060cc39f74bd511f93a"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a4bb3b51abfa7895cf4b27cc60c98bc1704af01258f12846bbaba07d44d72eaa"
 }
 ```
 
@@ -74612,7 +78940,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:1299c712b62082a424054df2915f08abd7d8d7823e37b1c4fed22bf05eb2ebbf"
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c120c9d73854e476576d158659f18aac8f0b1de921dea1a7494dec218571437a"
 }
 ```
 
@@ -75076,7 +79448,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:c4855eff243141b8e54c22283876ee41e220b200033f52fcf0c805c9030d3f3d"
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:3b15d28426fc47eb5153ab791e6d42ed0bfc09ac1cb7bbe1cec618b73a1eb3aa"
 }
 ```
 
@@ -75719,7 +80135,43 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:e7b934437a4bf6eac372723484831deab3a55f2f3644714dca3c31ca306de9f9"
+  "selectionGuide": {
+    "groupId": "sweep-loft",
+    "groupTitle": "扫掠、放样及导向曲面",
+    "chooseWhen": "参数截面沿显式三维折线路径扫掠；折线路径不同于精确曲线来源。",
+    "alternatives": [
+      {
+        "id": "curveSweep",
+        "chooseWhen": "沿解析/曲线脊线扫掠恒截面或有序自定义截面，可用旋转最小标架。"
+      },
+      {
+        "id": "profileSweep",
+        "chooseWhen": "复用已保存截面及精确路径；保留面孔，显式决定新建/加减料。"
+      },
+      {
+        "id": "loft",
+        "chooseWhen": "平行 XY 参数轮廓间的直纹放样。"
+      },
+      {
+        "id": "referenceLoft",
+        "chooseWhen": "复用 2–12 个有序精确单外环截面，保留来源；不支持截面内孔。"
+      },
+      {
+        "id": "profileLoft",
+        "chooseWhen": "2–12 个已保存精确截面依次成型，明确新建/材料运算。"
+      },
+      {
+        "id": "advancedLoft",
+        "chooseWhen": "手工定义 XY 截面序列，生成实体或开放壳。"
+      },
+      {
+        "id": "guidedLoft",
+        "chooseWhen": "显式截面标架、边界导向与来源 G1/G2 信息；不是仅靠截面插值。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:7b37a5bbcfcc12595121578958929a554565ebd5d68114ed8916354d7e0022b0"
 }
 ```
 
@@ -76355,7 +80807,83 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:b7f085433b61960b9a3b10c4bf52269f5a5e6c41a4919e5c71117480d853be76"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      },
+      {
+        "id": "template.screw",
+        "chooseWhen": "螺钉头与真实 V 槽牙杆；头在下端、杆朝本地 +Z；不包含配合公差。"
+      },
+      {
+        "id": "template.threadedSleeve",
+        "chooseWhen": "支持名义 M 粗牙的内螺纹筒；面端朝本地 -Z。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:f6d66241b25cfe73a483836cf70dab52711f10729fea2f721d7d30689924d5e9"
 }
 ```
 
@@ -76811,7 +81339,59 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:91b44a701c3ff57f2a94fe9598a14d96d683b8f7ac08973fb573e0048ec80015"
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "一张来源面沿法向加厚成新实体。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:bffd1ece3e7d6bd9c73791c6bca74f6349abb36ccd7109bf96dffc6eaedd008d"
 }
 ```
 
@@ -77407,7 +81987,83 @@ files.release: contextPolicy=none
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:b824e238435a36b2ddc91d352431d9e29be441a26b7695e36dd2ad79bf39d6c3"
+  "selectionGuide": {
+    "groupId": "holes",
+    "groupTitle": "孔、槽、凸台与车削",
+    "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。",
+    "alternatives": [
+      {
+        "id": "hole",
+        "chooseWhen": "从世界坐标起点沿方向切圆孔。"
+      },
+      {
+        "id": "faceHole",
+        "chooseWhen": "从指定平面面向内打孔，定位依据当前面。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "multiHole",
+        "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
+      },
+      {
+        "id": "slot",
+        "chooseWhen": "切两半圆加两直边的胶囊形槽。"
+      },
+      {
+        "id": "faceGroove",
+        "chooseWhen": "在指定平面面上铣矩形凹槽。"
+      },
+      {
+        "id": "multiPocket",
+        "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
+      },
+      {
+        "id": "multiBoss",
+        "chooseWhen": "向实体融合多个实心圆柱凸台，是加料。"
+      },
+      {
+        "id": "innerTurn",
+        "chooseWhen": "在指定平面截面处移除内圆柱材料形成内孔。"
+      },
+      {
+        "id": "outerTurn",
+        "chooseWhen": "在指定深度内去除给定直径以外材料形成外车。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      },
+      {
+        "id": "template.screw",
+        "chooseWhen": "螺钉头与真实 V 槽牙杆；头在下端、杆朝本地 +Z；不包含配合公差。"
+      },
+      {
+        "id": "template.threadedSleeve",
+        "chooseWhen": "支持名义 M 粗牙的内螺纹筒；面端朝本地 -Z。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d9a3ed0a53a3ac975e261e5b8dfd974e6e7bdeb09dd087a683ed06434ce0de5c"
 }
 ```
 
@@ -77875,7 +82531,51 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:92fe0d4ba6e8bdd5c244b0507dd247fe9e3453c793929a44582bf0fb0bd9b35e"
+  "selectionGuide": {
+    "groupId": "primitives",
+    "groupTitle": "基础实体与参数模型",
+    "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。",
+    "alternatives": [
+      {
+        "id": "box",
+        "chooseWhen": "用宽、深、高创建长方体；不是空壳或带孔板。"
+      },
+      {
+        "id": "cylinder",
+        "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。"
+      },
+      {
+        "id": "cone",
+        "chooseWhen": "用两端半径和高度创建圆锥或圆台。"
+      },
+      {
+        "id": "sphere",
+        "chooseWhen": "单一半径的球；三轴半径独立时用 ellipsoid。"
+      },
+      {
+        "id": "ellipsoid",
+        "chooseWhen": "三个独立半轴的精确椭球；不是球的显示拉伸。"
+      },
+      {
+        "id": "quickModel",
+        "chooseWhen": "参数模板的执行入口；先比较 template.* 具体结构，再传 kind；不是任意形状生成器。"
+      },
+      {
+        "id": "template.ring",
+        "chooseWhen": "同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。"
+      },
+      {
+        "id": "template.ellipseSectionRing",
+        "chooseWhen": "圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。"
+      },
+      {
+        "id": "template.keyRing",
+        "chooseWhen": "双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:fa10f286ba9618509a9c9a11d65d514fbc58bde08f6b07af383f1342b078c77b"
 }
 ```
 
@@ -78796,7 +83496,59 @@ files.release: contextPolicy=none
   "docs": "api.interaction",
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:43c6eb6948b16d94382be44601fb825815f8f2b6924fa9f12393478b26aa451a"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。",
+    "alternatives": [
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4f39ec7e3a86a2169cdc0155737ae359f26411614073cd4122d343b38a039321"
 }
 ```
 
@@ -79330,7 +84082,63 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:cea7be617ab3acd22df62a89161f8beb7541077428c61b96c50dae3ffb6ee2e6"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "融合实体并去除重叠内部；与只分组不同。",
+    "alternatives": [
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:7de4a5f934c38e24c1ed422b07b2173b0557e4b50d08898c782e274bf9649218"
 }
 ```
 
@@ -80070,7 +84878,75 @@ files.release: contextPolicy=none
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
-  "docsHash": "sha256:e99fa536f560fa3b19c0ea50caf3993ffc8ed3699e7bddd6bbd1df2253bb6054"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      },
+      {
+        "id": "extrude",
+        "chooseWhen": "按参数定义的闭合轮廓及所选平面法向拉伸。"
+      },
+      {
+        "id": "profileExtrude",
+        "chooseWhen": "对已保存定位轮廓拉伸，明确新建、并、减或交材料结果。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:0ca46e76a002807cce9c21253f0d80f380f75ac5399fd6af135dabc15eb075c2"
 }
 ```
 
@@ -80082,7 +84958,7 @@ files.release: contextPolicy=none
   "title": "高度图浮雕精修",
   "label": "高度图浮雕精修",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -80099,7 +84975,71 @@ files.release: contextPolicy=none
     "浮雕精修",
     "sculpt"
   ],
-  "docsHash": "sha256:d363477e5be0e0c037f5396c494f4dee9810f166d17586c20186520602fdc345"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:0c8022c72f5f97cb14107ea0ff77c1b9a28dbcd89e8eb9369c1324495a42c032"
 }
 ```
 
@@ -80111,7 +85051,7 @@ files.release: contextPolicy=none
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -80128,7 +85068,71 @@ files.release: contextPolicy=none
     "浮雕精修",
     "sculpt"
   ],
-  "docsHash": "sha256:30f89046aafd301027b6e837fd12634c52b1a41e198cd72df0abbaeae90a4682"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:46a0c336795a36a706b959400c97eb53f1fb17b56aae8bdcc907cf8b032d7392"
 }
 ```
 
@@ -80577,7 +85581,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -80596,7 +85600,47 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:522774f72dc04fa6d13d97ad3fc2c13d060df11290018a7e23d219ba27c7a55d"
+  "selectionGuide": {
+    "groupId": "rings",
+    "groupTitle": "环、环片及开口圈",
+    "chooseWhen": "平面环片；径向宽度与轴向高度独立，不是圆线环。",
+    "alternatives": [
+      {
+        "id": "template.ring",
+        "chooseWhen": "同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。"
+      },
+      {
+        "id": "template.openArcRing",
+        "chooseWhen": "按开口角度截取的圆弧 C 环；与按线性缝宽切口不同。"
+      },
+      {
+        "id": "template.ellipseOpenWire",
+        "chooseWhen": "内孔真椭圆、圆线截面及底部平切缝；不是外轮廓真椭圆。"
+      },
+      {
+        "id": "template.ellipseSectionRing",
+        "chooseWhen": "圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。"
+      },
+      {
+        "id": "template.keyRing",
+        "chooseWhen": "双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。"
+      },
+      {
+        "id": "template.ovalBuckle",
+        "chooseWhen": "四段相切圆弧组成的旦形环；不是数学椭圆或两端半圆的跑道圈。"
+      },
+      {
+        "id": "template.capsuleWire",
+        "chooseWhen": "跑道路径（两端半圆、两条直边）的圆线闭环。"
+      },
+      {
+        "id": "template.profileLoop",
+        "chooseWhen": "跑道路径的方/扁线截面；正面料宽、侧面厚度、截面 R 独立。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:23d0063ce7f179d6976068c64314f81fd269de1833eac73af085eac61a45ca0b"
 }
 ```
 
@@ -81047,7 +86091,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -81066,7 +86110,39 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6a2ddd337cb6aab19e2c40cf809570201327d13830ba55c4800848fdb9f0ae87"
+  "selectionGuide": {
+    "groupId": "tubes-threads",
+    "groupTitle": "筒、螺纹与弹簧模板",
+    "chooseWhen": "同轴光孔圆筒，用内外径与高度定义；无凸缘或牙型。",
+    "alternatives": [
+      {
+        "id": "template.flangedBushing",
+        "chooseWhen": "带法兰的光孔轴套，孔贯穿；不是内螺纹丝筒。"
+      },
+      {
+        "id": "template.threadedSleeve",
+        "chooseWhen": "支持名义 M 粗牙的内螺纹筒；面端朝本地 -Z。"
+      },
+      {
+        "id": "template.screw",
+        "chooseWhen": "螺钉头与真实 V 槽牙杆；头在下端、杆朝本地 +Z；不包含配合公差。"
+      },
+      {
+        "id": "template.spring",
+        "chooseWhen": "参数化圆线螺旋弹簧；半径为中心线半径、螺距须大于线径。"
+      },
+      {
+        "id": "template.counterboreTool",
+        "chooseWhen": "用于后续布尔切削的沉孔/沉头孔刀具实体；创建刀具本身不等于已在目标上打孔。"
+      },
+      {
+        "id": "cylinder",
+        "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:238781f5e99b2f151ef561db595fcc4478e151f987ed9b584b0693345095f2fc"
 }
 ```
 
@@ -81501,7 +86577,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -81519,7 +86595,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:24796979ec154618b38dd130625977e7eeb83d9c722c33ecdddb264257519c29"
+  "selectionGuide": {
+    "groupId": "pins-components",
+    "groupTitle": "钉、针与独立连接件",
+    "chooseWhen": "单件平底凸面钉头，直径与拱高独立。",
+    "alternatives": [
+      {
+        "id": "template.nippleStud",
+        "chooseWhen": "头、颈、底座及配套槽头杆的两件组合；名义孔/杆不代表真实牙型。"
+      },
+      {
+        "id": "template.mushroomRivet",
+        "chooseWhen": "蘑菇盖空心套筒及腰形钉脚两件套，可装配或拉开展示。"
+      },
+      {
+        "id": "template.buckleTongue",
+        "chooseWhen": "独立环头扁针，长度从轴心到针尖；不含扣框。"
+      },
+      {
+        "id": "template.pullCoreBar",
+        "chooseWhen": "独立活动芯，中间扁带连接两端开放卷眼；不与扣框融合。"
+      },
+      {
+        "id": "template.hangingRod",
+        "chooseWhen": "水平圆杆与上方收窄 U 吊环融合；不是独立扁针或卷眼芯。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:bd4819e07bfb7ac3d31999e284f470aa1afd2e0e458b637384421b6ee2df7a64"
 }
 ```
 
@@ -82000,7 +87104,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -82021,7 +87125,39 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3a8effb76462dd8e1f5d87bf6a53ff56ae32faf2fa769087fc59733804b98268"
+  "selectionGuide": {
+    "groupId": "tubes-threads",
+    "groupTitle": "筒、螺纹与弹簧模板",
+    "chooseWhen": "带法兰的光孔轴套，孔贯穿；不是内螺纹丝筒。",
+    "alternatives": [
+      {
+        "id": "template.tube",
+        "chooseWhen": "同轴光孔圆筒，用内外径与高度定义；无凸缘或牙型。"
+      },
+      {
+        "id": "template.threadedSleeve",
+        "chooseWhen": "支持名义 M 粗牙的内螺纹筒；面端朝本地 -Z。"
+      },
+      {
+        "id": "template.screw",
+        "chooseWhen": "螺钉头与真实 V 槽牙杆；头在下端、杆朝本地 +Z；不包含配合公差。"
+      },
+      {
+        "id": "template.spring",
+        "chooseWhen": "参数化圆线螺旋弹簧；半径为中心线半径、螺距须大于线径。"
+      },
+      {
+        "id": "template.counterboreTool",
+        "chooseWhen": "用于后续布尔切削的沉孔/沉头孔刀具实体；创建刀具本身不等于已在目标上打孔。"
+      },
+      {
+        "id": "cylinder",
+        "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:730a60f38be4dc0b1ef2a07d9bb3c34a6ea30ea66866fb824bbbad377f0966e5"
 }
 ```
 
@@ -82536,7 +87672,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -82558,7 +87694,51 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:2c8af99edfc6f94635bf0c1ebb2abd30ebefc4429e7e4cc5b429a502406c6c0a"
+  "selectionGuide": {
+    "groupId": "rings",
+    "groupTitle": "环、环片及开口圈",
+    "chooseWhen": "同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。",
+    "alternatives": [
+      {
+        "id": "template.washer",
+        "chooseWhen": "平面环片；径向宽度与轴向高度独立，不是圆线环。"
+      },
+      {
+        "id": "template.openArcRing",
+        "chooseWhen": "按开口角度截取的圆弧 C 环；与按线性缝宽切口不同。"
+      },
+      {
+        "id": "template.ellipseOpenWire",
+        "chooseWhen": "内孔真椭圆、圆线截面及底部平切缝；不是外轮廓真椭圆。"
+      },
+      {
+        "id": "template.ellipseSectionRing",
+        "chooseWhen": "圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。"
+      },
+      {
+        "id": "template.keyRing",
+        "chooseWhen": "双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。"
+      },
+      {
+        "id": "template.ovalBuckle",
+        "chooseWhen": "四段相切圆弧组成的旦形环；不是数学椭圆或两端半圆的跑道圈。"
+      },
+      {
+        "id": "template.capsuleWire",
+        "chooseWhen": "跑道路径（两端半圆、两条直边）的圆线闭环。"
+      },
+      {
+        "id": "template.profileLoop",
+        "chooseWhen": "跑道路径的方/扁线截面；正面料宽、侧面厚度、截面 R 独立。"
+      },
+      {
+        "id": "torus",
+        "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2d321b59ab3119e5829b7c5f98a5532d9c0c0d5106b612ac6fbf439c4b7e42e7"
 }
 ```
 
@@ -83023,7 +88203,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -83043,7 +88223,47 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:7d05d7abe6d2865b1b4f54d9c608d760abb40288b10b00ebbe510491f821cbba"
+  "selectionGuide": {
+    "groupId": "rings",
+    "groupTitle": "环、环片及开口圈",
+    "chooseWhen": "内孔真椭圆、圆线截面及底部平切缝；不是外轮廓真椭圆。",
+    "alternatives": [
+      {
+        "id": "template.washer",
+        "chooseWhen": "平面环片；径向宽度与轴向高度独立，不是圆线环。"
+      },
+      {
+        "id": "template.ring",
+        "chooseWhen": "同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。"
+      },
+      {
+        "id": "template.openArcRing",
+        "chooseWhen": "按开口角度截取的圆弧 C 环；与按线性缝宽切口不同。"
+      },
+      {
+        "id": "template.ellipseSectionRing",
+        "chooseWhen": "圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。"
+      },
+      {
+        "id": "template.keyRing",
+        "chooseWhen": "双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。"
+      },
+      {
+        "id": "template.ovalBuckle",
+        "chooseWhen": "四段相切圆弧组成的旦形环；不是数学椭圆或两端半圆的跑道圈。"
+      },
+      {
+        "id": "template.capsuleWire",
+        "chooseWhen": "跑道路径（两端半圆、两条直边）的圆线闭环。"
+      },
+      {
+        "id": "template.profileLoop",
+        "chooseWhen": "跑道路径的方/扁线截面；正面料宽、侧面厚度、截面 R 独立。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6f7baf0dec6ee637a9358ff8a47505e42da586ac63fbf6013bc331b1362a10c1"
 }
 ```
 
@@ -83558,7 +88778,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -83580,7 +88800,47 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:bf1b0c31db5518aaeb3afaeb598e3a1cac935fb47ac0917a8a79357b4637e1ad"
+  "selectionGuide": {
+    "groupId": "rings",
+    "groupTitle": "环、环片及开口圈",
+    "chooseWhen": "按开口角度截取的圆弧 C 环；与按线性缝宽切口不同。",
+    "alternatives": [
+      {
+        "id": "template.washer",
+        "chooseWhen": "平面环片；径向宽度与轴向高度独立，不是圆线环。"
+      },
+      {
+        "id": "template.ring",
+        "chooseWhen": "同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。"
+      },
+      {
+        "id": "template.ellipseOpenWire",
+        "chooseWhen": "内孔真椭圆、圆线截面及底部平切缝；不是外轮廓真椭圆。"
+      },
+      {
+        "id": "template.ellipseSectionRing",
+        "chooseWhen": "圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。"
+      },
+      {
+        "id": "template.keyRing",
+        "chooseWhen": "双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。"
+      },
+      {
+        "id": "template.ovalBuckle",
+        "chooseWhen": "四段相切圆弧组成的旦形环；不是数学椭圆或两端半圆的跑道圈。"
+      },
+      {
+        "id": "template.capsuleWire",
+        "chooseWhen": "跑道路径（两端半圆、两条直边）的圆线闭环。"
+      },
+      {
+        "id": "template.profileLoop",
+        "chooseWhen": "跑道路径的方/扁线截面；正面料宽、侧面厚度、截面 R 独立。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:7328e5bd10090b1838603f1886f6180a213ea14b9aebc653e4045f995e9e4b2c"
 }
 ```
 
@@ -84029,7 +89289,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -84048,7 +89308,51 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:d0c8d80b05632942989fec8460da36062a88d85124fdd21c7433cf8eba58b878"
+  "selectionGuide": {
+    "groupId": "rings",
+    "groupTitle": "环、环片及开口圈",
+    "chooseWhen": "圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。",
+    "alternatives": [
+      {
+        "id": "template.washer",
+        "chooseWhen": "平面环片；径向宽度与轴向高度独立，不是圆线环。"
+      },
+      {
+        "id": "template.ring",
+        "chooseWhen": "同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。"
+      },
+      {
+        "id": "template.openArcRing",
+        "chooseWhen": "按开口角度截取的圆弧 C 环；与按线性缝宽切口不同。"
+      },
+      {
+        "id": "template.ellipseOpenWire",
+        "chooseWhen": "内孔真椭圆、圆线截面及底部平切缝；不是外轮廓真椭圆。"
+      },
+      {
+        "id": "template.keyRing",
+        "chooseWhen": "双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。"
+      },
+      {
+        "id": "template.ovalBuckle",
+        "chooseWhen": "四段相切圆弧组成的旦形环；不是数学椭圆或两端半圆的跑道圈。"
+      },
+      {
+        "id": "template.capsuleWire",
+        "chooseWhen": "跑道路径（两端半圆、两条直边）的圆线闭环。"
+      },
+      {
+        "id": "template.profileLoop",
+        "chooseWhen": "跑道路径的方/扁线截面；正面料宽、侧面厚度、截面 R 独立。"
+      },
+      {
+        "id": "torus",
+        "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e377bb3573bd7dde8dda27c630a09a4e2b8a5d7e404a4ed3da21aa04f7007665"
 }
 ```
 
@@ -84092,7 +89396,12 @@ files.release: contextPolicy=none
   "synonyms": [
     "keyRing",
     "匙圈",
-    "Flat split key ring"
+    "Flat split key ring",
+    "钥匙圈",
+    "钥匙环",
+    "双层钥匙圈",
+    "双层扁线匙圈",
+    "split key ring"
   ],
   "description": "只需内径、外径与总厚度。双层扁线、跨层过渡、层间隙和截面 R 角自动拟合，两端采用圆弧收口并带边缘 R 角。旧工程的显式绕卷参数仍可重建；不包含附件或花纹。",
   "apiCompatibility": [
@@ -84545,7 +89854,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -84571,7 +89880,51 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:23faed7fbcc6eaa4b4845d4fed4d4a0cb2b59da4f02ca6026408a94677fdd672"
+  "selectionGuide": {
+    "groupId": "rings",
+    "groupTitle": "环、环片及开口圈",
+    "chooseWhen": "双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。",
+    "alternatives": [
+      {
+        "id": "template.washer",
+        "chooseWhen": "平面环片；径向宽度与轴向高度独立，不是圆线环。"
+      },
+      {
+        "id": "template.ring",
+        "chooseWhen": "同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。"
+      },
+      {
+        "id": "template.openArcRing",
+        "chooseWhen": "按开口角度截取的圆弧 C 环；与按线性缝宽切口不同。"
+      },
+      {
+        "id": "template.ellipseOpenWire",
+        "chooseWhen": "内孔真椭圆、圆线截面及底部平切缝；不是外轮廓真椭圆。"
+      },
+      {
+        "id": "template.ellipseSectionRing",
+        "chooseWhen": "圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。"
+      },
+      {
+        "id": "template.ovalBuckle",
+        "chooseWhen": "四段相切圆弧组成的旦形环；不是数学椭圆或两端半圆的跑道圈。"
+      },
+      {
+        "id": "template.capsuleWire",
+        "chooseWhen": "跑道路径（两端半圆、两条直边）的圆线闭环。"
+      },
+      {
+        "id": "template.profileLoop",
+        "chooseWhen": "跑道路径的方/扁线截面；正面料宽、侧面厚度、截面 R 独立。"
+      },
+      {
+        "id": "torus",
+        "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:dca5eb81e47479f6e179bb8ae45479e43aeeae3d2d9ce01ff356c1379d9b9e27"
 }
 ```
 
@@ -85086,7 +90439,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -85109,7 +90462,27 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:efffe64df7e9e60e1c40116458a2d0dd5a8b6f1b9f7a03293dfba7d88fabdca4"
+  "selectionGuide": {
+    "groupId": "rect-frames",
+    "groupTitle": "矩形框与截面",
+    "chooseWhen": "平板矩形框，内外轮廓和板厚独立；可形成跑道孔。",
+    "alternatives": [
+      {
+        "id": "template.roundedFlatFrame",
+        "chooseWhen": "平面框加三维棱边圆角；内外平面 R 与棱边 R 不同。"
+      },
+      {
+        "id": "template.rectBuckle",
+        "chooseWhen": "恒截面圆角矩形线框，按线径/截面沿中心线路径扫掠。"
+      },
+      {
+        "id": "template.ellipseSectionRectFrame",
+        "chooseWhen": "圆角矩形路径加椭圆截面；孔角 R 不是截面深度或截面 R。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:667ce6b5d5234c4801eba952aebf7ddc2d4cf87b54a24305787ce5f13fa08fc9"
 }
 ```
 
@@ -85640,7 +91013,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -85664,7 +91037,27 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:119e89be96bc0ac948094dd95e7a4692a32ba3a34960d07d9a59f15bb8a4e733"
+  "selectionGuide": {
+    "groupId": "rect-frames",
+    "groupTitle": "矩形框与截面",
+    "chooseWhen": "平面框加三维棱边圆角；内外平面 R 与棱边 R 不同。",
+    "alternatives": [
+      {
+        "id": "template.flatFrame",
+        "chooseWhen": "平板矩形框，内外轮廓和板厚独立；可形成跑道孔。"
+      },
+      {
+        "id": "template.rectBuckle",
+        "chooseWhen": "恒截面圆角矩形线框，按线径/截面沿中心线路径扫掠。"
+      },
+      {
+        "id": "template.ellipseSectionRectFrame",
+        "chooseWhen": "圆角矩形路径加椭圆截面；孔角 R 不是截面深度或截面 R。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:1de5ded7be33b8827fc546071a83d8e297aa69c3843393d5bfa0fb4c99e72be8"
 }
 ```
 
@@ -86211,7 +91604,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -86235,7 +91628,27 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ad5cea5fca1be112689768b1149614da5491db4dc3b8d57e7ac00af1874eafb3"
+  "selectionGuide": {
+    "groupId": "rect-frames",
+    "groupTitle": "矩形框与截面",
+    "chooseWhen": "恒截面圆角矩形线框，按线径/截面沿中心线路径扫掠。",
+    "alternatives": [
+      {
+        "id": "template.flatFrame",
+        "chooseWhen": "平板矩形框，内外轮廓和板厚独立；可形成跑道孔。"
+      },
+      {
+        "id": "template.roundedFlatFrame",
+        "chooseWhen": "平面框加三维棱边圆角；内外平面 R 与棱边 R 不同。"
+      },
+      {
+        "id": "template.ellipseSectionRectFrame",
+        "chooseWhen": "圆角矩形路径加椭圆截面；孔角 R 不是截面深度或截面 R。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c4e5b510d615edf938b3c742bb4a08ea64d3de98af963f2c3eb0e4b82b2df74d"
 }
 ```
 
@@ -86716,7 +92129,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -86737,7 +92150,27 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9ebe0f0837830b266425f5ec5fb0dd4672a959afdf67f8508844f901ed97309c"
+  "selectionGuide": {
+    "groupId": "rect-frames",
+    "groupTitle": "矩形框与截面",
+    "chooseWhen": "圆角矩形路径加椭圆截面；孔角 R 不是截面深度或截面 R。",
+    "alternatives": [
+      {
+        "id": "template.flatFrame",
+        "chooseWhen": "平板矩形框，内外轮廓和板厚独立；可形成跑道孔。"
+      },
+      {
+        "id": "template.roundedFlatFrame",
+        "chooseWhen": "平面框加三维棱边圆角；内外平面 R 与棱边 R 不同。"
+      },
+      {
+        "id": "template.rectBuckle",
+        "chooseWhen": "恒截面圆角矩形线框，按线径/截面沿中心线路径扫掠。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:0b43e5a31afe7142fb9d88f72b4f4b6933e828d2b3f222bce2a15ab0097e0e28"
 }
 ```
 
@@ -87268,7 +92701,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -87292,7 +92725,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:74750676ffe6a1ba430db12152da6f27f2e8c97c9b16758674156927245d5776"
+  "selectionGuide": {
+    "groupId": "d-frames",
+    "groupTitle": "D形、U形与开口框",
+    "chooseWhen": "平板 D 框；板厚、内外平面轮廓与底部切口独立。",
+    "alternatives": [
+      {
+        "id": "template.dBuckle",
+        "chooseWhen": "半圆冠、直腿和底弯组成的恒截面 D 框；内高量到横杠上沿。"
+      },
+      {
+        "id": "template.dBarBuckle",
+        "chooseWhen": "方线 U 主体与固定圆横杆融合；主框和横杆截面不同。"
+      },
+      {
+        "id": "template.archedBridge",
+        "chooseWhen": "圆线直腿加半圆冠的开口拱桥，可选端部轴向光孔。"
+      },
+      {
+        "id": "template.squareArchedBridge",
+        "chooseWhen": "平顶方线 U 桥；内外转角、前后厚度及棱边 R 独立。"
+      },
+      {
+        "id": "template.uEndHolePlate",
+        "chooseWhen": "单片平板 U 轮廓，两腿末端沿板厚贯穿孔；不是圆杆拱桥。"
+      },
+      {
+        "id": "template.gableOpenFrame",
+        "chooseWhen": "斜肩屋顶轮廓的开口平板框；肩高和峰高独立，不是半圆冠。"
+      },
+      {
+        "id": "template.arcBandPlate",
+        "chooseWhen": "同心圆弧带板与两端孔；按角度截取的环段，不是两腿 U 框。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:1ca28567962b5f7b04182171e25acdbae7e4810a46b42d854d004ce091d33789"
 }
 ```
 
@@ -87839,7 +93308,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -87863,7 +93332,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:2a961689d59ea205b35a970fede43eca6a903eade5e1ac4d6b98ae3b731c1cd5"
+  "selectionGuide": {
+    "groupId": "d-frames",
+    "groupTitle": "D形、U形与开口框",
+    "chooseWhen": "半圆冠、直腿和底弯组成的恒截面 D 框；内高量到横杠上沿。",
+    "alternatives": [
+      {
+        "id": "template.dFlatFrame",
+        "chooseWhen": "平板 D 框；板厚、内外平面轮廓与底部切口独立。"
+      },
+      {
+        "id": "template.dBarBuckle",
+        "chooseWhen": "方线 U 主体与固定圆横杆融合；主框和横杆截面不同。"
+      },
+      {
+        "id": "template.archedBridge",
+        "chooseWhen": "圆线直腿加半圆冠的开口拱桥，可选端部轴向光孔。"
+      },
+      {
+        "id": "template.squareArchedBridge",
+        "chooseWhen": "平顶方线 U 桥；内外转角、前后厚度及棱边 R 独立。"
+      },
+      {
+        "id": "template.uEndHolePlate",
+        "chooseWhen": "单片平板 U 轮廓，两腿末端沿板厚贯穿孔；不是圆杆拱桥。"
+      },
+      {
+        "id": "template.gableOpenFrame",
+        "chooseWhen": "斜肩屋顶轮廓的开口平板框；肩高和峰高独立，不是半圆冠。"
+      },
+      {
+        "id": "template.arcBandPlate",
+        "chooseWhen": "同心圆弧带板与两端孔；按角度截取的环段，不是两腿 U 框。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a203839812aa5f367afd9bd64cdadeb520c388137ad4d5c56780c1a10c474892"
 }
 ```
 
@@ -88362,7 +93867,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -88386,7 +93891,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:dd387a7b7360f93f64d719d15f6f84db62d681e7936b8fb6b15556728699caff"
+  "selectionGuide": {
+    "groupId": "d-frames",
+    "groupTitle": "D形、U形与开口框",
+    "chooseWhen": "方线 U 主体与固定圆横杆融合；主框和横杆截面不同。",
+    "alternatives": [
+      {
+        "id": "template.dFlatFrame",
+        "chooseWhen": "平板 D 框；板厚、内外平面轮廓与底部切口独立。"
+      },
+      {
+        "id": "template.dBuckle",
+        "chooseWhen": "半圆冠、直腿和底弯组成的恒截面 D 框；内高量到横杠上沿。"
+      },
+      {
+        "id": "template.archedBridge",
+        "chooseWhen": "圆线直腿加半圆冠的开口拱桥，可选端部轴向光孔。"
+      },
+      {
+        "id": "template.squareArchedBridge",
+        "chooseWhen": "平顶方线 U 桥；内外转角、前后厚度及棱边 R 独立。"
+      },
+      {
+        "id": "template.uEndHolePlate",
+        "chooseWhen": "单片平板 U 轮廓，两腿末端沿板厚贯穿孔；不是圆杆拱桥。"
+      },
+      {
+        "id": "template.gableOpenFrame",
+        "chooseWhen": "斜肩屋顶轮廓的开口平板框；肩高和峰高独立，不是半圆冠。"
+      },
+      {
+        "id": "template.arcBandPlate",
+        "chooseWhen": "同心圆弧带板与两端孔；按角度截取的环段，不是两腿 U 框。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a90f399c1e36e15c3d06fa2715d958a3c852ff880a759e0ca83288128c1db5f1"
 }
 ```
 
@@ -88933,7 +94474,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -88957,7 +94498,47 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:94423db09dd0fb32fbfe997295136cd57d676158d2e4f35ecfe54bf46a050ffb"
+  "selectionGuide": {
+    "groupId": "rings",
+    "groupTitle": "环、环片及开口圈",
+    "chooseWhen": "四段相切圆弧组成的旦形环；不是数学椭圆或两端半圆的跑道圈。",
+    "alternatives": [
+      {
+        "id": "template.washer",
+        "chooseWhen": "平面环片；径向宽度与轴向高度独立，不是圆线环。"
+      },
+      {
+        "id": "template.ring",
+        "chooseWhen": "同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。"
+      },
+      {
+        "id": "template.openArcRing",
+        "chooseWhen": "按开口角度截取的圆弧 C 环；与按线性缝宽切口不同。"
+      },
+      {
+        "id": "template.ellipseOpenWire",
+        "chooseWhen": "内孔真椭圆、圆线截面及底部平切缝；不是外轮廓真椭圆。"
+      },
+      {
+        "id": "template.ellipseSectionRing",
+        "chooseWhen": "圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。"
+      },
+      {
+        "id": "template.keyRing",
+        "chooseWhen": "双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。"
+      },
+      {
+        "id": "template.capsuleWire",
+        "chooseWhen": "跑道路径（两端半圆、两条直边）的圆线闭环。"
+      },
+      {
+        "id": "template.profileLoop",
+        "chooseWhen": "跑道路径的方/扁线截面；正面料宽、侧面厚度、截面 R 独立。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c56390cc65f6b079eb8915090bdb6b9a85c7f5d107413f4572064fb271738131"
 }
 ```
 
@@ -89406,7 +94987,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -89425,7 +95006,47 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:9eb6a193eb834103ae49d764bbc7d285cb4c3f68b9096a906491542b953a5749"
+  "selectionGuide": {
+    "groupId": "rings",
+    "groupTitle": "环、环片及开口圈",
+    "chooseWhen": "跑道路径（两端半圆、两条直边）的圆线闭环。",
+    "alternatives": [
+      {
+        "id": "template.washer",
+        "chooseWhen": "平面环片；径向宽度与轴向高度独立，不是圆线环。"
+      },
+      {
+        "id": "template.ring",
+        "chooseWhen": "同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。"
+      },
+      {
+        "id": "template.openArcRing",
+        "chooseWhen": "按开口角度截取的圆弧 C 环；与按线性缝宽切口不同。"
+      },
+      {
+        "id": "template.ellipseOpenWire",
+        "chooseWhen": "内孔真椭圆、圆线截面及底部平切缝；不是外轮廓真椭圆。"
+      },
+      {
+        "id": "template.ellipseSectionRing",
+        "chooseWhen": "圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。"
+      },
+      {
+        "id": "template.keyRing",
+        "chooseWhen": "双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。"
+      },
+      {
+        "id": "template.ovalBuckle",
+        "chooseWhen": "四段相切圆弧组成的旦形环；不是数学椭圆或两端半圆的跑道圈。"
+      },
+      {
+        "id": "template.profileLoop",
+        "chooseWhen": "跑道路径的方/扁线截面；正面料宽、侧面厚度、截面 R 独立。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2370d9817be3d073c0af8863f0d810ed1c35304195764d5248105e8b263e53c1"
 }
 ```
 
@@ -89906,7 +95527,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -89927,7 +95548,47 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:2e5af7d3c875b351fb1d8550cc4e2fa9c23b554f1af3eb13f2bca7cba2e91ec5"
+  "selectionGuide": {
+    "groupId": "rings",
+    "groupTitle": "环、环片及开口圈",
+    "chooseWhen": "跑道路径的方/扁线截面；正面料宽、侧面厚度、截面 R 独立。",
+    "alternatives": [
+      {
+        "id": "template.washer",
+        "chooseWhen": "平面环片；径向宽度与轴向高度独立，不是圆线环。"
+      },
+      {
+        "id": "template.ring",
+        "chooseWhen": "同心圆路径的单层恒截面圈；截面、线径和底部平切缝独立。"
+      },
+      {
+        "id": "template.openArcRing",
+        "chooseWhen": "按开口角度截取的圆弧 C 环；与按线性缝宽切口不同。"
+      },
+      {
+        "id": "template.ellipseOpenWire",
+        "chooseWhen": "内孔真椭圆、圆线截面及底部平切缝；不是外轮廓真椭圆。"
+      },
+      {
+        "id": "template.ellipseSectionRing",
+        "chooseWhen": "圆形路径、椭圆截面；正面料宽和侧面深度独立，不能把截面椭圆当路径椭圆。"
+      },
+      {
+        "id": "template.keyRing",
+        "chooseWhen": "双层扁线绕卷与跨层过渡；内外径及整个双层总厚度定义，不是单层闭环或圆线直径。"
+      },
+      {
+        "id": "template.ovalBuckle",
+        "chooseWhen": "四段相切圆弧组成的旦形环；不是数学椭圆或两端半圆的跑道圈。"
+      },
+      {
+        "id": "template.capsuleWire",
+        "chooseWhen": "跑道路径（两端半圆、两条直边）的圆线闭环。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:605fb509327c221c01df47acc48b3744d4b7eb08f459d1eb0af3fb9c01e51ea2"
 }
 ```
 
@@ -90474,7 +96135,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -90499,7 +96160,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:cb9b60f881db4beea6bf57709a03c4c205878d9a89948f673a6d38b6c5d7edf3"
+  "selectionGuide": {
+    "groupId": "bar-frames",
+    "groupTitle": "双窗与带横杆框",
+    "chooseWhen": "平板一体对称双窗；中横条是板的一部分。",
+    "alternatives": [
+      {
+        "id": "template.sliderBuckle",
+        "chooseWhen": "圆线矩形框加固定圆横杆；横杆可偏移，不是平板双窗。"
+      },
+      {
+        "id": "template.ringBar",
+        "chooseWhen": "圆形恒截面框加固定圆杆；杆沿 X，可按 Y/Z 偏移。"
+      },
+      {
+        "id": "template.ellipseBar",
+        "chooseWhen": "内孔真椭圆的圆线框加居中固定圆杆。"
+      },
+      {
+        "id": "template.archedTwinWindowPlate",
+        "chooseWhen": "双窗板沿圆筒薄壁形成侧向拱弯；径向厚度不同于平板厚度。"
+      },
+      {
+        "id": "template.bowedTwinWindowPlate",
+        "chooseWhen": "正视鼓弧侧边与跑道形孔的平板双窗；不是侧视圆筒拱弯。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:fd9763c249f43037c4cee4a52ffaa86fe048fdb8ae20a027b9d95c4cffc0b522"
 }
 ```
 
@@ -91068,7 +96757,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -91094,7 +96783,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:25221426d7f528c88f82829e7a3aea39b266bc38712b43da0931c7a665cb2c36"
+  "selectionGuide": {
+    "groupId": "bar-frames",
+    "groupTitle": "双窗与带横杆框",
+    "chooseWhen": "圆线矩形框加固定圆横杆；横杆可偏移，不是平板双窗。",
+    "alternatives": [
+      {
+        "id": "template.twinWindowPlate",
+        "chooseWhen": "平板一体对称双窗；中横条是板的一部分。"
+      },
+      {
+        "id": "template.ringBar",
+        "chooseWhen": "圆形恒截面框加固定圆杆；杆沿 X，可按 Y/Z 偏移。"
+      },
+      {
+        "id": "template.ellipseBar",
+        "chooseWhen": "内孔真椭圆的圆线框加居中固定圆杆。"
+      },
+      {
+        "id": "template.archedTwinWindowPlate",
+        "chooseWhen": "双窗板沿圆筒薄壁形成侧向拱弯；径向厚度不同于平板厚度。"
+      },
+      {
+        "id": "template.bowedTwinWindowPlate",
+        "chooseWhen": "正视鼓弧侧边与跑道形孔的平板双窗；不是侧视圆筒拱弯。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a4a2eec15e9df6a0b5b53c7fbd9b5d927995b89dd1e1bc9dce244da87a0f8f3f"
 }
 ```
 
@@ -91641,7 +97358,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -91665,7 +97382,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:4c827c7c9ecd73730d5bed8e53b761b738a0003b9708218aafe02c69eb93cc0a"
+  "selectionGuide": {
+    "groupId": "bar-frames",
+    "groupTitle": "双窗与带横杆框",
+    "chooseWhen": "圆形恒截面框加固定圆杆；杆沿 X，可按 Y/Z 偏移。",
+    "alternatives": [
+      {
+        "id": "template.twinWindowPlate",
+        "chooseWhen": "平板一体对称双窗；中横条是板的一部分。"
+      },
+      {
+        "id": "template.sliderBuckle",
+        "chooseWhen": "圆线矩形框加固定圆横杆；横杆可偏移，不是平板双窗。"
+      },
+      {
+        "id": "template.ellipseBar",
+        "chooseWhen": "内孔真椭圆的圆线框加居中固定圆杆。"
+      },
+      {
+        "id": "template.archedTwinWindowPlate",
+        "chooseWhen": "双窗板沿圆筒薄壁形成侧向拱弯；径向厚度不同于平板厚度。"
+      },
+      {
+        "id": "template.bowedTwinWindowPlate",
+        "chooseWhen": "正视鼓弧侧边与跑道形孔的平板双窗；不是侧视圆筒拱弯。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:41234713cc80789c9a94a4cf4f9eb632f0fad8a41583a2790fa57f992a0756ea"
 }
 ```
 
@@ -92146,7 +97891,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -92167,7 +97912,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3e4760877a1ab7911c5ce48bce9603a5b9a85447d4ee2e1de4b094759811e632"
+  "selectionGuide": {
+    "groupId": "bar-frames",
+    "groupTitle": "双窗与带横杆框",
+    "chooseWhen": "内孔真椭圆的圆线框加居中固定圆杆。",
+    "alternatives": [
+      {
+        "id": "template.twinWindowPlate",
+        "chooseWhen": "平板一体对称双窗；中横条是板的一部分。"
+      },
+      {
+        "id": "template.sliderBuckle",
+        "chooseWhen": "圆线矩形框加固定圆横杆；横杆可偏移，不是平板双窗。"
+      },
+      {
+        "id": "template.ringBar",
+        "chooseWhen": "圆形恒截面框加固定圆杆；杆沿 X，可按 Y/Z 偏移。"
+      },
+      {
+        "id": "template.archedTwinWindowPlate",
+        "chooseWhen": "双窗板沿圆筒薄壁形成侧向拱弯；径向厚度不同于平板厚度。"
+      },
+      {
+        "id": "template.bowedTwinWindowPlate",
+        "chooseWhen": "正视鼓弧侧边与跑道形孔的平板双窗；不是侧视圆筒拱弯。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:b80faf53bb98ae95ab98773fe55544b56e7162e7dc23656918b257e390ddbdec"
 }
 ```
 
@@ -92712,7 +98485,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -92737,7 +98510,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f58698c8a9297ed0c341403d42745a109d6c1c041a09138a13a4d4de2824790c"
+  "selectionGuide": {
+    "groupId": "bar-frames",
+    "groupTitle": "双窗与带横杆框",
+    "chooseWhen": "双窗板沿圆筒薄壁形成侧向拱弯；径向厚度不同于平板厚度。",
+    "alternatives": [
+      {
+        "id": "template.twinWindowPlate",
+        "chooseWhen": "平板一体对称双窗；中横条是板的一部分。"
+      },
+      {
+        "id": "template.sliderBuckle",
+        "chooseWhen": "圆线矩形框加固定圆横杆；横杆可偏移，不是平板双窗。"
+      },
+      {
+        "id": "template.ringBar",
+        "chooseWhen": "圆形恒截面框加固定圆杆；杆沿 X，可按 Y/Z 偏移。"
+      },
+      {
+        "id": "template.ellipseBar",
+        "chooseWhen": "内孔真椭圆的圆线框加居中固定圆杆。"
+      },
+      {
+        "id": "template.bowedTwinWindowPlate",
+        "chooseWhen": "正视鼓弧侧边与跑道形孔的平板双窗；不是侧视圆筒拱弯。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a704832f76dd26c73fe23f4b3e95d4d16862be57dfc6a904286745f01bc42bb8"
 }
 ```
 
@@ -93286,7 +99087,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -93311,7 +99112,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:888191180fe500517d6700f994d6442a8b28be555ec15c358a12e87652d5f2c3"
+  "selectionGuide": {
+    "groupId": "bar-frames",
+    "groupTitle": "双窗与带横杆框",
+    "chooseWhen": "正视鼓弧侧边与跑道形孔的平板双窗；不是侧视圆筒拱弯。",
+    "alternatives": [
+      {
+        "id": "template.twinWindowPlate",
+        "chooseWhen": "平板一体对称双窗；中横条是板的一部分。"
+      },
+      {
+        "id": "template.sliderBuckle",
+        "chooseWhen": "圆线矩形框加固定圆横杆；横杆可偏移，不是平板双窗。"
+      },
+      {
+        "id": "template.ringBar",
+        "chooseWhen": "圆形恒截面框加固定圆杆；杆沿 X，可按 Y/Z 偏移。"
+      },
+      {
+        "id": "template.ellipseBar",
+        "chooseWhen": "内孔真椭圆的圆线框加居中固定圆杆。"
+      },
+      {
+        "id": "template.archedTwinWindowPlate",
+        "chooseWhen": "双窗板沿圆筒薄壁形成侧向拱弯；径向厚度不同于平板厚度。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:dec0a90da94b610a63df803a6b02442a303663f89674889081acf82402a3b9f3"
 }
 ```
 
@@ -93818,7 +99647,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -93840,7 +99669,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:93c73433b1d05c0a1f41291284d6d5c9c400d8e6e6d2263f6bc0ec9eaa20c5b4"
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。",
+    "alternatives": [
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:8b349ed732010b4d1edd488af2fd598d9ea81e5242599d701bc59acfa9395d00"
 }
 ```
 
@@ -94363,7 +100228,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -94386,7 +100251,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:3963204ad5d359089789924dc6d07534eccce8c0c3c0044663ead23c74cdd6c8"
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。",
+    "alternatives": [
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:145d17b893f0f748767b4631788d7d0b630e11446205cc2aa00bb1fffb2baf33"
 }
 ```
 
@@ -94923,7 +100824,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -94947,7 +100848,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:af8b7db9b6344e40f099fd17c7dd1b43c007eb393813461b4ff4fb0ea5de8e6a"
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。",
+    "alternatives": [
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c143021c334bd558ebaf63363311570fb3c2d0ad5eedf973c30242d92059c2f9"
 }
 ```
 
@@ -95571,7 +101508,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -95598,7 +101535,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-chains",
-  "docsHash": "sha256:375418bf80b20a4881f4b2ad537f68c9d48391e7ba4320a00da0b0df412935f6"
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。",
+    "alternatives": [
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:29cf1e9bd288c443e96a9edac1d6a1f7a4663d9f5201fdacde77443e97d0de96"
 }
 ```
 
@@ -96173,7 +102146,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -96199,7 +102172,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:9ce178727fe4f2c81758758c8b011207a3a9043cfef12ed4c0ca6f068f1afc71"
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。",
+    "alternatives": [
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:629193ee5504328e91a1743a629a7bdca3ea790560444ab03b8e0aacc959bd16"
 }
 ```
 
@@ -96902,7 +102911,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -96935,7 +102944,23 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-installation",
-  "docsHash": "sha256:ef43e35876bb0a6ac8c21cbce88147f0c69389b0ad38110d73b8e1a28b0d2f13"
+  "selectionGuide": {
+    "groupId": "eyelets",
+    "groupTitle": "面框与两件式鸡眼",
+    "chooseWhen": "单件面框、短颈与安装柱及直孔；不是两件套或内螺纹。",
+    "alternatives": [
+      {
+        "id": "template.twoPieceEyelet",
+        "chooseWhen": "薄壁翻边长脚件与底片两件套；平面/弧面可选，不模拟压铆变形。"
+      },
+      {
+        "id": "template.alloyEyelet",
+        "chooseWhen": "实体合金面框与底片两件套；独立实体与套接间距，不是薄皮翻边结构。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6a6e666c004bd90862a77efaa2ec1f7b76123d2c410b9315eefb8c6b4c5c4d53"
 }
 ```
 
@@ -97427,7 +103452,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -97448,7 +103473,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:f66bfa46be53f1c2b9aa40fb232fb2ec58106ea386dfacb07b4af8565cd08cae"
+  "selectionGuide": {
+    "groupId": "pins-components",
+    "groupTitle": "钉、针与独立连接件",
+    "chooseWhen": "独立环头扁针，长度从轴心到针尖；不含扣框。",
+    "alternatives": [
+      {
+        "id": "template.domedPin",
+        "chooseWhen": "单件平底凸面钉头，直径与拱高独立。"
+      },
+      {
+        "id": "template.nippleStud",
+        "chooseWhen": "头、颈、底座及配套槽头杆的两件组合；名义孔/杆不代表真实牙型。"
+      },
+      {
+        "id": "template.mushroomRivet",
+        "chooseWhen": "蘑菇盖空心套筒及腰形钉脚两件套，可装配或拉开展示。"
+      },
+      {
+        "id": "template.pullCoreBar",
+        "chooseWhen": "独立活动芯，中间扁带连接两端开放卷眼；不与扣框融合。"
+      },
+      {
+        "id": "template.hangingRod",
+        "chooseWhen": "水平圆杆与上方收窄 U 吊环融合；不是独立扁针或卷眼芯。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:895b89a8263ab7dd5ed36efe1aeb60bfc23be796af39fecbbeaea4e3788ca014"
 }
 ```
 
@@ -98023,7 +104076,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -98049,7 +104102,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:54ceb8539e7507787c727efd51c8892600ecbf4ebe13164c85fd3eea582a9d87"
+  "selectionGuide": {
+    "groupId": "pins-components",
+    "groupTitle": "钉、针与独立连接件",
+    "chooseWhen": "独立活动芯，中间扁带连接两端开放卷眼；不与扣框融合。",
+    "alternatives": [
+      {
+        "id": "template.domedPin",
+        "chooseWhen": "单件平底凸面钉头，直径与拱高独立。"
+      },
+      {
+        "id": "template.nippleStud",
+        "chooseWhen": "头、颈、底座及配套槽头杆的两件组合；名义孔/杆不代表真实牙型。"
+      },
+      {
+        "id": "template.mushroomRivet",
+        "chooseWhen": "蘑菇盖空心套筒及腰形钉脚两件套，可装配或拉开展示。"
+      },
+      {
+        "id": "template.buckleTongue",
+        "chooseWhen": "独立环头扁针，长度从轴心到针尖；不含扣框。"
+      },
+      {
+        "id": "template.hangingRod",
+        "chooseWhen": "水平圆杆与上方收窄 U 吊环融合；不是独立扁针或卷眼芯。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d7ce9afdc44cd3b9519b20a876c0dfebced037e524cf781fc5d000c0835b3672"
 }
 ```
 
@@ -98586,7 +104667,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -98610,7 +104691,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:64749e5b285407a6e0b4b5594573a443a74aa6ccb8a48affbcebe51ae71cfb8a"
+  "selectionGuide": {
+    "groupId": "pins-components",
+    "groupTitle": "钉、针与独立连接件",
+    "chooseWhen": "水平圆杆与上方收窄 U 吊环融合；不是独立扁针或卷眼芯。",
+    "alternatives": [
+      {
+        "id": "template.domedPin",
+        "chooseWhen": "单件平底凸面钉头，直径与拱高独立。"
+      },
+      {
+        "id": "template.nippleStud",
+        "chooseWhen": "头、颈、底座及配套槽头杆的两件组合；名义孔/杆不代表真实牙型。"
+      },
+      {
+        "id": "template.mushroomRivet",
+        "chooseWhen": "蘑菇盖空心套筒及腰形钉脚两件套，可装配或拉开展示。"
+      },
+      {
+        "id": "template.buckleTongue",
+        "chooseWhen": "独立环头扁针，长度从轴心到针尖；不含扣框。"
+      },
+      {
+        "id": "template.pullCoreBar",
+        "chooseWhen": "独立活动芯，中间扁带连接两端开放卷眼；不与扣框融合。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:dcf2272b0eab8d378b4b6faeff31ee7060f22b53775f077549c004d4f1b22b59"
 }
 ```
 
@@ -99096,7 +105205,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -99117,7 +105226,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8360589a7ac42c3adcc4cd7e355a8b38e12cbb5facc4aa85031778ec9b509396"
+  "selectionGuide": {
+    "groupId": "d-frames",
+    "groupTitle": "D形、U形与开口框",
+    "chooseWhen": "圆线直腿加半圆冠的开口拱桥，可选端部轴向光孔。",
+    "alternatives": [
+      {
+        "id": "template.dFlatFrame",
+        "chooseWhen": "平板 D 框；板厚、内外平面轮廓与底部切口独立。"
+      },
+      {
+        "id": "template.dBuckle",
+        "chooseWhen": "半圆冠、直腿和底弯组成的恒截面 D 框；内高量到横杠上沿。"
+      },
+      {
+        "id": "template.dBarBuckle",
+        "chooseWhen": "方线 U 主体与固定圆横杆融合；主框和横杆截面不同。"
+      },
+      {
+        "id": "template.squareArchedBridge",
+        "chooseWhen": "平顶方线 U 桥；内外转角、前后厚度及棱边 R 独立。"
+      },
+      {
+        "id": "template.uEndHolePlate",
+        "chooseWhen": "单片平板 U 轮廓，两腿末端沿板厚贯穿孔；不是圆杆拱桥。"
+      },
+      {
+        "id": "template.gableOpenFrame",
+        "chooseWhen": "斜肩屋顶轮廓的开口平板框；肩高和峰高独立，不是半圆冠。"
+      },
+      {
+        "id": "template.arcBandPlate",
+        "chooseWhen": "同心圆弧带板与两端孔；按角度截取的环段，不是两腿 U 框。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:668da06a49c587d621057a281f9436717f167ad4d7f10ce8e987f00c29359c06"
 }
 ```
 
@@ -99710,7 +105855,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -99736,7 +105881,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8d7b131ffadc13cfdb98237b66b32daf5fc24e6c093fbbb030b0f808e16b691a"
+  "selectionGuide": {
+    "groupId": "d-frames",
+    "groupTitle": "D形、U形与开口框",
+    "chooseWhen": "平顶方线 U 桥；内外转角、前后厚度及棱边 R 独立。",
+    "alternatives": [
+      {
+        "id": "template.dFlatFrame",
+        "chooseWhen": "平板 D 框；板厚、内外平面轮廓与底部切口独立。"
+      },
+      {
+        "id": "template.dBuckle",
+        "chooseWhen": "半圆冠、直腿和底弯组成的恒截面 D 框；内高量到横杠上沿。"
+      },
+      {
+        "id": "template.dBarBuckle",
+        "chooseWhen": "方线 U 主体与固定圆横杆融合；主框和横杆截面不同。"
+      },
+      {
+        "id": "template.archedBridge",
+        "chooseWhen": "圆线直腿加半圆冠的开口拱桥，可选端部轴向光孔。"
+      },
+      {
+        "id": "template.uEndHolePlate",
+        "chooseWhen": "单片平板 U 轮廓，两腿末端沿板厚贯穿孔；不是圆杆拱桥。"
+      },
+      {
+        "id": "template.gableOpenFrame",
+        "chooseWhen": "斜肩屋顶轮廓的开口平板框；肩高和峰高独立，不是半圆冠。"
+      },
+      {
+        "id": "template.arcBandPlate",
+        "chooseWhen": "同心圆弧带板与两端孔；按角度截取的环段，不是两腿 U 框。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:fb20029d936a6f35058b45138913860ee26b080f64ff90dbce0764476ae83e00"
 }
 ```
 
@@ -100317,7 +106498,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -100339,7 +106520,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:09d3358bbb80e755d918ef1c53f8483af09e2429a8abfcbadeedc670e49bf77c"
+  "selectionGuide": {
+    "groupId": "tubes-threads",
+    "groupTitle": "筒、螺纹与弹簧模板",
+    "chooseWhen": "螺钉头与真实 V 槽牙杆；头在下端、杆朝本地 +Z；不包含配合公差。",
+    "alternatives": [
+      {
+        "id": "template.tube",
+        "chooseWhen": "同轴光孔圆筒，用内外径与高度定义；无凸缘或牙型。"
+      },
+      {
+        "id": "template.flangedBushing",
+        "chooseWhen": "带法兰的光孔轴套，孔贯穿；不是内螺纹丝筒。"
+      },
+      {
+        "id": "template.threadedSleeve",
+        "chooseWhen": "支持名义 M 粗牙的内螺纹筒；面端朝本地 -Z。"
+      },
+      {
+        "id": "template.spring",
+        "chooseWhen": "参数化圆线螺旋弹簧；半径为中心线半径、螺距须大于线径。"
+      },
+      {
+        "id": "template.counterboreTool",
+        "chooseWhen": "用于后续布尔切削的沉孔/沉头孔刀具实体；创建刀具本身不等于已在目标上打孔。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:26946486aa1bf4e456080e165adf2ddeb8bb94980f97103286652e72e25f815b"
 }
 ```
 
@@ -100815,7 +107032,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -100836,7 +107053,47 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:179a82be44803c843500e6c9cda8c87810be8c4d5b7f01ce3fa1052decda90cd"
+  "selectionGuide": {
+    "groupId": "tubes-threads",
+    "groupTitle": "筒、螺纹与弹簧模板",
+    "chooseWhen": "支持名义 M 粗牙的内螺纹筒；面端朝本地 -Z。",
+    "alternatives": [
+      {
+        "id": "template.tube",
+        "chooseWhen": "同轴光孔圆筒，用内外径与高度定义；无凸缘或牙型。"
+      },
+      {
+        "id": "template.flangedBushing",
+        "chooseWhen": "带法兰的光孔轴套，孔贯穿；不是内螺纹丝筒。"
+      },
+      {
+        "id": "template.screw",
+        "chooseWhen": "螺钉头与真实 V 槽牙杆；头在下端、杆朝本地 +Z；不包含配合公差。"
+      },
+      {
+        "id": "template.spring",
+        "chooseWhen": "参数化圆线螺旋弹簧；半径为中心线半径、螺距须大于线径。"
+      },
+      {
+        "id": "template.counterboreTool",
+        "chooseWhen": "用于后续布尔切削的沉孔/沉头孔刀具实体；创建刀具本身不等于已在目标上打孔。"
+      },
+      {
+        "id": "cylinder",
+        "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。"
+      },
+      {
+        "id": "thread",
+        "chooseWhen": "在已有圆柱材料面切真实对称 V 形螺旋槽；不是创建整颗标准螺钉。"
+      },
+      {
+        "id": "tap",
+        "chooseWhen": "从平面面垂直攻盲螺纹孔，需遵守具体牙型合同。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6439e6141fbc3d9abac172c818e4fed79d36575b54c6b97bda96b6923f310eba"
 }
 ```
 
@@ -101316,7 +107573,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -101337,7 +107594,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
-  "docsHash": "sha256:dfded567e27a4158e7385aa018b5d34a0040d4de1f92c9dbaca394a81c5ccb4c"
+  "selectionGuide": {
+    "groupId": "tubes-threads",
+    "groupTitle": "筒、螺纹与弹簧模板",
+    "chooseWhen": "参数化圆线螺旋弹簧；半径为中心线半径、螺距须大于线径。",
+    "alternatives": [
+      {
+        "id": "template.tube",
+        "chooseWhen": "同轴光孔圆筒，用内外径与高度定义；无凸缘或牙型。"
+      },
+      {
+        "id": "template.flangedBushing",
+        "chooseWhen": "带法兰的光孔轴套，孔贯穿；不是内螺纹丝筒。"
+      },
+      {
+        "id": "template.threadedSleeve",
+        "chooseWhen": "支持名义 M 粗牙的内螺纹筒；面端朝本地 -Z。"
+      },
+      {
+        "id": "template.screw",
+        "chooseWhen": "螺钉头与真实 V 槽牙杆；头在下端、杆朝本地 +Z；不包含配合公差。"
+      },
+      {
+        "id": "template.counterboreTool",
+        "chooseWhen": "用于后续布尔切削的沉孔/沉头孔刀具实体；创建刀具本身不等于已在目标上打孔。"
+      },
+      {
+        "id": "helix",
+        "chooseWhen": "创建精确螺旋线框，本身不是弹簧实心体。"
+      },
+      {
+        "id": "coil",
+        "chooseWhen": "沿精确螺旋线扫掠圆截面成单个弹簧实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:7fc96495926cf01dad21c0586f6331c63e1b35b8898f67c3efbe4a8ffe6e3ca8"
 }
 ```
 
@@ -102021,7 +108314,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -102053,7 +108346,23 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-eyelets",
-  "docsHash": "sha256:5f1a26244f8c2cf0646ea405da5a254c94178522c8992c761ef31c370a5c3b70"
+  "selectionGuide": {
+    "groupId": "eyelets",
+    "groupTitle": "面框与两件式鸡眼",
+    "chooseWhen": "薄壁翻边长脚件与底片两件套；平面/弧面可选，不模拟压铆变形。",
+    "alternatives": [
+      {
+        "id": "template.frameEyelet",
+        "chooseWhen": "单件面框、短颈与安装柱及直孔；不是两件套或内螺纹。"
+      },
+      {
+        "id": "template.alloyEyelet",
+        "chooseWhen": "实体合金面框与底片两件套；独立实体与套接间距，不是薄皮翻边结构。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:de69a84c3dcad5284fe5dc2c6be37e866332e52d6ff2533d407dcfe4887381f6"
 }
 ```
 
@@ -102703,7 +109012,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -102733,7 +109042,23 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-eyelets",
-  "docsHash": "sha256:1636905085ee9182afacfdbddbb002edf81659b1bbb062f2355af20591a822c1"
+  "selectionGuide": {
+    "groupId": "eyelets",
+    "groupTitle": "面框与两件式鸡眼",
+    "chooseWhen": "实体合金面框与底片两件套；独立实体与套接间距，不是薄皮翻边结构。",
+    "alternatives": [
+      {
+        "id": "template.frameEyelet",
+        "chooseWhen": "单件面框、短颈与安装柱及直孔；不是两件套或内螺纹。"
+      },
+      {
+        "id": "template.twoPieceEyelet",
+        "chooseWhen": "薄壁翻边长脚件与底片两件套；平面/弧面可选，不模拟压铆变形。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:12e5998e4c8cf0f3457aadf47d2f40206970a625db2ae883d09066cd5adade99"
 }
 ```
 
@@ -103508,7 +109833,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -103546,7 +109871,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:cbb6aca3798b06b10edfb22b8f7e7244208a9d150f3ca92763196492d734ba92"
+  "selectionGuide": {
+    "groupId": "pins-components",
+    "groupTitle": "钉、针与独立连接件",
+    "chooseWhen": "头、颈、底座及配套槽头杆的两件组合；名义孔/杆不代表真实牙型。",
+    "alternatives": [
+      {
+        "id": "template.domedPin",
+        "chooseWhen": "单件平底凸面钉头，直径与拱高独立。"
+      },
+      {
+        "id": "template.mushroomRivet",
+        "chooseWhen": "蘑菇盖空心套筒及腰形钉脚两件套，可装配或拉开展示。"
+      },
+      {
+        "id": "template.buckleTongue",
+        "chooseWhen": "独立环头扁针，长度从轴心到针尖；不含扣框。"
+      },
+      {
+        "id": "template.pullCoreBar",
+        "chooseWhen": "独立活动芯，中间扁带连接两端开放卷眼；不与扣框融合。"
+      },
+      {
+        "id": "template.hangingRod",
+        "chooseWhen": "水平圆杆与上方收窄 U 吊环融合；不是独立扁针或卷眼芯。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:595524f7e1e6f8a2371d0b0e2b79adcbc84b0389520f4db158659155fedf752b"
 }
 ```
 
@@ -104282,7 +110635,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -104318,7 +110671,35 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:fe3adc30dd989539328e745f0191c338e05803a044813ea846f2df30284c9707"
+  "selectionGuide": {
+    "groupId": "pins-components",
+    "groupTitle": "钉、针与独立连接件",
+    "chooseWhen": "蘑菇盖空心套筒及腰形钉脚两件套，可装配或拉开展示。",
+    "alternatives": [
+      {
+        "id": "template.domedPin",
+        "chooseWhen": "单件平底凸面钉头，直径与拱高独立。"
+      },
+      {
+        "id": "template.nippleStud",
+        "chooseWhen": "头、颈、底座及配套槽头杆的两件组合；名义孔/杆不代表真实牙型。"
+      },
+      {
+        "id": "template.buckleTongue",
+        "chooseWhen": "独立环头扁针，长度从轴心到针尖；不含扣框。"
+      },
+      {
+        "id": "template.pullCoreBar",
+        "chooseWhen": "独立活动芯，中间扁带连接两端开放卷眼；不与扣框融合。"
+      },
+      {
+        "id": "template.hangingRod",
+        "chooseWhen": "水平圆杆与上方收窄 U 吊环融合；不是独立扁针或卷眼芯。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:5909ebcd63fc93b749c06d087e391a97db7cfedda8d22d4827ecb6cc5ed3dd64"
 }
 ```
 
@@ -104888,7 +111269,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -104911,7 +111292,23 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-chains",
-  "docsHash": "sha256:9b8feda1e7d54236f80ed8f201aaeea3ec81c516c61acb3bf8c5b6ce5a23a561"
+  "selectionGuide": {
+    "groupId": "chains",
+    "groupTitle": "链环的空间结构",
+    "chooseWhen": "平面椭圆孔圆线链环；外宽外长不是内孔尺寸。",
+    "alternatives": [
+      {
+        "id": "template.twistedChain",
+        "chooseWhen": "链环具有对角高低起伏及扭转曲面；不是平面圈整体旋转。"
+      },
+      {
+        "id": "template.groundChain",
+        "chooseWhen": "扭链上下平磨，保留圆线侧面；磨后总厚不是原线径，也不是压扁。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a4d6e026577be5f6b00692cf79388dcd12eaea1686271fbd69999923a7372ab8"
 }
 ```
 
@@ -105481,7 +111878,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -105504,7 +111901,23 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-chains",
-  "docsHash": "sha256:dff1430231cfae32a8c13922f485e256f592068efeef7223582da52f7c753236"
+  "selectionGuide": {
+    "groupId": "chains",
+    "groupTitle": "链环的空间结构",
+    "chooseWhen": "链环具有对角高低起伏及扭转曲面；不是平面圈整体旋转。",
+    "alternatives": [
+      {
+        "id": "template.oChain",
+        "chooseWhen": "平面椭圆孔圆线链环；外宽外长不是内孔尺寸。"
+      },
+      {
+        "id": "template.groundChain",
+        "chooseWhen": "扭链上下平磨，保留圆线侧面；磨后总厚不是原线径，也不是压扁。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e7bb83721a0ba92d90ecc95cb6e088eede667d3739c9f010f75a3ade24a905ff"
 }
 ```
 
@@ -106110,7 +112523,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -106135,7 +112548,23 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-chains",
-  "docsHash": "sha256:97a8ee7de4e950682881abf6b8b3ce36a7c409939e363a2c64439ff065dd5ff6"
+  "selectionGuide": {
+    "groupId": "chains",
+    "groupTitle": "链环的空间结构",
+    "chooseWhen": "扭链上下平磨，保留圆线侧面；磨后总厚不是原线径，也不是压扁。",
+    "alternatives": [
+      {
+        "id": "template.oChain",
+        "chooseWhen": "平面椭圆孔圆线链环；外宽外长不是内孔尺寸。"
+      },
+      {
+        "id": "template.twistedChain",
+        "chooseWhen": "链环具有对角高低起伏及扭转曲面；不是平面圈整体旋转。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2632084d7c1b9b17d9cd8de5dbf3e3910f5bca42767713fde75beafaccaa1267"
 }
 ```
 
@@ -106632,7 +113061,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -106653,7 +113082,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:766349a2ca7906fc20ad5f64e96d0ed3820a5d9bd722b6baea489e9704fdf7ae"
+  "selectionGuide": {
+    "groupId": "tubes-threads",
+    "groupTitle": "筒、螺纹与弹簧模板",
+    "chooseWhen": "用于后续布尔切削的沉孔/沉头孔刀具实体；创建刀具本身不等于已在目标上打孔。",
+    "alternatives": [
+      {
+        "id": "template.tube",
+        "chooseWhen": "同轴光孔圆筒，用内外径与高度定义；无凸缘或牙型。"
+      },
+      {
+        "id": "template.flangedBushing",
+        "chooseWhen": "带法兰的光孔轴套，孔贯穿；不是内螺纹丝筒。"
+      },
+      {
+        "id": "template.threadedSleeve",
+        "chooseWhen": "支持名义 M 粗牙的内螺纹筒；面端朝本地 -Z。"
+      },
+      {
+        "id": "template.screw",
+        "chooseWhen": "螺钉头与真实 V 槽牙杆；头在下端、杆朝本地 +Z；不包含配合公差。"
+      },
+      {
+        "id": "template.spring",
+        "chooseWhen": "参数化圆线螺旋弹簧；半径为中心线半径、螺距须大于线径。"
+      },
+      {
+        "id": "holeWizard",
+        "chooseWhen": "直接生成普通孔、圆柱沉孔或锥形沉头孔，支持指定盲孔钻尖。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2af6c5037a94975140a3c5527f8995d2c56eca336e4c30455c90ae8eb1cc366b"
 }
 ```
 
@@ -107186,7 +113651,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -107210,7 +113675,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:6040848b90264b2b29bd376f62317ce9ff7f3360b3702dcaf81d26faddf9f837"
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。",
+    "alternatives": [
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:ef7573b00c9db9a39bc55aae9c7485335cfbbc4887650122ac4cd2f302a34633"
 }
 ```
 
@@ -107759,7 +114260,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -107784,7 +114285,51 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ca4f64f162fa3a6ce39f4867ef219d45f922301a09c62f538adbf6bdfa3459b5"
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。",
+    "alternatives": [
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6ecda1e0937a0c1f4b3029674451af00078067884c61d93cf70ee0388ceaf645"
 }
 ```
 
@@ -108351,7 +114896,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -108377,7 +114922,51 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:440fb96c2d5e67fa6ec8a4ee1dd4cb9c4206779f69fb4af69fe3834d7f028c80"
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。",
+    "alternatives": [
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:cd1c2206bbcf8e6fef95912fde339863dad6c95668c07960d3f875919c14c67b"
 }
 ```
 
@@ -108878,7 +115467,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -108900,7 +115489,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:47d4b51354ce5971c5edbe5ac00d31080661610a181e73713bcd476d55359518"
+  "selectionGuide": {
+    "groupId": "d-frames",
+    "groupTitle": "D形、U形与开口框",
+    "chooseWhen": "单片平板 U 轮廓，两腿末端沿板厚贯穿孔；不是圆杆拱桥。",
+    "alternatives": [
+      {
+        "id": "template.dFlatFrame",
+        "chooseWhen": "平板 D 框；板厚、内外平面轮廓与底部切口独立。"
+      },
+      {
+        "id": "template.dBuckle",
+        "chooseWhen": "半圆冠、直腿和底弯组成的恒截面 D 框；内高量到横杠上沿。"
+      },
+      {
+        "id": "template.dBarBuckle",
+        "chooseWhen": "方线 U 主体与固定圆横杆融合；主框和横杆截面不同。"
+      },
+      {
+        "id": "template.archedBridge",
+        "chooseWhen": "圆线直腿加半圆冠的开口拱桥，可选端部轴向光孔。"
+      },
+      {
+        "id": "template.squareArchedBridge",
+        "chooseWhen": "平顶方线 U 桥；内外转角、前后厚度及棱边 R 独立。"
+      },
+      {
+        "id": "template.gableOpenFrame",
+        "chooseWhen": "斜肩屋顶轮廓的开口平板框；肩高和峰高独立，不是半圆冠。"
+      },
+      {
+        "id": "template.arcBandPlate",
+        "chooseWhen": "同心圆弧带板与两端孔；按角度截取的环段，不是两腿 U 框。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:56a94a10e10f9361d03d1f97cf7f58a42d9234df1924de2a1ecd9d24c8d48755"
 }
 ```
 
@@ -109449,7 +116074,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -109474,7 +116099,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:c6ec67d76c1625fac847f4d645c1f414bd4d8d47ef12453684f93248b1883f47"
+  "selectionGuide": {
+    "groupId": "d-frames",
+    "groupTitle": "D形、U形与开口框",
+    "chooseWhen": "同心圆弧带板与两端孔；按角度截取的环段，不是两腿 U 框。",
+    "alternatives": [
+      {
+        "id": "template.dFlatFrame",
+        "chooseWhen": "平板 D 框；板厚、内外平面轮廓与底部切口独立。"
+      },
+      {
+        "id": "template.dBuckle",
+        "chooseWhen": "半圆冠、直腿和底弯组成的恒截面 D 框；内高量到横杠上沿。"
+      },
+      {
+        "id": "template.dBarBuckle",
+        "chooseWhen": "方线 U 主体与固定圆横杆融合；主框和横杆截面不同。"
+      },
+      {
+        "id": "template.archedBridge",
+        "chooseWhen": "圆线直腿加半圆冠的开口拱桥，可选端部轴向光孔。"
+      },
+      {
+        "id": "template.squareArchedBridge",
+        "chooseWhen": "平顶方线 U 桥；内外转角、前后厚度及棱边 R 独立。"
+      },
+      {
+        "id": "template.uEndHolePlate",
+        "chooseWhen": "单片平板 U 轮廓，两腿末端沿板厚贯穿孔；不是圆杆拱桥。"
+      },
+      {
+        "id": "template.gableOpenFrame",
+        "chooseWhen": "斜肩屋顶轮廓的开口平板框；肩高和峰高独立，不是半圆冠。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:266b47fd9d7f9a68bdde5a5aac8082d7fa7f5880791c5071c8377d4ba87c539e"
 }
 ```
 
@@ -110007,7 +116668,7 @@ files.release: contextPolicy=none
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -110031,7 +116692,43 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:8704fd2e53f5fa1ab1c0efd0b69f25b5279978e52e2da4e30deff9e394eacb23"
+  "selectionGuide": {
+    "groupId": "d-frames",
+    "groupTitle": "D形、U形与开口框",
+    "chooseWhen": "斜肩屋顶轮廓的开口平板框；肩高和峰高独立，不是半圆冠。",
+    "alternatives": [
+      {
+        "id": "template.dFlatFrame",
+        "chooseWhen": "平板 D 框；板厚、内外平面轮廓与底部切口独立。"
+      },
+      {
+        "id": "template.dBuckle",
+        "chooseWhen": "半圆冠、直腿和底弯组成的恒截面 D 框；内高量到横杠上沿。"
+      },
+      {
+        "id": "template.dBarBuckle",
+        "chooseWhen": "方线 U 主体与固定圆横杆融合；主框和横杆截面不同。"
+      },
+      {
+        "id": "template.archedBridge",
+        "chooseWhen": "圆线直腿加半圆冠的开口拱桥，可选端部轴向光孔。"
+      },
+      {
+        "id": "template.squareArchedBridge",
+        "chooseWhen": "平顶方线 U 桥；内外转角、前后厚度及棱边 R 独立。"
+      },
+      {
+        "id": "template.uEndHolePlate",
+        "chooseWhen": "单片平板 U 轮廓，两腿末端沿板厚贯穿孔；不是圆杆拱桥。"
+      },
+      {
+        "id": "template.arcBandPlate",
+        "chooseWhen": "同心圆弧带板与两端孔；按角度截取的环段，不是两腿 U 框。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:12abdd2df973b6a729ed84055c391569077212e0dde790f802332b3fa61f2819"
 }
 ```
 
@@ -110042,7 +116739,7 @@ files.release: contextPolicy=none
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。",
   "synonyms": [
@@ -110240,7 +116937,55 @@ files.release: contextPolicy=none
     "maxAttempts": 6,
     "source": "independent-current-brep"
   },
-  "docsHash": "sha256:1ce1a8ac947ff8015a2994a6feb5f149ddd19fdf84f4cf37f3b96710a569df9b"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:41d202c4076aab37560c94b95e6a6f88d444b6f9c858c385fe0f4e336fcd8b10"
 }
 ```
 
@@ -110251,7 +116996,7 @@ files.release: contextPolicy=none
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
   "synonyms": [
@@ -110268,7 +117013,59 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:f932b5784a1a70166a092cea2000c43b3f2709802c1671fdd6bc251dd527c237"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "files.open",
+        "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:06c36710c6b80064951207767a1955e95eb0bce3cdb0ca0d5263dcf31ee788ad"
 }
 ```
 
@@ -110279,7 +117076,7 @@ files.release: contextPolicy=none
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。",
   "synonyms": [
@@ -110390,7 +117187,71 @@ files.release: contextPolicy=none
     "readOnly": true,
     "geometrySource": "authoritative-mesh-f64"
   },
-  "docsHash": "sha256:179e583a61d28a1b18deb97dd9ccba677822494aa2bf84591dc40ab4640a329c"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2ea095c8645cfa993f5235ece206048ea11812075b62a8c7e36f819c8a29ac83"
 }
 ```
 
@@ -110401,7 +117262,7 @@ files.release: contextPolicy=none
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getModelLibrary()",
   "synonyms": [
@@ -110430,7 +117291,59 @@ files.release: contextPolicy=none
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:7ed948fdcf1db2eca33a77a3584589281ebf58339ec950084c6120d03f990555"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "读可用模型库条目及版本，不插入实体。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "getTools",
+        "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:23bb5858d99b2cfe9bc7b87e7c65fc0fea6b3f80cc0cde524bbd5f7d2cd8a9b6"
 }
 ```
 
@@ -110441,7 +117354,7 @@ files.release: contextPolicy=none
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "updateModelLibrary({context,expectedLibraryRevision,operation:move|restore,id?,index?})。move传内置id和移动后零起始index；restore恢复默认顺序。工具定义只读，不接受entry、library、脚本、upsert、remove或import。",
   "synonyms": [
@@ -110477,7 +117390,59 @@ files.release: contextPolicy=none
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:5a427703e570960e80c334cd1c435a9bbc05bdd1637c6b1089df05ba85162376"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "getTools",
+        "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6a5cf90376cc0ed7a9a59cbb5729d47dc05ce48b335967ac6ac2ff1acdb9522a"
 }
 ```
 
@@ -110488,7 +117453,7 @@ files.release: contextPolicy=none
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})",
   "synonyms": [
@@ -110521,7 +117486,59 @@ files.release: contextPolicy=none
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
-  "docsHash": "sha256:8ee66d65348fda0f88bfba7a273691b87a0c86f51cd5c3bfeb0d28234ca6da2c"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "getTools",
+        "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:9db6350dde718134b6de1cba4d32d302a176c213898d75e3f2e6dedb960cda65"
 }
 ```
 
@@ -110532,7 +117549,7 @@ files.release: contextPolicy=none
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "planPatternMachining({context,intent})，intent 为 version:1 加工意图；只读规划，不推断图片深度。",
   "synonyms": [
@@ -110721,7 +117738,71 @@ files.release: contextPolicy=none
     "geometryComputed": false,
     "fallbackAllowed": false
   },
-  "docsHash": "sha256:ca7c3db54fdf08f0433ddcebe7f373640fa251bc7f6566a392925d4c9ba73a6b"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:89b7a2b4abf6b00746f9971b5729994171931f57d3f5a63d8175503a121cb9e8"
 }
 ```
 
@@ -110732,7 +117813,7 @@ files.release: contextPolicy=none
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
   "synonyms": [
@@ -110752,7 +117833,67 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID",
     "SERVICES_WAIT_NOT_PENDING"
   ],
-  "docsHash": "sha256:06eeda17ef6988f1d78284bcfc716a820aa7988f25e45c615565cf42d05f6948"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4c95fe6db29d35bece27210dd65a4a3a3ab92caa0d863260a9ac8f70bd5bf9db"
 }
 ```
 
@@ -110763,7 +117904,7 @@ files.release: contextPolicy=none
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "recoverServicesJob({jobId,reason,approved:true,acknowledgedState:\"interrupted\",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。",
   "synonyms": [
@@ -110788,7 +117929,67 @@ files.release: contextPolicy=none
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:197d9cddf8ef59b7a5a03edfba362b5afc626edd2b07928acbf0d029719b3a6c"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:ea70c99b02bf926afb42441be0f9ffc6e36bf9da487f459927730a730a97e72c"
 }
 ```
 
@@ -110799,7 +118000,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
   "synonyms": [
@@ -110826,7 +118027,71 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:324ff5bec045d82032143ff4ce685a0fc8a1f103167df9e5a5e21fa8358474a8"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:15c63aa61fafca5e73816b9dc3ed57371b2cc3acd3386c264441d066e548d1eb"
 }
 ```
 
@@ -110837,7 +118102,7 @@ files.release: contextPolicy=none
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
   "synonyms": [
@@ -110867,7 +118132,71 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:2ceae001e45c1d14bac584508fc407244a6391a33711d4f4f21730ae34220041"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:30e96ebfcd0738a6caae1cc23306d8d9bdc9dd0a94d78b8d61d020099934d45e"
 }
 ```
 
@@ -110878,7 +118207,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
   "synonyms": [
@@ -110917,7 +118246,71 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:69bc0e72a15f434890dc35d64c551257182a2a2e5d5df2d9954ea4ecd139dedc"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e850e654c950ade14f0b345e6bd6507eff646c131617fc4725436fc9e9e8424b"
 }
 ```
 
@@ -110928,7 +118321,7 @@ files.release: contextPolicy=none
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
   "synonyms": [
@@ -110966,7 +118359,71 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.relief",
-  "docsHash": "sha256:e2f77f2c99fba15860771e54f5b136feb30953943eb9cc42e26f1c5eb8e24cd6"
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:892f2faa97db1c8dfea407e246a1abc26ba6056106c0e927f1de37fed069436b"
 }
 ```
 
@@ -110977,7 +118434,7 @@ files.release: contextPolicy=none
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getHistory()。返回已保留状态，不含导入源字节。",
   "synonyms": [
@@ -110994,7 +118451,51 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:4217e8c6d774d741b10f2c10894b431df135069bca9506912d12ff7a5da53b7e"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。",
+    "alternatives": [
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4519c1e419d3971ce9050812b7230117e4932e88437d7ebe3ba3b8216205878f"
 }
 ```
 
@@ -111005,7 +118506,7 @@ files.release: contextPolicy=none
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true：true=整体按联合包围盒移动并保持相对位置，false=每个实体各自对齐。",
   "synonyms": [
@@ -111026,7 +118527,51 @@ files.release: contextPolicy=none
     "STALE_REFERENCE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:a362a3475176c0ae92a8827d2dab260aa8445d9c342d19c8f74801c3d4a504fd"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:0852b78a4fd1972b2844b2b3e7c3453468b76f1db6d2f911eac0cd7686553b84"
 }
 ```
 
@@ -111037,7 +118582,7 @@ files.release: contextPolicy=none
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
   "synonyms": [
@@ -111058,7 +118603,55 @@ files.release: contextPolicy=none
     "UI_TASK_ACTIVE",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:9c03da3b67dd4d35a21d5e483cda3109e200f4c7821fcd5af435053d9f5613e7"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:58c59200d548c23492541f6535c6d13100f47c2fc4421fd887dc9e225f906f5e"
 }
 ```
 
@@ -111069,7 +118662,7 @@ files.release: contextPolicy=none
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
   "synonyms": [
@@ -111092,7 +118685,51 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:af9d7f2688af637185c6a992983993ed877298cf2366d4fa3329825336f512e7"
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.read",
+        "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.confirmWritten",
+        "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:f16e41457fcefeec8541399fce878ffbc2860c4f138f451a3af6687996cdd8fd"
 }
 ```
 
@@ -111103,7 +118740,7 @@ files.release: contextPolicy=none
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
   "synonyms": [
@@ -111129,7 +118766,55 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:a7c6ae75d96a4375c3a73cfde27a7ff99a7eb25ac91d25654bc710a5a7250581"
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.read",
+        "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.confirmWritten",
+        "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "createDrawing",
+        "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:18934e12a9334005fdaa75a611f6951c171abc7891450258ea533358e60777e7"
 }
 ```
 
@@ -111140,7 +118825,7 @@ files.release: contextPolicy=none
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
   "synonyms": [
@@ -111163,7 +118848,59 @@ files.release: contextPolicy=none
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:78b1516d5530375d45fa5c72424dca16c1590ad64564a806a6f7532b6cddbeb5"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "getTools",
+        "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:97c642fd4ff6b6183eaf90957f75ecb323eae698004e6034ac45de5077e05d6f"
 }
 ```
 
@@ -111174,7 +118911,7 @@ files.release: contextPolicy=none
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
   "synonyms": [
@@ -111197,7 +118934,63 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE",
     "UI_TASK_ACTIVE"
   ],
-  "docsHash": "sha256:6665b0612db7219e3dec5fd0179c97ba8d76b20a22fee532809d651d47f31944"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4d42bab36b0b7571ad3b4fa6128d272ecdc4b74243de75e178e9daf5174dedc5"
 }
 ```
 
@@ -111208,7 +119001,7 @@ files.release: contextPolicy=none
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
   "synonyms": [
@@ -111239,7 +119032,51 @@ files.release: contextPolicy=none
     "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:06bba8368498f6685b7a012ecdcd4585352e2ed9aee7bab60d6b0ce8be155105"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:dfb8754567894ea580a25a456aa7273d4119992dc961d9bc8c16142b45bc9a81"
 }
 ```
 
@@ -111250,7 +119087,7 @@ files.release: contextPolicy=none
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
@@ -111270,7 +119107,59 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:d43049f159a391140eafc97745694422fd34216cd3b9ed24a65397bff66f2e96"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "getTools",
+        "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:354635c4ce48fd14a7a04527556aa94720867041291ee8281cb92f64af543145"
 }
 ```
 
@@ -111281,7 +119170,7 @@ files.release: contextPolicy=none
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getUILayout({includeModelLibrary?:boolean})",
   "synonyms": [
@@ -111304,7 +119193,55 @@ files.release: contextPolicy=none
     "LIBRARY_STORAGE_UNAVAILABLE"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:8f67dbf3408bef43d5cee438154bd7408866532396e4b179deaf50b985d7fbe7"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:8acb06cf5e6e11fc0427285603dba443c16957e4c91fdb942938eb63b6235f21"
 }
 ```
 
@@ -111315,7 +119252,7 @@ files.release: contextPolicy=none
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
@@ -111340,7 +119277,55 @@ files.release: contextPolicy=none
     "DISPLAY_FAILED"
   ],
   "docs": "api.workspace",
-  "docsHash": "sha256:8d698bdccbfa39a1241c2d4337126fa1d29719457e788393f793be9453cfb4c9"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "调整显示网格质量，不改变精确几何精度。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:545643e4d540a6f067ee626a6005252a906cad5eb560342ea89cea1af7c6762e"
 }
 ```
 
@@ -111351,7 +119336,7 @@ files.release: contextPolicy=none
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
@@ -111370,7 +119355,47 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:d3911ffa41e021315d87ce7c95a82d2e30b13a13dc63f799eb6a1a8e46b8f3e6"
+  "selectionGuide": {
+    "groupId": "dispatch",
+    "groupTitle": "执行、批次与异步作业",
+    "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。",
+    "alternatives": [
+      {
+        "id": "execute",
+        "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
+      },
+      {
+        "id": "run",
+        "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。"
+      },
+      {
+        "id": "executeText",
+        "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。"
+      },
+      {
+        "id": "submit",
+        "chooseWhen": "提交一个具有 jobId 的异步页面作业，须追踪原 job。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      },
+      {
+        "id": "awaitJob",
+        "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。"
+      },
+      {
+        "id": "waitFor",
+        "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a42abd500285631b799c30ce1d0ef2a108fd8be9d05cc6ab27010e5148e4fd19"
 }
 ```
 
@@ -111381,7 +119406,7 @@ files.release: contextPolicy=none
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
@@ -111404,7 +119429,47 @@ files.release: contextPolicy=none
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:54577687985991cc9bebfcf5347a3bb11e1446a9274e5446e7c769374b236325"
+  "selectionGuide": {
+    "groupId": "dispatch",
+    "groupTitle": "执行、批次与异步作业",
+    "chooseWhen": "提交一个具有 jobId 的异步页面作业，须追踪原 job。",
+    "alternatives": [
+      {
+        "id": "execute",
+        "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
+      },
+      {
+        "id": "run",
+        "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。"
+      },
+      {
+        "id": "invoke",
+        "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。"
+      },
+      {
+        "id": "executeText",
+        "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      },
+      {
+        "id": "awaitJob",
+        "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。"
+      },
+      {
+        "id": "waitFor",
+        "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:986c219d385d668ca0875ea03852e0ee421cccc1e02ab85a1937f8c7718705e8"
 }
 ```
 
@@ -111415,7 +119480,7 @@ files.release: contextPolicy=none
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getJob({jobId})",
   "synonyms": [
@@ -111435,7 +119500,55 @@ files.release: contextPolicy=none
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:bc2c017853bec24550993b3677e6dd04de4bd697ee45ee722642c1ab361027a8"
+  "selectionGuide": {
+    "groupId": "dispatch",
+    "groupTitle": "执行、批次与异步作业",
+    "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。",
+    "alternatives": [
+      {
+        "id": "execute",
+        "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
+      },
+      {
+        "id": "run",
+        "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。"
+      },
+      {
+        "id": "invoke",
+        "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。"
+      },
+      {
+        "id": "executeText",
+        "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。"
+      },
+      {
+        "id": "submit",
+        "chooseWhen": "提交一个具有 jobId 的异步页面作业，须追踪原 job。"
+      },
+      {
+        "id": "awaitJob",
+        "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。"
+      },
+      {
+        "id": "waitFor",
+        "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d6a2bf409f352c3550d28466a9e2baa62e3a53bb50474a7119c49a2254fec392"
 }
 ```
 
@@ -111446,7 +119559,7 @@ files.release: contextPolicy=none
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "cancelJob({jobId})",
   "synonyms": [
@@ -111464,7 +119577,55 @@ files.release: contextPolicy=none
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
-  "docsHash": "sha256:02684340d81e000f9b3fd9e2870676588ccf59ead44321ab563bd73fc758216d"
+  "selectionGuide": {
+    "groupId": "dispatch",
+    "groupTitle": "执行、批次与异步作业",
+    "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。",
+    "alternatives": [
+      {
+        "id": "execute",
+        "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
+      },
+      {
+        "id": "run",
+        "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。"
+      },
+      {
+        "id": "invoke",
+        "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。"
+      },
+      {
+        "id": "executeText",
+        "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。"
+      },
+      {
+        "id": "submit",
+        "chooseWhen": "提交一个具有 jobId 的异步页面作业，须追踪原 job。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      },
+      {
+        "id": "awaitJob",
+        "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。"
+      },
+      {
+        "id": "waitFor",
+        "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "preview.cancel",
+        "chooseWhen": "丢弃未提交草稿，不删除已提交实体、不增加几何修订。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2bb8ef0e80e52a78739dc985110fa26509ae31354ecbdccfc3e3f78c5b3d3de6"
 }
 ```
 
@@ -111475,7 +119636,7 @@ files.release: contextPolicy=none
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。",
   "synonyms": [
@@ -111500,7 +119661,47 @@ files.release: contextPolicy=none
     "PARAM_RANGE_INVALID",
     "JOB_NOT_FOUND"
   ],
-  "docsHash": "sha256:a07b4e5bc09fc282a23877c7fa27a0d7a7ce8859112da8dc78012c9b6625ec1f"
+  "selectionGuide": {
+    "groupId": "dispatch",
+    "groupTitle": "执行、批次与异步作业",
+    "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。",
+    "alternatives": [
+      {
+        "id": "execute",
+        "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
+      },
+      {
+        "id": "run",
+        "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。"
+      },
+      {
+        "id": "invoke",
+        "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。"
+      },
+      {
+        "id": "executeText",
+        "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。"
+      },
+      {
+        "id": "submit",
+        "chooseWhen": "提交一个具有 jobId 的异步页面作业，须追踪原 job。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      },
+      {
+        "id": "awaitJob",
+        "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:5a2e5a2cc2030292bb371ce0ac76be42fe13d1b9e23b9b1815abab2ae29132e2"
 }
 ```
 
@@ -111511,7 +119712,7 @@ files.release: contextPolicy=none
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。",
   "synonyms": [
@@ -111531,7 +119732,47 @@ files.release: contextPolicy=none
     "PARAM_RANGE_INVALID",
     "JOB_NOT_FOUND"
   ],
-  "docsHash": "sha256:5b4bc751838a8a48536d41802d14ef1949564d2b5e676a94420469df0665c7f6"
+  "selectionGuide": {
+    "groupId": "dispatch",
+    "groupTitle": "执行、批次与异步作业",
+    "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。",
+    "alternatives": [
+      {
+        "id": "execute",
+        "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
+      },
+      {
+        "id": "run",
+        "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。"
+      },
+      {
+        "id": "invoke",
+        "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。"
+      },
+      {
+        "id": "executeText",
+        "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。"
+      },
+      {
+        "id": "submit",
+        "chooseWhen": "提交一个具有 jobId 的异步页面作业，须追踪原 job。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      },
+      {
+        "id": "waitFor",
+        "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:316155ce46da322c04381b7684af79138f5e8803dbf4f52a1d43bb0f5adeabcc"
 }
 ```
 
@@ -111542,7 +119783,7 @@ files.release: contextPolicy=none
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
@@ -111563,7 +119804,59 @@ files.release: contextPolicy=none
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:9dc9157e80fd21c9ed7b9ea00292440a0f5d002ed787d8f04383adf23d5534f9"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。",
+    "alternatives": [
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "getTools",
+        "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:1c637cf1abca4061f1313034881b503ae79002c5b103e127ae32eae7e7cf66ad"
 }
 ```
 
@@ -111574,7 +119867,7 @@ files.release: contextPolicy=none
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "info() 无参数。",
   "synonyms": [
@@ -111590,7 +119883,59 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_page",
   "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
   "errorCodes": [],
-  "docsHash": "sha256:d5763d6d8f3f8a9edfbb02747ee9a919b57eff7a3cc525c666c453d52aa0aafe"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "getTools",
+        "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c0bb9b68b6954160ff38d2d0f3bf205b844b8a91fe989b1f1696989e4f053dfe"
 }
 ```
 
@@ -111601,7 +119946,7 @@ files.release: contextPolicy=none
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getState({sessionId?,include?,compact?,fields?,sinceRevision?}={}); include 可选 summary/features/bodies/selection/capabilities/references。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
   "synonyms": [
@@ -111623,7 +119968,59 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
-  "docsHash": "sha256:70cc7eac747faa58b5194fba435d6bd3b23aaa7ea1b70d04135fc054153f1153"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "getTools",
+        "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:f7b4fa62ae1a24cd6fde7729a8d15117bab35eb5ecc13e87f4d99280b9e537bf"
 }
 ```
 
@@ -111634,7 +120031,7 @@ files.release: contextPolicy=none
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
   "synonyms": [
@@ -111645,7 +120042,7 @@ files.release: contextPolicy=none
     "目录"
   ],
   "inputContract": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
-  "outputContract": "工具摘要、label/docsHash、score/matchedTerms、total、nextCursor、catalogHash；结果是候选能力，不是已验证的执行计划。",
+  "outputContract": "工具摘要、selectionGuide（所属组、何时选择及相似候选区别）、label/docsHash、score/matchedTerms、total、nextCursor、catalogHash；全目录比较见 api.tool-selection；结果是候选能力，不是已验证的执行计划。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -111655,7 +120052,59 @@ files.release: contextPolicy=none
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:198af3c8a565af4e265bd9105a1c6e9d93411b307661898966788d73281cc51a"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "getTools",
+        "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:3ca2629e410782e49dfe9395e1e92fa1baa8cafc9d156d87b2e7c5e520433d1d"
 }
 ```
 
@@ -111666,7 +120115,7 @@ files.release: contextPolicy=none
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
@@ -111688,7 +120137,59 @@ files.release: contextPolicy=none
     "CATALOG_CHANGED"
   ],
   "docs": "api.discovery",
-  "docsHash": "sha256:b5a175fdfecd930b63965adcfeba6a7e3b1a4b8d9ad422ca30089e8431981182"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:872446e1e1f10f38e5b1bef7525023509ce27f65212cc13412ca3c1b213ce195"
 }
 ```
 
@@ -111699,7 +120200,7 @@ files.release: contextPolicy=none
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
   "synonyms": [
@@ -111720,7 +120221,59 @@ files.release: contextPolicy=none
     "UNKNOWN_OPERATION",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:ced60744c840cfbabfe301803d22713f7a2dfc907a047b9b9eb28350d2ffbf6e"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "取一个工具完整合同；不执行该工具。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTools",
+        "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。"
+      },
+      {
+        "id": "readDocs",
+        "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:39a76db53d1f04f7d4b8d2c08027b9c185b886e3a570ccf7a815ebb5ec22787e"
 }
 ```
 
@@ -111731,7 +120284,7 @@ files.release: contextPolicy=none
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
@@ -111752,7 +120305,59 @@ files.release: contextPolicy=none
     "PARAM_RANGE_INVALID",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "docsHash": "sha256:1eb3359f28bc4be309eadaa8e3ad077f992c64ba915642bf68268ca8e342a9f6"
+  "selectionGuide": {
+    "groupId": "discovery",
+    "groupTitle": "连接、目录与文档",
+    "chooseWhen": "按登记 docId 读工作流说明；多页须按 cursor 读取。",
+    "alternatives": [
+      {
+        "id": "connect",
+        "chooseWhen": "握手取得版本、能力、当前上下文及候选工具；不等于执行建模。"
+      },
+      {
+        "id": "info",
+        "chooseWhen": "读页面版本、能力与显示修订，不返回完整工程。"
+      },
+      {
+        "id": "getState",
+        "chooseWhen": "读当前工程摘要、特征、实体与请求上下文；不是静态工具契约。"
+      },
+      {
+        "id": "createRequestContext",
+        "chooseWhen": "从当前或给定身份生成写入上下文，不修改 revision。"
+      },
+      {
+        "id": "searchTools",
+        "chooseWhen": "按名称/用途检索候选摘要；排名第一不等于选型正确。"
+      },
+      {
+        "id": "getTool",
+        "chooseWhen": "取一个工具完整合同；不执行该工具。"
+      },
+      {
+        "id": "getTools",
+        "chooseWhen": "批量取具体 ID 的完整卡并检查静态哈希，不是搜索。"
+      },
+      {
+        "id": "getModelLibrary",
+        "chooseWhen": "读可用模型库条目及版本，不插入实体。"
+      },
+      {
+        "id": "updateModelLibrary",
+        "chooseWhen": "修改支持的显示排序/恢复等库设置；不是修改模型源码。"
+      },
+      {
+        "id": "resolveModelLibrary",
+        "chooseWhen": "解析指定库项及参数到可执行定义，尚未创建。"
+      },
+      {
+        "id": "getQuickModelUsage",
+        "chooseWhen": "只读本浏览器已成功创建次数，非产品覆盖率。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:5bca955a08e51517a1002769cb9477ca259581acd2e6cb3fd789394581180aad"
 }
 ```
 
@@ -111763,7 +120368,7 @@ files.release: contextPolicy=none
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
   "synonyms": [
@@ -111788,7 +120393,55 @@ files.release: contextPolicy=none
     "AMBIGUOUS_SELECTION"
   ],
   "docs": "api.query-geometry",
-  "docsHash": "sha256:74666502f0800e8020e8080b041ae89e20402d92c6ff179b433896a4b50a5b4c"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:58a6d0be2e7c47f9d00f5ce66f21be4d5397e5b11446f4d1cc4f28644a824ce3"
 }
 ```
 
@@ -111799,7 +120452,7 @@ files.release: contextPolicy=none
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
   "synonyms": [
@@ -111819,7 +120472,55 @@ files.release: contextPolicy=none
     "STALE_REFERENCE",
     "AMBIGUOUS_REFERENCE"
   ],
-  "docsHash": "sha256:1d53dc56336754db40284916a64249eb55ba80295fe8365e19ada013f265c1c0"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:cc6f2192b5b8e6470166fa5b2ea996a72d9e19e97085b3cd074ed89f194bc5f4"
 }
 ```
 
@@ -111830,7 +120531,7 @@ files.release: contextPolicy=none
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
   "synonyms": [
@@ -111850,7 +120551,59 @@ files.release: contextPolicy=none
     "FRAME_INVALID",
     "PLACEMENT_NOT_APPLICABLE"
   ],
-  "docsHash": "sha256:50035d89660bf8ed44836ed771d7c446cd2bf58adc9607460ebeb27b25c17c33"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:59740959c9e47a14fe24e591c0158352134d7286a26ff1681f75072757830b2c"
 }
 ```
 
@@ -111861,7 +120614,7 @@ files.release: contextPolicy=none
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
@@ -111890,7 +120643,47 @@ files.release: contextPolicy=none
     "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:1267fb1eb7122469819377a62e218bb6ba4585cf9bb6beee299d09ea0897367d"
+  "selectionGuide": {
+    "groupId": "dispatch",
+    "groupTitle": "执行、批次与异步作业",
+    "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。",
+    "alternatives": [
+      {
+        "id": "run",
+        "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。"
+      },
+      {
+        "id": "invoke",
+        "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。"
+      },
+      {
+        "id": "executeText",
+        "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。"
+      },
+      {
+        "id": "submit",
+        "chooseWhen": "提交一个具有 jobId 的异步页面作业，须追踪原 job。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      },
+      {
+        "id": "awaitJob",
+        "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。"
+      },
+      {
+        "id": "waitFor",
+        "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2f81f1d5b12ce1441abb88348e905dbd659574785ab9b74b291f69ee1539c712"
 }
 ```
 
@@ -111901,7 +120694,7 @@ files.release: contextPolicy=none
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
   "synonyms": [
@@ -111931,7 +120724,55 @@ files.release: contextPolicy=none
     "area": "mm^2",
     "volume": "mm^3"
   },
-  "docsHash": "sha256:6d145fdd2e4244c052f2962994cb80d36a734b873655fbc76c130c18e26f576f"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。",
+    "alternatives": [
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:0d8e4f4478cd8a02668208f3806bb11b65614c223ab31d41cbb0b96201f4a1f9"
 }
 ```
 
@@ -111942,7 +120783,7 @@ files.release: contextPolicy=none
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
   "synonyms": [
@@ -111966,7 +120807,55 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:d7eb31222c84bc0b58a8e23a06b095aef6e3fa66ae9eb635492480ef3c367953"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:f398590f1832df9ab9f40bf45254e34842af59297f42f78954dffee3597f523c"
 }
 ```
 
@@ -111977,7 +120866,7 @@ files.release: contextPolicy=none
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。",
   "synonyms": [
@@ -112266,7 +121155,55 @@ files.release: contextPolicy=none
     "maxMaterialPoints": 128
   },
   "unknownFields": "rejected",
-  "docsHash": "sha256:0e9ab15d9542d3f036e1425da4269c4ef23d22f77e9d69fdfd57398ef9762952"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a6132dd35442843ee905e3bc473518d273b4ad9ca9837b56bfc67ee2c7ec3684"
 }
 ```
 
@@ -112277,7 +121214,7 @@ files.release: contextPolicy=none
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
   "synonyms": [
@@ -112301,7 +121238,55 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.printability",
-  "docsHash": "sha256:925c1f893853840303322ad5e789d2ed8cdc4f011f17d0bb2f27ce507d808a7d"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:f7649f43a06cc536b93315242352926a0f62fdc2dae2de94e1f4ce18f0d09a0b"
 }
 ```
 
@@ -112312,7 +121297,7 @@ files.release: contextPolicy=none
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
   "synonyms": [
@@ -112336,7 +121321,63 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:f82e2e5a8b0c399df8c70ceaf4c5f81f9dbafa36718e674e6873a9ea3f7e7f3c"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:cfd866f51c73c2b8bbce0c2fa59c6a854328cb0d02695ae385499f4dd0f101d4"
 }
 ```
 
@@ -112347,7 +121388,7 @@ files.release: contextPolicy=none
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
   "synonyms": [
@@ -112373,7 +121414,71 @@ files.release: contextPolicy=none
     "GEOMETRY_INVALID"
   ],
   "docs": "api.interaction",
-  "docsHash": "sha256:da6f9caff72a4755b6164bb64a14b82402cec7146b6a3ea78e1d707f131ebc67"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:b5f9110954f109c5dca72ebd6421e6a0d1050b3a6a941f30232dfc30befe2a9b"
 }
 ```
 
@@ -112384,7 +121489,7 @@ files.release: contextPolicy=none
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。",
   "synonyms": [
@@ -112418,7 +121523,63 @@ files.release: contextPolicy=none
     "length": "mm",
     "angle": "degrees"
   },
-  "docsHash": "sha256:a19101955b9e3c6f1899d711d95753b36fa4790164cf2860b8b38ea7e7e3081b"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:fa083bcb7da0eb12547aeb847c3573f8bbf8d4cca1f81d32b3c1d3613402afb3"
 }
 ```
 
@@ -112429,7 +121590,7 @@ files.release: contextPolicy=none
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
   "synonyms": [
@@ -112452,7 +121613,67 @@ files.release: contextPolicy=none
     "UNSUPPORTED_CURVE_PROJECTION",
     "DEGENERATE_PROJECTION"
   ],
-  "docsHash": "sha256:5ce0ebce058d90cb91b048c3d1fcc05b0d305bc373988be2036d94b319fc08fb"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:f18243f7f538533b8f029f088cd10844ea342390a9491263928d6d428c78e65b"
 }
 ```
 
@@ -112463,7 +121684,7 @@ files.release: contextPolicy=none
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
   "synonyms": [
@@ -112487,7 +121708,55 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:e62200d6760470698f061ca0d3ca4d528de8981e4dcac6f634207a0daf205222"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a94b0e2319c914635291a66e439771c0016706747e1f0b807bbd5f536c44c902"
 }
 ```
 
@@ -112498,7 +121767,7 @@ files.release: contextPolicy=none
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
   "synonyms": [
@@ -112520,7 +121789,55 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:0caec2e6c5bfe12b392d8c7cc9c601f0c27a286483267ec517fcc61044bba21d"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:466a01756bf603ce0963774f0efeb2c81c009c205db652651b3752f32d72abfe"
 }
 ```
 
@@ -112531,7 +121848,7 @@ files.release: contextPolicy=none
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
   "synonyms": [
@@ -112553,7 +121870,63 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:d83f5821c3bcba07b2356884a8d388cbc625d351562e51333ebd56b357da59f2"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      },
+      {
+        "id": "draftFaces",
+        "chooseWhen": "受限四侧平面棱柱拔模，固定底平面。"
+      },
+      {
+        "id": "draftByPlane",
+        "chooseWhen": "绕明确中性平面对选定解析面拔模；不默认扩大为全体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:b2d4fb5291b8da49e0c7eccde976dd05dd55b539aaabb083910e6c2820b4d25c"
 }
 ```
 
@@ -112564,7 +121937,7 @@ files.release: contextPolicy=none
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "inspectRound({context,bodyId,params:{edgeIds:[0],mode:\"edge\",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。",
   "synonyms": [
@@ -112597,7 +121970,55 @@ files.release: contextPolicy=none
   "units": {
     "length": "mm"
   },
-  "docsHash": "sha256:3a1c95a5ec6887634f234ba20d677f18069818a3ba167c8e76c335566e95939e"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4566a37a9fede4266ac635cde82845fc3b7a94a053923bf65216f401476c2782"
 }
 ```
 
@@ -112608,7 +122029,7 @@ files.release: contextPolicy=none
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
   "synonyms": [
@@ -112639,7 +122060,67 @@ files.release: contextPolicy=none
     "api.source-curves"
   ],
   "sourceCurvePolicy": "Unsupported splines preserve sourceSpline metadata; no original NURBS construction or automatic fit-point closure.",
-  "docsHash": "sha256:76b4e3d3961bdc2a333e9fb28e1f6bc1a8f8a18e95efc921102837941cdbf2ec"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4d067728bf7706c8595226d50cee4aba62206a58184d0bb51baaefcd0326122a"
 }
 ```
 
@@ -112650,7 +122131,7 @@ files.release: contextPolicy=none
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
   "synonyms": [
@@ -112675,7 +122156,67 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.vector-import",
-  "docsHash": "sha256:cb5f94941aba090688d869d19207abbaf61dccc4e5113ded49f6cb8c513dbea5"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:fd323f05da4b5e8d5d79906d80a5b85221786e571aaaabc0144401a91f3c5550"
 }
 ```
 
@@ -112686,7 +122227,7 @@ files.release: contextPolicy=none
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
   "synonyms": [
@@ -112711,7 +122252,67 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.profile-fitting",
-  "docsHash": "sha256:ee6af0242ae020cc9b08ca8db240cfab11334d4acfeb5b2a71691b348e7a34de"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "traceTwinWindow",
+        "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d1d659ee1ac88e5127ad5735dcde0dab2701a66c0baf23aadcbab422480b3eb1"
 }
 ```
 
@@ -112722,7 +122323,7 @@ files.release: contextPolicy=none
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
   "synonyms": [
@@ -112745,7 +122346,67 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.dwg-spline-twin-window",
-  "docsHash": "sha256:f0acbdfd2e8cc1bb9d011afa270a010737b70bb8f21ce0ead5340b3140f11452"
+  "selectionGuide": {
+    "groupId": "profiles",
+    "groupTitle": "轮廓创建、提取与修复",
+    "chooseWhen": "根据明确轮廓控制数据追踪双窗轮廓；不等于完成三维建模。",
+    "alternatives": [
+      {
+        "id": "sketchProfile",
+        "chooseWhen": "保存可编辑解析图元与稳定 entity ID 的二维线框/平面面。"
+      },
+      {
+        "id": "vectorProfile",
+        "chooseWhen": "从闭合矢量区域及孔环直接生成面或实体，不创建图元约束。"
+      },
+      {
+        "id": "arcProfile",
+        "chooseWhen": "由明确的 XY 直线/圆弧闭边界及孔拉伸；不是自由曲面或像素追踪。"
+      },
+      {
+        "id": "faceBoundary",
+        "chooseWhen": "提取已有面的外环或全部边界线框；选 outer 会排除内孔。"
+      },
+      {
+        "id": "planeSection",
+        "chooseWhen": "取实体与指定平面的真实交线；不是表面边界或剖切显示。"
+      },
+      {
+        "id": "profileOffset",
+        "chooseWhen": "对闭合平面来源做等距偏移或带状轮廓，不改变实体全部表面。"
+      },
+      {
+        "id": "profileRepair",
+        "chooseWhen": "在明确最大位移内移动指定端点修复来源；不是自动修补任意坏轮廓。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "readVector",
+        "chooseWhen": "读取已登记矢量资源/文本并解析来源，尚未创建实体。"
+      },
+      {
+        "id": "connectVector",
+        "chooseWhen": "将显式解析图元连接成闭环；不读取文件，不猜缺失边。"
+      },
+      {
+        "id": "fitProfile",
+        "chooseWhen": "从显式采样点拟合直线或圆，读回误差；不是保真复用原始精确曲线。"
+      },
+      {
+        "id": "projectProfile",
+        "chooseWhen": "将当前选定边投影为派生解析轮廓，保留来源关系。"
+      },
+      {
+        "id": "prepareProfileEdit",
+        "chooseWhen": "计算修剪/延伸/圆角等轮廓编辑候选；须再按回执提交修改。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:55d9a722c2b19fb1a23f17380758a09e71053482b73331a617691af6bf5af17b"
 }
 ```
 
@@ -112756,7 +122417,7 @@ files.release: contextPolicy=none
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
@@ -112780,7 +122441,47 @@ files.release: contextPolicy=none
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.text-command",
-  "docsHash": "sha256:94f18947f88d1dee16352954c4bdbe6402dcad428b28b406a26f912350aea5a0"
+  "selectionGuide": {
+    "groupId": "dispatch",
+    "groupTitle": "执行、批次与异步作业",
+    "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。",
+    "alternatives": [
+      {
+        "id": "execute",
+        "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
+      },
+      {
+        "id": "run",
+        "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。"
+      },
+      {
+        "id": "invoke",
+        "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。"
+      },
+      {
+        "id": "submit",
+        "chooseWhen": "提交一个具有 jobId 的异步页面作业，须追踪原 job。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      },
+      {
+        "id": "awaitJob",
+        "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。"
+      },
+      {
+        "id": "waitFor",
+        "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4730cc97bf4f66a375419d53613a8bd9d2fc2d91079334635f88d929080fb98f"
 }
 ```
 
@@ -112791,7 +122492,7 @@ files.release: contextPolicy=none
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
@@ -112817,7 +122518,55 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.display-preferences",
-  "docsHash": "sha256:7fc310aac56f2f492196774466af556ef7069302bb03e79a19424f24c7b94d85"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:ec069b58ed7762213ea0b2536dfae94ac6e09eac8c37d19f8a1688d880fe5c0b"
 }
 ```
 
@@ -112828,7 +122577,7 @@ files.release: contextPolicy=none
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getAgentPanel()",
   "synonyms": [
@@ -112844,7 +122593,23 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:6e848db9fc489e92d714e6b874cdce95f399d1fe05ab318d5dc62600aec740a7"
+  "selectionGuide": {
+    "groupId": "assistant",
+    "groupTitle": "助手面板",
+    "chooseWhen": "读助手面板配置与显示状态，不发起建模任务。",
+    "alternatives": [
+      {
+        "id": "configureAgentPanel",
+        "chooseWhen": "配置助手页面地址，不代表已经连接或控制当前工程。"
+      },
+      {
+        "id": "setAgentPanel",
+        "chooseWhen": "按已有配置显示/断开助手面板；与几何 API 操作分离。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:7a8fb0f5c9d885252535d9a5a5de75a01d8416fce2fe53803be09b642cc11f40"
 }
 ```
 
@@ -112855,7 +122620,7 @@ files.release: contextPolicy=none
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
   "synonyms": [
@@ -112871,7 +122636,23 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:c7540b76d15a9074039456d9be4ff88b76eecf78b333f95ab52708b1e2b23313"
+  "selectionGuide": {
+    "groupId": "assistant",
+    "groupTitle": "助手面板",
+    "chooseWhen": "配置助手页面地址，不代表已经连接或控制当前工程。",
+    "alternatives": [
+      {
+        "id": "getAgentPanel",
+        "chooseWhen": "读助手面板配置与显示状态，不发起建模任务。"
+      },
+      {
+        "id": "setAgentPanel",
+        "chooseWhen": "按已有配置显示/断开助手面板；与几何 API 操作分离。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d8775839a3e83433354c90713965c0145d088af35b62f7d15d3bc6d86f65d7ff"
 }
 ```
 
@@ -112882,7 +122663,7 @@ files.release: contextPolicy=none
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "setAgentPanel({context,visible:true|false})；true接入已配置助手，false退出并释放。或 setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false}})；layout与visible分开调用，宽高1–4096像素，按可用空间夹限。",
   "synonyms": [
@@ -112904,7 +122685,23 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
-  "docsHash": "sha256:b4905901f6b9f7e12c53ccc071ad54f41884b57ceb35589ff0f40b6cea9d0bbf"
+  "selectionGuide": {
+    "groupId": "assistant",
+    "groupTitle": "助手面板",
+    "chooseWhen": "按已有配置显示/断开助手面板；与几何 API 操作分离。",
+    "alternatives": [
+      {
+        "id": "getAgentPanel",
+        "chooseWhen": "读助手面板配置与显示状态，不发起建模任务。"
+      },
+      {
+        "id": "configureAgentPanel",
+        "chooseWhen": "配置助手页面地址，不代表已经连接或控制当前工程。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:fcd36293f5a59934931dfec5f48f31e3b13780240b97c18d3fd12717bdffb3dc"
 }
 ```
 
@@ -112915,7 +122712,7 @@ files.release: contextPolicy=none
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。",
   "synonyms": [
@@ -112934,7 +122731,67 @@ files.release: contextPolicy=none
   "errorCodes": [
     "SERVICES_CONFIG_INVALID"
   ],
-  "docsHash": "sha256:ce3f539b0fa9e5539cf5c23979546748df921205e8304680e6fdfb68d6235b65"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。",
+    "alternatives": [
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:43667fc2a7245de88867d8421652cbbe0f0f0ae0748c8ea50f5311d8addb09ee"
 }
 ```
 
@@ -112945,7 +122802,7 @@ files.release: contextPolicy=none
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "setServices({context,url,credential?,enabled?,computeMode?:\"local\"|\"auto\"|\"serverPreferred\",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。",
   "synonyms": [
@@ -112970,7 +122827,67 @@ files.release: contextPolicy=none
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
-  "docsHash": "sha256:2a1ed7866035dacedab4a6afc1d51d247a9be2dd11d13bd7020fd7f163515da9"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:fb24bbfa33e713c3e3036f48943df38aac5b5480dab3fa801aea40960bc29c04"
 }
 ```
 
@@ -112981,7 +122898,7 @@ files.release: contextPolicy=none
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getServicesCapabilities()；读取已配置服务。",
   "synonyms": [
@@ -113005,7 +122922,67 @@ files.release: contextPolicy=none
     "SERVICES_REQUEST_FAILED",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
-  "docsHash": "sha256:1beb3d21cdd4fbdb40b1b07de28ba682beee31b07fa17c2bf7ecdef693c73d3d"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:eed750f2df7520025c5c578920711b1f1927a72050a108048d8f03d1950a2f44"
 }
 ```
 
@@ -113016,7 +122993,7 @@ files.release: contextPolicy=none
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
   "synonyms": [
@@ -113034,7 +123011,67 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:249f213f610713087bd63b4ce5837fe65be4cf520547665999e55071437f38cd"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:3c18cbda11fc65cd8bec7a5099ffed868026f53c05561646dfb79e95957eea86"
 }
 ```
 
@@ -113045,7 +123082,7 @@ files.release: contextPolicy=none
   "id": "clearServicesCredential",
   "title": "clearServicesCredential",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "clearServicesCredential({context})",
   "synonyms": [
@@ -113065,7 +123102,67 @@ files.release: contextPolicy=none
     "INSTANCE_MISMATCH",
     "REVISION_CONFLICT"
   ],
-  "docsHash": "sha256:c64ecb279fc243a0ee02598772a9cf24a1173b9aa3c91024f4183c5635d8f87e"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:76511c4100ec8b6f3f8eafd92511cdc26048ca448fec54a3dabf4c520f3c68fb"
 }
 ```
 
@@ -113076,7 +123173,7 @@ files.release: contextPolicy=none
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getServicesJob({jobId})",
   "synonyms": [
@@ -113099,7 +123196,71 @@ files.release: contextPolicy=none
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:ee99a0c5af35e32a7c1152b44ea07ffa8431bf17c8bf4b2a05702fece5c67432"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:5244b1495ab916ba1f0f5f67c4cedfec199c768cb2d7824441d058bb929ae99f"
 }
 ```
 
@@ -113110,7 +123271,7 @@ files.release: contextPolicy=none
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
   "synonyms": [
@@ -113134,7 +123295,71 @@ files.release: contextPolicy=none
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:687588006f6982de643ce7996a8c685a48b874d8b0a98a461e42fb4ca001a314"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:9a95146967b978f590fdff4c30bad4929bf5266d17e262ff5d3010c02bc78f3c"
 }
 ```
 
@@ -113145,7 +123370,7 @@ files.release: contextPolicy=none
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "cancelServicesJob({context,jobId})",
   "synonyms": [
@@ -113169,7 +123394,75 @@ files.release: contextPolicy=none
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_REQUEST_FAILED"
   ],
-  "docsHash": "sha256:0ccd8ffa0554723b9d158a4b99be084e05c1ef5ae5d5e59fd50067273edca7a8"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      },
+      {
+        "id": "preview.cancel",
+        "chooseWhen": "丢弃未提交草稿，不删除已提交实体、不增加几何修订。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:9b1a1c99d018200513910a434b1d22342d84aea3c5caf218a6fd05f304c3c6ed"
 }
 ```
 
@@ -113180,7 +123473,7 @@ files.release: contextPolicy=none
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "description": "getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。",
   "synonyms": [
@@ -113196,7 +123489,67 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
-  "docsHash": "sha256:a98de84910d27cb6e54788a5615d77eea6dfa83c92aa63f0e8e88becd2e66331"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:7320bb02b090b6f15cdca5aaf6557f2d4e8277a5ca369410b2f6283d7495ed51"
 }
 ```
 
@@ -113207,7 +123560,7 @@ files.release: contextPolicy=none
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "改用 setServices，旧 setter 拒绝存影子配置。",
   "synonyms": [
@@ -113228,7 +123581,67 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:034ef14c99bea4ff695f43ed11c45f28452558af82925dc5c6c78cf76101f1d3"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:58917f26713462c1f6013db2804cb76feb0fbd264484e8dc06eb1b4b0fd2b26b"
 }
 ```
 
@@ -113239,7 +123652,7 @@ files.release: contextPolicy=none
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "convertLogoPdf({context,name,data,targetWidthMm?,page?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
   "synonyms": [
@@ -113262,7 +123675,67 @@ files.release: contextPolicy=none
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID"
   ],
-  "docsHash": "sha256:c5e3bef3f007789d3c5661fcf63cb5ec4bd67353baf35489e5ee8977974e80de"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:97d04034095b29f990df6a590a17978e2992ccf849f4c49059ff82362650b5f9"
 }
 ```
 
@@ -113273,7 +123746,7 @@ files.release: contextPolicy=none
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
   "synonyms": [
@@ -113317,7 +123790,67 @@ files.release: contextPolicy=none
     "UI_TASK_ACTIVE"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:4f91e2a4a20f3aad3e7e9c17bc2771a667252a886b35a6ebcc69de3dc38df7ed"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      },
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:5873744a0bb87e1dd8350edca8f1193a19eebb13732ba62565a16a893bb696a2"
 }
 ```
 
@@ -113328,7 +123861,7 @@ files.release: contextPolicy=none
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
@@ -113350,7 +123883,55 @@ files.release: contextPolicy=none
     "DISPLAY_FAILED"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:b5011ef19c50b7a6ebd1beca8d7c2e581a5a7a1e0fd93881abdfaf29ac49dcd9"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "重绘当前显示，不重建特征历史。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d6460c33fd118373785e5b2b67c1e345916bc5bf93295ebe7cb422720422be67"
 }
 ```
 
@@ -113361,7 +123942,7 @@ files.release: contextPolicy=none
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:\"webp\"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。",
   "synonyms": [
@@ -113384,7 +123965,63 @@ files.release: contextPolicy=none
     "CAPTURE_TIMEOUT"
   ],
   "docs": "api.views",
-  "docsHash": "sha256:31f67cdf7a895434c20633486454e162b59a8481627f640beb75fed000e3a5c8"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:9151092456cacfe0c1fd8cdf59f05bdbf0423b9041981f5887977e95ce245fa3"
 }
 ```
 
@@ -113395,7 +124032,7 @@ files.release: contextPolicy=none
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
   "synonyms": [
@@ -113426,7 +124063,47 @@ files.release: contextPolicy=none
     "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
-  "docsHash": "sha256:3c4803ee31316579e9198d54e85529f7c337daeb844297f2e8eb76caa28ebdfe"
+  "selectionGuide": {
+    "groupId": "dispatch",
+    "groupTitle": "执行、批次与异步作业",
+    "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。",
+    "alternatives": [
+      {
+        "id": "execute",
+        "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
+      },
+      {
+        "id": "invoke",
+        "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。"
+      },
+      {
+        "id": "executeText",
+        "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。"
+      },
+      {
+        "id": "submit",
+        "chooseWhen": "提交一个具有 jobId 的异步页面作业，须追踪原 job。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      },
+      {
+        "id": "awaitJob",
+        "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。"
+      },
+      {
+        "id": "waitFor",
+        "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:68bb0ca3f5acace375793626107ea776b16370b1f627a733f864f972a840a42d"
 }
 ```
 
@@ -113438,7 +124115,7 @@ files.release: contextPolicy=none
   "title": "Services 原特征编译",
   "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -113479,7 +124156,67 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:1a149483967bfcf901e20829493960f0aa253fc877aa2b7f746b3ba50954d832"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6709f2792825697406d2797eb1ecb6adb5046df2257e1d40f54aeaf2c3669aba"
 }
 ```
 
@@ -113491,7 +124228,7 @@ files.release: contextPolicy=none
   "title": "快速对齐",
   "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -113549,7 +124286,51 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:384a2db5a5dcb7a4aa8616545266257ade86031d178326f94166ececce926f19"
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "circularPattern",
+        "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:58de81b4fc956102624c5fffdb666bf52f504d4125a4c1b44e2bb1ac8fe0ea44"
 }
 ```
 
@@ -113561,7 +124342,7 @@ files.release: contextPolicy=none
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -113597,7 +124378,59 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:94593256123c176a445dd112530a87e520fcca335bd8650be4c3e13663e5e993"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      },
+      {
+        "id": "files.open",
+        "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c51d89af94a0024c37e2a3d7b04e38f204d8ef0a9efe175bf45d7956505c477d"
 }
 ```
 
@@ -113609,7 +124442,7 @@ files.release: contextPolicy=none
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -113648,7 +124481,55 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:4995868f93ac7f1562b820c8252f8a3e9df025a4d0e4bc05c236c7d12c4da330"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "只改工程名，不改每个实体名称。",
+    "alternatives": [
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:8282ba83e6d6885a64b3a96d3347f919e111610d4ae8b4a9f59dc596b21d31a0"
 }
 ```
 
@@ -113660,7 +124541,7 @@ files.release: contextPolicy=none
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -113701,7 +124582,55 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:e97bdc0abdaa7117f6c06aea48a3a6d608cd7ef65a014e05ddbc7b196fa79e1d"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "只改指定历史步骤及同 ID 实体名称。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:01170558d2819ba7672ec80e242d92e28ad69815ee46b34353872fb1b4c1845a"
 }
 ```
 
@@ -113713,7 +124642,7 @@ files.release: contextPolicy=none
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -113756,7 +124685,59 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:28f17c7aa16e2e1a8a760fd11763b2f210576009edd7e2ac03b6e414ec19617d"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:784269a2ee7392b99a603a035564a7dc1368d00ca1f561490fcf338cff35818e"
 }
 ```
 
@@ -113768,7 +124749,7 @@ files.release: contextPolicy=none
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -113829,7 +124810,55 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:eac157fc0acd66bceca4d811180a99f826e28d02bfa9a728566e10b6a60f8c8e"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:022ee9ddd7d039290e9275a3f8834fd8778a1897ef73603565f6948c2f8c714a"
 }
 ```
 
@@ -113841,7 +124870,7 @@ files.release: contextPolicy=none
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -113896,7 +124925,55 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:2da66e5df9024ea98fd290c59ddc4cd5b63b4816201c1b2750911fc1a1d36f15"
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:5fec27488665d6f71c5d1447a3be1fcf32014ade2ede08d725a78e15ddd1c0e1"
 }
 ```
 
@@ -113908,7 +124985,7 @@ files.release: contextPolicy=none
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -113947,7 +125024,63 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
-  "docsHash": "sha256:f4daf2c70ef92f8af6077a660af40ea74560b1d761d1406aa575c7ef8ee8e68d"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:91a2c9b7f2e4b5aaccf066b2ce79e124bdee01048dda67c8b286f710a090fd2f"
 }
 ```
 
@@ -113959,7 +125092,7 @@ files.release: contextPolicy=none
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -113997,7 +125130,59 @@ files.release: contextPolicy=none
     "工作基准",
     "基准点"
   ],
-  "docsHash": "sha256:2509c949360663bdaa125901b184917503266c30200ac0bbfdafd1b698858ea3"
+  "selectionGuide": {
+    "groupId": "references",
+    "groupTitle": "插入锚点与对象参考",
+    "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。",
+    "alternatives": [
+      {
+        "id": "reference.resetWorkFrame",
+        "chooseWhen": "只重置指定的位置、方向或全部工作锚点。"
+      },
+      {
+        "id": "reference.setLocked",
+        "chooseWhen": "锁定工作锚点的自动避让，仍为可撤销参考元数据。"
+      },
+      {
+        "id": "reference.saveFrame",
+        "chooseWhen": "将明确标架保存为具名参考，不等于激活。"
+      },
+      {
+        "id": "reference.activateFrame",
+        "chooseWhen": "将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。"
+      },
+      {
+        "id": "reference.renameFrame",
+        "chooseWhen": "只改具名标架名称，须用当前标架版本。"
+      },
+      {
+        "id": "reference.deleteFrame",
+        "chooseWhen": "删除具名标架记录，已冻结特征不受影响。"
+      },
+      {
+        "id": "reference.setBodyAnchor",
+        "chooseWhen": "在指定实体上创建/更新对象锚点；不同于全局插入锚点。"
+      },
+      {
+        "id": "reference.deleteBodyAnchor",
+        "chooseWhen": "删除对象锚点元数据，不删除实体。"
+      },
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:65f091ec213a2d8d675d478bb98c49c6274881c1fcc6f675df70fbd2f0c2bae1"
 }
 ```
 
@@ -114009,7 +125194,7 @@ files.release: contextPolicy=none
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114039,7 +125224,47 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:69b2ba609f950dc77940df0e4f668379ef1608beaa19bba83ab6f8d0a552b311"
+  "selectionGuide": {
+    "groupId": "references",
+    "groupTitle": "插入锚点与对象参考",
+    "chooseWhen": "只重置指定的位置、方向或全部工作锚点。",
+    "alternatives": [
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      },
+      {
+        "id": "reference.setLocked",
+        "chooseWhen": "锁定工作锚点的自动避让，仍为可撤销参考元数据。"
+      },
+      {
+        "id": "reference.saveFrame",
+        "chooseWhen": "将明确标架保存为具名参考，不等于激活。"
+      },
+      {
+        "id": "reference.activateFrame",
+        "chooseWhen": "将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。"
+      },
+      {
+        "id": "reference.renameFrame",
+        "chooseWhen": "只改具名标架名称，须用当前标架版本。"
+      },
+      {
+        "id": "reference.deleteFrame",
+        "chooseWhen": "删除具名标架记录，已冻结特征不受影响。"
+      },
+      {
+        "id": "reference.setBodyAnchor",
+        "chooseWhen": "在指定实体上创建/更新对象锚点；不同于全局插入锚点。"
+      },
+      {
+        "id": "reference.deleteBodyAnchor",
+        "chooseWhen": "删除对象锚点元数据，不删除实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:732954f56753e08dbf7e97aaa5991884605168e102afb4e45dc8db86793cd6a6"
 }
 ```
 
@@ -114051,7 +125276,7 @@ files.release: contextPolicy=none
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114081,7 +125306,47 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:4d5ff14642de9ce6f6080a1cdb9da021eb63fe82a6dfdd436e37935b624acf9b"
+  "selectionGuide": {
+    "groupId": "references",
+    "groupTitle": "插入锚点与对象参考",
+    "chooseWhen": "锁定工作锚点的自动避让，仍为可撤销参考元数据。",
+    "alternatives": [
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      },
+      {
+        "id": "reference.resetWorkFrame",
+        "chooseWhen": "只重置指定的位置、方向或全部工作锚点。"
+      },
+      {
+        "id": "reference.saveFrame",
+        "chooseWhen": "将明确标架保存为具名参考，不等于激活。"
+      },
+      {
+        "id": "reference.activateFrame",
+        "chooseWhen": "将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。"
+      },
+      {
+        "id": "reference.renameFrame",
+        "chooseWhen": "只改具名标架名称，须用当前标架版本。"
+      },
+      {
+        "id": "reference.deleteFrame",
+        "chooseWhen": "删除具名标架记录，已冻结特征不受影响。"
+      },
+      {
+        "id": "reference.setBodyAnchor",
+        "chooseWhen": "在指定实体上创建/更新对象锚点；不同于全局插入锚点。"
+      },
+      {
+        "id": "reference.deleteBodyAnchor",
+        "chooseWhen": "删除对象锚点元数据，不删除实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:92868ed56e544e0ab250fe3de4196ae1c1aa0999bcfd5851a82861c9572fd30e"
 }
 ```
 
@@ -114093,7 +125358,7 @@ files.release: contextPolicy=none
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114123,7 +125388,47 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:451b84c90675c05ad6e8f3c94a724772d67bb4cf2629a485a9fbbf5c68db00d1"
+  "selectionGuide": {
+    "groupId": "references",
+    "groupTitle": "插入锚点与对象参考",
+    "chooseWhen": "将明确标架保存为具名参考，不等于激活。",
+    "alternatives": [
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      },
+      {
+        "id": "reference.resetWorkFrame",
+        "chooseWhen": "只重置指定的位置、方向或全部工作锚点。"
+      },
+      {
+        "id": "reference.setLocked",
+        "chooseWhen": "锁定工作锚点的自动避让，仍为可撤销参考元数据。"
+      },
+      {
+        "id": "reference.activateFrame",
+        "chooseWhen": "将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。"
+      },
+      {
+        "id": "reference.renameFrame",
+        "chooseWhen": "只改具名标架名称，须用当前标架版本。"
+      },
+      {
+        "id": "reference.deleteFrame",
+        "chooseWhen": "删除具名标架记录，已冻结特征不受影响。"
+      },
+      {
+        "id": "reference.setBodyAnchor",
+        "chooseWhen": "在指定实体上创建/更新对象锚点；不同于全局插入锚点。"
+      },
+      {
+        "id": "reference.deleteBodyAnchor",
+        "chooseWhen": "删除对象锚点元数据，不删除实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:b513d63120676299e852ca54ae1ff3e4c8fb8293798cd856d6affe8dc740d0d2"
 }
 ```
 
@@ -114135,7 +125440,7 @@ files.release: contextPolicy=none
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114165,7 +125470,47 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:64edd6e5006e6e026df4e695b1dca6517ae12e6190518ef21077438c2b1d6672"
+  "selectionGuide": {
+    "groupId": "references",
+    "groupTitle": "插入锚点与对象参考",
+    "chooseWhen": "将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。",
+    "alternatives": [
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      },
+      {
+        "id": "reference.resetWorkFrame",
+        "chooseWhen": "只重置指定的位置、方向或全部工作锚点。"
+      },
+      {
+        "id": "reference.setLocked",
+        "chooseWhen": "锁定工作锚点的自动避让，仍为可撤销参考元数据。"
+      },
+      {
+        "id": "reference.saveFrame",
+        "chooseWhen": "将明确标架保存为具名参考，不等于激活。"
+      },
+      {
+        "id": "reference.renameFrame",
+        "chooseWhen": "只改具名标架名称，须用当前标架版本。"
+      },
+      {
+        "id": "reference.deleteFrame",
+        "chooseWhen": "删除具名标架记录，已冻结特征不受影响。"
+      },
+      {
+        "id": "reference.setBodyAnchor",
+        "chooseWhen": "在指定实体上创建/更新对象锚点；不同于全局插入锚点。"
+      },
+      {
+        "id": "reference.deleteBodyAnchor",
+        "chooseWhen": "删除对象锚点元数据，不删除实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:1fb91d1e1de58e043d1a2633d76e930cdfda9e42c3757d2d8762f6a8756f05af"
 }
 ```
 
@@ -114177,7 +125522,7 @@ files.release: contextPolicy=none
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114207,7 +125552,47 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:1a668fa153a8494e5e6459b93fdbf23251fcf4a594902ab68995879e595c4895"
+  "selectionGuide": {
+    "groupId": "references",
+    "groupTitle": "插入锚点与对象参考",
+    "chooseWhen": "只改具名标架名称，须用当前标架版本。",
+    "alternatives": [
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      },
+      {
+        "id": "reference.resetWorkFrame",
+        "chooseWhen": "只重置指定的位置、方向或全部工作锚点。"
+      },
+      {
+        "id": "reference.setLocked",
+        "chooseWhen": "锁定工作锚点的自动避让，仍为可撤销参考元数据。"
+      },
+      {
+        "id": "reference.saveFrame",
+        "chooseWhen": "将明确标架保存为具名参考，不等于激活。"
+      },
+      {
+        "id": "reference.activateFrame",
+        "chooseWhen": "将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。"
+      },
+      {
+        "id": "reference.deleteFrame",
+        "chooseWhen": "删除具名标架记录，已冻结特征不受影响。"
+      },
+      {
+        "id": "reference.setBodyAnchor",
+        "chooseWhen": "在指定实体上创建/更新对象锚点；不同于全局插入锚点。"
+      },
+      {
+        "id": "reference.deleteBodyAnchor",
+        "chooseWhen": "删除对象锚点元数据，不删除实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:736265916141f90b8251f7b7ecb9e556b9a02e19214fe96fb12dea2c45114849"
 }
 ```
 
@@ -114219,7 +125604,7 @@ files.release: contextPolicy=none
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114249,7 +125634,47 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:29a3fc59664f158160d17c9bec933e3b1eecaa87f4f2c3bf0412bb337c358155"
+  "selectionGuide": {
+    "groupId": "references",
+    "groupTitle": "插入锚点与对象参考",
+    "chooseWhen": "删除具名标架记录，已冻结特征不受影响。",
+    "alternatives": [
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      },
+      {
+        "id": "reference.resetWorkFrame",
+        "chooseWhen": "只重置指定的位置、方向或全部工作锚点。"
+      },
+      {
+        "id": "reference.setLocked",
+        "chooseWhen": "锁定工作锚点的自动避让，仍为可撤销参考元数据。"
+      },
+      {
+        "id": "reference.saveFrame",
+        "chooseWhen": "将明确标架保存为具名参考，不等于激活。"
+      },
+      {
+        "id": "reference.activateFrame",
+        "chooseWhen": "将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。"
+      },
+      {
+        "id": "reference.renameFrame",
+        "chooseWhen": "只改具名标架名称，须用当前标架版本。"
+      },
+      {
+        "id": "reference.setBodyAnchor",
+        "chooseWhen": "在指定实体上创建/更新对象锚点；不同于全局插入锚点。"
+      },
+      {
+        "id": "reference.deleteBodyAnchor",
+        "chooseWhen": "删除对象锚点元数据，不删除实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c01d43b898fb0ef064546bbeef5e93302f76c49e2e80fab732dbc428dc8d13c9"
 }
 ```
 
@@ -114261,7 +125686,7 @@ files.release: contextPolicy=none
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114295,7 +125720,47 @@ files.release: contextPolicy=none
     "对象锚点",
     "实体锚点"
   ],
-  "docsHash": "sha256:f95fd223eee14dbca6c352b65f995e34600f563624acaa08d3a2235c126859b9"
+  "selectionGuide": {
+    "groupId": "references",
+    "groupTitle": "插入锚点与对象参考",
+    "chooseWhen": "在指定实体上创建/更新对象锚点；不同于全局插入锚点。",
+    "alternatives": [
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      },
+      {
+        "id": "reference.resetWorkFrame",
+        "chooseWhen": "只重置指定的位置、方向或全部工作锚点。"
+      },
+      {
+        "id": "reference.setLocked",
+        "chooseWhen": "锁定工作锚点的自动避让，仍为可撤销参考元数据。"
+      },
+      {
+        "id": "reference.saveFrame",
+        "chooseWhen": "将明确标架保存为具名参考，不等于激活。"
+      },
+      {
+        "id": "reference.activateFrame",
+        "chooseWhen": "将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。"
+      },
+      {
+        "id": "reference.renameFrame",
+        "chooseWhen": "只改具名标架名称，须用当前标架版本。"
+      },
+      {
+        "id": "reference.deleteFrame",
+        "chooseWhen": "删除具名标架记录，已冻结特征不受影响。"
+      },
+      {
+        "id": "reference.deleteBodyAnchor",
+        "chooseWhen": "删除对象锚点元数据，不删除实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:5573769b7142c79af6cedafc8ae77b6e5af53a66c4c83e1eee4af50515f46d13"
 }
 ```
 
@@ -114307,7 +125772,7 @@ files.release: contextPolicy=none
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114337,7 +125802,47 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
-  "docsHash": "sha256:580cd7a9fe90bc1eeb1362e30c584f5cefe6c008b148afbfb74a8b7a901b26f2"
+  "selectionGuide": {
+    "groupId": "references",
+    "groupTitle": "插入锚点与对象参考",
+    "chooseWhen": "删除对象锚点元数据，不删除实体。",
+    "alternatives": [
+      {
+        "id": "reference.setWorkFrame",
+        "chooseWhen": "设置后续插入的工作锚点位置/方向，不移动已有实体。"
+      },
+      {
+        "id": "reference.resetWorkFrame",
+        "chooseWhen": "只重置指定的位置、方向或全部工作锚点。"
+      },
+      {
+        "id": "reference.setLocked",
+        "chooseWhen": "锁定工作锚点的自动避让，仍为可撤销参考元数据。"
+      },
+      {
+        "id": "reference.saveFrame",
+        "chooseWhen": "将明确标架保存为具名参考，不等于激活。"
+      },
+      {
+        "id": "reference.activateFrame",
+        "chooseWhen": "将具名标架快照复制到当前工作锚点，不修改历史已冻结定位。"
+      },
+      {
+        "id": "reference.renameFrame",
+        "chooseWhen": "只改具名标架名称，须用当前标架版本。"
+      },
+      {
+        "id": "reference.deleteFrame",
+        "chooseWhen": "删除具名标架记录，已冻结特征不受影响。"
+      },
+      {
+        "id": "reference.setBodyAnchor",
+        "chooseWhen": "在指定实体上创建/更新对象锚点；不同于全局插入锚点。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:9927c0fbbd161a1922e4eb384108ae9257686a2717653d6f18bb7b994feed5da"
 }
 ```
 
@@ -114349,7 +125854,7 @@ files.release: contextPolicy=none
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114379,7 +125884,51 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:53566213fc81ec31cf7f75b61904ab78fcc567c3dcdfafaa5d409d16f006a6c8"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:93ec9a2fa424dd3f59568f6acc426de4d31e9e96e2850c6ba2aa0d8063dbeefc"
 }
 ```
 
@@ -114507,7 +126056,7 @@ files.release: contextPolicy=none
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114536,7 +126085,51 @@ files.release: contextPolicy=none
     "getState"
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
-  "docsHash": "sha256:3753853495042d7848efaf51ec75e4dcca317fdcaf784e7ca4d4d01fc1071573"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2770529a4ed6006ffa0778f1327075d55957ef3a510ce5cd0958037503209d08"
 }
 ```
 
@@ -114548,7 +126141,7 @@ files.release: contextPolicy=none
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114578,7 +126171,51 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:5e7329b8a2e7e414eebc38afba6a77f26a67b835f3dd03895e34378881a0f385"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:4a0f42ef2929a5ac77e86d5ac1f0d842019b4c8848704d377c79b9d6e7894ea9"
 }
 ```
 
@@ -114590,7 +126227,7 @@ files.release: contextPolicy=none
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114620,7 +126257,59 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:5c3db37d270b266d217e3456bf7f3cc2b32919c13995d79600e6a7b1ea0727c7"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:cd800a050fa3502a485bffeea2a377ad00ef45c1f96e8a1aa556a0de1d87569f"
 }
 ```
 
@@ -114632,7 +126321,7 @@ files.release: contextPolicy=none
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114662,7 +126351,51 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:d30035e5c16089105df22a9abdc3d746f22edee8f9801fe3639c185566ea0beb"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:21eb99a85d2b3237e6b6fae0180fd0d117cf9b96bc69b81080081824a1377d90"
 }
 ```
 
@@ -114674,7 +126407,7 @@ files.release: contextPolicy=none
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114704,7 +126437,51 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:a333ee49d9ca96e2fea8ee4465432802c2be324ec97f1a1d0ea8e6975ac59d34"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:543660ed1be86cb23d2af229777da2b8565fb1b06007c9111d08ffc9dd083eea"
 }
 ```
 
@@ -114716,7 +126493,7 @@ files.release: contextPolicy=none
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114746,7 +126523,59 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:7e399914f76f4408566dd02f6ae2f2a184c176ef5b87e1eb630e7726c73c7c97"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      },
+      {
+        "id": "files.open",
+        "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d1c4b57c144a1cedc2ee25a2ec5d7e376f9a2ad379b7d5f1e8da233bc9bf3c9d"
 }
 ```
 
@@ -114758,7 +126587,7 @@ files.release: contextPolicy=none
   "title": "预览模型、原特征编辑或文件插入",
   "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114788,7 +126617,27 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:c562884799932b5c8a401f8f81b0e8a735d45377311a2b31fa72d44fbd71fca2"
+  "selectionGuide": {
+    "groupId": "preview",
+    "groupTitle": "未提交预览生命周期",
+    "chooseWhen": "新建几何/原特征编辑/文件插入草稿，尚未提交工程。",
+    "alternatives": [
+      {
+        "id": "preview.update",
+        "chooseWhen": "更新同一个 previewId 的当前代次草稿，旧代次不可应用。"
+      },
+      {
+        "id": "preview.commit",
+        "chooseWhen": "将指定当前草稿应用为一次历史操作。"
+      },
+      {
+        "id": "preview.cancel",
+        "chooseWhen": "丢弃未提交草稿，不删除已提交实体、不增加几何修订。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:bd69dc187c7b47fb141a18f2711bfe773d6a4eb8ceb89be9d3c06d838b688240"
 }
 ```
 
@@ -114800,7 +126649,7 @@ files.release: contextPolicy=none
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114830,7 +126679,27 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:6613ea389fb7d7afeafaa2e5851244dd639772bbce53dc15e1ec5830285d3367"
+  "selectionGuide": {
+    "groupId": "preview",
+    "groupTitle": "未提交预览生命周期",
+    "chooseWhen": "更新同一个 previewId 的当前代次草稿，旧代次不可应用。",
+    "alternatives": [
+      {
+        "id": "preview.start",
+        "chooseWhen": "新建几何/原特征编辑/文件插入草稿，尚未提交工程。"
+      },
+      {
+        "id": "preview.commit",
+        "chooseWhen": "将指定当前草稿应用为一次历史操作。"
+      },
+      {
+        "id": "preview.cancel",
+        "chooseWhen": "丢弃未提交草稿，不删除已提交实体、不增加几何修订。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6b3d83b9acfacaf786f906d3bce59475e35210efd3d0bde014a33df560a4d2a3"
 }
 ```
 
@@ -114842,7 +126711,7 @@ files.release: contextPolicy=none
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114872,7 +126741,27 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:aed56f1747e8b6d95bffc3314116a6567faf1ba5f0f48a5b9290be1eaac0b63e"
+  "selectionGuide": {
+    "groupId": "preview",
+    "groupTitle": "未提交预览生命周期",
+    "chooseWhen": "将指定当前草稿应用为一次历史操作。",
+    "alternatives": [
+      {
+        "id": "preview.start",
+        "chooseWhen": "新建几何/原特征编辑/文件插入草稿，尚未提交工程。"
+      },
+      {
+        "id": "preview.update",
+        "chooseWhen": "更新同一个 previewId 的当前代次草稿，旧代次不可应用。"
+      },
+      {
+        "id": "preview.cancel",
+        "chooseWhen": "丢弃未提交草稿，不删除已提交实体、不增加几何修订。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:f2d872290786c94627e084c6ca5873637618ea9b8fa7fd7b0b1ef37686ee024c"
 }
 ```
 
@@ -114884,7 +126773,7 @@ files.release: contextPolicy=none
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -114914,7 +126803,35 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:f54f06f2a3071c5ef5ac7c0f3e28b59ebbe3f9e647e33a155dbbc4ac3345354a"
+  "selectionGuide": {
+    "groupId": "preview",
+    "groupTitle": "未提交预览生命周期",
+    "chooseWhen": "丢弃未提交草稿，不删除已提交实体、不增加几何修订。",
+    "alternatives": [
+      {
+        "id": "preview.start",
+        "chooseWhen": "新建几何/原特征编辑/文件插入草稿，尚未提交工程。"
+      },
+      {
+        "id": "preview.update",
+        "chooseWhen": "更新同一个 previewId 的当前代次草稿，旧代次不可应用。"
+      },
+      {
+        "id": "preview.commit",
+        "chooseWhen": "将指定当前草稿应用为一次历史操作。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e911259cfed039cf2d273f6d06829c024143aeea07f5aa6e944a3a9162f06260"
 }
 ```
 
@@ -114925,7 +126842,7 @@ files.release: contextPolicy=none
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -115005,7 +126922,59 @@ files.release: contextPolicy=none
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
-  "docsHash": "sha256:9f687e3d5dfde44c9c7380b1c52f3dcca6ddca70ff5fce9c977dcd6415855c01"
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      },
+      {
+        "id": "profileConstraints",
+        "chooseWhen": "求解已保存直线/圆的尺寸及关系，产生派生轮廓；不是只读诊断。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:ba05177c70a4cf08ef2d5fe31f2d4050379d4820972f4ca0998a66eb0008f828"
 }
 ```
 
@@ -115016,7 +126985,7 @@ files.release: contextPolicy=none
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "label": "文件能力",
   "synonyms": [
@@ -115064,7 +127033,43 @@ files.release: contextPolicy=none
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
-  "docsHash": "sha256:59225574a90dd483771a9dee24331c2f66460bd9f0c78c4ab3ef03e4b307eb31"
+  "selectionGuide": {
+    "groupId": "file-input",
+    "groupTitle": "文件登记、打开与导入",
+    "chooseWhen": "读文件格式、大小与宿主写入能力，不证明某文件已读到。",
+    "alternatives": [
+      {
+        "id": "files.register",
+        "chooseWhen": "登记获授权原始字节，返回资源 ID；尚未打开/导入。"
+      },
+      {
+        "id": "files.new",
+        "chooseWhen": "新建空工程并替换当前设计；不默默丢弃未保存更改。"
+      },
+      {
+        "id": "files.open",
+        "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      },
+      {
+        "id": "import",
+        "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
+      },
+      {
+        "id": "import.iges",
+        "chooseWhen": "当前静态版不可用的 IGES 入口；不能宣称直接导入成功。"
+      },
+      {
+        "id": "import.vector-server",
+        "chooseWhen": "当前静态版不可用的旧服务端矢量入口；应查当前 readVector/Services 实际能力。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e9cedc205e61a4d7afa1b86ec121d05393bd12233991c3e4b9297ace04f9d14c"
 }
 ```
 
@@ -115075,7 +127080,7 @@ files.release: contextPolicy=none
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "label": "登记文件资源",
   "synonyms": [
@@ -115131,7 +127136,43 @@ files.release: contextPolicy=none
     "SIZE_LIMIT",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:9862a814a7abc9274b72fd181560edf2d65e09513efa3b5aec0a91a87e46f6bb"
+  "selectionGuide": {
+    "groupId": "file-input",
+    "groupTitle": "文件登记、打开与导入",
+    "chooseWhen": "登记获授权原始字节，返回资源 ID；尚未打开/导入。",
+    "alternatives": [
+      {
+        "id": "files.capabilities",
+        "chooseWhen": "读文件格式、大小与宿主写入能力，不证明某文件已读到。"
+      },
+      {
+        "id": "files.new",
+        "chooseWhen": "新建空工程并替换当前设计；不默默丢弃未保存更改。"
+      },
+      {
+        "id": "files.open",
+        "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      },
+      {
+        "id": "import",
+        "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
+      },
+      {
+        "id": "import.iges",
+        "chooseWhen": "当前静态版不可用的 IGES 入口；不能宣称直接导入成功。"
+      },
+      {
+        "id": "import.vector-server",
+        "chooseWhen": "当前静态版不可用的旧服务端矢量入口；应查当前 readVector/Services 实际能力。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e505d9bf439a0b6c6351aab7781a98b5860c7ee2f501b709ff924cc55a4bd1cd"
 }
 ```
 
@@ -115142,7 +127183,7 @@ files.release: contextPolicy=none
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "label": "新建工程",
   "synonyms": [
@@ -115199,7 +127240,43 @@ files.release: contextPolicy=none
     "FILE_COMMAND_FAILED",
     "SIZE_LIMIT"
   ],
-  "docsHash": "sha256:13a6b1fa2f82f9395e277f5e3c4ad0272c9b69fc6b5a41f776e66a18737ca4ba"
+  "selectionGuide": {
+    "groupId": "file-input",
+    "groupTitle": "文件登记、打开与导入",
+    "chooseWhen": "新建空工程并替换当前设计；不默默丢弃未保存更改。",
+    "alternatives": [
+      {
+        "id": "files.capabilities",
+        "chooseWhen": "读文件格式、大小与宿主写入能力，不证明某文件已读到。"
+      },
+      {
+        "id": "files.register",
+        "chooseWhen": "登记获授权原始字节，返回资源 ID；尚未打开/导入。"
+      },
+      {
+        "id": "files.open",
+        "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      },
+      {
+        "id": "import",
+        "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
+      },
+      {
+        "id": "import.iges",
+        "chooseWhen": "当前静态版不可用的 IGES 入口；不能宣称直接导入成功。"
+      },
+      {
+        "id": "import.vector-server",
+        "chooseWhen": "当前静态版不可用的旧服务端矢量入口；应查当前 readVector/Services 实际能力。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:f9bbbbd66e8dc35a0be1dab79638f3edac2c30a92e721e6506784d488fdce99c"
 }
 ```
 
@@ -115210,7 +127287,7 @@ files.release: contextPolicy=none
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -115274,7 +127351,55 @@ files.release: contextPolicy=none
     "FORMAT_UNSUPPORTED",
     "MESH_UNITS_REQUIRED"
   ],
-  "docsHash": "sha256:dda62eb34155df6e872fa34aacaf6f6c5991c8475799d9aea3c859c66cabce95"
+  "selectionGuide": {
+    "groupId": "file-input",
+    "groupTitle": "文件登记、打开与导入",
+    "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。",
+    "alternatives": [
+      {
+        "id": "files.capabilities",
+        "chooseWhen": "读文件格式、大小与宿主写入能力，不证明某文件已读到。"
+      },
+      {
+        "id": "files.register",
+        "chooseWhen": "登记获授权原始字节，返回资源 ID；尚未打开/导入。"
+      },
+      {
+        "id": "files.new",
+        "chooseWhen": "新建空工程并替换当前设计；不默默丢弃未保存更改。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      },
+      {
+        "id": "import",
+        "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
+      },
+      {
+        "id": "import.iges",
+        "chooseWhen": "当前静态版不可用的 IGES 入口；不能宣称直接导入成功。"
+      },
+      {
+        "id": "import.vector-server",
+        "chooseWhen": "当前静态版不可用的旧服务端矢量入口；应查当前 readVector/Services 实际能力。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:3cc4a334ff8f1ca808952d874eedcb4edf7af91fb72779a5c892031fe168251e"
 }
 ```
 
@@ -115285,7 +127410,7 @@ files.release: contextPolicy=none
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -115369,7 +127494,55 @@ files.release: contextPolicy=none
     "MESH_ASSET_CORRUPT",
     "MESH_DISPLAY_CAPACITY"
   ],
-  "docsHash": "sha256:c5f2cbecd09f0cf5993415aedbd454d7c89170b0173d3e64f1d6bba2302f830e"
+  "selectionGuide": {
+    "groupId": "file-input",
+    "groupTitle": "文件登记、打开与导入",
+    "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。",
+    "alternatives": [
+      {
+        "id": "files.capabilities",
+        "chooseWhen": "读文件格式、大小与宿主写入能力，不证明某文件已读到。"
+      },
+      {
+        "id": "files.register",
+        "chooseWhen": "登记获授权原始字节，返回资源 ID；尚未打开/导入。"
+      },
+      {
+        "id": "files.new",
+        "chooseWhen": "新建空工程并替换当前设计；不默默丢弃未保存更改。"
+      },
+      {
+        "id": "files.open",
+        "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
+      },
+      {
+        "id": "import",
+        "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
+      },
+      {
+        "id": "import.iges",
+        "chooseWhen": "当前静态版不可用的 IGES 入口；不能宣称直接导入成功。"
+      },
+      {
+        "id": "import.vector-server",
+        "chooseWhen": "当前静态版不可用的旧服务端矢量入口；应查当前 readVector/Services 实际能力。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:2cfa7ecbcd492a3ce2b41d91945f548f8d94c701996ef95709a86cf1d22ee937"
 }
 ```
 
@@ -115380,7 +127553,7 @@ files.release: contextPolicy=none
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -115441,7 +127614,51 @@ files.release: contextPolicy=none
     "NAME_INVALID",
     "RESOURCE_LIMIT"
   ],
-  "docsHash": "sha256:68b71a643a8400f29347975ceca1a9bb53d91d9b84553a48ed6f10fbc9248472"
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。",
+    "alternatives": [
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.read",
+        "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.confirmWritten",
+        "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "createDrawing",
+        "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:7ce8c742643cf812231f4d7e3c585df96092a45232e1aa7d4e185337f87a3630"
 }
 ```
 
@@ -115452,7 +127669,7 @@ files.release: contextPolicy=none
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -115516,7 +127733,55 @@ files.release: contextPolicy=none
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
-  "docsHash": "sha256:95b688ec7a180bccc7960fe6acdf744fbc2eca692325fb3dc93ea5095b72f9d0"
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.read",
+        "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.confirmWritten",
+        "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "createDrawing",
+        "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:a02b9cb52131a7a8d724ff23a7e764d3bfc27ed81f4227778e0d64c9f6970e6b"
 }
 ```
 
@@ -115527,7 +127792,7 @@ files.release: contextPolicy=none
   "id": "files.reattach",
   "title": "files.reattach",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "label": "reattach",
   "synonyms": [
@@ -115580,7 +127845,51 @@ files.release: contextPolicy=none
     "RESOURCE_EXPIRED",
     "ASSET_INVALID"
   ],
-  "docsHash": "sha256:ca8a8679c445670bd665391fbb14f57f53595ef057c2f7bffb9915982cc76dba"
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.read",
+        "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.confirmWritten",
+        "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "createDrawing",
+        "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:84be8b84bcf745259a6a52fc92343ec1f74f1b94883b20ab6cd38dce1058b817"
 }
 ```
 
@@ -115591,7 +127900,7 @@ files.release: contextPolicy=none
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
@@ -115643,7 +127952,51 @@ files.release: contextPolicy=none
     "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED"
   ],
-  "docsHash": "sha256:e4ebbc1bf5781c5e59203216add0a3e4b32ca8a36cd2e40eadb9603da80c3efd"
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.confirmWritten",
+        "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "createDrawing",
+        "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:8da6e115d15d4da4b60a043b7c5fda5a78c63ff610b1768bf32c9d0abd9ab202"
 }
 ```
 
@@ -115654,7 +128007,7 @@ files.release: contextPolicy=none
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "label": "下载文件",
   "synonyms": [
@@ -115707,7 +128060,51 @@ files.release: contextPolicy=none
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:73e6c0207afb51807e54b2506c610ec891ce149dce19e84d84ecc13f4c740e47"
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.read",
+        "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.confirmWritten",
+        "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "createDrawing",
+        "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:253b7269dd0638d7423b783d60f0fdb21a4f32e960902f3857c779c18a9d1ef5"
 }
 ```
 
@@ -115718,7 +128115,7 @@ files.release: contextPolicy=none
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -115776,7 +128173,51 @@ files.release: contextPolicy=none
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:dd61d0295ad352ea4623b95f797a86905facfaba15c91af9f12bde28d7715ee4"
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.read",
+        "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.confirmWritten",
+        "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "createDrawing",
+        "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:bcbc542e1b2272e1786066ff835db399423e506f1dae81cfa25f1aed56947f17"
 }
 ```
 
@@ -115787,7 +128228,7 @@ files.release: contextPolicy=none
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -115845,7 +128286,51 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:153d482e249044c97f6622d42f7a2575fe2afae6974d0ff20779436f6b76b58e"
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.read",
+        "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "createDrawing",
+        "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:022a88771936462ff802029e0ea4c970bfc5f9d45d274582d3d6e5d929f7a65d"
 }
 ```
 
@@ -115856,7 +128341,7 @@ files.release: contextPolicy=none
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -115908,7 +128393,51 @@ files.release: contextPolicy=none
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
-  "docsHash": "sha256:78966e4935ec8dead35d336bd7f7884873cd00aa23dfd76743ed8e7bada1effc"
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.read",
+        "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.confirmWritten",
+        "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "createDrawing",
+        "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c9149dc13d7be965b214365476a4da7ded9a1f29636d07504c165c9653bb68b9"
 }
 ```
 
@@ -115920,14 +128449,50 @@ files.release: contextPolicy=none
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:8baad42638213c9e156e871fb21f89fdb274f5353fadd5664808583dc48eb87f"
+  "selectionGuide": {
+    "groupId": "file-input",
+    "groupTitle": "文件登记、打开与导入",
+    "chooseWhen": "当前静态版不可用的 IGES 入口；不能宣称直接导入成功。",
+    "alternatives": [
+      {
+        "id": "files.capabilities",
+        "chooseWhen": "读文件格式、大小与宿主写入能力，不证明某文件已读到。"
+      },
+      {
+        "id": "files.register",
+        "chooseWhen": "登记获授权原始字节，返回资源 ID；尚未打开/导入。"
+      },
+      {
+        "id": "files.new",
+        "chooseWhen": "新建空工程并替换当前设计；不默默丢弃未保存更改。"
+      },
+      {
+        "id": "files.open",
+        "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      },
+      {
+        "id": "import",
+        "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
+      },
+      {
+        "id": "import.vector-server",
+        "chooseWhen": "当前静态版不可用的旧服务端矢量入口；应查当前 readVector/Services 实际能力。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:ec326a22e078653bbb0a721abaec95b97a7cac0a27d1874809be92fd8ec4927e"
 }
 ```
 
@@ -115939,13 +128504,49 @@ files.release: contextPolicy=none
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:8a329c59ca1513225aa9bef6c98668401be4662af2bc85f9167dcd52b550d321"
+  "selectionGuide": {
+    "groupId": "file-input",
+    "groupTitle": "文件登记、打开与导入",
+    "chooseWhen": "当前静态版不可用的旧服务端矢量入口；应查当前 readVector/Services 实际能力。",
+    "alternatives": [
+      {
+        "id": "files.capabilities",
+        "chooseWhen": "读文件格式、大小与宿主写入能力，不证明某文件已读到。"
+      },
+      {
+        "id": "files.register",
+        "chooseWhen": "登记获授权原始字节，返回资源 ID；尚未打开/导入。"
+      },
+      {
+        "id": "files.new",
+        "chooseWhen": "新建空工程并替换当前设计；不默默丢弃未保存更改。"
+      },
+      {
+        "id": "files.open",
+        "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      },
+      {
+        "id": "import",
+        "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
+      },
+      {
+        "id": "import.iges",
+        "chooseWhen": "当前静态版不可用的 IGES 入口；不能宣称直接导入成功。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:903a63b476048a28b97d2242bc35d5d7aea03d24acb8d8933dabdb75e636dedc"
 }
 ```

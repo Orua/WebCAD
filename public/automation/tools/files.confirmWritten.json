@@ -2,7 +2,7 @@
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -60,5 +60,49 @@
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
-  "docsHash": "sha256:153d482e249044c97f6622d42f7a2575fe2afae6974d0ff20779436f6b76b58e"
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.read",
+        "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "createDrawing",
+        "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:022a88771936462ff802029e0ea4c970bfc5f9d45d274582d3d6e5d929f7a65d"
 }

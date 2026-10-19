@@ -394,5 +394,57 @@
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "用execute action:feature.remove；不要调用add op:remove",
-  "docsHash": "sha256:4d0c26ac0a5ae2e08d5375ccd2b625dfadf4e12a851b3251fd5f97d803b8c94e"
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。",
+    "alternatives": [
+      {
+        "id": "union",
+        "chooseWhen": "融合实体并去除重叠内部；与只分组不同。"
+      },
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d1fa1a618a35fbd5d1fffeb20e28db03271e534055c1fe532d6310dfca992898"
 }

@@ -2,7 +2,7 @@
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "identity",
   "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
   "synonyms": [
@@ -24,5 +24,53 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
-  "docsHash": "sha256:0caec2e6c5bfe12b392d8c7cc9c601f0c27a286483267ec517fcc61044bba21d"
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:466a01756bf603ce0963774f0efeb2c81c009c205db652651b3752f32d72abfe"
 }

@@ -468,5 +468,37 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
-  "docsHash": "sha256:33e5a299b30f323b2425ed1149b43bccf4d00df3e43acd182b2a2d563a674b1a"
+  "selectionGuide": {
+    "groupId": "primitives",
+    "groupTitle": "基础实体与参数模型",
+    "chooseWhen": "用宽、深、高创建长方体；不是空壳或带孔板。",
+    "alternatives": [
+      {
+        "id": "cylinder",
+        "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。"
+      },
+      {
+        "id": "cone",
+        "chooseWhen": "用两端半径和高度创建圆锥或圆台。"
+      },
+      {
+        "id": "sphere",
+        "chooseWhen": "单一半径的球；三轴半径独立时用 ellipsoid。"
+      },
+      {
+        "id": "ellipsoid",
+        "chooseWhen": "三个独立半轴的精确椭球；不是球的显示拉伸。"
+      },
+      {
+        "id": "torus",
+        "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。"
+      },
+      {
+        "id": "quickModel",
+        "chooseWhen": "参数模板的执行入口；先比较 template.* 具体结构，再传 kind；不是任意形状生成器。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:3cf169c0efea5a4a27a9e0ce420c65ca905f05748fad0f6d72cf1e205794158a"
 }

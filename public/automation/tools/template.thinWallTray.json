@@ -540,7 +540,7 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -565,5 +565,49 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ca4f64f162fa3a6ce39f4867ef219d45f922301a09c62f538adbf6bdfa3459b5"
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。",
+    "alternatives": [
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6ecda1e0937a0c1f4b3029674451af00078067884c61d93cf70ee0388ceaf645"
 }

@@ -2,7 +2,7 @@
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -66,5 +66,53 @@
     "FORMAT_UNSUPPORTED",
     "MESH_UNITS_REQUIRED"
   ],
-  "docsHash": "sha256:dda62eb34155df6e872fa34aacaf6f6c5991c8475799d9aea3c859c66cabce95"
+  "selectionGuide": {
+    "groupId": "file-input",
+    "groupTitle": "文件登记、打开与导入",
+    "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。",
+    "alternatives": [
+      {
+        "id": "files.capabilities",
+        "chooseWhen": "读文件格式、大小与宿主写入能力，不证明某文件已读到。"
+      },
+      {
+        "id": "files.register",
+        "chooseWhen": "登记获授权原始字节，返回资源 ID；尚未打开/导入。"
+      },
+      {
+        "id": "files.new",
+        "chooseWhen": "新建空工程并替换当前设计；不默默丢弃未保存更改。"
+      },
+      {
+        "id": "files.import",
+        "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      },
+      {
+        "id": "import",
+        "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
+      },
+      {
+        "id": "import.iges",
+        "chooseWhen": "当前静态版不可用的 IGES 入口；不能宣称直接导入成功。"
+      },
+      {
+        "id": "import.vector-server",
+        "chooseWhen": "当前静态版不可用的旧服务端矢量入口；应查当前 readVector/Services 实际能力。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:3cc4a334ff8f1ca808952d874eedcb4edf7af91fb72779a5c892031fe168251e"
 }

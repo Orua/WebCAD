@@ -538,7 +538,7 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -562,5 +562,25 @@
     "refs": []
   },
   "docs": "api.workflow",
-  "docsHash": "sha256:ad5cea5fca1be112689768b1149614da5491db4dc3b8d57e7ac00af1874eafb3"
+  "selectionGuide": {
+    "groupId": "rect-frames",
+    "groupTitle": "矩形框与截面",
+    "chooseWhen": "恒截面圆角矩形线框，按线径/截面沿中心线路径扫掠。",
+    "alternatives": [
+      {
+        "id": "template.flatFrame",
+        "chooseWhen": "平板矩形框，内外轮廓和板厚独立；可形成跑道孔。"
+      },
+      {
+        "id": "template.roundedFlatFrame",
+        "chooseWhen": "平面框加三维棱边圆角；内外平面 R 与棱边 R 不同。"
+      },
+      {
+        "id": "template.ellipseSectionRectFrame",
+        "chooseWhen": "圆角矩形路径加椭圆截面；孔角 R 不是截面深度或截面 R。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c4e5b510d615edf938b3c742bb4a08ea64d3de98af963f2c3eb0e4b82b2df74d"
 }

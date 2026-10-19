@@ -3,7 +3,7 @@
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -33,5 +33,33 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:f54f06f2a3071c5ef5ac7c0f3e28b59ebbe3f9e647e33a155dbbc4ac3345354a"
+  "selectionGuide": {
+    "groupId": "preview",
+    "groupTitle": "未提交预览生命周期",
+    "chooseWhen": "丢弃未提交草稿，不删除已提交实体、不增加几何修订。",
+    "alternatives": [
+      {
+        "id": "preview.start",
+        "chooseWhen": "新建几何/原特征编辑/文件插入草稿，尚未提交工程。"
+      },
+      {
+        "id": "preview.update",
+        "chooseWhen": "更新同一个 previewId 的当前代次草稿，旧代次不可应用。"
+      },
+      {
+        "id": "preview.commit",
+        "chooseWhen": "将指定当前草稿应用为一次历史操作。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:e911259cfed039cf2d273f6d06829c024143aeea07f5aa6e944a3a9162f06260"
 }

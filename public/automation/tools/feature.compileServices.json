@@ -3,7 +3,7 @@
   "title": "Services 原特征编译",
   "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
-  "version": "1.52.2",
+  "version": "1.52.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -44,5 +44,65 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
-  "docsHash": "sha256:1a149483967bfcf901e20829493960f0aa253fc877aa2b7f746b3ba50954d832"
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:6709f2792825697406d2797eb1ecb6adb5046df2257e1d40f54aeaf2c3669aba"
 }

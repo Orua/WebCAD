@@ -947,5 +947,53 @@
   },
   "runtimeAvailability": "requires_ready_page",
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
-  "docsHash": "sha256:73f6a017b02079a14a19d1b450fe0ad48df761612ba069a048c4d2fc2a71dd5f"
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:5223545e2c98943d2b5933b8df4969d910543093b32ab3e0e30afb687549a1a5"
 }

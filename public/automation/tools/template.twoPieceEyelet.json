@@ -675,7 +675,7 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -707,5 +707,21 @@
     "refs": []
   },
   "docs": "api.quick-eyelets",
-  "docsHash": "sha256:5f1a26244f8c2cf0646ea405da5a254c94178522c8992c761ef31c370a5c3b70"
+  "selectionGuide": {
+    "groupId": "eyelets",
+    "groupTitle": "面框与两件式鸡眼",
+    "chooseWhen": "薄壁翻边长脚件与底片两件套；平面/弧面可选，不模拟压铆变形。",
+    "alternatives": [
+      {
+        "id": "template.frameEyelet",
+        "chooseWhen": "单件面框、短颈与安装柱及直孔；不是两件套或内螺纹。"
+      },
+      {
+        "id": "template.alloyEyelet",
+        "chooseWhen": "实体合金面框与底片两件套；独立实体与套接间距，不是薄皮翻边结构。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:de69a84c3dcad5284fe5dc2c6be37e866332e52d6ff2533d407dcfe4887381f6"
 }

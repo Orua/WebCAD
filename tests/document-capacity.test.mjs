@@ -10,6 +10,7 @@ import {getOperation} from '../src/operation-registry.js';
 import {createReferenceSystem} from '../src/work-frame.js';
 import {getTool} from '../src/page-api-docs.js';
 import {bodyWarnings} from '../src/body-state.js';
+import {binaryHash} from '../src/contracts/operation-schema.js';
 
 const features=n=>Array.from({length:n},(_,i)=>({id:'f'+i,op:'box',params:{width:1,depth:1,height:1},refs:[]}));
 const empty=()=>({version:2,documentId:'capacity-test',name:'test',features:[],imports:{},hidden:[],referenceSystem:{workFrame:{locked:true}}});
@@ -17,7 +18,7 @@ function mainHarness(){
  const source=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
  const slice=(start,end)=>{const a=source.indexOf(start),b=source.indexOf(end,a);assert.ok(a>=0&&b>a);return source.slice(a,b);};
  const calls=[];
- const c={bodyWarnings,placementPolicy,performance,lastServicesDecision:null,selectedTopology:null,TextEncoder,structuredClone,clone:structuredClone,crypto,DOCUMENT_LIMITS,serializeBoundedDocument,assertDocumentCapacity,recordTimeline,validateTimeline,documentModel:empty(),revision:7,documentInstanceId:'instance',kernelReady:true,busy:false,bodies:[],selectedIds:[],lastWarnings:[],undoStack:[{sentinel:'undo'}],redoStack:[{sentinel:'redo'}],previewNext:null,previewIdentity:null,previewScopeReport:null,dirty:false,
+ const c={bodyWarnings,placementPolicy,performance,lastServicesDecision:null,selectedTopology:null,TextEncoder,structuredClone,clone:structuredClone,crypto,DOCUMENT_LIMITS,serializeBoundedDocument,assertDocumentCapacity,recordTimeline,validateTimeline,createReferenceSystem,documentModel:empty(),revision:7,documentInstanceId:'instance',kernelReady:true,busy:false,bodies:[],selectedIds:[],lastWarnings:[],undoStack:[{sentinel:'undo'}],redoStack:[{sentinel:'redo'}],previewNext:null,previewIdentity:null,previewScopeReport:null,dirty:false,
   routeChangedFeature:async next=>({next}),setBusy:v=>c.busy=v,checkTransaction:()=>{},assertHistoryEditSafe:()=>{},request:async(command,{document})=>{calls.push(structuredClone(document));return {bodies:[],stats:{checkpointCandidates:[]},perFeatureMs:[]};},synchronizeBodyAnchors:async()=>{},viewport:{cancelTask(){},setBodies(){},setWorkFrame(){},setSelection(){},markModel(){}},ui:{clearErrors(){}},applyAppearance(){},setStatus(){},recordQuickModelUse(){},validateReferenceSystem:x=>x};
  vm.createContext(c);vm.runInContext(slice('// Agent batch display deferral','function refresh(')+slice('function pushUndo(','function setBusy(')+slice('async function rebuild(','function featureDocument(')+slice('function validateDocument(','function checkInputFile(')+'\nthis.rebuild=rebuild;this.validateDocument=validateDocument;this.pushUndo=pushUndo;',c);
  return {c,calls};
@@ -46,6 +47,34 @@ test('post-Worker anchor growth rolls back the Worker before touching document, 
   await assert.rejects(c.rebuild(next,{save:false,record}),{code:'SIZE_LIMIT'});
   assert.equal(calls.length,2);assert.deepEqual(calls[1],before);assert.deepEqual(c.documentModel,before);assert.equal(c.revision,7);assert.equal(c.dirty,false);assert.equal(c.busy,false);
   assert.deepEqual(c.undoStack,[{sentinel:'undo'}]);assert.deepEqual(c.redoStack,[{sentinel:'redo'}]);
+ }
+});
+
+test('open, refresh and undo rebuilds retain a valid timeline when adding a missing compiled checkpoint',async()=>{
+ for(const options of [{newInstance:true},{restoring:true},{}]){
+  const {c}=mainHarness(),base={...empty(),referenceSystem:createReferenceSystem()},next=structuredClone(base);
+  next.features=features(1);recordTimeline(base,next);const historyId=next.timeline.entries[0].id;
+  const bytes=new TextEncoder().encode('checkpoint container fixture'),hash=binaryHash(bytes).slice(7);
+  c.request=async(command,{document})=>{
+   if(command==='bakeProject')return {document:{...document,version:4,binaryAssets:{},compiledArtifacts:{[hash]:bytes},features:document.features.map(f=>({...f,compiledCheckpoint:{artifactSha256:hash}}))}};
+   return {bodies:[],stats:{checkpointCandidates:['f0']},perFeatureMs:[]};
+  };
+  await c.rebuild(next,{record:false,save:false,...options});
+  validateTimeline(c.documentModel);assertDocumentCapacity(c.documentModel);
+  assert(c.documentModel.timeline.entries.some(e=>e.id===historyId));
+  assert.equal(c.undoStack.length,1,'cache bookkeeping is not a new user undo step');
+ }
+});
+
+test('legacy project metadata is normalized without losing retained timeline states',()=>{
+ for(const version of [1,2,3,4]){
+  const {c}=mainHarness(),base={version,documentId:'legacy',features:[],imports:{},...(version===4?{binaryAssets:{}}:{})};
+  const doc=structuredClone(base);doc.features=features(1);recordTimeline(base,doc);
+  const previousId=doc.timeline.entries.at(-1).id;
+  const loaded=c.validateDocument(doc);
+  assert.equal(loaded.version,Math.max(version,2));assert(loaded.referenceSystem?.workFrame);
+  assert(loaded.timeline.entries.some(e=>e.id===previousId));validateTimeline(loaded);
+  assert.equal(doc.referenceSystem,undefined,'input source is read-only');
  }
 });
 test('metadata-only writes validate capacity before changing undo and redo stacks',()=>{
