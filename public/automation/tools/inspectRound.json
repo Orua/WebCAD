@@ -2,7 +2,7 @@
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.54.6",
+  "version": "1.55.0",
   "contextPolicy": "identity",
   "description": "inspectRound({context,bodyId,params:{edgeIds:[0],mode:\"edge\",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。",
   "synonyms": [
@@ -87,5 +87,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:84e3ba232955693b3394a6331cc934e314b63cda87b1056936efaaf4a61ffb3c"
+  "docsHash": "sha256:0ef6bd620b0a3f2da0c653c7b1e28d917b56122977a8c839a567b7f197e81761"
 }

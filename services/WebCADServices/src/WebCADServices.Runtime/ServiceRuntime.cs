@@ -99,7 +99,7 @@ namespace WebCADServices.Runtime
         {
             protocolVersion = Protocol.Version, supportedClientProtocolRange = new[] { "1.0" }, serviceBuildId = "sha256:" + Protocol.Hash(File.ReadAllBytes(typeof(ServiceRuntime).Assembly.Location)), hostBuildId = "sha256:" + Protocol.Hash(File.ReadAllBytes((System.Reflection.Assembly.GetEntryAssembly() ?? typeof(ServiceRuntime).Assembly).Location)),
             mesh = MeshAdapter.Capabilities(),
-            logo = new { engineBuildId = LogoBuildId(), enabled = File.Exists(worker), formats = new[] { "logo-json", "svg-restricted", "pdf", "pdf-compatible-ai", "dxf-restricted", "png", "jpeg", "bmp" }, restrictions = new[] { "monochrome", "explicit physical dimensions", "manual review for raster/reconstructed linework", "no DWG" }, maxSourceBytes = Protocol.MaxUpload, acceptanceStatus = "local JSON/FURLA PDF accepted; IIS and production identity gates pending" },
+            logo = new { engineBuildId = LogoBuildId(), enabled = File.Exists(worker), pdfRasterRenderer = PdfRasterRendererAvailable(), formats = new[] { "logo-json", "svg-restricted", "pdf", "pdf-compatible-ai", "dxf-restricted", "png", "jpeg", "bmp" }, restrictions = new[] { "monochrome", "explicit physical dimensions", "manual review for raster/reconstructed linework", "no DWG" }, maxSourceBytes = Protocol.MaxUpload, acceptanceStatus = "local JSON/FURLA PDF accepted; IIS and production identity gates pending" },
             operations = NativeOperations(), unavailableOperations = TbdOperations(), geometryExchange = new { supportedFormats = NativeAdapter.Acceptance==null?new string[0]:new[]{"occt-text-brep-v1"}, testedKernelPairs = NativeAdapter.Acceptance==null?new object[0]:new object[]{new { producerKernelBuildId=NativeAdapter.BuildId, consumerKernelBuildId=(string)NativeAdapter.Acceptance["consumerKernelBuildId"],codec="occt-text-brep-v1",brepVersion=3 }}, blockers = NativeAdapter.Acceptance==null?new[] { "NATIVE_BRIDGE_NOT_ACCEPTED" }:new string[0] },
             documentFormats = new { supportedVersions = new[] { 1, 2, 3 } },
             executionRouting = new { policyVersion=(string)RoutingPolicy()["policyVersion"],policy=RoutingPolicy(),queue=store.NativeQueue(owner),decisionAuthority="browser-shared-ExecutionRouter",failedTaskFallback="none" },
@@ -120,8 +120,21 @@ namespace WebCADServices.Runtime
         string LogoBuildId()
         {
             if (!File.Exists(worker)) return "unavailable";
-            var paths = new[] { worker, Path.Combine(Path.GetDirectoryName(worker), "LogoVector.Contracts.dll"), Path.Combine(Path.GetDirectoryName(worker), "LogoVector.Geometry.dll") };
-            return "sha256:" + Protocol.Hash(Encoding.UTF8.GetBytes(string.Join("\n", paths.Select(p => Protocol.Hash(File.ReadAllBytes(p))))));
+            var paths = new[] { worker, Path.Combine(Path.GetDirectoryName(worker), "LogoVector.Contracts.dll"), Path.Combine(Path.GetDirectoryName(worker), "LogoVector.Geometry.dll"), Path.Combine(Path.GetDirectoryName(worker), "pdfium", "pdfium.dll"), Path.Combine(Path.GetDirectoryName(worker), "pdfium", "renderer.json") };
+            return "sha256:" + Protocol.Hash(Encoding.UTF8.GetBytes(string.Join("\n", paths.Select(p => File.Exists(p) ? Protocol.Hash(File.ReadAllBytes(p)) : "missing:" + Path.GetFileName(p)))));
+        }
+        bool PdfRasterRendererAvailable()
+        {
+            try {
+                if (!File.Exists(worker)) return false;
+                var root = Path.Combine(Path.GetDirectoryName(worker), "pdfium");
+                var dll = Path.Combine(root, "pdfium.dll");
+                var manifest = Path.Combine(root, "renderer.json");
+                if (!File.Exists(dll) || !File.Exists(manifest)) return false;
+                var metadata = JObject.Parse(File.ReadAllText(manifest));
+                const string expected = "a318c39c137482dc4687c2973b7ec1c27fc1c20253cf2dc31928f922eab89e8f";
+                return (string)metadata["variant"] == "no-v8" && (string)metadata["version"] == "158.0.8111.0" && (string)metadata["sha256"] == expected && Protocol.Hash(File.ReadAllBytes(dll)) == expected;
+            } catch { return false; }
         }
         void Dispatch()
         {

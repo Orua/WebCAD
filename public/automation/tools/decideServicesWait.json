@@ -2,7 +2,7 @@
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.54.6",
+  "version": "1.55.0",
   "contextPolicy": "none",
   "description": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
   "synonyms": [
@@ -94,5 +94,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:a029b0e80b4752d3fd1d6e8285e20a0c29d2accb9d6a0cd2ef5678568b666ebd"
+  "docsHash": "sha256:2cd5d1e5a181680fae8f6f10d4c4830fcee4eeed78a01b9234ab0d44702193c8"
 }

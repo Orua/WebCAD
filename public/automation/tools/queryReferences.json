@@ -2,7 +2,7 @@
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.54.6",
+  "version": "1.55.0",
   "contextPolicy": "identity",
   "description": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
   "synonyms": [
@@ -70,5 +70,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:98073e58be101e4f0b36f36f6d654c38cdb0dbfa8ae6564fbed75e9034e17e00"
+  "docsHash": "sha256:f6b3eec0afa885d04179f5c8cc6e84924501381d52337180f2bf1c4fc26ee80f"
 }

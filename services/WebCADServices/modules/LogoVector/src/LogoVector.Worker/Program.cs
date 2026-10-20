@@ -40,7 +40,14 @@ namespace LogoVector.Worker
                         var token = JObject.Parse(Encoding.UTF8.GetString(bytes));
                         if ((string)token["type"] != "webcad-logo" || (int?)token["version"] != 1 || (string)token["units"] != "mm") throw new LogoVectorException("FORMAT_VARIANT_UNSUPPORTED", "仅支持 webcad-logo v1 毫米文件。");
                     }
-                    else if (format == "pdf" || format == "pdf-ai") { int? selected = (int?)request["options"]?["page"]; int count = PdfAdapter.CountPages(bytes); var inspectOptions = new ConversionOptions { PdfJoinToleranceMm = (double?)request["options"]?["pdfJoinToleranceMm"] ?? 0, TargetWidthMm = (double?)request["options"]?["targetWidthMm"], SizeMode = request["options"]?["targetWidthMm"] != null ? "targetWidth" : "sourceUnits" }; if (selected.HasValue || count == 1) PdfAdapter.Parse(bytes, selected, inspectOptions); result = new InspectionResult { Status = "needsInput", SourceSha256 = hash, DetectedFormat = format, PageCount = count, SelectedPage = selected ?? (count == 1 ? 1 : (int?)null), Message = count > 1 && !selected.HasValue ? "请选择 PDF 页面。" : "已识别矢量页面；请确认尺寸后转换。" }; }
+                    else if (format == "pdf" || format == "pdf-ai")
+                    {
+                        int? selected = (int?)request["options"]?["page"]; int count = PdfAdapter.CountPages(bytes); bool raster = false;
+                        var inspectOptions = new ConversionOptions { PdfJoinToleranceMm = (double?)request["options"]?["pdfJoinToleranceMm"] ?? 0, TargetWidthMm = (double?)request["options"]?["targetWidthMm"], SizeMode = request["options"]?["targetWidthMm"] != null ? "targetWidth" : "sourceUnits" };
+                        if (selected.HasValue || count == 1) try { PdfAdapter.Parse(bytes, selected, inspectOptions); }
+                        catch (LogoVectorException error) when (RasterFallback(error)) { raster = true; if (!PdfRasterizer.Available) throw new LogoVectorException("PDF_RENDERER_UNAVAILABLE", "此页面含文字、图片或复杂绘制，需要后台 PDF 渲染组件；也可导出 PNG 后继续。"); }
+                        result = new InspectionResult { Status = "needsInput", SourceSha256 = hash, DetectedFormat = format, PageCount = count, SelectedPage = selected ?? (count == 1 ? 1 : (int?)null), Message = count > 1 && !selected.HasValue ? "请选择 PDF 页面。" : raster ? "将保留所选页面排版转成图像识别；转换后请核对底图、轮廓及尺寸。" : "已识别矢量页面；请确认尺寸后转换。" };
+                    }
                     else if (format == "dxf") DxfAdapter.Parse(bytes);
                     else { using (var stream = new MemoryStream(bytes)) if (!StbImageSharp.ImageInfo.FromStream(stream).HasValue) throw new LogoVectorException("MALFORMED_FILE", "位图解码失败。"); }
                     if (result == null) result = new InspectionResult { Status = "needsInput", SourceSha256 = hash, DetectedFormat = format, Message = "已识别文件；请确认尺寸和参数后转换。" };
@@ -53,7 +60,7 @@ namespace LogoVector.Worker
                     {
                         if ((token.Type != JTokenType.Float && token.Type != JTokenType.Integer) || double.IsNaN((double)token) || double.IsInfinity((double)token) || (double)token < 0 || (double)token > .5) throw new LogoVectorException("INVALID_OPTIONS", "raster.smoothingPx 必须为 0–0.5 源像素数值；默认 0。");
                         smoothingPx = (double)token;
-                        if (format != "raster") throw new LogoVectorException("INVALID_OPTIONS", "raster.smoothingPx 仅用于位图像素轮廓，不用于 PDF 线接合。");
+                        if (format != "raster" && format != "pdf" && format != "pdf-ai") throw new LogoVectorException("INVALID_OPTIONS", "raster.smoothingPx 仅用于位图或 PDF 栅格回退，不用于矢量线接合。");
                     }
                     result = Convert(bytes, sourceName, hash, format, request["options"].ToObject<ConversionOptions>(), smoothingPx);
                 }
@@ -71,6 +78,7 @@ namespace LogoVector.Worker
         {
             if (File.Exists(Path.Combine(Path.GetDirectoryName(requestPath), "cancel.flag"))) throw new LogoVectorException("WORKER_CANCELLED", "Cancelled at a parser stage boundary.");
         }
+        static bool RasterFallback(LogoVectorException error) => error.Code == "UNSUPPORTED_RENDER_FEATURE" || error.Code == "NO_VECTOR_CONTENT";
         static string Detect(byte[] data, string name)
         {
             string ext = Path.GetExtension(name).ToLowerInvariant();
@@ -101,7 +109,24 @@ namespace LogoVector.Worker
                 regions = doc.Regions; nativeWidth = doc.SizeMm[0]; method = "vector-normalization";
             }
             else if (format == "svg") { var parsed = ParseSvg(bytes); regions = parsed.Item1; nativeWidth = parsed.Item2; method = "vector-extraction"; }
-            else if (format == "pdf" || format == "pdf-ai") { var parsed = PdfAdapter.Parse(bytes, options.Page, options); regions = parsed.Regions; nativeWidth = parsed.WidthPoints; pdfCurves = parsed.Curves; reconstructed = parsed.Reconstructed; repairs = parsed.Repairs; joinToleranceMm = parsed.JoinToleranceMm; method = reconstructed ? "pdf-linework-reconstruction" : "pdf-vector-extraction"; }
+            else if (format == "pdf" || format == "pdf-ai")
+            {
+                try { var parsed = PdfAdapter.Parse(bytes, options.Page, options); regions = parsed.Regions; nativeWidth = parsed.WidthPoints; pdfCurves = parsed.Curves; reconstructed = parsed.Reconstructed; repairs = parsed.Repairs; joinToleranceMm = parsed.JoinToleranceMm; method = reconstructed ? "pdf-linework-reconstruction" : "pdf-vector-extraction"; }
+                catch (LogoVectorException error) when (RasterFallback(error))
+                {
+                    var rendered = PdfRasterizer.Render(bytes, options.Page);
+                    var rasterOptions = new ConversionOptions { Mode = "raster", SizeMode = options.SizeMode == "targetWidth" ? "targetWidth" : "mmPerSourceUnit", TargetWidthMm = options.TargetWidthMm, MmPerSourceUnit = rendered.WidthPoints / rendered.Width * (options.SizeMode == "mmPerSourceUnit" ? options.MmPerSourceUnit : 25.4 / 72), SizeConfirmed = true, ToleranceMm = options.ToleranceMm, Raster = options.Raster };
+                    var converted = Convert(rendered.Png, name, hash, "raster", rasterOptions, smoothingPx);
+                    var rasterSource = converted.Logo.Source; rasterSource["kind"] = format; rasterSource["page"] = options.Page ?? 1;
+                    if (!rasterSource.ContainsKey("rasterOriginalContours")) rasterSource["rasterOriginalContours"] = new LogoDocument { Name = "original-pixel-contours", SizeMm = converted.Logo.SizeMm, Regions = RasterTracer.CopyRegions(converted.Logo.Regions), Source = new Dictionary<string, object> { ["kind"] = "raster-original-pixel-contours", ["sha256"] = hash, ["reviewRequired"] = true, ["reviewed"] = false } };
+                    string imageHash; using (var sha = SHA256.Create()) imageHash = BitConverter.ToString(sha.ComputeHash(rendered.Png)).Replace("-", "").ToLowerInvariant();
+                    rasterSource["renderedRaster"] = new { mime = "image/png", base64 = System.Convert.ToBase64String(rendered.Png), sha256 = imageHash, bytes = rendered.Png.Length, pixelWidth = rendered.Width, pixelHeight = rendered.Height, pageWidthPoints = rendered.WidthPoints, pageHeightPoints = rendered.HeightPoints, renderer = "pdfium-no-v8", rendererSha256 = rendered.EngineHash, sourceSha256 = hash, page = options.Page ?? 1, reason = error.Code };
+                    converted.Report.Method = "pdf-raster-tracing";
+                    converted.Report.Warnings.Add("PDF_RASTERIZED: 所选页面已栅格化（最长边1024像素）；字体替代、细节及二值化误差未知，须对照底图确认；不是原始矢量。");
+                    rasterSource["conversion"] = new { method = "pdf-raster-tracing", approximationBasis = "rendered-thresholded-pixel-contours", requestedToleranceMm = converted.Report.RequestedToleranceMm, approximationBoundMm = converted.Report.ApproximationBoundMm, sourceReconstructionErrorMm = (double?)null, reviewRequired = true, reviewReasons = new[] { "PDF_RASTERIZED", "RASTER_TRACED" }, geometryHash = converted.Report.GeometryHash };
+                    return converted;
+                }
+            }
             else if (format == "dxf") { var parsed = DxfAdapter.Parse(bytes); regions = parsed.Regions; nativeWidth = parsed.Width; sourceUnitMm = parsed.MmPerUnit; version = parsed.Version; method = "dxf-vector-extraction"; }
             else { var parsed = RasterTracer.Trace(bytes, options.Raster, out rasterHeight, smoothingPx, out smoothing); regions = parsed.Item1; nativeWidth = parsed.Item2; method = "raster-tracing"; }
             if (!(nativeWidth > 0)) throw new LogoVectorException("SIZE_REQUIRED", "缺少可靠的物理宽度。");

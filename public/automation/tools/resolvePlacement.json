@@ -2,7 +2,7 @@
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.54.6",
+  "version": "1.55.0",
   "contextPolicy": "identity",
   "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
   "synonyms": [
@@ -74,5 +74,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:f09a82f7456672ab0427d6ac21b80f71e3b6977ce79eee01f5333f37abe8b265"
+  "docsHash": "sha256:45c37338b4e7dd135999d862d91e58bec0f38d26ff4529f2e4eca6b23559d154"
 }

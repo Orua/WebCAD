@@ -2,7 +2,7 @@
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.54.6",
+  "version": "1.55.0",
   "contextPolicy": "revision",
   "description": "awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。",
   "synonyms": [
@@ -66,5 +66,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:61ea53c2d843220519ea4b4fdf229a95c335978bcf34942873e0509fc3bb43b1"
+  "docsHash": "sha256:b77a4740c0dc62ce56e4d4b7e500a8bc80a5d916005ab00cb148c4461c75cef6"
 }

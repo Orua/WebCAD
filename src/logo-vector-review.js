@@ -1,5 +1,17 @@
 import {validateRegions} from './logo-model.js';
 import {logoDXF} from './logo-dxf.js';
+import {binaryHash} from './contracts/operation-schema.js';
+
+export function renderedLogoRaster(logo){
+ const image=logo.source?.renderedRaster;if(!image)return null;
+ const invalid=()=>fail('LOGO_RENDERED_IMAGE_INVALID','转换底图校验失败，请保留原任务并重新读取其结果。');
+ if(image.mime!=='image/png'||typeof image.base64!=='string'||image.base64.length>1398104||!Number.isInteger(image.bytes)||image.bytes<24||image.bytes>1048576||image.sourceSha256!==logo.source.sha256)invalid();
+ let bytes;try{bytes=Uint8Array.from(atob(image.base64),c=>c.charCodeAt(0));}catch{invalid();}
+ if(bytes.length!==image.bytes||binaryHash(bytes)!=='sha256:'+image.sha256||[137,80,78,71,13,10,26,10].some((v,i)=>bytes[i]!==v))invalid();
+ const header=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
+ if(header.getUint32(16)!==image.pixelWidth||header.getUint32(20)!==image.pixelHeight||image.pixelWidth<1||image.pixelHeight<1||image.pixelWidth>1024||image.pixelHeight>1024)invalid();
+ return bytes;
+}
 
 const copy=value=>structuredClone(value);
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
@@ -71,6 +83,7 @@ export function logoReviewSvg(logo){
 /** The page resource store registers these bytes; this never reads arbitrary URLs or paths. */
 export function logoReviewArtifacts(logo){
  validateRegions(logo);
+ const rendered=renderedLogoRaster(logo);
  return [
   {kind:'contours',name:'logo.logo.json',mime:'application/json',text:JSON.stringify({...logo,type:'webcad-logo',version:1,units:'mm'})},
   {kind:'preview',name:'logo.svg',mime:'image/svg+xml',text:logoReviewSvg(logo)},
@@ -79,5 +92,6 @@ export function logoReviewArtifacts(logo){
   ,...(logo.source?.rasterOriginalContours?[{kind:'original-contours',name:'logo-original-pixel-contours.logo.json',mime:'application/json',text:JSON.stringify(logo.source.rasterOriginalContours)}]:[])
   ,...(logo.source?.rasterSmoothing?[{kind:'smoothing',name:'logo-smoothing-report.json',mime:'application/json',text:JSON.stringify(logo.source.rasterSmoothing)}]:[])
   ,...(logo.source?.inspectionReport?[{kind:'inspection',name:'logo-inspection.json',mime:'application/json',text:JSON.stringify(logo.source.inspectionReport)}]:[])
+  ,...(rendered?[{kind:'rendered-source',name:'logo-rendered-page.png',mime:'image/png',bytes:rendered}]:[])
  ];
 }

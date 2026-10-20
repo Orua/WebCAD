@@ -9,6 +9,7 @@ import {validateDisplayPreferences} from './display-preferences.js';
 import {createPageBatch} from './page-batch.js';
 import {readBrowserLogo,getLogoWizardState,actLogoWizard,getLogoWizardReviewBinding,refreshLogoWizardReview} from './browser-logo-input.js';
 import {createLogoReviewSession,logoReviewArtifacts} from './logo-vector-review.js';
+import {runReliefDesignField,readReliefDesignField,cancelReliefDesignField,candidateReliefDesignField} from './relief-design-runtime.js';
 import {logoDXF} from './logo-dxf.js';
 import {getLogoConverterConfig,setLogoConverterConfig} from './logo-converter-settings.js';
 import {getServicesConfig,saveServicesConfig,clearServicesCredential} from './services/settings.js';
@@ -145,8 +146,8 @@ export function createPageAPI(host){
     const resources=[];
     try{
       releaseLogoArtifacts(cached);
-      for(const {text,...item} of logoReviewArtifacts(state.logo)){
-        resources.push({...item,...await rawFiles.generated({bytes:new TextEncoder().encode(text),name:item.name,mime:item.mime,context:s.context}),reviewRevision:state.revision});
+      for(const {text,bytes,...item} of logoReviewArtifacts(state.logo)){
+        resources.push({...item,...await rawFiles.generated({bytes:bytes??new TextEncoder().encode(text),name:item.name,mime:item.mime,context:s.context}),reviewRevision:state.revision});
       }
       assertLogoSnapshot(cached,s,state.revision);
       cached.resources=resources;cached.artifactRevision=state.revision;return resources;
@@ -445,6 +446,21 @@ export function createPageAPI(host){
     }),
     planPatternMachining:guarded(input=>{
       check(input,['context','intent']);return {...planPatternMachining(input.intent),context:current().context};
+    }),
+    reliefDesignField:guarded(async input=>{
+      const s=check(input,['context','action','designId','expectedDraftRevision','options','baseMm']);
+      const action=input.action??'get',entry=host.state({include:['reliefDesigns']}).reliefDesigns?.find(d=>d.id===input.designId);
+      if(!entry)fail('STALE_REFERENCE','Design draft not found');
+      if(entry.revision!==input.expectedDraftRevision)fail('REVISION_CONFLICT','Read the current design draft revision');
+      if(!['solve','get','cancel','candidate'].includes(action))fail('PARAM_SCHEMA_INVALID','Unknown design field action');
+      if(input.options!==undefined&&action!=='solve'||input.baseMm!==undefined&&action!=='candidate')fail('PARAM_SCHEMA_INVALID','options only for solve; baseMm only for candidate');
+      const latest=()=>{const state=host.state({include:['reliefDesigns']});return {context:state.context,entry:state.reliefDesigns?.find(d=>d.id===input.designId)};};
+      const result=action==='solve'?await runReliefDesignField(s.context,entry,input.options,latest):action==='cancel'?cancelReliefDesignField():action==='candidate'?candidateReliefDesignField(s.context,entry,input.baseMm):readReliefDesignField(s.context,entry);
+      if(action==='candidate'&&result.status==='candidate'){
+        const card=getTool({id:result.args.op});
+        result.args={...result.args,opVersion:card.version,schemaHash:card.schemaHash};
+      }
+      return {...result,context:current().context};
     }),
     readLogo:guarded(async input=>{
       const keys=['context','resourceId','name','targetWidthMm','page','sizeConfirmed','allowUpload','raster','pdfJoinToleranceMm'];check(input,keys);

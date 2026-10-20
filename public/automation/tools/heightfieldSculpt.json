@@ -3,7 +3,7 @@
   "title": "高度图浮雕精修",
   "label": "高度图浮雕精修",
   "category": "command",
-  "version": "1.54.6",
+  "version": "1.55.0",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -66,6 +66,10 @@
         "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
       },
       {
+        "id": "reliefDesignField",
+        "chooseWhen": "从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。"
+      },
+      {
         "id": "sampleReliefHeight",
         "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
       },
@@ -84,5 +88,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:cd6e3cabf826751458ca5ed8ccc6b9fac1e9031bc3a1fbc2122dbf471a2a9e42"
+  "docsHash": "sha256:ae182501d94d0d84c957cd0da1b70622645a4fa09b20d6dccbc494eadc362e5d"
 }

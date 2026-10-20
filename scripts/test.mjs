@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
-    'error-recovery','relief-design-drafts','logo-export','logo-review-api','logo-vector-review','logo-wizard-state','panel-layout','receipt-capacity-recovery','relief-intent-runtime','relief-sculpt-preflight','report-regressions','tool-selection',
+    'error-recovery','relief-design-drafts','relief-design-field','logo-export','logo-review-api','logo-vector-review','logo-wizard-state','panel-layout','receipt-capacity-recovery','relief-intent-runtime','relief-sculpt-preflight','report-regressions','tool-selection',
     'agent-selection-preservation', 'count-summary', 'floor-grid', 'free-placement',
     'logo-selection-draft', 'metal-warning', 'open-file-recent',
     'tap-contract', 'agent-single-call', 'metal-occlusion', 'selection-feedback',

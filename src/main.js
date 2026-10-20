@@ -192,6 +192,7 @@ const ui=createUI(document.getElementById('app'),{
   onTemporaryDisplay:mode=>{viewport.setTemporaryDisplay(mode);refresh();},
   onRemoveTopology:id=>{if(!selectedTopology)return;selectedTopology.ids=id===null?[]:selectedTopology.ids.filter(value=>value!==id);if(!selectedTopology.ids.length)selectedTopology=null;viewport.setSelection(selectedIds,selectedTopology);refresh();},
   onReliefDesign:args=>runEditorAction('document.reliefDesign',args,{fromUI:true}),
+  onReliefDesignGeometry:args=>runEditorAction('feature.add',args,{fromUI:true}),
   onRename:name=>runEditorAction('document.rename',{name}).catch(reportError),
   onFrameDraft:frame=>{assertHumanEditing();viewport.setWorkFrame(frame);},
   onFrameCancel:()=>{viewport.cancelAnchorDrag();viewport.setWorkFrame(documentModel.referenceSystem.workFrame);},

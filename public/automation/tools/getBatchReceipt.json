@@ -2,7 +2,7 @@
   "id": "getBatchReceipt",
   "title": "getBatchReceipt",
   "category": "page-method",
-  "version": "1.54.6",
+  "version": "1.55.0",
   "contextPolicy": "none",
   "description": "getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.",
   "synonyms": [
@@ -91,5 +91,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:dd93744a8c9506d736d773321304fc92ecda2a41175cb0b4b39665dcfda0bc59"
+  "docsHash": "sha256:c1606d499894ef58255fe103684ff12f200056c388e807e6c7392e87a597555a"
 }

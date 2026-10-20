@@ -6,7 +6,7 @@ import {servicesClient} from './services/client.js';
 import {binaryHash} from './contracts/operation-schema.js';
 import {validateLogoRasterOptions} from './logo-raster-options.js';
 import {logoDXF} from './logo-dxf.js';
-import {createLogoReviewSession} from './logo-vector-review.js';
+import {createLogoReviewSession,renderedLogoRaster} from './logo-vector-review.js';
 import {createLogoVectorReview} from './ui/logo-vector-review.js';
 import {parseLocalLogoDxf} from './dxf-logo-input.js';
 
@@ -65,7 +65,7 @@ export async function readBrowserLogo(file,validate,{targetWidthMm,page,sizeConf
     if(client===servicesClient&&!getServicesConfig().configured)throw inputError('请在“计算设置”启用后台计算，然后重新识别图片。','CAPABILITY_UNAVAILABLE');
     if(!allowUpload)throw inputError('识别此文件需要上传到已配置的后台计算，请明确允许上传。','UPLOAD_AUTH_REQUIRED');
     const isRaster=/\.(png|jpe?g|bmp)$/.test(name);
-    if(raster!==undefined&&!isRaster)throw inputError('raster 选项只用于 PNG、JPG、BMP 位图。','PARAM_SCHEMA_INVALID');
+    if(raster!==undefined&&!isRaster&&!isPaged)throw inputError('raster 选项只用于位图或 PDF／AI 栅格回退。','PARAM_SCHEMA_INVALID');
     validateLogoRasterOptions(raster);
     if(!sizeConfirmed||isRaster&&!(Number.isFinite(targetWidthMm)&&targetWidthMm>0))throw inputError('请填写图案实际宽度（mm）；图片像素不能作为毫米尺寸。','SIZE_REQUIRED');
     if(targetWidthMm!==undefined&&!(Number.isFinite(targetWidthMm)&&targetWidthMm>0))throw inputError('图案宽度必须大于 0 mm。','SIZE_REQUIRED');
@@ -74,13 +74,13 @@ export async function readBrowserLogo(file,validate,{targetWidthMm,page,sizeConf
     const inspectOptions={...(page?{page}:{}),...(isPaged?{pdfJoinToleranceMm:pdfJoinToleranceMm??0,...(targetWidthMm?{targetWidthMm}:{})}:{})};
     let inspected;try{inspected=await client.wait(await client.submit('logo/inspect',{assetId:asset.assetId,options:inspectOptions},`${requestId}-inspect`));}catch(error){throw logoConversionError(error,{isRaster,raster});}
     if(inspected.result.pageCount>1&&!page)throw inputError(`源文件有 ${inspected.result.pageCount} 页，请指定页码。`,'PAGE_REQUIRED');
-    const options={mode:isRaster?'raster':'vector',sizeMode:targetWidthMm?'targetWidth':'sourceUnits',sizeConfirmed:true,toleranceMm:0.005,pdfJoinToleranceMm:isPaged?pdfJoinToleranceMm??0:0,...(page?{page}:{}),...(targetWidthMm?{targetWidthMm}:{}),...(isRaster&&raster?{raster}:{})};
+    const options={mode:isRaster?'raster':'vector',sizeMode:targetWidthMm?'targetWidth':'sourceUnits',sizeConfirmed:true,toleranceMm:0.005,pdfJoinToleranceMm:isPaged?pdfJoinToleranceMm??0:0,...(page?{page}:{}),...(targetWidthMm?{targetWidthMm}:{}),...((isRaster||isPaged)&&raster?{raster}:{})};
     let converted;
     try{converted=await client.wait(await client.submit('logo/convert',{assetId:asset.assetId,options},`${requestId}-convert`));}
     catch(error){throw logoConversionError(error,{isRaster,raster});}
     const {result,manifest}=converted;
     if(!result.geometryValid||!result.logoDocument||!['ready','needsReview'].includes(result.status))throw inputError('后台没有返回有效的闭合轮廓。','CONVERSION_FAILED');
-    const logo=validate(result.logoDocument);validateRegions(logo);
+    const logo=validate(result.logoDocument);validateRegions(logo);renderedLogoRaster(logo);
     logo.source={...logo.source,reviewed:false,reviewRequired:result.reviewRequired,conversionReport:result.conversionReport,inspectionReport:inspected.result,servicesEvidence:{jobId:manifest.jobId,inputFingerprint:manifest.inputFingerprint,artifactSha256:manifest.artifactSha256,artifactId:manifest.artifactId,assetId:asset.assetId,sourceSha256:asset.sha256,inspectionJobId:inspected.manifest?.jobId}};
     return fitLogoWidth(logo,targetWidthMm);
   }
@@ -123,7 +123,8 @@ export function createLogoImportUI({onLogo,onInvalidate,validateLogoDocument,log
  const invalidate=async()=>{++generation;++wizardRevision;detachReview();pending=null;session=editor=null;clearImage();editorHost.replaceChildren();confirm.hidden=download.hidden=true;summary.replaceChildren();error.textContent='';lastError=null;showConfirmed(false);sourcePanel.hidden=false;reviewPanel.hidden=true;markStep(0);onLogo(null);await onInvalidate?.();};
  const reviewChanged=state=>{pending=state.logo;++wizardRevision;if(state.reviewRequired){onLogo(null);sourcePanel.hidden=true;reviewPanel.hidden=false;markStep(1);confirm.hidden=false;onInvalidate?.();}else{onLogo(pending);confirm.hidden=true;showConfirmed(true);sourcePanel.hidden=reviewPanel.hidden=true;markStep(2);}showSummary(pending);};
  const installReview=(logo,file,sharedSession)=>{
-  detachReview();pending=logo;session=sharedSession??createLogoReviewSession(logo);reviewBinding={session,sourceFile:file??null,valid:true,info:null};clearImage();if(file&&logoInputKind(file.name)==='raster')imageUrl=URL.createObjectURL(file);
+  const rendered=renderedLogoRaster(logo);
+  detachReview();pending=logo;session=sharedSession??createLogoReviewSession(logo);reviewBinding={session,sourceFile:file??null,valid:true,info:null};clearImage();if(rendered)imageUrl=URL.createObjectURL(new Blob([rendered],{type:'image/png'}));else if(file&&logoInputKind(file.name)==='raster')imageUrl=URL.createObjectURL(file);
   editor=createLogoVectorReview({session,imageUrl,onChange:reviewChanged});editorHost.replaceChildren(editor.element);showSummary(logo);sourcePanel.hidden=true;reviewPanel.hidden=false;confirm.hidden=download.hidden=false;markStep(1);++wizardRevision;
  };
  const selectedWidth=()=>width.value.trim()?Number(width.value):undefined;
@@ -135,8 +136,8 @@ export function createLogoImportUI({onLogo,onInvalidate,validateLogoDocument,log
   finally{busy=false;input.disabled=width.disabled=page.disabled=paste.disabled=false;read.disabled=!input.files?.[0];pasteRead.disabled=false;}
  };
  const rasterOptions=()=>({threshold:Number(threshold.value),alphaThreshold:Number(alpha.value),invert:invert.checked,smoothingPx:smoothing.value.trim()===""?NaN:Number(smoothing.value)});
- const readSelected=(allowUpload=false,options)=>{const file=input.files?.[0];if(!file){if(options?.propagate)throw inputError('请先选择来源文件，或用 readLogo 资源载入轮廓。','LOGO_SOURCE_REQUIRED');return;}return inspect(()=>readBrowserLogo(file,validateLogoDocument,{targetWidthMm:selectedWidth(),...(logoInputKind(file.name)==='paged-vector'?{page:Number(page.value),pdfJoinToleranceMm:Number(pdfJoin.value)}:{}),sizeConfirmed:Number.isFinite(selectedWidth())&&selectedWidth()>0,allowUpload:allowUpload===true,...(logoInputKind(file.name)==='raster'?{raster:rasterOptions()}:{})}),options);};
- input.addEventListener('change',async()=>{await invalidate();const file=input.files?.[0];read.disabled=!file;const kind=logoInputKind(file?.name);pageField.hidden=pdfDetails.hidden=kind!=='paged-vector';rasterDetails.hidden=kind!=='raster';if(!file)return;if(kind==='local'||kind==='unsupported'){route.textContent='正在本地读取文件…';await readSelected(false);}else route.textContent=kind==='raster'?'黑白图：填写实际宽度后识别闭合轮廓。点击识别会上传此文件到已配置的后台。':'先尝试本地矢量读取；点击识别允许将本地不能读取的文件上传到已配置后台，保留字形和孔洞。';});
+ const readSelected=(allowUpload=false,options)=>{const file=input.files?.[0];if(!file){if(options?.propagate)throw inputError('请先选择来源文件，或用 readLogo 资源载入轮廓。','LOGO_SOURCE_REQUIRED');return;}return inspect(()=>readBrowserLogo(file,validateLogoDocument,{targetWidthMm:selectedWidth(),...(logoInputKind(file.name)==='paged-vector'?{page:Number(page.value),pdfJoinToleranceMm:Number(pdfJoin.value)}:{}),sizeConfirmed:Number.isFinite(selectedWidth())&&selectedWidth()>0,allowUpload:allowUpload===true,...(['raster','paged-vector'].includes(logoInputKind(file.name))?{raster:rasterOptions()}:{})}),options);};
+ input.addEventListener('change',async()=>{await invalidate();const file=input.files?.[0];read.disabled=!file;const kind=logoInputKind(file?.name);pageField.hidden=pdfDetails.hidden=kind!=='paged-vector';rasterDetails.hidden=!['raster','paged-vector'].includes(kind);if(!file)return;if(kind==='local'||kind==='unsupported'){route.textContent='正在本地读取文件…';await readSelected(false);}else route.textContent=kind==='raster'?'黑白图：填写实际宽度后识别闭合轮廓。点击识别会上传此文件到已配置的后台。':kind==='paged-vector'?'优先提取矢量；含文字、图片或复杂绘制的页面自动转成底图识别，再校对轮廓。点击识别会上传到已配置后台。':'先尝试本地矢量读取；点击识别允许上传到已配置后台。';});
  read.addEventListener('click',()=>readSelected(true));
  download.addEventListener('click',()=>{if(!pending)return;try{const url=URL.createObjectURL(new Blob([logoDXF(pending)],{type:'application/dxf'})),link=document.createElement('a');link.href=url;link.download='logo.dxf';link.click();setTimeout(()=>URL.revokeObjectURL(url),0);}catch(value){error.textContent=humanError(value);}});
  for(const control of [width,page,paste,threshold,alpha,invert,pdfJoin,smoothing])control.addEventListener('input',invalidate);

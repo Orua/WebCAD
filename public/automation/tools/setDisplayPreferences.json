@@ -2,7 +2,7 @@
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.54.6",
+  "version": "1.55.0",
   "contextPolicy": "identity",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
@@ -80,5 +80,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:7ad8f12b9ad279bde1ab23213968c45418fabffdc679c35ea3628d2598576565"
+  "docsHash": "sha256:a27db8a61d78fcc8ab7cbe93c7d8c8a0267d1dfc99f201542692bbabf838f06c"
 }
