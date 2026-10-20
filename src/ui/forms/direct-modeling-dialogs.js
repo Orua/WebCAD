@@ -33,13 +33,18 @@ export function showDirectModelingDialog(op,env={}){
       faceIds=[...topology.ids];
       if(new Set(faceIds).size!==faceIds.length||faceIds.some(id=>!Number.isInteger(id)||id<0||id>=body.faceCount))throw new Error('选面已失效，请在当前对象上重新选择');
       if(op==='offsetSurface'&&faceIds.length!==1)throw new Error('偏置面需要恰好选中一张面');
+      if(op==='rodJunction'&&faceIds.length!==2)throw new Error('先选贯通主杆的一张圆柱面，再 Ctrl 选择支杆的一张圆柱面；只保留两张面');
       if(faceIds.length>200)throw new Error('本次最多选择 200 张拔模面');
     }
     locked={id:body.id,faceIds,stamp:sourceStamp(body)};selectionIssue='';return body;
   };
   try{capture(initialSelection);}catch(error){selectionIssue=error.message;}
 
-  if(op==='draftByPlane'){
+  if(op==='rodJunction'){
+    numberField(form,['radiusMm','三维接头 R mm',1,'positive']);
+    const swap=button('互换主杆与支杆',()=>{if(locked){locked.faceIds.reverse();changed();}},'secondary');swap.type='button';form.append(swap);
+    notice.textContent='等径、垂直相交的直圆杆 T 接头。第一张面为贯通主杆，第二张为支杆；可互换。R 独立于线径；相邻框角或其它结构太近时拒绝，原工程保留。';
+  }else if(op==='draftByPlane'){
     const defaults=minimum(currentBody());
     form.append(element('p',{class:'property-footnote wide'},'中性平面点默认取来源包围盒的最小世界坐标，可修改为所需固定平面上的点。平面法线随拉出方向设置。'));
     for(const [index,axis] of axes.entries())numberField(form,[`neutralPoint${axis}`,`中性平面点 ${axis}（世界 mm）`,defaults?defaults[index]:'']);
@@ -65,6 +70,7 @@ export function showDirectModelingDialog(op,env={}){
     const values={};for(const [name,input] of fields){if(input.disabled)continue;const value=Number(input.value);if(!input.value.trim()||!Number.isFinite(value))throw new Error('请填写所有需要的有效数字');values[name]=value;}return values;
   };
   const pack=values=>{
+    if(op==='rodJunction'){if(!(values.radiusMm>0)||values.radiusMm>20)throw new Error('接头 R 须大于 0 且不超过 20 mm');return {faceIds:[...locked.faceIds],radiusMm:values.radiusMm};}
     if(op!=='draftByPlane'){
       if(!Number.isFinite(values.distanceMm)||values.distanceMm===0)throw new Error('偏置距离须为非零有效数字');
       return op==='offsetSolid'?{distanceMm:values.distanceMm,join:form.elements.namedItem('join').value}:{faceId:locked.faceIds[0],distanceMm:values.distanceMm};

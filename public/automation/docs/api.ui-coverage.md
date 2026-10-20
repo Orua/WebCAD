@@ -2,6 +2,13 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "rodJunction": {
+    "tools": [
+      "rodJunction"
+    ],
+    "method": "execute",
+    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
   "agentPanelResize": {
     "tools": [
       "getAgentPanel",
@@ -1020,7 +1027,7 @@
       "clearServicesCredential"
     ],
     "method": "setServices",
-    "usage": "显示实际计算入口；默认地址跟随本站应用路径，自定义可传本站相对路径或完整URL。context、url、authMode、credential、enabled、localTimeoutMs、serverWaitMs；启用时先验证能力，成功才保存，失败明确未保存。getServicesRouting读取实际分流原因；不回显授权。"
+    "usage": "主界面维护统一计算接口地址，可传本站相对路径或带域名/IP/端口的完整URL；显示解析后的实际地址。默认入口使用当前网站登录，自定义端使用专用授权。context、url、authMode、credential、enabled、localTimeoutMs、serverWaitMs；启用时先验证能力，成功才保存，失败明确未保存。所有后台工具共享配置。getServicesRouting读取实际分流原因；不回显授权。"
   },
   "servicesFeatureCompile": {
     "tools": [

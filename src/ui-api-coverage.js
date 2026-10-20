@@ -2,6 +2,7 @@ import { listOperations } from './operation-registry.js';
 
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
+ rodJunction:{tools:['rodJunction','queryGeometry','preview.start','preview.commit','preview.cancel','feature.edit','getState'],method:'execute',usage:'实体加工→圆杆接头倒 R。refs:[当前单实体ID]，params:{faceIds:[贯通主杆圆柱面ID,支杆圆柱面ID],radiusMm:独立半径mm}。支持等径、共面垂直T接头；查询当前面号，预览后确认；sourceJunctionReport读回实际R、线径、局部域和误差，失败保留来源。'},
   agentPanelResize:{tools:['getAgentPanel','setAgentPanel'],method:'setAgentPanel',usage:'拖动Agent分隔线或键盘方向键调尺寸；setAgentPanel({context,layout:{widthPx?,heightPx?,collapsed?}})，getAgentPanel().layout读回手机高度/PC宽度、有效尺寸及收起状态；与可见性分开调用，不修改工程。'},
  badge:{tools:['badge','preview.start','preview.commit','preview.cancel','feature.edit','getState'],method:'execute',usage:'创建→牌仔工具：refs 指定来源，faceId 指定当前平面；thicknessMm 为总厚度，side=single/double，direction=1/-1，radiusMm=0 自动或正数明确 R。保留来源及孔，所有外露锐边倒圆；回读 badgeReport。'},
   ...Object.fromEntries(listOperations().filter(c=>!['round','roundEnd','rounding','fillet'].includes(c.id)).map(c=>[c.id,{tools:[c.id],method:'execute',usage:'feature.add；按工具卡传显式 params/refs，或 run 的 add。'}])),
@@ -61,7 +62,7 @@ export const UI_API_ROUTES = Object.freeze({
   languageSettings:{tools:['setView'],method:'setView',usage:'language:zh/en。'},
   agentGuide:{tools:['connect','getTools','readDocs'],method:'connect',usage:'设置→Agent 配置为软件配置弹窗；兼容setView({context,workspace:"agent"})打开，workspace:"modeling"关闭；getUILayout().current.agentSettingsOpen读回。connect({queries,includeContracts:true}) 返回当前 canExecute/blockers、requestContext 与完整卡；onboarding 提供首次连接步骤、本地安装包和真实操作路由；readDocs({docId:"api.connection"}) 说明宿主能力检查。knownHashes 只缓存完整工具卡，不缓存实体身份。'},
   agentPanel:{tools:['getAgentPanel','configureAgentPanel','setAgentPanel','getUILayout','setView'],method:'setAgentPanel',usage:'configureAgentPanel({context,url})保存助手页面地址；setAgentPanel({context,visible:true/false})接入当前工程或退出并解锁。Agent入口及连接成功自动focus:true、toolbar:false；退出恢复原布局，活动任务保留并在完成后进入专注。getAgentPanel和getUILayout读回连接及布局。工程、历史、相机和dirty保留。'},
-  servicesSettings:{tools:['getServices','setServices','getServicesCapabilities','getServicesRouting','clearServicesCredential'],method:'setServices',usage:'显示实际计算入口；默认地址跟随本站应用路径，自定义可传本站相对路径或完整URL。context、url、authMode、credential、enabled、localTimeoutMs、serverWaitMs；启用时先验证能力，成功才保存，失败明确未保存。getServicesRouting读取实际分流原因；不回显授权。'},
+  servicesSettings:{tools:['getServices','setServices','getServicesCapabilities','getServicesRouting','clearServicesCredential'],method:'setServices',usage:'主界面维护统一计算接口地址，可传本站相对路径或带域名/IP/端口的完整URL；显示解析后的实际地址。默认入口使用当前网站登录，自定义端使用专用授权。context、url、authMode、credential、enabled、localTimeoutMs、serverWaitMs；启用时先验证能力，成功才保存，失败明确未保存。所有后台工具共享配置。getServicesRouting读取实际分流原因；不回显授权。'},
   servicesFeatureCompile:{tools:['feature.compileServices','getServicesCapabilities','getServicesRouting','getState','getServicesRequest'],method:'execute',usage:'原特征属性→Services 精确计算为每次显式远程；普通新建/编辑在 setServices 设 allowGeometryUploads:true 后按同一 ExecutionRouter 选择。getServicesRouting 读取原因。失败保留工程，未知任务先核对，不自动重算。'},
   displayPreferences:{tools:['setDisplayPreferences'],method:'setDisplayPreferences',usage:'渲染设置使用 setDisplayPreferences，应用后取消选择以查看效果；LOGO 转化为独立入口。'},
   panels:{tools:['setView'],method:'setView',usage:'panels:{left:boolean,right:boolean}；getState().view.panels 读状态。'},

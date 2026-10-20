@@ -611,6 +611,10 @@
         "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
       },
       {
+        "id": "rodJunction",
+        "chooseWhen": "对等径直圆杆的垂直 T 接头设置独立三维 R；与日字扣定 R 共用滚球算法。不是任意面圆角，不支持异径、斜交或 X 接头。"
+      },
+      {
         "id": "autoRound",
         "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
       },
@@ -649,5 +653,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:6a5f2d7d6cd9b3023b8d3c82682baa32ee92ebc721c456379e3ee9cbb35523df"
+  "docsHash": "sha256:25ae8578b51905952019a28fe9baa2d9ccbe4ba6d65bdb270c45aad1ed7a489d"
 }

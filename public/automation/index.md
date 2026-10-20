@@ -1,10 +1,10 @@
 # WebCAD 页面 API 索引
 
-API 1.53.3 · 操作目录 sha256:bc3dfc8c43a540fe80e687cad3cc1f1c68f30cd633f3152e859f12466a1f9103
+API 1.54.1 · 操作目录 sha256:982b8b69d91791f6227a3efe360b249672018bb73de96bcf8c2685b1705c1540
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
-长度 mm、角度 degrees、体积 mm³。严格契约：ellipsoid、guidedLoft、subdBody、bumpSet、badge、meshHeightfieldRelief、meshBoolean、logo、union、cut、intersect、transform、copy、reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、tap、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
+长度 mm、角度 degrees、体积 mm³。严格契约：ellipsoid、guidedLoft、subdBody、bumpSet、badge、meshHeightfieldRelief、meshBoolean、logo、union、cut、intersect、transform、copy、reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、tap、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、rodJunction、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
 
 ## 页面方法
 
@@ -172,6 +172,7 @@ API 1.53.3 · 操作目录 sha256:bc3dfc8c43a540fe80e687cad3cc1f1c68f30cd633f315
 - `reliefShoulder` · migrated · 浮雕中央肩部 / Central relief shoulder
 - `remove` · advisory · Use dedicated webcad_remove tool with ids, not add_feature
 - `revolve` · advisory · Revolve a closed profile
+- `rodJunction` · migrated · Apply an independent rolling-ball radius to one selected equal-wire perpendicular T junction
 - `round` · migrated · 圆润 / Round
 - `roundEnd` · migrated · 端头圆润 / Round free end
 - `rounding` · migrated · 自动打磨 / Smooth selected sharp edges
@@ -208,13 +209,13 @@ API 1.53.3 · 操作目录 sha256:bc3dfc8c43a540fe80e687cad3cc1f1c68f30cd633f315
 - `template.rectBuckle` · advisory · 恒截面圆角矩形框；闭合圆线可用内短边≥2.5 倍线径的紧凑框，其余至少 4 倍截面尺寸。
 - `template.ellipseSectionRectFrame` · advisory · 以独立正面料宽和侧面深度构造椭圆截面，沿圆角矩形中心线扫掠；内 R 为平面内孔圆角，不自动等于侧面 R。
 - `template.dFlatFrame` · advisory · 半圆冠、直腿与独立内外底角 R 的平板 D 框；可按实际宽度切开底部中央。厚度为平板厚度，不代替圆线截面。
-- `template.dBuckle` · advisory · 半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。
+- `template.dBuckle` · advisory · 半圆冠、底部圆弯；内高量到下横杠上沿。内高须≥内宽/2+底内R，等号时两直腿为零且圆弧相切。外宽=内宽+2×线径，外高=内高+2×线径。圆线、圆角方线或倒角方线截面。
 - `template.dBarBuckle` · advisory · 圆角方线 U 主体与固定圆杆融合；杆底与脚底齐平。
 - `template.ovalBuckle` · advisory · 四段相切圆弧，不是椭圆或跑道圈；缝在右端正中。
 - `template.capsuleWire` · advisory · 闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。
 - `template.profileLoop` · advisory · 两端半圆、上下直段的闭合长圈；正面料宽、侧面厚度和截面 R 独立。R 可等于截面短边一半，形成两圆端加直段的截面。
 - `template.twinWindowPlate` · advisory · 独立外 R 和孔 R 的平板双窗，中间是板体一部分；整件前后尖边按指定 R 倒圆。两个孔等宽等高且上下对称，不含圆杆、偏置孔或侧向拱弯。
-- `template.sliderBuckle` · advisory · 可按图片选择三种中梁接头，生成日字扣时一起完成。新接头需要等径圆线、不开缝。定 R 接头复用模型1的真实曲面，R 随线径按 1:4 缩放，独立调整 R 正在改进；轮廓圆润接头可调整平面 R；顺滑接头保留模型3的轻微偏置与鼓起，局部最大厚度约为线径的1.03689倍。宽高变化调整直杆，源型接头随线径等比缩放。
+- `template.sliderBuckle` · advisory · 按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。原比例接头仅用于旧工程兼容。
 - `template.ringBar` · advisory · 同心圆恒截面框与一根沿 X 的圆杆融合为单一实体。横杆可沿 Y 及厚度 Z 微调；不包含活动杆、铰链或精确接头过渡。
 - `template.ellipseBar` · advisory · 从内真椭圆外偏线扫掠圆线，再融合居中固定圆杆。圆线外包围须精确回读；接头过渡与源样条仍须对照。
 - `template.archedTwinWindowPlate` · advisory · 圆角双窗平面轮廓沿 Y 方向投影裁切同轴圆筒薄壁，形成侧视圆弧拱弯。适用于薄条一体双窗；径向板厚、外弧半径独立输入。圆线框及独立圆杆须用其它工具。

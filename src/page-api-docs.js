@@ -27,7 +27,7 @@ import {PRODUCT_SOURCE_GUIDANCE,PRODUCT_FAMILY_DOCS,PRODUCT_FAMILIES} from './pr
 import {DESIGN_INSPECTION_SCHEMA} from './design-inspection.js';
 import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-intent.js';
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
-const PAGE_DOC_VERSION = '1.53.3';
+const PAGE_DOC_VERSION = '1.54.1';
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
     entities:[{id:'rectangle-1',type:'rectangle',originMm:[0,0],widthMm:40,heightMm:30}],
@@ -457,14 +457,15 @@ function templateCards() {
       minimalExample:{op:'quickModel',params:template.minimalExample,refs:[]},
       normalExample:{op:'quickModel',params:template.normalExample,refs:[]},
       ...(kind==='sliderBuckle'?{sourceFreeJunction:{
-          status:'Three supplied source styles are available in the quick-model picture selector: sourceFixedR, profileRound, sourceFree. Fixed-R is the source R1/diameter4 proportion; independently editable 3D R is still improving and must not be claimed available. Original intersection remains the default.',
+          status:'Three picture choices: rollingBall with independent jointRadius, profileRound with planar jointRadius, sourceFree with retained source-shaped variable curvature. Legacy sourceFixedR retains the original proportional recipe. Same canal solver is available as rodJunction machining for one selected equal-wire perpendicular T joint.',
+          independentRadius:{params:{kind:'sliderBuckle',jointStyle:'rollingBall',jointRadius:1,section:'round',sectionSize:4,barDiameter:4,innerWidth:42,innerHeight:22,innerRadius:.5,barOffset:0,gapWidth:0},meaning:'jointRadius is the three-dimensional rolling-ball radius in mm, independently editable without changing wire diameter; both junctions are generated together.',readback:'bodies[].sourceJunctionReport: radiusMm, independentRadius:true, wireDiameterMm, maxBallResidualMm, surfaceToleranceMm:1e-7',referenceAcceptance:'1.stp at d4/R1: bidirectional surface samples max 0.000071 mm, within the supplied STEP declared 0.000240 mm edge tolerance. Reference precision is separate from the 1e-7 mm generated-surface gate. Not a claim of byte equality or zero Boolean difference.',relatedMachining:'rodJunction refs:[bodyId], params:{faceIds:[mainCylinderFaceId,barCylinderFaceId],radiusMm}; read exact current tool card and query current topology.'},
           styles:{sourceFixedR:{label:'定 R 接头',source:'1.stp; sha256:3bd2dcd55dd35934bcc3c5f87d4a444ca657192c7bc24414237b92f264fccf13',radius:'wire diameter / 4; d4 gives R1. jointRadius does not change this source proportion.',readback:'getState().bodies[].sourceJunctionReport: radiusMm, radiusRule, fixedRadius:true, sourceSha256'},profileRound:{label:'轮廓圆润接头',source:'2.stp',radius:'jointRadius controls the planar profile radius; not a 3D rolling-ball R'},sourceFree:{label:'顺滑接头',source:'3.stp',radius:'Variable source curvature, no fixed R'}},
         params:{kind:'sliderBuckle',jointStyle:'sourceFree',section:'round',sectionSize:4,barDiameter:4,innerWidth:42,innerHeight:22,innerRadius:.5,barOffset:0,gapWidth:0},
         source:'3.stp; sha256:6c52ade3d2c584f32bdc86ad66fdf17fe91f85c3aabcfe3024379fb8a5464250',
         meaning:'Preserve the source trimmed NURBS junctions. W/H stretch only straight runs; wire diameter uniformly scales the junctions. Corner R and additional bar offset remain independent. This is not an arbitrary-model free-form fillet or fixed-R blend.',
         readback:'getState().bodies[].sourceFreeJunctionReport: sourceSha256, sourceBlendFaceCount, nominalWireDiameterMm, localThicknessMm, uniformWireScale, sourceFrameOffsetYmm, barOffsetRelativeToFrameCenterMm, fixedRadius:false',
         inheritedGeometry:'Source frame centre Y=-0.07889635053 mm at d=4; barOffset adds to source bar Y=0. Local thickness=4.147562449632122*(d/4), not d. Source curvature and small asymmetry remain.',
-        restrictions:'Round, equal frame/bar diameter and no gap; exact source cells must fit between corners. Invalid dimensions fail before commit; jointRadius only applies to profileRound.'
+          restrictions:'Round, equal frame/bar diameter and no gap; complete junctions must fit between corners. rollingBall jointRadius is an independent 3D radius (0<R<=20 mm; wire diameter<=40 mm). profileRound jointRadius is planar. sourceFree ignores jointRadius; legacy sourceFixedR retains wireDiameter/4. Invalid dimensions fail before commit.'
       }}:{}),
       invalidExamples:[{params:{kind,__unknownField:true},errorCode:'PARAM_SCHEMA_INVALID',explanation:'Unknown fields are rejected by the page adapter before kernel execution.'}],
       knownUnsupportedCases:template.knownUnsupportedCases,

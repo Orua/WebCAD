@@ -241,6 +241,7 @@ import {compiledCheckpointBytes,geometryRecipeFingerprint} from './services/geom
 import {LOCAL_KERNEL_BUILD_ID,LOCAL_REBUILD_SEMANTICS,GEOMETRY_CODEC,localCheckpointFingerprint} from './services/geometry-exchange.js';
 import {recordTimeline} from './document-timeline.js';
 import {checkpointReports,restoreCheckpointReports} from './local-checkpoint-reports.js';
+import {buildRodJunction} from './modeling/rounding/rod-junction-tool.js';
 import {assertBoundsAlignment,boundsAlignment} from './bounds-alignment.js';
 export class CadKernel {
   constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map();this.geometryMetrics=new WeakMap();this.geometrySourceSnapshots=new WeakMap();this.reliefLayerCache=new ReliefLayerCache(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
@@ -309,6 +310,7 @@ export class CadKernel {
       case 'profileSweep': return buildProfileSweep(sources,p,cad);
       case 'profileLoft': return buildProfileLoft(sources,p,cad);
       case 'offsetSolid': return buildOffsetSolid(source(),p,this.oc,cad);
+      case 'rodJunction': return buildRodJunction(source(),p,this.oc,cad);
       case 'refineShape': return buildRefineShape(source());
       case 'offsetSurface': return buildOffsetSurface(source(),p,this.oc,cad);
       case 'draftByPlane': return buildDraftByPlane(source(),p,this.oc,cad);

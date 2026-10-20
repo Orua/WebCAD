@@ -1,5 +1,18 @@
 {
   "version": 1,
+  "independentRodRadius20261020": {
+    "localImpact": "Shared analytic rolling-ball canal with independently set R; slider rollingBall creates both joints; rodJunction replaces one explicitly selected straight equal-wire perpendicular T joint and preserves outside BRep faces",
+    "servicesImpact": "none; bounded one-junction machining and quick-model assembly are local WASM; no server/native algorithm or protocol change",
+    "logoImpact": "none; no LOGO or relief code modified",
+    "contractImpact": "rollingBall jointStyle and rodJunction strict operation with faceIds pair and radiusMm; shared sourceJunctionReport includes independentRadius and measured ball residual; UI and AI use the same worker",
+    "documentImpact": "Legacy sourceFixedR recipes retain proportional-source behavior; new recipes explicitly use rollingBall and saved independent R. Reference comparison uses supplied source tolerance separately from the generated surface 1e-7 mm gate",
+    "cacheImpact": "Rebuild generated cards/routing and static package; preserve projects, configuration and jobs",
+    "requiredTests": [
+      "Only independent-R slider and rod-junction tool tests",
+      "source1 bidirectional geometry against original declared tolerances",
+      "one 17674 targeted creation/machining check"
+    ]
+  },
   "sliderJunctionChoices20261020": {
     "localImpact": "Three source-derived junction pictures in the quick-model dialog; source1 fixed-R original patches use the existing source-preserving assembly. Equal-wire UI values are explicit before commit. R remains wireDiameter/4; independent 3D R is marked improving",
     "servicesImpact": "none; quickModel stays local WASM; no compute runtime or authorization changes in this delta",
@@ -7,7 +20,11 @@
     "contractImpact": "template.sliderBuckle sourceFixedR plus sourceJunctionReport; original sourceFree readback retained; public API has the same three style choices and units as UI",
     "documentImpact": "Original intersection defaults and existing recipes retained; source junction report persists through placement, body readback and checkpoints; required source cells ship as runtime source",
     "cacheImpact": "Rebuild matching frontend and static knowledge; no project or settings changes",
-    "requiredTests": ["Only slider source1/source2/source3 kernel checks", "source1 real STEP material comparison", "one 17674 picture-choice/create/readback check"]
+    "requiredTests": [
+      "Only slider source1/source2/source3 kernel checks",
+      "source1 real STEP material comparison",
+      "one 17674 picture-choice/create/readback check"
+    ]
   },
   "sourceFreeJunction20261020": {
     "localImpact": "Reuse both original trimmed NURBS junctions from supplied 3.stp; rebuild only straight circular runs and frame corners; uniform wire scaling preserves the source blend and local bulge; sew with matched closed circular boundaries instead of Boolean rewriting",
@@ -16,7 +33,11 @@
     "contractImpact": "Page API 1.53.1 template.sliderBuckle jointStyle sourceFree; sourceFreeJunctionReport records source hash, exact source-shaped semantics, nominal wire versus local thickness and inherited frame/bar offset",
     "documentImpact": "Ordinary quickModel recipe retains sourceFree parameters; immutable required source cells ship in program; reports survive placement and compiled checkpoints; prior styles/defaults unchanged",
     "cacheImpact": "Regenerate public tool cards and static knowledge hashes; preserve current documents and user settings",
-    "requiredTests": ["source3 original versus reconstructed bidirectional material difference", "tests/source-free-junction.test.mjs", "one source3 17674 page commit/render check"]
+    "requiredTests": [
+      "source3 original versus reconstructed bidirectional material difference",
+      "tests/source-free-junction.test.mjs",
+      "one source3 17674 page commit/render check"
+    ]
   },
   "coreTools20261020": {
     "localImpact": "Restore LAN HTTP worker topology fingerprints and LOGO placement; modal import/review/engrave workflow; add exact planar-R equal-wire slider junction matching supplied source 2; retain today's recovery and catalog changes",
@@ -25,7 +46,13 @@
     "contractImpact": "Page API 1.53.0 readLogo and safe read-only compute discovery; authMode siteSession; Agent allowlists synchronized",
     "documentImpact": "none; existing projects, source glyphs, checkpoints and topology revision guards retained",
     "cacheImpact": "Rebuild public knowledge and host permission catalog; preserve all user configuration and project data",
-    "requiredTests": ["LAN worker real BRep topology and LOGO target without SubtleCrypto", "LOGO file conversion and engraving", "compute authorization and settings", "Agent method categories", "17674 focused wizard and real model review"]
+    "requiredTests": [
+      "LAN worker real BRep topology and LOGO target without SubtleCrypto",
+      "LOGO file conversion and engraving",
+      "compute authorization and settings",
+      "Agent method categories",
+      "17674 focused wizard and real model review"
+    ]
   },
   "catalogHistoryCompatibility20261019": {
     "localImpact": "Classify the entire public tool catalog into explicit comparison families; preserve timeline consistency when non-user rebuilds regenerate checkpoints or metadata",
@@ -1885,6 +1912,25 @@
       "requiredTests": [
         "tests/ellipsoid.test.mjs"
       ]
+    },
+    {
+      "operation": "rodJunction",
+      "sourcePaths": [
+        "src/modeling/rounding/rod-junction-tool.js",
+        "src/modeling/rounding/rod-junction.js"
+      ],
+      "localImpact": "Independent constant-R replacement of one explicit equal-wire perpendicular T junction",
+      "servicesImpact": "none: bounded local WASM operation; quickModel uses the same solver",
+      "logoImpact": "none",
+      "contractImpact": "Strict faceIds pair and radiusMm; UI preview/apply and AI feature.add share one implementation",
+      "documentImpact": "Preserves referenced source recipe, outside BRep faces and checkpoint report",
+      "cacheImpact": "Regenerate operation errors, cards, routes and build identity",
+      "requiredTests": [
+        "tests/rod-junction.test.mjs"
+      ],
+      "manualChecks": [
+        "17674 targeted R creation and tool UI"
+      ]
     }
   ],
   "executionRouting": {
@@ -2658,13 +2704,29 @@
     "logoImpact": "none"
   },
   "computeWebsiteRouting20261020": {
-    "localImpact": "Display the effective compute endpoint; accept relative custom endpoints; preserve defaults, credentials and project state",
+    "localImpact": "Maintain the shared relative or absolute endpoint including port directly in the settings form; display the resolved destination; preserve defaults, credentials and project state",
     "servicesImpact": "Resolve the authenticated proxy's Gateway inside the current website/application instead of a hardcoded loopback IIS site; classify upstream route and signature failures",
     "logoImpact": "Restore the shared authenticated path used by raster/PDF outline conversion without changing glyphs or dimensions",
-    "contractImpact": "Clarify getServices/setServices validation and relative-address semantics; existing AI and UI configuration remain shared",
+    "contractImpact": "Clarify shared endpoint/authentication/port semantics; browser adapter now permits only the three intended empty-argument Services reads, matching Agent validation while keeping wrong bindings rejected; include readLogo in the host helper",
     "documentImpact": "none; no geometry, source recipe or project format changes",
     "cacheImpact": "Refresh frontend and generated knowledge hashes",
-    "requiredTests": ["relative root and virtual-application URL cases", "empty IIS 404 handling", "compiled ASHX URI resolution", "authorized production capability readback", "real CAD Agent LOGO/round/relief failures"]
+    "requiredTests": [
+      "relative root and virtual-application URL and custom port cases",
+      "empty IIS 404 handling",
+      "compiled ASHX URI resolution",
+      "25 real-adapter/helper context and binding regressions",
+      "authorized production capability readback",
+      "real CAD Agent LOGO/round/relief failures"
+    ]
+  },
+  "dBuckleTangentBoundary20261020": {
+    "localImpact": "Accept the valid tangent minimum height of the D-buckle crown and bottom bends; omit zero-length legs while preserving explicit dimensions, section and radius",
+    "servicesImpact": "none; quickModel remains local WASM",
+    "logoImpact": "none; no contour or engraving changes",
+    "contractImpact": "D-buckle card documents innerHeight >= innerWidth/2 + innerRadius and outer-envelope conversion; below-boundary inputs remain rejected",
+    "documentImpact": "No format changes; existing recipes keep their numbers and remain editable and reproducible",
+    "cacheImpact": "Regenerate template card, catalog and knowledge hashes",
+    "requiredTests": ["Real Agent task 78990ab3-7b56-45ce-87fc-b5c01d12777b failure receipt", "WASM validity, single solid and 50x30x3 envelope at tangent boundary", "Editable recipe replay and below-boundary rejection", "One post-release original Agent prompt with STP delivery"]
   },
   "reportRemediation20261020": {
     "localImpact": "Recover a trapped WASM Worker once from the committed document without replaying the candidate; preserve not_committed across recovery revision changes; drain camera inertia; report SubD cage brush hits and orientation conflicts",

@@ -1,0 +1,536 @@
+{
+  "id": "rodJunction",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "faceIds": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "uniqueItems": true,
+        "items": {
+          "type": "integer",
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "radiusMm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 20,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    },
+    "required": [
+      "faceIds",
+      "radiusMm"
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 选择一个封闭实体的两张圆柱面：第一张为两侧贯通的主杆，第二张为支杆。仅等径、轴线垂直相交的直圆杆T接头；R独立设置，线径≤40 mm、R≤20 mm。局部三个完整圆截面之外保留原BRep；接头靠近框角、含其它结构、异径、斜交、X交叉或已圆角接头明确拒绝。与日字扣定R共用解析滚球算法，曲面误差门限1e-7 mm，不缩小R、不自动转圆润。",
+  "title": "Apply an independent rolling-ball radius to one selected equal-wire perpendicular T junction",
+  "category": "modification",
+  "synonyms": [
+    "rodJunction",
+    "Apply an independent rolling-ball radius to one selected equal-wire perpendicular T junction",
+    "rod Junction operation",
+    "圆杆接头倒 R"
+  ],
+  "description": "Apply an independent rolling-ball radius to one selected equal-wire perpendicular T junction",
+  "schemaHash": "sha256:7b00e421bfb00985dda789b5df68f4f43df9d7d37bdcc7bd94cf9a49dde9ab1a",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "选择一个封闭实体的两张圆柱面：第一张为两侧贯通的主杆，第二张为支杆。仅等径、轴线垂直相交的直圆杆T接头；R独立设置，线径≤40 mm、R≤20 mm。局部三个完整圆截面之外保留原BRep；接头靠近框角、含其它结构、异径、斜交、X交叉或已圆角接头明确拒绝。与日字扣定R共用解析滚球算法，曲面误差门限1e-7 mm，不缩小R、不自动转圆润。"
+  ],
+  "minimalExample": {
+    "op": "rodJunction",
+    "params": {
+      "faceIds": [
+        0,
+        1
+      ],
+      "radiusMm": 1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "rodJunction",
+    "params": {
+      "faceIds": [
+        0,
+        1
+      ],
+      "radiusMm": 1
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "faceIds": [
+          0,
+          1
+        ],
+        "radiusMm": 1,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Apply an independent rolling-ball radius to one selected equal-wire perpendicular T junction",
+    "whenToUse": [
+      "选择一个封闭实体的两张圆柱面：第一张为两侧贯通的主杆，第二张为支杆。仅等径、轴线垂直相交的直圆杆T接头；R独立设置，线径≤40 mm、R≤20 mm。局部三个完整圆截面之外保留原BRep；接头靠近框角、含其它结构、异径、斜交、X交叉或已圆角接头明确拒绝。与日字扣定R共用解析滚球算法，曲面误差门限1e-7 mm，不缩小R、不自动转圆润。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "faceIds": {
+        "meaning": "faceIds: Apply an independent rolling-ball radius to one selected equal-wire perpendicular T junction",
+        "unit": "1",
+        "range": [
+          2,
+          2
+        ]
+      },
+      "radiusMm": {
+        "meaning": "radiusMm: Apply an independent rolling-ball radius to one selected equal-wire perpendicular T junction",
+        "unit": "mm",
+        "range": [
+          0,
+          20
+        ]
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "rodJunction",
+        "params": {
+          "faceIds": [
+            0,
+            1
+          ],
+          "radiusMm": 1
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "rodJunction",
+        "params": {
+          "faceIds": [
+            0,
+            1
+          ],
+          "radiusMm": 1
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "faceIds": [
+              0,
+              1
+            ],
+            "radiusMm": 1,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "rodJunction",
+      "Apply an independent rolling-ball radius to one selected equal-wire perpendicular T junction",
+      "Apply an independent rolling-ball radius to one selected equal-wire perpendicular T junction",
+      "rod Junction operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Apply an independent rolling-ball radius to one selected equal-wire perpendicular T junction",
+  "whenToUse": [
+    "选择一个封闭实体的两张圆柱面：第一张为两侧贯通的主杆，第二张为支杆。仅等径、轴线垂直相交的直圆杆T接头；R独立设置，线径≤40 mm、R≤20 mm。局部三个完整圆截面之外保留原BRep；接头靠近框角、含其它结构、异径、斜交、X交叉或已圆角接头明确拒绝。与日字扣定R共用解析滚球算法，曲面误差门限1e-7 mm，不缩小R、不自动转圆润。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "label": "圆杆接头倒 R",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "docs": "api.mechanical",
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "对等径直圆杆的垂直 T 接头设置独立三维 R；与日字扣定 R 共用滚球算法。不是任意面圆角，不支持异径、斜交或 X 接头。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:b7b982b2fb4c0c567059a1d51b03911bb51a7c1167ed0e404dd14d3235c11a10"
+}

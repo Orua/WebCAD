@@ -37,7 +37,7 @@
     "圆线D扣",
     "D buckle"
   ],
-  "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
+  "description": "半圆冠、底部圆弯；内高量到下横杠上沿。内高须≥内宽/2+底内R，等号时两直腿为零且圆弧相切。外宽=内宽+2×线径，外高=内高+2×线径。圆线、圆角方线或倒角方线截面。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -365,7 +365,7 @@
       "kind"
     ],
     "additionalProperties": false,
-    "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
+    "description": "半圆冠、底部圆弯；内高量到下横杠上沿。内高须≥内宽/2+底内R，等号时两直腿为零且圆弧相切。外宽=内宽+2×线径，外高=内高+2×线径。圆线、圆角方线或倒角方线截面。",
     "properties": {
       "kind": {
         "type": "string",
@@ -432,7 +432,7 @@
       }
     }
   },
-  "schemaHash": "sha256:7624cb7dffd7d1534613accbfeb308a9d373b2feb897f966b3b60b0488ee6c7b",
+  "schemaHash": "sha256:ab7cddc4da7a63b40690f901775af1583fb0c0010b9b97a9a7a126e6e466dc0c",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -598,5 +598,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:a203839812aa5f367afd9bd64cdadeb520c388137ad4d5c56780c1a10c474892"
+  "docsHash": "sha256:80aa866b51554aa78a8e097b3c866867fb1d8b4fdd4ea1d6bd91a7b5586dfb92"
 }

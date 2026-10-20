@@ -2,6 +2,7 @@ import {gunzipSync,strFromU8} from 'three/examples/jsm/libs/fflate.module.js';
 import {binaryHash} from '../../contracts/operation-schema.js';
 import source from './source-junctions.js';
 import fixedSource from './source-fixed-junctions.js';
+import {makeRodJunctionFaces} from '../../modeling/rounding/rod-junction.js';
 
 const dispose=value=>{try{value?.delete?.();}catch{}};
 const fail=(message,code='GEOMETRY_INVALID')=>{throw Object.assign(new Error(message),{code});};
@@ -26,15 +27,22 @@ export function buildSourceFreeJunction(p,cad){
 export function buildSourceFixedJunction(p,cad){
  return buildSourceJunction(p,cad,fixedSource,true);
 }
+export function buildRollingJunction(p,cad){
+ return buildSourceJunction(p,cad,fixedSource,'independent');
+}
 function buildSourceJunction(p,cad,source,fixedRadius){
  const d=Number(p.sectionSize),bar=Number(p.barDiameter),iw=Number(p.innerWidth),ih=Number(p.innerHeight),r=Number(p.innerRadius),offset=Number(p.barOffset??0);
  if(p.section!=='round'||bar!==d||![d,iw,ih,r,offset].every(Number.isFinite)||d<=0||d>100||iw<=0||ih<=0||iw>500||ih>500||r<0||Number(p.gapWidth??0)!==0)fail('源型接头需要圆线、框线与横杆等径、不开缝，且宽高不超过 500 mm。请将横杆直径设为框线直径。','PARAM_RANGE_INVALID');
- const s=d/source.sourceWireDiameterMm,a=(iw+d)/2,b=(ih+d)/2,q=r+d/2,frameY=source.sourceFrameCenterYmm*s,cutX=source.junctionCut.barAbsX*s,cutY=source.junctionCut.legAbsY*s,nodeReachX=23*s-cutX;
+ const rolling=fixedRadius==='independent',R=Number(p.jointRadius),s=d/source.sourceWireDiameterMm,a=(iw+d)/2,b=(ih+d)/2,q=r+d/2,frameY=source.sourceFrameCenterYmm*s,cutX=source.junctionCut.barAbsX*s,cutY=rolling?5*(d/2+R)/3:source.junctionCut.legAbsY*s,nodeReachX=rolling?cutY:23*s-cutX;
  if(a<=nodeReachX||a<=q||b-q-cutY<=Math.abs(offset-frameY))fail('当前尺寸容纳不下完整源型接头。请增大内宽/内高，减小框内 R 或横杆偏移；不会压扁接头。','PARAM_RANGE_INVALID');
  const oc=cad.getOC(),held=[],hold=value=>(held.push(value),value),members=[];let result;
  const member=value=>(members.push(hold(value)),value);
  try{
-  for(const cell of source.cells){
+  let rollingReport;
+  if(rolling)for(const sx of [-1,1]){
+   const junction=makeRodJunctionFaces(cad,{wireRadius:d/2,radius:R,reach:cutY,map:([x,y,z])=>[sx*(a+x),offset+y,z]});rollingReport=junction.report;junction.faces.forEach(member);
+  }
+  else for(const cell of source.cells){
    const raw=hold(cad.deserializeShape(sourceText(cell,source))),scaled=hold(raw.scale(s));
    member(scaled.translate([cell.side*(a-23*s),offset,0]));
   }
@@ -65,7 +73,7 @@ function buildSourceJunction(p,cad,source,fixedRadius){
   result=cad.cast(maker.Shape());
   const checker=hold(new oc.BRepCheck_Analyzer(result.wrapped,true,false,false));
   if(!oc.BRepLib.OrientClosedSolid(result.wrapped)||!checker.IsValid()||cad.measureVolume(result)<=0)fail('源型接头实体校验失败，原工程保留。');
-  result.sourceJunctionReport={method:'preserved-source-nurbs-junctions',style:fixedRadius?'sourceFixedR':'sourceFree',sourceFile:source.sourceFile,sourceSha256:source.sourceSha256,sourceBlendFaceCount:8,uniformWireScale:s,nominalWireDiameterMm:d,sourceFrameOffsetYmm:frameY,barOffsetRelativeToFrameCenterMm:offset-frameY,localThicknessMm:(fixedRadius?4:4.147562449632122)*s,changedDimensions:'straight-runs-and-frame-corners',fixedRadius,...(fixedRadius?{radiusMm:s,sourceRadiusMm:1,radiusRule:'wireDiameter/4'}:{})};
+  result.sourceJunctionReport=rolling?{...rollingReport,style:'rollingBall',referenceSourceFile:source.sourceFile,referenceSourceSha256:source.sourceSha256,localThicknessMm:d,radiusRule:'independent',junctionCount:2}:{method:'preserved-source-nurbs-junctions',style:fixedRadius?'sourceFixedR':'sourceFree',sourceFile:source.sourceFile,sourceSha256:source.sourceSha256,sourceBlendFaceCount:8,uniformWireScale:s,nominalWireDiameterMm:d,sourceFrameOffsetYmm:frameY,barOffsetRelativeToFrameCenterMm:offset-frameY,localThicknessMm:(fixedRadius?4:4.147562449632122)*s,changedDimensions:'straight-runs-and-frame-corners',fixedRadius,...(fixedRadius?{radiusMm:s,sourceRadiusMm:1,radiusRule:'wireDiameter/4'}:{})};
   if(!fixedRadius)result.sourceFreeJunctionReport=result.sourceJunctionReport;
   const complete=result;result=null;return complete;
  }finally{dispose(result);held.reverse().forEach(dispose);}

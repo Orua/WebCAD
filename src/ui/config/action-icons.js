@@ -4,6 +4,7 @@ const profile=['M3 19V5h7l3 6h8v8Z'];
 const move=['M12 3v18 M3 12h18 M9 6l3-3 3 3 M9 18l3 3 3-3 M6 9l-3 3 3 3 M18 9l3 3-3 3'];
 const rotate=['M4 10a8 8 0 1 1 1 8 M4 4v6h6'];
 export const ACTION_ICONS={
+ rodJunction:['M3 3v18h4V13a4 4 0 0 1 4-4h10V5H7V3Z'],
  ellipsoid:'<ellipse cx="12" cy="12" rx="10" ry="7"/><ellipse cx="12" cy="12" rx="4" ry="7"/><path d="M2 12h20"/>',
  guidedLoft:'<path d="M4 19C8 16 6 8 10 5M14 19C18 16 16 8 20 5M4 19h10M10 5h10M7 12h10"/>',
  bumpSet:['M3 18h18 M4 18v-4a3 3 0 0 1 6 0v4 M9 18V9a3 3 0 0 1 6 0v9 M14 18v-5a3 3 0 0 1 6 0v5'],

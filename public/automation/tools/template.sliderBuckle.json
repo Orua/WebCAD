@@ -37,7 +37,7 @@
     "圆线日字扣",
     "Slider buckle"
   ],
-  "description": "可按图片选择三种中梁接头，生成日字扣时一起完成。新接头需要等径圆线、不开缝。定 R 接头复用模型1的真实曲面，R 随线径按 1:4 缩放，独立调整 R 正在改进；轮廓圆润接头可调整平面 R；顺滑接头保留模型3的轻微偏置与鼓起，局部最大厚度约为线径的1.03689倍。宽高变化调整直杆，源型接头随线径等比缩放。",
+  "description": "按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。原比例接头仅用于旧工程兼容。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -449,6 +449,7 @@
         "enum": [
           "intersection",
           "sourceFixedR",
+          "rollingBall",
           "profileRound",
           "sourceFree"
         ]
@@ -456,13 +457,13 @@
       "jointRadius": {
         "type": "number",
         "default": 1,
-        "description": "Planar junction R",
+        "description": "Junction R (mm)",
         "minimum": 0.1,
         "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:c659a98a679a8a29d72a7d3ec8d556dd87a7db1593f772f2dbf20a273cb08d03",
+  "schemaHash": "sha256:898e4af0817370acffc1c92d168f498a9de0e157f5c3019071f204c0647736e2",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -570,8 +571,13 @@
         },
         {
           "value": "sourceFixedR",
-          "label": "定 R 接头",
-          "labelEn": "Fixed-R source junction"
+          "label": "定 R 接头（旧版比例）",
+          "labelEn": "Legacy proportional source junction"
+        },
+        {
+          "value": "rollingBall",
+          "label": "定 R 接头（独立半径）",
+          "labelEn": "Independent rolling-ball R"
         },
         {
           "value": "profileRound",
@@ -587,8 +593,8 @@
     },
     {
       "key": "jointRadius",
-      "label": "接头平面 R（轮廓圆润接头）",
-      "labelEn": "Planar junction R",
+      "label": "接头 R（mm）",
+      "labelEn": "Junction R (mm)",
       "type": "number",
       "min": 0.1,
       "step": 0.1
@@ -644,7 +650,26 @@
     "refs": []
   },
   "sourceFreeJunction": {
-    "status": "Three supplied source styles are available in the quick-model picture selector: sourceFixedR, profileRound, sourceFree. Fixed-R is the source R1/diameter4 proportion; independently editable 3D R is still improving and must not be claimed available. Original intersection remains the default.",
+    "status": "Three picture choices: rollingBall with independent jointRadius, profileRound with planar jointRadius, sourceFree with retained source-shaped variable curvature. Legacy sourceFixedR retains the original proportional recipe. Same canal solver is available as rodJunction machining for one selected equal-wire perpendicular T joint.",
+    "independentRadius": {
+      "params": {
+        "kind": "sliderBuckle",
+        "jointStyle": "rollingBall",
+        "jointRadius": 1,
+        "section": "round",
+        "sectionSize": 4,
+        "barDiameter": 4,
+        "innerWidth": 42,
+        "innerHeight": 22,
+        "innerRadius": 0.5,
+        "barOffset": 0,
+        "gapWidth": 0
+      },
+      "meaning": "jointRadius is the three-dimensional rolling-ball radius in mm, independently editable without changing wire diameter; both junctions are generated together.",
+      "readback": "bodies[].sourceJunctionReport: radiusMm, independentRadius:true, wireDiameterMm, maxBallResidualMm, surfaceToleranceMm:1e-7",
+      "referenceAcceptance": "1.stp at d4/R1: bidirectional surface samples max 0.000071 mm, within the supplied STEP declared 0.000240 mm edge tolerance. Reference precision is separate from the 1e-7 mm generated-surface gate. Not a claim of byte equality or zero Boolean difference.",
+      "relatedMachining": "rodJunction refs:[bodyId], params:{faceIds:[mainCylinderFaceId,barCylinderFaceId],radiusMm}; read exact current tool card and query current topology."
+    },
     "styles": {
       "sourceFixedR": {
         "label": "定 R 接头",
@@ -679,7 +704,7 @@
     "meaning": "Preserve the source trimmed NURBS junctions. W/H stretch only straight runs; wire diameter uniformly scales the junctions. Corner R and additional bar offset remain independent. This is not an arbitrary-model free-form fillet or fixed-R blend.",
     "readback": "getState().bodies[].sourceFreeJunctionReport: sourceSha256, sourceBlendFaceCount, nominalWireDiameterMm, localThicknessMm, uniformWireScale, sourceFrameOffsetYmm, barOffsetRelativeToFrameCenterMm, fixedRadius:false",
     "inheritedGeometry": "Source frame centre Y=-0.07889635053 mm at d=4; barOffset adds to source bar Y=0. Local thickness=4.147562449632122*(d/4), not d. Source curvature and small asymmetry remain.",
-    "restrictions": "Round, equal frame/bar diameter and no gap; exact source cells must fit between corners. Invalid dimensions fail before commit; jointRadius only applies to profileRound."
+    "restrictions": "Round, equal frame/bar diameter and no gap; complete junctions must fit between corners. rollingBall jointRadius is an independent 3D radius (0<R<=20 mm; wire diameter<=40 mm). profileRound jointRadius is planar. sourceFree ignores jointRadius; legacy sourceFixedR retains wireDiameter/4. Invalid dimensions fail before commit."
   },
   "docs": "api.workflow",
   "selectionGuide": {
@@ -710,5 +735,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:6c73182bd2ebce30046d8ed6dff53d0c46089e90c37977e17fb9cb5f8a83ab47"
+  "docsHash": "sha256:4b0e20e4ab7016637a334426a699ba92ea70e3bac1acf36edfdd8b299c4cf81b"
 }
