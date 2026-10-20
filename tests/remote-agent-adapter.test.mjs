@@ -6,13 +6,23 @@ import {READ_METHODS, VIEW_METHODS, JOB_METHODS, EDIT_ACTIONS, HOST_ONLY_METHODS
 import {infoMetadata} from '../src/page-api-docs.js';
 import {EDITOR_ACTIONS} from '../src/editor-actions.js';
 import {REFERENCE_ACTIONS} from '../src/reference-contracts.js';
-import {PAGE_CLIENT_METHODS} from '../skills/webcad-page-api/scripts/page-client.mjs';
+import {PAGE_CLIENT_METHODS,createPageClient} from '../skills/webcad-page-api/scripts/page-client.mjs';
 
 test('every public method is remotely supported or has an explicit host-only reason',()=>{
   const info=infoMetadata(), supported=new Set([...READ_METHODS,...VIEW_METHODS,...JOB_METHODS]);
   for(const method of [...info.methods,...info.filesMethods.map(name=>'files.'+name)])assert.ok(supported.has(method)||HOST_ONLY_METHODS[method],method);
   for(const method of info.methods)assert.ok(PAGE_CLIENT_METHODS.includes(method),`helper missing ${method}`);
   for(const action of [...Object.keys(EDITOR_ACTIONS),...REFERENCE_ACTIONS])assert.ok(EDIT_ACTIONS.has(action),action);
+});
+test('the public page helper dispatches readLogo with its caller-supplied context intact',async()=>{
+  let sent;
+  const client=createPageClient({send:async(method,params)=>{sent={method,params};return {result:{value:{status:'read'}}};}});
+  const args={context:requestContext,resourceId:'registered-logo'};
+  const result=await client.call('readLogo',args);
+  assert.equal(result.status,'read');
+  assert.equal(sent.method,'Runtime.evaluate');
+  assert.match(sent.params.expression,/method="readLogo"/);
+  assert.match(sent.params.expression,/"context":\{"sessionId":"page","documentId":"document","documentInstanceId":"instance","expectedRevision":0\}/);
 });
 
 const context={sessionId:'page',documentId:'document',documentInstanceId:'instance',revision:0};
@@ -169,6 +179,33 @@ test('adapter accepts public identity contexts for measurements and views withou
     assert.throws(()=>validatePayload({...reading,args:{...reading.args,context:{...readContext,documentInstanceId:'old'}}},context,['cad.read']),/instance/);
   }
   for(const writeContext of [identity,context])assert.throws(()=>validatePayload({...payload,args:{...payload.args,context:writeContext}},context,session.scopes),/expectedRevision required/);
+});
+test('only the three contextless Services reads dispatch without identity and the adapter still enforces page binding',async()=>{
+  const methods=['getServices','getServicesCapabilities','getServicesRouting'];
+  for(const method of methods){
+    const reading={method,args:{}};
+    assert.doesNotThrow(()=>validatePayload(reading,context,session.scopes),method);
+    assert.throws(()=>validatePayload({method,args:{includeSecrets:false}},context,session.scopes),/instance/);
+    assert.throws(()=>validatePayload({method,args:{context:{...requestContext,documentInstanceId:'old'}}},context,session.scopes),/instance/);
+    for(const otherMethod of ['measure','queryGeometry','readLogo','files.save'])
+      assert.throws(()=>validatePayload({method:otherMethod,args:{}},context,session.scopes),/instance/);
+  }
+
+  let current=context,invoked=[];
+  const api={connect(){},getState:()=>({context:current}),invoke:async input=>{invoked.push(input.method);return {status:'read',method:input.method};},submit(){},getJob(){}};
+  const adapter=createHostAdapter({api,session,report:async()=>{}});
+  let commandId=0;
+  for(const method of methods){
+    const command=envelope({method,args:{}});command.commandId=(++commandId).toString(16).padStart(32,'0');
+    const result=await adapter.receive(command);
+    assert.equal(result.status,'read',method);
+  }
+  assert.deepEqual(invoked,methods);
+  current={...context,documentInstanceId:'different-page'};
+  const wrongPage=envelope({method:'getServices',args:{}});wrongPage.commandId=(++commandId).toString(16).padStart(32,'0');
+  const rejected=await adapter.receive(wrongPage);
+  assert.equal(rejected.error.code,'INSTANCE_MISMATCH');
+  assert.deepEqual(invoked,methods,'bad host page binding must stop before api.invoke');
 });
 test('released adapter retains receipts and stops new geometry',async()=>{
   const {adapter,counts}=setup();adapter.release();

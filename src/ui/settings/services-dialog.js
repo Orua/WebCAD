@@ -5,26 +5,28 @@ export function showServicesSettings({openDialog,element,button,closeDialog}){
  const enabled=element('input',{type:'checkbox'}),automatic=element('input',{type:'checkbox'});
  enabled.checked=saved.enabled;automatic.checked=saved.authMode==='siteSession'||!saved.url;
  const field=(label,input)=>{const row=element('label',{class:'form-field'},label);row.append(input);return row;};
- dialog.append(field('启用后台复杂计算',enabled),element('p',{class:'dialog-description'},'普通建模和快捷模型在本机完成；已支持的复杂几何与图片轮廓转换由后台处理。是否支持以实际能力检查为准。本站连接沿用当前登录，无需填写密钥。'),field('使用网站默认连接',automatic));
+ const addressValue=value=>{try{const parsed=new URL(value,globalThis.location?.href);return parsed.origin===globalThis.location?.origin?parsed.pathname+parsed.search:parsed.href;}catch{return value||'';}};
+ const url=element('input',{type:'text',inputmode:'url',placeholder:'/AI/WebCAD/WebCADCompute.ashx','aria-label':'计算接口地址'});url.value=addressValue(saved.url||defaults.url);
+ dialog.append(field('启用后台复杂计算',enabled),element('p',{class:'dialog-description'},'普通建模和快捷模型在本机完成；已支持的复杂几何与图片轮廓转换通过下方统一接口往返计算。是否支持以实际能力检查为准。'),field('计算接口地址',url),element('p',{class:'property-footnote'},'可填写本站相对路径，或带域名、IP和端口的完整地址，例如 https://计算服务器:8443/cadservices/api.ashx。'),field('使用网站默认连接和当前登录',automatic));
  const currentAddress=element('p',{class:'property-footnote'});dialog.append(currentAddress);
  status.textContent='当前设置尚未在此窗口验证；验证成功后才会保存。';
- if(defaults.url){const login=element('a',{href:new URL('/default.aspx',defaults.url).href,target:'_blank',rel:'noopener'},'登录后台计算');dialog.append(login);}
+ let login=null;if(defaults.url){const loginPath=new URL(defaults.url).pathname.replace(/\/AI\/WebCAD\/WebCADCompute\.ashx$/i,'/default.aspx');login=element('a',{href:new URL(loginPath,defaults.url).href,target:'_blank',rel:'noopener'},'登录后台计算');dialog.append(login);}
  const advanced=element('details');advanced.append(element('summary',{},'高级设置'));
- const custom=element('div'),url=element('input',{type:'text',inputmode:'url',placeholder:'/cadservices/api.ashx','aria-label':'自定义计算地址'}),secret=element('input',{type:'password',autocomplete:'new-password','aria-label':'专用计算授权'});
- url.value=saved.url;custom.append(field('自定义地址',url),field('专用授权（留空保留当前标签页授权）',secret));advanced.append(custom);
+ const custom=element('div'),secret=element('input',{type:'password',autocomplete:'new-password','aria-label':'专用计算授权'});
+ custom.append(field('专用授权（自定义计算端口使用；留空保留当前标签页授权）',secret));advanced.append(custom);
  const local=element('input',{type:'number',min:1,max:600,step:1,'aria-label':'本机等待提醒秒数'}),server=element('input',{type:'number',min:1,max:900,step:1,'aria-label':'后台等待提醒秒数'});
  local.value=saved.localTimeoutMs/1000;server.value=saved.serverWaitMs/1000;
- advanced.append(field('本机等待提醒（秒）',local),field('后台等待提醒（秒）',server),element('p',{class:'property-footnote'},'到时提醒，不会自动重算。关闭后台计算后，支持的操作使用本机。'));
+ advanced.append(field('本机等待提醒（秒）',local),field('后台等待提醒（秒）',server),element('p',{class:'property-footnote'},'本机到时提醒并继续原计算；后台提醒后可继续等待同一任务或停止，不会自动重算。关闭后台计算后，支持的操作使用本机。'));
  const clear=button('清除自定义授权',()=>{clearServicesCredential();secret.value='';status.textContent='已清除本标签页的自定义授权。';},'secondary');advanced.append(clear);
- const refresh=()=>{custom.hidden=clear.hidden=automatic.checked;currentAddress.textContent='当前计算接口：'+(automatic.checked?defaults.url||'当前站点未配置默认入口':url.value.trim()||'尚未填写')+(automatic.checked?'（跟随本站应用路径）':'（自定义专用连接）');};automatic.addEventListener('change',refresh);url.addEventListener('input',refresh);refresh();
+ const refresh=()=>{custom.hidden=clear.hidden=automatic.checked;if(login)login.hidden=!automatic.checked;let resolved='';try{resolved=new URL(url.value.trim(),globalThis.location?.href).href;}catch{}currentAddress.textContent='实际连接：'+(resolved||'尚未填写有效地址')+(automatic.checked?'（本站登录）':'（自定义计算端）');};automatic.addEventListener('change',()=>{if(automatic.checked)url.value=addressValue(defaults.url);refresh();});url.addEventListener('input',()=>{try{automatic.checked=new URL(url.value.trim(),globalThis.location?.href).href===defaults.url;}catch{automatic.checked=false;}refresh();});refresh();
  const save=button('验证并保存',async()=>{
   save.disabled=true;status.textContent='正在检查连接…';
   try{
-   const config={enabled:enabled.checked,url:automatic.checked?defaults.url:url.value.trim(),authMode:automatic.checked?'siteSession':'bearer',localTimeoutMs:Number(local.value)*1000,serverWaitMs:Number(server.value)*1000};
+   const config={enabled:enabled.checked,url:url.value.trim(),authMode:automatic.checked?'siteSession':'bearer',localTimeoutMs:Number(local.value)*1000,serverWaitMs:Number(server.value)*1000};
    if(config.enabled)await createServicesClient({config,credential:automatic.checked?undefined:secret.value||undefined}).capabilities();
    saveServicesConfig({...config,...(!automatic.checked&&secret.value?{credential:secret.value}:{})});secret.value='';
    status.textContent=config.enabled?'连接正常。复杂计算已启用，普通建模仍在本机执行。':'已关闭后台复杂计算。';
-  }catch(error){status.textContent='设置未保存。'+(error.httpStatus===401?'请先登录当前网站，再检查连接。':error.message);}finally{save.disabled=false;}
+  }catch(error){status.textContent='设置未保存。'+(error.httpStatus===401?(automatic.checked?'请先登录当前网站，再检查连接。':'请在高级设置中检查此计算端的专用授权。'):error.message);}finally{save.disabled=false;}
  },'primary');
  dialog.append(advanced,status,save,button('关闭',closeDialog,'secondary'));
  const recovery=element('details');recovery.append(element('summary',{},'排查中断任务'));

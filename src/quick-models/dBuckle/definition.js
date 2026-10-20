@@ -2,7 +2,7 @@
 export default Object.freeze({
   "label": "D 扣",
   "labelEn": "D buckle",
-  "description": "半圆冠、两直腿、底部圆弯；内高量到下横杠上沿。圆线、圆角方线或倒角方线截面。",
+  "description": "半圆冠、底部圆弯；内高量到下横杠上沿。内高须≥内宽/2+底内R，等号时两直腿为零且圆弧相切。外宽=内宽+2×线径，外高=内高+2×线径。圆线、圆角方线或倒角方线截面。",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
