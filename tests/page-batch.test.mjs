@@ -106,6 +106,20 @@ test('rejects stale context, unknown methods and dangerous keys before mutations
     assert.equal((await f.run(r)).status,'failed',variant);assert.equal(f.count,0,variant);
   }
 });
+
+test('missing, invalid and duplicate step IDs have actionable diagnostics before any execution',async()=>{
+ for(const variant of ['missing','invalid','duplicate']){
+  const f=fixture(),request=f.request();
+  if(variant==='missing')delete request.steps[1].id;
+  if(variant==='invalid')request.steps[1].id='not a valid id';
+  if(variant==='duplicate')request.steps[1].id=request.steps[0].id;
+  const original=structuredClone(request),receipt=await f.run(request);
+  assert.equal(receipt.status,'failed');assert.equal(receipt.error.code,'PARAM_SCHEMA_INVALID');assert.equal(receipt.error.path,'steps[1].id');
+  assert.match(receipt.error.message,variant==='missing'?/缺少 id/:variant==='invalid'?/格式无效/:/本批次中重复/);
+  assert.match(receipt.error.userMessage,/第 2 步/);assert.equal(receipt.results.length,0);assert.equal(f.count,0);
+  assert.equal(receipt.context.revision,0);assert.deepEqual(request,original);
+ }
+});
 test('failure stops later steps, preserves prior commit and does not repeat it',async()=>{
   const f=fixture(),r=f.request();r.steps.splice(1,0,{id:'bad',method:'add',args:{op:'torus',params:{bad:true}}});
   const result=await f.run(r);assert.equal(result.status,'partial');assert.equal(result.results.length,2);assert.equal(f.count,2);

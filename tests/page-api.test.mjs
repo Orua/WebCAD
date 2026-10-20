@@ -4,8 +4,22 @@ import { createPageAPI } from '../src/page-api.js';
 import { getTool, infoMetadata, readDocs } from '../src/page-api-docs.js';
 import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
 import {prepareAnalyticProfileEdit} from '../src/profile-editing.js';
+import {validateSchema} from '../src/contracts/operation-schema.js';
 
 const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInstanceId: 'instance-1', expectedRevision: 7 });
+test('getState publishes strict argument schema matching the existing object-input boundary',()=>{
+ const card=getTool({id:'getState'}),schema=card.inputSchema,{api}=fixture();
+ assert.equal(card.contextPolicy,'none');assert.equal(schema.additionalProperties,false);
+ assert.deepEqual(Object.keys(schema.properties),['include','compact','fields','sinceRevision']);
+ assert.match(readDocs({docId:'api.run',limitChars:8000}).text,/steps\[\]\.id 必须各不相同/);
+ for(const input of [{},{compact:true},{include:[]},{include:['reliefDesigns','summary']},{fields:['appearance','renderFinish'],sinceRevision:0}]){
+  assert.doesNotThrow(()=>validateSchema(schema,input,'input'));assert.doesNotThrow(()=>api.getState(input));
+ }
+ for(const input of [{context:context()},{extra:true},{compact:'true'},{include:['appearance']},{fields:[]},{fields:['']},{fields:['x'.repeat(41)]},{sinceRevision:-1},{sinceRevision:1.5}]){
+  assert.throws(()=>validateSchema(schema,input,'input'));
+  assert.throws(()=>api.getState(input),error=>error.code==='PARAM_SCHEMA_INVALID');
+ }
+});
 test('LOGO read/export produces host artifacts without geometry or workspace file writes',async()=>{
   const f=fixture(),logo={version:1,regions:[{outer:[[0,0],[50,0],[50,2],[0,2]],holes:[[[10,.2],[11,.2],[11,1],[10,1]]]}],source:{reviewed:false,sha256:'a'.repeat(64)}};
   const file=await f.api.files.register({name:'letters.logo.json',data:new TextEncoder().encode(JSON.stringify(logo))});

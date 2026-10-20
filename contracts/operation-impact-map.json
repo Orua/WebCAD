@@ -1,5 +1,18 @@
 {
   "version": 1,
+  "batchInputDiagnostics20261021": {
+    "localImpact": "Separate missing, malformed and duplicate step-ID diagnostics before any batch step executes; do not rename IDs or replay requests",
+    "servicesImpact": "None: no Services protocol, routing or computation changes",
+    "logoImpact": "None: no source, contour or machining changes",
+    "contractImpact": "Keep PARAM_SCHEMA_INVALID; add steps[index].id error paths and explicit per-batch uniqueness guidance; publish strict existing getState object-input schema",
+    "documentImpact": "Rejected input leaves all batch steps unexecuted and the document unchanged",
+    "cacheImpact": "Regenerate page tool cards, API guide and knowledge hashes from the same candidate build",
+    "requiredTests": [
+      "Missing, malformed and duplicate IDs retain the original request, execute zero steps and identify steps[1].id",
+      "getState tool schema accepts supported object arguments and rejects context, extra fields and invalid field values",
+      "Published api.run text explicitly requires unique IDs within each batch"
+    ]
+  },
   "errorRecoveryAndParentPackage20261021": {
     "localImpact": "Shared friendly error explanations and structured recovery guidance at UI/API/job boundaries; no automatic retry, parameter relaxation or undo",
     "servicesImpact": "Existing job and error states retained. Parent-application packages now reject bitness-specific managed DLLs before copying; deploy AnyCPU Logo adapter and one matching worker dependency bundle",

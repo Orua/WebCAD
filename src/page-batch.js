@@ -29,7 +29,7 @@ contextual.add('inspectDesign');
 for(const method of ['getModelLibrary','updateModelLibrary','resolveModelLibrary'])methods.add(method);
 for(const method of ['updateModelLibrary','resolveModelLibrary'])contextual.add(method);
 export const BATCH_METHODS=Object.freeze([...methods]);
-const bad = (code,message) => { throw Object.assign(new Error(message),{code}); };
+const bad = (code,message,path) => { throw Object.assign(new Error(message),{code,...(path?{path}:{})}); };
 const plain = x => x && typeof x==='object' && !Array.isArray(x);
 const keys = (x,allowed) => { if(!plain(x)||Object.keys(x).some(k=>!allowed.includes(k)))bad('PARAM_SCHEMA_INVALID','Unexpected object fields'); };
 const context = c => ({sessionId:c.sessionId,documentId:c.documentId,documentInstanceId:c.documentInstanceId,expectedRevision:c.revision});
@@ -69,7 +69,7 @@ export function createPageBatch(api,{display}={}){
         unattemptedStepIds:(Array.isArray(input?.steps)?input.steps:[]).filter(step=>typeof step?.id==='string'&&!attempted.has(step.id)).map(step=>step.id)},
       recovery:status==='completed'?null:{action:status==='unknown'?'INSPECT_STATE_BEFORE_RETRY':'READ_STATE_AND_REPLAN_REMAINING',
         message:'Earlier committed steps remain. Read current state; do not recreate them. Use a new key for a revised remainder. An identical request/key only retrieves the original receipt.'},
-      ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message||String(error)||'Batch step failed',...(error.commitState?{commitState:error.commitState}:{}),...(error.jobId||error.pageJobId?{jobId:error.jobId||error.pageJobId}:{}),...(error.requestId?{requestId:error.requestId}:{}),...(error.featureId?{featureId:error.featureId}:{}),...(error.affectedFeatureIds?{affectedFeatureIds:error.affectedFeatureIds,changedFeatureIds:error.changedFeatureIds}:{}),...(error.recoveryAction?{recoveryAction:error.recoveryAction}: {})}}:{}),
+      ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message||String(error)||'Batch step failed',...(error.path?{path:error.path}:{}),...(error.commitState?{commitState:error.commitState}:{}),...(error.jobId||error.pageJobId?{jobId:error.jobId||error.pageJobId}:{}),...(error.requestId?{requestId:error.requestId}:{}),...(error.featureId?{featureId:error.featureId}:{}),...(error.affectedFeatureIds?{affectedFeatureIds:error.affectedFeatureIds,changedFeatureIds:error.changedFeatureIds}:{}),...(error.recoveryAction?{recoveryAction:error.recoveryAction}: {})}}:{}),
       elapsedMs:Math.round(performance.now()-startedAt),context:s.context,bodyBounds:touchedBounds(s),
       summary:s.summary,display:s.display,
       displayMatchesContext:s.display?.status==='rendered'&&['documentId','documentInstanceId','revision'].every(k=>s.display.rendered?.[k]===s.context[k])});};
@@ -100,10 +100,13 @@ export function createPageBatch(api,{display}={}){
       check(true,standaloneRecoverySave);
       const maxSteps=LIMITS.batch.maxSteps;if(!Array.isArray(input.steps)||!input.steps.length||input.steps.length>maxSteps)bad('RESOURCE_LIMIT',`Expected 1..${maxSteps} steps`);
       const names=new Set();
-      for(const step of input.steps){
+      for(const [index,step] of input.steps.entries()){
         keys(step,['id','stage','method','args']);
         if(step.stage!==undefined&&(typeof step.stage!=='string'||!step.stage.trim()||step.stage.length>80))bad('PARAM_SCHEMA_INVALID','stage must be a short descriptive name');
-        if(typeof step.id!=='string'||!/^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/.test(step.id)||names.has(step.id))bad('PARAM_SCHEMA_INVALID','Step IDs must be unique short names');
+        const idPath=`steps[${index}].id`;
+        if(step.id===undefined)bad('PARAM_SCHEMA_INVALID',`第 ${index+1} 步缺少 id；请为每一步填写本批次内唯一的步骤名。`,idPath);
+        if(typeof step.id!=='string'||!/^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/.test(step.id))bad('PARAM_SCHEMA_INVALID',`第 ${index+1} 步的 id 格式无效；请使用字母开头的 1–40 位字母、数字、下划线或连字符。`,idPath);
+        if(names.has(step.id))bad('PARAM_SCHEMA_INVALID',`第 ${index+1} 步的 id 在本批次中重复；请明确改为唯一名称，并同步核对引用该步骤的 $ref。`,idPath);
         if(!methods.has(step.method))bad('CAPABILITY_UNAVAILABLE',`Unsupported batch method: ${step.method}`);
         if(step.args!==undefined&&!plain(step.args))bad('PARAM_SCHEMA_INVALID','args must be an object');
         if(step.args&&('context' in step.args||'idempotencyKey' in step.args))bad('PARAM_SCHEMA_INVALID','Batch owns step context and receipt keys');
