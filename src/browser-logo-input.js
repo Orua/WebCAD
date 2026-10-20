@@ -4,6 +4,7 @@ import {getServicesConfig} from './services/settings.js';
 import {servicesClient} from './services/client.js';
 import {binaryHash} from './contracts/operation-schema.js';
 import {validateLogoRasterOptions} from './logo-raster-options.js';
+import {logoDXF} from './logo-dxf.js';
 
 const inputError=(message,code='SIZE_LIMIT')=>Object.assign(new Error(message),{code});
 async function sourceHash(text){return binaryHash(typeof text==='string'?new TextEncoder().encode(text):text).slice(7);}
@@ -66,27 +67,28 @@ export function createLogoImportUI({onLogo,onInvalidate,validateLogoDocument,log
  const host=el('section',{class:'logo-import-ui'}),input=el('input',{type:'file',accept:'.logo.json,.svg,.pdf,.ai,.dxf,.png,.jpg,.jpeg,.bmp','aria-label':'选择 LOGO 文件'}),label=el('label',{},'选择图片或矢量文件'),error=el('p',{class:'form-error',role:'alert'}),summary=el('div'),route=el('p',{class:'property-footnote',role:'status'});
  label.append(input);
  const width=el('input',{type:'number',min:'0.000001',step:'any','aria-label':'图案实际宽度 mm',placeholder:'图案实际宽度（mm）'}),page=el('input',{type:'number',min:'1',step:'1',value:'1','aria-label':'PDF 或 AI 页码'}),pageField=el('label',{},'页码');pageField.append(page);pageField.hidden=true;
- const read=el('button',{type:'button',class:'primary'},'识别轮廓'),confirm=el('button',{type:'button',class:'primary'},'轮廓和尺寸正确，下一步'),change=el('button',{type:'button',class:'secondary'},'更换图片或尺寸');read.disabled=true;confirm.hidden=change.hidden=true;
+ const read=el('button',{type:'button',class:'primary'},'识别轮廓'),confirm=el('button',{type:'button',class:'primary'},'轮廓和尺寸正确，下一步'),change=el('button',{type:'button',class:'secondary'},'更换图片或尺寸'),download=el('button',{type:'button',class:'secondary','data-ui-action':'logoExport'},'下载轮廓 DXF');read.disabled=true;confirm.hidden=change.hidden=download.hidden=true;
  const advanced=el('details'),paste=el('textarea',{rows:'3','aria-label':'SVG 或闭合路径',placeholder:'粘贴 SVG 或闭合 path d'}),pasteRead=el('button',{type:'button',class:'secondary'},'读取矢量文字');
  advanced.append(el('summary',{},'粘贴矢量文字'),paste,pasteRead);
- host.append(label,route,change,width,pageField,read,error,summary,confirm,advanced);
+ host.append(label,route,change,width,pageField,read,error,summary,download,confirm,advanced);
  let generation=0,pending=null,busy=false;
  const showConfirmed=value=>{for(const control of [label,width,pageField,read,summary,advanced])control.hidden=value;change.hidden=!value;if(!value)pageField.hidden=logoInputKind(input.files?.[0]?.name)!=='paged-vector';};
  const showSummary=logo=>{const full=logoSummary(logo),preview=full.querySelector('svg'),details=el('details'),holes=logo.regions.reduce((n,r)=>n+(r.holes?.length||0),0);summary.replaceChildren();if(preview)summary.append(preview);summary.append(el('p',{class:'property-footnote'},logo.sizeMm.map(v=>Number(v).toFixed(3)).join(' × ')+' mm · '+logo.regions.length+' 个填充区域 · '+holes+' 个孔洞'));details.append(el('summary',{},'来源与转换说明'),full);summary.append(details);};
- const invalidate=async()=>{++generation;pending=null;confirm.hidden=true;summary.replaceChildren();error.textContent='';showConfirmed(false);onLogo(null);await onInvalidate?.();};
+ const invalidate=async()=>{++generation;pending=null;confirm.hidden=download.hidden=true;summary.replaceChildren();error.textContent='';showConfirmed(false);onLogo(null);await onInvalidate?.();};
  const selectedWidth=()=>width.value.trim()?Number(width.value):undefined;
  const inspect=async loader=>{
-  if(busy)return;busy=true;const token=++generation;pending=null;confirm.hidden=true;summary.replaceChildren();error.textContent='';onLogo(null);read.disabled=pasteRead.disabled=true;input.disabled=width.disabled=page.disabled=paste.disabled=true;route.textContent='正在识别轮廓…';
-  try{await onInvalidate?.();const logo=await loader();if(token!==generation||!host.isConnected)return;pending=logo;showSummary(logo);confirm.hidden=false;route.textContent='请核对字形、孔洞和毫米尺寸。照片、阴影图不能据明暗推断立体深度。';}
+  if(busy)return;busy=true;const token=++generation;pending=null;confirm.hidden=download.hidden=true;summary.replaceChildren();error.textContent='';onLogo(null);read.disabled=pasteRead.disabled=true;input.disabled=width.disabled=page.disabled=paste.disabled=true;route.textContent='正在识别轮廓…';
+  try{await onInvalidate?.();const logo=await loader();if(token!==generation||!host.isConnected)return;pending=logo;showSummary(logo);confirm.hidden=download.hidden=false;route.textContent='请核对字形、孔洞和毫米尺寸。照片、阴影图不能据明暗推断立体深度。';}
   catch(value){if(token===generation){error.textContent=value.message;route.textContent='本次未导入轮廓；请按提示修改后重新识别。';}}
   finally{busy=false;input.disabled=width.disabled=page.disabled=paste.disabled=false;read.disabled=!input.files?.[0];pasteRead.disabled=false;}
  };
  const readSelected=()=>{const file=input.files?.[0];if(!file)return;return inspect(()=>readBrowserLogo(file,validateLogoDocument,{targetWidthMm:selectedWidth(),page:logoInputKind(file.name)==='paged-vector'?Number(page.value):undefined,sizeConfirmed:Number.isFinite(selectedWidth())&&selectedWidth()>0,allowUpload:true}));};
  input.addEventListener('change',async()=>{await invalidate();const file=input.files?.[0];read.disabled=!file;const kind=logoInputKind(file?.name);pageField.hidden=kind!=='paged-vector';if(!file)return;if(kind==='local'||kind==='unsupported'){route.textContent='正在读取文件…';await readSelected();}else route.textContent=kind==='raster'?'黑白图：填写实际宽度后识别闭合轮廓。点击识别会上传此文件到已配置的后台。':'矢量文档：填写宽度后在后台提取轮廓，保留字形和孔洞。';});
  read.addEventListener('click',readSelected);
+ download.addEventListener('click',()=>{if(!pending)return;try{const url=URL.createObjectURL(new Blob([logoDXF(pending)],{type:'application/dxf'})),link=document.createElement('a');link.href=url;link.download='logo.dxf';link.click();setTimeout(()=>URL.revokeObjectURL(url),0);}catch(value){error.textContent=value.message;}});
  for(const control of [width,page,paste])control.addEventListener('input',invalidate);
  pasteRead.addEventListener('click',()=>inspect(async()=>{if(!paste.value.trim())throw new Error('请粘贴 SVG 或闭合路径文字。');const logo=validateLogoDocument(parseLocalLogoSvg(paste.value,{name:'pasted.svg',targetWidthMm:selectedWidth()}));logo.source.sha256=await sourceHash(paste.value);validateRegions(logo);return fitLogoWidth(logo,selectedWidth());}));
- confirm.addEventListener('click',()=>{if(!pending)return;const logo={...pending,source:{...pending.source,kind:'reviewed-contours',original:pending.source,reviewed:true}};onLogo(logo);confirm.hidden=true;showConfirmed(true);route.textContent='已确认 '+logo.sizeMm.map(v=>Number(v).toFixed(3)).join(' × ')+' mm；请选择目标面并设置雕刻深度。';});
+ confirm.addEventListener('click',()=>{if(!pending)return;const logo={...pending,source:{...pending.source,kind:'reviewed-contours',original:pending.source,reviewed:true}};pending=logo;onLogo(logo);confirm.hidden=true;showConfirmed(true);route.textContent='已确认 '+logo.sizeMm.map(v=>Number(v).toFixed(3)).join(' × ')+' mm；请选择目标面并设置雕刻深度。';});
  change.addEventListener('click',async()=>{await invalidate();route.textContent='选择新图片，或修改宽度后重新识别。';});
  if(initialLogo){showConfirmed(true);route.textContent='已保留确认过的 '+initialLogo.sizeMm.map(v=>Number(v).toFixed(3)).join(' × ')+' mm 轮廓。';}
  return host;

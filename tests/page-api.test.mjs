@@ -6,6 +6,21 @@ import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
 import {prepareAnalyticProfileEdit} from '../src/profile-editing.js';
 
 const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInstanceId: 'instance-1', expectedRevision: 7 });
+test('LOGO read/export produces host artifacts without geometry or workspace file writes',async()=>{
+  const f=fixture(),logo={version:1,regions:[{outer:[[0,0],[50,0],[50,2],[0,2]],holes:[[[10,.2],[11,.2],[11,1],[10,1]]]}],source:{reviewed:false,sha256:'a'.repeat(64)}};
+  const file=await f.api.files.register({name:'letters.logo.json',data:new TextEncoder().encode(JSON.stringify(logo))});
+  const read=await f.api.readLogo({context:context(),resourceId:file.resourceId,name:file.name});
+  assert.equal(read.status,'read');assert.equal(typeof read.logoId,'string');
+  const out=await f.api.exportLogo({context:context(),logoId:read.logoId,name:'letters.dxf'});
+  assert.equal(out.status,'generated');assert.equal(out.reviewRequired,true);assert.deepEqual(out.contours,{regions:1,holes:1,units:'mm'});
+  assert.match(new TextDecoder().decode(await f.api.files.read({resourceId:out.resourceId,as:'bytes'})),/LWPOLYLINE/);
+  const packet=await f.api.exportLogo({context:context(),logoId:read.logoId,format:'json',name:'letters.logo.json'});
+  assert.deepEqual(JSON.parse(new TextDecoder().decode(await f.api.files.read({resourceId:packet.resourceId,as:'bytes'}))),logo);
+  assert.equal(f.calls.execute,0);assert.equal(f.calls.files,0);assert.equal(f.api.getState().context.revision,7);
+  assert.equal((await f.api.exportLogo({context:context(),logoId:'expired'})).error.code,'RESOURCE_EXPIRED');
+  assert.equal((await f.api.exportLogo({context:{...context(),documentInstanceId:'other'},logoId:read.logoId})).error.code,'INSTANCE_MISMATCH');
+  assert.equal((await f.api.exportLogo({context:context(),logoId:read.logoId,format:'dwg'})).error.code,'FORMAT_UNSUPPORTED');
+});
 test('formal mesh height query is callable through Agent API and rejects stale input/output',async()=>{
  const f=fixture(),p={context:context(),bodyId:'body-1',inputGeometryHash:'sha256:'+'0'.repeat(64),support:{originMm:[0,0,0],xAxis:[1,0,0],normal:[0,0,1]},pointsMm:[[0,0]]};let called=0;
  f.host.sampleMeshRelief=async()=>{called++;return {source:'authoritative-mesh-f64',samples:[{uvMm:[0,0],heightsMm:[-2,.4],hit:true}]};};

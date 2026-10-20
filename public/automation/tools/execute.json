@@ -2,7 +2,7 @@
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.54.3",
+  "version": "1.54.4",
   "contextPolicy": "revision",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
@@ -75,5 +75,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:0ef9f0fb1c8bbb6f03f48b1bdc72b523e20b6ef1f5db24a0c04a2dac9abea5e9"
+  "docsHash": "sha256:b9775cf729b8dd17668a9cead218b65e1ff542c8f632a84d380ea5d4058e2b18"
 }

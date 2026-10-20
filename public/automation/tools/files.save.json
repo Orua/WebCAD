@@ -2,7 +2,7 @@
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.54.3",
+  "version": "1.54.4",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -103,9 +103,13 @@
       {
         "id": "exportDrawing",
         "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      },
+      {
+        "id": "exportLogo",
+        "chooseWhen": "将readLogo已读取的原毫米轮廓导出DXF或LOGO JSON，不创建实体或工程图，不需要工作区脚本写入。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:d31ee381946371ea7f0441f93f00b98005623dce3d402f6b50783deddff4f5e2"
+  "docsHash": "sha256:ff328ea7cfd14f7d2a291d9a037cc43d0e19767861744fb652745346c799b604"
 }

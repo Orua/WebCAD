@@ -8,6 +8,7 @@ import {FILE_ARGUMENT_KEYS} from './browser-file-contracts.js';
 import {validateDisplayPreferences} from './display-preferences.js';
 import {createPageBatch} from './page-batch.js';
 import {readBrowserLogo} from './browser-logo-input.js';
+import {logoDXF} from './logo-dxf.js';
 import {getLogoConverterConfig,setLogoConverterConfig} from './logo-converter-settings.js';
 import {getServicesConfig,saveServicesConfig,clearServicesCredential} from './services/settings.js';
 import {servicesClient,createServicesClient} from './services/client.js';
@@ -82,6 +83,7 @@ export function createPageAPI(host){
   const pasteReceipts=new Map();
   const vectorCache=new Map();
   const drawingCache=new Map();
+  const logoCache=new Map();
   const api={
     getAgentPanel:()=>window.webcad.assistantPanel.get(),
     configureAgentPanel:guarded(async input=>{check(input,['context','url']);if(typeof input.url!=='string')fail('PARAM_SCHEMA_INVALID','url must be a string');return window.webcad.assistantPanel.configure(input.url);}),
@@ -367,7 +369,18 @@ export function createPageAPI(host){
       if(typeof input.resourceId!=='string'||!input.resourceId||typeof input.name!=='string'||!input.name||input.name.length>255)fail('PARAM_SCHEMA_INVALID','Provide the selected LOGO resourceId and its file name');
       const blob=await rawFiles.read({resourceId:input.resourceId});
       const logo=await readBrowserLogo(new File([blob],input.name),x=>x,input);check(input,keys);
-      return {status:'read',context:current().context,logo,reviewRequired:true,nextAction:'Review contours, holes and size; set source.reviewed=true only after that review, then use logo with the selected face, point and depth.'};
+      const logoId=crypto.randomUUID();while(logoCache.size>=4)logoCache.delete(logoCache.keys().next().value);
+      logoCache.set(logoId,{logo:structuredClone(logo),documentInstanceId:current().context.documentInstanceId});
+      return {status:'read',context:current().context,logoId,logo,reviewRequired:true,nextAction:'Export the exact read contours with exportLogo({context,logoId,format:"dxf"}); no workspace script or write is required. Before machining, review contours, holes and size; set source.reviewed=true only after that review.'};
+    }),
+    exportLogo:guarded(async input=>{
+      const s=check(input,['context','logoId','format','name']),cached=logoCache.get(input.logoId),format=input.format??'dxf';
+      if(!cached||cached.documentInstanceId!==s.context.documentInstanceId)fail('RESOURCE_EXPIRED','Read the source LOGO in this page instance; only the latest four reads are retained.');
+      if(!['dxf','json'].includes(format))fail('FORMAT_UNSUPPORTED','LOGO export supports dxf or json.');
+      if(input.name!==undefined&&(typeof input.name!=='string'||!input.name.toLowerCase().endsWith(format==='dxf'?'.dxf':'.logo.json')))fail('PARAM_SCHEMA_INVALID','Use a .dxf or .logo.json basename matching the format.');
+      const text=format==='dxf'?logoDXF(cached.logo):JSON.stringify(cached.logo);
+      const artifact=await rawFiles.generated({bytes:new TextEncoder().encode(text),name:input.name||(format==='dxf'?'logo.dxf':'logo.logo.json'),mime:format==='dxf'?'application/dxf':'application/json',context:s.context});
+      return {...artifact,reviewRequired:cached.logo.source?.reviewed!==true,source:structuredClone(cached.logo.source||{}),contours:{regions:cached.logo.regions.length,holes:cached.logo.regions.reduce((n,r)=>n+(r.holes?.length||0),0),units:'mm'}};
     }),
     readRelief:guarded(async input=>{
       const keys=['context','resourceId','name','samples','whiteHigh','style','threshold','sourceInterpretation'];check(input,keys);

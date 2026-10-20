@@ -2,7 +2,7 @@
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.54.3",
+  "version": "1.54.4",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -108,11 +108,15 @@
         "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
       },
       {
+        "id": "exportLogo",
+        "chooseWhen": "将readLogo已读取的原毫米轮廓导出DXF或LOGO JSON，不创建实体或工程图，不需要工作区脚本写入。"
+      },
+      {
         "id": "capture",
         "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:d94f2cfe68d1b483fcd66b8cf9083ca77dee920cb72c76bf5881dd15b5d2be4a"
+  "docsHash": "sha256:f5ef4e83ffe0c25d9c08af3a53f7d51e744d1ea6f3563950df9b5a5862ecfb02"
 }

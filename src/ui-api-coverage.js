@@ -2,6 +2,7 @@ import { listOperations } from './operation-registry.js';
 
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
+ logoExport:{tools:['readLogo','exportLogo','files.download'],method:'exportLogo',usage:'LOGO识别后下载原毫米轮廓DXF；API先readLogo取得logoId，再exportLogo({context,logoId,format:"dxf"})。保留外环和孔洞，不创建实体，不自动确认描摹精度。'},
  rodJunction:{tools:['rodJunction','queryGeometry','preview.start','preview.commit','preview.cancel','feature.edit','getState'],method:'execute',usage:'实体加工→圆杆接头倒 R。refs:[当前单实体ID]，params:{faceIds:[贯通主杆圆柱面ID,支杆圆柱面ID],radiusMm:独立半径mm}。支持等径、共面垂直T接头；查询当前面号，预览后确认；sourceJunctionReport读回实际R、线径、局部域和误差，失败保留来源。'},
   agentPanelResize:{tools:['getAgentPanel','setAgentPanel'],method:'setAgentPanel',usage:'拖动Agent分隔线或键盘方向键调尺寸；setAgentPanel({context,layout:{widthPx?,heightPx?,collapsed?}})，getAgentPanel().layout读回手机高度/PC宽度、有效尺寸及收起状态；与可见性分开调用，不修改工程。'},
  badge:{tools:['badge','preview.start','preview.commit','preview.cancel','feature.edit','getState'],method:'execute',usage:'创建→牌仔工具：refs 指定来源，faceId 指定当前平面；thicknessMm 为总厚度，side=single/double，direction=1/-1，radiusMm=0 自动或正数明确 R。保留来源及孔，所有外露锐边倒圆；回读 badgeReport。'},
