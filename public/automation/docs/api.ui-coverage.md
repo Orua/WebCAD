@@ -5,11 +5,11 @@
   "logoExport": {
     "tools": [
       "readLogo",
-      "exportLogo",
+      "exportDrawing",
       "files.download"
     ],
-    "method": "exportLogo",
-    "usage": "LOGO识别后下载原毫米轮廓DXF；API先readLogo取得logoId，再exportLogo({context,logoId,format:\"dxf\"})。保留外环和孔洞，不创建实体，不自动确认描摹精度。"
+    "method": "exportDrawing",
+    "usage": "LOGO识别后下载原毫米轮廓DXF；API先readLogo取得logoId，再exportDrawing({context,logoId,format:\"dxf\"})。保留外环和孔洞，不创建实体，不自动确认描摹精度。"
   },
   "rodJunction": {
     "tools": [
@@ -1431,7 +1431,6 @@
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 readLogo: contextPolicy=identity
-exportLogo: contextPolicy=identity
 getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision

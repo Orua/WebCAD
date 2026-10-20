@@ -2,9 +2,9 @@
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.54.4",
+  "version": "1.54.5",
   "contextPolicy": "revision",
-  "description": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
+  "description": "工程图：exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})，drawingId必须匹配当前revision。LOGO原轮廓：exportDrawing({context,logoId,format:\"dxf\"|\"json\",name?})，logoId来自本页readLogo，最近4份有效；无需创建实体或写脚本。drawingId与logoId二选一，LOGO不接收纸张/标注选项，name以.dxf或.logo.json结尾。需要cad.export；DWG不可用。",
   "synonyms": [
     "exportDrawing",
     "工程图",
@@ -15,8 +15,8 @@
     "SVG",
     "DWG"
   ],
-  "inputContract": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
-  "outputContract": "generated文件资源及sha256。再files.read/download/write；生成/下载不代表磁盘写入。PDF为矢量，JPG为300DPI；DXF为真实毫米1:1模型空间；标注文字与线为独立实体，不是关联尺寸。非整圆曲线按0.01mm离散。",
+  "inputContract": "工程图：exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})，drawingId必须匹配当前revision。LOGO原轮廓：exportDrawing({context,logoId,format:\"dxf\"|\"json\",name?})，logoId来自本页readLogo，最近4份有效；无需创建实体或写脚本。drawingId与logoId二选一，LOGO不接收纸张/标注选项，name以.dxf或.logo.json结尾。需要cad.export；DWG不可用。",
+  "outputContract": "generated文件资源及sha256，Agent通过原附件通道交付。LOGO的DXF毫米1:1保留全部原坐标与外环/孔洞，不再描摹或圆整，json保存原包；保留reviewRequired，不自动认可精度。再files.read/download/write；生成/下载不代表磁盘写入。PDF为矢量，JPG为300DPI；DXF为真实毫米1:1模型空间；标注文字与线为独立实体，不是关联尺寸。非整圆曲线按0.01mm离散。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -25,13 +25,120 @@
     "PARAM_SCHEMA_INVALID",
     "FORMAT_UNSUPPORTED",
     "STALE_REFERENCE",
+    "RESOURCE_EXPIRED",
+    "INSTANCE_MISMATCH",
     "REVISION_CONFLICT",
     "RESOURCE_LIMIT"
   ],
+  "docs": "api.logo",
+  "relatedTools": [
+    "readLogo",
+    "createDrawing",
+    "files.download"
+  ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "drawingId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "logoId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "format": {
+        "type": "string",
+        "enum": [
+          "dxf",
+          "json",
+          "pdf",
+          "jpg",
+          "svg"
+        ]
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 255
+      },
+      "title": {
+        "type": "string",
+        "maxLength": 70
+      },
+      "paper": {
+        "type": "string",
+        "enum": [
+          "A4",
+          "A3"
+        ]
+      },
+      "disabledDimensions": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "oneOf": [
+      {
+        "required": [
+          "drawingId",
+          "format"
+        ],
+        "not": {
+          "required": [
+            "logoId"
+          ]
+        }
+      },
+      {
+        "required": [
+          "logoId"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "drawingId"
+              ]
+            },
+            {
+              "required": [
+                "title"
+              ]
+            },
+            {
+              "required": [
+                "paper"
+              ]
+            },
+            {
+              "required": [
+                "disabledDimensions"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "executionPolicy": {
+    "readOnly": true,
+    "geometryComputed": false,
+    "requiredScope": "cad.export"
+  },
   "selectionGuide": {
     "groupId": "file-output",
     "groupTitle": "工程保存、导出与送达",
-    "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。",
+    "chooseWhen": "导出已有drawingId工程图，或readLogo返回的logoId原轮廓DXF/JSON；不必创建三维实体或写脚本。",
     "alternatives": [
       {
         "id": "files.save",
@@ -70,15 +177,11 @@
         "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
       },
       {
-        "id": "exportLogo",
-        "chooseWhen": "将readLogo已读取的原毫米轮廓导出DXF或LOGO JSON，不创建实体或工程图，不需要工作区脚本写入。"
-      },
-      {
         "id": "capture",
         "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:157eaf4ce3272eb02ee13e306b5c589b1940b85ab291c2d99c90faea1960b27b"
+  "docsHash": "sha256:91c37dba1886a24a61b37da16453fa7d484db05e3184fa7c2f2dd587683649ee"
 }

@@ -1,6 +1,7 @@
 import {LIMITS} from '../../limits.js';
 import {sculptSchema} from '../../relief-sculpt.js';
 import {localPatchesSchema} from '../../relief-local-patch.js';
+import {MACHINING_INTENT_SCHEMA} from '../../machining-intent.js';
 const number=(description,limits={})=>({type:'number',description,...limits});
 const length=description=>number(description,{exclusiveMinimum:0,maximum:1000});
 const ring={type:'array',minItems:3,maxItems:2000,items:{type:'array',minItems:2,maxItems:2,items:number('Normalized contour coordinate',{minimum:-.5,maximum:.5})}};
@@ -20,6 +21,7 @@ export const reliefOperations={relief:{description:'浮雕：分层矢量、开�
  contourSnapMm:number('Explicit 2D cleanup grid in mm; 0 preserves source points. Small gaps/holes below this resolution may merge. Each coordinate moves at most half a grid step.',{minimum:0,maximum:.05}),
  curveToleranceMm:number('Explicit maximum source-vertex arc-fit deviation (mm); 0 keeps every polygon segment',{minimum:0,maximum:.05}),
  sculpt:sculptSchema,
+ machiningIntent:MACHINING_INTENT_SCHEMA,
  localPatches:localPatchesSchema,
  faceId:{type:'integer',minimum:0,description:'Current selected planar or convex cylindrical face index on refs[0]'},
  surfaceMode:{type:'string',enum:['smooth','flat'],description:'With regions: smooth heightfield or an exact planar crest at depthMm from the placement tangent plane. Legacy projects without regions keep their original rectangular heightfield.'},

@@ -2,7 +2,7 @@
   "id": "files.reattach",
   "title": "files.reattach",
   "category": "file",
-  "version": "1.54.4",
+  "version": "1.54.5",
   "contextPolicy": "none",
   "label": "reattach",
   "synonyms": [
@@ -94,14 +94,10 @@
       },
       {
         "id": "exportDrawing",
-        "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
-      },
-      {
-        "id": "exportLogo",
-        "chooseWhen": "将readLogo已读取的原毫米轮廓导出DXF或LOGO JSON，不创建实体或工程图，不需要工作区脚本写入。"
+        "chooseWhen": "导出已有drawingId工程图，或readLogo返回的logoId原轮廓DXF/JSON；不必创建三维实体或写脚本。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:fab2d5812a75e3c91e52e1a3b2bc3923675ce8d60e35ce521a645fed1cec76e8"
+  "docsHash": "sha256:5b395f0aa76ebc6c02011f835bd52ec505e3796901b2ecd574857103f8fd42f7"
 }

@@ -2787,8 +2787,21 @@
       "17674 targeted verification then real Agent download and disk hash"
     ],
     "logoImpact": "Preserve every source coordinate and closed outer/hole ring at millimetre 1:1, source identity and unreviewed tracing status",
-    "contractImpact": "Page API 1.54.4 exportLogo requires cad.export; helper, async dispatcher, public docs and UI mapping included; all generated export methods use original Agent artifact transport",
+    "contractImpact": "Page API 1.54.5 extends existing exportDrawing with mutually exclusive logoId/drawingId selectors, requiring cad.export; compatible with current 113 Agent allowlists; all generated export artifacts use the original attachment transport",
     "servicesImpact": "No backend DLL, worker algorithm or protocol change; export reuses already-read contours without recompute",
     "localImpact": "Read LOGO returns page-scoped immutable logoId; export exact contour DXF or original JSON without workspace scripting; UI exposes DXF download after recognition"
+  },
+  "reliefRuntimeIntent20261020": {
+    "localImpact": "Worker raw relief parameter schema accepts the same strict machiningIntent already required and published by the page, after canonical-to-legacy field conversion",
+    "documentImpact": "Preserve original declared intent and dimensions in recipes; legacy recipes remain valid",
+    "logoImpact": "none; relief contract consistency only",
+    "cacheImpact": "Regenerate matching frontend and knowledge identity",
+    "servicesImpact": "No backend or native algorithm change",
+    "requiredTests": [
+      "Real restored P06 failed commands 1586e0c7b35445bb9b69b412587c2425 and 7887c520afb947f295584f43fad622bf",
+      "Public canonical to Worker legacy schema validation with same intent, fields and unknown-key rejection",
+      "One same-design Agent continuation after deployment"
+    ],
+    "contractImpact": "Keep the existing intent requirement, source and capability gates; reject unknown fields inside the intent and ordinary parameters"
   }
 }

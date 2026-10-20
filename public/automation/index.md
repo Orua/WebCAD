@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.54.4 · 操作目录 sha256:e5e60ffc2ea3affb5ad5dcd149b8676209410475d936d9371e93f11dc7ce77e2
+API 1.54.5 · 操作目录 sha256:fe0c4754eb1f99a49f5067d4888a82a84f91d04bc867dca31796f74e07699cd2
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -9,7 +9,6 @@ API 1.54.4 · 操作目录 sha256:e5e60ffc2ea3affb5ad5dcd149b8676209410475d936d9
 ## 页面方法
 
 - `readLogo`
-- `exportLogo`
 - `getBatchReceipt`
 - `probeBlendRadius`
 - `recoverKernel`
@@ -250,7 +249,6 @@ API 1.54.4 · 操作目录 sha256:e5e60ffc2ea3affb5ad5dcd149b8676209410475d936d9
 - `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
 - `template.gableOpenFrame` · advisory · 两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。
 - `readLogo` · page-method · readLogo({context,resourceId,name,targetWidthMm?,page?,sizeConfirmed?,allowUpload?,raster?:{threshold,invert,alphaThreshold}})。选定文件先登记资源；SVG/LOGO JSON在本机读取，其他格式由已配置后台处理。位图必须提供实际宽度、sizeConfirmed:true、allowUpload:true。raster可省略；threshold/alphaThreshold为0–255整数，默认128/1；invert为布尔值，默认false。LOGO不接受浮雕的0–1阈值，0.5在上传前返回PARAM_SCHEMA_INVALID。默认以亮度<128的深色像素为前景；不得无依据反转或扫描参数重试。
-- `exportLogo` · page-method · exportLogo({context,logoId,format?:"dxf"|"json",name?})。logoId来自本页readLogo成功回执，仅保留最近4份；无需创建实体、投影、写脚本或申请工作区写权限。name须以.dxf或.logo.json结尾。
 - `getBatchReceipt` · page-method · getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.
 - `probeBlendRadius` · page-method · probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。
 - `recoverKernel` · page-method · recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。
@@ -269,7 +267,7 @@ API 1.54.4 · 操作目录 sha256:e5e60ffc2ea3affb5ad5dcd149b8676209410475d936d9
 - `planAlignment` · page-method · planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true：true=整体按联合包围盒移动并保持相对位置，false=每个实体各自对齐。
 - `selectRectangle` · page-method · selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。
 - `createDrawing` · page-method · createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。
-- `exportDrawing` · page-method · exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。
+- `exportDrawing` · page-method · 工程图：exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})，drawingId必须匹配当前revision。LOGO原轮廓：exportDrawing({context,logoId,format:"dxf"|"json",name?})，logoId来自本页readLogo，最近4份有效；无需创建实体或写脚本。drawingId与logoId二选一，LOGO不接收纸张/标注选项，name以.dxf或.logo.json结尾。需要cad.export；DWG不可用。
 - `getQuickModelUsage` · page-method · getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。
 - `copySelection` · page-method · copySelection({context,bodyIds}); 1–200个当前实体。
 - `pasteSelection` · page-method · pasteSelection({context,idempotencyKey}); 先 copySelection。

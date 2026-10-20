@@ -11,7 +11,6 @@ export function createPageJobs(api,{runBatch}={}) {
   methods.add('inspectDesign');
   methods.add('inspectRound');
   methods.add('readLogo');
-  methods.add('exportLogo');
   methods.add('probeBlendRadius');
   methods.add('recoverKernel');
   methods.add('files.reattach');
