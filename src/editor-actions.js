@@ -1,6 +1,10 @@
 import {updateReliefDesigns} from './relief-design-drafts.js';
+import {validateReliefReference} from './relief-design-reference-contract.js';
 // Public editor actions: one contract for the UI, AI, and generated documentation.
 export const FINISH_KEYS = Object.freeze(['design','light-gold','nickel','24k-gold','gunmetal','matt-nickel','matt-light-gold','matt-24k-gold','matt-gunmetal','antique-brass','antique-silver','rose-gold','silver-925','white-gold-18k']);
+// This action is never published as a JSON editor tool. Only the resource-backed
+// page method may dispatch it with the private CommandService validation option.
+export const INTERNAL_EDITOR_ACTIONS=Object.freeze({'document.reliefDesignReference':{title:'浮雕原参考图绑定',fields:['designId','expectedDraftRevision','action','source']}});
 export const EDITOR_ACTIONS = Object.freeze({
   'feature.compileServices':{title:'Services 原特征编译',fields:['featureId','allowUpload'],example:{featureId:'<featureId>',allowUpload:true},description:'按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。'},
   'body.align': {title:'快速对齐',fields:['bodyIds','target','axes','sourceSide','targetSide','group','gapMm'],example:{bodyIds:['<bodyId>'],target:{kind:'origin'},axes:['X','Y','Z'],sourceSide:'center',targetSide:'center',group:true},description:'按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。'},
@@ -14,10 +18,22 @@ export const EDITOR_ACTIONS = Object.freeze({
   'body.explode': {title:'组合拆散 多实体分解', fields:['bodyId'], example:{bodyId:'<bodyId>'}, description:'将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。'}
 });
 export function validateEditorAction(action,args,state){
-  const spec=EDITOR_ACTIONS[action];
+  const spec=EDITOR_ACTIONS[action]??INTERNAL_EDITOR_ACTIONS[action];
   const fail=(message,code='PARAM_SCHEMA_INVALID')=>{throw Object.assign(new Error(message),{code,path:'args'});};
   if(!spec||!args||Array.isArray(args)||typeof args!=='object'||Object.keys(args).some(k=>!spec.fields.includes(k)))fail('Unexpected editor action fields');
-  if(action==='document.reliefDesign')updateReliefDesigns(state.reliefDesigns,args);
+  if(action==='document.reliefDesign'){
+    updateReliefDesigns(state.reliefDesigns,args);
+    const previous=state.reliefDesigns?.find(d=>d.id===args.id)?.draft.reference;
+    if(args.draft?.reference&&JSON.stringify(args.draft.reference)!==JSON.stringify(previous))fail('Use registered-resource reliefDesignReference to attach or replace the original image');
+  }
+  if(action==='document.reliefDesignReference'){
+    const entry=state.reliefDesigns?.find(d=>d.id===args.designId);
+    if(!entry)fail('Design draft not found','STALE_REFERENCE');
+    if(args.expectedDraftRevision!==entry.revision)fail('Read the current draft revision','REVISION_CONFLICT');
+    if(!['attach','detach'].includes(args.action))fail('Expected attach or detach');
+    if(args.action==='attach'){validateReliefReference(args.source?.reference);if(!(args.source?.bytes instanceof Uint8Array))fail('Use registered original reference bytes');}
+    else if(args.source!==undefined)fail('Detach cannot contain source bytes');
+  }
   const current=id=>state.bodies.some(b=>b.id===id);
   if(action==='feature.compileServices'&&(typeof args.featureId!=='string'||!state.features.some(f=>f.id===args.featureId)||args.allowUpload!==true))fail('请选择当前特征并明确授权上传','UPLOAD_AUTH_REQUIRED');
   if(action==='history.restore'&&(typeof args.stateId!=='string'||args.stateId.length>150))fail('需要有效的历史状态 ID');

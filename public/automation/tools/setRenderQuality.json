@@ -2,7 +2,7 @@
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.55.1",
+  "version": "1.55.2",
   "contextPolicy": "identity",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
@@ -79,5 +79,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:e9cb1a0708b8d18f3e6620bba6d9fa5734023ad0c8175c274363f33e8df3f448"
+  "docsHash": "sha256:8e17a6fb496c8f38eb391ee1bee1caa4a8e44fa0d4e0881a8014656010a34176"
 }

@@ -10,6 +10,7 @@ import {createPageBatch} from './page-batch.js';
 import {readBrowserLogo,getLogoWizardState,actLogoWizard,getLogoWizardReviewBinding,refreshLogoWizardReview} from './browser-logo-input.js';
 import {createLogoReviewSession,logoReviewArtifacts} from './logo-vector-review.js';
 import {runReliefDesignField,readReliefDesignField,cancelReliefDesignField,candidateReliefDesignField} from './relief-design-runtime.js';
+import {prepareReliefReferenceSource} from './relief-design-reference.js';
 import {logoDXF} from './logo-dxf.js';
 import {getLogoConverterConfig,setLogoConverterConfig} from './logo-converter-settings.js';
 import {getServicesConfig,saveServicesConfig,clearServicesCredential} from './services/settings.js';
@@ -266,7 +267,7 @@ export function createPageAPI(host){
     resolveModelLibrary:guarded(input=>{check(input,['context','id','expectedLibraryRevision','params']);const {context,...request}=input;return {status:'read',...modelLibrary.resolve(request),context:current().context};}),
     createRequestContext:(context=current().context)=>requestContext(context),
     searchTools:input=>searchTools(input,{browserReady:current().summary.kernelReady}),getTools,getTool,readDocs,
-    execute:async input=>{let request;try{request=normalizeRequest(input);}catch(e){return failure(e);}let submitted=false;try{if(request?.action==='preview.start'&&request.args?.fileImport){const file=request.args.fileImport;if(Object.keys(request.args).some(key=>key!=='fileImport')||!file||typeof file!=='object'||Object.keys(file).some(key=>!['resourceId','name','placement'].includes(key)))fail('PARAM_SCHEMA_INVALID','File preview takes only fileImport with resourceId and placement');const source=await rawFiles.previewInput({resourceId:file.resourceId});request={...request,args:{fileImport:{...source,resourceId:file.resourceId,placement:file.placement}}};}submitted=true;return withErrorRecovery(await host.execute(request));}catch(e){return submitted?withErrorRecovery({...failure(e),status:'unknown',commitState:'unknown',error:{...failure(e).error,recoveryAction:'INSPECT_STATE_BEFORE_RETRY'}}):failure(e);}},queryGeometry:guarded(input=>host.query(input)),
+    execute:async input=>{if(input?.action==='document.reliefDesignReference')return failure(Object.assign(new Error('Use the registered-resource reliefDesignReference method'),{code:'PARAM_SCHEMA_INVALID'}));let request;try{request=normalizeRequest(input);}catch(e){return failure(e);}let submitted=false;try{if(request?.action==='preview.start'&&request.args?.fileImport){const file=request.args.fileImport;if(Object.keys(request.args).some(key=>key!=='fileImport')||!file||typeof file!=='object'||Object.keys(file).some(key=>!['resourceId','name','placement'].includes(key)))fail('PARAM_SCHEMA_INVALID','File preview takes only fileImport with resourceId and placement');const source=await rawFiles.previewInput({resourceId:file.resourceId});request={...request,args:{fileImport:{...source,resourceId:file.resourceId,placement:file.placement}}};}submitted=true;return withErrorRecovery(await host.execute(request));}catch(e){return submitted?withErrorRecovery({...failure(e),status:'unknown',commitState:'unknown',error:{...failure(e).error,recoveryAction:'INSPECT_STATE_BEFORE_RETRY'}}):failure(e);}},queryGeometry:guarded(input=>host.query(input)),
     queryReferences:guarded(async input=>{check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);const request=validateReferenceQuery(input),result=await host.references(request);check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);return result;}),
     resolvePlacement:guarded(async input=>{check(input,['context','op','params','refs','placement']);if(typeof input.op!=='string'||!Array.isArray(input.refs)||input.refs.some(id=>typeof id!=='string')||!input.params||typeof input.params!=='object')fail('PARAM_SCHEMA_INVALID','op, params and refs required');const result=await host.resolvePlacement(input);check(input,['context','op','params','refs','placement']);return result;}),
     setRenderQuality:guarded(async input=>{check(input,['context','quality']);renderQuality(input.quality);await host.quality(input.quality);check(input,['context','quality']);return {status:'applied',context:current().context,renderQuality:current().renderQuality,display:host.display()};}),
@@ -446,6 +447,31 @@ export function createPageAPI(host){
     }),
     planPatternMachining:guarded(input=>{
       check(input,['context','intent']);return {...planPatternMachining(input.intent),context:current().context};
+    }),
+    reliefDesignReference:guarded(async input=>{
+      const keys=['context','action','designId','expectedDraftRevision','resourceId','expectedSha256','expectedSize','idempotencyKey'];check(input,keys);
+      const action=input.action??'get',entry=host.state({include:['reliefDesigns']}).reliefDesigns?.find(d=>d.id===input.designId);
+      if(!entry)fail('STALE_REFERENCE','Design draft not found');
+      if(input.expectedDraftRevision!==entry.revision)fail('REVISION_CONFLICT','Read the current design draft revision');
+      if(!['get','attach','detach','resource'].includes(action))fail('PARAM_SCHEMA_INVALID','Unknown reference action');
+      if(action!=='attach'&&['resourceId','expectedSha256','expectedSize'].some(k=>input[k]!==undefined))fail('PARAM_SCHEMA_INVALID','Only attach accepts an input resource');
+      if(['get','resource'].includes(action)&&input.idempotencyKey!==undefined)fail('PARAM_SCHEMA_INVALID','Reads do not accept an idempotency key');
+      if(input.idempotencyKey!==undefined&&(typeof input.idempotencyKey!=='string'||!input.idempotencyKey||input.idempotencyKey.length>128))fail('PARAM_SCHEMA_INVALID','Invalid reference idempotency key');
+      if(action==='get')return {status:'read',...host.reliefReferenceRead(input.designId),context:current().context};
+      if(action==='resource'){
+        const stored=host.reliefReferenceRead(input.designId,{bytes:true});if(!stored.reference)fail('RELIEF_REFERENCE_MISSING','This design has no original reference');
+        const resource=await rawFiles.generated({name:stored.reference.name,mime:stored.reference.mime,bytes:stored.bytes,context:current().context});
+        try{check(input,keys);}catch(e){await rawFiles.release({resourceId:resource.resourceId});throw e;}
+        const {bytes:originalBytes,...metadata}=stored;return {...resource,...metadata,sourceKind:'original-reference',context:current().context};
+      }
+      let source;
+      if(action==='attach'){
+        if(typeof input.resourceId!=='string'||!input.resourceId)fail('PARAM_SCHEMA_INVALID','Attach needs a files.register input resourceId');
+        const original=await rawFiles.referenceInput({resourceId:input.resourceId});
+        source=await prepareReliefReferenceSource({...original,expectedSha256:input.expectedSha256===undefined?original.sha256:input.expectedSha256,expectedSize:input.expectedSize===undefined?original.size:input.expectedSize});check(input,keys);
+      }
+      const result=await host.reliefReferenceCommit({context:input.context,idempotencyKey:input.idempotencyKey??crypto.randomUUID(),action:'document.reliefDesignReference',args:{designId:input.designId,expectedDraftRevision:input.expectedDraftRevision,action,...(source?{source}:{})}});
+      return {...result,...(['committed','no_change'].includes(result.status)?host.reliefReferenceRead(input.designId):{})};
     }),
     reliefDesignField:guarded(async input=>{
       const s=check(input,['context','action','designId','expectedDraftRevision','options','baseMm']);

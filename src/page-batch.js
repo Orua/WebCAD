@@ -8,10 +8,10 @@ const methods = new Set(['add','execute','connect','info','getState','searchTool
   'getQuickModelUsage','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
   'files.import','files.save','files.export','files.release']);
 methods.add('readLogo');
-methods.add('reviewLogo');methods.add('logoWizard');methods.add('reliefDesignField');
+methods.add('reviewLogo');methods.add('logoWizard');methods.add('reliefDesignField');methods.add('reliefDesignReference');
 const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.save','files.export']);
 contextual.add('readLogo');
-contextual.add('reviewLogo');contextual.add('logoWizard');contextual.add('reliefDesignField');
+contextual.add('reviewLogo');contextual.add('logoWizard');contextual.add('reliefDesignField');contextual.add('reliefDesignReference');
 methods.add('inspectDesign');
 methods.add('inspectRound');
 contextual.add('inspectRound');

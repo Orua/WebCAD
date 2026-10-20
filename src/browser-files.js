@@ -181,6 +181,10 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       const source=inputFor(resourceId,['step','stp','brep','brp']);
       return {name:source.name,mime:source.mime,data:new Uint8Array(await source.blob.arrayBuffer())};
     },
+    async referenceInput({resourceId}={}){
+      const source=inputFor(resourceId,['png','jpg','jpeg','webp']);
+      return {name:source.name,mime:source.mime,sha256:source.sha256,size:source.size,bytes:new Uint8Array(await source.blob.arrayBuffer())};
+    },
     new({ context } = {}) { return run(context, 'new'); },
     save({ context, name } = {}) { return generated({ context, action: 'save', name }); },
     export({ context, format, ids, name } = {}) {

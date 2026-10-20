@@ -2,7 +2,7 @@ import {humanError} from '../../error-recovery.js';
 import {validateReliefDesign} from '../../relief-design-drafts.js';
 
 export function showReliefDesignDialog({getState,openDialog,element,button,onSave,onGenerate,close}){
- let initial=getState(),loaded=null,busy=false,dirty=false,fieldResult=null;
+ let initial=getState(),loaded=null,busy=false,dirty=false,fieldResult=null,referenceUrl=null,referenceGeneration=0;
  const d=openDialog('浮雕设计约束','保存毫米约束 → 求解数值场 → 预览并生成支持范围内的网格。');
  d.dataset.taskPanel='true';
  d.style.cssText='width:min(840px,96vw);max-width:96vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden';
@@ -27,6 +27,13 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
   scroller.append(wrap);return {wrap,area};
  }
  scroller.append(top,form);
+ const referencePanel=element('details',{}),referenceSummary=element('summary',{},'原始参考图（随工程保存）');
+ const referenceInfo=element('p',{class:'property-footnote'},'原图仅作设计参考，不从亮度推断实际高度。');
+ const referencePicker=element('input',{type:'file',accept:'image/png,image/jpeg,image/webp','aria-label':'选择浮雕原始参考图'});
+ const referencePreview=element('img',{alt:'浮雕原始参考图'});referencePreview.style.cssText='display:none;max-width:100%;height:150px;object-fit:contain;opacity:.65';
+ const referenceAttach=button('保存原图',()=>changeReference(false),'secondary'),referenceDetach=button('移除原图',()=>changeReference(true),'secondary');
+ const referenceButtons=element('div',{});referenceButtons.style.cssText='display:flex;gap:8px;flex-wrap:wrap';referenceButtons.append(referencePicker,referenceAttach,referenceDetach);
+ referencePanel.append(referenceSummary,referenceInfo,referencePreview,referenceButtons);scroller.append(referencePanel);
  const points=section('高度点','每行：X Y 高度（mm），用空格或逗号分隔。点必须避开孔和保护区。');points.wrap.open=true;
  const holes=section('贯穿孔','每行：圆 X Y 半径，或 矩形 X Y 宽 高（mm）。留空表示没有孔。',3);
  const zones=section('保护区','使用与孔相同的格式。区域保持本草稿最低设计高度；不是冻结已有模型的曲面。',3);
@@ -38,7 +45,27 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  const solve=button('求解数值场',()=>compute(),'secondary'),cancel=button('停止求解',()=>window.webcad.api.reliefDesignField(request('cancel')),'secondary');
  const generate=button('生成网格',()=>generateMesh(),'primary');generate.disabled=true;cancel.disabled=true;
  footer.append(remove,button('关闭',()=>{if(!busy)close();},'secondary'),save,solve,cancel,generate);d.append(scroller,status,footer);
- d._onClose=()=>{if(loaded)window.webcad.api.reliefDesignField(request('cancel'));};
+ d._onClose=()=>{clearReferencePreview();if(loaded)window.webcad.api.reliefDesignField(request('cancel'));};
+ function clearReferencePreview(){referenceGeneration++;if(referenceUrl)URL.revokeObjectURL(referenceUrl);referenceUrl=null;referencePreview.removeAttribute('src');referencePreview.style.display='none';}
+ async function showReference(){
+  clearReferencePreview();const generation=referenceGeneration,ref=loaded?.draft.reference;
+  referenceAttach.disabled=!loaded;referenceDetach.disabled=!ref;referencePicker.value='';
+  referenceInfo.textContent=ref?`${ref.name} · ${(ref.sizeBytes/1024).toFixed(1)} KB · 原始字节随工程保存。原图仅供参考，不自动变成高度。`:'尚未绑定原图。保存设计草稿后，可加入 PNG、JPEG 或 WebP；上限20 MiB。';
+  if(!ref)return;let resourceId=null;
+  try{const api=window.webcad.api,r=await api.reliefDesignReference({...request('resource')});if(r.status==='failed')throw Object.assign(new Error(r.error?.message),{code:r.error?.code});resourceId=r.resourceId;if(generation!==referenceGeneration)return;const bytes=await api.files.read({resourceId,as:'bytes'});if(generation!==referenceGeneration)return;referenceUrl=URL.createObjectURL(new Blob([bytes],{type:ref.mime}));referencePreview.src=referenceUrl;referencePreview.style.display='block';}
+  catch(error){if(generation===referenceGeneration)referenceInfo.textContent=humanError(error);}
+  finally{if(resourceId)try{await window.webcad.api.files.release({resourceId});}catch{ /* Expired preview resources need no further work. */ }}
+ }
+ async function changeReference(removing){
+  if(busy)return;if(!loaded||dirty){status.textContent='请先保存当前设计修改，再绑定或移除原图。';return;}
+  const api=window.webcad.api,file=referencePicker.files?.[0];if(!removing&&!file){status.textContent='请先选择原始参考图。';return;}
+  if(file&&file.size>20*1024*1024){status.textContent='原始参考图需在20 MiB以内；请保留原件，选择符合大小限制的图片。';return;}
+  const controls=[...scroller.querySelectorAll('input,select,textarea,button')].map(el=>[el,el.disabled]);for(const [el]of controls)el.disabled=true;
+  let resourceId=null;busy=true;referenceAttach.disabled=referenceDetach.disabled=save.disabled=solve.disabled=true;
+  try{let extra={};if(!removing){const r=await api.files.register({name:file.name,mime:file.type,data:file});resourceId=r.resourceId;extra={resourceId,expectedSha256:r.sha256,expectedSize:r.size};}
+   const result=await api.reliefDesignReference({...request(removing?'detach':'attach'),...extra});if(!['committed','no_change'].includes(result.status))throw Object.assign(new Error(result.error?.message||'原图未保存'),{code:result.error?.code});initial=getState();load(initial.document.reliefDesigns?.find(item=>item.id===loaded.id));status.textContent=removing?'原图引用已移除；工程撤销仍可恢复。':'原始字节已加入当前工程；请保存工程文件以便下次使用。';
+  }catch(error){status.textContent=humanError(error);}finally{if(resourceId)try{await api.files.release({resourceId});}catch{ /* Registered input can expire after use. */ }busy=false;for(const [el,disabled]of controls)el.disabled=disabled;save.disabled=solve.disabled=false;referenceAttach.disabled=!loaded;referenceDetach.disabled=!loaded?.draft.reference;}
+ }
  function request(action,extra={}){return {context:window.webcad.api.getState().context,action,designId:loaded?.id,expectedDraftRevision:loaded?.revision,...extra};}
  async function compute(){
   if(busy)return;
@@ -72,7 +99,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
    const fields=values(line);if(fields.length!==3)throw new Error(`高度点第${i+1}行：需要 X Y 高度三个数值。`);
    const [x,y,z]=fields.map(Number);return {id:loaded?.draft.points[i]?.id||'point-'+(i+1),pointMm:[x,y],heightMm:z};
   });
-  return validateReliefDesign({schemaVersion:1,name:name.value,support,throughHoles:regions(holes.area),protectedZones:regions(zones.area),heightRangeMm:[number(low),number(high)],points:authored,fieldSettings:{...loaded?.draft.fieldSettings,columns:number(resolution),rows:number(resolution)}});
+  return validateReliefDesign({...(loaded?.draft.reference?{reference:loaded.draft.reference}:{}),schemaVersion:1,name:name.value,support,throughHoles:regions(holes.area),protectedZones:regions(zones.area),heightRangeMm:[number(low),number(high)],points:authored,fieldSettings:{...loaded?.draft.fieldSettings,columns:number(resolution),rows:number(resolution)}});
  }
  function draw(draft){
   const ctx=canvas.getContext('2d');ctx.clearRect(0,0,640,240);
@@ -86,15 +113,14 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  function load(entry){
   dirty=false;fieldResult=null;generate.disabled=true;
   loaded=entry?structuredClone(entry):null;
-  resolution.value=entry?.draft.fieldSettings?.columns??33;
   const draft=entry?.draft||{name:'新设计草稿',support:{kind:'circle',centerMm:[0,0],radiusMm:30},heightRangeMm:[0,3],throughHoles:[],protectedZones:[],points:[]},s=draft.support;
   name.value=draft.name;kind.value=s.kind;cx.value=s.centerMm[0];cy.value=s.centerMm[1];width.value=s.kind==='circle'?s.radiusMm*2:s.widthMm;height.value=s.kind==='rect'?s.heightMm:s.radiusMm*2;
-  low.value=draft.heightRangeMm[0];high.value=draft.heightRangeMm[1];points.area.value=draft.points.map(p=>[...p.pointMm,p.heightMm].join(' ')).join('\n');
+  low.value=draft.heightRangeMm[0];high.value=draft.heightRangeMm[1];resolution.value=draft.fieldSettings?.columns??33;points.area.value=draft.points.map(p=>[...p.pointMm,p.heightMm].join(' ')).join('\n');
   holes.area.value=regionText(draft.throughHoles);zones.area.value=regionText(draft.protectedZones);height.disabled=kind.value==='circle';
   selector.replaceChildren(element('option',{value:''},'未保存的新草稿'));
   for(const item of initial.document.reliefDesigns||[])selector.append(element('option',{value:item.id},item.draft.name+' · r'+item.revision));
   selector.value=entry?.id||'';selector.disabled=false;create.disabled=false;remove.disabled=!entry;
-  status.textContent=entry?'已读取工程草稿。':'新建示例范围为直径60 mm；请按实际设计填写。';draw(draft);
+  status.textContent=entry?'已读取工程草稿。':'新建示例范围为直径60 mm；请按实际设计填写。';draw(draft);showReference();
  }
  async function commit(deleting){
   if(busy)return;
@@ -109,6 +135,6 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
   finally{busy=false;save.disabled=false;remove.disabled=!loaded;}
  }
  selector.onchange=()=>load(initial.document.reliefDesigns?.find(item=>item.id===selector.value)||null);
- scroller.addEventListener('input',()=>{dirty=true;fieldResult=null;generate.disabled=true;height.disabled=kind.value==='circle';selector.disabled=true;create.disabled=true;try{draw(read());status.textContent='有未保存的设计修改；旧数值场不能生成几何。';}catch(e){status.textContent=humanError(e);}});
+ scroller.addEventListener('input',event=>{if(event.target===referencePicker)return;dirty=true;fieldResult=null;generate.disabled=true;height.disabled=kind.value==='circle';selector.disabled=true;create.disabled=true;try{draw(read());status.textContent='有未保存的设计修改；旧数值场不能生成几何。';}catch(e){status.textContent=humanError(e);}});
  load(initial.document.reliefDesigns?.[0]||null);
 }

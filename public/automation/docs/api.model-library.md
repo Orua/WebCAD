@@ -3,6 +3,7 @@
 快捷工具定义由软件内置，只允许调整创建参数和显示顺序。getModelLibrary读取readOnlyDefinitions:true、allowedOperations:[move,restore]、revision及各工具fields/schema/execution；resolveModelLibrary({context,id,expectedLibraryRevision,params})返回run/add实际参数，params只接受该工具字段。updateModelLibrary({context,expectedLibraryRevision,operation:move,id,index})调整显示位置；restore恢复默认顺序。定义、脚本、导入、删除、upsert均拒绝。列表为45个当前工具，6个移除工具仅保留历史重建。category/categoryLabel标明分组，默认同组相邻、简单在前。catalogOrderVersion升级时启用新默认分组排序，原存储保留；升级后用户调整的顺序继续持久化。旧工程冻结脚本仍可重建，新建API不接受modelScript。缩略图与默认尺寸图在开发时预生成，运行时只加载静态资源，不启动预览几何内核；丝筒内部结构用半透明实体加边线。图片表示默认参数，创建值以输入框/参数为准。旧远程助手可用getUILayout({includeModelLibrary:true}).modelLibrary读库，并通过setView.modelLibraryChange执行同一排序接口。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
 reviewLogo: contextPolicy=identity

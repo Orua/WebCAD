@@ -1,6 +1,6 @@
 import {normalizeChainSize} from './quick-models/chain-size.js';
 import { assertOperationContract, normalizeOperationParams, normalizeOperationPatch, validateOperationRefs, migratedOperationIds, getOperation, validateOperationExample } from './operation-registry.js';
-import { EDITOR_ACTIONS, validateEditorAction } from './editor-actions.js';
+import { EDITOR_ACTIONS, INTERNAL_EDITOR_ACTIONS, validateEditorAction } from './editor-actions.js';
 import {REFERENCE_ACTIONS,applyReferenceAction} from './reference-contracts.js';
 import {resolvePlacement,describeResolvedPlacement,newFeaturePlacement} from './work-frame.js';
 import { assertHistoryEditSafe } from './history-edit-safety.js';
@@ -119,8 +119,10 @@ export function createCommandService(adapter) {
     try{
       s=snapshot();object(input,['context','idempotencyKey','action','args'],'input');context(input.context,s,{revision:false});
       string(input.idempotencyKey,'idempotencyKey',128);key=input.idempotencyKey;
+      if(Object.hasOwn(INTERNAL_EDITOR_ACTIONS,input.action)&&options.referenceResourceValidated!==true)fail('PARAM_SCHEMA_INVALID','action','Use the registered-resource reliefDesignReference page method');
       const bytePreview=input.action==='preview.start'&&input.args?.fileImport?.data instanceof Uint8Array;
-      const signatureInput=bytePreview?{...input,args:{...input.args,fileImport:{...input.args.fileImport,data:{sha256:binaryHash(input.args.fileImport.data),bytes:input.args.fileImport.data.length}}}}:input;
+      const byteReference=input.action==='document.reliefDesignReference'&&input.args?.source?.bytes instanceof Uint8Array;
+      const signatureInput=bytePreview?{...input,args:{...input.args,fileImport:{...input.args.fileImport,data:{sha256:binaryHash(input.args.fileImport.data),bytes:input.args.fileImport.data.length}}}}:byteReference?{...input,args:{...input.args,source:{...input.args.source,bytes:{sha256:binaryHash(input.args.source.bytes),bytes:input.args.source.bytes.length}}}}:input;
       fingerprint=canonical({...signatureInput,context:{...input.context,sessionId:undefined}});
       const previous=lookupReceipt(key,fingerprint);
       if(previous){if(previous.fingerprint!==fingerprint)fail('IDEMPOTENCY_KEY_REUSED','idempotencyKey','Key has a different payload');return clone(previous.result);}
@@ -197,7 +199,7 @@ export function createCommandService(adapter) {
           if(s.previewInfo){object(a,['previewId','expectedGeneration'],'args');string(a.previewId,'args.previewId',128);integer(a.expectedGeneration,'args.expectedGeneration',1);if(a.previewId!==s.previewInfo.previewId||a.expectedGeneration!==s.previewInfo.generation)fail('STALE_REFERENCE','args.previewId','Preview identity or generation changed','READ_STATE_AND_REPLAN');}
           else object(a,[],'args');command=input.action;args=clone(a);break;
         }
-        default:if(REFERENCE_ACTIONS.includes(input.action)){let proof;if(input.action==='reference.setWorkFrame'&&a?.referenceId!==undefined){const item=await verifiedReference(a.referenceId,s);if(item.kind!=='point'||!item.worldPoint?.every((v,i)=>Math.abs(v-a.origin?.[i])<=1e-6))fail('SOURCE_ANCHOR_INVALID','args.referenceId','Reference point does not match requested origin');delete a.referenceId;}if(input.action==='reference.setBodyAnchor'){if(!s.bodies.some(body=>body.id===a?.bodyId))fail('STALE_REFERENCE','args.bodyId','Body is not current');const item=await verifiedReference(a.referenceId,s);if(item.kind!=='point'||item.source?.bodyId!==a.bodyId||!item.source.geometryFingerprint)fail('SOURCE_ANCHOR_INVALID','args.referenceId','Exact point on the specified body required');proof={bodyId:a.bodyId,worldPoint:item.worldPoint,geometryFingerprint:item.source.geometryFingerprint};}args={action:input.action,referenceSystem:applyReferenceAction(s.referenceSystem,input.action,a,proof)};command='reference_action';break;}if(Object.hasOwn(EDITOR_ACTIONS,input.action)){({command,args}=validateEditorAction(input.action,a,s));break;}fail('PARAM_SCHEMA_INVALID','action','Unsupported action');
+        default:if(REFERENCE_ACTIONS.includes(input.action)){let proof;if(input.action==='reference.setWorkFrame'&&a?.referenceId!==undefined){const item=await verifiedReference(a.referenceId,s);if(item.kind!=='point'||!item.worldPoint?.every((v,i)=>Math.abs(v-a.origin?.[i])<=1e-6))fail('SOURCE_ANCHOR_INVALID','args.referenceId','Reference point does not match requested origin');delete a.referenceId;}if(input.action==='reference.setBodyAnchor'){if(!s.bodies.some(body=>body.id===a?.bodyId))fail('STALE_REFERENCE','args.bodyId','Body is not current');const item=await verifiedReference(a.referenceId,s);if(item.kind!=='point'||item.source?.bodyId!==a.bodyId||!item.source.geometryFingerprint)fail('SOURCE_ANCHOR_INVALID','args.referenceId','Exact point on the specified body required');proof={bodyId:a.bodyId,worldPoint:item.worldPoint,geometryFingerprint:item.source.geometryFingerprint};}args={action:input.action,referenceSystem:applyReferenceAction(s.referenceSystem,input.action,a,proof)};command='reference_action';break;}if(Object.hasOwn(EDITOR_ACTIONS,input.action)||Object.hasOwn(INTERNAL_EDITOR_ACTIONS,input.action)){({command,args}=validateEditorAction(input.action,a,s));break;}fail('PARAM_SCHEMA_INVALID','action','Unsupported action');
       }
       if(command==='edit_feature')assertHistoryEditSafe(s,{features:s.features.map(feature=>feature.id===args.featureId?{...feature,params:args.params,...(args.placement?{placement:args.placement}: {})}:feature)});
       if(['add_feature','preview_feature','preview_update','preview_file','preview_file_update'].includes(command)||command==='preview.commit'&&s.preview)assertFeatureCapacity(s.features,1);

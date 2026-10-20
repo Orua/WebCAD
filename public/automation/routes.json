@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.55.1",
-  "buildId": "c88507d57ee502a46f2c77d4f6234aefe0ecd884-src-45855422c57e29f5-working",
-  "catalogHash": "sha256:aa55aa84687ade564e519d3d174bfb647f87d6d08c456fb503fdb968ed51bea3",
-  "docsHash": "sha256:ee8d52ebdab867b9740d6bc7867fcabbbafbd0b95b0ba74ca7053b6d15e9184a",
+  "pageApiVersion": "1.55.2",
+  "buildId": "3b03449bad82b19c61c3ad6b6367d977b2541539-src-51cd4042a540a4ec-working",
+  "catalogHash": "sha256:e266595bc77bb0518e6bfa859bfb6c10e13afa8ea81041c96db284c6a45a7cd4",
+  "docsHash": "sha256:305bb864150c69d467880e2d7f81c285f09b39e4ce780009aae196443d5301c4",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -1042,6 +1042,10 @@
     },
     "reliefDesign": {
       "tools": [
+        "reliefDesignReference",
+        "files.register",
+        "files.read",
+        "files.release",
         "reliefDesignField",
         "meshHeightfieldRelief",
         "document.reliefDesign",
@@ -1052,7 +1056,7 @@
         "files.open"
       ],
       "method": "execute",
-      "usage": "人工毫米设计约束：支撑、孔/保护区域和高度点；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；reliefDesignField求解/取消/残差读回，candidate生成受支持矩形meshHeightfieldRelief参数，再feature.add实际提交；孔圆形保护几何明确阻断。"
+      "usage": "人工毫米设计约束：支撑、孔/保护区域和高度点；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；reliefDesignField求解/取消/残差读回，candidate保留采样圆/矩形、孔和作者保护基线，再feature.add实际提交rawMesh；原图通过reliefDesignReference从登记资源attach/detach/get/resource，保存原始字节及历史引用，不从亮度推断高度。"
     },
     "reliefSculpt": {
       "tools": [
@@ -1583,7 +1587,7 @@
     "reference.alignSelectedFace": "queryGeometry / 设置参考锚点（工作基准）",
     "renderQuality": "setRenderQuality",
     "downloadResource": "下载文件",
-    "reliefDesign": "设计草稿 / reliefDesignField / 高度图浮雕（网格） / 浮雕设计约束草稿 / getState / 撤销 / 重做 / 保存工程 / 打开工程",
+    "reliefDesign": "设计草稿 / reliefDesignReference / 登记文件资源 / 读取文件字节 / 释放文件资源 / reliefDesignField / 高度图浮雕（网格） / 浮雕设计约束草稿 / getState / 撤销 / 重做 / 保存工程 / 打开工程",
     "reliefSculpt": "精确浮雕精修 / sampleReliefHeight / prepareReliefSculpt / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
     "precisionSettings": "精度 / setDisplayPreferences",
     "themeSettings": "风格 / setDisplayPreferences",

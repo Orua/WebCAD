@@ -2,7 +2,7 @@
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.55.1",
+  "version": "1.55.2",
   "contextPolicy": "identity",
   "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
   "synonyms": [
@@ -75,6 +75,10 @@
         "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
       },
       {
+        "id": "reliefDesignReference",
+        "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
+      },
+      {
         "id": "reliefDesignField",
         "chooseWhen": "从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。"
       },
@@ -97,5 +101,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:b2c749a8f5fbaad07836b029ad2aa3a202f8ac9ad37f55422f69234ecdbb4681"
+  "docsHash": "sha256:18627975d60d60f9c52af0b69772fb512e9bca39e2dac6798309fa781fd5cad4"
 }

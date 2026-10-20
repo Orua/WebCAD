@@ -2920,5 +2920,18 @@
       "public operation contract validation",
       "one 17674 page commit and save/open of same sample"
     ]
+  },
+  "reliefReferencePersistence20261021": {
+    "localImpact": "Reference source bytes attach/read/detach through current CommandService, existing resource API and compact design dialog; no geometry calculation",
+    "servicesImpact": "none: image decoding/storage local, no image upload or server algorithm",
+    "logoImpact": "none: image reference does not invoke vector conversion or machining",
+    "contractImpact": "reliefDesignReference page method with registered-source hash/size and current draft revision; API1.55.2; mutation scope cad.edit",
+    "documentImpact": "v4 binaryAssets/imports reference-image stored with durable draft metadata, retained across history and pruned with existing history reachability",
+    "cacheImpact": "new docs/catalog and application identity; draft revision invalidates solved field",
+    "requiredTests": [
+      "reference integrity and scoped public method",
+      "v4 container history and source-byte persistence",
+      "one real provided PNG attach/preview/save/open/original-byte readback at17674"
+    ]
   }
 }

@@ -1,4 +1,5 @@
 import {validateReliefDesigns,updateReliefDesigns} from './relief-design-drafts.js';
+import {applyReliefDesignReference,readReliefDesignReference} from './relief-design-reference.js';
 import {legacyReliefParams} from './relief-param-migration.js';
 import {markTopologySemantics} from './legacy-topology-policy.js';
 import {intentForUIParameterEdit} from './machining-intent.js';
@@ -979,6 +980,7 @@ async function executeAI(command,args={},options={}){
       refresh();return aiState();
     }
     if(action==='document.reliefDesign'){next.reliefDesigns=updateReliefDesigns(documentModel.reliefDesigns,a);if(JSON.stringify(next.reliefDesigns)===JSON.stringify(documentModel.reliefDesigns||[]))return aiState();}
+    if(action==='document.reliefDesignReference'){const updated=applyReliefDesignReference(documentModel,a);if(JSON.stringify(updated.reliefDesigns)===JSON.stringify(documentModel.reliefDesigns||[]))return aiState();Object.assign(next,updated);}
     if(action==='document.rename')next.name=a.name.trim();
     if(action==='feature.rename')next.features.find(f=>f.id===a.featureId).name=a.name.trim();
     if(action==='body.visibility')next.hidden=[...new Set([...next.hidden.filter(id=>!a.bodyIds.includes(id)),...(a.visible?[]:a.bodyIds)])];
@@ -986,7 +988,7 @@ async function executeAI(command,args={},options={}){
     if(action==='body.appearance')for(const id of a.bodyIds){
       for(const [field,value] of [['colors',a.color],['appearance',a.finish]])if(value!==undefined){next[field]={...next[field]};if(value===null)delete next[field][id];else next[field][id]=value;}
     }
-    checkTransaction(options.signal,options.expectedRevision);pushUndo(next,EDITOR_ACTIONS[action]?.title);documentModel=next;dirty=true;revision++;
+    checkTransaction(options.signal,options.expectedRevision);pushUndo(next,EDITOR_ACTIONS[action]?.title||(action==='document.reliefDesignReference'?'浮雕原参考图绑定':undefined));documentModel=next;dirty=true;revision++;
     if(action==='feature.rename'){const body=bodies.find(b=>b.id===a.featureId);if(body)body.name=a.name.trim();}
     lastWarnings=[];
     if(origin==='agent'&&action==='body.appearance'&&a.color!==undefined&&a.finish&&a.finish!=='design')lastWarnings.push({code:'COLOR_IGNORED_BY_METAL_FINISH',finish:a.finish,color:a.color});
@@ -1068,6 +1070,8 @@ const commandService=createCommandService({
   query:args=>request('queryGeometry',args),
 });
 const pageAPI=createPageAPI({
+  reliefReferenceRead:(designId,options)=>readReliefDesignReference(documentModel,designId,options),
+  reliefReferenceCommit:input=>commandService.execute(input,{fromUI:true,referenceResourceValidated:true}),
   recoverKernel:async({stopRunning=false}={})=>{
     if(kernelReady&&!busy&&!recoveryPromise&&!stopRunning)return {status:'read',recovered:true,alreadyReady:true,context:pageAPI.getState().context};
     if(recoveryPromise){await recoveryPromise;return {status:'read',recovered:kernelReady,context:pageAPI.getState().context};}

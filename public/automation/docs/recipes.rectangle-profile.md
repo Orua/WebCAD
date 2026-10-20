@@ -5,6 +5,7 @@
 用户要求成体并给出厚度后，读取 profileExtrude 卡；把该用户明确给出的正毫米厚度记为 userDepthMm，步骤为 {id:"solid",method:"add",args:{op:"profileExtrude",refs:[{$ref:"outline.createdBodyIds.0"}],params:{operation:"newBody",extent:"distance",distanceMm:userDepthMm,direction:1}}。可以放在 outline 后的同一 run 批次；分批时使用闭面回执的真实 bodyId 和新鲜 context。distanceMm 不从二维 heightMm 推导，也不沿用示例默认值。厚度或拉伸正负方向缺失且会影响任务结果时，先向用户确认；只画闭面不需要厚度。检查闭面 solidCount=0、faceCount=1、面积1200 mm²，成体单实体体积为1200×userDepthMm mm³，以及当前 rendered revision。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
 reviewLogo: contextPolicy=identity
