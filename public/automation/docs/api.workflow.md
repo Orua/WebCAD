@@ -25,6 +25,8 @@ await api.run({context:c.requestContext,idempotencyKey:crypto.randomUUID(),steps
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
 getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision

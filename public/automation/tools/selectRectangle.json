@@ -2,7 +2,7 @@
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "contextPolicy": "identity",
   "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
   "synonyms": [
@@ -28,6 +28,10 @@
     "groupTitle": "名称、外观与显示",
     "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。",
     "alternatives": [
+      {
+        "id": "document.reliefDesign",
+        "chooseWhen": "保存人工毫米设计约束草稿；支撑/孔/保护/高度点，随工程撤销重开，不求解高度场或生成加工几何。"
+      },
       {
         "id": "document.rename",
         "chooseWhen": "只改工程名，不改每个实体名称。"
@@ -71,5 +75,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:8b3e6ddc903f1dda464fc008087c083f13274ed83847b9f4f59977d1753ef803"
+  "docsHash": "sha256:0b8dcd0bec15d03b8bee4fe2f3f8c64dc8a1443d7eba58486531d7b861261daf"
 }

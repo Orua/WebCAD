@@ -7,7 +7,8 @@ import {createBrowserFiles} from './browser-files.js';
 import {FILE_ARGUMENT_KEYS} from './browser-file-contracts.js';
 import {validateDisplayPreferences} from './display-preferences.js';
 import {createPageBatch} from './page-batch.js';
-import {readBrowserLogo} from './browser-logo-input.js';
+import {readBrowserLogo,getLogoWizardState,actLogoWizard,getLogoWizardReviewBinding,refreshLogoWizardReview} from './browser-logo-input.js';
+import {createLogoReviewSession,logoReviewArtifacts} from './logo-vector-review.js';
 import {logoDXF} from './logo-dxf.js';
 import {getLogoConverterConfig,setLogoConverterConfig} from './logo-converter-settings.js';
 import {getServicesConfig,saveServicesConfig,clearServicesCredential} from './services/settings.js';
@@ -29,12 +30,14 @@ import {planPatternMachining,validateMachiningIntent} from './machining-intent.j
 import {readReliefImage} from './relief-image.js';
 import {prepareReliefSculpt,sampleReliefHeight,reliefLayerParams} from './relief-sculpt.js';
 import {planReliefTopologyUpgrade} from './services/relief-plan.js';
+import {reliefSculptPreflight} from './services/relief-sculpt-preflight.js';
 import {geometryRecipeFingerprint} from './services/geometry-exchange.js';
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 import {assertHistoryEditSafe} from './history-edit-safety.js';
 import {validateDesignRequirements} from './design-inspection.js';
 import {normalizeOperationParams} from './operation-registry.js';
 import {modelLibrary} from './model-library.js';
+import {errorRecovery,withErrorRecovery} from './error-recovery.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 
@@ -57,9 +60,12 @@ function bodyChanges(sinceRevision,state){
 }
 
 export function createPageAPI(host){
+  const explainThrown=error=>{if(error&&typeof error==='object'){if(error.result)error.result=withErrorRecovery(error.result);const recovery=errorRecovery(error,error.result||{});Object.assign(error,{userMessage:recovery.userMessage,recovery});}throw error;};
+  // Preserve sync discovery/direct file behavior; enrich both throws and Promise rejections.
+  const explained=fn=>(...args)=>{try{const result=fn(...args);return result&&typeof result.then==='function'?result.then(withErrorRecovery,explainThrown):withErrorRecovery(result);}catch(error){return explainThrown(error);}};
   const requestPolicies=new WeakMap();
   const current=()=>host.state();
-  const failure=e=>({status:e.status==='unknown'||e.commitState==='unknown'?'unknown':'failed',commitState:e.commitState==='unknown'||e.status==='unknown'?'unknown':'not_committed',error:{...(e.jobId?{jobId:e.jobId}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:e.retryable===true,recoveryAction:e.recoveryAction||((e.commitState==='unknown'||e.status==='unknown')?'RECONCILE_ORIGINAL_REQUEST':null)||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
+  const failure=e=>withErrorRecovery({status:e.status==='unknown'||e.commitState==='unknown'?'unknown':'failed',commitState:e.commitState==='unknown'||e.status==='unknown'?'unknown':'not_committed',error:{...(e.jobId?{jobId:e.jobId}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:e.retryable===true,recoveryAction:e.recoveryAction||((e.commitState==='unknown'||e.status==='unknown')?'RECONCILE_ORIGINAL_REQUEST':null)||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
   const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
   function check(input,keys,requiredContext=true){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!keys.includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected request fields');
@@ -73,17 +79,80 @@ export function createPageAPI(host){
     if(s.summary.busy||!s.summary.kernelReady||s.preview.active||s.preview.computing)fail('CAPABILITY_UNAVAILABLE','Finish computation/preview before this request');
     return s;
   }
-  const guarded=fn=>async(input={})=>{try{const mode=requestPolicies.get(input),request=normalizeRequest(input);if(mode)requestPolicies.set(request,mode);return await fn(request);}catch(e){return failure(e);}};
+  const guarded=fn=>async(input={})=>{try{const mode=requestPolicies.get(input),request=normalizeRequest(input);if(mode)requestPolicies.set(request,mode);return withErrorRecovery(await fn(request));}catch(e){return failure(e);}};
   const rawFiles=createBrowserFiles({command:input=>host.files(input),confirmSaved:host.confirmSaved});
-  const files=Object.fromEntries(Object.entries(FILE_ARGUMENT_KEYS).map(([key,keys])=>[key,(input={})=>{
+  const files=Object.fromEntries(Object.entries(FILE_ARGUMENT_KEYS).map(([key,keys])=>[key,explained((input={})=>{
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(name=>!keys.includes(name)))fail('PARAM_SCHEMA_INVALID',`Unexpected files.${key} arguments`);
     return rawFiles[key](normalizeRequest(input));
-  }]));
+  })]));
   const viewKeys=['context','interactionPhase','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels','toolbar','workspace','libraryMode','focus','modelLibraryChange'];
   const pasteReceipts=new Map();
   const vectorCache=new Map();
   const drawingCache=new Map();
   const logoCache=new Map();
+  function cachedLogo(logoId,s){
+    const cached=logoCache.get(logoId);
+    if(!cached||cached.documentInstanceId!==s.context.documentInstanceId)fail('RESOURCE_EXPIRED','Read the original LOGO again in this document');
+    if(cached.wizardBinding?.valid===false){releaseLogoEntry(logoId,cached);fail('RESOURCE_EXPIRED','The wizard source or parameters changed; attach the current draft again');}
+    const state=cached.reviewSession.get();cached.logo=state.logo;
+    if(cached.artifactRevision!==state.revision&&cached.resources?.length)releaseLogoArtifacts(cached);
+    return cached;
+  }
+  function releaseLogoArtifacts(cached){
+    for(const item of cached.resources||[])try{rawFiles.release({resourceId:item.resourceId});}catch(error){if(!['RESOURCE_EXPIRED','RESOURCE_BUSY'].includes(error.code))throw error;}
+    cached.resources=[];
+  }
+  function releaseLogoEntry(id,cached){
+    releaseLogoArtifacts(cached);
+    if(cached.sourceOwned&&cached.sourceResourceId)try{rawFiles.release({resourceId:cached.sourceResourceId});}catch(error){if(!['RESOURCE_EXPIRED','RESOURCE_BUSY'].includes(error.code))throw error;}
+    if(cached.wizardBinding?.info?.logoId===id)cached.wizardBinding.info=null;
+    logoCache.delete(id);
+  }
+  function addLogoEntry(cached){
+    while(logoCache.size>=4){const id=logoCache.keys().next().value;releaseLogoEntry(id,logoCache.get(id));}
+    const logoId=crypto.randomUUID();cached.logoId=logoId;logoCache.set(logoId,cached);return logoId;
+  }
+  function assertLogoSnapshot(cached,s,revision){
+    if(logoCache.get(cached.logoId)!==cached||cached.wizardBinding?.valid===false||current().context.documentInstanceId!==cached.documentInstanceId||current().context.revision!==s.context.revision||cached.reviewSession.get().revision!==revision)fail('LOGO_REVIEW_STALE','LOGO or document changed while preparing resources; read the current draft');
+  }
+  async function attachWizard(s,expectedRevision){
+    const state=getLogoWizardState(),binding=getLogoWizardReviewBinding();
+    if(!state.open)fail('LOGO_WIZARD_CLOSED','Open the LOGO wizard before attaching its draft');
+    if(expectedRevision!==state.revision)fail('LOGO_REVIEW_STALE','Read the current wizard revision before attaching');
+    if(!binding?.valid||!binding.session)fail('LOGO_REVIEW_REQUIRED','Read a LOGO source before attaching the wizard');
+    if(binding.registrationPending)fail('LOGO_WIZARD_BUSY','Wait for the original wizard source registration');
+    const existing=[...logoCache.values()].find(c=>c.reviewSession===binding.session&&c.documentInstanceId===s.context.documentInstanceId);
+    if(existing){existing.wizardBinding=binding;binding.info={logoId:existing.logoId,sourceResourceId:existing.sourceResourceId??null,sourceStatus:existing.sourceResourceId?'registered':'unavailable-original'};return cachedLogo(existing.logoId,s);}
+    // Four raster drafts can occupy all 32 resources (source + seven artifacts).
+    // Free the oldest owned slot before hashing/registering the fifth source.
+    while(logoCache.size>=4){const id=logoCache.keys().next().value;releaseLogoEntry(id,logoCache.get(id));}
+    binding.registrationPending=true;let source=null;
+    try{
+      if(binding.sourceFile)source=await rawFiles.register({name:binding.sourceFile.name,data:binding.sourceFile,mime:binding.sourceFile.type});
+      if(getLogoWizardReviewBinding()!==binding||!binding.valid||getLogoWizardState().revision!==expectedRevision||current().context.documentInstanceId!==s.context.documentInstanceId||current().context.revision!==s.context.revision)fail('LOGO_REVIEW_STALE','Wizard or document changed during source registration');
+      const review=binding.session.get(),cached={logo:review.logo,reviewSession:binding.session,wizardBinding:binding,sourceResourceId:source?.resourceId??null,sourceResource:source,sourceName:binding.sourceFile?.name??null,sourceOwned:!!source,documentInstanceId:s.context.documentInstanceId};
+      const logoId=addLogoEntry(cached);binding.info={logoId,sourceResourceId:cached.sourceResourceId,sourceStatus:source?'registered':'unavailable-original'};return cached;
+    }catch(error){if(source)try{rawFiles.release({resourceId:source.resourceId});}catch{}throw error;}
+    finally{binding.registrationPending=false;}
+  }
+  async function logoResources(cached,s){
+    const state=cached.reviewSession.get();
+    if(cached.artifactRevision===state.revision&&cached.resources?.every(r=>r.expiresAt>Date.now())){
+      try{for(const item of cached.resources)await rawFiles.read({resourceId:item.resourceId});assertLogoSnapshot(cached,s,state.revision);return cached.resources;}catch(error){if(error.code!=='RESOURCE_EXPIRED'){releaseLogoArtifacts(cached);throw error;}}
+    }
+    if(cached.artifactPending)fail('LOGO_WIZARD_BUSY','LOGO artifacts are being prepared; read the original request result');
+    cached.artifactPending=true;
+    const resources=[];
+    try{
+      releaseLogoArtifacts(cached);
+      for(const {text,...item} of logoReviewArtifacts(state.logo)){
+        resources.push({...item,...await rawFiles.generated({bytes:new TextEncoder().encode(text),name:item.name,mime:item.mime,context:s.context}),reviewRevision:state.revision});
+      }
+      assertLogoSnapshot(cached,s,state.revision);
+      cached.resources=resources;cached.artifactRevision=state.revision;return resources;
+    }catch(error){for(const item of resources)try{rawFiles.release({resourceId:item.resourceId});}catch{}throw error;}
+    finally{cached.artifactPending=false;}
+  }
   const api={
     getAgentPanel:()=>window.webcad.assistantPanel.get(),
     configureAgentPanel:guarded(async input=>{check(input,['context','url']);if(typeof input.url!=='string')fail('PARAM_SCHEMA_INVALID','url must be a string');return window.webcad.assistantPanel.configure(input.url);}),
@@ -103,13 +172,13 @@ export function createPageAPI(host){
       const s=check(input,['context','drawingId','logoId','format','disabledDimensions','title','paper','name']);
       if(input.logoId!==undefined){
         if(input.drawingId!==undefined||['disabledDimensions','title','paper'].some(key=>input[key]!==undefined))fail('PARAM_SCHEMA_INVALID','Choose either an existing drawingId or a LOGO logoId.');
-        const cached=logoCache.get(input.logoId),format=input.format??'dxf';
-        if(!cached||cached.documentInstanceId!==s.context.documentInstanceId)fail('RESOURCE_EXPIRED','Read the source LOGO in this page instance; only the latest four reads are retained.');
+        const cached=cachedLogo(input.logoId,s),format=input.format??'dxf',snapshot=cached.reviewSession.get(),logo=snapshot.logo;
         if(!['dxf','json'].includes(format))fail('FORMAT_UNSUPPORTED','LOGO export supports dxf or json.');
         if(input.name!==undefined&&(typeof input.name!=='string'||!input.name.toLowerCase().endsWith(format==='dxf'?'.dxf':'.logo.json')))fail('PARAM_SCHEMA_INVALID','Use a .dxf or .logo.json basename matching the format.');
-        const text=format==='dxf'?logoDXF(cached.logo):JSON.stringify(cached.logo);
+        const text=format==='dxf'?logoDXF(logo):JSON.stringify({...logo,type:'webcad-logo',version:1,units:'mm'});
         const artifact=await rawFiles.generated({bytes:new TextEncoder().encode(text),name:input.name||(format==='dxf'?'logo.dxf':'logo.logo.json'),mime:format==='dxf'?'application/dxf':'application/json',context:s.context});
-        return {...artifact,reviewRequired:cached.logo.source?.reviewed!==true,source:structuredClone(cached.logo.source||{}),contours:{regions:cached.logo.regions.length,holes:cached.logo.regions.reduce((n,r)=>n+(r.holes?.length||0),0),units:'mm'}};
+        try{assertLogoSnapshot(cached,s,snapshot.revision);}catch(error){try{rawFiles.release({resourceId:artifact.resourceId});}catch{}throw error;}
+        return {...artifact,reviewRevision:snapshot.revision,reviewRequired:logo.source?.reviewed!==true,source:structuredClone(logo.source||{}),contours:{regions:logo.regions.length,holes:logo.regions.reduce((n,r)=>n+(r.holes?.length||0),0),units:'mm'}};
       }
       const cached=drawingCache.get(input.drawingId);
       if(!cached||['documentInstanceId','revision'].some(k=>cached.context[k]!==s.context[k]))fail('STALE_REFERENCE','Regenerate drawing for current model');
@@ -174,7 +243,7 @@ export function createPageAPI(host){
         if(input.fields!==undefined&&(!Array.isArray(input.fields)||!input.fields.length||input.fields.length>32||input.fields.some(x=>typeof x!=='string'||!x.length||x.length>40)))fail('PARAM_SCHEMA_INVALID','fields must list 1..32 top-level state field names');
         if(input.sinceRevision!==undefined&&(!Number.isInteger(input.sinceRevision)||input.sinceRevision<0))fail('PARAM_SCHEMA_INVALID','sinceRevision must be a non-negative integer');
         if(input.compact!==undefined&&typeof input.compact!=='boolean')fail('PARAM_SCHEMA_INVALID','compact must be boolean');
-        if(input.include!==undefined&&(!Array.isArray(input.include)||input.include.some(x=>!['summary','features','bodies','bodiesLite','selection','capabilities','references'].includes(x))))fail('PARAM_SCHEMA_INVALID','include supports summary/features/bodies/bodiesLite/selection/capabilities/references. For appearance use fields:["appearance","colors","renderFinish"] instead.');
+        if(input.include!==undefined&&(!Array.isArray(input.include)||input.include.some(x=>!['summary','features','bodies','bodiesLite','selection','capabilities','references','reliefDesigns'].includes(x))))fail('PARAM_SCHEMA_INVALID','include supports summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns. For appearance use fields:["appearance","colors","renderFinish"] instead.');
       }else if(input&&(typeof input!=='object'||Array.isArray(input)))fail('PARAM_SCHEMA_INVALID','getState takes an object');
       const {fields,sinceRevision,...stateInput}=input||{};
       const state=host.state(stateInput);
@@ -196,7 +265,7 @@ export function createPageAPI(host){
     resolveModelLibrary:guarded(input=>{check(input,['context','id','expectedLibraryRevision','params']);const {context,...request}=input;return {status:'read',...modelLibrary.resolve(request),context:current().context};}),
     createRequestContext:(context=current().context)=>requestContext(context),
     searchTools:input=>searchTools(input,{browserReady:current().summary.kernelReady}),getTools,getTool,readDocs,
-    execute:async input=>{let request;try{request=normalizeRequest(input);}catch(e){return failure(e);}let submitted=false;try{if(request?.action==='preview.start'&&request.args?.fileImport){const file=request.args.fileImport;if(Object.keys(request.args).some(key=>key!=='fileImport')||!file||typeof file!=='object'||Object.keys(file).some(key=>!['resourceId','name','placement'].includes(key)))fail('PARAM_SCHEMA_INVALID','File preview takes only fileImport with resourceId and placement');const source=await rawFiles.previewInput({resourceId:file.resourceId});request={...request,args:{fileImport:{...source,resourceId:file.resourceId,placement:file.placement}}};}submitted=true;return await host.execute(request);}catch(e){return submitted?{...failure(e),status:'unknown',commitState:'unknown',error:{...failure(e).error,recoveryAction:'INSPECT_STATE_BEFORE_RETRY'}}:failure(e);}},queryGeometry:guarded(input=>host.query(input)),
+    execute:async input=>{let request;try{request=normalizeRequest(input);}catch(e){return failure(e);}let submitted=false;try{if(request?.action==='preview.start'&&request.args?.fileImport){const file=request.args.fileImport;if(Object.keys(request.args).some(key=>key!=='fileImport')||!file||typeof file!=='object'||Object.keys(file).some(key=>!['resourceId','name','placement'].includes(key)))fail('PARAM_SCHEMA_INVALID','File preview takes only fileImport with resourceId and placement');const source=await rawFiles.previewInput({resourceId:file.resourceId});request={...request,args:{fileImport:{...source,resourceId:file.resourceId,placement:file.placement}}};}submitted=true;return withErrorRecovery(await host.execute(request));}catch(e){return submitted?withErrorRecovery({...failure(e),status:'unknown',commitState:'unknown',error:{...failure(e).error,recoveryAction:'INSPECT_STATE_BEFORE_RETRY'}}):failure(e);}},queryGeometry:guarded(input=>host.query(input)),
     queryReferences:guarded(async input=>{check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);const request=validateReferenceQuery(input),result=await host.references(request);check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);return result;}),
     resolvePlacement:guarded(async input=>{check(input,['context','op','params','refs','placement']);if(typeof input.op!=='string'||!Array.isArray(input.refs)||input.refs.some(id=>typeof id!=='string')||!input.params||typeof input.params!=='object')fail('PARAM_SCHEMA_INVALID','op, params and refs required');const result=await host.resolvePlacement(input);check(input,['context','op','params','refs','placement']);return result;}),
     setRenderQuality:guarded(async input=>{check(input,['context','quality']);renderQuality(input.quality);await host.quality(input.quality);check(input,['context','quality']);return {status:'applied',context:current().context,renderQuality:current().renderQuality,display:host.display()};}),
@@ -370,19 +439,55 @@ export function createPageAPI(host){
       const result=prepareReliefSculpt(params,input.strokes,{layerIndex:input.layerIndex,patch:input.patch});
       let blockers=[];
       try{assertHistoryEditSafe(s,{features:s.features.map(f=>f.id===feature.id?{...f,params:{...f.params,...result.params}}:f)});}catch(e){if(e.code!=='UNSAFE_LEGACY_REFERENCE')throw e;blockers=[{code:e.code,message:e.message,affectedFeatureIds:e.affectedFeatureIds}];}
-      return {status:'prepared',featureId:feature.id,...result,canCommit:!blockers.length,blockers,context:current().context};
+      const executionCheck=reliefSculptPreflight({...feature,params:{...feature.params,...result.params}});
+      blockers.push(...executionCheck.blockers);
+      return {status:'prepared',featureId:feature.id,...result,executionCheck,canCommit:!blockers.length,blockers,context:current().context};
     }),
     planPatternMachining:guarded(input=>{
       check(input,['context','intent']);return {...planPatternMachining(input.intent),context:current().context};
     }),
     readLogo:guarded(async input=>{
-      const keys=['context','resourceId','name','targetWidthMm','page','sizeConfirmed','allowUpload','raster'];check(input,keys);
+      const keys=['context','resourceId','name','targetWidthMm','page','sizeConfirmed','allowUpload','raster','pdfJoinToleranceMm'];check(input,keys);
       if(typeof input.resourceId!=='string'||!input.resourceId||typeof input.name!=='string'||!input.name||input.name.length>255)fail('PARAM_SCHEMA_INVALID','Provide the selected LOGO resourceId and its file name');
       const blob=await rawFiles.read({resourceId:input.resourceId});
       const logo=await readBrowserLogo(new File([blob],input.name),x=>x,input);check(input,keys);
-      const logoId=crypto.randomUUID();while(logoCache.size>=4)logoCache.delete(logoCache.keys().next().value);
-      logoCache.set(logoId,{logo:structuredClone(logo),documentInstanceId:current().context.documentInstanceId});
-      return {status:'read',context:current().context,logoId,logo,reviewRequired:true,nextAction:'Export the exact read contours with exportDrawing({context,logoId,format:"dxf"}); no workspace script or write is required. Before machining, review contours, holes and size; set source.reviewed=true only after that review.'};
+      const cached={logo:structuredClone(logo),reviewSession:createLogoReviewSession(logo),sourceResourceId:input.resourceId,sourceName:input.name,documentInstanceId:current().context.documentInstanceId};
+      const logoId=addLogoEntry(cached);
+      return {status:'read',context:current().context,logoId,logo,review:cached.reviewSession.get(),sourceResourceId:input.resourceId,reviewRequired:true,nextAction:'Use reviewLogo get/select/setPoint/deletePoint/deleteContour/undo/confirm for explicit contour review. reviewLogo action artifacts generates JSON/SVG/DXF/report resources; files.read/download retrieves them. Independent exportDrawing remains available. No geometry is committed by review.'};
+    }),
+    reviewLogo:guarded(async input=>{
+      const keys=['context','logoId','action','expectedRevision','regionIndex','holeIndex','pointIndex','pointMm','confirmed'],s=check(input,keys),cached=cachedLogo(input.logoId,s),action=input.action??'get';
+      if(typeof action!=='string')fail('PARAM_SCHEMA_INVALID','Provide a LOGO review action');
+      if(cached.artifactPending&&action!=='get')fail('LOGO_WIZARD_BUSY','Wait for the original artifact request');
+      if(action==='artifacts'){
+        if(input.expectedRevision!==cached.reviewSession.get().revision)fail('LOGO_REVIEW_STALE','Read current review revision before exporting');
+        const resources=await logoResources(cached,s);
+        return {status:'generated',logoId:input.logoId,sourceResourceId:cached.sourceResourceId,review:cached.reviewSession.get(),resources,context:current().context};
+      }
+      const review=cached.reviewSession.act({...input,action});cached.logo=review.logo;
+      if(action!=='get')refreshLogoWizardReview(cached.reviewSession);
+      return {status:action==='get'?'read':'applied',logoId:input.logoId,sourceResourceId:cached.sourceResourceId,review,resources:cached.artifactRevision===review.revision?cached.resources||[]:[],context:current().context};
+    }),
+    logoWizard:guarded(async input=>{
+      const keys=['context','action','expectedRevision','parameters','logoId','regionIndex','holeIndex','pointIndex','pointMm','confirmed','allowUpload'],s=check(input,keys),action=input.action??'get';
+      if(input.allowUpload!==undefined&&typeof input.allowUpload!=='boolean')fail('PARAM_SCHEMA_INVALID','allowUpload must be boolean');
+      if(action==='get')return {status:'read',wizard:getLogoWizardState(),context:s.context};
+      if(action==='attach'||action==='artifacts'){
+        const cached=await attachWizard(s,input.expectedRevision),review=cached.reviewSession.get(),resources=action==='artifacts'?await logoResources(cached,s):[];
+        check(input,keys);
+        return {status:action==='artifacts'?'generated':'attached',logoId:cached.logoId,sourceResourceId:cached.sourceResourceId,sourceResource:cached.sourceResource??null,sourceStatus:cached.sourceResourceId?'registered':'unavailable-original',review,resources,wizard:getLogoWizardState(),context:current().context};
+      }
+      let request={...input,action};
+      if(action==='load'){
+        const cached=cachedLogo(input.logoId,s),blob=cached.sourceResourceId?await rawFiles.read({resourceId:cached.sourceResourceId}):null;check(input,keys);
+        request={...request,logo:cached.reviewSession.get().logo,sourceFile:blob?new File([blob],cached.sourceName):null,reviewSession:cached.reviewSession};
+      }
+      const wizard=await actLogoWizard(request);check(input,keys);
+      if(action==='load'){
+        const binding=getLogoWizardReviewBinding(),cached=logoCache.get(input.logoId);if(!cached||cached.reviewSession!==request.reviewSession)fail('RESOURCE_EXPIRED','The LOGO cache changed during wizard loading');cached.wizardBinding=binding;binding.info={logoId:input.logoId,sourceResourceId:cached.sourceResourceId??null,sourceStatus:cached.sourceResourceId?'registered':'unavailable-original'};
+        return {status:'applied',wizard:getLogoWizardState(),context:current().context};
+      }
+      return {status:'applied',wizard,context:current().context};
     }),
     readRelief:guarded(async input=>{
       const keys=['context','resourceId','name','samples','whiteHigh','style','threshold','sourceInterpretation'];check(input,keys);
@@ -477,7 +582,7 @@ export function createPageAPI(host){
     getServicesJob:async input=>{if(!input||Object.keys(input).some(k=>k!=='jobId')||!/^[a-f0-9]{32}$/.test(input.jobId))fail('PARAM_SCHEMA_INVALID','Provide a Services jobId');return servicesClient.getJob(input.jobId);},
     cancelServicesJob:guarded(async input=>{check(input,['context','jobId']);if(!/^[a-f0-9]{32}$/.test(input.jobId))fail('PARAM_SCHEMA_INVALID','Provide a Services jobId');return servicesClient.cancelJob(input.jobId);}),
     setLogoConverter:guarded(async input=>{check(input,['context','url','key']);const result=setLogoConverterConfig(input);return {status:'applied',context:current().context,...result};}),
-    convertLogoPdf:guarded(async input=>{check(input,['context','name','data','targetWidthMm','page','sizeConfirmed','allowUpload']);if(typeof input.name!=='string'||!input.name.toLowerCase().endsWith('.pdf')||!(input.data instanceof Uint8Array||input.data instanceof ArrayBuffer||input.data instanceof Blob))fail('PARAM_SCHEMA_INVALID','Provide PDF bytes and filename');const file=new File([input.data],input.name,{type:'application/pdf'});const logo=await readBrowserLogo(file,x=>x,{targetWidthMm:input.targetWidthMm,page:input.page,sizeConfirmed:input.sizeConfirmed,allowUpload:input.allowUpload});return {status:'read',context:current().context,logo};}),
+    convertLogoPdf:guarded(async input=>{check(input,['context','name','data','targetWidthMm','page','sizeConfirmed','allowUpload','pdfJoinToleranceMm']);if(typeof input.name!=='string'||!input.name.toLowerCase().endsWith('.pdf')||!(input.data instanceof Uint8Array||input.data instanceof ArrayBuffer||input.data instanceof Blob))fail('PARAM_SCHEMA_INVALID','Provide PDF bytes and filename');const file=new File([input.data],input.name,{type:'application/pdf'});const logo=await readBrowserLogo(file,x=>x,{targetWidthMm:input.targetWidthMm,page:input.page,pdfJoinToleranceMm:input.pdfJoinToleranceMm,sizeConfirmed:input.sizeConfirmed,allowUpload:input.allowUpload});return {status:'read',context:current().context,logo};}),
     redraw:guarded(async input=>{check(input,['context']);await host.redraw();check(input,['context']);return {status:'read',context:current().context,display:host.display()};}),
     capture:guarded(async input=>{
       check(input,['context','maxWidth','format','quality']);
@@ -507,8 +612,8 @@ export function createPageAPI(host){
     try{
       if(!input||Object.keys(input).some(k=>!['method','args'].includes(k))||!callable.has(input.method))fail('PARAM_SCHEMA_INVALID','Unknown method; read info().methods');
       const [name,member]=input.method.split('.');
-      return await (member?api[name][member](input.args):api[name](input.args));
-    }catch(e){return e.result||failure(e);}
+      return withErrorRecovery(await (member?api[name][member](input.args):api[name](input.args)));
+    }catch(e){return withErrorRecovery(e.result||failure(e));}
   };
   Object.assign(api,createPageJobs(api,{runBatch:(args,control)=>run(args,control)}));
   api.waitFor=createPageWait({getState:()=>api.getState(),getJob:input=>api.getJob(input)});
@@ -517,6 +622,7 @@ export function createPageAPI(host){
     const original=api[name];api[name]=async(input={})=>{try{const c=identityContext(input.context),s=current();for(const key of ['sessionId','documentId','documentInstanceId'])if(c[key]!==s.context[key])fail('INSTANCE_MISMATCH',`Stale ${key}`);const request={...input,context:{...c,expectedRevision:s.context.revision}};requestPolicies.set(request,'identity');return await original(request);}catch(e){return failure(e);}};
   }
   api.contextPolicies=Object.freeze(Object.fromEntries([...Object.keys(api).filter(k=>typeof api[k]==='function'),...Object.keys(files).map(k=>'files.'+k)].map(name=>[name,contextPolicy(name)])));
+  for(const name of Object.keys(api))if(typeof api[name]==='function')api[name]=explained(api[name]);
   // Native host mode (in-page only; not callable through invoke/agents and not part of the agent contract):
   // the embedding host is told when document identity, revision or readiness changes so it can push a fresh
   // compact snapshot. Cheap key comparison on a short timer; the callback fires once the key is stable.

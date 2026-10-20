@@ -1,4 +1,5 @@
 import {assertJsonValue,validateSchema,contractError} from './contracts/operation-schema.js';
+import {legacyReliefParams} from './relief-param-migration.js';
 
 // Geometry intent is declared by the caller from the user's request. Keyword
 // discovery never supplies it, and this module never estimates image depth.
@@ -41,20 +42,21 @@ export function planPatternMachining(value){
  if(['constantDepthContours','layeredRelief'].includes(intent.requestedGeometry)&&!intent.specifiedDepthsMm)missing('specifiedDepthsMm');
  const block=(code,message)=>capabilityBlockers.push({code,message});
  if(intent.requestedGeometry==='constantDepthContours'&&intent.specifiedDepthsMm?.length!==1&&intent.specifiedDepthsMm)block('INTENT_CONFLICT','A constant-depth operation needs exactly one depth.');
- if(intent.requestedGeometry==='continuousRelief'&&intent.sourceInterpretation!=='authoredHeightMap')block('CONTINUOUS_SCULPT_UNAVAILABLE','Semantic body/detail reconstruction and mesh sculpting are not enabled; keep the continuous-relief target.');
+ if(intent.requestedGeometry==='continuousRelief'&&!['authoredHeightMap','sculptMesh'].includes(intent.sourceInterpretation))block('CONTINUOUS_SCULPT_UNAVAILABLE','Automatic reconstruction of body/detail depth from an artwork or shaded reference is not enabled; keep the continuous-relief target.');
  if(intent.sourceInterpretation==='shadedReference'){
   reasonCodes.push('LIGHTING_IS_NOT_DEPTH');
   if(intent.requestedGeometry!=='continuousRelief'&&intent.requestedGeometry!=='mixed')block('INTENT_CONFLICT','A shaded reference requires an explicit reviewed contour/height design before this operation.');
  }
- if(intent.sourceInterpretation==='sculptMesh')block('MESH_PIPELINE_UNAVAILABLE','Mesh source preservation/operations are not enabled yet.');
+ if(intent.sourceInterpretation==='sculptMesh')block('MESH_SOURCE_CLASSIFICATION_REQUIRED','Mesh preservation and bounded editing are available. Inspect the current source/recipe first: authored heightfield recipes use heightfieldSculpt; closed single-valued meshes may use sampleMeshRelief and meshReliefEdit within their capacity limits. Arbitrary 3D sculpting and precise STEP reconstruction are not implied.');
  if(intent.requestedGeometry==='continuousRelief'&&intent.targetPeakMm!==undefined)block('TARGET_PEAK_UNAVAILABLE','Legacy B-spline control scale does not guarantee actual peak height.');
  if(intent.requestedGeometry==='continuousRelief'&&intent.targetPeakMm===undefined&&!intent.specifiedDepthsMm)missing('targetPeakMm or explicit legacy control scale in specifiedDepthsMm');
  if(intent.requestedGeometry==='mixed')block('MIXED_PLAN_REQUIRED','Create separately bound continuous/layered and LOGO steps; this declaration cannot be submitted as one operation.');
- const sourcePreparationRequired=intent.sourceInterpretation==='rasterArtwork'?['review-closed-contours-and-retained-holes']:intent.sourceInterpretation==='shadedReference'?['design-footprint-macro-shape-details-and-protected-regions']:[];
+ const sourcePreparationRequired=intent.sourceInterpretation==='rasterArtwork'?['review-closed-contours-and-retained-holes']:intent.sourceInterpretation==='shadedReference'?['design-footprint-macro-shape-details-and-protected-regions']:intent.sourceInterpretation==='sculptMesh'?['inspect-current-mesh-recipe-geometry-and-capacity']:[];
  if(intent.sourceInterpretation==='rasterArtwork')block('SOURCE_PREPARATION_REQUIRED','Review the converted contour design before execution; preserve the original source hash.');
- const requiredTools=route==='logo'?['logo']:['layered-relief','continuous-relief'].includes(route)?['relief']:route==='mixed'?['relief','logo']:[];
+ const meshSource=intent.sourceInterpretation==='sculptMesh';
+ const requiredTools=meshSource?[]:route==='logo'?['logo']:['layered-relief','continuous-relief'].includes(route)?['relief']:route==='mixed'?['relief','logo']:[];
  return {status:'planned',intent,route,reasonCodes,matchedEvidence:[intent.userIntentEvidence],sourcePreparationRequired,
- requiredDocs:['api.pattern-machining',...(route==='logo'?['api.logo']:requiredTools.length?['api.relief']:[])],requiredTools,
+ requiredDocs:['api.pattern-machining',...(meshSource?['api.relief-taxonomy','api.mesh-relief-edit']:route==='logo'?['api.logo']:requiredTools.length?['api.relief']:[])],requiredTools,
  missingInputs,capabilityBlockers,canExecute:missingInputs.length===0&&capabilityBlockers.length===0,
  executionAuthority:'planning only; current face, source, placement, service route and kernel checks still apply',
  sourceEvidenceVerified:false,fallbackAllowed:false};
@@ -66,9 +68,10 @@ export const PATTERN_OPERATIONS=['logo','curvedLogo','relief'];
 export function intentForUIParameterEdit(op,params){
  if(!PATTERN_OPERATIONS.includes(op)||!params?.machiningIntent)return params;
  const intent=validateMachiningIntent(params.machiningIntent);
+ const runtime=legacyReliefParams(op,params);
  if(intent.direction!==undefined&&params.mode!==undefined)intent.direction=params.mode;
- if(['logo','curvedLogo'].includes(op)&&intent.specifiedDepthsMm&&params.depth!==undefined)intent.specifiedDepthsMm=[params.depth];
- if(op==='relief'&&intent.dimensionsMm&&params.widthMm!==undefined&&params.heightMm!==undefined)intent.dimensionsMm={width:params.widthMm,height:params.heightMm};
+ if(['logo','curvedLogo'].includes(op)&&intent.specifiedDepthsMm&&runtime.depth!==undefined)intent.specifiedDepthsMm=[runtime.depth];
+ if(op==='relief'&&intent.dimensionsMm&&runtime.widthMm!==undefined&&runtime.heightMm!==undefined)intent.dimensionsMm={width:runtime.widthMm,height:runtime.heightMm};
  return {...params,machiningIntent:intent};
 }
 export function assertPatternExecution(op,params,{required=false}={}){
@@ -91,7 +94,10 @@ export function assertPatternExecution(op,params,{required=false}={}){
  const hash=params.source?.sha256??params.source?.original?.sha256;
  if(intent.sourceHash&&hash&&hash!==intent.sourceHash)conflict('Source hash differs from the declared design.');
  if(params.source?.sourceInterpretation&&params.source.sourceInterpretation!==intent.sourceInterpretation)conflict('Image preparation and execution interpret the source differently.');
- if(intent.specifiedDepthsMm&&kind==='constantDepthContours'&&(intent.specifiedDepthsMm.length!==1||Math.abs(intent.specifiedDepthsMm[0]-params.depth)>1e-9))conflict('LOGO depth differs from the declared constant depth.');
+ if(intent.specifiedDepthsMm&&kind==='constantDepthContours'){
+  const depth=legacyReliefParams(op,params).depth;
+  if(intent.specifiedDepthsMm.length!==1||!Number.isFinite(depth)||Math.abs(intent.specifiedDepthsMm[0]-depth)>1e-9)conflict('LOGO depth differs from the declared constant depth.');
+ }
 }
 
 // One coordinate convention for image preparation, contours and draft views.

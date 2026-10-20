@@ -37,6 +37,24 @@ test('layered sculpt dialog switches independent drafts and commits only the cho
 });
 const source=()=>({faceId:0,widthMm:16,heightMm:16,depthMm:1,surfaceMode:'smooth',values:Array.from({length:17},()=>Array(17).fill(.5)),regions:[{outer:[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]],holes:[[[-.4,-.4],[-.2,-.4],[-.2,-.2],[-.4,-.2]]]}]});
 const brush=(mode,extra={})=>({mode,radiusMm:3,amountMm:.4,points:[[0,0]],...extra});
+test('stroke snapshot cloning is bounded across grid sizes and isolates later source edits',()=>{
+ const clone=globalThis.structuredClone,counts=[];
+ for(const n of [17,33,65]){
+  const p={...source(),values:Array.from({length:n},()=>Array(n).fill(.5))},before=clone(p);
+  let copies=0,engine;
+  try{
+   globalThis.structuredClone=value=>{if(value?.values&&value?.regions)copies++;return clone(value);};
+   engine=createReliefStroke(p,{mode:'raise',radiusMm:3,amountMm:.1});
+  }finally{globalThis.structuredClone=clone;}
+  counts.push(copies);assert.ok(copies<=5,`whole-grid clones must stay bounded: ${n}: ${copies}`);
+  assert.deepEqual(p,before);
+  p.values[Math.floor(n/2)][Math.floor(n/2)]=0;p.regions[0].outer=[];
+  const result=engine.append([[0,0]]);
+  assert.ok(Math.abs(result.deltaMm[Math.floor(n/2)][Math.floor(n/2)]-.1)<1e-12);
+  const holeIndex=Math.round(.1875*(n-1));assert.equal(result.deltaMm[holeIndex][holeIndex],0);
+ }
+ assert.equal(new Set(counts).size,1);
+});
 test('explicit layer sculpt preserves other layers, contours, holes and serialized increments',()=>{
  const base=source(),params={faceId:0,widthMm:16,heightMm:16,depthMm:1,layers:[{name:'base',heightMm:.2,regions:base.regions},{name:'detail',heightMm:1,regions:base.regions}]},before=structuredClone(params);
  assert.throws(()=>prepareReliefSculpt(params,[brush('raise')]),{code:'PARAM_SCHEMA_INVALID'});

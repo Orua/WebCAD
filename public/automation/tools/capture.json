@@ -2,7 +2,7 @@
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "contextPolicy": "identity",
   "description": "capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:\"webp\"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。",
   "synonyms": [
@@ -30,6 +30,10 @@
     "groupTitle": "名称、外观与显示",
     "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。",
     "alternatives": [
+      {
+        "id": "document.reliefDesign",
+        "chooseWhen": "保存人工毫米设计约束草稿；支撑/孔/保护/高度点，随工程撤销重开，不求解高度场或生成加工几何。"
+      },
       {
         "id": "document.rename",
         "chooseWhen": "只改工程名，不改每个实体名称。"
@@ -81,5 +85,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:c5e0ae9e1d1725f6c23afa23c08380c2847848646e1ecaf41951022536c0d4b9"
+  "docsHash": "sha256:903049891377f472a740203cb95355181aa651e6e82bd5cb431677fd2c437a37"
 }

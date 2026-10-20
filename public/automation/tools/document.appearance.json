@@ -3,7 +3,7 @@
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -64,6 +64,10 @@
     "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。",
     "alternatives": [
       {
+        "id": "document.reliefDesign",
+        "chooseWhen": "保存人工毫米设计约束草稿；支撑/孔/保护/高度点，随工程撤销重开，不求解高度场或生成加工几何。"
+      },
+      {
         "id": "document.rename",
         "chooseWhen": "只改工程名，不改每个实体名称。"
       },
@@ -106,5 +110,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:d257f1817de042174612707a5d3efd900ea2afeaefd369e69ef71bd6e1d3d3ce"
+  "docsHash": "sha256:dae7f2ac568c3ff884769d6055867bab5a2a3f9dc7bc6be715366b7ce1e19eb1"
 }

@@ -3,7 +3,7 @@
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -46,5 +46,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:fe9725021326cb2de137f96ecacc6b3de05b5abdc1c0b28d4be5b05581aa2068"
+  "docsHash": "sha256:a9fcedd0fc97018a5dc8fc9525d22d4bc9a710a992642941a6d7aea395d0ae27"
 }

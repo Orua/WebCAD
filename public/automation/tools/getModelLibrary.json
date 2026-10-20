@@ -2,7 +2,7 @@
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "contextPolicy": "none",
   "description": "getModelLibrary()",
   "synonyms": [
@@ -83,5 +83,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:7fc02b9fccf8804988c4b8fd5c4ab49356a6091aaf9932afd5ee189e6a493bfc"
+  "docsHash": "sha256:f4c59a7a9f4ea6542a1d7c6b529b0e5a8587046e36374e89fd3407f5ac0b02f7"
 }

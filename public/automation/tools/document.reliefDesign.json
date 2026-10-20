@@ -1,0 +1,121 @@
+{
+  "id": "document.reliefDesign",
+  "title": "浮雕设计约束草稿",
+  "description": "保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。无原图/实体绑定，不进行高度场求解或创建几何，不是加工预览或确认。getState({include:[\"reliefDesigns\"]})读取。",
+  "category": "command",
+  "version": "1.54.6",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"document.reliefDesign\",args}); 保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。无原图/实体绑定，不进行高度场求解或创建几何，不是加工预览或确认。getState({include:[\"reliefDesigns\"]})读取。",
+  "fields": [
+    "id",
+    "expectedDraftRevision",
+    "draft",
+    "remove"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "minimalExample": {
+    "action": "document.reliefDesign",
+    "args": {
+      "id": "design-1",
+      "expectedDraftRevision": 0,
+      "draft": {
+        "schemaVersion": 1,
+        "name": "设计草稿",
+        "support": {
+          "kind": "circle",
+          "centerMm": [
+            0,
+            0
+          ],
+          "radiusMm": 30
+        },
+        "throughHoles": [],
+        "protectedZones": [],
+        "heightRangeMm": [
+          0,
+          3
+        ],
+        "points": []
+      }
+    }
+  },
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
+  "docs": "api.editor",
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "保存人工毫米设计约束草稿；支撑/孔/保护/高度点，随工程撤销重开，不求解高度场或生成加工几何。",
+    "alternatives": [
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:dfc06f4a7523be60c80c4dcc85688f52fb44d015240e29bdef92eae268a78363"
+}

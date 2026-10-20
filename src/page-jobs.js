@@ -1,6 +1,7 @@
 // Page-local receipts survive a host call timeout, not a page reload. No server.
 import {contractHash} from './contracts/operation-schema.js';
 import {archiveReceiptResult} from './receipt-archive.js';
+import {withErrorRecovery} from './error-recovery.js';
 export function createPageJobs(api,{runBatch}={}) {
   const jobs = new Map();
   const archivedJobs = new Map();
@@ -11,6 +12,8 @@ export function createPageJobs(api,{runBatch}={}) {
   methods.add('inspectDesign');
   methods.add('inspectRound');
   methods.add('readLogo');
+  methods.add('reviewLogo');
+  methods.add('logoWizard');
   methods.add('probeBlendRadius');
   methods.add('recoverKernel');
   methods.add('files.reattach');
@@ -64,7 +67,7 @@ export function createPageJobs(api,{runBatch}={}) {
       let result;
       try { result=method==='run'&&runBatch?await runBatch(job.args,{cancelled:()=>job.cancelRequested===true,progress:progress=>{job.progress={...progress,updatedAt:Date.now()};job.phase='stage';}}):await api.invoke({method,args:job.args}); }
       catch(error) { result={status:'unknown',commitState:'unknown',error:{code:error.code||'JOB_EXECUTION_FAILED',message:error.message},context:api.getState().context}; }
-      job.result=result;
+      result=withErrorRecovery(result);job.result=result;
       job.status=['failed','unknown','partial'].includes(result?.status)?result.status:result?.status==='committed'||result?.status==='completed'?'committed':'completed';
       job.phase='finished';job.finishedAt=Date.now();job.elapsedMs=job.finishedAt-job.startedAt;
       settle(job);

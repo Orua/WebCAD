@@ -15,6 +15,22 @@ const base={version:1,requestedGeometry:'constantDepthContours',sourceInterpreta
  dimensionsMm:{width:24.55,height:28},specifiedDepthsMm:[.4],preserve:['原图空白与孔洞'],supportBinding:{bodyId:'plate',geometryFingerprint:'current-geometry'},placementSnapshot:{origin:[25,20,2.5],quaternion:[0,0,0,1]}};
 const logoParams={depth:.4,mode:'engrave',source:{kind:'reviewed-contours',reviewed:true,original:{sha256:sourceHash}},machiningIntent:base};
 
+test('canonical LOGO depth cannot bypass intent and UI synchronizes canonical controls',async()=>{
+ const {depth,...rest}=logoParams,canonical={...rest,depthMm:depth,schemaVersion:2},before=structuredClone(canonical);
+ assert.doesNotThrow(()=>assertPatternExecution('logo',canonical,{required:true}));
+ for(const params of [{...canonical,depthMm:1},{...rest},{...canonical,depthMm:NaN}]){
+  assert.throws(()=>assertPatternExecution('logo',params),{code:'MACHINING_INTENT_CONFLICT'});
+ }
+ assert.throws(()=>assertPatternExecution('logo',{...canonical,depth:1}),{code:'PARAM_SCHEMA_INVALID'});
+ const changed={...canonical,depthMm:.6},ui=intentForUIParameterEdit('logo',changed);
+ assert.deepEqual(ui.machiningIntent.specifiedDepthsMm,[.6]);assert.doesNotThrow(()=>assertPatternExecution('logo',ui));
+ assert.equal(ui.depth,undefined);assert.equal(ui.depthMm,.6);assert.deepEqual(canonical,before);
+ const kernel=Object.create(CadKernel.prototype);
+ await assert.rejects(kernel.operation({op:'logo',params:{...canonical,depthMm:1}},new Map(),{}),{code:'MACHINING_INTENT_CONFLICT'});
+ const relief={sizeXMm:30,sizeYMm:20,reliefHeightMm:.4,machiningIntent:{...base,requestedGeometry:'continuousRelief',sourceInterpretation:'authoredHeightMap'}};
+ assert.deepEqual(intentForUIParameterEdit('relief',relief).machiningIntent.dimensionsMm,{width:30,height:20});
+});
+
 test('R01/R04/R09 constant depth ignores subject/color and retains confirmed depth',()=>{
  for(const text of [base.userIntentEvidence,'彩色商标整体凸起0.4mm','上文凹0.4mm已确认，本次只改居中']){
   const result=planPatternMachining({...base,userIntentEvidence:text});assert.equal(result.route,'logo');assert.equal(result.canExecute,true);assert.deepEqual(result.requiredTools,['logo']);assert.equal(result.intent.specifiedDepthsMm[0],.4);
@@ -39,6 +55,15 @@ test('R02/R03/R06/R07/R08 preserve the goal and expose unavailable semantics',()
 test('R05 asks only for unresolved intent; schema does not coerce or fabricate evidence',()=>{
  const ambiguous=planPatternMachining({...base,requestedGeometry:'unspecified',userIntentEvidence:'做上去'});assert.equal(ambiguous.route,'needs-intent');assert.equal(ambiguous.canExecute,false);assert.deepEqual(ambiguous.requiredTools,[]);assert(ambiguous.missingInputs.includes('requestedGeometry'));
  for(const bad of [{...base,userIntentEvidence:' '},{...base,sourceHash:'fake'},{...base,targetPeakMm:'2.8'},{...base,extra:true}])assert.throws(()=>planPatternMachining(bad));
+});
+test('mesh planning requires source classification without denying existing bounded tools',()=>{
+ const plan=planPatternMachining({...base,requestedGeometry:'continuousRelief',sourceInterpretation:'sculptMesh'});
+ assert.equal(plan.canExecute,false);assert.equal(plan.fallbackAllowed,false);
+ assert(plan.capabilityBlockers.some(row=>row.code==='MESH_SOURCE_CLASSIFICATION_REQUIRED'));
+ assert(!plan.capabilityBlockers.some(row=>row.code==='MESH_PIPELINE_UNAVAILABLE'||row.code==='CONTINUOUS_SCULPT_UNAVAILABLE'));
+ assert.deepEqual(plan.requiredTools,[],'generic intent cannot choose a mesh operation without inspecting its recipe');
+ assert(plan.requiredDocs.includes('api.relief-taxonomy'));assert(plan.requiredDocs.includes('api.mesh-relief-edit'));
+ for(const id of ['heightfieldSculpt','sampleMeshRelief','meshReliefEdit'])assert.equal(getTool({id}).id,id);
 });
 test('source interpretation fails before decoding; height and mask use Y up without a second flip',async()=>{
  const blob=new Blob(['not a decoded image']);

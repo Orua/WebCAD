@@ -3,6 +3,7 @@ export const LOGO_RASTER_SCHEMA = Object.freeze({
   type:'object', additionalProperties:false,
   properties:{
     threshold:{type:'integer',minimum:0,maximum:255,default:128,description:'8-bit luminance; dark pixels below this value are foreground unless invert is true. Not a 0–1 relief threshold.'},
+    smoothingPx:{type:'number',minimum:0,maximum:0.5,default:0,description:'Explicit bounded smoothing in source pixels; 0 keeps pixel contours. Preserves regions/holes and rejects invalid topology. This is not an image reconstruction error guarantee.'},
     invert:{type:'boolean',default:false},
     alphaThreshold:{type:'integer',minimum:0,maximum:255,default:1}
   }
@@ -17,5 +18,6 @@ export function validateLogoRasterOptions(raster){
     if(Object.hasOwn(raster,key)&&(!Number.isInteger(raster[key])||raster[key]<0||raster[key]>255))fail(`raster.${key} 必须是 0–255 整数；LOGO 默认 threshold=128、alphaThreshold=1，不使用浮雕的 0–1 阈值。`,`raster.${key}`);
   }
   if(Object.hasOwn(raster,'invert')&&typeof raster.invert!=='boolean')fail('raster.invert 必须为布尔值，默认 false。','raster.invert');
+  if(Object.hasOwn(raster,'smoothingPx')&&(!Number.isFinite(raster.smoothingPx)||raster.smoothingPx<0||raster.smoothingPx>0.5))fail('raster.smoothingPx 必须为 0–0.5 源像素数值，0 关闭平滑。','raster.smoothingPx');
   // Preserve the supplied request exactly; do not add defaults that change a job fingerprint.
 }

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.54.5",
-  "buildId": "8a5e7d62150751d49d6024ed3f0e1fea56321723-src-a0c3915f947bf06f-working",
-  "catalogHash": "sha256:fe0c4754eb1f99a49f5067d4888a82a84f91d04bc867dca31796f74e07699cd2",
-  "docsHash": "sha256:8caae16beb8f56a047fe4e79d2b33b44429c5db17525289d9933c29e98189909",
+  "pageApiVersion": "1.54.6",
+  "buildId": "ce18ece00949c24c4bd2675e17af7111310a967b-src-36813e5211bf971f-working",
+  "catalogHash": "sha256:b10e83a7bfaeb067fe4d3a5ef099349fb5aabf32c1dfbd76233ba55f229dff1e",
+  "docsHash": "sha256:fb3403337503b34040d37c81c9c4560df5c3a23123f75f321ef4a5eb6592e11b",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -569,6 +569,8 @@
     "logo": {
       "tools": [
         "readLogo",
+        "reviewLogo",
+        "logoWizard",
         "logo",
         "getServices",
         "getServicesCapabilities",
@@ -577,7 +579,7 @@
         "preview.cancel"
       ],
       "method": "execute",
-      "usage": "独立LOGO向导：登记原文件、readLogo读取轮廓；位图明确宽度及上传授权，复核后设置source.reviewed=true，再指定目标面、三维放置点、雕刻深度，预览或直接应用。"
+      "usage": "独立LOGO向导：登记原文件、readLogo读取轮廓；位图明确宽度及上传授权，reviewLogo/向导明确确认字形、孔洞和尺寸，再指定支持的目标面、三维放置点、雕刻深度，预览或直接应用。"
     },
     "logoExport": {
       "tools": [
@@ -587,6 +589,17 @@
       ],
       "method": "exportDrawing",
       "usage": "LOGO识别后下载原毫米轮廓DXF；API先readLogo取得logoId，再exportDrawing({context,logoId,format:\"dxf\"})。保留外环和孔洞，不创建实体，不自动确认描摹精度。"
+    },
+    "logoReview": {
+      "tools": [
+        "readLogo",
+        "reviewLogo",
+        "logoWizard",
+        "files.read",
+        "files.download"
+      ],
+      "method": "reviewLogo",
+      "usage": "LOGO紧凑向导：来源→轮廓校对→目标面。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。"
     },
     "mcp": {
       "tools": [
@@ -1027,6 +1040,18 @@
       "method": "execute",
       "usage": "面加工→浮雕。先读api.pattern-machining、planPatternMachining区分意图；新创建params.machiningIntent保存加工意义，readRelief显式sourceInterpretation。恒深文字/图案走LOGO，灰度只用于作者高度图。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
     },
+    "reliefDesign": {
+      "tools": [
+        "document.reliefDesign",
+        "getState",
+        "history.undo",
+        "history.redo",
+        "files.save",
+        "files.open"
+      ],
+      "method": "execute",
+      "usage": "人工毫米设计约束：支撑、孔/保护区域和高度点；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；不生成加工几何。"
+    },
     "reliefSculpt": {
       "tools": [
         "sampleReliefHeight",
@@ -1433,6 +1458,7 @@
     }
   },
   "labels": {
+    "logoReview": "readLogo / reviewLogo / logoWizard / 读取文件字节 / 下载文件",
     "logoExport": "readLogo / exportDrawing / 下载文件",
     "rodJunction": "圆杆接头倒 R",
     "agentPanelResize": "getAgentPanel / setAgentPanel",
@@ -1473,7 +1499,7 @@
     "intersect": "相交",
     "linearPattern": "直线阵列",
     "loft": "放样 / 轮廓放样",
-    "logo": "LOGO / readLogo / getServices / getServicesCapabilities / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览",
+    "logo": "LOGO / readLogo / reviewLogo / logoWizard / getServices / getServicesCapabilities / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览",
     "meshBoolean": "网格布尔（STL） / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / getState / 导出文件",
     "meshHeightfieldRelief": "高度图浮雕（网格） / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / getState",
     "meshReliefEdit": "网格局部修高 / sampleMeshRelief / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销 / 重做 / getState",
@@ -1555,6 +1581,7 @@
     "reference.alignSelectedFace": "queryGeometry / 设置参考锚点（工作基准）",
     "renderQuality": "setRenderQuality",
     "downloadResource": "下载文件",
+    "reliefDesign": "设计草稿 / 浮雕设计约束草稿 / getState / 撤销 / 重做 / 保存工程 / 打开工程",
     "reliefSculpt": "精确浮雕精修 / sampleReliefHeight / prepareReliefSculpt / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
     "precisionSettings": "精度 / setDisplayPreferences",
     "themeSettings": "风格 / setDisplayPreferences",

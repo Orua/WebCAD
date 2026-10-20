@@ -1,3 +1,4 @@
+import {humanError} from './error-recovery.js';
 import { evaluateDimension } from './parameter-calculator.js';
 
 export function createDimensionCalculator(form, { element, button }) {
@@ -11,7 +12,7 @@ export function createDimensionCalculator(form, { element, button }) {
     const input = form?.elements.namedItem(targets.value);
     if (value !== null && input && !input.disabled) { input.value = String(value); input.dispatchEvent(new Event('input', { bubbles: true })); input.dispatchEvent(new Event('change', { bubbles: true })); }
   }); apply.disabled = true;
-  const calculate = () => { try { value = evaluateDimension(expression.value); result.textContent = ' = ' + value; apply.disabled = !targets.value; } catch (error) { value = null; result.textContent = error.message; apply.disabled = true; } };
+  const calculate = () => { try { value = evaluateDimension(expression.value); result.textContent = ' = ' + value; apply.disabled = !targets.value; } catch (error) { value = null; result.textContent = humanError(error); apply.disabled = true; } };
   expression.addEventListener('input', () => { value = null; result.textContent = ''; apply.disabled = true; });
   expression.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); calculate(); } });
   panel.append(expression, button('计算', calculate), result);

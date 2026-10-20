@@ -2,7 +2,7 @@
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "contextPolicy": "identity",
   "description": "prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
   "synonyms": [
@@ -22,7 +22,7 @@
     "硬度"
   ],
   "inputContract": "prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
-  "outputContract": "独立局部精修：等高外凸柱面凸雕层可存 localPatches（当前最多一个），含稳定 id、domainMm:[uMin,vMin,uMax,vMax]、7–65 行列 deltaMm 和可选 mask、protectionMm；毫米域独立于全局网格，边界两排增量严格为零，保护带至少 0.02mm 与两倍轮廓拟合公差中的较大值。禁止跨越原轮廓或孔，禁止隐式改域/重采样，不保证消除层间台阶。prepareReliefSculpt 的 patch:{id,domainMm,samples,protectionMm} 启用独立域；strokes.points 仍是原图案归一化坐标。sampleReliefHeight 可用 patchId 读该域控制高度。精确预览使用 preview.start args:{featureEdit:{featureId,params:prepared.params}}，在原柱面及邻层内重建真实 BRep，preview.commit 一次提交或 preview.cancel 恢复；右侧小画布只是高度草稿。Services 使用独立语义 relief.compiled-contours-local-patch-1.1，旧服务不能冒称支持。 只读返回status=prepared、params:{sculpt:{deltaMm,mask}}、report、canCommit及下游拓扑blockers。canCommit为true后用feature.edit提交params。分层须指定当前零起始 layerIndex，返回 params:{layers} 并仅修改该层独立 sculpt，其他层和轮廓/孔保持；可选 samples=4–65 仅用于尚无 values/sculpt 的等高层，显式建立等高控制网格，不重采样已有曲面。草稿继续使用同一个 samples 或提交后的 layers。层间台阶不会自动消失；小于 startHeightMm 的控制高度拒绝。单层原始values/depthMm/regions不变，精修控制高度限制0–20mm。mask保护控制点，B样条过渡会影响邻域；不改变轮廓/孔，预览不是精确CAD。平顶、起伏、凸雕、凹雕及平面/外凸柱面；凹雕抬高变浅、压低加深，targetMm 表示控制深度。旧矩形浮雕仍保留矩形语义。STEP无高度来源不适用。",
+  "outputContract": "独立局部精修：等高外凸柱面凸雕层可存 localPatches（当前最多一个），含稳定 id、domainMm:[uMin,vMin,uMax,vMax]、7–65 行列 deltaMm 和可选 mask、protectionMm；毫米域独立于全局网格，边界两排增量严格为零，保护带至少 0.02mm 与两倍轮廓拟合公差中的较大值。禁止跨越原轮廓或孔，禁止隐式改域/重采样，不保证消除层间台阶。prepareReliefSculpt 的 patch:{id,domainMm,samples,protectionMm} 启用独立域；strokes.points 仍是原图案归一化坐标。sampleReliefHeight 可用 patchId 读该域控制高度。精确预览使用 preview.start args:{featureEdit:{featureId,params:prepared.params}}，在原柱面及邻层内重建真实 BRep，preview.commit 一次提交或 preview.cancel 恢复；右侧小画布只是高度草稿。Services 使用独立语义 relief.compiled-contours-local-patch-1.1，旧服务不能冒称支持。 只读返回status=prepared、params:{sculpt:{deltaMm,mask}}、report、canCommit、executionCheck及下游拓扑/已知后台配方blockers。executionCheck.status=not-checked时配置尚未读取，不代表后台已通过；executionChecksPending表示实际执行仍须核对来源、能力和原任务。canCommit为true后用feature.edit提交params。分层须指定当前零起始 layerIndex，返回 params:{layers} 并仅修改该层独立 sculpt，其他层和轮廓/孔保持；可选 samples=4–65 仅用于尚无 values/sculpt 的等高层，显式建立等高控制网格，不重采样已有曲面。草稿继续使用同一个 samples 或提交后的 layers。层间台阶不会自动消失；小于 startHeightMm 的控制高度拒绝。单层原始values/depthMm/regions不变，精修控制高度限制0–20mm。mask保护控制点，B样条过渡会影响邻域；不改变轮廓/孔，预览不是精确CAD。平顶、起伏、凸雕、凹雕及平面/外凸柱面；凹雕抬高变浅、压低加深，targetMm 表示控制深度。旧矩形浮雕仍保留矩形语义。STEP无高度来源不适用。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -105,5 +105,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:e7a08f1f7c86a601b61d010103f478c4013c2580fca9baab86ef21f09f756d7f"
+  "docsHash": "sha256:503d484c9187dd3bb88d9b5103635fdc0d27319cf6514a8ac98415f2e9b9dfad"
 }

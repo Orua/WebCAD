@@ -1,3 +1,4 @@
+import {humanError} from '../../error-recovery.js';
 import {resolveProfileRecipe} from '../../modeling/profiles/profile-constraint-history.js';
 import {expandProfilePrimitives} from '../../modeling/profiles/profile-primitives.js';
 
@@ -42,11 +43,11 @@ export function showProfileConstraintsDialog(env) {
   return values;
  }
  const renderQueue=()=>{list.replaceChildren();queue.forEach((constraint,index)=>{const row=element('div',{class:'profile-editor-toolbar'}),remove=button('移除',()=>{queue.splice(index,1);renderQueue();form.dispatchEvent(new Event('input',{bubbles:true}));},'secondary');remove.type='button';row.append(element('span',{},`${index+1}. ${labels[constraint.type]} · ${constraint.entityId||constraint.firstId||constraint.lineId||constraint.first?.entityId||constraint.point?.entityId||''}${constraint.lengthMm!==undefined?` = ${constraint.lengthMm} mm`:''}`),remove);list.append(row);});};
- const add=button('添加到约束列表',()=>{try{queue.push(currentConstraint());renderQueue();form.dispatchEvent(new Event('input',{bubbles:true}));}catch(error){status.textContent=error.message;}},'secondary');add.type='button';
+ const add=button('添加到约束列表',()=>{try{queue.push(currentConstraint());renderQueue();form.dispatchEvent(new Event('input',{bubbles:true}));}catch(error){status.textContent=humanError(error);}},'secondary');add.type='button';
  const refresh=()=>{
   const body=state.bodies.find(item=>item.id===source.value),feature=state.document.features.find(item=>item.id===source.value),stamp=feature?recipeStamp(source.value):'';
   if(body&&sourceVersion&&sourceVersion!==(body.renderVersion??stamp)){dirtySource=true;form.dispatchEvent(new Event('input',{bubbles:true}));}
-  if(sourceStamp!==stamp&&body&&!dirtySource){try{sourceRecipe=resolveProfileRecipe(state.document.features,source.value);entities=expandProfilePrimitives(sourceRecipe.profile).entities.filter(item=>['line','circle'].includes(item.type));sourceStamp=stamp;render();}catch(error){entities=[];sourceRecipe=null;status.textContent=error.message;}}
+  if(sourceStamp!==stamp&&body&&!dirtySource){try{sourceRecipe=resolveProfileRecipe(state.document.features,source.value);entities=expandProfilePrimitives(sourceRecipe.profile).entities.filter(item=>['line','circle'].includes(item.type));sourceStamp=stamp;render();}catch(error){entities=[];sourceRecipe=null;status.textContent=humanError(error);}}
   const ready=!!body&&!!sourceRecipe&&entities.length>0&&!dirtySource;status.dataset.ready=String(ready);if(ready){const report=body.constraintReport;status.textContent=`来源：${body.name||body.id} · 已锁定${report?` · 剩余自由度 ${report.degreesOfFreedom}`:''}`;}else if(dirtySource)status.textContent='来源几何已变化，请重新确认来源轮廓。';else if(!body)status.textContent='请选择当前可编辑轮廓来源。';
   for(const control of form.querySelectorAll('button[type="submit"],button[data-preview]'))control.disabled=!ready||state.busy;add.disabled=!ready||state.busy;
  };

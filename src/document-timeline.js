@@ -1,4 +1,5 @@
 // Forward state differences; v4 sources stay once in binaryAssets by hash.
+import {validateReliefDesigns} from './relief-design-drafts.js';
 import {DOCUMENT_LIMITS} from './document-limits.js';
 import {BINARY_SOURCE_FORMATS} from './mesh/mesh-assets.js';
 import {PROJECT_V4_LIMITS} from './mesh/project-v4.js';
@@ -20,7 +21,7 @@ function retainImports(doc,timeline){
   if(doc.binaryAssets){const assetHashes=new Set(Object.values(doc.imports||{}).map(item=>item.assetHash).filter(Boolean));doc.binaryAssets=Object.fromEntries(Object.entries(doc.binaryAssets).filter(([hash])=>assetHashes.has(hash)));}
   if(doc.compiledArtifacts)doc.compiledArtifacts=Object.fromEntries(Object.entries(doc.compiledArtifacts).filter(([hash])=>hashes.has(hash)));
 }
-function validateImports(snapshot,imports){for(const key of importKeys(snapshot))if(typeof key!=='string'||!Object.hasOwn(imports||{},key)||(typeof imports[key]?.data!=='string'&&!(BINARY_SOURCE_FORMATS.includes(imports[key]?.format)&&/^[a-f0-9]{64}$/.test(imports[key]?.assetHash||''))))fail('历史工程缺少原始导入资源');}
+function validateImports(snapshot,imports){validateReliefDesigns(snapshot.reliefDesigns);for(const key of importKeys(snapshot))if(typeof key!=='string'||!Object.hasOwn(imports||{},key)||(typeof imports[key]?.data!=='string'&&!(BINARY_SOURCE_FORMATS.includes(imports[key]?.format)&&/^[a-f0-9]{64}$/.test(imports[key]?.assetHash||''))))fail('历史工程缺少原始导入资源');}
 function diff(a,b,path=[]){
  if(JSON.stringify(a)===JSON.stringify(b))return [];
  if(a===null||b===null||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return [{path,value:clone(b)}];

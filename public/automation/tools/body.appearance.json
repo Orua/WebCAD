@@ -3,7 +3,7 @@
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -70,6 +70,10 @@
     "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。",
     "alternatives": [
       {
+        "id": "document.reliefDesign",
+        "chooseWhen": "保存人工毫米设计约束草稿；支撑/孔/保护/高度点，随工程撤销重开，不求解高度场或生成加工几何。"
+      },
+      {
         "id": "document.rename",
         "chooseWhen": "只改工程名，不改每个实体名称。"
       },
@@ -112,5 +116,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:97e88a5631144b8f8136458b5b3d161f51a4148ca03040d8c49d07a64b1a67a0"
+  "docsHash": "sha256:1914a9c60065b2fc5c8f1e82a618a8d9b355a43c07d61b107e6dcbd47fdf81e1"
 }

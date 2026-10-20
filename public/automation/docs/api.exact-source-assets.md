@@ -4,6 +4,8 @@ STEP/STP/BREP/BRP 每源128MiB，通过files.register的真实二进制资源导
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
 getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision

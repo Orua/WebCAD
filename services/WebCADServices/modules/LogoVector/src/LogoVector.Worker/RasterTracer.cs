@@ -10,16 +10,85 @@ namespace LogoVector.Worker
 {
     internal static class RasterTracer
     {
+        internal sealed class SmoothingReport
+        {
+            public string Status, FailureCode;
+            public double RequestedPx, ActualPx;
+            public int PointsBefore, PointsAfter, RegionCount, HoleCount;
+            public List<LogoRegion> OriginalRegions;
+        }
+        internal static List<LogoRegion> CopyRegions(IEnumerable<LogoRegion> regions) => regions.Select(r => new LogoRegion { Outer = r.Outer.Select(p => (double[])p.Clone()).ToList(), Holes = r.Holes.Select(h => h.Select(p => (double[])p.Clone()).ToList()).ToList() }).ToList();
+        static IEnumerable<List<double[]>> Rings(IEnumerable<LogoRegion> regions) => regions.SelectMany(r => new[] { r.Outer }.Concat(r.Holes));
+        static double Area2(IList<double[]> ring) { double area = 0; for (int i = 0; i < ring.Count; i++) { var a = ring[i]; var b = ring[(i + 1) % ring.Count]; area += a[0] * b[1] - b[0] * a[1]; } return area; }
+        static bool Inside(double[] p, IList<double[]> ring)
+        {
+            bool result = false;
+            for (int i = 0, j = ring.Count - 1; i < ring.Count; j = i++) { var a = ring[i]; var b = ring[j]; if ((a[1] > p[1]) != (b[1] > p[1]) && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]) result = !result; }
+            return result;
+        }
+        // One explicit, bounded pass, not denoise, island deletion or pixel resampling.
+        // The same edge parameter maps old endpoints to new endpoints. Convexity of
+        // the norm bounds every corresponding edge point by max vertex displacement.
+        internal static List<LogoRegion> SmoothContours(List<LogoRegion> original, double smoothingPx, out SmoothingReport report)
+        {
+            if (double.IsNaN(smoothingPx) || double.IsInfinity(smoothingPx) || smoothingPx < 0 || smoothingPx > .5) throw new LogoVectorException("INVALID_OPTIONS", "raster.smoothingPx 必须为 0–0.5 源像素数值；0 保留原始边界。");
+            report = new SmoothingReport { Status = "disabled", RequestedPx = smoothingPx, ActualPx = 0, PointsBefore = Rings(original).Sum(r => r.Count), PointsAfter = Rings(original).Sum(r => r.Count), RegionCount = original.Count, HoleCount = original.Sum(r => r.Holes.Count) };
+            if (smoothingPx == 0) return original;
+            // Validate the source independently; smoothing never makes an invalid source acceptable.
+            LogoGeometry.Normalize("raster-original", original, new Dictionary<string, object>(), false);
+            report.OriginalRegions = CopyRegions(original);
+            var candidate = CopyRegions(original);
+            double minX = original.Min(r => r.Outer.Min(p => p[0])), maxX = original.Max(r => r.Outer.Max(p => p[0])), minY = original.Min(r => r.Outer.Min(p => p[1])), maxY = original.Max(r => r.Outer.Max(p => p[1]));
+            var before = Rings(original).ToList(); var after = Rings(candidate).ToList();
+            double actual = 0;
+            for (int r = 0; r < before.Count; r++) for (int i = 0; i < before[r].Count; i++)
+            {
+                var ring = before[r]; var p = ring[i];
+                // Preserve the whole artwork's physical bounds and original origin.
+                if (p[0] == minX || p[0] == maxX || p[1] == minY || p[1] == maxY) continue;
+                var prev = ring[(i - 1 + ring.Count) % ring.Count]; var next = ring[(i + 1) % ring.Count];
+                double dx = (prev[0] + next[0]) / 2 - p[0], dy = (prev[1] + next[1]) / 2 - p[1], distance = Math.Sqrt(dx * dx + dy * dy);
+                if (distance == 0) continue;
+                double weight = Math.Min(.5, smoothingPx / distance);
+                after[r][i][0] = p[0] + dx * weight; after[r][i][1] = p[1] + dy * weight;
+                actual = Math.Max(actual, distance * weight);
+            }
+            try
+            {
+                // This checks every ring for self contact, all ring pairs for
+                // intersections/contact, holes within their own outer, and overlaps.
+                LogoGeometry.Normalize("raster-smoothed", candidate, new Dictionary<string, object>(), false);
+                for (int i = 0; i < before.Count; i++)
+                {
+                    if (Math.Sign(Area2(before[i])) != Math.Sign(Area2(after[i]))) throw new LogoVectorException("RASTER_SMOOTHING_TOPOLOGY", "平滑改变了轮廓方向。");
+                    for (int j = 0; j < before.Count; j++) if (i != j && Inside(before[i][0], before[j]) != Inside(after[i][0], after[j])) throw new LogoVectorException("RASTER_SMOOTHING_TOPOLOGY", "平滑改变了孔洞或小岛包含关系。");
+                }
+            }
+            catch (LogoVectorException error)
+            {
+                report.Status = "rejected-topology"; report.FailureCode = error.Code;
+                // No partial ring replacement or adaptive retry with hidden parameters.
+                return original;
+            }
+            report.Status = actual > 0 ? "applied" : "unchanged"; report.ActualPx = actual;
+            report.PointsAfter = Rings(candidate).Sum(r => r.Count);
+            return candidate;
+        }
         static long Key(int x, int y) => ((long)y << 32) | (uint)x;
         static double[] Point(long key) => new[] { (double)(uint)key, -(double)(key >> 32) };
-        public static Tuple<List<LogoRegion>, double> Trace(byte[] bytes, RasterOptions options)
+        public static Tuple<List<LogoRegion>, double> Trace(byte[] bytes, RasterOptions options, out int pixelHeight)
+        {
+            SmoothingReport ignored;
+            return Trace(bytes, options, out pixelHeight, 0, out ignored);
+        }
+        public static Tuple<List<LogoRegion>, double> Trace(byte[] bytes, RasterOptions options, out int pixelHeight, double smoothingPx, out SmoothingReport smoothing)
         {
             if (options == null || options.Threshold < 0 || options.Threshold > 255 || options.AlphaThreshold < 0 || options.AlphaThreshold > 255) throw new LogoVectorException("INVALID_OPTIONS", "位图阈值无效。");
             ImageInfo? info;
             using (var stream = new MemoryStream(bytes)) info = ImageInfo.FromStream(stream);
             if (!info.HasValue || info.Value.Width < 1 || info.Value.Height < 1 || info.Value.Width > 20000 || info.Value.Height > 20000 || (long)info.Value.Width * info.Value.Height > 20000000) throw new LogoVectorException("FILE_TOO_LARGE", "位图尺寸超出限制。");
             var image = ImageResult.FromMemory(bytes, ColorComponents.RedGreenBlueAlpha);
-            int width = image.Width, height = image.Height;
+            int width = image.Width, height = image.Height; pixelHeight = height;
             var black = new bool[width * height];
             for (int i = 0; i < black.Length; i++)
             {
@@ -68,7 +137,8 @@ namespace LogoVector.Worker
                 }
                 rings.Add(ring);
             }
-            return Tuple.Create(LogoGeometry.FromEvenOddRings(rings), (double)width);
+            var regions = LogoGeometry.FromEvenOddRings(rings);
+            return Tuple.Create(SmoothContours(regions, smoothingPx, out smoothing), (double)width);
         }
     }
 }

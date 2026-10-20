@@ -246,6 +246,7 @@
 - reference.deleteBodyAnchor：删除对象锚点元数据，不删除实体。
 
 ## 名称、外观与显示
+- document.reliefDesign：保存人工毫米设计约束草稿；支撑/孔/保护/高度点，随工程撤销重开，不求解高度场或生成加工几何。
 - document.rename：只改工程名，不改每个实体名称。
 - feature.rename：只改指定历史步骤及同 ID 实体名称。
 - body.appearance：指定实体颜色/材质覆盖，保存于工程且可撤销。
@@ -299,6 +300,8 @@
 - getLogoConverter：旧配置读取兼容入口，委托统一 Services；不是独立授权。
 - setLogoConverter：已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。
 - readLogo：从已登记的图片或矢量文件取得待复核的闭合轮廓；JPG/PNG描摹需要实际毫米宽度和明确上传授权，不把照片光影当作深度。
+- reviewLogo：校对本页logoId的毫米轮廓草稿、确认和生成可读取中间文件；不需要打开界面，也不提交雕刻几何。
+- logoWizard：读取或控制已打开的LOGO分步向导；与用户共享来源参数、轮廓草稿和确认，不能代替目标面的实际雕刻。
 - convertLogoPdf：通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。
 
 ## 助手面板
@@ -330,6 +333,8 @@
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
 getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision

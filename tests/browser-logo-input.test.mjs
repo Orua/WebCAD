@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readBrowserLogo} from '../src/browser-logo-input.js';
+import {readBrowserLogo,fitLogoWidth} from '../src/browser-logo-input.js';
 import {validateLogoRasterOptions} from '../src/logo-raster-options.js';
 import {getTool,readDocs} from '../src/page-api-docs.js';
 test('local logo packets retain validation with no converter requests',async()=>{
@@ -42,7 +42,7 @@ test('public LOGO card exposes byte thresholds and the configured backend route'
   const card=getTool({id:'readLogo'}),raster=card.inputSchema.properties.raster;
   assert.equal(raster.additionalProperties,false);
   assert.deepEqual(raster.properties.threshold,{type:'integer',minimum:0,maximum:255,default:128,description:'8-bit luminance; dark pixels below this value are foreground unless invert is true. Not a 0–1 relief threshold.'});
-  assert.deepEqual(card.rasterDefaults,{threshold:128,invert:false,alphaThreshold:1});
+  assert.deepEqual(card.rasterDefaults,{threshold:128,invert:false,alphaThreshold:1,smoothingPx:0});
   assert.match(JSON.stringify(readDocs({docId:'api.logo'})),/启用统一计算接口后/);
   assert.doesNotMatch(JSON.stringify(readDocs({docId:'api.logo'})),/静态版没有位图/);
 });
@@ -53,7 +53,21 @@ test('failed raster conversion reports effective options and retains the origina
     wait:async route=>{if(route==='logo/inspect')return {result:{pageCount:1}};throw original;}};
   await assert.rejects(readBrowserLogo(new File(['image'],'tiger.jpg'),x=>x,{targetWidthMm:30,sizeConfirmed:true,allowUpload:true,client}),error=>{
     assert.equal(error,original);assert.equal(error.jobId,'original-failed-job');
-    assert.deepEqual(error.details,{stage:'worker',rasterOptions:{threshold:128,invert:false,alphaThreshold:1},rasterOptionsSupplied:false});return true;
+    assert.deepEqual(error.details,{stage:'worker',rasterOptions:{threshold:128,invert:false,alphaThreshold:1,smoothingPx:0},rasterOptionsSupplied:false});return true;
   });
   assert.equal(converts,1);
+});
+
+test('smoothing remains explicit and scaling preserves the original proof frame',()=>{
+ for(const smoothingPx of [null,'0.2',NaN,Infinity,-.1,.51])assert.throws(()=>validateLogoRasterOptions({smoothingPx}),{code:'PARAM_SCHEMA_INVALID'});
+ for(const smoothingPx of [0,.2,.5])assert.doesNotThrow(()=>validateLogoRasterOptions({smoothingPx}));
+ const original={type:'webcad-logo',version:1,units:'mm',sizeMm:[10,5],regions:[{outer:[[0,0],[10,0],[10,5],[0,5]],holes:[]}]};
+ const logo={...structuredClone(original),source:{rasterOriginalContours:structuredClone(original),rasterSmoothing:{requestedTolerancePx:.5,requestedToleranceMm:.1,effectiveToleranceMm:.08,curveDistanceUpperBoundMm:.08,coordinateRoundingMm:1e-9,originalGeometryHash:'converter-proof'},conversion:{requestedToleranceMm:.1,approximationBoundMm:.08},conversionReport:{requestedToleranceMm:.1,approximationBoundMm:.08}}};
+ const fitted=fitLogoWidth(logo,20);
+ assert.deepEqual(fitted.source.rasterOriginalContours,original);assert.equal(fitted.source.rasterOriginalContoursToLogo.scale,2);
+ assert.equal(fitted.source.rasterSmoothing.curveDistanceUpperBoundMm,.16);
+ assert.equal(fitted.source.rasterSmoothing.requestedTolerancePx,.5);
+ assert.equal(fitted.source.conversionReport.approximationBoundMm,.16);assert.equal(fitted.source.conversion.approximationBoundMm,.16);
+ assert.equal(fitLogoWidth(fitted,40).source.rasterOriginalContoursToLogo.scale,4);
+ assert.equal(logo.source.rasterSmoothing.curveDistanceUpperBoundMm,.08);
 });

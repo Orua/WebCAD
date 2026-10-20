@@ -1,7 +1,9 @@
+import {humanError} from '../../error-recovery.js';
 import {createReliefStroke,sculptState,reliefLayerParams,reliefSculptPatch} from '../../relief-sculpt.js';
 import {createReliefSculptView} from './relief-sculpt-view.js';
 import {assertHistoryEditSafe} from '../../history-edit-safety.js';
 import {localPatchBrushParams} from '../../relief-local-patch.js';
+import {reliefSculptPreflight} from '../../services/relief-sculpt-preflight.js';
 
 const draftCache=new Map();
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
@@ -46,6 +48,8 @@ export function showReliefSculptDialog({featureId,getState,openDialog,element,bu
   try{
    const current=getState();
    if(current.document.documentId!==initial.document.documentId||current.revision!==initial.revision)throw new Error('工程已改变，草稿已保留，请关闭精修后重新打开。');
+   const execution=reliefSculptPreflight({...f,params:{...f.params,...reliefSculptPatch(f.params,draft,layerOptions)}});
+   if(execution.blockers.length)throw new Error(execution.blockers[0].message);
    busy=true;update();status.textContent='正在重建浮雕…';
    const patch=reliefSculptPatch(f.params,draft,layerOptions),result=exactPreview?await onCommitPreview():await onEdit(f.id,patch,f.name);exactPreview=false;
    if(result===false)throw new Error('应用未完成，草稿已保留。');
@@ -55,7 +59,7 @@ export function showReliefSculptDialog({featureId,getState,openDialog,element,bu
    for(const other of slots.filter(s=>s.featureId===f.id&&s.key!==slot.key))if(saved[other.key]?.signature===signature(f)&&same(f.params.layers?.[other.layerIndex],committed.params.layers?.[other.layerIndex]))saved[other.key].signature=signature(committed);
    delete saved[slot.key];histories.delete(slot.key);f=committed;load();stash();
    if(live){busy=false;update();status.textContent='当前图层已应用，可以继续精修或切换图层。';}
-  }catch(e){if(live)status.textContent=e.message;}
+  }catch(e){if(live)status.textContent=humanError(e);}
   finally{busy=false;if(live)update(false);}
  },'primary');
  const cancel=button('关闭（保留草稿）',async()=>{if(busy)return;if(exactPreview){await onCancelPreview();exactPreview=false;}close();},'secondary');
@@ -91,14 +95,19 @@ export function showReliefSculptDialog({featureId,getState,openDialog,element,bu
   target.disabled=locked||mode.value!=='flatten';amount.disabled=locked||!['raise','lower'].includes(mode.value);
   compare.textContent=showOriginal?'返回精修':'查看原形';clearMask.disabled=locked||showOriginal;
   if(message)status.textContent=showOriginal?'正在查看本层修改前形状。':`${slot.title} · ${changed?'有未应用草稿':'已与工程同步'}${params.mode==='engrave'?' · 凹雕：抬高变浅、压低加深':''} ${storageWarning}`;
-  try{const patch=reliefSculptPatch(f.params,draft,layerOptions);assertHistoryEditSafe(initial.document,{...initial.document,features:initial.document.features.map(x=>x.id===f.id?{...x,params:{...x.params,...patch}}:x)});}catch(e){apply.disabled=true;if(message)status.textContent=e.message;}
+  try{
+   const patch=reliefSculptPatch(f.params,draft,layerOptions);
+   assertHistoryEditSafe(initial.document,{...initial.document,features:initial.document.features.map(x=>x.id===f.id?{...x,params:{...x.params,...patch}}:x)});
+   const execution=reliefSculptPreflight({...f,params:{...f.params,...patch}});
+   if(execution.blockers.length)throw new Error(execution.blockers[0].message);
+  }catch(e){apply.disabled=true;if(message)status.textContent=humanError(e);}
   target.previousElementSibling.textContent=params.mode==='engrave'?'目标控制深度 mm':'目标控制高度 mm';
   info.textContent=`Shift 平滑 · Ctrl 反向 · Alt 点击吸取控制高度 · [ ] 调半径 · Ctrl+Z/Y 撤销/重做。网格 ${params.values[0].length}×${params.values.length}，最小半径 ${Number(radius.min).toFixed(2)} mm；轮廓不变。${slot.layerIndex===undefined?'':'预览仅当前层控制高度；其它层保持，层间台阶不会自动消失。'}${layerOptions.patch?'独立毫米域，两排边界控制点固定；右侧是增量草稿，请用原柱面与邻层实际预览检查。':''}草稿保留在本标签页，应用后请保存工程。`;
   view.update(params,showOriginal?sculptState(params):draft);drawCursor();
  }
  function drawCursor(){view.cursor(hover,Number(radius.value),symmetry.value,Number(hardness.value));}
  const valid=p=>p.every(v=>Number.isFinite(v)&&v>=-.5&&v<=.5);
- function flush(){frame=0;if(!live)return;if(active?.pending.length){try{draft=active.engine.append(active.pending.splice(0));view.update(params,draft);}catch(e){active.error=e.message;status.textContent=e.message;}}drawCursor();}
+ function flush(){frame=0;if(!live)return;if(active?.pending.length){try{draft=active.engine.append(active.pending.splice(0));view.update(params,draft);}catch(e){active.error=e.message;status.textContent=humanError(e);}}drawCursor();}
  function schedule(){if(!frame)frame=requestAnimationFrame(flush);}
  function flushNow(){if(frame)cancelAnimationFrame(frame);flush();}
  canvas.addEventListener('pointerdown',e=>{
@@ -110,7 +119,7 @@ export function showReliefSculptDialog({featureId,getState,openDialog,element,bu
    const chosen=e.shiftKey?'smooth':e.ctrlKey?(inverse[mode.value]||mode.value):mode.value;
    const engine=createReliefStroke({...params,sculpt:draft},{mode:chosen,radiusMm:Number(radius.value),strength:Number(strength.value),amountMm:Number(amount.value),targetMm:Number(target.value),hardness:Number(hardness.value),symmetry:symmetry.value});
    active={before:structuredClone(draft),engine,pending:[pt],pointerId:e.pointerId};canvas.setPointerCapture(e.pointerId);update(false);schedule();
-  }catch(error){status.textContent=error.message;}
+  }catch(error){status.textContent=humanError(error);}
  });
  canvas.addEventListener('pointermove',e=>{
   const pt=view.point(e);hover=valid(pt)?pt:null;
@@ -130,9 +139,9 @@ export function showReliefSculptDialog({featureId,getState,openDialog,element,bu
   if(e.key==='['||e.key===']'){e.preventDefault();radius.value=String(Math.max(Number(radius.min),Math.min(1000,Number(radius.value)*(e.key==='['?.85:1/.85))));drawCursor();}
  });
  feature.addEventListener('change',()=>{stash();load();});mode.addEventListener('change',()=>update());
- samples.addEventListener('change',()=>{try{if(!Number.isInteger(Number(samples.value))||Number(samples.value)<Number(samples.min)||Number(samples.value)>65)throw Error('控制网格超出允许范围');load(Number(samples.value));}catch(error){status.textContent=error.message;samples.value=String(params.values.length);}});
- for(const control of [domainMode,...domainInputs,guard])control.addEventListener('change',()=>{if(busy||active||exactPreview)return;try{if(!same(draft,sculptState(params)))throw Error('请先应用或放弃当前笔画，再改变局部域');load();}catch(error){status.textContent=error.message;}});
- const exact=button('在原柱面与邻层中预览',async()=>{if(busy||active)return;try{busy=true;update();if(exactPreview){await onCancelPreview();exactPreview=false;}else{await onPreview(f.id,reliefSculptPatch(f.params,draft,layerOptions));exactPreview=true;}status.textContent=exactPreview?'主视图显示实际 BRep：原柱面与邻层保留；应用或取消。':'已取消实际预览，工程未改变。';}catch(error){status.textContent=error.message;}finally{busy=false;update(false);}},'secondary');if(onPreview&&onCancelPreview)bar.append(exact);
+ samples.addEventListener('change',()=>{try{if(!Number.isInteger(Number(samples.value))||Number(samples.value)<Number(samples.min)||Number(samples.value)>65)throw Error('控制网格超出允许范围');load(Number(samples.value));}catch(error){status.textContent=humanError(error);samples.value=String(params.values.length);}});
+ for(const control of [domainMode,...domainInputs,guard])control.addEventListener('change',()=>{if(busy||active||exactPreview)return;try{if(!same(draft,sculptState(params)))throw Error('请先应用或放弃当前笔画，再改变局部域');load();}catch(error){status.textContent=humanError(error);}});
+ const exact=button('在原柱面与邻层中预览',async()=>{if(busy||active)return;try{busy=true;update();if(exactPreview){await onCancelPreview();exactPreview=false;}else{const patch=reliefSculptPatch(f.params,draft,layerOptions),execution=reliefSculptPreflight({...f,params:{...f.params,...patch}});if(execution.blockers.length)throw new Error(execution.blockers[0].message);await onPreview(f.id,patch);exactPreview=true;}status.textContent=exactPreview?'主视图显示实际 BRep：原柱面与邻层保留；应用或取消。':'已取消实际预览，工程未改变。';}catch(error){status.textContent=humanError(error);}finally{busy=false;update(false);}},'secondary');if(onPreview&&onCancelPreview)bar.append(exact);
  for(const input of [radius,hardness,symmetry])input.addEventListener('input',drawCursor);
  d._onClose=()=>{finish();stash();live=false;if(frame)cancelAnimationFrame(frame);view.dispose();};load();stash();
 }

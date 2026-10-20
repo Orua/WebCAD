@@ -40,12 +40,23 @@ namespace LogoVector.Worker
                         var token = JObject.Parse(Encoding.UTF8.GetString(bytes));
                         if ((string)token["type"] != "webcad-logo" || (int?)token["version"] != 1 || (string)token["units"] != "mm") throw new LogoVectorException("FORMAT_VARIANT_UNSUPPORTED", "仅支持 webcad-logo v1 毫米文件。");
                     }
-                    else if (format == "pdf" || format == "pdf-ai") { int? selected = (int?)request["options"]?["page"]; int count = PdfAdapter.CountPages(bytes); if (selected.HasValue || count == 1) PdfAdapter.Parse(bytes, selected); result = new InspectionResult { Status = "needsInput", SourceSha256 = hash, DetectedFormat = format, PageCount = count, SelectedPage = selected ?? (count == 1 ? 1 : (int?)null), Message = count > 1 && !selected.HasValue ? "请选择 PDF 页面。" : "已识别矢量页面；请确认尺寸后转换。" }; }
+                    else if (format == "pdf" || format == "pdf-ai") { int? selected = (int?)request["options"]?["page"]; int count = PdfAdapter.CountPages(bytes); var inspectOptions = new ConversionOptions { PdfJoinToleranceMm = (double?)request["options"]?["pdfJoinToleranceMm"] ?? 0, TargetWidthMm = (double?)request["options"]?["targetWidthMm"], SizeMode = request["options"]?["targetWidthMm"] != null ? "targetWidth" : "sourceUnits" }; if (selected.HasValue || count == 1) PdfAdapter.Parse(bytes, selected, inspectOptions); result = new InspectionResult { Status = "needsInput", SourceSha256 = hash, DetectedFormat = format, PageCount = count, SelectedPage = selected ?? (count == 1 ? 1 : (int?)null), Message = count > 1 && !selected.HasValue ? "请选择 PDF 页面。" : "已识别矢量页面；请确认尺寸后转换。" }; }
                     else if (format == "dxf") DxfAdapter.Parse(bytes);
                     else { using (var stream = new MemoryStream(bytes)) if (!StbImageSharp.ImageInfo.FromStream(stream).HasValue) throw new LogoVectorException("MALFORMED_FILE", "位图解码失败。"); }
                     if (result == null) result = new InspectionResult { Status = "needsInput", SourceSha256 = hash, DetectedFormat = format, Message = "已识别文件；请确认尺寸和参数后转换。" };
                 }
-                else if (action == "convert") result = Convert(bytes, sourceName, hash, format, request["options"].ToObject<ConversionOptions>());
+                else if (action == "convert")
+                {
+                    var token = request["options"]?["raster"]?["smoothingPx"];
+                    double smoothingPx = 0;
+                    if (token != null)
+                    {
+                        if ((token.Type != JTokenType.Float && token.Type != JTokenType.Integer) || double.IsNaN((double)token) || double.IsInfinity((double)token) || (double)token < 0 || (double)token > .5) throw new LogoVectorException("INVALID_OPTIONS", "raster.smoothingPx 必须为 0–0.5 源像素数值；默认 0。");
+                        smoothingPx = (double)token;
+                        if (format != "raster") throw new LogoVectorException("INVALID_OPTIONS", "raster.smoothingPx 仅用于位图像素轮廓，不用于 PDF 线接合。");
+                    }
+                    result = Convert(bytes, sourceName, hash, format, request["options"].ToObject<ConversionOptions>(), smoothingPx);
+                }
                 else throw new LogoVectorException("MALFORMED_FILE", "未知操作。");
                 CheckCancellation(args[0]);
                 File.WriteAllText(output, JsonConvert.SerializeObject(result), new UTF8Encoding(false));
@@ -74,11 +85,11 @@ namespace LogoVector.Worker
             if (new[] { ".png", ".jpg", ".jpeg", ".bmp" }.Contains(ext)) throw new LogoVectorException("TYPE_MISMATCH", "文件签名与扩展名不符。");
             throw new LogoVectorException("UNSUPPORTED_FORMAT", "文件格式尚未启用。");
         }
-        static ConversionResult Convert(byte[] bytes, string name, string hash, string format, ConversionOptions options)
+        static ConversionResult Convert(byte[] bytes, string name, string hash, string format, ConversionOptions options, double smoothingPx = 0)
         {
             if (options == null || options.Mode != (format == "raster" ? "raster" : "vector") || options.ToleranceMm <= 0 || options.ToleranceMm > 0.1) throw new LogoVectorException("INVALID_OPTIONS", "转换参数无效。");
             if (!options.SizeConfirmed) throw new LogoVectorException("SIZE_REQUIRED", "请先确认实际毫米尺寸。");
-            List<LogoRegion> regions; double nativeWidth; string method; bool pdfCurves = false, reconstructed = false; int repairs = 0; double joinToleranceMm = 0; double? sourceUnitMm = null; string version = null;
+            List<LogoRegion> regions; double nativeWidth; string method; bool pdfCurves = false, reconstructed = false; int repairs = 0, rasterHeight = 0; double joinToleranceMm = 0; double? sourceUnitMm = null; string version = null; RasterTracer.SmoothingReport smoothing = null;
             if (format == "logo-json")
             {
                 var token = JObject.Parse(Encoding.UTF8.GetString(bytes));
@@ -92,7 +103,7 @@ namespace LogoVector.Worker
             else if (format == "svg") { var parsed = ParseSvg(bytes); regions = parsed.Item1; nativeWidth = parsed.Item2; method = "vector-extraction"; }
             else if (format == "pdf" || format == "pdf-ai") { var parsed = PdfAdapter.Parse(bytes, options.Page, options); regions = parsed.Regions; nativeWidth = parsed.WidthPoints; pdfCurves = parsed.Curves; reconstructed = parsed.Reconstructed; repairs = parsed.Repairs; joinToleranceMm = parsed.JoinToleranceMm; method = reconstructed ? "pdf-linework-reconstruction" : "pdf-vector-extraction"; }
             else if (format == "dxf") { var parsed = DxfAdapter.Parse(bytes); regions = parsed.Regions; nativeWidth = parsed.Width; sourceUnitMm = parsed.MmPerUnit; version = parsed.Version; method = "dxf-vector-extraction"; }
-            else { var parsed = RasterTracer.Trace(bytes, options.Raster); regions = parsed.Item1; nativeWidth = parsed.Item2; method = "raster-tracing"; }
+            else { var parsed = RasterTracer.Trace(bytes, options.Raster, out rasterHeight, smoothingPx, out smoothing); regions = parsed.Item1; nativeWidth = parsed.Item2; method = "raster-tracing"; }
             if (!(nativeWidth > 0)) throw new LogoVectorException("SIZE_REQUIRED", "缺少可靠的物理宽度。");
             double factor;
             if (options.SizeMode == "sourceUnits") factor = format == "pdf" || format == "pdf-ai" ? 25.4 / 72 : format == "dxf" ? sourceUnitMm ?? throw new LogoVectorException("SIZE_REQUIRED", "DXF 未声明可用单位，须给出目标宽度或毫米比例。") : 1;
@@ -102,15 +113,34 @@ namespace LogoVector.Worker
             if (pdfCurves && factor * 0.0001 > options.ToleranceMm) throw new LogoVectorException("TOLERANCE_UNACHIEVABLE", "目标尺寸过大，PDF 曲线细分无法满足公差。");
             foreach (var r in regions) foreach (var ring in new[] { r.Outer }.Concat(r.Holes)) foreach (var p in ring) { p[0] *= factor; p[1] *= factor; }
             var source = new Dictionary<string, object> { ["kind"] = format, ["fileName"] = Path.GetFileName(name), ["sha256"] = hash, ["coordinateSystem"] = "x-right-y-up", ["origin"] = "bounds-center" };
+            if (format == "raster")
+            {
+                double cx = (regions.Min(r => r.Outer.Min(p => p[0])) + regions.Max(r => r.Outer.Max(p => p[0]))) / 2;
+                double cy = (regions.Min(r => r.Outer.Min(p => p[1])) + regions.Max(r => r.Outer.Max(p => p[1]))) / 2;
+                source["rasterFrame"] = new { pixelWidth = nativeWidth, pixelHeight = rasterHeight, mmPerPixel = factor, xMm = -cx, yMm = -rasterHeight * factor - cy, widthMm = nativeWidth * factor, heightMm = rasterHeight * factor };
+                source["rasterOptions"] = new { threshold = options.Raster.Threshold, invert = options.Raster.Invert, alphaThreshold = options.Raster.AlphaThreshold, smoothingPx };
+                string originalGeometryHash = null;
+                if (smoothing.OriginalRegions != null)
+                {
+                    var rawRegions = RasterTracer.CopyRegions(smoothing.OriginalRegions);
+                    foreach (var r in rawRegions) foreach (var ring in new[] { r.Outer }.Concat(r.Holes)) foreach (var p in ring) { p[0] *= factor; p[1] *= factor; }
+                    var rawLogo = LogoGeometry.Normalize(Path.GetFileNameWithoutExtension(name) + "-original-pixel-contours", rawRegions, new Dictionary<string, object> { ["kind"] = "raster-original-pixel-contours", ["sha256"] = hash, ["coordinateSystem"] = "x-right-y-up", ["origin"] = "bounds-center", ["reviewed"] = false, ["reviewRequired"] = true });
+                    originalGeometryHash = LogoGeometry.GeometryHash(rawLogo);
+                    source["rasterOriginalContours"] = rawLogo;
+                }
+                source["rasterSmoothing"] = new { algorithm = "bounded-neighbor-average-v1", approximationBasis = "thresholded-pixel-contours", status = smoothing.Status, failureCode = smoothing.FailureCode, requestedTolerancePx = smoothing.RequestedPx, effectiveTolerancePx = smoothing.ActualPx, requestedToleranceMm = smoothing.RequestedPx * factor, effectiveToleranceMm = smoothing.ActualPx * factor, curveDistanceUpperBoundMm = smoothing.ActualPx > 0 ? smoothing.ActualPx * factor + Math.Sqrt(2) * 1e-9 : 0, coordinateRoundingMm = 1e-9, pointsBefore = smoothing.PointsBefore, pointsAfter = smoothing.PointsAfter, regionsBefore = smoothing.RegionCount, regionsAfter = regions.Count, holesBefore = smoothing.HoleCount, holesAfter = regions.Sum(r => r.Holes.Count), originalGeometryHash, boundsPreserved = true, passes = smoothingPx > 0 ? 1 : 0, topologyPreserved = true, sourceReconstructionErrorMm = (double?)null };
+            }
             if (format == "pdf" || format == "pdf-ai") source["page"] = options.Page ?? 1;
             if (format == "dxf") { source["dxfVersion"] = version; source["mmPerSourceUnit"] = factor; }
             var logo = LogoGeometry.Normalize(Path.GetFileNameWithoutExtension(name), regions, source);
             var geometryHash = LogoGeometry.GeometryHash(logo);
             bool review = format == "raster" || reconstructed;
-            var report = new ConversionReport { Method = method, RequestedToleranceMm = options.ToleranceMm, ApproximationBoundMm = format == "svg" ? (double?)null : pdfCurves ? factor * 0.0001 : 0, SourceReconstructionErrorMm = null, GeometryHash = geometryHash };
+            var report = new ConversionReport { Method = method, RequestedToleranceMm = format == "raster" ? smoothing.RequestedPx * factor : options.ToleranceMm, ApproximationBoundMm = format == "svg" ? (double?)null : pdfCurves ? factor * 0.0001 : smoothing != null && smoothing.ActualPx > 0 ? smoothing.ActualPx * factor + Math.Sqrt(2) * 1e-9 : 0, SourceReconstructionErrorMm = null, GeometryHash = geometryHash };
             if (format == "raster") report.Warnings.Add("RASTER_TRACED: 位图重建误差未知，须人工复核。");
+            if (smoothing?.Status == "rejected-topology") report.Warnings.Add("RASTER_SMOOTHING_REJECTED: 平滑候选未通过拓扑检查（" + smoothing.FailureCode + "），未应用平滑，完整保留原始轮廓；须复核。");
+            else if (smoothing?.ActualPx > 0) report.Warnings.Add("RASTER_SMOOTHED: 已显式应用单次有界轮廓平滑；原始像素轮廓可读，原稿重建误差仍未知，须复核。");
             if (reconstructed) { report.Warnings.Add("LINEWORK_RECONSTRUCTED: 按线条中心路径重建闭环；修复 " + repairs + " 处，接合公差 " + joinToleranceMm.ToString("0.######", Invariant) + " mm，须复核。"); source["lineworkRepairs"] = repairs; source["joinToleranceMm"] = joinToleranceMm; }
-            source["conversion"] = new { method, normalizationProfile = "webcad-logo-v1", requestedToleranceMm = options.ToleranceMm, approximationBoundMm = report.ApproximationBoundMm, sourceReconstructionErrorMm = report.SourceReconstructionErrorMm, reviewRequired = review, reviewReasons = reconstructed ? new[] { "LINEWORK_RECONSTRUCTED" } : review ? new[] { "RASTER_TRACED" } : new string[0], geometryHash };
+            source["conversion"] = new { method, normalizationProfile = "webcad-logo-v1", approximationBasis = format == "raster" ? "thresholded-pixel-contours" : "source-vector-contours", requestedToleranceMm = report.RequestedToleranceMm, approximationBoundMm = report.ApproximationBoundMm, sourceReconstructionErrorMm = report.SourceReconstructionErrorMm, reviewRequired = review, reviewReasons = reconstructed ? new[] { "LINEWORK_RECONSTRUCTED" } : review ? new[] { "RASTER_TRACED" } : new string[0], geometryHash };
             logo.Source = source;
             return new ConversionResult { Status = review ? "needsReview" : "ready", GeometryValid = true, ReviewRequired = review, Logo = logo, Svg = LogoGeometry.ToSvg(logo), Report = report };
         }

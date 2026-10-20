@@ -8,9 +8,35 @@ $proof=Get-Content -LiteralPath $NativeAcceptance -Raw|ConvertFrom-Json
 $nativeHash=(Get-FileHash -LiteralPath $NativeWorker -Algorithm SHA256).Hash.ToLowerInvariant()
 if($proof.status -ne 'passed' -or $proof.producerKernelBuildId -ne ('native-occt@7.8.1:sha256:'+$nativeHash)){throw 'Native binary lacks matching accepted evidence'}
 $gatewayRoot=Join-Path $BuildRoot 'bin/WebCADServices.Gateway/Release/net48'
+function Assert-ParentManagedAssembly([string]$Path){
+ # ERP parent applications may run in either bitness. Reject x64-only and
+ # x86-required managed DLLs before creating any package files.
+ $bytes=[IO.File]::ReadAllBytes($Path)
+ try{
+  $pe=[BitConverter]::ToInt32($bytes,60)
+  if([BitConverter]::ToUInt32($bytes,$pe) -ne 0x4550 -or [BitConverter]::ToUInt16($bytes,$pe+4) -ne 0x14c){throw 'machine'}
+  $optional=$pe+24
+  if([BitConverter]::ToUInt16($bytes,$optional) -ne 0x10b){throw 'PE32'}
+  $cliRva=[BitConverter]::ToUInt32($bytes,$optional+96+14*8)
+  $section=$optional+[BitConverter]::ToUInt16($bytes,$pe+20)
+  $flags=$null
+  for($i=0;$i -lt [BitConverter]::ToUInt16($bytes,$pe+6);$i++){
+   $s=$section+40*$i;$rva=[BitConverter]::ToUInt32($bytes,$s+12)
+   $size=[Math]::Max([BitConverter]::ToUInt32($bytes,$s+8),[BitConverter]::ToUInt32($bytes,$s+16))
+   if($cliRva -ge $rva -and $cliRva -lt $rva+$size){
+    $raw=[BitConverter]::ToUInt32($bytes,$s+20)+$cliRva-$rva
+    $flags=[BitConverter]::ToUInt32($bytes,$raw+16);break
+   }
+  }
+  if($null -eq $flags -or ($flags -band 1) -eq 0 -or ($flags -band 0x12) -ne 0){throw 'CLR flags'}
+ }catch{throw "Parent application requires an AnyCPU managed DLL: $Path. Rebuild with -p:PlatformTarget=AnyCPU; keep native workers in their separate runtime folder."}
+}
 if($ParentApplication){
  foreach($required in @('WebCADServices.Contracts.dll','WebCADServices.Gateway.dll','WebCADServices.Logo.dll','WebCADServices.Runtime.dll','LogoVector.Contracts.dll','LogoVector.Geometry.dll','Newtonsoft.Json.dll','System.Data.SQLite.dll','x64/SQLite.Interop.dll','x86/SQLite.Interop.dll')){
   if(!(Test-Path -LiteralPath (Join-Path $gatewayRoot $required) -PathType Leaf)){throw "Parent application dependency is missing: $required"}
+ }
+ foreach($managed in Get-ChildItem -LiteralPath $gatewayRoot -File -Filter '*.dll'){
+  Assert-ParentManagedAssembly $managed.FullName
  }
 }
 function Copy-Programs([string]$Source,[string]$Target){

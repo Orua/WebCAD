@@ -15,7 +15,8 @@ test('LOGO read/export produces host artifacts without geometry or workspace fil
   assert.equal(out.status,'generated');assert.equal(out.reviewRequired,true);assert.deepEqual(out.contours,{regions:1,holes:1,units:'mm'});
   assert.match(new TextDecoder().decode(await f.api.files.read({resourceId:out.resourceId,as:'bytes'})),/LWPOLYLINE/);
   const packet=await f.api.exportDrawing({context:context(),logoId:read.logoId,format:'json',name:'letters.logo.json'});
-  assert.deepEqual(JSON.parse(new TextDecoder().decode(await f.api.files.read({resourceId:packet.resourceId,as:'bytes'}))),logo);
+  const exportedLogo=JSON.parse(new TextDecoder().decode(await f.api.files.read({resourceId:packet.resourceId,as:'bytes'})));
+  assert.deepEqual(exportedLogo,{...logo,type:'webcad-logo',units:'mm'});
   assert.equal(f.calls.execute,0);assert.equal(f.calls.files,0);assert.equal(f.api.getState().context.revision,7);
   assert.equal((await f.api.exportDrawing({context:context(),logoId:'expired'})).error.code,'RESOURCE_EXPIRED');
   assert.equal((await f.api.exportDrawing({context:{...context(),documentInstanceId:'other'},logoId:read.logoId})).error.code,'INSTANCE_MISMATCH');

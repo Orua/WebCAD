@@ -1,6 +1,7 @@
 import {contractHash} from '../contracts/operation-schema.js';
 import {LIMITS} from '../limits.js';
 import {contextPolicy} from '../page-context-policy.js';
+import {errorRecovery} from '../error-recovery.js';
 export const PROTOCOL = 'goldenluck.webcad/1';
 export const IDENTITY_KEYS = Object.freeze(['sessionId','documentId','documentInstanceId']);
 export const READ_METHODS = new Set(['getBatchReceipt','connect','info','getState','waitFor','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs',
@@ -12,7 +13,7 @@ export const VIEW_METHODS = new Set(['setView','setRenderQuality','setDisplayPre
 export const DISCOVERY_METHODS = new Set(['getBatchReceipt','connect','info','getState','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage','getModelLibrary']);
 const CONTEXTLESS_READ_METHODS = new Set(['getServices','getServicesCapabilities','getServicesRouting']);
 export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.edit','feature.rename','document.rename',
-  'feature.compileServices',
+  'feature.compileServices','document.reliefDesign',
   'body.visibility','body.appearance','body.explode','document.appearance','history.undo','history.redo',
   'reference.setWorkFrame','reference.resetWorkFrame','reference.setLocked','reference.setBodyAnchor',
   'reference.saveFrame','reference.activateFrame','reference.renameFrame','reference.deleteFrame','reference.deleteBodyAnchor',
@@ -25,6 +26,7 @@ export const EXPORT_METHODS = new Set(['files.save','files.export','files.reatta
 JOB_METHODS.add('recoverKernel');
 READ_METHODS.add('probeBlendRadius');
 for(const method of ['getServices','getServicesCapabilities','getServicesRouting','readLogo'])READ_METHODS.add(method);
+for(const method of ['reviewLogo','logoWizard']){READ_METHODS.add(method);JOB_METHODS.add(method);}
 JOB_METHODS.add('readLogo');
 JOB_METHODS.add('probeBlendRadius');
 JOB_METHODS.add('files.reattach');
@@ -51,7 +53,7 @@ export const HOST_ONLY_METHODS = Object.freeze({invoke:'dispatch wrapper',submit
   createRequestContext:'use live requestContext',executeText:'use explicit run steps',getLogoConverter:'service configuration',setLogoConverter:'service credentials',convertLogoPdf:'host binary conversion',
   'files.register':'host binary upload','files.read':'host artifact transport','files.download':'host download','files.write':'host disk capability',
   'files.confirmWritten':'host write receipt','files.release':'host resource lifetime','files.new':'requires new document binding','files.open':'requires new document binding'});
-export function failure(code, message) { return Object.assign(new Error(message), {code}); }
+export function failure(code, message) { const error=Object.assign(new Error(message), {code});const recovery=errorRecovery(error);return Object.assign(error,{userMessage:recovery.userMessage,recovery}); }
 const plain = value => value && typeof value === 'object' && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype;
 
 export function bounded(value, depth=0) {
@@ -79,6 +81,11 @@ export function validatePayload(payload, binding, scopes) {
   if (!plain(payload) || Object.keys(payload).sort().join(',')!=='args,method' || !plain(payload.args)) throw failure('PARAM_SCHEMA_INVALID','Expected method and args');
   const {method,args}=payload;
   if (!scopes.includes('cad.read')) throw failure('scope_denied','CAD read access required');
+  if(['reviewLogo','logoWizard'].includes(method)){
+    const action=args.action??'get';
+    if(action==='artifacts'&&!scopes.includes('cad.export'))throw failure('scope_denied','CAD export access required');
+    if(!['get','artifacts',...(method==='logoWizard'?['attach']:[])].includes(action)&&!scopes.includes('cad.edit'))throw failure('scope_denied','CAD edit access required for contour draft changes');
+  }
   if (method==='run') {
     if (Object.keys(args).sort().join(',')!=='context,idempotencyKey,steps' || typeof args.idempotencyKey!=='string' || !args.idempotencyKey.length || args.idempotencyKey.length>80 || !Array.isArray(args.steps) || !args.steps.length || args.steps.length>LIMITS.batch.maxSteps) throw failure('PARAM_SCHEMA_INVALID',`A run requires 1..${LIMITS.batch.maxSteps} steps`);
     const ids=new Set();

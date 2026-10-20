@@ -1,3 +1,4 @@
+import {humanError} from '../../error-recovery.js';
 // Grayscale height map -> closed mesh relief. Decoding/resampling happens here
 // (canvas); the recipe stores the resampled samples so rebuilds are deterministic.
 import {HEIGHTFIELD_LIMITS} from '../../mesh/heightfield-relief.js';
@@ -22,7 +23,7 @@ export function showHeightfieldReliefDialog({openDialog,element,button,emit,clos
   const samples=await grayscaleSamples(file,n),w=Number(width.value);
   return {version:1,widthMm:w,depthMm:+(w/samples.aspect).toFixed(4),baseMm:Number(base.value),heightMm:Number(height.value),columns:samples.columns,rows:samples.rows,heights:{encoding:'u8'},bytes:samples.bytes,name:file.name,invert:invert.checked,gamma:Number(gamma.value),smoothing:Number(smoothing.value),edgeFadeMm:Number(fade.value)};};
  const apply=button('应用浮雕',async()=>{if(!ready||busy)return;busy=true;try{if(await emit('commitPreview',{})===true){ready=false;close();}}finally{busy=false;}},'primary');
- const preview=button('预览浮雕',async()=>{if(busy)return;busy=true;ready=false;apply.disabled=true;try{status.textContent='正在采样并生成网格…';await emit('cancelPreview',{});const {bytes,name,...params}=await read();ready=!!await emit('preview',{op:'meshHeightfieldRelief',params,heightmapAsset:{bytes,name}});status.textContent=ready?`预览完成：${params.columns}×${params.rows} 采样，约 ${(2*(params.columns-1)*(params.rows-1)).toLocaleString()} 个顶面三角形。`:'未能生成，请检查参数。';}catch(e){status.textContent=e.message;}finally{busy=false;apply.disabled=!ready;}},'secondary');
+ const preview=button('预览浮雕',async()=>{if(busy)return;busy=true;ready=false;apply.disabled=true;try{status.textContent='正在采样并生成网格…';await emit('cancelPreview',{});const {bytes,name,...params}=await read();ready=!!await emit('preview',{op:'meshHeightfieldRelief',params,heightmapAsset:{bytes,name}});status.textContent=ready?`预览完成：${params.columns}×${params.rows} 采样，约 ${(2*(params.columns-1)*(params.rows-1)).toLocaleString()} 个顶面三角形。`:'未能生成，请检查参数。';}catch(e){status.textContent=humanError(e);}finally{busy=false;apply.disabled=!ready;}},'secondary');
  form.addEventListener('input',()=>{ready=false;apply.disabled=true;emit('cancelPreview',{});});d.dataset.previewCapable='true';d._onClose=()=>{if(ready)emit('cancelPreview',{});};
  const foot=element('div',{class:'dialog-footer'});foot.append(button('取消',()=>{emit('cancelPreview',{});close();},'secondary'),preview,apply);
  d.append(form,status,element('p',{class:'property-footnote'},'灰度只按“作者制作的高度图”解释，照片的光影不等于深度。结果是封闭三角网格（STL），不是精确曲面。'),foot);apply.disabled=true;

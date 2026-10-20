@@ -1,0 +1,246 @@
+{
+  "id": "logoWizard",
+  "title": "logoWizard",
+  "category": "page-method",
+  "version": "1.54.6",
+  "contextPolicy": "identity",
+  "description": "logoWizard({context,action?:get|attach|artifacts|parameters|read|back|load|select|setPoint|deletePoint|deleteContour|undo|confirm,expectedRevision?,parameters?:{targetWidthMm,page,pdfJoinToleranceMm,raster},allowUpload?:false,logoId?,regionIndex?,holeIndex?,pointIndex?,pointMm?,confirmed?})。get读取已打开向导且不分配资源；其他动作须wizard.revision。attach登记UI原件和共享草稿，artifacts绑定并导出当前稿；前者需cad.read，后者需cad.export。load从readLogo的logoId读取同源轮廓/原图；read处理UI已选择的文件，默认不上传，需allowUpload:true才可调用已配置后台。没有活动向导不自动开窗，独立流程用reviewLogo。",
+  "synonyms": [
+    "logoWizard",
+    "LOGO",
+    "向导",
+    "卡片",
+    "来源",
+    "校对",
+    "目标面",
+    "参数"
+  ],
+  "inputContract": "logoWizard({context,action?:get|attach|artifacts|parameters|read|back|load|select|setPoint|deletePoint|deleteContour|undo|confirm,expectedRevision?,parameters?:{targetWidthMm,page,pdfJoinToleranceMm,raster},allowUpload?:false,logoId?,regionIndex?,holeIndex?,pointIndex?,pointMm?,confirmed?})。get读取已打开向导且不分配资源；其他动作须wizard.revision。attach登记UI原件和共享草稿，artifacts绑定并导出当前稿；前者需cad.read，后者需cad.export。load从readLogo的logoId读取同源轮廓/原图；read处理UI已选择的文件，默认不上传，需allowUpload:true才可调用已配置后台。没有活动向导不自动开窗，独立流程用reviewLogo。",
+  "outputContract": "返回wizard:{open,revision,step,busy,error,parameters,review,logoId,sourceResourceId,sourceStatus}及context。attach/artifacts另返回logoId/sourceResourceId；无原件明确unavailable-original；artifacts返回resources及sha256。同一UI/Agent草稿，confirmed:true后才进入目标面；确认本身不创建几何。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_EXPIRED",
+    "INSTANCE_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "LOGO_REVIEW_STALE",
+    "LOGO_WIZARD_BUSY",
+    "LOGO_WIZARD_CLOSED",
+    "LOGO_SELECTION_INVALID",
+    "LOGO_MIN_VERTICES",
+    "LOGO_EMPTY",
+    "LOGO_CONTOUR_INVALID",
+    "LOGO_REVIEW_REQUIRED",
+    "LOGO_UNDO_EMPTY",
+    "UPLOAD_AUTH_REQUIRED",
+    "SIZE_REQUIRED"
+  ],
+  "docs": "api.logo",
+  "relatedTools": [
+    "readLogo",
+    "reviewLogo",
+    "logoWizard",
+    "logo",
+    "files.read",
+    "files.download"
+  ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "logoId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "action": {
+        "type": "string",
+        "enum": [
+          "get",
+          "attach",
+          "artifacts",
+          "parameters",
+          "read",
+          "back",
+          "load",
+          "select",
+          "setPoint",
+          "deletePoint",
+          "deleteContour",
+          "undo",
+          "confirm"
+        ]
+      },
+      "expectedRevision": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "regionIndex": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "holeIndex": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "minimum": 0
+      },
+      "pointIndex": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "pointMm": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "number"
+        }
+      },
+      "confirmed": {
+        "type": "boolean"
+      },
+      "allowUpload": {
+        "type": "boolean",
+        "default": false
+      },
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "targetWidthMm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "pdfJoinToleranceMm": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 0.1,
+            "default": 0
+          },
+          "raster": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255,
+                "default": 128,
+                "description": "8-bit luminance; dark pixels below this value are foreground unless invert is true. Not a 0–1 relief threshold."
+              },
+              "smoothingPx": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 0.5,
+                "default": 0,
+                "description": "Explicit bounded smoothing in source pixels; 0 keeps pixel contours. Preserves regions/holes and rejects invalid topology. This is not an image reconstruction error guarantee."
+              },
+              "invert": {
+                "type": "boolean",
+                "default": false
+              },
+              "alphaThreshold": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255,
+                "default": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "executionPolicy": {
+    "geometryComputed": false,
+    "documentMutated": false,
+    "explicitReviewRequired": true
+  },
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "读取或控制已打开的LOGO分步向导；与用户共享来源参数、轮廓草稿和确认，不能代替目标面的实际雕刻。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "readLogo",
+        "chooseWhen": "从已登记的图片或矢量文件取得待复核的闭合轮廓；JPG/PNG描摹需要实际毫米宽度和明确上传授权，不把照片光影当作深度。"
+      },
+      {
+        "id": "reviewLogo",
+        "chooseWhen": "校对本页logoId的毫米轮廓草稿、确认和生成可读取中间文件；不需要打开界面，也不提交雕刻几何。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:293748fcc54bbc8aabe47f350578401941db2915c5e6ee4b686fcca21aae776d"
+}

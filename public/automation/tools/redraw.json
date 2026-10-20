@@ -2,7 +2,7 @@
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "contextPolicy": "identity",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
@@ -29,6 +29,10 @@
     "groupTitle": "名称、外观与显示",
     "chooseWhen": "重绘当前显示，不重建特征历史。",
     "alternatives": [
+      {
+        "id": "document.reliefDesign",
+        "chooseWhen": "保存人工毫米设计约束草稿；支撑/孔/保护/高度点，随工程撤销重开，不求解高度场或生成加工几何。"
+      },
       {
         "id": "document.rename",
         "chooseWhen": "只改工程名，不改每个实体名称。"
@@ -72,5 +76,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:89b853f4200eb1a2b3f44dee185f8ec7f90814d86a3d61cda032493ce3cabd00"
+  "docsHash": "sha256:3ced743ab5549c57e5085842580189c0e4587e0a00d3dfed56746a4a21fee228"
 }
