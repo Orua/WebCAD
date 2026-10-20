@@ -3,7 +3,7 @@
   "title": "高度图浮雕精修",
   "label": "高度图浮雕精修",
   "category": "command",
-  "version": "1.55.2",
+  "version": "1.55.3",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -92,5 +92,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:a53070aeee8afd7e155d44cf94bbb93380632fa178fb328cb802df527e1d99f2"
+  "docsHash": "sha256:d12bfb7beb89eb5f8c26d26ab83ef5a5651a08e47cb390006b00ebc46115988a"
 }

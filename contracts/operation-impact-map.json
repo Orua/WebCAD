@@ -2933,5 +2933,18 @@
       "v4 container history and source-byte persistence",
       "one real provided PNG attach/preview/save/open/original-byte readback at17674"
     ]
+  },
+  "reliefDesignEditsUI20261021": {
+    "localImpact": "Expose existing authored-mm edit list through compact form; no solver change",
+    "servicesImpact": "none: draft and numerical-field UI only",
+    "logoImpact": "none: original image remains reference",
+    "contractImpact": "existing document.reliefDesign full draft.fieldSettings.edits; current docs and routes",
+    "documentImpact": "one existing draft transaction per saved edit; preserve reference, rows and settings",
+    "cacheImpact": "page/docs version refresh; old solved field invalidated by draft revision",
+    "requiredTests": [
+      "five UI helper checks",
+      "one actual UI save/solve/readback/undo check",
+      "release build gate"
+    ]
   }
 }

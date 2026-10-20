@@ -2,7 +2,7 @@
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.55.2",
+  "version": "1.55.3",
   "contextPolicy": "none",
   "description": "getServicesJob({jobId})",
   "synonyms": [
@@ -101,5 +101,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:33a8dcdd1c7e3c27dc2d1f1aa4f18d40b112df303205b677b2bd697bbea2b11f"
+  "docsHash": "sha256:2aa6854a73420bea4ee85daa5552362711d3a80bdb6c58b3391d73e85e24402d"
 }
