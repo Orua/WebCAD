@@ -2,7 +2,7 @@
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.53.3",
+  "version": "1.54.1",
   "contextPolicy": "revision",
   "description": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
   "synonyms": [
@@ -76,5 +76,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:a98e4d8c98ba8f6e6b6e79113fb840d055c591b2461cd7cea32d954bb9819c34"
+  "docsHash": "sha256:495da9e1d82134f331196ca33b8475037423121c685c9e4eece60901f653d25b"
 }

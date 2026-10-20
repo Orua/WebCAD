@@ -7,7 +7,7 @@ export function toolDisabledReason(action,state){
  const count=state.selectedIds.length,topology=state.selectedTopology;
  if(['relief','reliefShoulder'].includes(action)&&(count!==1||topology?.type!=='face'||topology.bodyId!==state.selectedIds[0]||topology.ids?.length!==1))return '切换到选面，点击平面或外凸圆柱面上的浮雕位置';
  if(action==='refineShape'&&(count!==1||state.bodies.find(body=>body.id===state.selectedIds[0])?.solidCount!==1))return '请选择一个封闭实体';
- if(['offsetSolid','offsetSurface','draftByPlane','thread','faceGroove','innerTurn','outerTurn'].includes(action)&&count!==1)return '请选择一个当前来源对象';
+ if(['offsetSolid','offsetSurface','draftByPlane','rodJunction','thread','faceGroove','innerTurn','outerTurn'].includes(action)&&count!==1)return '请选择一个当前来源对象';
  if(action==='inspectPrintability'&&count!==1)return '请选择一个待检查实体';
  if(action==='inspectFit'&&(count!==2||state.selectedIds.some(id=>state.bodies.find(body=>body.id===id)?.solidCount!==1)))return '请按 Ctrl 选择两个封闭实体';
  if(action==='profileRepair'&&(count!==1||state.document?.features?.find(feature=>feature.id===state.selectedIds[0])?.op!=='sketchProfile'))return '请选择一个可编辑解析轮廓来源';

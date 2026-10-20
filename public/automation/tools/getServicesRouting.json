@@ -2,7 +2,7 @@
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.53.3",
+  "version": "1.54.1",
   "contextPolicy": "none",
   "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
   "synonyms": [
@@ -84,5 +84,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:57a719779325cccc06719932d37868d4063195f100b01ea842ee5ee3eccbb973"
+  "docsHash": "sha256:b80190bf74a65bf7ec24ade09a8bcfd3312e0c5bf93edde9c999f097cf77c17a"
 }

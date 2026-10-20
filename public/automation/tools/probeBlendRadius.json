@@ -2,7 +2,7 @@
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.53.3",
+  "version": "1.54.1",
   "contextPolicy": "identity",
   "description": "probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。",
   "synonyms": [
@@ -210,6 +210,10 @@
         "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
       },
       {
+        "id": "rodJunction",
+        "chooseWhen": "对等径直圆杆的垂直 T 接头设置独立三维 R；与日字扣定 R 共用滚球算法。不是任意面圆角，不支持异径、斜交或 X 接头。"
+      },
+      {
         "id": "autoRound",
         "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
       },
@@ -248,5 +252,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:865e8b2f4bfd53b74ae8412f6bb22dd42c41327a420c961e895b82790f2b346b"
+  "docsHash": "sha256:17280b24161824c954c22307282c52e2a90caa88220bbd64a110c3582887ac4a"
 }

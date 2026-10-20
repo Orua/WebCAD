@@ -3,7 +3,7 @@
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.53.3",
+  "version": "1.54.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -73,5 +73,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:274a5e4f1c1c72503e5fbca62e6f6d2fba5d1fd1dc2389ead44aabd5cc04195e"
+  "docsHash": "sha256:664bb80e6fbb8e5a0b60c83343d4ab75754596480c38b74a4d3a091df246a164"
 }

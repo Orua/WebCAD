@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.53.3",
-  "buildId": "9f5e27a546f289328115a53a959593d887e6a58c-src-f8ca706a8c06c4ab-working",
-  "catalogHash": "sha256:bc3dfc8c43a540fe80e687cad3cc1f1c68f30cd633f3152e859f12466a1f9103",
-  "docsHash": "sha256:b9234f9d13bd9348e97a45b1804b89212d6c3ff1a83501502a4a7d68bb0c28aa",
+  "pageApiVersion": "1.54.1",
+  "buildId": "966d5b2742bba2e0a010d560c4e2096fed183dd7-src-c0972e476f8e62e4-working",
+  "catalogHash": "sha256:982b8b69d91791f6227a3efe360b249672018bb73de96bcf8c2685b1705c1540",
+  "docsHash": "sha256:fcbcd94d63ee07b4154832abcf370076996dee350f28490e276c8f62a5e59745",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -1083,6 +1083,13 @@
       "method": "execute",
       "usage": "已画轮廓使用 profileRevolve，refs为截面及可选加工目标；旧尺寸模式使用 revolve。显式世界轴与角度，读取当前卡。"
     },
+    "rodJunction": {
+      "tools": [
+        "rodJunction"
+      ],
+      "method": "execute",
+      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
     "rotateTool": {
       "tools": [
         "setView",
@@ -1199,7 +1206,7 @@
         "clearServicesCredential"
       ],
       "method": "setServices",
-      "usage": "显示实际计算入口；默认地址跟随本站应用路径，自定义可传本站相对路径或完整URL。context、url、authMode、credential、enabled、localTimeoutMs、serverWaitMs；启用时先验证能力，成功才保存，失败明确未保存。getServicesRouting读取实际分流原因；不回显授权。"
+      "usage": "主界面维护统一计算接口地址，可传本站相对路径或带域名/IP/端口的完整URL；显示解析后的实际地址。默认入口使用当前网站登录，自定义端使用专用授权。context、url、authMode、credential、enabled、localTimeoutMs、serverWaitMs；启用时先验证能力，成功才保存，失败明确未保存。所有后台工具共享配置。getServicesRouting读取实际分流原因；不回显授权。"
     },
     "servicesWaitDecision": {
       "tools": [
@@ -1417,6 +1424,7 @@
     }
   },
   "labels": {
+    "rodJunction": "圆杆接头倒 R",
     "agentPanelResize": "getAgentPanel / setAgentPanel",
     "badge": "牌仔工具",
     "advancedLoft": "高级放样",

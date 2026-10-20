@@ -84,7 +84,8 @@
     "refineShape",
     "relief",
     "logo",
-    "quickModel"
+    "quickModel",
+    "rodJunction"
   ],
   "booleanOperations": [
     "cut",
@@ -251,7 +252,8 @@
     "transform",
     "tube",
     "turning",
-    "vectorProfile"
+    "vectorProfile",
+    "rodJunction"
   ],
   "localOnlyOverride": "never-automatic-or-explicit-services"
 }
