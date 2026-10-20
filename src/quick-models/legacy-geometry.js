@@ -456,9 +456,11 @@ export function buildLegacyQuickModel(params,cad,{roundAll}={},definitions,build
         shape=sweep([line([rc,foot,0],[rc,0,0]),arc(0,0,rc,0,Math.PI),line([-rc,0,0],[-rc,foot,0])],[rc,foot,0],[1,0,0],[0,1,0]);
         addBar(2*rc,[-rc,by,0],d);
       } else {
-        check(ri>0&&ri<w/2&&h>w/2+ri,'D 扣需要 0 < 底内 R < 内宽/2，内高 > 内宽/2 + 底内 R');check(g<w-2*ri,'缝宽必须小于底部直段长度');
-        const cr=ri+s/2,bottom=w/2-h-s/2,cy=bottom+cr,cx=rc-cr;
-        shape=sweep([arc(0,0,rc,0,Math.PI),line([-rc,0,0],[-rc,cy,0]),arc(-cx,cy,cr,Math.PI,Math.PI*1.5),line([-cx,bottom,0],[cx,bottom,0]),arc(cx,cy,cr,Math.PI*1.5,Math.PI*2),line([rc,cy,0],[rc,0,0])],[rc,0,0],[1,0,0],[0,1,0]);
+        check(ri>0&&ri<w/2&&h>=w/2+ri,'D 扣需要 0 < 底内 R < 内宽/2，内高 ≥ 内宽/2 + 底内 R');check(g<w-2*ri,'缝宽必须小于底部直段长度');
+        const cr=ri+s/2,bottom=w/2-h-s/2,cy=w/2+ri-h,cx=rc-cr;
+        // At the minimum height the crown and bottom bends meet tangentially.
+        // Omit the two zero-length legs rather than rejecting that valid wire.
+        shape=sweep([arc(0,0,rc,0,Math.PI),...(cy<0?[line([-rc,0,0],[-rc,cy,0])]:[]),arc(-cx,cy,cr,Math.PI,Math.PI*1.5),line([-cx,bottom,0],[cx,bottom,0]),arc(cx,cy,cr,Math.PI*1.5,Math.PI*2),...(cy<0?[line([rc,cy,0],[rc,0,0])]:[])],[rc,0,0],[1,0,0],[0,1,0]);
         if(g)cutBox([-g/2,bottom-s/2-.001,-s/2-.001],[g/2,bottom+s/2+.001,s/2+.001]);
       }
     } else if(kind==='rectBuckle'||kind==='sliderBuckle') {

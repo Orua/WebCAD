@@ -10,6 +10,7 @@ export const READ_METHODS = new Set(['getBatchReceipt','connect','info','getStat
   'fitProfile','traceTwinWindow','planAlignment','getUILayout','getQuickModelUsage','inspectRound','getModelLibrary','resolveModelLibrary']);
 export const VIEW_METHODS = new Set(['setView','setRenderQuality','setDisplayPreferences','selectRectangle','redraw','capture','updateModelLibrary']);
 export const DISCOVERY_METHODS = new Set(['getBatchReceipt','connect','info','getState','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage','getModelLibrary']);
+const CONTEXTLESS_READ_METHODS = new Set(['getServices','getServicesCapabilities','getServicesRouting']);
 export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.edit','feature.rename','document.rename',
   'feature.compileServices',
   'body.visibility','body.appearance','body.explode','document.appearance','history.undo','history.redo',
@@ -95,8 +96,11 @@ export function validatePayload(payload, binding, scopes) {
     throw failure('method_not_allowed','Use structured public CAD methods only');
   }
   if (!DISCOVERY_METHODS.has(method)) {
-    assertIdentity(args.context,binding);
-    if (contextPolicy(method)!=='identity' && (!Number.isSafeInteger(args.context.expectedRevision) || args.context.expectedRevision<0)) throw failure('PARAM_SCHEMA_INVALID','expectedRevision required');
+    const contextlessRead=CONTEXTLESS_READ_METHODS.has(method)&&Object.keys(args).length===0;
+    if(!contextlessRead){
+      assertIdentity(args.context,binding);
+      if (contextPolicy(method)!=='identity' && (!Number.isSafeInteger(args.context.expectedRevision) || args.context.expectedRevision<0)) throw failure('PARAM_SCHEMA_INVALID','expectedRevision required');
+    }
   }
 }
 

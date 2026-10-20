@@ -72,3 +72,22 @@ test('an empty IIS 404 is a computation path error, never a successful capabilit
  const client=createServicesClient({config:{url:'http://localhost/cadservices/api.ashx'},credential:'test-only',fetchImpl:async()=>new Response('',{status:404})});
  await assert.rejects(client.capabilities(),error=>error.httpStatus===404&&error.code==='SERVICES_REQUEST_FAILED'&&error.message.includes('计算接口未找到'));
 });
+
+test('a custom compute authority preserves its port and cannot downgrade an HTTPS editor',()=>{
+ const previous=globalThis.location;
+ try{
+  globalThis.location=new URL('https://goldenfu.cn/webcad/');
+  const custom=normalizeServicesConfig({url:'https://compute.example:8443/cadservices/api.ashx'});
+  assert.equal(custom.url,'https://compute.example:8443/cadservices/api.ashx');
+  assert.equal(custom.authMode,'bearer');
+  globalThis.localStorage=memory();globalThis.sessionStorage=memory();
+  const configured=saveServicesConfig({url:'https://goldenfu.cn:8443/cadservices/api.ashx'});
+  assert.equal(configured.url,'https://goldenfu.cn:8443/cadservices/api.ashx');
+  assert.equal(configured.authMode,'bearer');
+  assert.equal(getServicesConfig().authorizationRestored,false);
+  assert.equal(getServicesConfig().url,configured.url);
+  assert.throws(()=>normalizeServicesConfig({url:'http://10.121.11.8:8080/cadservices/api.ashx'}),error=>error.code==='PARAM_SCHEMA_INVALID'&&error.message.includes('HTTPS页面不能直连'));
+  globalThis.location=new URL('http://127.0.0.1:17674/');
+  assert.equal(normalizeServicesConfig({url:'http://10.121.11.8:8080/cadservices/api.ashx'}).url,'http://10.121.11.8:8080/cadservices/api.ashx');
+ }finally{if(previous===undefined)delete globalThis.location;else globalThis.location=previous;}
+});

@@ -20,6 +20,7 @@ export function normalizeServicesConfig(input){
  const octets=parsed.hostname.split('.').map(Number),privateV4=/^\d+\.\d+\.\d+\.\d+$/.test(parsed.hostname)&&octets.every(v=>v>=0&&v<=255)&&(octets[0]===10||octets[0]===192&&octets[1]===168||octets[0]===172&&octets[1]>=16&&octets[1]<=31);
  const local=['localhost','127.0.0.1','[::1]'].includes(parsed.hostname)||privateV4;
  if(parsed.username||parsed.password||parsed.hash||!(parsed.protocol==='https:'||parsed.protocol==='http:'&&local)||['userid','key','token'].some(k=>parsed.searchParams.has(k)))throw serviceError('PARAM_SCHEMA_INVALID','Services 支持 HTTPS 或内网 HTTP，地址不可带凭据或旧 userid');
+ if(globalThis.location?.protocol==='https:'&&parsed.protocol==='http:')throw serviceError('PARAM_SCHEMA_INVALID','HTTPS页面不能直连HTTP计算端口，请使用HTTPS地址或本站转发入口');
  parsed.searchParams.delete('route');url=parsed.href;}
  if(enabled&&!url)throw serviceError('PARAM_SCHEMA_INVALID','启用 Services 须填写地址');
  if(authMode==='siteSession'&&url){const expected=defaultServicesConfig().url;if(url!==expected)throw serviceError('PARAM_SCHEMA_INVALID','网站登录授权仅限当前正式计算入口');}
@@ -36,7 +37,7 @@ export function getServicesConfig(){
  let authorizationRestored=false;const defaults=defaultServicesConfig();
  if(config.enabled&&config.authMode==='bearer'&&!(auth?.url===config.url&&auth.credential)&&defaults.enabled){
   const previous=new URL(config.url);
-  if(previous.pathname.toLowerCase()==='/cadservices/api.ashx'&&!previous.search&&['goldenfu.cn','localhost','127.0.0.1','10.121.11.8','10.121.11.223'].includes(previous.hostname)){
+  if(previous.pathname.toLowerCase()==='/cadservices/api.ashx'&&!previous.search&&!previous.port&&['goldenfu.cn','localhost','127.0.0.1','10.121.11.8','10.121.11.223'].includes(previous.hostname)){
    config=normalizeServicesConfig({...config,url:defaults.url,authMode:'siteSession',authProfileId:'website-login'});authorizationRestored=true;
   }
  }
