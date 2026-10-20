@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.54.6",
-  "buildId": "69e95e2800a28050a162bd5f27a981bf02fcf378-src-12a7b0d595f4251f-working",
-  "catalogHash": "sha256:7feb106c8f4a1178f37813c1ff8f035221f9fc370217d41ab06233effd7fae7b",
-  "docsHash": "sha256:485bb7203512c87316f17b04044fb5042829ba76cc9e42891d299e1eda19e75c",
+  "pageApiVersion": "1.55.0",
+  "buildId": "dbdf91cfea1dc0014c0c5145736c6bc5cfee0b20-src-fd48c543a5d8288f-working",
+  "catalogHash": "sha256:721a92ae6b6e1d5b2ef7cad834aa917d002c61f601895682d35129d0a85d16a4",
+  "docsHash": "sha256:6760193c1ae80f51110a88dd402b2d3057e19531037ed65228408ffb8e552f94",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -1042,6 +1042,8 @@
     },
     "reliefDesign": {
       "tools": [
+        "reliefDesignField",
+        "meshHeightfieldRelief",
         "document.reliefDesign",
         "getState",
         "history.undo",
@@ -1050,7 +1052,7 @@
         "files.open"
       ],
       "method": "execute",
-      "usage": "人工毫米设计约束：支撑、孔/保护区域和高度点；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；不生成加工几何。"
+      "usage": "人工毫米设计约束：支撑、孔/保护区域和高度点；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；reliefDesignField求解/取消/残差读回，candidate生成受支持矩形meshHeightfieldRelief参数，再feature.add实际提交；孔圆形保护几何明确阻断。"
     },
     "reliefSculpt": {
       "tools": [
@@ -1581,7 +1583,7 @@
     "reference.alignSelectedFace": "queryGeometry / 设置参考锚点（工作基准）",
     "renderQuality": "setRenderQuality",
     "downloadResource": "下载文件",
-    "reliefDesign": "设计草稿 / 浮雕设计约束草稿 / getState / 撤销 / 重做 / 保存工程 / 打开工程",
+    "reliefDesign": "设计草稿 / reliefDesignField / 高度图浮雕（网格） / 浮雕设计约束草稿 / getState / 撤销 / 重做 / 保存工程 / 打开工程",
     "reliefSculpt": "精确浮雕精修 / sampleReliefHeight / prepareReliefSculpt / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
     "precisionSettings": "精度 / setDisplayPreferences",
     "themeSettings": "风格 / setDisplayPreferences",

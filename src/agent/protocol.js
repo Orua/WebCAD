@@ -26,7 +26,7 @@ export const EXPORT_METHODS = new Set(['files.save','files.export','files.reatta
 JOB_METHODS.add('recoverKernel');
 READ_METHODS.add('probeBlendRadius');
 for(const method of ['getServices','getServicesCapabilities','getServicesRouting','readLogo'])READ_METHODS.add(method);
-for(const method of ['reviewLogo','logoWizard']){READ_METHODS.add(method);JOB_METHODS.add(method);}
+for(const method of ['reviewLogo','logoWizard','reliefDesignField']){READ_METHODS.add(method);JOB_METHODS.add(method);}
 JOB_METHODS.add('readLogo');
 JOB_METHODS.add('probeBlendRadius');
 JOB_METHODS.add('files.reattach');
@@ -81,6 +81,7 @@ export function validatePayload(payload, binding, scopes) {
   if (!plain(payload) || Object.keys(payload).sort().join(',')!=='args,method' || !plain(payload.args)) throw failure('PARAM_SCHEMA_INVALID','Expected method and args');
   const {method,args}=payload;
   if (!scopes.includes('cad.read')) throw failure('scope_denied','CAD read access required');
+  if(method==='reliefDesignField'&&!['get','candidate'].includes(args.action??'get')&&!scopes.includes('cad.edit'))throw failure('scope_denied','CAD edit access required for numerical field tasks');
   if(['reviewLogo','logoWizard'].includes(method)){
     const action=args.action??'get';
     if(action==='artifacts'&&!scopes.includes('cad.export'))throw failure('scope_denied','CAD export access required');

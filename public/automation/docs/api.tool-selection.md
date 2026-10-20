@@ -198,6 +198,7 @@
 - heightfieldSculpt：高度图精修发现入口；用 feature.edit 更新原特征。
 - prepareReliefSculpt：准备有明确 domain/mask 的精修草稿，尚未应用。
 - prepareReliefTopologyUpgrade：评估/准备浮雕拓扑升级；不等同已提交升级成功。
+- reliefDesignField：从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。
 - sampleReliefHeight：读取浮雕参数/草稿指定点的控制高度，不是修改高度。
 - sampleMeshRelief：按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。
 - readRelief：读取已登记高度图资源及采样定义，尚未创建浮雕实体。
@@ -332,6 +333,7 @@
 - exportDrawing：导出已有drawingId工程图，或readLogo返回的logoId原轮廓DXF/JSON；不必创建三维实体或写脚本。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
 reviewLogo: contextPolicy=identity
 logoWizard: contextPolicy=identity

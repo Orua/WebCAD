@@ -2,7 +2,7 @@
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.54.6",
+  "version": "1.55.0",
   "contextPolicy": "none",
   "description": "getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。",
   "synonyms": [
@@ -90,5 +90,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:53ebeb503126590c2ceab9ad17b4b134a1ae0128245343edccee061fe9b0a687"
+  "docsHash": "sha256:18ef9a073f071d1910bb773bd4033f7a6bd808f2d7c14b1fb4ebc4dbb8a4ed74"
 }

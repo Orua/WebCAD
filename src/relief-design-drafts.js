@@ -19,7 +19,7 @@ function inside(shape,[x,y]){
  return shape.kind==='circle'?Math.hypot(dx,dy)<=shape.radiusMm:dx<=shape.widthMm/2&&dy<=shape.heightMm/2;
 }
 export function validateReliefDesign(input,path='draft'){
- object(input,['schemaVersion','name','support','throughHoles','protectedZones','heightRangeMm','points'],path);
+ object(input,['schemaVersion','name','support','throughHoles','protectedZones','heightRangeMm','points','fieldSettings'],path);
  if(input.schemaVersion!==1)fail(`${path}.schemaVersion`,'需要设计草稿 schemaVersion:1');
  const name=text(input.name,`${path}.name`),support=validateDesignRegion(input.support,`${path}.support`);
  const regions=key=>{const values=input[key];if(!Array.isArray(values)||values.length>32)fail(`${path}.${key}`,'需要最多32项的区域数组');return values.map((v,i)=>validateDesignRegion(v,`${path}.${key}[${i}]`));};
@@ -37,7 +37,13 @@ export function validateReliefDesign(input,path='draft'){
   if(protectedZones.some(s=>inside(s,pointMm)))fail(`${p}.pointMm`,'高度点位于保护区；请移到保护区外','RELIEF_DESIGN_PROTECTED');
   return {id,pointMm,heightMm};
  });
- return {schemaVersion:1,name,support,throughHoles,protectedZones,heightRangeMm,points};
+ let fieldSettings;
+ if(input.fieldSettings!==undefined){
+  const p=path+'.fieldSettings',v=input.fieldSettings;object(v,['columns','rows','smoothWeight','maxIterations','toleranceMm','edits'],p);fieldSettings={};
+  for(const [key,min,max,integer]of [['columns',9,129,true],['rows',9,129,true],['smoothWeight',0,100000,false],['maxIterations',1,20000,true],['toleranceMm',1e-10,1,false]])if(v[key]!==undefined){fieldSettings[key]=number(v[key],p+'.'+key,min,max);if(integer&&!Number.isInteger(v[key]))fail(p+'.'+key,'需要整数');}
+  if(v.edits!==undefined){if(!Array.isArray(v.edits)||v.edits.length>256)fail(p+'.edits','最多256笔');fieldSettings.edits=v.edits.map((e,i)=>{const q=p+'.edits['+i+']';object(e,['mode','centerMm','radiusMm','strength','amountMm','targetMm'],q);if(!['raise','lower','flatten','smooth'].includes(e.mode))fail(q+'.mode','不支持的笔刷');const r={mode:e.mode,centerMm:xy(e.centerMm,q+'.centerMm'),radiusMm:number(e.radiusMm,q+'.radiusMm',.001,10000)};for(const [k,a,b]of [['strength',0,1],['amountMm',0,100],['targetMm',-100,100]])if(e[k]!==undefined)r[k]=number(e[k],q+'.'+k,a,b);return r;});}
+ }
+ return {schemaVersion:1,name,support,throughHoles,protectedZones,heightRangeMm,points,...(fieldSettings?{fieldSettings}:{})};
 }
 export function validateReliefDesigns(input){
  if(input===undefined)return [];

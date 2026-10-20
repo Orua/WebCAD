@@ -1,5 +1,20 @@
 {
   "version": 1,
+  "reliefDesignNumericalCore20261021": {
+    "localImpact": "Product Pro domain/pipeline/field-solver/local-edit run in a bounded cancellable numerical Worker; UI visual field/residual readback and supported candidate creation use current CommandService",
+    "servicesImpact": "None: no server protocol or renderer/Native changes; supported meshHeightfieldRelief remains local",
+    "logoImpact": "None: preserve LOGO source, review, converter and artifacts",
+    "contractImpact": "reliefDesignField solve/get/cancel/candidate with document and draft revisions; Agent read/edit scopes; candidate returns existing feature.add args or explicit circular/hole/protection blockers",
+    "documentImpact": "Persist validated fieldSettings and local edit recipe with reliefDesigns; numerical cache invalidates on document/draft edits; generated mesh freezes actual u16 mm field samples into existing self-contained recipe",
+    "cacheImpact": "One numerical field per page, 30-second Worker timeout, cancellation terminates task; rebuild downloadable contracts for new method",
+    "requiredTests": [
+      "Actual product numerical Worker solve/cancel/stale",
+      "Conservative circular hole/protected masks and residual readback",
+      "Supported candidate row convention/u16 bound/closed mesh",
+      "v4 design recipe save/reopen",
+      "One small actual CadKernel mesh integration; no spent real-case budget reset"
+    ]
+  },
   "batchInputDiagnostics20261021": {
     "localImpact": "Separate missing, malformed and duplicate step-ID diagnostics before any batch step executes; do not rename IDs or replay requests",
     "servicesImpact": "None: no Services protocol, routing or computation changes",
@@ -2874,6 +2889,22 @@
       "relief-design-drafts",
       "workspace-upgrade",
       "17674 UI/API save and reopen"
+    ]
+  },
+  "logoPdfRaster20261021": {
+    "localImpact": "PDF/AI fallback rendered PNG source overlay, same revision-bound review and readable intermediate binary resource",
+    "servicesImpact": "Supervised Worker in-process pinned non-V8 PDFium, no extra service or child process; Runtime capability and engine hash include renderer",
+    "logoImpact": "Vector first; only unsupported-render/no-vector fallback once; explicit source/page/hash and mandatory contour review",
+    "contractImpact": "Page API 1.55.0 existing raster options also apply to PDF/AI fallback; rendered-source artifact and renderedRaster metadata",
+    "documentImpact": "Confirmed contours retain self-contained bounded rendered PNG, frame and source identity; geometry authority unchanged",
+    "cacheImpact": "Regenerate public knowledge hashes; server engine fingerprint changes",
+    "requiredTests": [
+      "logo-pdf-renderer actual text/image/vector Worker",
+      "browser-logo-input",
+      "logo-review-api",
+      "logo-vector-review",
+      "17674 targeted UI/API",
+      "matched backend health/capability and one production PDF job"
     ]
   }
 }
