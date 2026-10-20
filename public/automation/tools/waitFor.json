@@ -2,7 +2,7 @@
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.54.1",
+  "version": "1.54.2",
   "contextPolicy": "none",
   "description": "waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。",
   "synonyms": [
@@ -71,5 +71,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:e9de9af061fc9cba503671281456fea18391d782c7c62886b6e1b9a5d55ba375"
+  "docsHash": "sha256:1d4f5b0cdcbf09292d269956f5daa2137083f7f6c23b5cb08023acb7ee2efa2b"
 }

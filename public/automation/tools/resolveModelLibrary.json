@@ -2,7 +2,7 @@
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.54.1",
+  "version": "1.54.2",
   "contextPolicy": "identity",
   "description": "resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})",
   "synonyms": [
@@ -87,5 +87,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:0869c2b219f768e5c7548577439fb6fe19d3bbd493a38daa945974835bd1b637"
+  "docsHash": "sha256:059ce348fbca37c98d6b583f9b1ec1af8db0705ab30f18b2b48c0f6fa8af043e"
 }

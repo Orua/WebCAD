@@ -3,7 +3,7 @@
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.54.1",
+  "version": "1.54.2",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -85,5 +85,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:cb0865873ab598ce9b5bb22bb80e88478d6615e171d22a812aa63c8dadb65a3c"
+  "docsHash": "sha256:c98adfcf2a793923d4ef51122a227e7c305da3c5f7124286ae7bf21170a49dbb"
 }

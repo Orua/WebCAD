@@ -7,6 +7,7 @@ import {infoMetadata} from '../src/page-api-docs.js';
 import {EDITOR_ACTIONS} from '../src/editor-actions.js';
 import {REFERENCE_ACTIONS} from '../src/reference-contracts.js';
 import {PAGE_CLIENT_METHODS,createPageClient} from '../skills/webcad-page-api/scripts/page-client.mjs';
+import {createPageJobs} from '../src/page-jobs.js';
 
 test('every public method is remotely supported or has an explicit host-only reason',()=>{
   const info=infoMetadata(), supported=new Set([...READ_METHODS,...VIEW_METHODS,...JOB_METHODS]);
@@ -30,6 +31,30 @@ const requestContext={...context,expectedRevision:0};delete requestContext.revis
 const session={cadSessionId:'cad',leaseEpoch:1,binding:context,scopes:['cad.read','cad.edit','cad.export']};
 const envelope=payload=>({protocol:'goldenluck.webcad/1',cadSessionId:'cad',leaseEpoch:1,taskId:'task',commandId:'a'.repeat(32),requestHash:'hash',deadline:Date.now()/1000+30,payload});
 const payload={method:'run',args:{context:requestContext,idempotencyKey:'first',steps:[{id:'part',method:'add',args:{op:'box',params:{},refs:[]}}]}};
+
+test('every advertised Agent job method is accepted by the real page job dispatcher',async()=>{
+ const invoked=[];
+ const api={getState:()=>({context}),invoke:async request=>{invoked.push(request.method);return {status:'read',context};}};
+ Object.assign(api,createPageJobs(api));
+ for(const method of JOB_METHODS){
+  const jobId='contract-'+method;
+  assert.equal(api.submit({jobId,method,args:{context:requestContext}}).status,'queued',method);
+  const result=await api.awaitJob({jobId,timeoutMs:1000});
+  assert.equal(result.status,'completed',method);
+ }
+ assert.deepEqual(new Set(invoked),JOB_METHODS);
+});
+
+test('readLogo reaches the operation once through the real adapter and asynchronous page jobs',async()=>{
+ let calls=0;
+ const api={connect(){},getState:()=>({context}),invoke:async request=>{calls++;assert.equal(request.method,'readLogo');assert.equal(request.args.resourceId,'original-jpeg');return {status:'read',context,logo:{regions:[]}};}};
+ Object.assign(api,createPageJobs(api));
+ const adapter=createHostAdapter({api,session,report:async()=>{}});
+ const command=envelope({method:'readLogo',args:{context:requestContext,resourceId:'original-jpeg',targetWidthMm:30,sizeConfirmed:true,allowUpload:true}});
+ const result=await adapter.receive(command);
+ assert.equal(result.status,'read');assert.equal(calls,1);
+ await adapter.receive(command);assert.equal(calls,1,'same command retains its original receipt');
+});
 
 test('only executing edits hold the canvas; terminal geometry unlocks before report transport',async()=>{
   let resolveReport,resolveReached;

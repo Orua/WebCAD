@@ -27,7 +27,7 @@ import {PRODUCT_SOURCE_GUIDANCE,PRODUCT_FAMILY_DOCS,PRODUCT_FAMILIES} from './pr
 import {DESIGN_INSPECTION_SCHEMA} from './design-inspection.js';
 import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-intent.js';
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
-const PAGE_DOC_VERSION = '1.54.1';
+const PAGE_DOC_VERSION = '1.54.2';
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
     entities:[{id:'rectangle-1',type:'rectangle',originMm:[0,0],widthMm:40,heightMm:30}],

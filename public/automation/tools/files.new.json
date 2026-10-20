@@ -2,7 +2,7 @@
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.54.1",
+  "version": "1.54.2",
   "contextPolicy": "none",
   "label": "新建工程",
   "synonyms": [
@@ -95,5 +95,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:32b8f39e139184935c31a5b7e99449d99b37f75cc4ece7854ccb99ef8ed65046"
+  "docsHash": "sha256:6013e08ea5e9ca63bc808ff561f7b08b900e79456602c6147b883a57140828d1"
 }
