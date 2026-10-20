@@ -1020,7 +1020,7 @@
       "clearServicesCredential"
     ],
     "method": "setServices",
-    "usage": "context、url、credential、enabled、localTimeoutMs、serverWaitMs；配置 Services 后复杂运算使用服务。超时配置从下一次运算生效；getServicesRouting 读取选择原因和等待状态，不回显授权。"
+    "usage": "显示实际计算入口；默认地址跟随本站应用路径，自定义可传本站相对路径或完整URL。context、url、authMode、credential、enabled、localTimeoutMs、serverWaitMs；启用时先验证能力，成功才保存，失败明确未保存。getServicesRouting读取实际分流原因；不回显授权。"
   },
   "servicesFeatureCompile": {
     "tools": [

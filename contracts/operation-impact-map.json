@@ -2657,6 +2657,15 @@
     "cacheImpact": "regenerate static previews and public tool/docs hashes",
     "logoImpact": "none"
   },
+  "computeWebsiteRouting20261020": {
+    "localImpact": "Display the effective compute endpoint; accept relative custom endpoints; preserve defaults, credentials and project state",
+    "servicesImpact": "Resolve the authenticated proxy's Gateway inside the current website/application instead of a hardcoded loopback IIS site; classify upstream route and signature failures",
+    "logoImpact": "Restore the shared authenticated path used by raster/PDF outline conversion without changing glyphs or dimensions",
+    "contractImpact": "Clarify getServices/setServices validation and relative-address semantics; existing AI and UI configuration remain shared",
+    "documentImpact": "none; no geometry, source recipe or project format changes",
+    "cacheImpact": "Refresh frontend and generated knowledge hashes",
+    "requiredTests": ["relative root and virtual-application URL cases", "empty IIS 404 handling", "compiled ASHX URI resolution", "authorized production capability readback", "real CAD Agent LOGO/round/relief failures"]
+  },
   "reportRemediation20261020": {
     "localImpact": "Recover a trapped WASM Worker once from the committed document without replaying the candidate; preserve not_committed across recovery revision changes; drain camera inertia; report SubD cage brush hits and orientation conflicts",
     "servicesImpact": "none; read-only receipt lookup is included in browser Agent protocol; no Services algorithm/runtime/authorization changes",

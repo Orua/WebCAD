@@ -2,7 +2,7 @@
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.53.2",
+  "version": "1.53.3",
   "contextPolicy": "none",
   "description": "cancelJob({jobId})",
   "synonyms": [
@@ -72,5 +72,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:9f3ad2471d1fccd6a8e97c5ccae2aee5248463d7754c6757816aaa90bb8ffde5"
+  "docsHash": "sha256:5a7c1687b80643c3cde7154160d7f1ef0c79b71093ce586fa4a2cbdcee660850"
 }

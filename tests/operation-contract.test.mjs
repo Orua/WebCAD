@@ -6,6 +6,8 @@ import {meshBooleanOperation} from '../src/mesh/mesh-boolean.js';
 import {reliefPlateOperation} from '../src/mesh/relief-plate.js';
 import {reliefEditOperation} from '../src/mesh/relief-edit-contract.js';
 import {reliefOperations} from '../src/modeling/manufacturing/relief-contracts.js';
+import {operationRoutingClass} from '../src/operation-contracts.js';
+import {chooseExecutor} from '../src/services/execution-router.js';
 const strict=['meshHeightfieldRelief','meshBoolean','logo','union','cut','intersect','transform','copy'];
 test('all operations carry source purpose, parameter metadata, limits, outputs and invalid examples',()=>{
  for(const card of listOperations()){
@@ -23,4 +25,13 @@ test('relief source modules publish their own canonical contract before registry
   assert.deepEqual(Object.keys(c.params).sort(),Object.keys(source.paramsSchema.properties).sort(),id);
   assert.ok(c.examples.minimal.params&&c.related.length,id);
  }
+});
+test('routing metadata marks only explicitly registered operations and matches runtime blocking',()=>{
+ assert.equal(operationRoutingClass('box'),'local-only');
+ assert.equal(operationRoutingClass('round'),'services-eligible');
+ assert.equal(operationRoutingClass('meshBoolean'),'bounded-mesh');
+ assert.equal(operationRoutingClass('futureUnsupportedSurface'),'unregistered');
+ const decision=chooseExecutor({operation:'futureUnsupportedSurface',servicesAvailable:true});
+ assert.equal(decision.executor,'blocked');
+ assert.equal(decision.routingReason,'operation-routing-unregistered');
 });
