@@ -2719,6 +2719,15 @@
       "real CAD Agent LOGO/round/relief failures"
     ]
   },
+  "logoAsyncRead20261020": {
+    "localImpact": "Allow readLogo in the asynchronous page-job dispatcher as already advertised by the Agent contract; retain original job and command receipts",
+    "servicesImpact": "No worker or protocol change; the previously blocked controlled JPEG inspect/convert path can now be reached",
+    "logoImpact": "Restore actual Agent access to the existing conversion implementation without changing source glyphs, dimensions or review requirements",
+    "contractImpact": "Page API 1.54.2; add parity coverage for every Agent JOB_METHOD and an integration test through real host adapter plus createPageJobs",
+    "documentImpact": "none; rejected original commands committed no geometry and are not replayed",
+    "cacheImpact": "Regenerate and hash-verify current knowledge before the repaired original-input verification",
+    "requiredTests": ["Real failure task 399d4323-df68-4eda-a34e-5fa3032f54e0", "Real adapter/page-job method parity and readLogo original receipt reuse", "One repaired production Agent JPEG task with original dimensions, depth and draft"]
+  },
   "dBuckleTangentBoundary20261020": {
     "localImpact": "Accept the valid tangent minimum height of the D-buckle crown and bottom bends; omit zero-length legs while preserving explicit dimensions, section and radius",
     "servicesImpact": "none; quickModel remains local WASM",

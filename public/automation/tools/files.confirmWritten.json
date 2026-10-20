@@ -2,7 +2,7 @@
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.54.1",
+  "version": "1.54.2",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -104,5 +104,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:be802837256ed5387a26fb8e5520afe83948b47f8a5563e9b09e16768a00d92a"
+  "docsHash": "sha256:5cdf3f36f687cc7f3692934388c9cbf1f8e16b80b24cf1785ef812d0e1dcfff0"
 }

@@ -2,7 +2,7 @@
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.54.1",
+  "version": "1.54.2",
   "contextPolicy": "revision",
   "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
   "synonyms": [
@@ -77,5 +77,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:d2a74d0afdeb464f65b71ca43cb62d73fc486951bf4ff07f9dff1c4ed7fa5efc"
+  "docsHash": "sha256:92345d4a869c8604d52fed1fe360156d12217695a1c044f6999a981cc967d945"
 }

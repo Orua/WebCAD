@@ -10,6 +10,7 @@ export function createPageJobs(api,{runBatch}={}) {
   const methods = new Set(['run','execute','queryGeometry','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','setView','setRenderQuality','files.save','files.export','files.import']);
   methods.add('inspectDesign');
   methods.add('inspectRound');
+  methods.add('readLogo');
   methods.add('probeBlendRadius');
   methods.add('recoverKernel');
   methods.add('files.reattach');
