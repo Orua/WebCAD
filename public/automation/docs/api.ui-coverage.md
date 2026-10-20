@@ -981,6 +981,10 @@
   },
   "reliefDesign": {
     "tools": [
+      "reliefDesignReference",
+      "files.register",
+      "files.read",
+      "files.release",
       "reliefDesignField",
       "meshHeightfieldRelief",
       "document.reliefDesign",
@@ -991,7 +995,7 @@
       "files.open"
     ],
     "method": "execute",
-    "usage": "人工毫米设计约束：支撑、孔/保护区域和高度点；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；reliefDesignField求解/取消/残差读回，candidate生成受支持矩形meshHeightfieldRelief参数，再feature.add实际提交；孔圆形保护几何明确阻断。"
+    "usage": "人工毫米设计约束：支撑、孔/保护区域和高度点；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；reliefDesignField求解/取消/残差读回，candidate保留采样圆/矩形、孔和作者保护基线，再feature.add实际提交rawMesh；原图通过reliefDesignReference从登记资源attach/detach/get/resource，保存原始字节及历史引用，不从亮度推断高度。"
   },
   "reliefSculpt": {
     "tools": [
@@ -1457,6 +1461,7 @@
 }
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
 reviewLogo: contextPolicy=identity

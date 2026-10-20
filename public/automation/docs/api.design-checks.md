@@ -27,6 +27,7 @@ requirePass:true 时，只要有fail/unverified就返回status:failed及DESIGN_R
 限制：只验证列出的检查，不自动证明完整连接、所有孔、截面形状、圆角G1/G2、标准螺纹或装配合格；渲染、文件生成及磁盘写入仍各自确认。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
 reviewLogo: contextPolicy=identity

@@ -2,7 +2,7 @@
   "id": "reliefDesignField",
   "title": "reliefDesignField",
   "category": "page-method",
-  "version": "1.55.1",
+  "version": "1.55.2",
   "contextPolicy": "revision",
   "description": "reliefDesignField({context,action:\"solve\"|\"get\"|\"cancel\"|\"candidate\",designId,expectedDraftRevision,options?,baseMm?})。先document.reliefDesign保存草稿；solve在30秒可取消Worker中运行Pro求解器。options可用columns/rows 9–129（默认33）、smoothWeight默认1、maxIterations 1–20000（默认10000）、toleranceMm默认0.0001、edits。圆形/矩形支撑、孔和保护域均进入保守掩码，最低设计高度为保护基线；高度点是weight=100软毫米约束，不是控制极点。",
   "synonyms": [
@@ -168,6 +168,10 @@
         "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
       },
       {
+        "id": "reliefDesignReference",
+        "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
+      },
+      {
         "id": "sampleReliefHeight",
         "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
       },
@@ -186,5 +190,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:58a08aa6e75cabee3a0fb4ccb8e674547dbf82ac7019be2da557a8bf16c23c49"
+  "docsHash": "sha256:d56141e62b2bf36738c99b8d309506afea327b2866864679a90ba215f968929d"
 }

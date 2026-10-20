@@ -3,7 +3,7 @@
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.55.1",
+  "version": "1.55.2",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -73,5 +73,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:687d48fd5e9ce0957a5e6aa54cbbd7fdcdc2586c0491eb7106d5649f77dab16e"
+  "docsHash": "sha256:13b04c74cced0dd328443aae5e97672150e4c94efb81b379315cb7e19a4da59a"
 }

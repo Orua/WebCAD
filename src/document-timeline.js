@@ -1,5 +1,6 @@
 // Forward state differences; v4 sources stay once in binaryAssets by hash.
 import {validateReliefDesigns} from './relief-design-drafts.js';
+import {validateReliefReferenceBindings} from './relief-design-reference-contract.js';
 import {DOCUMENT_LIMITS} from './document-limits.js';
 import {BINARY_SOURCE_FORMATS} from './mesh/mesh-assets.js';
 import {PROJECT_V4_LIMITS} from './mesh/project-v4.js';
@@ -10,7 +11,7 @@ const fail=m=>{throw Object.assign(new Error(m),{code:'HISTORY_INVALID'});};
 const unsafe=k=>['__proto__','constructor','prototype'].includes(String(k));
 function state(doc){const {timeline,imports,compiledArtifacts,binaryAssets,...rest}=doc;return clone(rest);}
 // Heightfield reliefs keep their samples as a binary heightmap asset reached through imports.
-function importKeys(snapshot){return (snapshot.features||[]).flatMap(f=>f.op==='import'?[f.params?.key]:f.op==='meshHeightfieldRelief'&&f.params?.heights?.importKey?[f.params.heights.importKey]:[]);}
+function importKeys(snapshot){return [...(snapshot.features||[]).flatMap(f=>f.op==='import'?[f.params?.key]:f.op==='meshHeightfieldRelief'&&f.params?.heights?.importKey?[f.params.heights.importKey]:[]),...(snapshot.reliefDesigns||[]).flatMap(d=>d.draft?.reference?[d.draft.reference.importKey]:[])];}
 function retainImports(doc,timeline){
  const needed=new Set(importKeys(doc));
  if(timeline){let s=timeline.base;for(const key of importKeys(s))needed.add(key);for(const e of timeline.entries){s=apply(s,e.patch);for(const key of importKeys(s))needed.add(key);}}
@@ -21,7 +22,7 @@ function retainImports(doc,timeline){
   if(doc.binaryAssets){const assetHashes=new Set(Object.values(doc.imports||{}).map(item=>item.assetHash).filter(Boolean));doc.binaryAssets=Object.fromEntries(Object.entries(doc.binaryAssets).filter(([hash])=>assetHashes.has(hash)));}
   if(doc.compiledArtifacts)doc.compiledArtifacts=Object.fromEntries(Object.entries(doc.compiledArtifacts).filter(([hash])=>hashes.has(hash)));
 }
-function validateImports(snapshot,imports){validateReliefDesigns(snapshot.reliefDesigns);for(const key of importKeys(snapshot))if(typeof key!=='string'||!Object.hasOwn(imports||{},key)||(typeof imports[key]?.data!=='string'&&!(BINARY_SOURCE_FORMATS.includes(imports[key]?.format)&&/^[a-f0-9]{64}$/.test(imports[key]?.assetHash||''))))fail('历史工程缺少原始导入资源');}
+function validateImports(snapshot,imports){validateReliefDesigns(snapshot.reliefDesigns);validateReliefReferenceBindings(snapshot,imports);for(const key of importKeys(snapshot))if(typeof key!=='string'||!Object.hasOwn(imports||{},key)||(typeof imports[key]?.data!=='string'&&!(BINARY_SOURCE_FORMATS.includes(imports[key]?.format)&&/^[a-f0-9]{64}$/.test(imports[key]?.assetHash||''))))fail('历史工程缺少原始导入资源');}
 function diff(a,b,path=[]){
  if(JSON.stringify(a)===JSON.stringify(b))return [];
  if(a===null||b===null||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return [{path,value:clone(b)}];

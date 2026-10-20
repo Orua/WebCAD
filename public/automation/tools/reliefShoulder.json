@@ -681,6 +681,10 @@
         "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
       },
       {
+        "id": "reliefDesignReference",
+        "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
+      },
+      {
         "id": "reliefDesignField",
         "chooseWhen": "从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。"
       },
@@ -703,5 +707,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:bc44dbeba22b2939713f1d398457728f80b8ac6feecf2b0bccaa86af0e0a7797"
+  "docsHash": "sha256:8532b5ade3bd03813db7d4c0136932745e4099314c1ba0f7a7e391af106cda08"
 }

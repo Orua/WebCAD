@@ -386,6 +386,14 @@ PDF页面渲染或渲染底图校验未通过。
 
 代码：`RELIEF_DESIGN_OUTSIDE`、`RELIEF_OUTSIDE_FACE`、`RELIEF_SAMPLE_OUTSIDE`、`RELIEF_TARGET_OUTSIDE`、`SUBD_BRUSH_NO_HIT`、`TAP_DEPTH_INVALID`、`TAP_POINT_INVALID`
 
+### relief-reference
+
+浮雕原参考图不存在、已改变或未通过原件校验。
+
+读取当前设计草稿与已登记原图资源；核对真实图片格式、SHA256、大小和解码结果。原图仅供参考，不能按照片明暗自动生成高度。
+
+代码：`RELIEF_REFERENCE_INVALID`、`RELIEF_REFERENCE_MISSING`
+
 ### wait
 
 后台计算需要明确等待决定，或原等待决定已经过期。
@@ -404,6 +412,7 @@ PDF页面渲染或渲染底图校验未通过。
 
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
 reviewLogo: contextPolicy=identity

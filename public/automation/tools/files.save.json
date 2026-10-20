@@ -2,7 +2,7 @@
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.55.1",
+  "version": "1.55.2",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -107,5 +107,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:b3a5e39a37484cfd9d21da2361560d8f9bd3e1eacad98b8f85158ab4a44cf9a9"
+  "docsHash": "sha256:f9253097382cecec20fd690d72ddabf845d80eb80025a1df907a4b906dd5beac"
 }

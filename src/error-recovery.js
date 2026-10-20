@@ -3,6 +3,7 @@ import sourceCodes from '../contracts/error-recovery-codes.json' with {type:'jso
 // changes an argument, clears a guard, commits/undoes geometry, or cancels a job.
 const rule=(id,codes,reason,next,tools=[],options={})=>({id,codes:new Set(codes.split(' ').filter(Boolean)),reason,next,tools,...options});
 const rules=[
+  rule('relief-reference','RELIEF_REFERENCE_INVALID RELIEF_REFERENCE_MISSING','浮雕原参考图不存在、已改变或未通过原件校验。','读取当前设计草稿与已登记原图资源；核对真实图片格式、SHA256、大小和解码结果。原图仅供参考，不能按照片明暗自动生成高度。',['reliefDesignReference','getState'],{hardStop:true}),
   rule('design-capacity','DOMAIN_CAPACITY FIELD_CAPACITY PIPELINE_CAPACITY','设计场的采样数量或求解工作量超过当前范围。','读取数值场工具的采样与迭代上限，保留草稿；不要自动降低用户要求的造型精度。',['reliefDesignField','getTool'],{hardStop:true}),
   rule('design-constraints','DOMAIN_CONSTRAINT_CONFLICT DOMAIN_EMPTY DOMAIN_HARD_POINT_NOT_ON_GRID DOMAIN_HARD_POINT_OUTSIDE DOMAIN_INVALID FIELD_CONSTRAINT_CONFLICT FIELD_EMPTY_DOMAIN FIELD_INPUT_INVALID FIELD_SAMPLE_OUTSIDE FIELD_UNANCHORED LOCAL_EDIT_BOUNDS LOCAL_EDIT_CONSTRAINT_CONFLICT LOCAL_EDIT_EMPTY_DOMAIN LOCAL_EDIT_INVALID LOCAL_EDIT_OUTSIDE PIPELINE_INVALID','毫米高度点、支撑、孔或保护区域的约束无法同时应用。','检查点位是否在有效支撑内并避开孔和保护区，核对最低/最高高度；只修订明确冲突的约束，不自动移动点或删除保护。',['reliefDesignField'],{hardStop:true}),
   rule('design-solve','FIELD_FAILED FIELD_NOT_CONVERGED FIELD_NUMERICAL FIELD_TIMEOUT FIELD_WORKER_FAILED','本次数值求解未取得满足停止条件的有效结果。','保留草稿，读取本次残差和工作量报告；先查具体约束或Worker故障，不将未收敛的场提交为模型。',['reliefDesignField'],{hardStop:true}),

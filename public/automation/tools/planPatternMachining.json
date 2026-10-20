@@ -2,7 +2,7 @@
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.55.1",
+  "version": "1.55.2",
   "contextPolicy": "identity",
   "description": "planPatternMachining({context,intent})，intent 为 version:1 加工意图；只读规划，不推断图片深度。",
   "synonyms": [
@@ -241,6 +241,10 @@
         "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
       },
       {
+        "id": "reliefDesignReference",
+        "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
+      },
+      {
         "id": "reliefDesignField",
         "chooseWhen": "从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。"
       },
@@ -259,5 +263,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:19b661bf1a1ecab0bbb58172aba9325fd085352d1da14e1a570aa6b11201c41b"
+  "docsHash": "sha256:66752c748322c7b1d327e3a1d15f52079bc2bd4c22672d89457690cc77b6d800"
 }

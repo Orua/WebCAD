@@ -1,0 +1,177 @@
+{
+  "id": "reliefDesignReference",
+  "title": "reliefDesignReference",
+  "category": "page-method",
+  "version": "1.55.2",
+  "contextPolicy": "revision",
+  "description": "reliefDesignReference({context,action:\"get\"|\"attach\"|\"detach\"|\"resource\",designId,expectedDraftRevision,resourceId?,expectedSha256?,expectedSize?,idempotencyKey?})。attach仅接受当前files.register的PNG/JPEG/WebP原图资源（20MiB、16M像素、64:1）；以实际签名/尺寸预检及浏览器完整解码校验，再同CommandService事务绑定/替换。get只读metadata不生成资源；resource把当前草稿实际绑定的持久原件登记成合法resourceId，可files.read/download并在用完后files.release。不能直接提供source.bytes、imports、importKey或猜填SHA代替原件。",
+  "synonyms": [
+    "reliefDesignReference",
+    "浮雕",
+    "原图",
+    "原始参考图",
+    "字节",
+    "资产",
+    "保存",
+    "重开"
+  ],
+  "inputContract": "reliefDesignReference({context,action:\"get\"|\"attach\"|\"detach\"|\"resource\",designId,expectedDraftRevision,resourceId?,expectedSha256?,expectedSize?,idempotencyKey?})。attach仅接受当前files.register的PNG/JPEG/WebP原图资源（20MiB、16M像素、64:1）；以实际签名/尺寸预检及浏览器完整解码校验，再同CommandService事务绑定/替换。get只读metadata不生成资源；resource把当前草稿实际绑定的持久原件登记成合法resourceId，可files.read/download并在用完后files.release。不能直接提供source.bytes、imports、importKey或猜填SHA代替原件。",
+  "outputContract": "attach/detach返回committed/no_change并递增草稿/文档revision，使旧场失效；可选idempotencyKey保留原请求身份，unknown先查当前状态不重放。draft.reference={importKey,assetHash,name,mime,sizeBytes,width,height}；原件只存一份v4 binaryAssets，随工程重开和历史恢复；删除/替换保留仍被历史或其他草稿引用的字节，历史裁剪后回收。原图仅参考，不按亮度估计高度。get/resource需cad.read，attach/detach需cad.edit。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "RELIEF_REFERENCE_INVALID",
+    "RELIEF_REFERENCE_MISSING",
+    "RELIEF_IMAGE_INVALID",
+    "RELIEF_LIMIT",
+    "RESOURCE_EXPIRED",
+    "ASSET_INVALID",
+    "SIZE_LIMIT",
+    "REVISION_CONFLICT",
+    "PARAM_SCHEMA_INVALID",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "argumentKeys": [
+    "context",
+    "action",
+    "designId",
+    "expectedDraftRevision",
+    "resourceId",
+    "expectedSha256",
+    "expectedSize",
+    "idempotencyKey"
+  ],
+  "unknownFields": "rejected",
+  "relatedTools": [
+    "document.reliefDesign",
+    "files.register",
+    "files.read",
+    "files.download",
+    "files.release"
+  ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context",
+      "designId",
+      "expectedDraftRevision"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "action": {
+        "type": "string",
+        "enum": [
+          "get",
+          "attach",
+          "detach",
+          "resource"
+        ]
+      },
+      "designId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "expectedDraftRevision": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "resourceId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "expectedSha256": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      },
+      "expectedSize": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 20971520
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    }
+  },
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "reliefDesignField",
+        "chooseWhen": "从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:8447eda027519eab95c0cc2b67134d3f8e3001ea14336a438a07f771ab84b6b2"
+}

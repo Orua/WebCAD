@@ -14,7 +14,7 @@ export function createPageJobs(api,{runBatch}={}) {
   methods.add('readLogo');
   methods.add('reviewLogo');
   methods.add('logoWizard');
-  methods.add('reliefDesignField');
+  methods.add('reliefDesignField');methods.add('reliefDesignReference');
   methods.add('probeBlendRadius');
   methods.add('recoverKernel');
   methods.add('files.reattach');
