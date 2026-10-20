@@ -3,6 +3,7 @@ import { parseLocalLogoSvg } from './svg-logo-input.js';
 import {getServicesConfig} from './services/settings.js';
 import {servicesClient} from './services/client.js';
 import {binaryHash} from './contracts/operation-schema.js';
+import {validateLogoRasterOptions} from './logo-raster-options.js';
 
 const inputError=(message,code='SIZE_LIMIT')=>Object.assign(new Error(message),{code});
 async function sourceHash(text){return binaryHash(typeof text==='string'?new TextEncoder().encode(text):text).slice(7);}
@@ -37,6 +38,8 @@ export async function readBrowserLogo(file,validate,{targetWidthMm,page,sizeConf
     if(client===servicesClient&&!getServicesConfig().configured)throw inputError('请在“计算设置”启用后台计算，然后重新识别图片。','CAPABILITY_UNAVAILABLE');
     if(!allowUpload)throw inputError('识别此文件需要上传到已配置的后台计算，请明确允许上传。','UPLOAD_AUTH_REQUIRED');
     const isRaster=/\.(png|jpe?g|bmp)$/.test(name);
+    if(raster!==undefined&&!isRaster)throw inputError('raster 选项只用于 PNG、JPG、BMP 位图。','PARAM_SCHEMA_INVALID');
+    validateLogoRasterOptions(raster);
     if(!sizeConfirmed||isRaster&&!(Number.isFinite(targetWidthMm)&&targetWidthMm>0))throw inputError('请填写图案实际宽度（mm）；图片像素不能作为毫米尺寸。','SIZE_REQUIRED');
     if(targetWidthMm!==undefined&&!(Number.isFinite(targetWidthMm)&&targetWidthMm>0))throw inputError('图案宽度必须大于 0 mm。','SIZE_REQUIRED');
     const capabilities=await client.capabilities();if(!capabilities.logo?.enabled)throw inputError('后台未启用图片轮廓转换。','CAPABILITY_UNAVAILABLE');
@@ -44,7 +47,13 @@ export async function readBrowserLogo(file,validate,{targetWidthMm,page,sizeConf
     const inspected=await client.wait(await client.submit('logo/inspect',{assetId:asset.assetId,options:page?{page}:{}},`${requestId}-inspect`));
     if(inspected.result.pageCount>1&&!page)throw inputError(`源文件有 ${inspected.result.pageCount} 页，请指定页码。`,'PAGE_REQUIRED');
     const options={mode:isRaster?'raster':'vector',sizeMode:targetWidthMm?'targetWidth':'sourceUnits',sizeConfirmed:true,toleranceMm:0.005,pdfJoinToleranceMm:0,...(page?{page}:{}),...(targetWidthMm?{targetWidthMm}:{}),...(isRaster&&raster?{raster}:{})};
-    const {result,manifest}=await client.wait(await client.submit('logo/convert',{assetId:asset.assetId,options},`${requestId}-convert`));
+    let converted;
+    try{converted=await client.wait(await client.submit('logo/convert',{assetId:asset.assetId,options},`${requestId}-convert`));}
+    catch(error){
+      if(isRaster)error.details={...(error.details||{}),rasterOptions:{threshold:raster?.threshold??128,invert:raster?.invert??false,alphaThreshold:raster?.alphaThreshold??1},rasterOptionsSupplied:raster!==undefined};
+      throw error;
+    }
+    const {result,manifest}=converted;
     if(!result.geometryValid||!result.logoDocument||!['ready','needsReview'].includes(result.status))throw inputError('后台没有返回有效的闭合轮廓。','CONVERSION_FAILED');
     const logo=validate(result.logoDocument);validateRegions(logo);
     logo.source={...logo.source,reviewed:false,reviewRequired:result.reviewRequired,conversionReport:result.conversionReport,servicesEvidence:{jobId:manifest.jobId,inputFingerprint:manifest.inputFingerprint,artifactSha256:manifest.artifactSha256}};

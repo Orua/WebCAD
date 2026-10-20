@@ -2,9 +2,9 @@
   "id": "readLogo",
   "title": "readLogo",
   "category": "page-method",
-  "version": "1.54.2",
+  "version": "1.54.3",
   "contextPolicy": "identity",
-  "description": "readLogo({context,resourceId,name,targetWidthMm?,page?,sizeConfirmed?,allowUpload?,raster?:{threshold,invert,alphaThreshold}})。选定文件先登记资源；SVG/LOGO JSON在本机读取，其他格式由已配置后台处理。位图必须提供实际宽度、sizeConfirmed:true、allowUpload:true。",
+  "description": "readLogo({context,resourceId,name,targetWidthMm?,page?,sizeConfirmed?,allowUpload?,raster?:{threshold,invert,alphaThreshold}})。选定文件先登记资源；SVG/LOGO JSON在本机读取，其他格式由已配置后台处理。位图必须提供实际宽度、sizeConfirmed:true、allowUpload:true。raster可省略；threshold/alphaThreshold为0–255整数，默认128/1；invert为布尔值，默认false。LOGO不接受浮雕的0–1阈值，0.5在上传前返回PARAM_SCHEMA_INVALID。默认以亮度<128的深色像素为前景；不得无依据反转或扫描参数重试。",
   "synonyms": [
     "readLogo",
     "LOGO",
@@ -21,7 +21,7 @@
     "闭合轮廓",
     "雕刻"
   ],
-  "inputContract": "readLogo({context,resourceId,name,targetWidthMm?,page?,sizeConfirmed?,allowUpload?,raster?:{threshold,invert,alphaThreshold}})。选定文件先登记资源；SVG/LOGO JSON在本机读取，其他格式由已配置后台处理。位图必须提供实际宽度、sizeConfirmed:true、allowUpload:true。",
+  "inputContract": "readLogo({context,resourceId,name,targetWidthMm?,page?,sizeConfirmed?,allowUpload?,raster?:{threshold,invert,alphaThreshold}})。选定文件先登记资源；SVG/LOGO JSON在本机读取，其他格式由已配置后台处理。位图必须提供实际宽度、sizeConfirmed:true、allowUpload:true。raster可省略；threshold/alphaThreshold为0–255整数，默认128/1；invert为布尔值，默认false。LOGO不接受浮雕的0–1阈值，0.5在上传前返回PARAM_SCHEMA_INVALID。默认以亮度<128的深色像素为前景；不得无依据反转或扫描参数重试。",
   "outputContract": "status=read、logo、reviewRequired:true；核对字形/孔洞/毫米尺寸后才能设置 logo.source.reviewed=true，交给logo加工。普通照片/阴影参考图不能直接当作精确轮廓或高度图。转换不修改工程；连接或图像不支持时返回明确错误。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -37,6 +37,7 @@
     "SERVICES_AUTH_REQUIRED",
     "SERVICES_CONNECTION_UNKNOWN",
     "CONVERSION_FAILED",
+    "NO_VECTOR_CONTENT",
     "INVALID_CONTOUR",
     "RASTER_TOPOLOGY_AMBIGUOUS",
     "CONTOUR_TOO_COMPLEX",
@@ -44,6 +45,78 @@
     "RESOURCE_EXPIRED"
   ],
   "docs": "api.logo",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context",
+      "resourceId",
+      "name"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "resourceId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "targetWidthMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "page": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1000
+      },
+      "sizeConfirmed": {
+        "type": "boolean",
+        "default": false
+      },
+      "allowUpload": {
+        "type": "boolean",
+        "default": false
+      },
+      "raster": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "threshold": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255,
+            "default": 128,
+            "description": "8-bit luminance; dark pixels below this value are foreground unless invert is true. Not a 0–1 relief threshold."
+          },
+          "invert": {
+            "type": "boolean",
+            "default": false
+          },
+          "alphaThreshold": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255,
+            "default": 1
+          }
+        }
+      }
+    }
+  },
+  "rasterDefaults": {
+    "threshold": 128,
+    "invert": false,
+    "alphaThreshold": 1
+  },
+  "unknownFields": "rejected",
+  "executionPolicy": {
+    "readOnly": true,
+    "uploadRequiresAuthorization": true
+  },
   "selectionGuide": {
     "groupId": "services",
     "groupTitle": "统一服务与远程作业",
@@ -108,5 +181,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:74525d749b0d60028273cfa2401599fe1e08983d4e6e699caa97cd579a310ea7"
+  "docsHash": "sha256:372902e193d47978ba0092a3e096c25da09119175efb7bf5142ef029edf89930"
 }
