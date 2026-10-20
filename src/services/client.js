@@ -13,7 +13,7 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);
   try{response=await fetchImpl(url.href,{method,body,headers:{...headers,...(siteSession?{'X-WebCAD-Compute':'1'}:{Authorization:`Bearer ${auth}`})},redirect:'error',credentials:siteSession?'include':'omit',cache:'no-store',signal:controller.signal});}catch{clearTimeout(timer);throw serviceError('SERVICES_CONNECTION_UNKNOWN','后台计算连接中断或请求超时；请查询原任务后再操作',{observation:'unknown'});}
   try{
-  if(!response.ok){let error;try{error=await response.json();}catch{}throw serviceError(error?.code??'SERVICES_REQUEST_FAILED',error?.message??`Services HTTP ${response.status}`,{httpStatus:response.status,supportBinding:error?.supportBinding,stage:error?.stage,diagnosticsRef:error?.diagnosticsRef,commitState:error?.commitState??error?.commit,recoveryAction:error?.recoveryAction});}
+  if(!response.ok){let error;try{error=await response.json();}catch{}const fallback=response.status===404?'后台计算接口未找到，请核对当前计算地址':response.status===401?'请先登录当前网站，再检查计算连接':`后台计算请求失败（HTTP ${response.status}）`;throw serviceError(error?.code??'SERVICES_REQUEST_FAILED',error?.message??fallback,{httpStatus:response.status,supportBinding:error?.supportBinding,stage:error?.stage,diagnosticsRef:error?.diagnosticsRef,commitState:error?.commitState??error?.commit,recoveryAction:error?.recoveryAction});}
   return binary?new Uint8Array(await response.arrayBuffer()):await response.json();
   }finally{clearTimeout(timer);}
  }

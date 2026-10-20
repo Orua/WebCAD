@@ -6,7 +6,8 @@ export function defaultServicesConfig(){
  const location=globalThis.location;
  if(!location||!['goldenfu.cn','localhost','127.0.0.1','10.121.11.8','10.121.11.223'].includes(location.hostname))return {enabled:false,url:''};
  const origin=location.hostname==='127.0.0.1'&&location.port==='17674'?'http://127.0.0.1':location.origin;
- return {enabled:true,url:new URL('/AI/WebCAD/WebCADCompute.ashx',origin).href,authMode:'siteSession'};
+ const mount=location.pathname?.match(/^(.*)\/webcad(?:\/|$)/i)?.[1]??'';
+ return {enabled:true,url:new URL(mount+'/AI/WebCAD/WebCADCompute.ashx',origin).href,authMode:'siteSession'};
 }
 export function normalizeServicesConfig(input){
  if(!input||Object.keys(input).some(k=>!['version','enabled','url','authMode','computeMode','allowGeometryUploads','authProfileId','credential','localTimeoutMs','serverWaitMs'].includes(k)))throw serviceError('PARAM_SCHEMA_INVALID','计算设置字段无效');
@@ -15,7 +16,7 @@ export function normalizeServicesConfig(input){
  if(!Number.isInteger(localTimeoutMs)||localTimeoutMs<1000||localTimeoutMs>600000||!Number.isInteger(serverWaitMs)||serverWaitMs<1000||serverWaitMs>900000)throw serviceError('PARAM_SCHEMA_INVALID','本地超时须为1–600秒，服务器提醒须为1–900秒');
  if(typeof enabled!=='boolean'||!['local','auto','serverPreferred'].includes(computeMode)||input.allowGeometryUploads!==undefined&&typeof input.allowGeometryUploads!=='boolean')throw serviceError('PARAM_SCHEMA_INVALID','执行模式或上传授权无效');
  if(input.credential!==undefined&&(typeof input.credential!=='string'||input.credential.length>512))throw serviceError('PARAM_SCHEMA_INVALID','凭据格式无效');
- let url='';if(input.url){let parsed;try{parsed=new URL(input.url);}catch{throw serviceError('PARAM_SCHEMA_INVALID','Services 地址无效');}
+ let url='';if(input.url){let parsed;try{parsed=new URL(input.url,globalThis.location?.href);}catch{throw serviceError('PARAM_SCHEMA_INVALID','计算地址无效，请填写本站路径或完整地址');}
  const octets=parsed.hostname.split('.').map(Number),privateV4=/^\d+\.\d+\.\d+\.\d+$/.test(parsed.hostname)&&octets.every(v=>v>=0&&v<=255)&&(octets[0]===10||octets[0]===192&&octets[1]===168||octets[0]===172&&octets[1]>=16&&octets[1]<=31);
  const local=['localhost','127.0.0.1','[::1]'].includes(parsed.hostname)||privateV4;
  if(parsed.username||parsed.password||parsed.hash||!(parsed.protocol==='https:'||parsed.protocol==='http:'&&local)||['userid','key','token'].some(k=>parsed.searchParams.has(k)))throw serviceError('PARAM_SCHEMA_INVALID','Services 支持 HTTPS 或内网 HTTP，地址不可带凭据或旧 userid');

@@ -2,9 +2,9 @@
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.53.2",
+  "version": "1.53.3",
   "contextPolicy": "none",
-  "description": "getServices()；正式入口默认使用网站登录连接；自定义地址与模式存本地，专用授权仅存本标签会话。不会返回凭据。",
+  "description": "getServices()；正式入口默认跟随本站应用路径并使用网站登录；自定义地址支持本站相对路径或完整URL。配置存本地，专用授权仅存本标签会话。不会返回凭据。",
   "synonyms": [
     "getServices",
     "Services",
@@ -12,8 +12,8 @@
     "配置",
     "授权"
   ],
-  "inputContract": "getServices()；正式入口默认使用网站登录连接；自定义地址与模式存本地，专用授权仅存本标签会话。不会返回凭据。",
-  "outputContract": "configured、enabled、url、computeMode、hasCredential、migrationRequired；不回显 Token。",
+  "inputContract": "getServices()；正式入口默认跟随本站应用路径并使用网站登录；自定义地址支持本站相对路径或完整URL。配置存本地，专用授权仅存本标签会话。不会返回凭据。",
+  "outputContract": "configured、enabled、url、computeMode、hasCredential、migrationRequired；configured不代表连接已验证，getServicesCapabilities读取真实能力。启用时setServices先验证再保存，失败不保存；不回显Token。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -85,5 +85,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:89b232599680d2b7f2a04c15199cc0568cadc3ecd28be74379b018e79fbee626"
+  "docsHash": "sha256:e7b3d2da62c9af9c7d9bfe760ea04f1b783de64a5fea87234fbf3a0844ef8f24"
 }

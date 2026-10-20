@@ -2,7 +2,7 @@
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.53.2",
+  "version": "1.53.3",
   "contextPolicy": "none",
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
@@ -74,5 +74,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:a93b14cb191bd298c22351b42d0162ab5ac7b82569ba217642f187bb7b9fbc92"
+  "docsHash": "sha256:2d9311347c771b95f6d55a08addb10bd96ad380cd20e7a6b39efad940eb36a92"
 }

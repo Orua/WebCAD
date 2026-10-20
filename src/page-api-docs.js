@@ -27,7 +27,7 @@ import {PRODUCT_SOURCE_GUIDANCE,PRODUCT_FAMILY_DOCS,PRODUCT_FAMILIES} from './pr
 import {DESIGN_INSPECTION_SCHEMA} from './design-inspection.js';
 import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-intent.js';
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
-const PAGE_DOC_VERSION = '1.53.2';
+const PAGE_DOC_VERSION = '1.53.3';
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
     entities:[{id:'rectangle-1',type:'rectangle',originMm:[0,0],widthMm:40,heightMm:30}],
@@ -315,7 +315,7 @@ const METHOD_DETAILS = Object.freeze({
     getAgentPanel:['Agent 助手 模式 状态','getAgentPanel()','version/url/configured/visible/phase/connected/locked/externalHost/error；phase=agent_offline 表示助手已断开，请在面板重新连接；phase=release_pending 表示本地已解锁但服务端释放待核对。断线保留工程与原命令回执，不自动重放。'],
     configureAgentPanel:['Agent 助手 配置 地址','configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。','status=applied,persisted；退出并释放后才能修改地址。失败AGENT_URL_INVALID/AGENT_PANEL_ACTIVE。仅浏览器保存，不进入工程。'],
     setAgentPanel:['Agent 助手 进入 退出 释放 编辑 布局 分隔线 尺寸 收起','setAgentPanel({context,visible:true|false})；true接入已配置助手，false退出并释放。或 setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false}})；layout与visible分开调用，宽高1–4096像素，按可用空间夹限。','status=applied；getAgentPanel().layout返回version/mobile/axis/widthPx/heightPx/effectiveSizePx/collapsed/visible。PC调宽、手机调高，至少保留画布280/160px、助手240/156px，空间不足优先画布。两入口使用相同规则，触摸跨iframe拖动；不改revision/dirty/相机/历史，不写工程。字段错误PARAM_SCHEMA_INVALID。网络失败releasePending=true；旧会话须核对释放，不重跑。仅匹配配置origin、实际iframe、一次性channel消息可用。'],
-    getServices:['Services 唯一服务 配置 授权','getServices()；正式入口默认使用网站登录连接；自定义地址与模式存本地，专用授权仅存本标签会话。不会返回凭据。','configured、enabled、url、computeMode、hasCredential、migrationRequired；不回显 Token。'],
+    getServices:['Services 唯一服务 配置 授权','getServices()；正式入口默认跟随本站应用路径并使用网站登录；自定义地址支持本站相对路径或完整URL。配置存本地，专用授权仅存本标签会话。不会返回凭据。','configured、enabled、url、computeMode、hasCredential、migrationRequired；configured不代表连接已验证，getServicesCapabilities读取真实能力。启用时setServices先验证再保存，失败不保存；不回显Token。'],
     setServices:['Services 唯一服务 设置','setServices({context,url,authMode?:\"siteSession\"|\"bearer\",credential?,enabled?,computeMode?:"local"|"auto"|"serverPreferred",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。','status=applied；不改工程，旧设置补齐60秒本地/180秒服务器提醒默认值，旧 LOGO URL/Key 不自动迁移。'],
     getServicesRouting:['Services 自动分流 耗时 队列 原因','getServicesRouting()；读取同一 ExecutionRouter 的最近决策。','policyVersion、operationPolicy{localOnly,conditionalServices,quickModels,unknownOperation}、lastDecision{executor,reason,inputs,complexity}、executionTimeouts、pendingWait、unavailableOperations（TBD且enabled=false）。全部快捷模型（丝筒、螺丝、弹簧等）及普通建模/加工/变换/阵列固定本地，不能因大来源或未知操作自动送 Services；浮雕、R角与登记的复杂几何候选只有达到来源/图案/选边门槛才送 Services。未知工具须明确登记，未测量不等于复杂；不需要双端耗时或结果一致性；cut 从 13 个来源（目标加 12 刀具）或其它复杂度门槛起走 Services，支持最多 32 个单实体刀具，空/分裂多体结果拒绝。尚未验收的 union/intersect 不冒称远程支持。pendingWait.decisionRequired时用decideServicesWait选择同任务continue/stop。服务失败不转本地重算。'],
     getServicesCapabilities:['Services 能力 原生 Logo 协议','getServicesCapabilities()；读取已配置服务。','协议、引擎、操作语义和验收状态；未过原生桥接的操作不可执行。'],

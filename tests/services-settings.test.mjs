@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {getServicesConfig,saveServicesConfig,clearServicesCredential} from '../src/services/settings.js';
+import {getServicesConfig,saveServicesConfig,clearServicesCredential,defaultServicesConfig,normalizeServicesConfig} from '../src/services/settings.js';
 import {createServicesClient} from '../src/services/client.js';
 import {chooseExecutor} from '../src/services/execution-router.js';
 import {getLogoConverterConfig,setLogoConverterConfig} from '../src/logo-converter-settings.js';
@@ -51,4 +51,24 @@ test('private LAN HTTP is accepted without admitting public HTTP endpoints',()=>
  assert.equal(getServicesConfig().url,'http://10.121.11.223/cadservices/api.ashx');
  assert.throws(()=>saveServicesConfig({url:'http://8.8.8.8/api.ashx'}),{code:'PARAM_SCHEMA_INVALID'});
  assert.throws(()=>saveServicesConfig({url:'http://public.invalid/api.ashx'}),{code:'PARAM_SCHEMA_INVALID'});
+});
+
+test('website-relative compute settings follow root and virtual-application deployments',()=>{
+ const previous=globalThis.location;
+ try{
+  globalThis.location=new URL('https://goldenfu.cn/GOLDENLUCK/webcad/?document=fixture');
+  assert.equal(defaultServicesConfig().url,'https://goldenfu.cn/GOLDENLUCK/AI/WebCAD/WebCADCompute.ashx');
+  assert.equal(normalizeServicesConfig({url:'/GOLDENLUCK/cadservices/api.ashx'}).url,'https://goldenfu.cn/GOLDENLUCK/cadservices/api.ashx');
+  assert.throws(()=>normalizeServicesConfig({url:'/GOLDENLUCK/cadservices/api.ashx',authMode:'siteSession'}),{code:'PARAM_SCHEMA_INVALID'});
+  assert.equal(normalizeServicesConfig({...defaultServicesConfig()}).authMode,'siteSession');
+  globalThis.location=new URL('https://goldenfu.cn/webcad/');
+  assert.equal(defaultServicesConfig().url,'https://goldenfu.cn/AI/WebCAD/WebCADCompute.ashx');
+  globalThis.location=new URL('http://127.0.0.1:17674/');
+  assert.equal(defaultServicesConfig().url,'http://127.0.0.1/AI/WebCAD/WebCADCompute.ashx');
+ }finally{if(previous===undefined)delete globalThis.location;else globalThis.location=previous;}
+});
+
+test('an empty IIS 404 is a computation path error, never a successful capability response',async()=>{
+ const client=createServicesClient({config:{url:'http://localhost/cadservices/api.ashx'},credential:'test-only',fetchImpl:async()=>new Response('',{status:404})});
+ await assert.rejects(client.capabilities(),error=>error.httpStatus===404&&error.code==='SERVICES_REQUEST_FAILED'&&error.message.includes('计算接口未找到'));
 });
