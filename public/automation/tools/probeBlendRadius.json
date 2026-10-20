@@ -2,7 +2,7 @@
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.55.2",
+  "version": "1.55.3",
   "contextPolicy": "identity",
   "description": "probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。",
   "synonyms": [
@@ -252,5 +252,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:c31eac3c98a927e6821e16be729bdb2db58b6d083bb0417006503b0ea9269f13"
+  "docsHash": "sha256:0fafed7606fdf802fa3b0019f27b3be3d6cb0075bbe4ef3ad9c439ad986f1d99"
 }

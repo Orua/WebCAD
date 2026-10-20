@@ -2,7 +2,7 @@
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.55.2",
+  "version": "1.55.3",
   "contextPolicy": "none",
   "description": "getServices()；正式入口默认跟随本站应用路径并使用网站登录；自定义地址支持本站相对路径或完整URL。配置存本地，专用授权仅存本标签会话。不会返回凭据。",
   "synonyms": [
@@ -93,5 +93,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:7d70248c72a7ace73b7c4901d82518e0055d2dd7b41959f8fac2d193f764c67d"
+  "docsHash": "sha256:1703a3857d674944e0c8a80a87b6bc2652812f6d5da033786317f206741dfa3d"
 }

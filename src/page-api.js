@@ -241,7 +241,7 @@ export function createPageAPI(host){
     getState:(input={})=>{
       if(input&&typeof input==='object'&&!Array.isArray(input)){
         const keys=Object.keys(input);
-        if(keys.some(k=>!['include','compact','fields','sinceRevision'].includes(k)))fail('PARAM_SCHEMA_INVALID','getState accepts include, compact, fields and sinceRevision only');
+        if(keys.some(k=>!['include','compact','fields','sinceRevision'].includes(k)))fail('PARAM_SCHEMA_INVALID','状态查询只接受 include、compact、fields 和 sinceRevision；请先读取 getState 工具卡，再移除多余字段。');
         if(input.fields!==undefined&&(!Array.isArray(input.fields)||!input.fields.length||input.fields.length>32||input.fields.some(x=>typeof x!=='string'||!x.length||x.length>40)))fail('PARAM_SCHEMA_INVALID','fields must list 1..32 top-level state field names');
         if(input.sinceRevision!==undefined&&(!Number.isInteger(input.sinceRevision)||input.sinceRevision<0))fail('PARAM_SCHEMA_INVALID','sinceRevision must be a non-negative integer');
         if(input.compact!==undefined&&typeof input.compact!=='boolean')fail('PARAM_SCHEMA_INVALID','compact must be boolean');
