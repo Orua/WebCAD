@@ -13,6 +13,13 @@ using System.Web;
 public sealed class WebCADComputeEntry : HttpTaskAsyncHandler
 {
     static readonly HttpClient Client = new HttpClient(new HttpClientHandler { UseProxy=false, AllowAutoRedirect=false }) { Timeout=TimeSpan.FromSeconds(35) };
+    public static Uri GatewayUri(Uri siteUrl,string applicationPath,string route)
+    {
+        // Resolve inside this website/application. Loopback without the site's
+        // authority can select an unrelated IIS default site after deployment.
+        string path=VirtualPathUtility.ToAbsolute("~/cadservices/api.ashx",applicationPath);
+        return new UriBuilder(new Uri(siteUrl,path)) { Query="route="+Uri.EscapeDataString(route) }.Uri;
+    }
     public override bool IsReusable { get { return true; } }
     public override async Task ProcessRequestAsync(HttpContext context)
     {
@@ -37,7 +44,7 @@ public sealed class WebCADComputeEntry : HttpTaskAsyncHandler
             if(!Regex.IsMatch(route,"^/v1/(health|capabilities|assets|logo/(inspect|convert)|compute/jobs|jobs/[a-f0-9]{32}(/(cancel|recover|result))?|requests/[a-zA-Z0-9_-]{1,160}(/result)?|artifacts/[a-zA-Z0-9_-]{1,160})$"))throw new HttpException(400,"计算任务地址无效。");
             int limit=context.Request.Headers["X-Asset-Kind"]=="mesh"?128*1024*1024:20*1024*1024;
             if(context.Request.ContentLength>limit)throw new HttpException(413,"计算输入超过容量限制。");
-            using(var request=new HttpRequestMessage(new HttpMethod(context.Request.HttpMethod),"http://127.0.0.1/cadservices/api.ashx?route="+Uri.EscapeDataString(route)))
+            using(var request=new HttpRequestMessage(new HttpMethod(context.Request.HttpMethod),GatewayUri(context.Request.Url,context.Request.ApplicationPath,route)))
             {
                 request.Headers.TryAddWithoutValidation("X-WebCAD-Website-Token",host.Token(Web.AI.WebCAD.WebCadHost.NewNonce()));
                 foreach(string name in new[]{"X-File-Name","X-Asset-Kind","Idempotency-Key"})if(context.Request.Headers[name]!=null)request.Headers.TryAddWithoutValidation(name,context.Request.Headers[name]);
@@ -53,7 +60,10 @@ public sealed class WebCADComputeEntry : HttpTaskAsyncHandler
                 }
                 using(var result=await Client.SendAsync(request,HttpCompletionOption.ResponseHeadersRead))
                 {
+                    if((int)result.StatusCode==404){Write(context,502,"COMPUTE_BACKEND_NOT_FOUND","后台计算接口未找到，请管理员核对当前网站应用下的 cadservices/api.ashx。当前工程保留。");return;}
+                    if((int)result.StatusCode==401){Write(context,502,"COMPUTE_BACKEND_AUTH_REJECTED","网站登录已识别，但后台计算授权未通过，请管理员核对网站签名配置。当前工程保留。");return;}
                     response.StatusCode=(int)result.StatusCode;response.ContentType=result.Content.Headers.ContentType==null?"application/json":result.Content.Headers.ContentType.ToString();
+                    foreach(string name in new[]{"X-WebCAD-Transport","X-WebCAD-Gateway-Build"}){System.Collections.Generic.IEnumerable<string> values;if(result.Headers.TryGetValues(name,out values))response.AddHeader(name,string.Join(",",values));}
                     await result.Content.CopyToAsync(response.OutputStream);
                 }
             }
