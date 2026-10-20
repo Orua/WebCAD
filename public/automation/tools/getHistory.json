@@ -2,7 +2,7 @@
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.55.3",
+  "version": "1.55.4",
   "contextPolicy": "none",
   "description": "getHistory()。返回已保留状态，不含导入源字节。",
   "synonyms": [
@@ -63,5 +63,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:b61dc7d1eac9011e0fc43002e3e77f7090ad5c8eac45833c42de777d87592d7a"
+  "docsHash": "sha256:7744a8710b654f0674dbedf25d8a97e8d781a4d0617b2d2639fd508727f5bb91"
 }

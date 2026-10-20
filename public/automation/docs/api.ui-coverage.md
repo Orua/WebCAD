@@ -981,6 +981,7 @@
   },
   "reliefDesign": {
     "tools": [
+      "reliefDesignFit",
       "reliefDesignReference",
       "files.register",
       "files.read",
@@ -995,7 +996,7 @@
       "files.open"
     ],
     "method": "execute",
-    "usage": "人工毫米设计约束：支撑、孔/保护区域和高度点；局部编辑折叠卡通过完整draft.fieldSettings.edits按顺序新增/更新/移除raise/lower/flatten/smooth，明确中心XY/半径/量或目标高mm及强度，与当前有效表单一并事务保存，未入列笔画禁止其他保存覆盖；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；reliefDesignField求解/取消/残差读回，candidate保留采样圆/矩形、孔和作者保护基线，再feature.add实际提交rawMesh；原图通过reliefDesignReference从登记资源attach/detach/get/resource，保存原始字节及历史引用，不从亮度推断高度。"
+    "usage": "数值B样条折叠卡经reliefDesignFit fit/get/cancel显式控制mode/controlColumns/controlRows/controlMaxMm/acceptanceToleranceMm，只拟合已保存并求解的当前草稿，回读训练/独立/保护采样误差与基函数锁定证据，不等于BRep加工；人工毫米设计约束：支撑、孔/保护区域和高度点；局部编辑折叠卡通过完整draft.fieldSettings.edits按顺序新增/更新/移除raise/lower/flatten/smooth，明确中心XY/半径/量或目标高mm及强度，与当前有效表单一并事务保存，未入列笔画禁止其他保存覆盖；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；reliefDesignField求解/取消/残差读回，candidate保留采样圆/矩形、孔和作者保护基线，再feature.add实际提交rawMesh；原图通过reliefDesignReference从登记资源attach/detach/get/resource，保存原始字节及历史引用，不从亮度推断高度。"
   },
   "reliefSculpt": {
     "tools": [
@@ -1461,6 +1462,7 @@
 }
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+reliefDesignFit: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity

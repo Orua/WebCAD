@@ -9,7 +9,7 @@ import {validateDisplayPreferences} from './display-preferences.js';
 import {createPageBatch} from './page-batch.js';
 import {readBrowserLogo,getLogoWizardState,actLogoWizard,getLogoWizardReviewBinding,refreshLogoWizardReview} from './browser-logo-input.js';
 import {createLogoReviewSession,logoReviewArtifacts} from './logo-vector-review.js';
-import {runReliefDesignField,readReliefDesignField,cancelReliefDesignField,candidateReliefDesignField} from './relief-design-runtime.js';
+import {runReliefDesignField,readReliefDesignField,cancelReliefDesignField,candidateReliefDesignField,runReliefDesignFit,readReliefDesignFit,cancelReliefDesignFit} from './relief-design-runtime.js';
 import {prepareReliefReferenceSource} from './relief-design-reference.js';
 import {logoDXF} from './logo-dxf.js';
 import {getLogoConverterConfig,setLogoConverterConfig} from './logo-converter-settings.js';
@@ -472,6 +472,17 @@ export function createPageAPI(host){
       }
       const result=await host.reliefReferenceCommit({context:input.context,idempotencyKey:input.idempotencyKey??crypto.randomUUID(),action:'document.reliefDesignReference',args:{designId:input.designId,expectedDraftRevision:input.expectedDraftRevision,action,...(source?{source}:{})}});
       return {...result,...(['committed','no_change'].includes(result.status)?host.reliefReferenceRead(input.designId):{})};
+    }),
+    reliefDesignFit:guarded(async input=>{
+      const s=check(input,['context','action','designId','expectedDraftRevision','options']);
+      const action=input.action??'get',entry=host.state({include:['reliefDesigns']}).reliefDesigns?.find(d=>d.id===input.designId);
+      if(!entry)fail('STALE_REFERENCE','设计草稿不存在，请读取当前工程中的设计草稿。');
+      if(entry.revision!==input.expectedDraftRevision)fail('REVISION_CONFLICT','草稿已改变，请读取当前草稿修订。');
+      if(!['fit','get','cancel'].includes(action))fail('PARAM_SCHEMA_INVALID','拟合只接受 fit、get 或 cancel。');
+      if(input.options!==undefined&&action!=='fit')fail('PARAM_SCHEMA_INVALID','只有 fit 接受 options；读取或取消不应携带拟合参数。');
+      const latest=()=>{const state=host.state({include:['reliefDesigns']});return {context:state.context,entry:state.reliefDesigns?.find(d=>d.id===input.designId)};};
+      const result=action==='fit'?await runReliefDesignFit(s.context,entry,input.options,latest):action==='cancel'?cancelReliefDesignFit():readReliefDesignFit(s.context,entry);
+      return {...result,context:current().context};
     }),
     reliefDesignField:guarded(async input=>{
       const s=check(input,['context','action','designId','expectedDraftRevision','options','baseMm']);

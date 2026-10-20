@@ -2,7 +2,7 @@
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.55.3",
+  "version": "1.55.4",
   "contextPolicy": "none",
   "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
   "synonyms": [
@@ -102,5 +102,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:8218a41efd30f4e74abd7a642340b070fe6434b5c176f9ca6076dd3734069d8e"
+  "docsHash": "sha256:fb55b444fd2c4cd46f9246905506b50252ad353b8982568a1d19792b9a1d0668"
 }

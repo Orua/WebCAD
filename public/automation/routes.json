@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.55.3",
-  "buildId": "d0646277c0328aeb40b66e3fc72f0d19d5673afa-src-8c735cdcc0f8555c-working",
-  "catalogHash": "sha256:7c7aeaf25449b381e87599b750c1aa3f24b33afae38f1e7f485f4f2a0c7f2910",
-  "docsHash": "sha256:12c90861a7cb60f58f30006cc4ee0b1f1cfec5428a6d542242f20b232e4477da",
+  "pageApiVersion": "1.55.4",
+  "buildId": "d50dfa9ca2ef5405a8f305cf7965a226f4973faa-src-690dabf978032674-working",
+  "catalogHash": "sha256:6acf9033be70932dd776357853f955c9f65380679e0d26017dda0f5e2e8963fb",
+  "docsHash": "sha256:8f84d2ed7c7311232b4dc3d8045aa11f907eca0e4dbdf437d97da994d423a0d8",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -1042,6 +1042,7 @@
     },
     "reliefDesign": {
       "tools": [
+        "reliefDesignFit",
         "reliefDesignReference",
         "files.register",
         "files.read",
@@ -1056,7 +1057,7 @@
         "files.open"
       ],
       "method": "execute",
-      "usage": "人工毫米设计约束：支撑、孔/保护区域和高度点；局部编辑折叠卡通过完整draft.fieldSettings.edits按顺序新增/更新/移除raise/lower/flatten/smooth，明确中心XY/半径/量或目标高mm及强度，与当前有效表单一并事务保存，未入列笔画禁止其他保存覆盖；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；reliefDesignField求解/取消/残差读回，candidate保留采样圆/矩形、孔和作者保护基线，再feature.add实际提交rawMesh；原图通过reliefDesignReference从登记资源attach/detach/get/resource，保存原始字节及历史引用，不从亮度推断高度。"
+      "usage": "数值B样条折叠卡经reliefDesignFit fit/get/cancel显式控制mode/controlColumns/controlRows/controlMaxMm/acceptanceToleranceMm，只拟合已保存并求解的当前草稿，回读训练/独立/保护采样误差与基函数锁定证据，不等于BRep加工；人工毫米设计约束：支撑、孔/保护区域和高度点；局部编辑折叠卡通过完整draft.fieldSettings.edits按顺序新增/更新/移除raise/lower/flatten/smooth，明确中心XY/半径/量或目标高mm及强度，与当前有效表单一并事务保存，未入列笔画禁止其他保存覆盖；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；reliefDesignField求解/取消/残差读回，candidate保留采样圆/矩形、孔和作者保护基线，再feature.add实际提交rawMesh；原图通过reliefDesignReference从登记资源attach/detach/get/resource，保存原始字节及历史引用，不从亮度推断高度。"
     },
     "reliefSculpt": {
       "tools": [
@@ -1587,7 +1588,7 @@
     "reference.alignSelectedFace": "queryGeometry / 设置参考锚点（工作基准）",
     "renderQuality": "setRenderQuality",
     "downloadResource": "下载文件",
-    "reliefDesign": "设计草稿 / reliefDesignReference / 登记文件资源 / 读取文件字节 / 释放文件资源 / reliefDesignField / 高度图浮雕（网格） / 浮雕设计约束草稿 / getState / 撤销 / 重做 / 保存工程 / 打开工程",
+    "reliefDesign": "设计草稿 / reliefDesignFit / reliefDesignReference / 登记文件资源 / 读取文件字节 / 释放文件资源 / reliefDesignField / 高度图浮雕（网格） / 浮雕设计约束草稿 / getState / 撤销 / 重做 / 保存工程 / 打开工程",
     "reliefSculpt": "精确浮雕精修 / sampleReliefHeight / prepareReliefSculpt / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
     "precisionSettings": "精度 / setDisplayPreferences",
     "themeSettings": "风格 / setDisplayPreferences",

@@ -3,6 +3,10 @@ import sourceCodes from '../contracts/error-recovery-codes.json' with {type:'jso
 // changes an argument, clears a guard, commits/undoes geometry, or cancels a job.
 const rule=(id,codes,reason,next,tools=[],options={})=>({id,codes:new Set(codes.split(' ').filter(Boolean)),reason,next,tools,...options});
 const rules=[
+  rule('design-fit-capacity','FIT_CAPACITY FIT_WORK_BUDGET FIT_UNDERSAMPLED','拟合的采样、控制网格或数值工作量超出当前范围。','核对显式控制数与原场采样及容量；保留设计，不自动降低精度、改变误差或重试耗尽任务。',['reliefDesignFit','getTool'],{hardStop:true}),
+  rule('design-fit-constraints','FIT_SOURCE_INVALID FIT_CONSTRAINT_CONFLICT FIT_DIRECTION_CONFLICT FIT_DOMAIN_CONFLICT FIT_DOMAIN_EMPTY FIT_DOMAIN_UNSUPPORTED FIT_NO_FREEDOM FIT_PARAMETER_OUTSIDE','当前高度方向、支撑或保护约束与拟合条件不一致。','读取原设计、baseline及受保护极点报告；不能删孔、放松保护或翻转高度来通过。',['reliefDesignFit','reliefDesignField'],{hardStop:true}),
+  rule('design-fit-quality','FIT_FAILED NUMERICAL_RESULT_MISMATCH FIT_DEVIATION FIT_PROTECTION_FAILED FIT_NOT_CONVERGED FIT_TIMEOUT FIT_WORKER_FAILED','本次拟合未达到明确误差、保护或求解条件。','保留原设计场和实际诊断，不提交为实体；先核对误差与约束，不能自动修改容差或换算法重算。',['reliefDesignFit'],{hardStop:true}),
+  rule('design-fit-cancel','FIT_CANCELLED','数值拟合已停止。','原已解设计场保留；读取当前拟合状态，不自动重启。',['reliefDesignFit'],{hardStop:true}),
   rule('relief-reference','RELIEF_REFERENCE_INVALID RELIEF_REFERENCE_MISSING','浮雕原参考图不存在、已改变或未通过原件校验。','读取当前设计草稿与已登记原图资源；核对真实图片格式、SHA256、大小和解码结果。原图仅供参考，不能按照片明暗自动生成高度。',['reliefDesignReference','getState'],{hardStop:true}),
   rule('design-capacity','DOMAIN_CAPACITY FIELD_CAPACITY PIPELINE_CAPACITY','设计场的采样数量或求解工作量超过当前范围。','读取数值场工具的采样与迭代上限，保留草稿；不要自动降低用户要求的造型精度。',['reliefDesignField','getTool'],{hardStop:true}),
   rule('design-constraints','DOMAIN_CONSTRAINT_CONFLICT DOMAIN_EMPTY DOMAIN_HARD_POINT_NOT_ON_GRID DOMAIN_HARD_POINT_OUTSIDE DOMAIN_INVALID FIELD_CONSTRAINT_CONFLICT FIELD_EMPTY_DOMAIN FIELD_INPUT_INVALID FIELD_SAMPLE_OUTSIDE FIELD_UNANCHORED LOCAL_EDIT_BOUNDS LOCAL_EDIT_CONSTRAINT_CONFLICT LOCAL_EDIT_EMPTY_DOMAIN LOCAL_EDIT_INVALID LOCAL_EDIT_OUTSIDE PIPELINE_INVALID','毫米高度点、支撑、孔或保护区域的约束无法同时应用。','检查点位是否在有效支撑内并避开孔和保护区，核对最低/最高高度；只修订明确冲突的约束，不自动移动点或删除保护。',['reliefDesignField'],{hardStop:true}),

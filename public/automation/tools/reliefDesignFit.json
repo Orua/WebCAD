@@ -1,0 +1,226 @@
+{
+  "id": "reliefDesignFit",
+  "title": "reliefDesignFit",
+  "category": "page-method",
+  "version": "1.55.4",
+  "contextPolicy": "revision",
+  "description": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。",
+  "synonyms": [
+    "reliefDesignFit",
+    "浮雕",
+    "设计",
+    "B样条",
+    "拟合",
+    "控制极点",
+    "保护",
+    "误差"
+  ],
+  "inputContract": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。",
+  "outputContract": "get读普通JSON控制高度/增量、原掩码、sourceBinding及训练/独立/保护metrics，fit不修改工程。常值保护由所有相交基函数支撑锁定保证；整体偏差sampled-not-global，不是全域制造公差。最低草稿高度是baseline，不因engrave翻转高度；非零场通常仅emboss兼容。改草稿/工程、重解数值场使旧拟合失效；cancel停止拟合并保留已解原场。结果geometryReady:false、brepComputed:false、notCommitted；不返回feature.add参数，不冒称BRep/STEP，不能绕过后续真实支撑面datum/来源/路由预检。禁止自动加密、调误差或删保护追成功。get需cad.read，fit/cancel需cad.edit。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "RELIEF_DESIGN_STALE",
+    "RELIEF_DESIGN_UNSOLVED",
+    "FIT_INPUT_INVALID",
+    "FIT_SOURCE_INVALID",
+    "FIT_FAILED",
+    "NUMERICAL_RESULT_MISMATCH",
+    "FIT_CAPACITY",
+    "FIT_CANCELLED",
+    "FIT_TIMEOUT",
+    "FIT_WORKER_FAILED",
+    "FIT_NOT_CONVERGED",
+    "FIT_WORK_BUDGET",
+    "FIT_NO_FREEDOM",
+    "FIT_CONSTRAINT_CONFLICT",
+    "FIT_DIRECTION_CONFLICT",
+    "FIT_DOMAIN_CONFLICT",
+    "FIT_DOMAIN_EMPTY",
+    "FIT_DOMAIN_UNSUPPORTED",
+    "FIT_PROTECTION_FAILED",
+    "FIT_UNDERSAMPLED",
+    "FIT_DEVIATION",
+    "REVISION_CONFLICT"
+  ],
+  "argumentKeys": [
+    "context",
+    "action",
+    "designId",
+    "expectedDraftRevision",
+    "options"
+  ],
+  "unknownFields": "rejected",
+  "units": {
+    "length": "mm"
+  },
+  "relatedTools": [
+    "document.reliefDesign",
+    "reliefDesignField",
+    "getState"
+  ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context",
+      "designId",
+      "expectedDraftRevision"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "action": {
+        "type": "string",
+        "enum": [
+          "fit",
+          "get",
+          "cancel"
+        ]
+      },
+      "designId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "expectedDraftRevision": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "options": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "controlColumns",
+          "controlRows",
+          "acceptanceToleranceMm"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "emboss",
+              "engrave"
+            ]
+          },
+          "controlColumns": {
+            "type": "integer",
+            "minimum": 4,
+            "maximum": 65
+          },
+          "controlRows": {
+            "type": "integer",
+            "minimum": 4,
+            "maximum": 65
+          },
+          "acceptanceToleranceMm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 20
+          },
+          "controlMaxMm": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 20
+          },
+          "maxIterations": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50000
+          },
+          "toleranceMm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1
+          },
+          "maxWork": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200000000
+          }
+        }
+      }
+    }
+  },
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "reliefDesignReference",
+        "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
+      },
+      {
+        "id": "reliefDesignField",
+        "chooseWhen": "从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:48d27a09b4df7923d6e893a2e63b134ede73dec9f0dfb2db5aecadc8507fa533"
+}

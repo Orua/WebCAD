@@ -2946,5 +2946,19 @@
       "one actual UI save/solve/readback/undo check",
       "release build gate"
     ]
+  },
+  "reliefDesignFit20261021": {
+    "localImpact": "Protected masked B-spline numerical fit of retained current solved field in shared cancellable Worker",
+    "servicesImpact": "none: no CAD or Services execution",
+    "logoImpact": "none",
+    "contractImpact": "reliefDesignFit fit/get/cancel; strict options and scope; API1.55.4",
+    "documentImpact": "no document mutation; draft revision and source field hash bind transient result; existing authored draft persists",
+    "cacheImpact": "new docs/catalog/runtime; current field or document change invalidates fit",
+    "requiredTests": [
+      "fit adapter/runtime source binding and cancellation",
+      "public strict options and scope",
+      "one actual saved draft field fit UI and report readback",
+      "release gate"
+    ]
   }
 }
