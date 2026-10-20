@@ -2,7 +2,7 @@
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.55.0",
+  "version": "1.55.1",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -98,5 +98,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:97be61c7384f586f905b28f5d561fcc6ec1e12ea6cf4c5883746f06d125357d3"
+  "docsHash": "sha256:e20d620428aafcaba02efff6a62a2948d99bc28247cf148df7b026f8d13d79d0"
 }

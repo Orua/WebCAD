@@ -17,6 +17,7 @@
     "codes": [
       "HEIGHTFIELD_INVALID",
       "HEIGHTFIELD_SCULPT_INVALID",
+      "RELIEF_DESIGN_MASK_INVALID",
       "RELIEF_EDIT_CAPACITY"
     ]
   },

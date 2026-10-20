@@ -2906,5 +2906,19 @@
       "17674 targeted UI/API",
       "matched backend health/capability and one production PDF job"
     ]
+  },
+  "reliefDesignMaskedMesh20261021": {
+    "localImpact": "Bounded 129x129 retained-domain triangulation closes top/back/all boundary walls; circle/holes sampled conservatively; existing unmasked heightfield path unchanged",
+    "servicesImpact": "none: existing bounded mesh execution remains local",
+    "logoImpact": "none",
+    "contractImpact": "meshHeightfieldRelief optional domainMask; reliefDesignField candidate domainReport; API1.55.1",
+    "documentImpact": "mask stored inline in existing feature params and v4 project; design draft retained",
+    "cacheImpact": "new catalog/docs/worker hashes; stale candidates invalidated",
+    "requiredTests": [
+      "single bounded circle-hole-protection mesh topology and volume sample",
+      "heightfield legacy targeted checks",
+      "public operation contract validation",
+      "one 17674 page commit and save/open of same sample"
+    ]
   }
 }

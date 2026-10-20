@@ -2,6 +2,7 @@
 // Resolution is bounded by MESH_LIMITS (millions of samples), not by the 4–65
 // B-spline control grid used by the exact-BRep relief.
 import {meshError} from './mesh-contract.js';
+import {makeMaskedHeightfieldMesh} from '../relief-design-core/closed-mesh.mjs';
 import {legacyReliefParams} from '../relief-param-migration.js';
 import {MESH_LIMITS} from './mesh-contract.js';
 const positive={type:'number',exclusiveMinimum:0};
@@ -13,6 +14,7 @@ export const heightfieldReliefOperation={description:'高度图浮雕 / Heightfi
  version:{type:'integer',const:1},widthMm:positive,depthMm:positive,baseMm:positive,heightMm:{type:'number',exclusiveMinimum:0,maximum:HEIGHTFIELD_LIMITS.maxHeightMm},
  columns:{type:'integer',minimum:HEIGHTFIELD_LIMITS.minSide,maximum:HEIGHTFIELD_LIMITS.maxSide},rows:{type:'integer',minimum:HEIGHTFIELD_LIMITS.minSide,maximum:HEIGHTFIELD_LIMITS.maxSide},
  heights:{type:'object',additionalProperties:false,required:['encoding'],properties:{encoding:{type:'string',enum:['u8','u16le']},data:{type:'string',maxLength:8*1024*1024},importKey:{type:'string',minLength:1,maxLength:64}}},
+ domainMask:{type:'object',additionalProperties:false,required:['encoding','data'],description:'Optional retained-domain mask: one 0/1 byte per sample, row zero +Y; masked grids are bounded to 129 per axis. Complete active cells are retained, holes remain open, and sampled boundaries are not exact analytic circles.',properties:{encoding:{type:'string',const:'u8'},data:{type:'string',maxLength:24000}}},
  sculpt:{type:'array',maxItems:HEIGHTFIELD_LIMITS.maxStrokes,items:{type:'object',additionalProperties:false,required:['mode','radiusMm','strength','points'],properties:{mode:{type:'string',enum:['raise','lower','smooth','flatten']},radiusMm:positive,strength:{type:'number',minimum:0,maximum:10},targetMm:{type:'number'},points:{type:'array',maxItems:HEIGHTFIELD_LIMITS.maxStrokePoints,items:{type:'number'}}}}},
  invert:{type:'boolean'},gamma:{type:'number',minimum:.2,maximum:5},smoothing:{type:'integer',minimum:0,maximum:HEIGHTFIELD_LIMITS.maxSmoothing},edgeFadeMm:{type:'number',minimum:0}}},
  notes:'Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles).'};
@@ -22,6 +24,14 @@ function decodeHeights({encoding,data},count,assetBytes){
  if(encoding==='u8'){if(bytes.length!==count)throw meshError('HEIGHTFIELD_INVALID',`Expected ${count} u8 samples, got ${bytes.length}.`);for(let i=0;i<count;i++)out[i]=bytes[i]/255;}
  else{if(bytes.length!==count*2)throw meshError('HEIGHTFIELD_INVALID',`Expected ${count} u16le samples.`);for(let i=0;i<count;i++)out[i]=(bytes[2*i]|bytes[2*i+1]<<8)/65535;}
  return out;
+}
+function decodeDomainMask(p){
+ if(!p.domainMask)return null;
+ const {columns:c,rows:r,domainMask:m}=p;
+ if(c>129||r>129||m.encoding!=='u8'||typeof m.data!=='string'||m.data.length>24000||!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(m.data))throw meshError('RELIEF_DESIGN_MASK_INVALID','Domain mask must be bounded canonical base64 u8 data.');
+ const bytes=typeof Buffer!=='undefined'?new Uint8Array(Buffer.from(m.data,'base64')):Uint8Array.from(atob(m.data),c=>c.charCodeAt(0));
+ if(bytes.length!==c*r||bytes.some(v=>v!==0&&v!==1))throw meshError('RELIEF_DESIGN_MASK_INVALID','Domain mask must contain exactly one 0/1 byte per sample.');
+ return bytes;
 }
 function blur(h,c,r){const out=new Float32Array(h.length);
  for(let j=0;j<r;j++)for(let i=0;i<c;i++){let s=0,n=0;for(let dj=-1;dj<=1;dj++){const y=j+dj;if(y<0||y>=r)continue;for(let di=-1;di<=1;di++){const x=i+di;if(x<0||x>=c)continue;s+=h[y*c+x];n++;}}out[j*c+i]=s/n;}
@@ -34,6 +44,7 @@ export function heightfieldSamples(p,assetBytes){
  if(p.heightMm>HEIGHTFIELD_LIMITS.maxHeightMm)fail('heightMm too large');
  const {columns:c,rows:r}=p;if(![c,r].every(n=>Number.isInteger(n)&&n>=HEIGHTFIELD_LIMITS.minSide&&n<=HEIGHTFIELD_LIMITS.maxSide))fail('columns/rows must be integers 2–2049');
  if(c*r>HEIGHTFIELD_LIMITS.maxSamples)throw meshError('RELIEF_EDIT_CAPACITY',`Heightfield exceeds ${HEIGHTFIELD_LIMITS.maxSamples} samples.`);
+ decodeDomainMask(p);
  const gamma=p.gamma??1,smoothing=p.smoothing??0,fade=p.edgeFadeMm??0;
  if(!(gamma>=.2&&gamma<=5)||!Number.isInteger(smoothing)||smoothing<0||smoothing>HEIGHTFIELD_LIMITS.maxSmoothing||!(fade>=0))fail('gamma 0.2–5, smoothing 0–8, edgeFadeMm ≥ 0');
  if(!assetBytes&&typeof p.heights?.data!=='string')fail('heights.data or a heightmap asset is required');
@@ -50,6 +61,7 @@ export function heightfieldSamples(p,assetBytes){
 export function makeHeightfieldRelief(p,assetBytes){
  p=legacyReliefParams('meshHeightfieldRelief',p);
  const h=heightfieldSamples(p,assetBytes),{columns:c,rows:r}=p,top=c*r;
+ if(p.domainMask)return makeMaskedHeightfieldMesh({...p,heightsMm:h,active:decodeDomainMask(p)});
  const rim=[];for(let i=0;i<c-1;i++)rim.push(i);for(let j=0;j<r-1;j++)rim.push(j*c+c-1);for(let i=c-1;i>0;i--)rim.push((r-1)*c+i);for(let j=r-1;j>0;j--)rim.push(j*c);
  const vertexCount=top+rim.length+1,triangles=2*(c-1)*(r-1)+3*rim.length;
  if(triangles>MESH_LIMITS.maxResultTriangles)throw meshError('RELIEF_EDIT_CAPACITY','Heightfield mesh exceeds the result triangle limit.');

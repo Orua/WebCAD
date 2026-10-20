@@ -3,7 +3,7 @@
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.55.0",
+  "version": "1.55.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -77,5 +77,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:6c670073daf6a153a2d2370b58f0d4a397afeb1c493e5b67cb657318dc3e26ec"
+  "docsHash": "sha256:01fb8cfb96866e575f977eb4dc38a5d5060994508acaa05ec3f171ba2b4319ef"
 }
