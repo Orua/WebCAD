@@ -2,7 +2,7 @@
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.54.3",
+  "version": "1.54.4",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -94,9 +94,13 @@
       {
         "id": "exportDrawing",
         "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      },
+      {
+        "id": "exportLogo",
+        "chooseWhen": "将readLogo已读取的原毫米轮廓导出DXF或LOGO JSON，不创建实体或工程图，不需要工作区脚本写入。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:efd17deac090f4737a0ef72be0b17cf8809f87b4c2491b04261fb8182a3e312b"
+  "docsHash": "sha256:bc7726c663629acfbd1cd7cc212751e9cb3c0d0037f5dd436b6e94f8b0e127a8"
 }

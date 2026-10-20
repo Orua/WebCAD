@@ -2,7 +2,7 @@
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.54.3",
+  "version": "1.54.4",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -100,9 +100,13 @@
       {
         "id": "exportDrawing",
         "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      },
+      {
+        "id": "exportLogo",
+        "chooseWhen": "将readLogo已读取的原毫米轮廓导出DXF或LOGO JSON，不创建实体或工程图，不需要工作区脚本写入。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:69ed2f4ec2bfface2cc55fad28a6619d60a3564ac5b46086e9687c1382e94992"
+  "docsHash": "sha256:c9a094dbf97a947abab4afa049f01c56b651d529e7ac34b49ff633f1f7688466"
 }

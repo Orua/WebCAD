@@ -2,7 +2,7 @@
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.54.3",
+  "version": "1.54.4",
   "contextPolicy": "revision",
   "description": "exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})。drawingId必须仍匹配当前revision；DWG明确不可用。",
   "synonyms": [
@@ -70,11 +70,15 @@
         "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
       },
       {
+        "id": "exportLogo",
+        "chooseWhen": "将readLogo已读取的原毫米轮廓导出DXF或LOGO JSON，不创建实体或工程图，不需要工作区脚本写入。"
+      },
+      {
         "id": "capture",
         "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:18abfefc7bf918ce52a3801feaa7c5b51ab246b549ce74a454a72c9e2929f255"
+  "docsHash": "sha256:157eaf4ce3272eb02ee13e306b5c589b1940b85ab291c2d99c90faea1960b27b"
 }

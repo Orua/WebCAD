@@ -1,4 +1,4 @@
-import {PROTOCOL, JOB_METHODS, editsDocument, assertIdentity, failure, validatePayload} from './protocol.js?v=command-lock-20261010';
+import {PROTOCOL, JOB_METHODS, EXPORT_METHODS, editsDocument, assertIdentity, failure, validatePayload} from './protocol.js?v=command-lock-20261010';
 
 /** Host capability is injected. No model-provided code, origins, URLs or disk paths. */
 export function createHostAdapter({api, session, report, artifact, onStateChange=()=>{}, now=()=>Date.now(), wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}) {
@@ -64,7 +64,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
   async function transferTree(entry,value,method){
     if(!value||typeof value!=='object')return value;
     if(ArrayBuffer.isView(value)||value instanceof ArrayBuffer||value instanceof Blob)return value;
-    if(value.status==='generated'&&value.resourceId&&['files.save','files.export'].includes(method))return transfer(entry,value,method);
+    if(value.status==='generated'&&value.resourceId&&EXPORT_METHODS.has(method))return transfer(entry,value,method);
     if(Array.isArray(value)){const items=[];for(const item of value)items.push(await transferTree(entry,item,method));return items;}
     const output={...value};
     if(Array.isArray(value.results)){

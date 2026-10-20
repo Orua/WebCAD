@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.54.3 · 操作目录 sha256:81b1ccc3cf1024529c3ce9f092970e4bd645d5865c44942f7a07424bde803c72
+API 1.54.4 · 操作目录 sha256:e5e60ffc2ea3affb5ad5dcd149b8676209410475d936d9371e93f11dc7ce77e2
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -9,6 +9,7 @@ API 1.54.3 · 操作目录 sha256:81b1ccc3cf1024529c3ce9f092970e4bd645d5865c4494
 ## 页面方法
 
 - `readLogo`
+- `exportLogo`
 - `getBatchReceipt`
 - `probeBlendRadius`
 - `recoverKernel`
@@ -249,6 +250,7 @@ API 1.54.3 · 操作目录 sha256:81b1ccc3cf1024529c3ce9f092970e4bd645d5865c4494
 - `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
 - `template.gableOpenFrame` · advisory · 两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。
 - `readLogo` · page-method · readLogo({context,resourceId,name,targetWidthMm?,page?,sizeConfirmed?,allowUpload?,raster?:{threshold,invert,alphaThreshold}})。选定文件先登记资源；SVG/LOGO JSON在本机读取，其他格式由已配置后台处理。位图必须提供实际宽度、sizeConfirmed:true、allowUpload:true。raster可省略；threshold/alphaThreshold为0–255整数，默认128/1；invert为布尔值，默认false。LOGO不接受浮雕的0–1阈值，0.5在上传前返回PARAM_SCHEMA_INVALID。默认以亮度<128的深色像素为前景；不得无依据反转或扫描参数重试。
+- `exportLogo` · page-method · exportLogo({context,logoId,format?:"dxf"|"json",name?})。logoId来自本页readLogo成功回执，仅保留最近4份；无需创建实体、投影、写脚本或申请工作区写权限。name须以.dxf或.logo.json结尾。
 - `getBatchReceipt` · page-method · getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.
 - `probeBlendRadius` · page-method · probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。
 - `recoverKernel` · page-method · recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。

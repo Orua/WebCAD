@@ -3,7 +3,7 @@
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.54.3",
+  "version": "1.54.4",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -73,5 +73,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:3262365887769a4bf2ecfee730aa5d8c8f0cebed349a2dceac96ee7dd3794846"
+  "docsHash": "sha256:76d2365f2dd8fa5684a0485c6b321ca1e11e60ddc50c36873a866a523fd4457f"
 }

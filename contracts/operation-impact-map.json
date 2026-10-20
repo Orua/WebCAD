@@ -2775,5 +2775,20 @@
       "Preserve omitted defaults and explicit request options",
       "Real original readLogo receipt reconciliation before any mechanism-backed retry"
     ]
+  },
+  "logoContourExport20261020": {
+    "cacheImpact": "Regenerate tool/catalog/docs/knowledge hashes and refresh matching host cache",
+    "documentImpact": "none; no geometry, history or revision change, cache scoped to page instance",
+    "requiredTests": [
+      "Real P09 failure a495ceed-395b-4bfd-a645-5d81c6ed806e",
+      "Independent DXF parser round-trip coordinates, closure and holes",
+      "Public API read/export without document writes and stale resource rejection",
+      "Export scope plus original Agent attachment transfer once",
+      "17674 targeted verification then real Agent download and disk hash"
+    ],
+    "logoImpact": "Preserve every source coordinate and closed outer/hole ring at millimetre 1:1, source identity and unreviewed tracing status",
+    "contractImpact": "Page API 1.54.4 exportLogo requires cad.export; helper, async dispatcher, public docs and UI mapping included; all generated export methods use original Agent artifact transport",
+    "servicesImpact": "No backend DLL, worker algorithm or protocol change; export reuses already-read contours without recompute",
+    "localImpact": "Read LOGO returns page-scoped immutable logoId; export exact contour DXF or original JSON without workspace scripting; UI exposes DXF download after recognition"
   }
 }

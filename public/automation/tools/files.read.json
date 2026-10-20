@@ -2,7 +2,7 @@
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.54.3",
+  "version": "1.54.4",
   "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
@@ -94,9 +94,13 @@
       {
         "id": "exportDrawing",
         "chooseWhen": "导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。"
+      },
+      {
+        "id": "exportLogo",
+        "chooseWhen": "将readLogo已读取的原毫米轮廓导出DXF或LOGO JSON，不创建实体或工程图，不需要工作区脚本写入。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:02dfb76f2746e9eee7015bfedd287b4f581bee5bc9f96b533ee99cdb0d1d2a56"
+  "docsHash": "sha256:bb5a696bf5116a0dbf19ae9d1d452112020682660108ed0f37febc6abd10af0f"
 }

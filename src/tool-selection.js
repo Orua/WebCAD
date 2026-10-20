@@ -326,6 +326,7 @@ const groups = [
     'files.release':'释放临时资源；不删除工程实体或已下载磁盘文件。',
     createDrawing:'按当前几何创建投影、剖视和尺寸工程图定义。',
     exportDrawing:'导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。',
+    exportLogo:'将readLogo已读取的原毫米轮廓导出DXF或LOGO JSON，不创建实体或工程图，不需要工作区脚本写入。',
   }],
 ];
 

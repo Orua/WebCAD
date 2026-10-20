@@ -2,6 +2,15 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "logoExport": {
+    "tools": [
+      "readLogo",
+      "exportLogo",
+      "files.download"
+    ],
+    "method": "exportLogo",
+    "usage": "LOGO识别后下载原毫米轮廓DXF；API先readLogo取得logoId，再exportLogo({context,logoId,format:\"dxf\"})。保留外环和孔洞，不创建实体，不自动确认描摹精度。"
+  },
   "rodJunction": {
     "tools": [
       "rodJunction"
@@ -1422,6 +1431,7 @@
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 readLogo: contextPolicy=identity
+exportLogo: contextPolicy=identity
 getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
