@@ -3,7 +3,7 @@
   "title": "预览模型、原特征编辑或文件插入",
   "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.54.2",
+  "version": "1.54.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -53,5 +53,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:2dd0dbde79b06dd74f31bc981e59a03332e4afb54b67463bcc7daf8dedf46587"
+  "docsHash": "sha256:b9cfba5eeba5e713c224b7f04ce6cd6c636df341563923230451daed0804fe6e"
 }

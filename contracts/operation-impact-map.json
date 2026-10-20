@@ -2726,7 +2726,11 @@
     "contractImpact": "Page API 1.54.2; add parity coverage for every Agent JOB_METHOD and an integration test through real host adapter plus createPageJobs",
     "documentImpact": "none; rejected original commands committed no geometry and are not replayed",
     "cacheImpact": "Regenerate and hash-verify current knowledge before the repaired original-input verification",
-    "requiredTests": ["Real failure task 399d4323-df68-4eda-a34e-5fa3032f54e0", "Real adapter/page-job method parity and readLogo original receipt reuse", "One repaired production Agent JPEG task with original dimensions, depth and draft"]
+    "requiredTests": [
+      "Real failure task 399d4323-df68-4eda-a34e-5fa3032f54e0",
+      "Real adapter/page-job method parity and readLogo original receipt reuse",
+      "One repaired production Agent JPEG task with original dimensions, depth and draft"
+    ]
   },
   "dBuckleTangentBoundary20261020": {
     "localImpact": "Accept the valid tangent minimum height of the D-buckle crown and bottom bends; omit zero-length legs while preserving explicit dimensions, section and radius",
@@ -2735,7 +2739,12 @@
     "contractImpact": "D-buckle card documents innerHeight >= innerWidth/2 + innerRadius and outer-envelope conversion; below-boundary inputs remain rejected",
     "documentImpact": "No format changes; existing recipes keep their numbers and remain editable and reproducible",
     "cacheImpact": "Regenerate template card, catalog and knowledge hashes",
-    "requiredTests": ["Real Agent task 78990ab3-7b56-45ce-87fc-b5c01d12777b failure receipt", "WASM validity, single solid and 50x30x3 envelope at tangent boundary", "Editable recipe replay and below-boundary rejection", "One post-release original Agent prompt with STP delivery"]
+    "requiredTests": [
+      "Real Agent task 78990ab3-7b56-45ce-87fc-b5c01d12777b failure receipt",
+      "WASM validity, single solid and 50x30x3 envelope at tangent boundary",
+      "Editable recipe replay and below-boundary rejection",
+      "One post-release original Agent prompt with STP delivery"
+    ]
   },
   "reportRemediation20261020": {
     "localImpact": "Recover a trapped WASM Worker once from the committed document without replaying the candidate; preserve not_committed across recovery revision changes; drain camera inertia; report SubD cage brush hits and orientation conflicts",
@@ -2752,6 +2761,19 @@
       "tests/agent-recovery-save.test.mjs",
       "tests/agent-protocol.test.mjs",
       "one targeted 17674 browser check"
+    ]
+  },
+  "logoRasterContract20261020": {
+    "contractImpact": "Page API 1.54.3 declares threshold and alphaThreshold integer 0..255 defaults 128/1 and boolean invert default false, distinct from readRelief normalized thresholds",
+    "logoImpact": "Preserve original pixels, glyphs, holes, physical dimensions and review gate; do not auto-invert or scan thresholds",
+    "localImpact": "Reject fractional, string, unknown and wrongly typed raster options before capability reads or uploads; preserve omitted defaults and original fingerprints",
+    "cacheImpact": "Regenerate finite static docs, routes and catalog hashes",
+    "documentImpact": "none; conversion-only validation does not commit geometry",
+    "servicesImpact": "No binary or algorithm change; existing byte-luminance converter contract is now explicit at its browser entrance",
+    "requiredTests": [
+      "Reject invalid raster options before upload",
+      "Preserve omitted defaults and explicit request options",
+      "Real original readLogo receipt reconciliation before any mechanism-backed retry"
     ]
   }
 }

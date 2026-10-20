@@ -3,7 +3,7 @@
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.54.2",
+  "version": "1.54.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -85,5 +85,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:90f57cd9bf9c58171419c63c63873a835c920bdf66091ce200f6772b80dd1b6f"
+  "docsHash": "sha256:0847b53e56ef1f5c5ee4766362d4718908da4438819a13f41909c8a2cd5c1231"
 }

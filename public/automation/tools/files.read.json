@@ -2,7 +2,7 @@
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.54.2",
+  "version": "1.54.3",
   "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
@@ -98,5 +98,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:0e3ad22223256f489db2f94fb3533bd7670fcaa4af2e927257a7cb5c32c136a5"
+  "docsHash": "sha256:02dfb76f2746e9eee7015bfedd287b4f581bee5bc9f96b533ee99cdb0d1d2a56"
 }
