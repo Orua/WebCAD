@@ -31,6 +31,11 @@ function inRing(x,y,ring){let hit=false;for(let i=0,k=ring.length-1;i<ring.lengt
 const contourCache=new WeakMap();
 export function insideRelief(params,x,y){
  params=legacyReliefParams('relief',params);
+ return insideReliefSnapshot(params,x,y);
+}
+// Stroke callers already own a normalized snapshot. Keep its contour identity
+// stable across controls; normalizing here cloned the entire grid per point.
+function insideReliefSnapshot(params,x,y){
  if(!params.regions)return true;
  let cache=contourCache.get(params.regions);if(!cache){cache=new Map();contourCache.set(params.regions,cache);}
  const key=x+','+y;if(cache.has(key))return cache.get(key);
@@ -72,7 +77,7 @@ export function createReliefStroke(params,options){
  const {mode,radiusMm,strength=1,amountMm=.1,targetMm=0,hardness=0,symmetry='none'}=options;
  const state=sculptState(params),before=reliefHeights(params),rows=before.length,cols=before[0].length,step=Math.max(params.widthMm/(cols-1),params.heightMm/(rows-1));
  if(!['raise','lower','smooth','flatten','restore','mask','unmask','fill','scrape','sharpen'].includes(mode)||!Number.isFinite(radiusMm)||radiusMm<step||radiusMm>1000||!Number.isFinite(strength)||strength<=0||strength>1||!Number.isFinite(amountMm)||amountMm<0||amountMm>20||!Number.isFinite(targetMm)||targetMm<0||targetMm>20||!Number.isFinite(hardness)||hardness<0||hardness>1||!['none','x','y','xy'].includes(symmetry))fail('PARAM_RANGE_INVALID',`笔刷半径至少 ${step.toFixed(3)} mm；强度须为 0–1，硬度须为 0–1，控制高度须为 0–20 mm`);
- const originalState=structuredClone(state),distances=new Float64Array(rows*cols).fill(Infinity),targets=new Map(),inside=Array.from({length:rows},(_,j)=>Array.from({length:cols},(_,i)=>insideRelief(params,i/(cols-1)-.5,j/(rows-1)-.5)));
+ const originalState=structuredClone(state),distances=new Float64Array(rows*cols).fill(Infinity),targets=new Map(),inside=Array.from({length:rows},(_,j)=>Array.from({length:cols},(_,i)=>insideReliefSnapshot(params,i/(cols-1)-.5,j/(rows-1)-.5)));
  const mirrors=[[1,1],...(['x','xy'].includes(symmetry)?[[-1,1]]:[]),...(['y','xy'].includes(symmetry)?[[1,-1]]:[]),...(symmetry==='xy'?[[-1,-1]]:[])];
  let previous=null,count=0,visited=0;
  function target(j,i){

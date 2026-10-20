@@ -1,9 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {pathToFileURL} from 'node:url';
 const path=process.env.WEBCAD_HOST_TRANSPORT||'F:/Project/Goldenluck/Web/AI/WebCAD/workspace-transport.js';
-const source=await readFile(path,'utf8');
-const {attachmentIdentity,registerHostAttachments,createHostRecoveryJournal,settleIndependent}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const {attachmentIdentity,registerHostAttachments,createHostRecoveryJournal,settleIndependent}=await import(pathToFileURL(path).href);
 test('attachment resume compares content and length as well as the original filename',()=>{
  const attachment={name:'part.step',size:5,sha256:'original'};
  assert.equal(attachmentIdentity(attachment),attachmentIdentity({originalName:'part.step',size:5,sha256:'original'}));

@@ -15,6 +15,7 @@ export const AGENT_ONBOARDING = freeze({
   bootstrapUrl: 'automation/agent-start.json',
   connectionDoc: 'api.connection',
   workflowDoc: 'api.workflow',
+  errorRecoveryDoc:'api.error-recovery',
   knowledge:AGENT_KNOWLEDGE,
   localKit: {
     manifestUrl: 'automation/agent-kit.json',

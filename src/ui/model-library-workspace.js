@@ -1,3 +1,4 @@
+import {humanError} from '../error-recovery.js';
 import {iconButtonContent} from './vector-icon.js';
 import {modelLibrary} from '../model-library.js';
 import {QUICK_MODELS} from '../quick-models.js';
@@ -15,7 +16,7 @@ export function mountModelLibrary(root,{element,button,onClose,onChoose,getMode,
  const error=element('p',{class:'form-error',role:'alert'}),content=element('div',{class:'library-content'}),grid=element('div',{class:'library-grid','aria-label':'可用快捷模型'}),detail=element('aside',{class:'library-detail','aria-label':'模型详情'});
  content.append(grid,detail);root.append(header,error,content);
  search.addEventListener('input',()=>{query=search.value.trim().toLowerCase();render();root.scrollTop=0;});
- async function move(delta){try{const api=window.webcad.api,index=library.entries.findIndex(item=>item.id===selectedId);const result=await api.updateModelLibrary({context:api.createRequestContext(),expectedLibraryRevision:library.revision,operation:'move',id:selectedId,index:index+delta});if(result.status==='failed')throw Error(result.error.message);error.textContent='';render();}catch(exception){error.textContent=exception.message;}}
+ async function move(delta){try{const api=window.webcad.api,index=library.entries.findIndex(item=>item.id===selectedId);const result=await api.updateModelLibrary({context:api.createRequestContext(),expectedLibraryRevision:library.revision,operation:'move',id:selectedId,index:index+delta});if(result.status==='failed')throw Error(result.error.message);error.textContent='';render();}catch(exception){error.textContent=humanError(exception);}}
  function renderDetail(entry){
   detail.replaceChildren();if(!entry){detail.append(element('p',{},'选择一个模型查看参数与说明。'));return;}
   detail.append(modelPreview(entry),element('h2',{},entry.label),button('设置参数并创建',()=>onChoose(entry),'primary'),element('p',{},entry.description));
@@ -29,7 +30,7 @@ export function mountModelLibrary(root,{element,button,onClose,onChoose,getMode,
   const contract=element('details',{class:'library-contract'});contract.append(element('summary',{},'Agent 调用契约'),element('pre',{},JSON.stringify({method:'resolveModelLibrary',args:{id:entry.id,expectedLibraryRevision:library.revision,params:{}}},null,2)),element('p',{},'getModelLibrary 读取参数和范围；resolveModelLibrary 返回可交给 run/add 的参数。'));detail.append(contract);
  }
  function render(){
-  try{library=modelLibrary.read();}catch(exception){error.textContent=exception.message;grid.replaceChildren();detail.replaceChildren();return;}
+  try{library=modelLibrary.read();}catch(exception){error.textContent=humanError(exception);grid.replaceChildren();detail.replaceChildren();return;}
   const mode=getMode();cards.setAttribute('aria-pressed',String(mode==='cards'));list.setAttribute('aria-pressed',String(mode==='list'));root.dataset.libraryMode=mode;grid.replaceChildren();
   const entries=library.entries.filter(entry=>!query||`${entry.categoryLabel} ${entry.label} ${entry.kind} ${entry.description} ${QUICK_MODELS[entry.kind].labelEn||''}`.toLowerCase().includes(query));
   if(!entries.some(entry=>entry.id===selectedId))selectedId=entries[0]?.id??null;

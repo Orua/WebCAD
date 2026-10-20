@@ -1,4 +1,5 @@
 import {PROTOCOL, JOB_METHODS, EXPORT_METHODS, editsDocument, assertIdentity, failure, validatePayload} from './protocol.js?v=command-lock-20261010';
+import {withErrorRecovery} from '../error-recovery.js';
 
 /** Host capability is injected. No model-provided code, origins, URLs or disk paths. */
 export function createHostAdapter({api, session, report, artifact, onStateChange=()=>{}, now=()=>Date.now(), wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}) {
@@ -54,7 +55,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
     if(result?.status!=='unknown')entry.editing=false;
     entry.resolveExecution?.();
     onStateChange();
-    result=await transferTree(entry,result,entry.command.payload.method);
+    result=withErrorRecovery(await transferTree(entry,result,entry.command.payload.method));
     entry.result=structuredClone(result);
     if(endedTasks.has(entry.command.taskId)&&![...commands.values()].some(item=>item!==entry&&item.command.taskId===entry.command.taskId&&pending(item)))activeTask=null;
     void sendResult(entry);

@@ -1,5 +1,33 @@
 {
   "version": 1,
+  "errorRecoveryAndParentPackage20261021": {
+    "localImpact": "Shared friendly error explanations and structured recovery guidance at UI/API/job boundaries; no automatic retry, parameter relaxation or undo",
+    "servicesImpact": "Existing job and error states retained. Parent-application packages now reject bitness-specific managed DLLs before copying; deploy AnyCPU Logo adapter and one matching worker dependency bundle",
+    "logoImpact": "Current reviewed contours, source bytes and bounded smoothing retained; exported logo JSON explicitly declares webcad-logo and mm",
+    "contractImpact": "Preserve original status/code/message/request identity for audit; add userMessage/recovery and a downloadable Agent recovery guide",
+    "documentImpact": "No automatic document mutation on error; partial commits and unknown outcomes remain distinct from not_committed",
+    "cacheImpact": "Regenerate static error inventory, knowledge routes and frontend identity from the same source state",
+    "requiredTests": [
+      "Targeted recovery classification, unknown/partial/cancel semantics and safe user messages",
+      "Current LOGO JSON contract retains all source/region/hole fields",
+      "Parent package accepts AnyCPU dependencies and rejects the actual x64-only failure fixture",
+      "One 17674 UI/API failure check and production release identity/business checks"
+    ]
+  },
+  "toolboxReliability20261020Night": {
+    "localImpact": "Normalize LOGO depth and relief dimensions before intent validation/UI synchronization; preserve one immutable contour snapshot per sculpt stroke; shared UI/API sculpt preflight; explain assistant login failure without changing authentication",
+    "servicesImpact": "No server algorithm or protocol changes; reject conflicting depth before dispatch",
+    "logoImpact": "Canonical depthMm and legacy depth obey identical declared-depth checks, missing/nonfinite depth rejects, conflicting aliases retain schema error",
+    "contractImpact": "API 1.54.6: prepareReliefSculpt.executionCheck and known route blockers; planner classifies mesh source before selecting bounded tools instead of claiming mesh pipeline unavailable; existing parameters retained",
+    "documentImpact": "Legacy recipes without machiningIntent retain rebuild behavior; no source/grid/contour mutations or implicit resampling",
+    "cacheImpact": "Rebuild frontend identity; regenerate matching knowledge if docs change; contour cache scoped to stroke-owned snapshot",
+    "requiredTests": [
+      "pattern-machining canonical/legacy conflict and explicit UI update",
+      "relief-sculpt bounded snapshot clones at 17/33/65 and layer/hole/mask preservation",
+      "relief-sculpt-preflight shared threshold and retained draft; registered contract test entry",
+      "17674 affected tool check through independent Agent caller"
+    ]
+  },
   "independentRodRadius20261020": {
     "localImpact": "Shared analytic rolling-ball canal with independently set R; slider rollingBall creates both joints; rodJunction replaces one explicitly selected straight equal-wire perpendicular T joint and preserves outside BRep faces",
     "servicesImpact": "none; bounded one-junction machining and quick-model assembly are local WASM; no server/native algorithm or protocol change",
@@ -2803,5 +2831,36 @@
       "One same-design Agent continuation after deployment"
     ],
     "contractImpact": "Keep the existing intent requirement, source and capability gates; reject unknown fields inside the intent and ordinary parameters"
+  },
+  "logoReviewWizard20261021": {
+    "localImpact": "Compact source/review/target wizard; exact local closed straight DXF subset; bounded transactional contour editor with original raster overlay and explicit confirmation",
+    "servicesImpact": "Matching Logo DLL validates smoothingPx and strict threshold types; Worker provides bounded smoothing/proof/original contours and PDF join inspect/convert. Native unchanged.",
+    "logoImpact": "Preserve source identity, holes and dimensions; explicit raster.smoothingPx 0..0.5 source pixels defaults off, bounded single-pass neighbor smoothing rejects invalid topology; original contours and conversion-frame transform remain readable; vector-to-raster renderer unavailable",
+    "contractImpact": "Page API 1.54.6 reviewLogo/logoWizard with revision guards; readLogo/convertLogoPdf/wizard expose existing pdfJoinToleranceMm rule; generated intermediate resources; Agent read/edit/export scopes and batch/job allowlists; logoWizard attach/artifacts expose UI-first source resources and the same live review session; stale async exports reject",
+    "documentImpact": "No document format change; review never commits geometry; confirmed contours use existing plane/supported curved-face logo recipe",
+    "cacheImpact": "Regenerate public tool cards, docs, knowledge and Agent contract; refresh live hashes",
+    "requiredTests": [
+      "logo-vector-review",
+      "logo-wizard-state",
+      "logo-review-api",
+      "browser-logo-input",
+      "agent-protocol",
+      "logo-kernel selected unified plane/curved test",
+      "real Worker raster frame test",
+      "17674 targeted UI/API validation"
+    ]
+  },
+  "reliefDesignDraft20261021": {
+    "localImpact": "Bounded authored millimetre design drafts in the same document; compact UI and CommandService action; no numerical solve or CAD geometry",
+    "servicesImpact": "none; metadata operation only",
+    "logoImpact": "none; separate design intent",
+    "contractImpact": "document.reliefDesign with explicit draft revisions; getState include reliefDesigns; strict authored support, holes, protection and point constraints",
+    "documentImpact": "Optional reliefDesigns metadata persists through v4 container, history, undo and reopen; images and body binding are not yet supported",
+    "cacheImpact": "Regenerate public tool/docs/routes/knowledge identity",
+    "requiredTests": [
+      "relief-design-drafts",
+      "workspace-upgrade",
+      "17674 UI/API save and reopen"
+    ]
   }
 }

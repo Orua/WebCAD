@@ -18,7 +18,7 @@ export function mountAIPanel(dialog,api){
     output.textContent=JSON.stringify(result,null,2);downloads.replaceChildren();
     for(const item of result.results||[]){const file=item.result;if(file?.status!=='generated')continue;
       const b=document.createElement('button');b.type='button';b.textContent=`下载 ${file.name}`;
-      b.addEventListener('click',async()=>{try{const receipt=await api.files.download({resourceId:file.resourceId});output.textContent+='\n'+JSON.stringify(receipt,null,2);}catch(e){output.textContent+='\n'+JSON.stringify({status:'failed',error:{code:e.code,message:e.message}});}});downloads.append(b);
+      b.addEventListener('click',async()=>{try{const receipt=await api.files.download({resourceId:file.resourceId});output.textContent+='\n'+JSON.stringify(receipt,null,2);}catch(e){output.textContent+='\n'+JSON.stringify({status:'failed',error:{code:e.code,userMessage:errorRecovery(e).userMessage,recovery:errorRecovery(e)}});}});downloads.append(b);
     }
   };
   const button=(label,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);controls.append(b);return b;};
@@ -59,3 +59,4 @@ export function mountAIPanel(dialog,api){
   });
   activeShow=show;activeRun=run;run.className='primary';run.disabled=working;dialog.append(help,docLinks,controls,input,textLabel,textInput,textButtons,fitLabel,fitInput,fitButton,output,downloads);show(lastResult||api.getState());
 }
+import {errorRecovery} from './error-recovery.js';

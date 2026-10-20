@@ -2,7 +2,7 @@
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "contextPolicy": "none",
   "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
   "synonyms": [
@@ -77,5 +77,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:fd3228497eec97a2b1b41f07985d2873e58f10c92b0ef768c1e0d54ac7c4fd53"
+  "docsHash": "sha256:2c55d1fe292fe73967a580b0227540450207daac17dcc853efcaebf2fda5ae45"
 }

@@ -2,7 +2,7 @@
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "contextPolicy": "identity",
   "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
   "synonyms": [
@@ -80,5 +80,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:03a72e9cbfc724a4a93218c30250e354db67c3d5b72bb9b43cb9f70166dc7abd"
+  "docsHash": "sha256:d1dbef0cf379af8efbd64493404d7135b55a3f1b90f784fff16f87d4f1df0e93"
 }

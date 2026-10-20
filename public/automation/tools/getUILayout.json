@@ -2,7 +2,7 @@
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "contextPolicy": "none",
   "description": "getUILayout({includeModelLibrary?:boolean})",
   "synonyms": [
@@ -30,6 +30,10 @@
     "groupTitle": "名称、外观与显示",
     "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。",
     "alternatives": [
+      {
+        "id": "document.reliefDesign",
+        "chooseWhen": "保存人工毫米设计约束草稿；支撑/孔/保护/高度点，随工程撤销重开，不求解高度场或生成加工几何。"
+      },
       {
         "id": "document.rename",
         "chooseWhen": "只改工程名，不改每个实体名称。"
@@ -73,5 +77,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:980273eb63a8fb8ad9891b9a24c777887965516acfd9a9fdb1ffd4b471fd3227"
+  "docsHash": "sha256:8879876ad596107e3ec3dfb6428c60ab04454d6f96a4756b4a87078d06dc0785"
 }

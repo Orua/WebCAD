@@ -1,0 +1,26 @@
+.logo-import-ui [hidden]{display:none!important}
+.logo-wizard-progress{display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:0;list-style:none;font-size:11px;color:#4c6173}
+.logo-wizard-progress li{padding:5px 7px;border-bottom:2px solid var(--line)}
+.logo-wizard-progress li[aria-current=step]{border-color:var(--accent);color:var(--accent);font-weight:650}
+.logo-review-step{display:flex;flex-direction:column;max-height:calc(100dvh - 235px);min-height:0}
+.logo-review-content{min-height:0;overflow:auto;overscroll-behavior:contain;padding-right:3px}
+.logo-review-footer{flex:none;display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--line);background:#fbfdfe}
+.logo-review-footer button{min-width:0;min-height:34px;font-size:11px;white-space:normal}
+.logo-review-footer .primary{grid-column:1/-1}
+.logo-vector-review{display:grid;gap:8px;min-width:0}
+.logo-vector-review h3{font-size:14px;margin:5px 0 0;color:inherit}
+.logo-review-toolbar,.logo-review-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.logo-review-toolbar select{flex:1;min-width:120px;max-width:100%;padding:8px;background:#fff;color:inherit;border:1px solid var(--line);border-radius:5px}
+.logo-review-canvas{display:block;width:100%;height:clamp(140px,24dvh,240px);background:#f1f6fa;border:1px solid var(--line);border-radius:6px;touch-action:none}
+.logo-review-path{fill:none;stroke:#5b7185;stroke-width:1.3;vector-effect:non-scaling-stroke;cursor:pointer}
+.logo-review-path.selected{stroke:#164b9c;stroke-width:2}
+.logo-review-node{fill:#fff;stroke:#164b9c;stroke-width:1.2;vector-effect:non-scaling-stroke;cursor:move}
+.logo-review-node.selected{fill:#ba571c;stroke:#fff}
+.logo-review-coordinates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.logo-review-coordinates label{display:grid;gap:5px;font-size:11px;color:#4c6173;min-width:0}
+.logo-review-actions button{font-size:11px;min-height:34px;flex:1 1 auto}
+.logo-vector-review :is(button,input,select):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.logo-raster-settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.logo-raster-settings label{display:grid;gap:5px;font-size:11px;color:#4c6173}
+.logo-raster-settings .checkbox-field{display:flex;margin-top:0;grid-column:1/-1}
+@media(max-width:480px){.logo-review-actions{display:grid;grid-template-columns:1fr 1fr}.logo-review-actions button:last-child{grid-column:1/-1}.logo-review-canvas{height:160px}.logo-review-step{max-height:calc(100dvh - 220px)}}

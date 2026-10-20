@@ -4,6 +4,8 @@ DXF 成对边界推导闭合或开放中心线：在 text-to-cad 仓库使用 ag
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
 getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision

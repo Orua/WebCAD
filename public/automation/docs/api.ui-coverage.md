@@ -2,6 +2,17 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "logoReview": {
+    "tools": [
+      "readLogo",
+      "reviewLogo",
+      "logoWizard",
+      "files.read",
+      "files.download"
+    ],
+    "method": "reviewLogo",
+    "usage": "LOGO紧凑向导：来源→轮廓校对→目标面。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。"
+  },
   "logoExport": {
     "tools": [
       "readLogo",
@@ -289,6 +300,8 @@
   "logo": {
     "tools": [
       "readLogo",
+      "reviewLogo",
+      "logoWizard",
       "logo",
       "getServices",
       "getServicesCapabilities",
@@ -297,7 +310,7 @@
       "preview.cancel"
     ],
     "method": "execute",
-    "usage": "独立LOGO向导：登记原文件、readLogo读取轮廓；位图明确宽度及上传授权，复核后设置source.reviewed=true，再指定目标面、三维放置点、雕刻深度，预览或直接应用。"
+    "usage": "独立LOGO向导：登记原文件、readLogo读取轮廓；位图明确宽度及上传授权，reviewLogo/向导明确确认字形、孔洞和尺寸，再指定支持的目标面、三维放置点、雕刻深度，预览或直接应用。"
   },
   "meshBoolean": {
     "tools": [
@@ -966,6 +979,18 @@
     "method": "files.download",
     "usage": "使用生成回执的 resourceId 重试下载；不重新生成或清除 dirty。"
   },
+  "reliefDesign": {
+    "tools": [
+      "document.reliefDesign",
+      "getState",
+      "history.undo",
+      "history.redo",
+      "files.save",
+      "files.open"
+    ],
+    "method": "execute",
+    "usage": "人工毫米设计约束：支撑、孔/保护区域和高度点；完整draft保存当前工程，expectedDraftRevision避免覆盖，getState include:[reliefDesigns]回读；不生成加工几何。"
+  },
   "reliefSculpt": {
     "tools": [
       "sampleReliefHeight",
@@ -1431,6 +1456,8 @@
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
 getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision

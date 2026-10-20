@@ -3,7 +3,7 @@
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -50,6 +50,10 @@
     "chooseWhen": "只改指定历史步骤及同 ID 实体名称。",
     "alternatives": [
       {
+        "id": "document.reliefDesign",
+        "chooseWhen": "保存人工毫米设计约束草稿；支撑/孔/保护/高度点，随工程撤销重开，不求解高度场或生成加工几何。"
+      },
+      {
         "id": "document.rename",
         "chooseWhen": "只改工程名，不改每个实体名称。"
       },
@@ -92,5 +96,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:055aab53c6d31d1e1d887df55c9d0eae6bd65f1c1eceab5d9c2b22926f03d106"
+  "docsHash": "sha256:de9240353dea02d7cafbb2314cea2bdd68470666a4403dfb9fc23e32fdbc09c8"
 }

@@ -2,7 +2,7 @@
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "contextPolicy": "none",
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
@@ -65,5 +65,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:25c397736192dacc869685e47867030568af712af8b3eed35c3deccc35879264"
+  "docsHash": "sha256:64d19c2a0286ad4d91b116e53c503a35a94258ae57350ff0773e19b567333a78"
 }

@@ -17,4 +17,9 @@ test('drag-drop opens only into an empty clean document; otherwise asks with Can
   assert.deepEqual(dropDecision({files:[f('a.step'),f('b.stl')],documentEmpty:true,dirty:false}).choices,['insert','cancel']);
   assert.equal(dropDecision({files:[f('a.webcad'),f('b.step')],documentEmpty:true,dirty:false}).mode,'reject');
   assert.equal(dropDecision({files:[f('a.igs')],documentEmpty:true,dirty:false}).mode,'reject');});
-test('file menu labels state replace vs insert; files.open accepts unsaved',()=>{const menu=Object.fromEntries(UI_LAYOUT.fileMenu.map(i=>[i.action,i.label]));assert.equal(menu.open,FILE_MENU_LABELS.open);assert.equal(menu.importAtFrame,FILE_MENU_LABELS.importAtFrame);assert.ok(FILE_ARGUMENT_KEYS.open.includes('unsaved'));});
+test('compact file menu explains replace vs insert in titles; files.open accepts unsaved',()=>{
+ const menu=Object.fromEntries(UI_LAYOUT.fileMenu.map(i=>[i.action,i]));
+ assert.equal(menu.open.label,'打开');assert.match(menu.open.title,/替换当前设计/);
+ assert.equal(menu.importAtFrame.label,'导入');assert.match(menu.importAtFrame.title,/保留已有对象/);
+ assert.match(FILE_MENU_LABELS.open,/替换当前设计/);assert.ok(FILE_ARGUMENT_KEYS.open.includes('unsaved'));
+});

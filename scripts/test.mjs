@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
+    'error-recovery','relief-design-drafts','logo-export','logo-review-api','logo-vector-review','logo-wizard-state','panel-layout','receipt-capacity-recovery','relief-intent-runtime','relief-sculpt-preflight','report-regressions','tool-selection',
     'agent-selection-preservation', 'count-summary', 'floor-grid', 'free-placement',
     'logo-selection-draft', 'metal-warning', 'open-file-recent',
     'tap-contract', 'agent-single-call', 'metal-occlusion', 'selection-feedback',
@@ -34,6 +35,7 @@ const groups = {
     'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
   ],
   kernel: [
+    'core-tools-regressions','d-buckle-boundary','history-compatibility','keyring-history','rod-junction','source-free-junction',
     'blend-radius-page', 'blend-radius-search', 'blend-radius', 'bounds-alignment',
     'bump-set', 'ellipsoid', 'face-origin-restore', 'guided-loft-dispatch',
     'guided-loft-kernel', 'headless-cli', 'local-checkpoint', 'loft-caps',
@@ -71,6 +73,7 @@ const groups = {
     'surface-repair', 'vector-profile', 'extract-shell-kernel', 'query-planar-spline',
     'planar-thickness-invariant', 'round-edit-preferences', 'rounding-modes', 'rounding-history', 'rounding-kernel', 'rounding-unified', 'rounding-spline', 'rounding-section-metrics', 'smooth-transition',
   ],
+  'host-integration': ['host-attachment-identity'],
   services: ['services-store-faults','services-runtime', 'services-compute', 'services-native-bridge', 'services-boolean-native', 'services-round-native','services-shoulder-native', 'services-relief', 'services-support-intent'],
   mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets', 'agent-cli'],
   'local-fixtures': ['iges-import', 'iges-roundtrip'],

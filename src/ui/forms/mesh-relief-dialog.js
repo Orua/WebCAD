@@ -1,3 +1,4 @@
+import {humanError} from '../../error-recovery.js';
 export function showMeshReliefDialog({getState,openDialog,element,button,emit,close}){
  const state=getState(),target=state.selectedIds[0],body=state.bodies.find(b=>b.id===target);
  const d=openDialog('网格局部修高','用毫米坐标指定正面和修改范围。背面、保护区和范围外保持原样。',{returnToSelect:true});
@@ -30,7 +31,7 @@ export function showMeshReliefDialog({getState,openDialog,element,button,emit,cl
  };
  const read=()=>({version:1,units:'mm',topologyEpoch:0,inputGeometryHash:body.meshReport.geometryHash,support:{originMm:vector(origin,3),normal:vector(normal,3),xAxis:vector(axis,3)},seedMm:vector(seed,3),region:{centerMm:vector(center,2),coreRadiusMm:number(radius),transitionMm:number(transition)},protectedRegions:protection.value.trim()?protection.value.split(';').map(text=>{const v=vector({value:text},3);return {centerMm:v.slice(0,2),radiusMm:v[2]};}):[],mode:['profile','deformation'].includes(mode.value)?'replace':mode.value,...readTarget(),...(targets.value.trim()?{targets:targets.value.split(';').map(text=>{const v=vector({value:text},4);return {pointMm:v.slice(0,2),heightMm:v[2],toleranceMm:v[3]};})}:{}),minThicknessMm:number(thickness)});
  const apply=button('应用修改',async()=>{if(!ready||busy)return;setBusy(true);try{if(await emit('commitPreview',{})===true){ready=false;close();}else status.textContent='应用未完成，请重新预览。';}finally{setBusy(false);}},'primary');
- const preview=button('预览修改',async()=>{if(busy)return;ready=false;setBusy(true);try{const params=read();await emit('cancelPreview',{});const result=await emit('preview',{op:'meshReliefEdit',params:{...params,_targetRefs:[target]}});ready=!!result;status.textContent=ready?'预览已通过当前范围检查，请核对变化和保护区域。':'预览未通过，当前模型保留。';}catch(e){status.textContent=e.message;}finally{setBusy(false);}},'secondary');
+ const preview=button('预览修改',async()=>{if(busy)return;ready=false;setBusy(true);try{const params=read();await emit('cancelPreview',{});const result=await emit('preview',{op:'meshReliefEdit',params:{...params,_targetRefs:[target]}});ready=!!result;status.textContent=ready?'预览已通过当前范围检查，请核对变化和保护区域。':'预览未通过，当前模型保留。';}catch(e){status.textContent=humanError(e);}finally{setBusy(false);}},'secondary');
  function setBusy(v){busy=v;if(!live)return;form.querySelectorAll('input,select,textarea').forEach(el=>el.disabled=v);preview.disabled=v;apply.disabled=v||!ready;}
  form.addEventListener('input',()=>{ready=false;apply.disabled=true;emit('cancelPreview',{});status.textContent='参数已改变，请重新预览。';});
  d._onClose=()=>{live=false;if(ready)emit('cancelPreview',{});};

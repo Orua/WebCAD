@@ -1,3 +1,4 @@
+import {humanError} from '../../error-recovery.js';
 import {getServicesConfig,saveServicesConfig,clearServicesCredential,defaultServicesConfig} from '../../services/settings.js';
 import {createServicesClient,servicesClient} from '../../services/client.js';
 export function showServicesSettings({openDialog,element,button,closeDialog}){
@@ -26,12 +27,12 @@ export function showServicesSettings({openDialog,element,button,closeDialog}){
    if(config.enabled)await createServicesClient({config,credential:automatic.checked?undefined:secret.value||undefined}).capabilities();
    saveServicesConfig({...config,...(!automatic.checked&&secret.value?{credential:secret.value}:{})});secret.value='';
    status.textContent=config.enabled?'连接正常。复杂计算已启用，普通建模仍在本机执行。':'已关闭后台复杂计算。';
-  }catch(error){status.textContent='设置未保存。'+(error.httpStatus===401?(automatic.checked?'请先登录当前网站，再检查连接。':'请在高级设置中检查此计算端的专用授权。'):error.message);}finally{save.disabled=false;}
+  }catch(error){status.textContent='设置未保存。'+(error.httpStatus===401?(automatic.checked?'请先登录当前网站，再检查连接。':'请在高级设置中检查此计算端的专用授权。'):humanError(error));}finally{save.disabled=false;}
  },'primary');
  dialog.append(advanced,status,save,button('关闭',closeDialog,'secondary'));
  const recovery=element('details');recovery.append(element('summary',{},'排查中断任务'));
  const job=element('input',{'aria-label':'旧任务编号'}),reason=element('input',{'aria-label':'环境恢复原因',maxLength:240}),approve=element('input',{type:'checkbox'});let reviewed=null;
- const recover=button('恢复已核对的任务',async()=>{if(!reviewed||!approve.checked||!reason.value.trim())return;recover.disabled=true;try{const old=await servicesClient.getJob(reviewed.jobId);if(old.execution!=='interrupted')throw new Error('旧任务状态已改变，请重新核对。');const result=await servicesClient.recoverJob(old.jobId,{approved:true,acknowledgedState:'interrupted',reason:reason.value.trim()},crypto.randomUUID());status.textContent='已受理恢复任务 '+result.jobId+'，尚未安装到工程。';reviewed=null;approve.checked=false;}catch(error){status.textContent=error.message;}},'secondary');recover.disabled=true;
+ const recover=button('恢复已核对的任务',async()=>{if(!reviewed||!approve.checked||!reason.value.trim())return;recover.disabled=true;try{const old=await servicesClient.getJob(reviewed.jobId);if(old.execution!=='interrupted')throw new Error('旧任务状态已改变，请重新核对。');const result=await servicesClient.recoverJob(old.jobId,{approved:true,acknowledgedState:'interrupted',reason:reason.value.trim()},crypto.randomUUID());status.textContent='已受理恢复任务 '+result.jobId+'，尚未安装到工程。';reviewed=null;approve.checked=false;}catch(error){status.textContent=humanError(error);}},'secondary');recover.disabled=true;
  const update=()=>{recover.disabled=!reviewed||!approve.checked||!reason.value.trim();};approve.addEventListener('change',update);reason.addEventListener('input',update);job.addEventListener('input',()=>{reviewed=null;update();});
- recovery.append(field('旧任务编号',job),button('核对任务',async()=>{reviewed=null;update();try{const value=await servicesClient.getJob(job.value.trim());status.textContent='任务 '+value.jobId+'：'+value.execution+'。';if(value.execution==='interrupted')reviewed=value;update();}catch(error){status.textContent=error.message;}},'secondary'),field('恢复原因',reason),field('已核对是环境中断，允许恢复一次',approve),recover);advanced.append(recovery);
+ recovery.append(field('旧任务编号',job),button('核对任务',async()=>{reviewed=null;update();try{const value=await servicesClient.getJob(job.value.trim());status.textContent='任务 '+value.jobId+'：'+value.execution+'。';if(value.execution==='interrupted')reviewed=value;update();}catch(error){status.textContent=humanError(error);}},'secondary'),field('恢复原因',reason),field('已核对是环境中断，允许恢复一次',approve),recover);advanced.append(recovery);
 }

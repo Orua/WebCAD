@@ -2,7 +2,7 @@
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.54.5",
+  "version": "1.54.6",
   "contextPolicy": "none",
   "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
   "synonyms": [
@@ -84,6 +84,14 @@
         "chooseWhen": "从已登记的图片或矢量文件取得待复核的闭合轮廓；JPG/PNG描摹需要实际毫米宽度和明确上传授权，不把照片光影当作深度。"
       },
       {
+        "id": "reviewLogo",
+        "chooseWhen": "校对本页logoId的毫米轮廓草稿、确认和生成可读取中间文件；不需要打开界面，也不提交雕刻几何。"
+      },
+      {
+        "id": "logoWizard",
+        "chooseWhen": "读取或控制已打开的LOGO分步向导；与用户共享来源参数、轮廓草稿和确认，不能代替目标面的实际雕刻。"
+      },
+      {
         "id": "convertLogoPdf",
         "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
       },
@@ -94,5 +102,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:d434582a2bb01fcea212b1a328640d959ea394db4f590efd93463213c0d0c305"
+  "docsHash": "sha256:1b8315ed7fc44f2ef0be505f4e39627e11dcf13eb40a82fc1d0c2184b07a4467"
 }

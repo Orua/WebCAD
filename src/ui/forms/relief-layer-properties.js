@@ -1,3 +1,4 @@
+import {humanError} from '../../error-recovery.js';
 export function layeredReliefProperties({feature,element,button,onEdit,onSculpt,getBusy=()=>false}){
  const form=element('form',{class:'property-form'}),inputs=[];
  if(onSculpt)form.append(button('选择图层并精修…',onSculpt,'secondary'));
@@ -11,6 +12,6 @@ export function layeredReliefProperties({feature,element,button,onEdit,onSculpt,
   const select=element('select',{'aria-label':`第${i+1}层方向`});for(const [value,text]of [['emboss','凸起'],['engrave','凹刻']])select.append(element('option',{value},text));select.value=layer.mode??'emboss';form.append(select);modes.push(select);
  }
  const status=element('p',{'aria-live':'polite'}),apply=element('button',{type:'submit',class:'primary apply-button'},'应用分层参数');apply.disabled=getBusy();form.append(element('p',{class:'property-footnote'},'每层从原主体面计算高度；保留轮廓和刻线路径，整组修改可一次撤销。'),status,apply);
- form.addEventListener('submit',async e=>{e.preventDefault();try{const params=structuredClone(feature.params);for(const {input,key,layer}of inputs){if(!input.value.trim()||!Number.isFinite(Number(input.value)))throw Error('请输入有效数值');(layer<0?params:params.layers[layer])[key]=Number(input.value);}modes.forEach((el,i)=>params.layers[i].mode=el.value);apply.disabled=true;await onEdit(feature.id,params,feature.name);status.textContent='分层参数已应用';}catch(error){status.textContent=error.message;}finally{apply.disabled=getBusy();}});
+ form.addEventListener('submit',async e=>{e.preventDefault();try{const params=structuredClone(feature.params);for(const {input,key,layer}of inputs){if(!input.value.trim()||!Number.isFinite(Number(input.value)))throw Error('请输入有效数值');(layer<0?params:params.layers[layer])[key]=Number(input.value);}modes.forEach((el,i)=>params.layers[i].mode=el.value);apply.disabled=true;await onEdit(feature.id,params,feature.name);status.textContent='分层参数已应用';}catch(error){status.textContent=humanError(error);}finally{apply.disabled=getBusy();}});
  return form;
 }

@@ -105,7 +105,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     hostResponded=false;channel=crypto.randomUUID();origin=new URL(url).origin;
     frame=document.createElement('iframe');frame.id='webcad-agent-assistant-frame';frame.className='agent-assistant-panel';frame.title='CAD Agent 助手';frame.referrerPolicy='strict-origin';panelToggle?.setAttribute('aria-controls',frame.id);
     const target=new URL(url);target.searchParams.set('assistant','1');target.hash=new URLSearchParams({channel,parentOrigin:location.origin}).toString();frame.src=target.href;surface.append(frame);
-    handshakeTimer=setTimeout(()=>{if(visible&&phase==='connecting'){phase='error';error='助手尚未接入，请在助手面板确认登录或检查配置地址。';notify();}},30000);
+    handshakeTimer=setTimeout(()=>{if(visible&&phase==='connecting'){phase='error';error='助手尚未接入。若面板显示登录页，请在新标签打开“设置 → Agent 配置”中的同一助手地址完成登录，再退出并重新进入 Agent 模式。localhost 与 127.0.0.1 的登录态不通用；顶层已登录但嵌入仍要求登录时，说明嵌入认证未通过，不要重复发送作图任务。';notify();}},30000);
     return {status:'applied',...state()};
   }
   return Object.freeze({get:state,enter,exit,theme,setLayout(input){const result=external?external.setLayout(input):layout.set(input);notify();return {status:'applied',layout:result};},configure(value){if(visible||phase==='releasing'||phase==='release_pending')fail('AGENT_PANEL_ACTIVE','先退出并确认原连接释放，再修改助手地址。');url=validateAssistantUrl(value);frame?.remove();frame=null;try{localStorage.setItem('webcad.assistant-url.v1',url);}catch{return {status:'applied',persisted:false,...state()};}notify();return {status:'applied',persisted:true,...state()};},bindExternal(controller){external=controller;visible=true;phase='connecting';layout.sync();notify();theme();return state();},sync(){theme();layout.sync();notify();}});

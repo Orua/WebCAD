@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:fe0c4754eb1f99a49f5067d4888a82a84f91d04bc867dca31796f74e07699cd2",
-  "docsHash": "sha256:8caae16beb8f56a047fe4e79d2b33b44429c5db17525289d9933c29e98189909",
+  "catalogHash": "sha256:b10e83a7bfaeb067fe4d3a5ef099349fb5aabf32c1dfbd76233ba55f229dff1e",
+  "docsHash": "sha256:fb3403337503b34040d37c81c9c4560df5c3a23123f75f321ef4a5eb6592e11b",
   "bootstrapDocIds": [
     "api.knowledge-cache",
     "api.connection",
@@ -11,6 +11,38 @@
   ],
   "selectionPolicy": "Route by task, read a workflow, then only needed complete cards. Exact UI actions use routes.json. Live context/IDs always come from the page.",
   "routes": [
+    {
+      "id": "error-recovery",
+      "title": "错误解释、可逆试算与安全恢复",
+      "keywords": [
+        "错误",
+        "失败",
+        "阻止",
+        "重试",
+        "撤销",
+        "替代",
+        "error",
+        "unknown",
+        "cancel",
+        "retry",
+        "recovery"
+      ],
+      "docs": [
+        "api.error-recovery",
+        "api.reliability",
+        "api.run",
+        "api.file-errors"
+      ],
+      "tools": [
+        "getState",
+        "getJob",
+        "getBatchReceipt",
+        "getServicesJob",
+        "getServicesRequest",
+        "getTool"
+      ],
+      "note": "Use error.recovery/userMessage; retain raw code/requestId for audit. Reconcile unknown before replay. Preview is conditional on unchanged intent, new mechanism and shared budget; never auto-retry, change dimensions, switch kernel or claim rollback without readback."
+    },
     {
       "id": "modeling-pitfalls",
       "title": "建模坐标、引用、未知结果与故障恢复",

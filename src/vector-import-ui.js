@@ -13,14 +13,14 @@ export function createVectorImportUI({api,onDone}){
  const buttons=el('div','');buttons.style.cssText='display:flex;gap:6px;flex-wrap:wrap';
  let dataset=null,selection=new Set(),profile=null,resource=null,generation=0,busy=false,view=[0,0,1,1],drag=null;
  const context=()=>api.createRequestContext();
- const checked=r=>{if(r.status==='failed')throw new Error(r.error.message);return r;};
+ const checked=r=>{if(r.status==='failed')throw Object.assign(new Error(r.error.message),r.error);return r;};
  const invalidate=()=>{profile=null;create.disabled=true;};
- function button(label,fn){const b=el('button',label,{type:'button'});buttons.append(b);b.onclick=async()=>{if(busy)return;busy=true;b.disabled=true;try{await fn();}catch(e){message.textContent=e.message;}finally{busy=false;b.disabled=b===create&&!profile;}};return b;}
+ function button(label,fn){const b=el('button',label,{type:'button'});buttons.append(b);b.onclick=async()=>{if(busy)return;busy=true;b.disabled=true;try{await fn();}catch(e){message.textContent=humanError(e);}finally{busy=false;b.disabled=b===create&&!profile;}};return b;}
  function project(p){return [(p[0]-view[0])/(view[2]-view[0])*canvas.width,canvas.height-(p[1]-view[1])/(view[3]-view[1])*canvas.height];}
  function draw(){const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);if(!dataset)return;for(const e of dataset.entities){ctx.strokeStyle=selection.has(e.id)?'#facc15':'#91a4ba';ctx.lineWidth=selection.has(e.id)?2:1;ctx.beginPath();vectorPoints(e).map(project).forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.stroke();}if(drag){const a=project(drag.start),b=project(drag.end);ctx.strokeStyle='#4de1ff';ctx.strokeRect(a[0],a[1],b[0]-a[0],b[1]-a[1]);}}
  function fit(){if(!dataset?.bounds)return;const b=dataset.bounds,w=Math.max(b[2]-b[0],1e-3),h=Math.max(b[3]-b[1],1e-3),s=Math.max(w/canvas.width,h/canvas.height)*1.1,c=[(b[0]+b[2])/2,(b[1]+b[3])/2];view=[c[0]-s*canvas.width/2,c[1]-s*canvas.height/2,c[0]+s*canvas.width/2,c[1]+s*canvas.height/2];draw();}
  async function load(input){const token=++generation;invalidate();dataset=null;selection.clear();draw();message.textContent='正在直接读取矢量…';const r=checked(await api.readVector({context:context(),...input,scaleMm:Number(scale.value),...(width.value?{targetWidthMm:Number(width.value)}:{}),limit:10000}));if(token!==generation||!root.isConnected)return;dataset=r;message.textContent=`读取 ${r.total} 条线；未支持/略过 ${r.unsupportedCount} 项。\n${r.truncated?'预览只显示前10000条，请使用API bounds/layers筛选。':'拖动框选需要的截面；滚轮在指针处缩放，单击增减边。'}\n源坐标保留；DWG/DXF 每单位 ${scale.value} mm。${r.approximationToleranceMm?'SVG曲线为离散近似，约 '+r.approximationToleranceMm+' mm。':''}`;fit();}
- file.onchange=async()=>{try{if(resource){await api.files.release({resourceId:resource});resource=null;}const f=file.files[0];if(!f)return;const r=await api.files.register({name:f.name,data:f});resource=r.resourceId;await load({resourceId:resource,name:f.name});}catch(e){message.textContent=e.message;}};
+ file.onchange=async()=>{try{if(resource){await api.files.release({resourceId:resource});resource=null;}const f=file.files[0];if(!f)return;const r=await api.files.register({name:f.name,data:f});resource=r.resourceId;await load({resourceId:resource,name:f.name});}catch(e){message.textContent=humanError(e);}};
  button('读取粘贴',()=>load({text:paste.value,name:`pasted.${format.value}`}));
  button('全选',()=>{selection=new Set(dataset?.entities.map(e=>e.id));invalidate();draw();});button('清空选择',()=>{selection.clear();invalidate();draw();});button('显示全图',fit);
  button('复制选中矢量',async()=>{const entities=dataset?.entities.filter(e=>selection.has(e.id))||[];if(!entities.length)throw new Error('请先选线');const value=JSON.stringify({version:1,units:'mm',source:dataset.source,entities},null,2);try{await navigator.clipboard.writeText(value);message.textContent=`已复制 ${entities.length} 条原始矢量。`;}catch{paste.value=value;format.value='json';paste.focus();paste.select();message.textContent='已放入文本框，请按 Ctrl+C 复制。';}});
@@ -35,3 +35,4 @@ export function createVectorImportUI({api,onDone}){
  root.append(file,field('DWG / DXF：每源单位的毫米数',scale),field('SVG 目标宽度 mm（可选）',width),format,paste,canvas,field('最大端点间隙 mm',tolerance),field('截面居中到原点',center),field('上下翻转（Y）',flip),buttons,message);
  return root;
 }
+import {humanError} from './error-recovery.js';

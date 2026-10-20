@@ -11,6 +11,7 @@ import {binaryHash} from './contracts/operation-schema.js';
 import {assertPatternExecution,PATTERN_OPERATIONS,uiPatternIntent} from './machining-intent.js';
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 import {archiveReceiptResult,unresolvedReceipt} from './receipt-archive.js';
+import {withErrorRecovery} from './error-recovery.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
@@ -28,7 +29,7 @@ function finiteTree(v,path='args'){if(typeof v==='number'&&!Number.isFinite(v))f
 function integer(v,path,min=0,max=Number.MAX_SAFE_INTEGER){if(!Number.isSafeInteger(v)||v<min||v>max)fail('PARAM_RANGE_INVALID',path,`Expected integer ${min}..${max}`);}
 function ids(v,path,nonempty=false){if(!Array.isArray(v)||v.length>200||(nonempty&&!v.length))fail('PARAM_SCHEMA_INVALID',path,'Expected bounded ID array');v.forEach(x=>string(x,path));if(new Set(v).size!==v.length)fail('PARAM_SCHEMA_INVALID',path,'Duplicate references');}
 const contextOf=s=>({sessionId:s.sessionId,documentId:s.documentId,documentInstanceId:s.documentInstanceId,revision:s.revision});
-function errorResult(e,requestId,s){return {status:e.status==='unknown'||e.commitState==='unknown'?'unknown':'failed',requestId,error:{code:e.code||(/no material|remove material|无.*材料|未.*材料/i.test(e.message)?'NO_MATERIAL_REMOVED':'GEOMETRY_INVALID'),path:e.path||'args',message:e.message||String(e),retryable:false,recoveryAction:e.recoveryAction||'NONE',...(e.jobId?{jobId:e.jobId}:{}),...(e.idempotencyKey?{idempotencyKey:e.idempotencyKey}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.routingDecision?{routingDecision:e.routingDecision}:{}),...(e.commitState?{serviceCommitState:e.commitState}:{}),...(e.featureId?{featureId:e.featureId}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),...(e.affectedFeatureIds?{affectedFeatureIds:e.affectedFeatureIds,changedFeatureIds:e.changedFeatureIds}:{})},commitState:e.status==='unknown'||e.commitState==='unknown'?'unknown':'not_committed',currentRevision:s?.revision};}
+function errorResult(e,requestId,s){return withErrorRecovery({status:e.status==='unknown'||e.commitState==='unknown'?'unknown':'failed',requestId,error:{code:e.code||(/no material|remove material|无.*材料|未.*材料/i.test(e.message)?'NO_MATERIAL_REMOVED':'GEOMETRY_INVALID'),path:e.path||'args',message:e.message||String(e),retryable:false,recoveryAction:e.recoveryAction||'NONE',...(e.jobId?{jobId:e.jobId}:{}),...(e.idempotencyKey?{idempotencyKey:e.idempotencyKey}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.routingDecision?{routingDecision:e.routingDecision}:{}),...(e.commitState?{serviceCommitState:e.commitState}:{}),...(e.featureId?{featureId:e.featureId}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),...(e.affectedFeatureIds?{affectedFeatureIds:e.affectedFeatureIds,changedFeatureIds:e.changedFeatureIds}:{})},commitState:e.status==='unknown'||e.commitState==='unknown'?'unknown':'not_committed',currentRevision:s?.revision});}
 
 // A single browser document remains authoritative. No DOM, UI selection or kernel copy.
 export function createCommandService(adapter) {
@@ -74,11 +75,12 @@ export function createCommandService(adapter) {
       if(input.compact!==undefined&&typeof input.compact!=='boolean')fail('PARAM_SCHEMA_INVALID','compact','Expected boolean');
       // compact=true: identity + summary + body id/name/kind only. Agents reuse requestContext for the next write.
       const include=input.include??(input.compact?['summary','bodiesLite','selection']:['summary','bodies','capabilities']);
-      const allowed=['summary','features','bodies','bodiesLite','selection','capabilities','references'];
+      const allowed=['summary','features','bodies','bodiesLite','selection','capabilities','references','reliefDesigns'];
       if(!Array.isArray(include)||include.some(x=>!allowed.includes(x)))fail('PARAM_SCHEMA_INVALID','include','Unknown state field');
       const ctx=contextOf(s);
       const r={status:'read',context:ctx,requestContext:{sessionId:ctx.sessionId,documentId:ctx.documentId,documentInstanceId:ctx.documentInstanceId,expectedRevision:ctx.revision},persistence:s.persistence,preview:{active:!!s.preview,computing:!!s.previewComputing}};
       if(include.includes('summary'))r.summary={name:s.documentName,featureCount:s.features.length,bodyCount:s.bodies.length,busy:s.busy,kernelReady:s.kernelReady,dirty:!!s.dirty};
+      if(include.includes('reliefDesigns'))r.reliefDesigns=clone(s.reliefDesigns||[]);
       if(include.includes('features'))r.features=clone(s.features);
       if(include.includes('bodies'))r.bodies=clone(s.bodies);
       if(include.includes('bodiesLite'))r.bodies=(s.bodies||[]).map(({id,name,kind,bounds})=>({id,...(name?{name}:{}),...(kind?{kind}:{}),...(bounds?{bounds:clone(bounds)}:{})}));
@@ -202,7 +204,7 @@ export function createCommandService(adapter) {
       if(command==='editor_action'&&input.action==='body.align')assertFeatureCapacity(s.features,args.values.bodyIds.length);
       if(command==='editor_action'&&input.action==='body.explode')assertFeatureCapacity(s.features,s.bodies.find(body=>body.id===args.values.bodyId).solidCount);
       context(input.context,snapshot());available(snapshot(),allowPreview);revisionBefore=s.revision;
-      await adapter.execute(command,args,{signal:options.signal,expectedRevision:s.revision,origin:options.fromUI?'user':'agent'});
+      await adapter.execute(command,args,{signal:options.signal,expectedRevision:s.revision,origin:options.fromUI?'user':'agent',fromUI:options.fromUI===true});
       const after=snapshot();let result;
       if(after.revision===revisionBefore){const afterCtx0=contextOf(after);result={status:'no_change',requestId,context:afterCtx0,requestContext:{sessionId:afterCtx0.sessionId,documentId:afterCtx0.documentId,documentInstanceId:afterCtx0.documentInstanceId,expectedRevision:afterCtx0.revision},commitState:'not_committed'};}
       else{
@@ -226,6 +228,7 @@ export function createCommandService(adapter) {
       if(featurePlan&&e.featureId)result.error.featureKey=Object.keys(featurePlan.featureIds).find(key=>featurePlan.featureIds[key]===e.featureId);
       if(e.commitState!=='not_committed'&&revisionBefore!==undefined&&now.documentInstanceId===s.documentInstanceId&&now.revision!==revisionBefore)result={status:'unknown',requestId,idempotencyKey:key,commitState:'unknown',error:{code:'RESULT_UNKNOWN',path:'result',message:e.message||String(e),retryable:false,recoveryAction:'READ_STATE_AND_REPLAN'}};
       // Preserve an existing receipt even on a conflicting reuse.
+      result=withErrorRecovery(result);
       if(key&&fingerprint&&!receipts.has(key)&&!archivedReceipts.has(key)&&makeReceiptRoom())receipts.set(key,{fingerprint,result:clone(result)});
       return result;
     }
@@ -253,7 +256,7 @@ export function createCommandService(adapter) {
       }catch(error){
         const after=snapshot();
         const receipt=before&&(before.revision!==after.revision||before.documentInstanceId!==after.documentInstanceId)?{status:'unknown',commitState:'unknown',requestId,error:{code:'RESULT_UNKNOWN',path:'result',message:error.message,retryable:false,recoveryAction:'READ_STATE_AND_REPLAN'}}:errorResult(error,requestId,after);
-        if(key&&fingerprint&&!receipts.has(key))receipts.set(key,{fingerprint,result:clone(receipt)});return receipt;
+        const explained=withErrorRecovery(receipt);if(key&&fingerprint&&!receipts.has(key))receipts.set(key,{fingerprint,result:clone(explained)});return explained;
       }
     };
     // A save reads the last committed snapshot even while a geometry job is pending.
