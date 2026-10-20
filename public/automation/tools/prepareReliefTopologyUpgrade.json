@@ -2,7 +2,7 @@
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.55.3",
+  "version": "1.55.4",
   "contextPolicy": "identity",
   "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
   "synonyms": [
@@ -79,6 +79,10 @@
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "reliefDesignFit",
+        "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
+      },
+      {
         "id": "reliefDesignField",
         "chooseWhen": "从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。"
       },
@@ -101,5 +105,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:8c2df980cf0541a96ed5576bd58b7d4c822880cf0585f0230dd15ad8922c8169"
+  "docsHash": "sha256:2e6b89dfb516fc95050cc35613ea8df496fb598fe2020d20c4bad0079515cbe7"
 }

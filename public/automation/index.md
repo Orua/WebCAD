@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.55.3 · 操作目录 sha256:7c7aeaf25449b381e87599b750c1aa3f24b33afae38f1e7f485f4f2a0c7f2910
+API 1.55.4 · 操作目录 sha256:6acf9033be70932dd776357853f955c9f65380679e0d26017dda0f5e2e8963fb
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -8,6 +8,7 @@ API 1.55.3 · 操作目录 sha256:7c7aeaf25449b381e87599b750c1aa3f24b33afae38f1e
 
 ## 页面方法
 
+- `reliefDesignFit`
 - `reliefDesignReference`
 - `reliefDesignField`
 - `readLogo`
@@ -252,6 +253,7 @@ API 1.55.3 · 操作目录 sha256:7c7aeaf25449b381e87599b750c1aa3f24b33afae38f1e
 - `template.uEndHolePlate` · advisory · 半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。
 - `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
 - `template.gableOpenFrame` · advisory · 两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。
+- `reliefDesignFit` · page-method · reliefDesignFit({context,action:"fit"|"get"|"cancel",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。
 - `reliefDesignReference` · page-method · reliefDesignReference({context,action:"get"|"attach"|"detach"|"resource",designId,expectedDraftRevision,resourceId?,expectedSha256?,expectedSize?,idempotencyKey?})。attach仅接受当前files.register的PNG/JPEG/WebP原图资源（20MiB、16M像素、64:1）；以实际签名/尺寸预检及浏览器完整解码校验，再同CommandService事务绑定/替换。get只读metadata不生成资源；resource把当前草稿实际绑定的持久原件登记成合法resourceId，可files.read/download并在用完后files.release。不能直接提供source.bytes、imports、importKey或猜填SHA代替原件。
 - `reliefDesignField` · page-method · reliefDesignField({context,action:"solve"|"get"|"cancel"|"candidate",designId,expectedDraftRevision,options?,baseMm?})。先document.reliefDesign保存草稿；solve在30秒可取消Worker中运行Pro求解器。options可用columns/rows 9–129（默认33）、smoothWeight默认1、maxIterations 1–20000（默认10000）、toleranceMm默认0.0001、edits。圆形/矩形支撑、孔和保护域均进入保守掩码，最低设计高度为保护基线；高度点是weight=100软毫米约束，不是控制极点。
 - `readLogo` · page-method · readLogo({context,resourceId,name,targetWidthMm?,page?,pdfJoinToleranceMm?,sizeConfirmed?,allowUpload?,raster?:{threshold,invert,alphaThreshold,smoothingPx}})。选定文件先登记资源；SVG/LOGO JSON及受支持闭合直线DXF在本机读取；本地不支持时明确授权后交已配置后台。位图必须提供实际宽度、sizeConfirmed:true、allowUpload:true。raster可省略；threshold/alphaThreshold为0–255整数，默认128/1；invert为布尔值，默认false。LOGO不接受浮雕的0–1阈值，0.5在上传前返回PARAM_SCHEMA_INVALID。默认以亮度<128的深色像素为前景；不得无依据反转或扫描参数重试。

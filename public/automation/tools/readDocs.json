@@ -2,7 +2,7 @@
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.55.3",
+  "version": "1.55.4",
   "contextPolicy": "none",
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
@@ -75,5 +75,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:c819335b8efda0b04b0db8b3ae60e319d676c423377019e528bb0f8d6e4b4951"
+  "docsHash": "sha256:fcc3d753b2458498fd6e2e7335ba1ca9961f19f2c1bac5a89e9e8ce6bdc98727"
 }

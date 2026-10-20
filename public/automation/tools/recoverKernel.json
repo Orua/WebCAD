@@ -2,7 +2,7 @@
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.55.3",
+  "version": "1.55.4",
   "contextPolicy": "revision",
   "description": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
   "synonyms": [
@@ -71,5 +71,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:8ca819cde0832e9084a4eee2e058b09c8655e9c184709c6b158e65acc64567cf"
+  "docsHash": "sha256:a55df215ec06e2e22a6c88a0ecbb7c1d16f464630d89c80efbaa7a045107eef0"
 }
