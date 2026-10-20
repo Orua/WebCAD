@@ -6,7 +6,9 @@ import {archiveReceiptResult} from './receipt-archive.js';
 const methods = new Set(['add','execute','connect','info','getState','searchTools','getTools','getTool','readDocs',
   'getQuickModelUsage','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
   'files.import','files.save','files.export','files.release']);
+methods.add('readLogo');
 const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.save','files.export']);
+contextual.add('readLogo');
 methods.add('inspectDesign');
 methods.add('inspectRound');
 contextual.add('inspectRound');
@@ -64,7 +66,7 @@ export function createPageBatch(api,{display}={}){
         unattemptedStepIds:(Array.isArray(input?.steps)?input.steps:[]).filter(step=>typeof step?.id==='string'&&!attempted.has(step.id)).map(step=>step.id)},
       recovery:status==='completed'?null:{action:status==='unknown'?'INSPECT_STATE_BEFORE_RETRY':'READ_STATE_AND_REPLAN_REMAINING',
         message:'Earlier committed steps remain. Read current state; do not recreate them. Use a new key for a revised remainder. An identical request/key only retrieves the original receipt.'},
-      ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message,...(error.commitState?{commitState:error.commitState}:{}),...(error.jobId||error.pageJobId?{jobId:error.jobId||error.pageJobId}:{}),...(error.requestId?{requestId:error.requestId}:{}),...(error.featureId?{featureId:error.featureId}:{}),...(error.affectedFeatureIds?{affectedFeatureIds:error.affectedFeatureIds,changedFeatureIds:error.changedFeatureIds}:{}),...(error.recoveryAction?{recoveryAction:error.recoveryAction}: {})}}:{}),
+      ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message||String(error)||'Batch step failed',...(error.commitState?{commitState:error.commitState}:{}),...(error.jobId||error.pageJobId?{jobId:error.jobId||error.pageJobId}:{}),...(error.requestId?{requestId:error.requestId}:{}),...(error.featureId?{featureId:error.featureId}:{}),...(error.affectedFeatureIds?{affectedFeatureIds:error.affectedFeatureIds,changedFeatureIds:error.changedFeatureIds}:{}),...(error.recoveryAction?{recoveryAction:error.recoveryAction}: {})}}:{}),
       elapsedMs:Math.round(performance.now()-startedAt),context:s.context,bodyBounds:touchedBounds(s),
       summary:s.summary,display:s.display,
       displayMatchesContext:s.display?.status==='rendered'&&['documentId','documentInstanceId','revision'].every(k=>s.display.rendered?.[k]===s.context[k])};};
@@ -187,5 +189,14 @@ export function createPageBatch(api,{display}={}){
       return result;
     }
   }
-  return (input,control={})=>{let snapshot;try{snapshot=structuredClone(input);}catch(e){return Promise.resolve({status:'failed',error:{code:'PARAM_SCHEMA_INVALID',message:e.message}});}if(snapshot?.steps?.length===1&&snapshot.steps[0]?.method==='files.save')return run(snapshot,control);const job=tail.then(()=>run(snapshot,control));tail=job.catch(()=>{});return job;};
+  const dispatch=(input,control={})=>{let snapshot;try{snapshot=structuredClone(input);}catch(e){return Promise.resolve({status:'failed',error:{code:'PARAM_SCHEMA_INVALID',message:e.message}});}if(snapshot?.steps?.length===1&&snapshot.steps[0]?.method==='files.save')return run(snapshot,control);const job=tail.then(()=>run(snapshot,control));tail=job.catch(()=>{});return job;};
+  dispatch.getReceipt=({idempotencyKey,documentInstanceId})=>{
+    const current=api.getState().context;
+    if(typeof documentInstanceId!=='string'||documentInstanceId!==current.documentInstanceId)bad('INSTANCE_MISMATCH','Query the original document instance; receipts do not survive a reload');
+    if(typeof idempotencyKey!=='string'||!idempotencyKey.length||idempotencyKey.length>80)bad('PARAM_SCHEMA_INVALID','idempotencyKey: 1..80 characters');
+    const found=instance===current.documentInstanceId&&(receipts.get(idempotencyKey)||archivedReceipts.get(idempotencyKey));
+    return {status:'read',idempotencyKey,documentInstanceId,found:!!found,receipt:found?structuredClone(found.result):null,
+      recovery:found?null:'Receipt unavailable or still running. Absence does not prove not_committed; inspect the original job and current state before replanning.'};
+  };
+  return dispatch;
 }

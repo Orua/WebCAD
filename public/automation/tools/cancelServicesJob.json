@@ -2,7 +2,7 @@
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "revision",
   "description": "cancelServicesJob({context,jobId})",
   "synonyms": [
@@ -80,6 +80,10 @@
         "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
       },
       {
+        "id": "readLogo",
+        "chooseWhen": "从已登记的图片或矢量文件取得待复核的闭合轮廓；JPG/PNG描摹需要实际毫米宽度和明确上传授权，不把照片光影当作深度。"
+      },
+      {
         "id": "convertLogoPdf",
         "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
       },
@@ -94,5 +98,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:9b1a1c99d018200513910a434b1d22342d84aea3c5caf218a6fd05f304c3c6ed"
+  "docsHash": "sha256:6ec6c635b380e6c91fc6f986ce2a629867220926f2317e795fedd1ac6af9d362"
 }

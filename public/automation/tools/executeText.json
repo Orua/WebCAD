@@ -2,7 +2,7 @@
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "revision",
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
@@ -31,6 +31,10 @@
     "groupTitle": "执行、批次与异步作业",
     "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。",
     "alternatives": [
+      {
+        "id": "getBatchReceipt",
+        "chooseWhen": "用原 idempotencyKey 和 documentInstanceId 只读查批次回执；不重发几何，不等同 getJob 查询异步作业。"
+      },
       {
         "id": "execute",
         "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
@@ -66,5 +70,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:4730cc97bf4f66a375419d53613a8bd9d2fc2d91079334635f88d929080fb98f"
+  "docsHash": "sha256:d7e2562a1d9dee189ac7457d8e84882f06f94d760abe3bf5be6b5a1e5bb9f4a0"
 }

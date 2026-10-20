@@ -446,6 +446,9 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
   "selectionGuide": {
     "groupId": "surfaces",
@@ -491,5 +494,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:bad07d7347d6c9c8b6deb0974a38a20d6b9ac881991995962af3895cdc219833"
+  "docsHash": "sha256:f04bfc11cb77b700970f9efcc4eb995790ac9da4fe2c7659759a1f500d471db2"
 }

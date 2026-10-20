@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.52.3",
-  "buildId": "52d95767d53d2264f9a4a25547695fc9c087a55d-src-8653d8efa46571a6-working",
-  "catalogHash": "sha256:45dcf7494d3c3acce61b7f78f42440f1c92e37f5f4c2df2d55f16277bb93a707",
-  "docsHash": "sha256:1aa042c1af0acfd195f86a186d2dfc0ca09d2bff1539732a1696a0c48c950b8d",
+  "pageApiVersion": "1.53.2",
+  "buildId": "6b7aeae9b5011f41c5ae4332fc25a0141b152014-src-1f998092dd3dc803-working",
+  "catalogHash": "sha256:a0b3347d8824d5ca1d021b8d1bbce03706c21921df197771cab262982db12ca9",
+  "docsHash": "sha256:304ec5d2ed3f1c68905f9fa31f0746b9b1a2ec5b4283089789e9a5e00e8ce786",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -568,10 +568,16 @@
     },
     "logo": {
       "tools": [
-        "logo"
+        "readLogo",
+        "logo",
+        "getServices",
+        "getServicesCapabilities",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel"
       ],
       "method": "execute",
-      "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+      "usage": "独立LOGO向导：登记原文件、readLogo读取轮廓；位图明确宽度及上传授权，复核后设置source.reviewed=true，再指定目标面、三维放置点、雕刻深度，预览或直接应用。"
     },
     "mcp": {
       "tools": [
@@ -1449,7 +1455,7 @@
     "intersect": "相交",
     "linearPattern": "直线阵列",
     "loft": "放样 / 轮廓放样",
-    "logo": "LOGO",
+    "logo": "LOGO / readLogo / getServices / getServicesCapabilities / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览",
     "meshBoolean": "网格布尔（STL） / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / getState / 导出文件",
     "meshHeightfieldRelief": "高度图浮雕（网格） / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / getState",
     "meshReliefEdit": "网格局部修高 / sampleMeshRelief / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销 / 重做 / getState",
@@ -1538,7 +1544,7 @@
     "languageSettings": "语言 / setView",
     "agentGuide": "Agent 配置 / connect / getTools / readDocs",
     "agentPanel": "getAgentPanel / configureAgentPanel / setAgentPanel / getUILayout / setView",
-    "servicesSettings": "Services / getServices / setServices / getServicesCapabilities / getServicesRouting / clearServicesCredential",
+    "servicesSettings": "计算设置 / getServices / setServices / getServicesCapabilities / getServicesRouting / clearServicesCredential",
     "servicesFeatureCompile": "Services 原特征编译 / getServicesCapabilities / getServicesRouting / getState / getServicesRequest",
     "displayPreferences": "渲染设置 / setDisplayPreferences",
     "panels": "setView",

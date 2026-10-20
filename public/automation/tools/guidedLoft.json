@@ -1201,6 +1201,9 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
   "selectionGuide": {
     "groupId": "sweep-loft",
@@ -1238,5 +1241,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:3259bd4924696d088eb711eff9cc0d57023d11b9ae49fe50e5bbc17ac9ee630f"
+  "docsHash": "sha256:0ba60e896daadce5838f61a786ac8a5a9e72b58ea4bd856f89ab602214ebc47e"
 }

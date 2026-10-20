@@ -1,0 +1,95 @@
+{
+  "id": "getBatchReceipt",
+  "title": "getBatchReceipt",
+  "category": "page-method",
+  "version": "1.53.2",
+  "contextPolicy": "none",
+  "description": "getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.",
+  "synonyms": [
+    "getBatchReceipt",
+    "批次回执",
+    "结果未知",
+    "幂等",
+    "UNKNOWN_OUTCOME"
+  ],
+  "inputContract": "getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.",
+  "outputContract": "status=read, found, receipt (original per-step result or null), recovery. found:false can mean pending/expired/reloaded; it never proves rollback. Read original job/state before replanning; see api.modeling-pitfalls.",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "INSTANCE_MISMATCH"
+  ],
+  "docs": "api.modeling-pitfalls",
+  "relatedTools": [
+    "run",
+    "getState",
+    "getJob"
+  ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "idempotencyKey",
+      "documentInstanceId"
+    ],
+    "properties": {
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "documentInstanceId": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "selectionGuide": {
+    "groupId": "dispatch",
+    "groupTitle": "执行、批次与异步作业",
+    "chooseWhen": "用原 idempotencyKey 和 documentInstanceId 只读查批次回执；不重发几何，不等同 getJob 查询异步作业。",
+    "alternatives": [
+      {
+        "id": "execute",
+        "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
+      },
+      {
+        "id": "run",
+        "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。"
+      },
+      {
+        "id": "invoke",
+        "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。"
+      },
+      {
+        "id": "executeText",
+        "chooseWhen": "执行受限文本命令语法或 dryRun；不是自然语言建模或 JS。"
+      },
+      {
+        "id": "submit",
+        "chooseWhen": "提交一个具有 jobId 的异步页面作业，须追踪原 job。"
+      },
+      {
+        "id": "getJob",
+        "chooseWhen": "只读页面异步作业原回执；未知写入先查，不重复提交。"
+      },
+      {
+        "id": "awaitJob",
+        "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。"
+      },
+      {
+        "id": "waitFor",
+        "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。"
+      },
+      {
+        "id": "cancelJob",
+        "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:f18fe203dcc80ce70f0a30fdf33290d7c4aafb7fc96580d913400e89a84f2e69"
+}

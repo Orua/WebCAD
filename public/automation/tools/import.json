@@ -386,6 +386,9 @@
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "用files.register和files.import；不要调用add op:import",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "selectionGuide": {
     "groupId": "file-input",
     "groupTitle": "文件登记、打开与导入",
@@ -422,5 +425,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:74194848271382c17eff7e071665f0c687a265d939cff53d08e14a223c9234cc"
+  "docsHash": "sha256:71eab677c773fb1bf28efc21070fcb0515f33042e60714eff0b4fd3ce5148f04"
 }

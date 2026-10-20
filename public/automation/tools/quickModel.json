@@ -1212,6 +1212,24 @@
             "description": "Bar offset (+up)",
             "minimum": -100,
             "unit": "mm"
+          },
+          "jointStyle": {
+            "type": "string",
+            "default": "intersection",
+            "description": "Bar junction",
+            "enum": [
+              "intersection",
+              "sourceFixedR",
+              "profileRound",
+              "sourceFree"
+            ]
+          },
+          "jointRadius": {
+            "type": "number",
+            "default": 1,
+            "description": "Planar junction R",
+            "minimum": 0.1,
+            "unit": "mm"
           }
         }
       },
@@ -4187,7 +4205,9 @@
       "innerHeight": 24,
       "innerRadius": 3,
       "barDiameter": 2.5,
-      "barOffset": 0
+      "barOffset": 0,
+      "jointStyle": "intersection",
+      "jointRadius": 1
     },
     "ringBar": {
       "section": "round",
@@ -4568,7 +4588,7 @@
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:00a73becd058cf25c6c7d6546d6a0826ad3047730e3b3d5f8209573588eba3b0",
+  "schemaHash": "sha256:7fcc2ebdb7251d96aeb4a535bab8adbab8044b78773c1105a3356bca953a9e77",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -6308,7 +6328,9 @@
         "innerHeight": 24,
         "innerRadius": 3,
         "barDiameter": 2.5,
-        "barOffset": 0
+        "barOffset": 0,
+        "jointStyle": "intersection",
+        "jointRadius": 1
       },
       "fields": [
         {
@@ -6391,6 +6413,42 @@
           "step": 0.1
         },
         {
+          "key": "jointStyle",
+          "label": "中梁接头",
+          "labelEn": "Bar junction",
+          "type": "select",
+          "options": [
+            {
+              "value": "intersection",
+              "label": "相交接缝（原方式）",
+              "labelEn": "Intersection"
+            },
+            {
+              "value": "sourceFixedR",
+              "label": "定 R 接头",
+              "labelEn": "Fixed-R source junction"
+            },
+            {
+              "value": "profileRound",
+              "label": "轮廓圆润接头",
+              "labelEn": "Profile-rounded junction"
+            },
+            {
+              "value": "sourceFree",
+              "label": "顺滑接头",
+              "labelEn": "Smooth source junction"
+            }
+          ]
+        },
+        {
+          "key": "jointRadius",
+          "label": "接头平面 R（轮廓圆润接头）",
+          "labelEn": "Planar junction R",
+          "type": "number",
+          "min": 0.1,
+          "step": 0.1
+        },
+        {
           "key": "barOffset",
           "label": "横杆偏移（上正下负）",
           "labelEn": "Bar offset (+up)",
@@ -6416,7 +6474,9 @@
         "innerHeight": 24,
         "innerRadius": 3,
         "barDiameter": 2.5,
-        "barOffset": 0
+        "barOffset": 0,
+        "jointStyle": "intersection",
+        "jointRadius": 1
       }
     },
     {
@@ -10585,6 +10645,9 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
   "selectionGuide": {
     "groupId": "primitives",
@@ -10618,5 +10681,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:87144a605cdf5010942220a1ed5c6cd1982f24ff3d79eb3e89a853b2e9a1f008"
+  "docsHash": "sha256:c7e9ed082c9580ac952c9ed0d360be75f7e443f8754e97be80456c4525ed97b5"
 }

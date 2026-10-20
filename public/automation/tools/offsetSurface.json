@@ -456,6 +456,9 @@
   },
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
   "selectionGuide": {
     "groupId": "surfaces",
@@ -501,5 +504,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:f013398615d4297a57707dc0acd0ec71e365f9355784992577c57476822ddd0a"
+  "docsHash": "sha256:e410ab7582fa72bbde335be2aeeebb78b99db373e1efc09f7c1e5181ed72084a"
 }

@@ -2,7 +2,7 @@
 export default Object.freeze({
   "label": "日字扣",
   "labelEn": "Slider buckle",
-  "description": "外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。",
+  "description": "可按图片选择三种中梁接头，生成日字扣时一起完成。新接头需要等径圆线、不开缝。定 R 接头复用模型1的真实曲面，R 随线径按 1:4 缩放，独立调整 R 正在改进；轮廓圆润接头可调整平面 R；顺滑接头保留模型3的轻微偏置与鼓起，局部最大厚度约为线径的1.03689倍。宽高变化调整直杆，源型接头随线径等比缩放。",
   "descriptionEn": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
   "defaults": {
     "section": "round",
@@ -14,7 +14,9 @@ export default Object.freeze({
     "innerHeight": 24,
     "innerRadius": 3,
     "barDiameter": 2.5,
-    "barOffset": 0
+    "barOffset": 0,
+    "jointStyle": "intersection",
+    "jointRadius": 1
   },
   "fields": [
     {
@@ -92,6 +94,26 @@ export default Object.freeze({
       "key": "barDiameter",
       "label": "横杆直径",
       "labelEn": "Bar diameter",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
+      "key": "jointStyle",
+      "label": "中梁接头",
+      "labelEn": "Bar junction",
+      "type": "select",
+      "options": [
+        {"value":"intersection","label":"相交接缝（原方式）","labelEn":"Intersection"},
+        {"value":"sourceFixedR","label":"定 R 接头","labelEn":"Fixed-R source junction"},
+        {"value":"profileRound","label":"轮廓圆润接头","labelEn":"Profile-rounded junction"},
+        {"value":"sourceFree","label":"顺滑接头","labelEn":"Smooth source junction"}
+      ]
+    },
+    {
+      "key": "jointRadius",
+      "label": "接头平面 R（轮廓圆润接头）",
+      "labelEn": "Planar junction R",
       "type": "number",
       "min": 0.1,
       "step": 0.1

@@ -626,6 +626,9 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
   "selectionGuide": {
     "groupId": "holes",
@@ -703,5 +706,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:f6d66241b25cfe73a483836cf70dab52711f10729fea2f721d7d30689924d5e9"
+  "docsHash": "sha256:767c9116a4407f8fcaabf232bc710b55b296a3ae53c352e41560aa9fda070d08"
 }

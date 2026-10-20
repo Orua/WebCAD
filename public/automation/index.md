@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.52.3 · 操作目录 sha256:45dcf7494d3c3acce61b7f78f42440f1c92e37f5f4c2df2d55f16277bb93a707
+API 1.53.2 · 操作目录 sha256:a0b3347d8824d5ca1d021b8d1bbce03706c21921df197771cab262982db12ca9
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -8,6 +8,8 @@ API 1.52.3 · 操作目录 sha256:45dcf7494d3c3acce61b7f78f42440f1c92e37f5f4c2df
 
 ## 页面方法
 
+- `readLogo`
+- `getBatchReceipt`
 - `probeBlendRadius`
 - `recoverKernel`
 - `sampleMeshRelief`
@@ -212,7 +214,7 @@ API 1.52.3 · 操作目录 sha256:45dcf7494d3c3acce61b7f78f42440f1c92e37f5f4c2df
 - `template.capsuleWire` · advisory · 闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。
 - `template.profileLoop` · advisory · 两端半圆、上下直段的闭合长圈；正面料宽、侧面厚度和截面 R 独立。R 可等于截面短边一半，形成两圆端加直段的截面。
 - `template.twinWindowPlate` · advisory · 独立外 R 和孔 R 的平板双窗，中间是板体一部分；整件前后尖边按指定 R 倒圆。两个孔等宽等高且上下对称，不含圆杆、偏置孔或侧向拱弯。
-- `template.sliderBuckle` · advisory · 外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。
+- `template.sliderBuckle` · advisory · 可按图片选择三种中梁接头，生成日字扣时一起完成。新接头需要等径圆线、不开缝。定 R 接头复用模型1的真实曲面，R 随线径按 1:4 缩放，独立调整 R 正在改进；轮廓圆润接头可调整平面 R；顺滑接头保留模型3的轻微偏置与鼓起，局部最大厚度约为线径的1.03689倍。宽高变化调整直杆，源型接头随线径等比缩放。
 - `template.ringBar` · advisory · 同心圆恒截面框与一根沿 X 的圆杆融合为单一实体。横杆可沿 Y 及厚度 Z 微调；不包含活动杆、铰链或精确接头过渡。
 - `template.ellipseBar` · advisory · 从内真椭圆外偏线扫掠圆线，再融合居中固定圆杆。圆线外包围须精确回读；接头过渡与源样条仍须对照。
 - `template.archedTwinWindowPlate` · advisory · 圆角双窗平面轮廓沿 Y 方向投影裁切同轴圆筒薄壁，形成侧视圆弧拱弯。适用于薄条一体双窗；径向板厚、外弧半径独立输入。圆线框及独立圆杆须用其它工具。
@@ -245,6 +247,8 @@ API 1.52.3 · 操作目录 sha256:45dcf7494d3c3acce61b7f78f42440f1c92e37f5f4c2df
 - `template.uEndHolePlate` · advisory · 半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。
 - `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
 - `template.gableOpenFrame` · advisory · 两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。
+- `readLogo` · page-method · readLogo({context,resourceId,name,targetWidthMm?,page?,sizeConfirmed?,allowUpload?,raster?:{threshold,invert,alphaThreshold}})。选定文件先登记资源；SVG/LOGO JSON在本机读取，其他格式由已配置后台处理。位图必须提供实际宽度、sizeConfirmed:true、allowUpload:true。
+- `getBatchReceipt` · page-method · getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.
 - `probeBlendRadius` · page-method · probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。
 - `recoverKernel` · page-method · recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。
 - `sampleMeshRelief` · page-method · sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。
@@ -277,7 +281,7 @@ API 1.52.3 · 操作目录 sha256:45dcf7494d3c3acce61b7f78f42440f1c92e37f5f4c2df
 - `awaitJob` · page-method · awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。
 - `connect` · page-method · connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.
 - `info` · page-method · info() 无参数。
-- `getState` · page-method · getState({sessionId?,include?,compact?,fields?,sinceRevision?}={}); include 可选 summary/features/bodies/selection/capabilities/references。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。
+- `getState` · page-method · getState({include?,compact?,fields?,sinceRevision?}={}); include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references；外观用 fields:["appearance","colors","renderFinish"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。
 - `searchTools` · page-method · searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。
 - `getTools` · page-method · getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.
 - `getTool` · page-method · getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。
@@ -307,8 +311,8 @@ API 1.52.3 · 操作目录 sha256:45dcf7494d3c3acce61b7f78f42440f1c92e37f5f4c2df
 - `getAgentPanel` · page-method · getAgentPanel()
 - `configureAgentPanel` · page-method · configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。
 - `setAgentPanel` · page-method · setAgentPanel({context,visible:true|false})；true接入已配置助手，false退出并释放。或 setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false}})；layout与visible分开调用，宽高1–4096像素，按可用空间夹限。
-- `getServices` · page-method · getServices()；地址与模式存本地，专用授权仅存本标签会话，不进入工程。
-- `setServices` · page-method · setServices({context,url,credential?,enabled?,computeMode?:"local"|"auto"|"serverPreferred",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。
+- `getServices` · page-method · getServices()；正式入口默认使用网站登录连接；自定义地址与模式存本地，专用授权仅存本标签会话。不会返回凭据。
+- `setServices` · page-method · setServices({context,url,authMode?:"siteSession"|"bearer",credential?,enabled?,computeMode?:"local"|"auto"|"serverPreferred",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。
 - `getServicesCapabilities` · page-method · getServicesCapabilities()；读取已配置服务。
 - `getServicesRouting` · page-method · getServicesRouting()；读取同一 ExecutionRouter 的最近决策。
 - `clearServicesCredential` · page-method · clearServicesCredential({context})

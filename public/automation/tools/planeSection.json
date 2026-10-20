@@ -443,6 +443,9 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
   "selectionGuide": {
     "groupId": "profiles",
@@ -504,5 +507,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:771fdb1281412585fa3a3b8a5fb02e220ccc42e9dd77a90f578da7ac27a4fcb7"
+  "docsHash": "sha256:02b6ba29faa252a549567e446b92a08d3c239dfe5f65b0c56d8347b990bc63f3"
 }

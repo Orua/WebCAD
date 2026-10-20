@@ -2,7 +2,7 @@
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "revision",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
@@ -36,6 +36,10 @@
     "groupTitle": "执行、批次与异步作业",
     "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。",
     "alternatives": [
+      {
+        "id": "getBatchReceipt",
+        "chooseWhen": "用原 idempotencyKey 和 documentInstanceId 只读查批次回执；不重发几何，不等同 getJob 查询异步作业。"
+      },
       {
         "id": "run",
         "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。"
@@ -71,5 +75,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:2f81f1d5b12ce1441abb88348e905dbd659574785ab9b74b291f69ee1539c712"
+  "docsHash": "sha256:6b013ed8e96f74a6d649a6ccf45f3e91b2651d0151dbffb471c62823f75fc1a8"
 }

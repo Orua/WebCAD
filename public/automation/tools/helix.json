@@ -481,6 +481,9 @@
   },
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
   "selectionGuide": {
     "groupId": "holes",
@@ -554,5 +557,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:42ee67a538d549ad715772c1aa1467b8c9f1d3d1f49b71b63b5ea782c9eafa85"
+  "docsHash": "sha256:70f465564fbfdf70e0889e645a8ba430fb5335344d33ff7f40c19aa572f54693"
 }

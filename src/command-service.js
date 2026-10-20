@@ -158,7 +158,7 @@ export function createCommandService(adapter) {
             a.params={...a.params,machiningIntent:uiPatternIntent(op,a.params)};
           }
           assertPatternExecution(op,a.params,{required:true});
-          a.params=parameters(op,a.params);if(['transform','copy'].includes(op)&&a.params.mode&&a.placement===undefined)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,refs);
+          a.params=parameters(op,a.params);if(['transform','copy'].includes(op)&&a.params.mode&&a.placement===undefined)fail('FRAME_INVALID','args.placement','Spatial mode requires placement:{version:1,frame:{kind:"world"},sourceAnchor:{kind:"model-origin"}} (or an explicit work frame). For world translation without placement use params:{x:0,y:0,z:300} and omit mode/delta');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,refs);
           command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name,placement:resolvePlacement(newFeaturePlacement(a.placement,s.referenceSystem,op),s.referenceSystem,op,a.params),placementExplicit:a.placement!==undefined,...(input.action==='preview.start'?{previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api'}}:{})};break;
         }
         case 'preview.update':{
@@ -182,7 +182,7 @@ export function createCommandService(adapter) {
           // Validation stays strict; the error only names which card to read.
           try{contract(op,a);}catch(e){if(['SCHEMA_MISMATCH','OPERATION_VERSION_UNSUPPORTED'].includes(e.code))throw Object.assign(e,{message:`feature.edit 需要被编辑特征的 ${op} 工具卡的 opVersion/schemaHash（不是 feature.edit 卡）；请 getTool({id:'${op}'}) 后重试。`,details:{featureId:a.featureId,op,toolId:op,field:e.path}});throw e;}
           const merged=['transform','copy'].includes(op)&&a.params?.mode&&!feature.params.mode?a.params:{...feature.params,...a.params};
-          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged,{creation:false});if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement','Spatial transform mode requires explicit placement');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,feature.refs||[]);
+          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged,{creation:false});if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement','Spatial mode requires placement:{version:1,frame:{kind:"world"},sourceAnchor:{kind:"model-origin"}} (or an explicit work frame). For world translation without placement use params:{x:0,y:0,z:300} and omit mode/delta');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,feature.refs||[]);
           command='edit_feature';args={featureId:a.featureId,params,name:a.name,...(Object.hasOwn(a,'placement')?{placement:resolvePlacement(a.placement,s.referenceSystem,op,params)}:{})};break;
         }
         case 'document.parameters':
@@ -224,7 +224,7 @@ export function createCommandService(adapter) {
       const now=snapshot();let result=errorResult(e,requestId,now);
       if(e.commitState==='unknown'||e.status==='unknown'){result.status='unknown';result.commitState='unknown';result.error.recoveryAction='INSPECT_STATE_BEFORE_RETRY';}
       if(featurePlan&&e.featureId)result.error.featureKey=Object.keys(featurePlan.featureIds).find(key=>featurePlan.featureIds[key]===e.featureId);
-      if(revisionBefore!==undefined&&now.documentInstanceId===s.documentInstanceId&&now.revision!==revisionBefore)result={status:'unknown',requestId,idempotencyKey:key,commitState:'unknown',error:{code:'RESULT_UNKNOWN',path:'result',message:e.message,retryable:false,recoveryAction:'READ_STATE_AND_REPLAN'}};
+      if(e.commitState!=='not_committed'&&revisionBefore!==undefined&&now.documentInstanceId===s.documentInstanceId&&now.revision!==revisionBefore)result={status:'unknown',requestId,idempotencyKey:key,commitState:'unknown',error:{code:'RESULT_UNKNOWN',path:'result',message:e.message||String(e),retryable:false,recoveryAction:'READ_STATE_AND_REPLAN'}};
       // Preserve an existing receipt even on a conflicting reuse.
       if(key&&fingerprint&&!receipts.has(key)&&!archivedReceipts.has(key)&&makeReceiptRoom())receipts.set(key,{fingerprint,result:clone(result)});
       return result;

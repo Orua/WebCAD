@@ -25,7 +25,7 @@
         },
         "minItems": 3,
         "maxItems": 3,
-        "description": "World coordinate [x,y,z] in mm",
+        "description": "Center in the resolved placement frame, mm; omitted placement freezes the current work anchor and enables XY clearance. For an exact world center pass placement:{version:1,frame:{kind:\"world\"},sourceAnchor:{kind:\"model-origin\"}}; explicit placement disables auto-clearance.",
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -76,7 +76,7 @@
     "ellipsoid operation"
   ],
   "description": "椭球 / Exact rational quadratic ellipsoid",
-  "schemaHash": "sha256:ac549a3b8fa4cbf834ef3b2a56497d4070dd536500bb9c6b22065c116547cf05",
+  "schemaHash": "sha256:68772b755b31243a69d76bb13bde321648c0f878204a3cb38009a2ff45a3f193",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -230,7 +230,7 @@
         ]
       },
       "centerMm": {
-        "meaning": "World coordinate [x,y,z] in mm",
+        "meaning": "Center in the resolved placement frame, mm; omitted placement freezes the current work anchor and enables XY clearance. For an exact world center pass placement:{version:1,frame:{kind:\"world\"},sourceAnchor:{kind:\"model-origin\"}}; explicit placement disables auto-clearance.",
         "unit": "mm",
         "range": [
           3,
@@ -470,6 +470,9 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
   "selectionGuide": {
     "groupId": "primitives",
@@ -503,5 +506,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:22528a38d03bae94bea9fd0af5bf8c408b3d78feb7a5ab14f4bb3b66fcac570a"
+  "docsHash": "sha256:0119ae7866968c5eb6188674197ea83b1f32f464a38e7ca98642e49110fd3d9d"
 }

@@ -458,6 +458,9 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
   "selectionGuide": {
     "groupId": "primitives",
@@ -503,5 +506,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:fa10f286ba9618509a9c9a11d65d514fbc58bde08f6b07af383f1342b078c77b"
+  "docsHash": "sha256:ae72f0a894754a34daf42702cb42c8ae7a4ef5724ee4f07a663ff8a4c477474b"
 }

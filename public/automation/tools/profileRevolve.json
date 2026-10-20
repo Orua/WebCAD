@@ -595,6 +595,9 @@
   },
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
   "selectionGuide": {
     "groupId": "extrusion",
@@ -624,5 +627,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:6267bd2dd95c6cfdbb7309096f9ff7829982d8f03cf9ad0bd664020648e65775"
+  "docsHash": "sha256:d000ed1869d50e9ca3c20f224e1e2b16352a92433993edc62cab4a35d3b0221c"
 }

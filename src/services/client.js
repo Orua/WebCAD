@@ -1,16 +1,17 @@
 import {getServicesConfig,getServicesCredential,normalizeServicesConfig,serviceError} from './settings.js';
-export async function sha256(bytes){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),x=>x.toString(16).padStart(2,'0')).join('');}
+import {binaryHash} from '../contracts/operation-schema.js';
+export async function sha256(bytes){return binaryHash(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes)).slice(7);}
 export function createServicesClient({config,credential,fetchImpl=globalThis.fetch,now=Date.now,delay=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){
  const read=()=>config?normalizeServicesConfig(config):getServicesConfig();
  let defaultWaitHandler=null;
  async function request(route,{method='GET',body,headers={},binary=false}={}){
-  const settings=read();if(!settings.enabled||!settings.url)throw serviceError('CAPABILITY_UNAVAILABLE','请先配置 Services');
+  const settings=read();if(!settings.enabled||!settings.url)throw serviceError('CAPABILITY_UNAVAILABLE','请先连接后台计算');
   let existing='';if(credential===undefined){const saved=getServicesConfig();if(settings.url===saved.url)existing=getServicesCredential();}
-  const auth=credential??existing;if(!auth)throw serviceError('SERVICES_AUTH_REQUIRED','请在 Services 设置中授权');
+  const auth=credential??existing,siteSession=settings.authMode==='siteSession';if(!auth&&!siteSession)throw serviceError('SERVICES_AUTH_REQUIRED','请在“计算设置”连接后台计算');
   if(!/^\/v1\/[a-zA-Z0-9/_-]+$/.test(route))throw serviceError('PARAM_SCHEMA_INVALID','Services 路由无效');
   const url=new URL(settings.url);url.searchParams.set('route',route);let response;
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);
-  try{response=await fetchImpl(url.href,{method,body,headers:{...headers,Authorization:`Bearer ${auth}`},redirect:'error',credentials:'omit',cache:'no-store',signal:controller.signal});}catch{clearTimeout(timer);throw serviceError('SERVICES_CONNECTION_UNKNOWN','服务连接中断或请求超时；任务结果未知，先查询既有任务，勿重复计算',{observation:'unknown'});}
+  try{response=await fetchImpl(url.href,{method,body,headers:{...headers,...(siteSession?{'X-WebCAD-Compute':'1'}:{Authorization:`Bearer ${auth}`})},redirect:'error',credentials:siteSession?'include':'omit',cache:'no-store',signal:controller.signal});}catch{clearTimeout(timer);throw serviceError('SERVICES_CONNECTION_UNKNOWN','后台计算连接中断或请求超时；请查询原任务后再操作',{observation:'unknown'});}
   try{
   if(!response.ok){let error;try{error=await response.json();}catch{}throw serviceError(error?.code??'SERVICES_REQUEST_FAILED',error?.message??`Services HTTP ${response.status}`,{httpStatus:response.status,supportBinding:error?.supportBinding,stage:error?.stage,diagnosticsRef:error?.diagnosticsRef,commitState:error?.commitState??error?.commit,recoveryAction:error?.recoveryAction});}
   return binary?new Uint8Array(await response.arrayBuffer()):await response.json();

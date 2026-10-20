@@ -2,7 +2,7 @@
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "none",
   "description": "getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。",
   "synonyms": [
@@ -72,11 +72,15 @@
         "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
       },
       {
+        "id": "readLogo",
+        "chooseWhen": "从已登记的图片或矢量文件取得待复核的闭合轮廓；JPG/PNG描摹需要实际毫米宽度和明确上传授权，不把照片光影当作深度。"
+      },
+      {
         "id": "convertLogoPdf",
         "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:7320bb02b090b6f15cdca5aaf6557f2d4e8277a5ca369410b2f6283d7495ed51"
+  "docsHash": "sha256:c443e6f443a7682f0e5c7c55fde66fa095168faf6bf60dac2fda981444953487"
 }

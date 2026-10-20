@@ -65,7 +65,7 @@ export function buildSubdBRep(params, cad) {
   const sewingTolerance = params?.sewingTolerance ?? 0.02;
   const fittingTolerance = params?.fittingTolerance ?? 0.02;
   if(!Number.isInteger(referenceGrid)||referenceGrid<4||referenceGrid>64)throw new Error('referenceGrid须为4–64整数');
-  if(cage.faces.length*4**(sampleDepth+1)>200000)throw Object.assign(new Error('细分求值超过200000面预算，请降低控制笼密度或采样层级'),{code:'SIZE_LIMIT'});
+  if(cage.faces.length*4**(sampleDepth+1)>200000)throw Object.assign(new Error('细分求值含额外一层精度对照：cage.faces.length * 4 ** (sampleDepth + 1) 超过200000面预算，请降低控制笼密度或采样层级'),{code:'SIZE_LIMIT'});
   if (!Number.isInteger(sampleDepth) || sampleDepth < 3 || sampleDepth > 6) throw new Error('sampleDepth must be an integer in [3,6]');
   if (!Number.isInteger(fitGrid) || fitGrid < 5 || fitGrid > 17) throw new Error('fitGrid must be an integer in [5,17]');
   if (!(sewingTolerance > 0 && sewingTolerance <= .5) || !(fittingTolerance > 0 && fittingTolerance <= .5)) throw new Error('BRep tolerances must be in (0,0.5] mm');

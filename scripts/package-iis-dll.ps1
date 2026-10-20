@@ -39,6 +39,8 @@ Copy-Programs $LogoWorkerRoot "$root/cadservices/runtime/logo"
 Copy-Programs (Split-Path ([IO.Path]::GetFullPath($NativeWorker))) "$root/cadservices/runtime/occt"
 Copy-Item -LiteralPath $NativeAcceptance -Destination "$root/cadservices/runtime/kernel-pair.json"
 Copy-Item -LiteralPath "$PSScriptRoot/../services/WebCADServices/deploy/api.ashx" -Destination "$root/cadservices/api.ashx"
+New-Item -ItemType Directory -Path "$root/host/AI/WebCAD" -Force|Out-Null
+Copy-Item -LiteralPath "$PSScriptRoot/../services/WebCADServices/deploy/workspace-compute.ashx" -Destination "$root/host/AI/WebCAD/WebCADCompute.ashx"
 if(!$ParentApplication){Copy-Item -LiteralPath "$PSScriptRoot/../services/WebCADServices/deploy/web.config" -Destination "$root/cadservices/web.config"}
 $runtimeDll=if($ParentApplication){"$root/bin/WebCADServices.Runtime.dll"}else{"$root/cadservices/bin/WebCADServices.Runtime.dll"}
 if((Get-Content "$root/cadservices/api.ashx" -Raw) -notmatch 'Gateway.IisHandler' -or !(Test-Path $runtimeDll)){throw 'ASHX/DLL entry is missing'}

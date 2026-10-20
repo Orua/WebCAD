@@ -37,7 +37,7 @@
     "圆线日字扣",
     "Slider buckle"
   ],
-  "description": "外框整体内高；固定圆杆偏移上正下负，不支持开缝。闭合圆线框可用内短边≥2.5倍线径的紧凑双窗，且每侧孔高至少为线径。",
+  "description": "可按图片选择三种中梁接头，生成日字扣时一起完成。新接头需要等径圆线、不开缝。定 R 接头复用模型1的真实曲面，R 随线径按 1:4 缩放，独立调整 R 正在改进；轮廓圆润接头可调整平面 R；顺滑接头保留模型3的轻微偏置与鼓起，局部最大厚度约为线径的1.03689倍。宽高变化调整直杆，源型接头随线径等比缩放。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -441,10 +441,28 @@
         "description": "Bar offset (+up)",
         "minimum": -100,
         "unit": "mm"
+      },
+      "jointStyle": {
+        "type": "string",
+        "default": "intersection",
+        "description": "Bar junction",
+        "enum": [
+          "intersection",
+          "sourceFixedR",
+          "profileRound",
+          "sourceFree"
+        ]
+      },
+      "jointRadius": {
+        "type": "number",
+        "default": 1,
+        "description": "Planar junction R",
+        "minimum": 0.1,
+        "unit": "mm"
       }
     }
   },
-  "schemaHash": "sha256:4e3f13b91bc376a089d2834051cc6a4e7ac1948565c0ecbec9a8ff9570dab52f",
+  "schemaHash": "sha256:c659a98a679a8a29d72a7d3ec8d556dd87a7db1593f772f2dbf20a273cb08d03",
   "defaults": {
     "section": "round",
     "sectionSize": 3,
@@ -455,7 +473,9 @@
     "innerHeight": 24,
     "innerRadius": 3,
     "barDiameter": 2.5,
-    "barOffset": 0
+    "barOffset": 0,
+    "jointStyle": "intersection",
+    "jointRadius": 1
   },
   "fields": [
     {
@@ -538,6 +558,42 @@
       "step": 0.1
     },
     {
+      "key": "jointStyle",
+      "label": "中梁接头",
+      "labelEn": "Bar junction",
+      "type": "select",
+      "options": [
+        {
+          "value": "intersection",
+          "label": "相交接缝（原方式）",
+          "labelEn": "Intersection"
+        },
+        {
+          "value": "sourceFixedR",
+          "label": "定 R 接头",
+          "labelEn": "Fixed-R source junction"
+        },
+        {
+          "value": "profileRound",
+          "label": "轮廓圆润接头",
+          "labelEn": "Profile-rounded junction"
+        },
+        {
+          "value": "sourceFree",
+          "label": "顺滑接头",
+          "labelEn": "Smooth source junction"
+        }
+      ]
+    },
+    {
+      "key": "jointRadius",
+      "label": "接头平面 R（轮廓圆润接头）",
+      "labelEn": "Planar junction R",
+      "type": "number",
+      "min": 0.1,
+      "step": 0.1
+    },
+    {
       "key": "barOffset",
       "label": "横杆偏移（上正下负）",
       "labelEn": "Bar offset (+up)",
@@ -581,9 +637,49 @@
       "innerHeight": 24,
       "innerRadius": 3,
       "barDiameter": 2.5,
-      "barOffset": 0
+      "barOffset": 0,
+      "jointStyle": "intersection",
+      "jointRadius": 1
     },
     "refs": []
+  },
+  "sourceFreeJunction": {
+    "status": "Three supplied source styles are available in the quick-model picture selector: sourceFixedR, profileRound, sourceFree. Fixed-R is the source R1/diameter4 proportion; independently editable 3D R is still improving and must not be claimed available. Original intersection remains the default.",
+    "styles": {
+      "sourceFixedR": {
+        "label": "定 R 接头",
+        "source": "1.stp; sha256:3bd2dcd55dd35934bcc3c5f87d4a444ca657192c7bc24414237b92f264fccf13",
+        "radius": "wire diameter / 4; d4 gives R1. jointRadius does not change this source proportion.",
+        "readback": "getState().bodies[].sourceJunctionReport: radiusMm, radiusRule, fixedRadius:true, sourceSha256"
+      },
+      "profileRound": {
+        "label": "轮廓圆润接头",
+        "source": "2.stp",
+        "radius": "jointRadius controls the planar profile radius; not a 3D rolling-ball R"
+      },
+      "sourceFree": {
+        "label": "顺滑接头",
+        "source": "3.stp",
+        "radius": "Variable source curvature, no fixed R"
+      }
+    },
+    "params": {
+      "kind": "sliderBuckle",
+      "jointStyle": "sourceFree",
+      "section": "round",
+      "sectionSize": 4,
+      "barDiameter": 4,
+      "innerWidth": 42,
+      "innerHeight": 22,
+      "innerRadius": 0.5,
+      "barOffset": 0,
+      "gapWidth": 0
+    },
+    "source": "3.stp; sha256:6c52ade3d2c584f32bdc86ad66fdf17fe91f85c3aabcfe3024379fb8a5464250",
+    "meaning": "Preserve the source trimmed NURBS junctions. W/H stretch only straight runs; wire diameter uniformly scales the junctions. Corner R and additional bar offset remain independent. This is not an arbitrary-model free-form fillet or fixed-R blend.",
+    "readback": "getState().bodies[].sourceFreeJunctionReport: sourceSha256, sourceBlendFaceCount, nominalWireDiameterMm, localThicknessMm, uniformWireScale, sourceFrameOffsetYmm, barOffsetRelativeToFrameCenterMm, fixedRadius:false",
+    "inheritedGeometry": "Source frame centre Y=-0.07889635053 mm at d=4; barOffset adds to source bar Y=0. Local thickness=4.147562449632122*(d/4), not d. Source curvature and small asymmetry remain.",
+    "restrictions": "Round, equal frame/bar diameter and no gap; exact source cells must fit between corners. Invalid dimensions fail before commit; jointRadius only applies to profileRound."
   },
   "docs": "api.workflow",
   "selectionGuide": {
@@ -614,5 +710,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:a4a2eec15e9df6a0b5b53c7fbd9b5d927995b89dd1e1bc9dce244da87a0f8f3f"
+  "docsHash": "sha256:6c73182bd2ebce30046d8ed6dff53d0c46089e90c37977e17fb9cb5f8a83ab47"
 }

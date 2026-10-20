@@ -2,7 +2,7 @@
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "none",
   "label": "下载文件",
   "synonyms": [
@@ -99,5 +99,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:253b7269dd0638d7423b783d60f0fdb21a4f32e960902f3857c779c18a9d1ef5"
+  "docsHash": "sha256:5f9afd7f5d79ab7f819fe55b928f47b3de06b02ab23e8003c4e2706d40a212be"
 }

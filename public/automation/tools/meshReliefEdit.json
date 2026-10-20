@@ -2089,6 +2089,9 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
   "selectionGuide": {
     "groupId": "relief",
@@ -2154,5 +2157,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:3dc6af8025df6062833a8f79f460ece1f614822d76d12625fb5d51801370f893"
+  "docsHash": "sha256:804e960059ae4b512a0f54d49352c7835498aa8617993a12a198731d38ca9572"
 }

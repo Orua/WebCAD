@@ -2,7 +2,7 @@
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "revision",
   "description": "awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。",
   "synonyms": [
@@ -27,6 +27,10 @@
     "groupTitle": "执行、批次与异步作业",
     "chooseWhen": "等待同一个页面 job 结束；超时返回当前状态，不取消或重提。",
     "alternatives": [
+      {
+        "id": "getBatchReceipt",
+        "chooseWhen": "用原 idempotencyKey 和 documentInstanceId 只读查批次回执；不重发几何，不等同 getJob 查询异步作业。"
+      },
       {
         "id": "execute",
         "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
@@ -62,5 +66,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:316155ce46da322c04381b7684af79138f5e8803dbf4f52a1d43bb0f5adeabcc"
+  "docsHash": "sha256:1a774ed83d99408f9aa90df7c1f9a0676f1eb74aa872ec5570b65c21c6f566c5"
 }

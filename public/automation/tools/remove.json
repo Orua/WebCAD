@@ -394,6 +394,9 @@
   "executableOperation": false,
   "contextPolicy": "revision",
   "usage": "用execute action:feature.remove；不要调用add op:remove",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "selectionGuide": {
     "groupId": "booleans-organize",
     "groupTitle": "布尔、分割与组合",
@@ -446,5 +449,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:d1fa1a618a35fbd5d1fffeb20e28db03271e534055c1fe532d6310dfca992898"
+  "docsHash": "sha256:316b3ea5d0e926dec0c1cfa9435a23633f1d70e5f4d8728f828563dc639ff267"
 }
