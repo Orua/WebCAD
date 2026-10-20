@@ -4,7 +4,7 @@
   "category": "page-method",
   "version": "1.54.6",
   "contextPolicy": "none",
-  "description": "getState({include?,compact?,fields?,sinceRevision?}={}); include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
+  "description": "getState({include?,compact?,fields?,sinceRevision?}={}); 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
   "synonyms": [
     "getState",
     "工程状态",
@@ -14,7 +14,7 @@
     "基准",
     "鼠标手柄"
   ],
-  "inputContract": "getState({include?,compact?,fields?,sinceRevision?}={}); include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
+  "inputContract": "getState({include?,compact?,fields?,sinceRevision?}={}); 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
   "outputContract": "当前 context、referenceSystem、parameters、parameterValues、view 和 display；kernelPerformance 返回最近成功重建的 totalMs、perFeatureMs、slowest 前10项、compiledReuse 和 compiledInvalidated。view.transform 为 {mode,bodyIds,attached,canDrag,blocker}，读回移动/旋转手柄与当前不可拖原因。不会默认返回导入源字节。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -24,6 +24,52 @@
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
   ],
+  "argumentKeys": [
+    "include",
+    "compact",
+    "fields",
+    "sinceRevision"
+  ],
+  "unknownFields": "rejected",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "include": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "summary",
+            "features",
+            "bodies",
+            "bodiesLite",
+            "selection",
+            "capabilities",
+            "references",
+            "reliefDesigns"
+          ]
+        }
+      },
+      "compact": {
+        "type": "boolean"
+      },
+      "fields": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 32,
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        }
+      },
+      "sinceRevision": {
+        "type": "integer",
+        "minimum": 0
+      }
+    }
+  },
   "selectionGuide": {
     "groupId": "discovery",
     "groupTitle": "连接、目录与文档",
@@ -76,5 +122,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:c068006a114365d8739abece3cfe4691603a9791cc5dc0f7afafa3006e7959f5"
+  "docsHash": "sha256:4aaf80547d998e3a81e34823cc9c30738025aa4cf4d1a51c0f41aeb82b623395"
 }
