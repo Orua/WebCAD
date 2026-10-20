@@ -325,8 +325,7 @@ const groups = [
     'files.reattach':'把尚未过期的同一产物重新附加送达，不重算几何。',
     'files.release':'释放临时资源；不删除工程实体或已下载磁盘文件。',
     createDrawing:'按当前几何创建投影、剖视和尺寸工程图定义。',
-    exportDrawing:'导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。',
-    exportLogo:'将readLogo已读取的原毫米轮廓导出DXF或LOGO JSON，不创建实体或工程图，不需要工作区脚本写入。',
+    exportDrawing:'导出已有drawingId工程图，或readLogo返回的logoId原轮廓DXF/JSON；不必创建三维实体或写脚本。',
   }],
 ];
 

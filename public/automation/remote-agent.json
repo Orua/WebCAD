@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
   "adapterVersion": 2,
-  "buildId": "2fcb6adbb673aaa6f039165595ea9c22d8db37b8-src-56b671c30073c656-working",
-  "catalogHash": "sha256:e5e60ffc2ea3affb5ad5dcd149b8676209410475d936d9371e93f11dc7ce77e2",
-  "docsHash": "sha256:39ef2449ef80d92bdf0c759065018d04133b4d27ce882ad5c25e0b57ff6a7c45",
-  "contractHash": "sha256:05be2f2a2882bc96505ba67555aec1940c5226d15173ba6b990353adbf620333",
+  "buildId": "8a5e7d62150751d49d6024ed3f0e1fea56321723-src-a0c3915f947bf06f-working",
+  "catalogHash": "sha256:fe0c4754eb1f99a49f5067d4888a82a84f91d04bc867dca31796f74e07699cd2",
+  "docsHash": "sha256:8caae16beb8f56a047fe4e79d2b33b44429c5db17525289d9933c29e98189909",
+  "contractHash": "sha256:27ad16c0eee82b372146e87e6518075db17e1f1258283da26466d40b8d3caaf7",
   "protocol": "goldenluck.webcad/1",
   "files": [
     {
       "name": "host-adapter.mjs",
       "url": "remote-agent/host-adapter.js",
-      "sizeBytes": 27711,
-      "sha256": "sha256:aed18c79eebbeb08d4f23930584b6c65ea71b9a3bf35ca4f54b02aad8c3a8760"
+      "sizeBytes": 27596,
+      "sha256": "sha256:208aff9ef29d2c0c6aca2c4b24c4454501d14d75411d000110c20a59fecd8aee"
     },
     {
       "name": "runtime-contract.json",
       "url": "remote-agent/runtime-contract.json",
-      "sizeBytes": 3667,
-      "sha256": "sha256:aa90a3392fb31c60ea28518275d8236d4d33da41a56b7ff6245e936daad3a892"
+      "sizeBytes": 3631,
+      "sha256": "sha256:07bb72774391e80459334fef2f54475f91e54e18eab29ef580096e1f3546f16d"
     },
     {
       "name": "layout-planner.py",

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.54.4",
-  "buildId": "2fcb6adbb673aaa6f039165595ea9c22d8db37b8-src-56b671c30073c656-working",
-  "catalogHash": "sha256:e5e60ffc2ea3affb5ad5dcd149b8676209410475d936d9371e93f11dc7ce77e2",
-  "docsHash": "sha256:39ef2449ef80d92bdf0c759065018d04133b4d27ce882ad5c25e0b57ff6a7c45",
+  "pageApiVersion": "1.54.5",
+  "buildId": "8a5e7d62150751d49d6024ed3f0e1fea56321723-src-a0c3915f947bf06f-working",
+  "catalogHash": "sha256:fe0c4754eb1f99a49f5067d4888a82a84f91d04bc867dca31796f74e07699cd2",
+  "docsHash": "sha256:8caae16beb8f56a047fe4e79d2b33b44429c5db17525289d9933c29e98189909",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -582,11 +582,11 @@
     "logoExport": {
       "tools": [
         "readLogo",
-        "exportLogo",
+        "exportDrawing",
         "files.download"
       ],
-      "method": "exportLogo",
-      "usage": "LOGO识别后下载原毫米轮廓DXF；API先readLogo取得logoId，再exportLogo({context,logoId,format:\"dxf\"})。保留外环和孔洞，不创建实体，不自动确认描摹精度。"
+      "method": "exportDrawing",
+      "usage": "LOGO识别后下载原毫米轮廓DXF；API先readLogo取得logoId，再exportDrawing({context,logoId,format:\"dxf\"})。保留外环和孔洞，不创建实体，不自动确认描摹精度。"
     },
     "mcp": {
       "tools": [
@@ -1433,7 +1433,7 @@
     }
   },
   "labels": {
-    "logoExport": "readLogo / exportLogo / 下载文件",
+    "logoExport": "readLogo / exportDrawing / 下载文件",
     "rodJunction": "圆杆接头倒 R",
     "agentPanelResize": "getAgentPanel / setAgentPanel",
     "badge": "牌仔工具",
