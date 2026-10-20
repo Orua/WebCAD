@@ -2,7 +2,7 @@
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.55.0",
+  "version": "1.55.1",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -134,5 +134,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:e5ba9c69b1bc87abdb84464b51441cd05c226b2a59e64b78864f47395da193cd"
+  "docsHash": "sha256:6dbc711543eddd6b22e2e1ffe2b7509d6e6b399431c717e56a2eb4dfa44b0819"
 }

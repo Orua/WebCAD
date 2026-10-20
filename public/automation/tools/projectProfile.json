@@ -2,7 +2,7 @@
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.55.0",
+  "version": "1.55.1",
   "contextPolicy": "identity",
   "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
   "synonyms": [
@@ -85,5 +85,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:cca6e6bc3c3e7039d89f3843cff6db1cce3c8d20b5f2c155c973d86b1da8946a"
+  "docsHash": "sha256:51f5095b34f82fe24467317588c757d2353143a90044997fb02723db413fc391"
 }

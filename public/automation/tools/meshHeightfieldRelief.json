@@ -79,6 +79,25 @@
           }
         }
       },
+      "domainMask": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "encoding",
+          "data"
+        ],
+        "description": "Optional retained-domain mask: one 0/1 byte per sample, row zero +Y; masked grids are bounded to 129 per axis. Complete active cells are retained, holes remain open, and sampled boundaries are not exact analytic circles.",
+        "properties": {
+          "encoding": {
+            "type": "string",
+            "const": "u8"
+          },
+          "data": {
+            "type": "string",
+            "maxLength": 24000
+          }
+        }
+      },
       "sculpt": {
         "type": "array",
         "maxItems": 512,
@@ -195,7 +214,7 @@
     "高度图浮雕（网格）"
   ],
   "description": "高度图浮雕 / Heightfield relief",
-  "schemaHash": "sha256:c9ee5d7b68a314347f9d419f67858e0babc1d92ec0b6825db327146858495541",
+  "schemaHash": "sha256:57af650f5511ca7f4fc342b87ab2f0f615f12cb31cb128b1927ba0faa828a19d",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -353,7 +372,12 @@
     "SIZE_LIMIT",
     "HEIGHTFIELD_INVALID",
     "HEIGHTFIELD_SCULPT_INVALID",
-    "RELIEF_EDIT_CAPACITY"
+    "RELIEF_EDIT_CAPACITY",
+    "RELIEF_DESIGN_MASK_INVALID",
+    "RELIEF_DESIGN_DOMAIN_NONMANIFOLD",
+    "RELIEF_DESIGN_DOMAIN_EMPTY",
+    "RELIEF_DESIGN_DOMAIN_TOPOLOGY_CHANGED",
+    "RELIEF_DESIGN_BASE_INTERSECTION"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -450,6 +474,17 @@
           null,
           null
         ]
+      },
+      "domainMask": {
+        "meaning": "Optional retained-domain mask: one 0/1 byte per sample, row zero +Y; masked grids are bounded to 129 per axis. Complete active cells are retained, holes remain open, and sampled boundaries are not exact analytic circles.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       },
       "sculpt": {
         "meaning": "sculpt: 高度图浮雕 / Heightfield relief",
@@ -623,6 +658,31 @@
         "code": "RELIEF_EDIT_CAPACITY",
         "when": "三角面、受影响顶点或空间查询超出已声明预算",
         "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
+      },
+      {
+        "code": "RELIEF_DESIGN_MASK_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "RELIEF_DESIGN_DOMAIN_NONMANIFOLD",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "RELIEF_DESIGN_DOMAIN_EMPTY",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "RELIEF_DESIGN_DOMAIN_TOPOLOGY_CHANGED",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "RELIEF_DESIGN_BASE_INTERSECTION",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       }
     ],
     "examples": {
@@ -780,6 +840,31 @@
       "code": "RELIEF_EDIT_CAPACITY",
       "when": "三角面、受影响顶点或空间查询超出已声明预算",
       "recovery": "降低来源网格规模或缩小明确的局部编辑范围"
+    },
+    {
+      "code": "RELIEF_DESIGN_MASK_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "RELIEF_DESIGN_DOMAIN_NONMANIFOLD",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "RELIEF_DESIGN_DOMAIN_EMPTY",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "RELIEF_DESIGN_DOMAIN_TOPOLOGY_CHANGED",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "RELIEF_DESIGN_BASE_INTERSECTION",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     }
   ],
   "routing": {
@@ -880,5 +965,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:074c51d086b5c6719713cef83d939df6a7cdfce34216054eadc53a0e5bb99355"
+  "docsHash": "sha256:4752e44f9581fc3148e65349480822e0990515282c7d7f0431cd2db8dae3fef8"
 }

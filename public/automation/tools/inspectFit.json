@@ -2,7 +2,7 @@
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.55.0",
+  "version": "1.55.1",
   "contextPolicy": "identity",
   "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
   "synonyms": [
@@ -74,5 +74,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:92c3f90b08f4ead92bd0bbf5275b65786512b6776f474cdc40bf099b5ec504b9"
+  "docsHash": "sha256:77abb8d7b141b882a4c16388e8520cb28972872ea44f88e1b10b94bbc3a6bbc6"
 }

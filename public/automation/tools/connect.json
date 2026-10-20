@@ -2,7 +2,7 @@
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.55.0",
+  "version": "1.55.1",
   "contextPolicy": "none",
   "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
@@ -75,5 +75,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:4b5ff116d0aebf1634ac948b47dfcfe8322055dcce66d084d863da7ad06733ad"
+  "docsHash": "sha256:4c2267741860133d8498fc70f48ee09b089519eeba495cd1bcdad88e093d0df2"
 }

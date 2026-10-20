@@ -2,7 +2,7 @@
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.55.0",
+  "version": "1.55.1",
   "contextPolicy": "identity",
   "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
   "synonyms": [
@@ -108,5 +108,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:67e67b15db933d9488cb769e3543917692a4f2a1ad6d90457356849300c51e31"
+  "docsHash": "sha256:70795749cf0606f404703797beabfb68171437502ef96aedb1eb8fdbd2d128c5"
 }

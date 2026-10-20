@@ -29,7 +29,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  scroller.append(top,form);
  const points=section('高度点','每行：X Y 高度（mm），用空格或逗号分隔。点必须避开孔和保护区。');points.wrap.open=true;
  const holes=section('贯穿孔','每行：圆 X Y 半径，或 矩形 X Y 宽 高（mm）。留空表示没有孔。',3);
- const zones=section('保护区','使用与孔相同的格式。区域记录设计意图，后续求解器须保留这些限制。',3);
+ const zones=section('保护区','使用与孔相同的格式。区域保持本草稿最低设计高度；不是冻结已有模型的曲面。',3);
  const canvas=element('canvas',{width:640,height:240,'aria-label':'支撑范围和人工高度点示意'});
  canvas.style.cssText='width:100%;height:auto;max-height:240px;border:1px solid var(--border);margin-top:12px';
  scroller.append(canvas);
@@ -44,7 +44,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
   if(busy)return;
   if(!loaded||dirty){status.textContent='请先保存当前修改，再求解同工程草稿。';return;}
   busy=true;solve.disabled=save.disabled=true;cancel.disabled=false;generate.disabled=true;status.textContent='正在有界 Worker 中求解…';
-  try{const result=await window.webcad.api.reliefDesignField(request('solve',{options:{columns:Number(resolution.value),rows:Number(resolution.value)}}));if(result.status!=='solved')throw new Error(result.error?.message||'未得到数值场');fieldResult=result;drawField(result);const r=result.report.solver;status.textContent=`数值场 ${result.field.columns}×${result.field.rows}；实际投影残差 ${r.projectedResidualMm} mm；${r.iterations} 次迭代。孔为保守排除单元，保护区保持初始高度。`;const c=await window.webcad.api.reliefDesignField(request('candidate',{baseMm:Number(base.value)}));generate.disabled=c.status!=='candidate';if(c.blockers?.length)status.textContent+=' 几何阻断：'+c.blockers.join('、');}
+  try{const result=await window.webcad.api.reliefDesignField(request('solve',{options:{columns:Number(resolution.value),rows:Number(resolution.value)}}));if(result.status!=='solved')throw new Error(result.error?.message||'未得到数值场');fieldResult=result;drawField(result);const r=result.report.solver;status.textContent=`数值场 ${result.field.columns}×${result.field.rows}；实际投影残差 ${r.projectedResidualMm} mm；${r.iterations} 次迭代。孔为保守排除单元，保护区保持初始高度。`;const c=await window.webcad.api.reliefDesignField(request('candidate',{baseMm:Number(base.value)}));generate.disabled=c.status!=='candidate';if(c.blockers?.length)status.textContent+=' '+c.blockers.map(code=>humanError({code})).join(' ');else if(c.domainReport)status.textContent+=` 边界为采样折线，近似界 ${c.domainReport.boundaryApproximationBoundMm.toFixed(3)} mm；保留 ${c.domainReport.holeCount} 个贯穿孔。`;}
   catch(e){status.textContent=humanError(e);}finally{busy=false;solve.disabled=save.disabled=false;cancel.disabled=true;}
  }
  function drawField(result){
@@ -55,7 +55,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  }
  async function generateMesh(){
   if(busy||dirty||!fieldResult)return;busy=true;generate.disabled=true;
-  try{const api=window.webcad.api,c=await api.reliefDesignField(request('candidate',{baseMm:Number(base.value)}));if(c.status!=='candidate')throw new Error(c.error?.message||c.blockers?.join('、')||'候选失效');const result=await onGenerate(c.args);if(result.status!=='committed')throw new Error(result.error?.message||'网格未提交');initial=getState();status.textContent='已生成真实封闭三角网格；可导出 STL。不是精确 BRep/STEP；保存工程保留实际高度样本与设计草稿。';fieldResult=null;}
+  try{const api=window.webcad.api,c=await api.reliefDesignField(request('candidate',{baseMm:Number(base.value)}));if(c.status!=='candidate')throw Object.assign(new Error('请重新核对设计候选'),{code:c.blockers?.[0]||c.error?.code||'RELIEF_DESIGN_STALE'});const result=await onGenerate(c.args);if(result.status!=='committed')throw new Error(result.error?.message||'网格未提交');initial=getState();status.textContent='已生成真实封闭三角网格；可导出 STL。不是精确 BRep/STEP；保存工程保留实际高度样本与设计草稿。';fieldResult=null;}
   catch(e){status.textContent=humanError(e);}finally{busy=false;}
  }
  function values(line){return line.trim().split(/[\s,，]+/);}

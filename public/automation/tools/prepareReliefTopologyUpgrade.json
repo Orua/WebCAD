@@ -2,7 +2,7 @@
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.55.0",
+  "version": "1.55.1",
   "contextPolicy": "identity",
   "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
   "synonyms": [
@@ -97,5 +97,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:cc43957f274b5349ae9d1c618b6cad4502d0fa24b7a8a716144587ff0d6115d7"
+  "docsHash": "sha256:b2c749a8f5fbaad07836b029ad2aa3a202f8ac9ad37f55422f69234ecdbb4681"
 }

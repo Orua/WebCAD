@@ -2,7 +2,7 @@
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.55.0",
+  "version": "1.55.1",
   "contextPolicy": "none",
   "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
   "synonyms": [
@@ -75,5 +75,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:38a35439eb3d81b9ea2202bf788a3fbb3bf85622b65652b83aca1a1ba1de7f61"
+  "docsHash": "sha256:15e2315663949dc4cdbd41578c9080c760c9900db4a993bee7c779e2691ff853"
 }
