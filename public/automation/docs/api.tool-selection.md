@@ -272,6 +272,7 @@
 - getQuickModelUsage：只读本浏览器已成功创建次数，非产品覆盖率。
 
 ## 执行、批次与异步作业
+- getBatchReceipt：用原 idempotencyKey 和 documentInstanceId 只读查批次回执；不重发几何，不等同 getJob 查询异步作业。
 - execute：提交一个明确 action 的命令；不接收任意脚本。
 - run：按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。
 - invoke：公开方法的结构化调用封装；不是任意函数/代码执行。
@@ -296,6 +297,7 @@
 - recoverServicesJob：按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。
 - getLogoConverter：旧配置读取兼容入口，委托统一 Services；不是独立授权。
 - setLogoConverter：已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。
+- readLogo：从已登记的图片或矢量文件取得待复核的闭合轮廓；JPG/PNG描摹需要实际毫米宽度和明确上传授权，不把照片光影当作深度。
 - convertLogoPdf：通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。
 
 ## 助手面板
@@ -326,6 +328,8 @@
 - exportDrawing：导出已有 drawingId 的 PDF/JPG/DXF/SVG，不导出三维实体。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+readLogo: contextPolicy=identity
+getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity

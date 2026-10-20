@@ -2,7 +2,7 @@
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "none",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
@@ -76,5 +76,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:872446e1e1f10f38e5b1bef7525023509ce27f65212cc13412ca3c1b213ce195"
+  "docsHash": "sha256:00df67fb60de77d335b3b13742f82b579f2e8308a4707baab8d58621d6caf0b1"
 }

@@ -48,6 +48,8 @@ namespace WebCADServices.Gateway
                 }
                 if (request.HttpMethod == "OPTIONS") { if (string.IsNullOrEmpty(origin)) throw new ServiceError("ORIGIN_FORBIDDEN", "Origin is required", 403);response.StatusCode = 204;return; }
                 string header = request.Headers["Authorization"],credential = header != null && header.StartsWith("Bearer ", StringComparison.Ordinal) ? header.Substring(7) : null;
+                string websiteToken=request.Headers["X-WebCAD-Website-Token"];
+                if(!string.IsNullOrEmpty(websiteToken)){WebsiteAuthorization.Require(websiteToken,request.HttpMethod);credential=IisRuntime.ConfiguredCredential();}
                 if (string.IsNullOrEmpty(credential)) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
                 var runtime = IisRuntime.Get(credential);
                 var authorized = runtime.Handle(new WireRequest { Method = "GET", Route = "/v1/health", Credential = credential });
@@ -95,14 +97,17 @@ namespace WebCADServices.Gateway
             lock (Gate)
             {
                 if (current != null) return current.runtime;
-                string token = ConfigurationManager.AppSettings["WebCAD.Credential"] ?? ConfigurationManager.AppSettings["COAKey"];
-                string file = ConfigurationManager.AppSettings["WebCAD.CredentialFile"];
-                if (!string.IsNullOrEmpty(file)) { byte[] plain = ProtectedData.Unprotect(File.ReadAllBytes(file), null, DataProtectionScope.LocalMachine);try { token = Encoding.UTF8.GetString(plain); } finally { Array.Clear(plain, 0, plain.Length); } }
-                if (string.IsNullOrEmpty(token) || token.Length < 32) throw new ServiceError("AUTH_CONFIG_REQUIRED", "Configure the Services authorization", 503);
+                string token=ConfiguredCredential();
                 byte[] a = Encoding.UTF8.GetBytes(token),b = Encoding.UTF8.GetBytes(supplied ?? "");int diff = a.Length ^ b.Length;for (int i = 0;i < a.Length;i++) diff |= a[i] ^ (i < b.Length ? b[i] : 0);
                 if (diff != 0) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
                 current = new IisRuntime(token);return current.runtime;
             }
+        }
+        internal static string ConfiguredCredential()
+        {
+            string token=ConfigurationManager.AppSettings["WebCAD.Credential"]??ConfigurationManager.AppSettings["COAKey"],file=ConfigurationManager.AppSettings["WebCAD.CredentialFile"];
+            if(!string.IsNullOrEmpty(file)){byte[] plain=ProtectedData.Unprotect(File.ReadAllBytes(file),null,DataProtectionScope.LocalMachine);try{token=Encoding.UTF8.GetString(plain);}finally{Array.Clear(plain,0,plain.Length);}}
+            if(string.IsNullOrEmpty(token)||token.Length<32)throw new ServiceError("AUTH_CONFIG_REQUIRED","Configure the Services authorization",503);return token;
         }
         public void Stop(bool immediate) { if (Interlocked.Exchange(ref disposed, 1) != 0) return;try { runtime.Dispose(); } finally { HostingEnvironment.UnregisterObject(this); } }
     }

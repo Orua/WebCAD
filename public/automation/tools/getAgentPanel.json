@@ -2,7 +2,7 @@
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "none",
   "description": "getAgentPanel()",
   "synonyms": [
@@ -34,5 +34,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:7a8fb0f5c9d885252535d9a5a5de75a01d8416fce2fe53803be09b642cc11f40"
+  "docsHash": "sha256:1f32c86eed827edb976c403027d16523c9281d3bdb3df50dc2c753e941093938"
 }

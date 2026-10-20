@@ -452,6 +452,9 @@
   },
   "docs": "api.refine",
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
   "selectionGuide": {
     "groupId": "booleans-organize",
@@ -505,5 +508,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:d80eb42372b861239f7a620721f7e59f0294db23a7219c69b443b3e5cc4a0b83"
+  "docsHash": "sha256:07a141b07bfac38f7034fcd56622e712328b963161c0131a9b416b8069fb2156"
 }

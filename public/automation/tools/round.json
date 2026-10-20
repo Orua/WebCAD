@@ -706,6 +706,9 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
   "selectionGuide": {
     "groupId": "rounding",
@@ -755,5 +758,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:044ff88685f033b7a2a9444835e9c7c7850e3a549624e233ab6b101dbda0b858"
+  "docsHash": "sha256:e2354c8a20cd1ae2652cc0e14c479c6c0ea5c0f70e14befa920b23477b991d5d"
 }

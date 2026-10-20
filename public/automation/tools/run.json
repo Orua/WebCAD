@@ -2,7 +2,7 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "revision",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
   "synonyms": [
@@ -39,6 +39,10 @@
     "chooseWhen": "按顺序执行有界批次；非原子，前面成功项保留；错误项按原回执处理。",
     "alternatives": [
       {
+        "id": "getBatchReceipt",
+        "chooseWhen": "用原 idempotencyKey 和 documentInstanceId 只读查批次回执；不重发几何，不等同 getJob 查询异步作业。"
+      },
+      {
         "id": "execute",
         "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
       },
@@ -73,5 +77,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:68bb0ca3f5acace375793626107ea776b16370b1f627a733f864f972a840a42d"
+  "docsHash": "sha256:615221efbf5bb0fe46da6b3327e351906a00adec75e6d1e0a2a68ce4088db03b"
 }

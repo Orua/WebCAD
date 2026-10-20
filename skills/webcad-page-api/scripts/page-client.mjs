@@ -6,7 +6,7 @@ const files=new Set(['capabilities','register','new','open','import','save','exp
 for(const name of ['getModelLibrary','updateModelLibrary','resolveModelLibrary'])methods.add(name);
 for(const name of ['getServices','setServices','getServicesCapabilities','clearServicesCredential','getServicesJob','getServicesRequest','getServicesRouting','decideServicesWait','prepareReliefTopologyUpgrade','recoverServicesJob','cancelServicesJob','sampleReliefHeight','prepareReliefSculpt','inspectRound'])methods.add(name);
 for(const name of ['confirmWritten','reattach'])files.add(name);
-for(const name of ['recoverKernel','sampleMeshRelief','waitFor','probeBlendRadius'])methods.add(name);
+for(const name of ['getBatchReceipt','recoverKernel','sampleMeshRelief','waitFor','probeBlendRadius'])methods.add(name);
 export const PAGE_CLIENT_METHODS=Object.freeze([...methods]);
 export const PAGE_CLIENT_FILE_METHODS=Object.freeze([...files]);
 function failure(code,message,details={}){return Object.assign(new Error(message),{code,...details});}
@@ -51,7 +51,7 @@ export function createPageClient({send,knowledge,keyFactory=()=>{if(!globalThis.
     try{return await call('run',request);}
     catch(cause){throw failure('UNKNOWN_OUTCOME','The batch may have committed. Read current state and the original receipt before any retry.',{cause,outcome:'unknown',request,idempotencyKey:key,recovery:'READ_STATE_AND_REPLAN'});}
   }
-  return Object.freeze({call,connect,run,getState:()=>call('getState'),readDocs:(docId,options={})=>call('readDocs',{docId,...options}),getTools:(ids,options={})=>call('getTools',{ids,...(catalogHash?{expectedCatalogHash:catalogHash}:{}),...options}),
+  return Object.freeze({call,connect,run,getBatchReceipt:request=>call('getBatchReceipt',{idempotencyKey:request.idempotencyKey,documentInstanceId:request.context.documentInstanceId}),getState:()=>call('getState'),readDocs:(docId,options={})=>call('readDocs',{docId,...options}),getTools:(ids,options={})=>call('getTools',{ids,...(catalogHash?{expectedCatalogHash:catalogHash}:{}),...options}),
     route:async(query,options)=>{const {routeKnowledge}=await import('./knowledge-cache.mjs');return routeKnowledge(knowledgeCache,query,options);},
     planSource:async(brief,options)=>{const {routeProductSource}=await import('./knowledge-cache.mjs');return routeProductSource(knowledgeCache,brief,options);},
     readLocal:async options=>{const {readLocalKnowledge}=await import('./knowledge-cache.mjs');return readLocalKnowledge(knowledgeCache,options);}});

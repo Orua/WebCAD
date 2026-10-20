@@ -656,6 +656,9 @@
     "previewSupported": true
   },
   "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
   "selectionGuide": {
     "groupId": "extrusion",
@@ -685,5 +688,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:8e3bd125d95c33e4fbcaa137ee4cdf0d1c846d3d196f7cf477206e2e2982d126"
+  "docsHash": "sha256:78fd35ed1896b6b9bbd3b88d9572744c355373edacc223bd379a993db4917aef"
 }

@@ -272,10 +272,16 @@
   },
   "logo": {
     "tools": [
-      "logo"
+      "readLogo",
+      "logo",
+      "getServices",
+      "getServicesCapabilities",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel"
     ],
     "method": "execute",
-    "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    "usage": "独立LOGO向导：登记原文件、readLogo读取轮廓；位图明确宽度及上传授权，复核后设置source.reviewed=true，再指定目标面、三维放置点、雕刻深度，预览或直接应用。"
   },
   "meshBoolean": {
     "tools": [
@@ -1408,6 +1414,8 @@
 }
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+readLogo: contextPolicy=identity
+getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity

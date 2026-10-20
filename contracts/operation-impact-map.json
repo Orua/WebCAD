@@ -1,5 +1,32 @@
 {
   "version": 1,
+  "sliderJunctionChoices20261020": {
+    "localImpact": "Three source-derived junction pictures in the quick-model dialog; source1 fixed-R original patches use the existing source-preserving assembly. Equal-wire UI values are explicit before commit. R remains wireDiameter/4; independent 3D R is marked improving",
+    "servicesImpact": "none; quickModel stays local WASM; no compute runtime or authorization changes in this delta",
+    "logoImpact": "none; this delta changes only slider buckle junctions",
+    "contractImpact": "template.sliderBuckle sourceFixedR plus sourceJunctionReport; original sourceFree readback retained; public API has the same three style choices and units as UI",
+    "documentImpact": "Original intersection defaults and existing recipes retained; source junction report persists through placement, body readback and checkpoints; required source cells ship as runtime source",
+    "cacheImpact": "Rebuild matching frontend and static knowledge; no project or settings changes",
+    "requiredTests": ["Only slider source1/source2/source3 kernel checks", "source1 real STEP material comparison", "one 17674 picture-choice/create/readback check"]
+  },
+  "sourceFreeJunction20261020": {
+    "localImpact": "Reuse both original trimmed NURBS junctions from supplied 3.stp; rebuild only straight circular runs and frame corners; uniform wire scaling preserves the source blend and local bulge; sew with matched closed circular boundaries instead of Boolean rewriting",
+    "servicesImpact": "none; bounded deterministic quick-model assembly remains local WASM, no native runtime or authorization changes",
+    "logoImpact": "none; no LOGO or relief changes",
+    "contractImpact": "Page API 1.53.1 template.sliderBuckle jointStyle sourceFree; sourceFreeJunctionReport records source hash, exact source-shaped semantics, nominal wire versus local thickness and inherited frame/bar offset",
+    "documentImpact": "Ordinary quickModel recipe retains sourceFree parameters; immutable required source cells ship in program; reports survive placement and compiled checkpoints; prior styles/defaults unchanged",
+    "cacheImpact": "Regenerate public tool cards and static knowledge hashes; preserve current documents and user settings",
+    "requiredTests": ["source3 original versus reconstructed bidirectional material difference", "tests/source-free-junction.test.mjs", "one source3 17674 page commit/render check"]
+  },
+  "coreTools20261020": {
+    "localImpact": "Restore LAN HTTP worker topology fingerprints and LOGO placement; modal import/review/engrave workflow; add exact planar-R equal-wire slider junction matching supplied source 2; retain today's recovery and catalog changes",
+    "servicesImpact": "Restore deployment defaults via existing signed website identity and public-key-verified compute proxy; dedicated credential remains in its protected Gateway runtime. Restore already accepted Native binary/proof without changing algorithms; preserve jobs and custom bearer authorization",
+    "logoImpact": "Shared image/vector reader exposed to AI; explicit raster width/upload consent and reviewed contour gate; inline import errors",
+    "contractImpact": "Page API 1.53.0 readLogo and safe read-only compute discovery; authMode siteSession; Agent allowlists synchronized",
+    "documentImpact": "none; existing projects, source glyphs, checkpoints and topology revision guards retained",
+    "cacheImpact": "Rebuild public knowledge and host permission catalog; preserve all user configuration and project data",
+    "requiredTests": ["LAN worker real BRep topology and LOGO target without SubtleCrypto", "LOGO file conversion and engraving", "compute authorization and settings", "Agent method categories", "17674 focused wizard and real model review"]
+  },
   "catalogHistoryCompatibility20261019": {
     "localImpact": "Classify the entire public tool catalog into explicit comparison families; preserve timeline consistency when non-user rebuilds regenerate checkpoints or metadata",
     "servicesImpact": "none; no backend algorithm, dispatcher or authorization changes",
@@ -7,7 +34,15 @@
     "contractImpact": "Page API 1.52.3 adds selectionGuide to all tool cards and discovery results, api.tool-selection docs, and host forwarding of full selection criteria; no new execution gate",
     "documentImpact": "Normalize missing legacy metadata with a retained history transition; preserve v1/v2 JSON and v3/v4 source assets, undo/redo and bounded history; reject genuine missing resources or inconsistent geometry",
     "cacheImpact": "Regenerate knowledge, catalog and docs hashes; use one verified candidate package on 17674; 113/production remain pending authorization",
-    "requiredTests": ["entire-catalog classification and comparison references", "native catalog selection forwarding", "legacy v1-v4 cold open/restore/edit/save", "100-state pruning and branch", "import source retention", "checkpoint regeneration on open/undo/refresh", "17674 single focused browser acceptance"]
+    "requiredTests": [
+      "entire-catalog classification and comparison references",
+      "native catalog selection forwarding",
+      "legacy v1-v4 cold open/restore/edit/save",
+      "100-state pruning and branch",
+      "import source retention",
+      "checkpoint regeneration on open/undo/refresh",
+      "17674 single focused browser acceptance"
+    ]
   },
   "keyringHistory20261019": {
     "localImpact": "Bake pending rebuild checkpoints without recording them against the old timeline; record the complete transaction once at commit",
@@ -16,7 +51,13 @@
     "contractImpact": "Clarify similar template names and key ring aliases; native Agent receives discovery summaries for every verified tool ID and reads full candidate cards before execution",
     "documentImpact": "Preserve history validation, previous states and source assets; fix adding a checkpointed feature and allow removing the mistaken feature",
     "cacheImpact": "Regenerate catalog and docs hashes; 113 runtime remains unchanged until authorized release",
-    "requiredTests": ["keyring-history", "local-checkpoint", "tool-discovery", "native resident catalog", "17674 targeted browser check"]
+    "requiredTests": [
+      "keyring-history",
+      "local-checkpoint",
+      "tool-discovery",
+      "native resident catalog",
+      "17674 targeted browser check"
+    ]
   },
   "uiLayout20261019": {
     "localImpact": "Anchor the assistant resize indicator to its separator; keep selection and move controls visible without overlapping labels",
@@ -25,7 +66,12 @@
     "contractImpact": "Reuse existing selectTool, selectMode, transform and assistant layout APIs; no new user operation",
     "documentImpact": "none; document, history and user settings preserved",
     "cacheImpact": "Rebuild frontend and update host asset cache versions",
-    "requiredTests": ["panel-layout", "17674 toolbar selection and move", "host composer width and separator alignment", "formal endpoint identity hashes"]
+    "requiredTests": [
+      "panel-layout",
+      "17674 toolbar selection and move",
+      "host composer width and separator alignment",
+      "formal endpoint identity hashes"
+    ]
   },
   "stabilityRecovery20261018": {
     "localImpact": "Preserve committed projects through transport, worker and recovery failures; recovery controls remain reachable during Agent control; mesh boolean rebases Float32 operands with an explicit quantization gate",
@@ -2610,5 +2656,22 @@
     "servicesImpact": "none: all quick models remain local WASM",
     "cacheImpact": "regenerate static previews and public tool/docs hashes",
     "logoImpact": "none"
+  },
+  "reportRemediation20261020": {
+    "localImpact": "Recover a trapped WASM Worker once from the committed document without replaying the candidate; preserve not_committed across recovery revision changes; drain camera inertia; report SubD cage brush hits and orientation conflicts",
+    "servicesImpact": "none; read-only receipt lookup is included in browser Agent protocol; no Services algorithm/runtime/authorization changes",
+    "logoImpact": "none; no glyph, placement or conversion behavior changes",
+    "contractImpact": "Page API 1.52.4: getBatchReceipt keyed by original key + documentInstanceId, helper lookup, explicit placement/replacement/unknown/undo/SubD guidance and parameter errors",
+    "documentImpact": "No format changes; failed candidate remains uncommitted; recovery rebuilds committed history and invalidates old revision-local topology",
+    "cacheImpact": "Regenerate catalog/docs/static knowledge hashes; host cache refresh required",
+    "requiredTests": [
+      "tests/report-regressions.test.mjs",
+      "tests/page-api.test.mjs",
+      "tests/page-batch.test.mjs",
+      "tests/subd-integration.test.mjs",
+      "tests/agent-recovery-save.test.mjs",
+      "tests/agent-protocol.test.mjs",
+      "one targeted 17674 browser check"
+    ]
   }
 }

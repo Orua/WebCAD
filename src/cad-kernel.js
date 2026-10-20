@@ -91,7 +91,7 @@ function placeCreation(shape,placement){
   if(axisLength>1e-12){const rotated=out.rotate(2*Math.atan2(axisLength,w)*180/Math.PI,[0,0,0],[x/axisLength,y/axisLength,z/axisLength]);dispose(out);out=rotated;}
   const translated=out.translate(...frame.origin);dispose(out);
   if(shape.chainReport)translated.chainReport=shape.chainReport;
-  for(const key of ['ellipsoidReport','guidedLoftReport','subdApproximation','loftReport','variationReport','blendRadiusReport','radiusSearchReport','warnings'])if(shape[key]!==undefined)translated[key]=shape[key];
+  for(const key of ['ellipsoidReport','guidedLoftReport','subdApproximation','loftReport','variationReport','blendRadiusReport','radiusSearchReport','sourceFreeJunctionReport','sourceJunctionReport','warnings'])if(shape[key]!==undefined)translated[key]=shape[key];
   if(shape.threadReport){const r=shape.threadReport;translated.threadReport={...r,axisOrigin:worldPoint(frame,r.axisOrigin.map((v,i)=>v-sourcePoint[i])),axisDirection:rotateVector(frame.quaternion,r.axisDirection),coordinateSystem:'world'};}
   return translated;
 }
@@ -183,7 +183,8 @@ function applyTransform(shape, p) {
     if(!['relative','absolute'].includes(mode))throw new Error('移动模式必须是 relative 或 absolute');
     const target=['x','y','z'].map(k=>finite(p,k));
     if(mode==='absolute'){
-      if(['x','y','z'].some(k=>typeof p[k]!=='number'||!Number.isFinite(p[k])))throw new Error('绝对位置必须明确填写 X、Y、Z');
+      const missing=['x','y','z'].filter(k=>typeof p[k]!=='number'||!Number.isFinite(p[k]));
+      if(missing.length)throw Object.assign(new Error(`绝对位置必须明确填写 X、Y、Z；缺少或无效：${missing.join(', ')}；收到字段：${Object.keys(p).join(', ')}`),{code:'PARAM_SCHEMA_INVALID',path:`args.params.${missing[0]}`});
       const box=out.boundingBox;
       try{const [min,max]=box.bounds;return out.translate(...target.map((v,i)=>v-(min[i]+max[i])/2));}finally{dispose(box);}
     }
@@ -274,7 +275,12 @@ export class CadKernel {
       case 'bumpSet': return buildBumpSet(source(),p,feature.id,refs[0]);
       case 'ellipsoid': return buildEllipsoid(p,cad);
       case 'guidedLoft': return buildBoundGuidedLoft(feature,shapes,historyFeatures,cad);
-      case 'subdBody': return buildSubdBRep({...p,cage:applySubdBrushes(p.cage,p.brushes)},cad);
+      case 'subdBody': {
+        const brushed=applySubdBrushes(p.cage,p.brushes),shape=buildSubdBRep({...p,cage:brushed},cad);
+        shape.subdApproximation.brushReport=brushed.brushReport;
+        shape.warnings=brushed.brushReport.flatMap(item=>item.warning?[item.warning]:[]);
+        return shape;
+      }
       case 'quickModel': return buildQuickModel(p, cad, {oc:this.oc,roundAll:(shape,radius)=>buildSmoothTransition(shape,{radius,allEdges:true})});
       case 'advancedLoft': return buildAdvancedLoft(p,cad);
       case 'curveSweep': return buildCurveSweep(p,cad);
@@ -838,6 +844,8 @@ export class CadKernel {
       if(shape.ellipsoidReport)measured.ellipsoidReport=shape.ellipsoidReport;
       if(shape.blendRadiusReport)measured.blendRadiusReport=shape.blendRadiusReport;
       if(shape.radiusSearchReport)measured.radiusSearchReport=shape.radiusSearchReport;
+      if(shape.sourceFreeJunctionReport)measured.sourceFreeJunctionReport=shape.sourceFreeJunctionReport;
+      if(shape.sourceJunctionReport)measured.sourceJunctionReport=shape.sourceJunctionReport;
       if(shape.warnings)measured.warnings=shape.warnings;
       if(shape.subdApproximation)measured.subdApproximation=shape.subdApproximation;
       measured.displayReport.missingAreaMm2=measured.displayReport.untriangulatedFaceIds.reduce((sum,i)=>sum+cad.measureArea(faces[i]),0);
@@ -992,8 +1000,7 @@ export class CadKernel {
       if(!Number.isInteger(faceId)||faceId<0||!faces[faceId])throw new Error('目标面已失效，请重新选面');
       const face=faces[faceId],center=face.center;
       let point;try{point=center.toTuple();}finally{dispose(center);}
-      const bytes=new TextEncoder().encode(shape.serialize()),digest=await crypto.subtle.digest('SHA-256',bytes);
-      return {bodyId,faceId,geomType:face.geomType,areaMm2:cad.measureArea(face),center:point,stableFaceSignature:logoFaceSignature(face,cad),geometryFingerprint:'brep-sha256:'+Array.from(new Uint8Array(digest),value=>value.toString(16).padStart(2,'0')).join('')};
+      return {bodyId,faceId,geomType:face.geomType,areaMm2:cad.measureArea(face),center:point,stableFaceSignature:logoFaceSignature(face,cad),geometryFingerprint:await this.geometryFingerprint(shape)};
     }finally{faces.forEach(dispose);}
   }
   async queryGeometry(bodyId, kind, filter = {}) {
@@ -1048,8 +1055,7 @@ export class CadKernel {
   }
   async geometryFingerprint(shape){
     const bytes = new TextEncoder().encode(shape.serialize());
-    const digest = await crypto.subtle.digest('SHA-256', bytes);
-    return 'brep-sha256:' + Array.from(new Uint8Array(digest), value => value.toString(16).padStart(2, '0')).join('');
+    return 'brep-sha256:' + binaryHash(bytes).slice(7);
   }
   async nearestGeometry(bodyId,kind,point,options={}){
     const shape=this.activeShape(bodyId),items=nearestBrepReferences(shape,this.oc,kind,point,options);

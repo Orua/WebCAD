@@ -107,7 +107,7 @@ function createWorker(){
     job.progress=kernelProgress;
     if(result.progress.kind==='rebuild'){const p=result.progress;if(p.partial){try{viewport.addProgressiveMesh(p.partial);}catch{}delete p.partial;}const fraction=loadingTracker.update(p);if(busy)ui.setBusyProgress?.(fraction);return;}
     return;
-  }clearTimeout(job.timer);pending.delete(result.requestId);kernelProgress=null;if(!result.ok)viewport.setErrorPoints(result.details?.pointsMm||[]);if(result.ok)job.resolve(result);else job.reject(Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report,details:result.details}));};
+  }clearTimeout(job.timer);pending.delete(result.requestId);kernelProgress=null;if(!result.ok)viewport.setErrorPoints(result.details?.pointsMm||[]);if(result.ok)job.resolve(result);else {const error=Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report,details:result.details});if(kernelFailure(error))kernelReady=false;job.reject(error);}};
   instance.onerror=event=>{if(instance!==worker)return;const error=Object.assign(new Error(event.message||'CAD 内核异常，请保存工程后刷新页面。'),{code:'KERNEL_CRASHED'});rejectPending(error);kernelReady=false;ui?.showError(error.message);};
   instance.onmessageerror=()=>{if(instance!==worker)return;const error=Object.assign(new Error('CAD Worker 消息无法解码；已提交工程仍保留，请恢复内核后继续。'),{code:'WORKER_MESSAGE_ERROR',commitState:'not_committed'});rejectPending(error);instance.terminate();kernelReady=false;worker=createWorker();refresh();};
   return instance;
@@ -305,8 +305,8 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  if(!servicesAvailable||!classification.complex&&!explicitRemote||classification.input.routingClass==='local-only'||classification.input.capacityGate==='bounded-local-mesh-contract'){
   const decision=chooseExecutor(base);publish(decision);
   if(decision.executor==='blocked')throw serviceError('SERVICES_OPERATION_UNAVAILABLE',decision.reason);
-  if(explicitRemote&&classification.input.routingClass==='local-only')throw serviceError('SERVICES_OPERATION_UNAVAILABLE','本工具固定使用本地计算，无需 Services 精确计算。');
-  if(explicitRemote&&!servicesAvailable)throw serviceError('SERVICES_CONFIG_REQUIRED','先配置并启用 Services');return {next};
+  if(explicitRemote&&classification.input.routingClass==='local-only')throw serviceError('SERVICES_OPERATION_UNAVAILABLE','本工具固定使用本地计算，无需后台精确计算。');
+  if(explicitRemote&&!servicesAvailable)throw serviceError('SERVICES_CONFIG_REQUIRED','先连接并启用后台计算');return {next};
  }
  if(!remotePlacementSupported(feature))throw serviceError('SERVICES_OPERATION_UNAVAILABLE','此复杂操作的放置尚未由原生服务器支持，请明确使用已支持的世界坐标语义；不会回退本地。');
  try{assertCompilableFeature(feature);}catch(error){throw serviceError('SERVICES_OPERATION_UNAVAILABLE','此复杂操作尚未由原生服务器实现：'+error.message,{operation:feature.op});}
@@ -334,7 +334,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
   if(busy)throw new Error('当前操作尚未完成，请稍候。');
   if(!kernelReady)throw new Error('建模内核尚未就绪。');
   setBusy(true,'正在计算精确实体…');
-  let routed=null,localBegan;
+  let routed=null,localBegan,committed=false;
   try{
     checkTransaction(signal,expectedRevision);
     // Non-user rebuilds (open/undo/refresh/recovery) may refresh checkpoints or
@@ -379,7 +379,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     try{if(record)pushUndo(next,historyLabel);else {recordTimeline(rebuildBaseline,next,{label:'保留恢复后的重建状态'});validateTimeline(next);assertDocumentCapacity(next);}}
     catch(error){await request('rebuild',{document:documentModel});throw error;}
     if(newInstance||documentModel.documentId!==next.documentId){documentInstanceId=crypto.randomUUID();projectFileHandle=null;}
-    documentModel=next;bodies=result.bodies;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;
+    documentModel=next;bodies=result.bodies;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;committed=true;
     kernelPerformance={totalMs:performance.now()-localBegan,...(result.parallelRebuild?{parallelRebuild:result.parallelRebuild}:{}),perFeatureMs:result.perFeatureMs||[],compiledReuse:result.compiledReuse||[],compiledInvalidated:result.compiledInvalidated||[],slowest:(result.perFeatureMs||[]).slice().sort((a,b)=>b.ms-a.ms).slice(0,10)};
     for(const feature of newQuickModels)recordQuickModelUse(feature.params.kind);
     lastWarnings=bodyWarnings(bodies);if(placementWarning)lastWarnings.push(placementWarning);dirty=true;if(save)void autosave(); // selection-origin
@@ -395,9 +395,20 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     // and the command acknowledgement, so a late abort cannot claim rollback.
     try{viewport.setErrorPoints([]);ui.clearErrors();const warning=lastWarnings.find(w=>w.code==='DISPLAY_INCOMPLETE'||w.code==='DISPLAY_VOLUME_MISMATCH');setStatus(warning?warning.message:`就绪 · ${formatBodyCount(bodies)}`);}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
     if(routed?.record)servicesExecutionHistory.success(routed.record.input,routed.record.executor,routed.record.executor==='local'?{totalMs:performance.now()-localBegan}:routed.record.measurements);
-    if(lastServicesDecision?.documentInstanceId===documentInstanceId&&lastServicesDecision.revision===revision-1){lastServicesDecision.revision=revision;setStatus(`就绪 · ${lastServicesDecision.executor==='remote'?'Services':'本地'} · ${lastServicesDecision.reason}`);}
+    if(lastServicesDecision?.documentInstanceId===documentInstanceId&&lastServicesDecision.revision===revision-1){lastServicesDecision.revision=revision;setStatus(`就绪 · ${lastServicesDecision.executor==='remote'?'后台':'本地'} · ${lastServicesDecision.reason}`);}
     return result;
-  }catch(error){viewport.clearProgressiveMesh?.();if(routed?.record)servicesExecutionHistory.failure(routed.record.executionKey,error);throw error;}
+  }catch(error){
+    viewport.clearProgressiveMesh?.();
+    if(routed?.record)servicesExecutionHistory.failure(routed.record.executionKey,error);
+    // A caught WASM trap can leave the Worker alive with a corrupt heap.
+    // Restore the committed document; never retry the failed candidate.
+    if(!committed&&kernelFailure(error)){
+      error.commitState='not_committed';error.recoveryAction='READ_STATE_AND_REPLAN';
+      try{await restartWorker(error);error.message+='；已从最后提交工程恢复内核，本次操作未提交，请读取新上下文。';}
+      catch(recoveryError){kernelReady=false;error.recoveryAction='SAVE_COMMITTED_PROJECT_AND_RECOVER_KERNEL';error.message+=`；内核恢复失败：${recoveryError.message}。仍可保存最后提交工程。`;}
+    }
+    throw error;
+  }
   finally{try{setBusy(false);}catch(error){busy=false;lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}}
 }
 function featureDocument(op,params={},explicitRefs=[],name,placement){
@@ -931,10 +942,10 @@ async function executeAI(command,args={},options={}){
     if(args.action==='feature.compileServices'){
       const expected=options.expectedRevision,snapshot=clone(documentModel),feature=snapshot.features.find(f=>f.id===args.values.featureId);assertCompilableFeature(feature);
       let routed;
-      setBusy(true,'Services 正在计算输入快照…');
+      setBusy(true,'后台正在计算输入快照…');
       try{routed=await routeChangedFeature(snapshot,{signal:options.signal,expectedRevision:expected,featureId:feature.id,explicitRemote:true,allowUpload:args.values.allowUpload});checkTransaction(options.signal,expected);}finally{setBusy(false);}
       if(!routed.record)return aiState();
-      try{await rebuild(routed.next,{...options,historyLabel:'Services 原特征编译',select:feature.id});}
+      try{await rebuild(routed.next,{...options,historyLabel:'后台原特征编译',select:feature.id});}
       catch(error){servicesExecutionHistory.failure(routed.record.executionKey,error);throw error;}
       servicesExecutionHistory.success(routed.record.input,routed.record.executor,routed.record.measurements);return aiState();
     }
@@ -1100,7 +1111,7 @@ const pageAPI=createPageAPI({
   measureRelation:input=>request('measureRelation',{input}),
   displayBatch:Object.freeze({begin:beginDisplayBatch,end:endDisplayBatch,endDeferred:endDisplayBatchDeferred,flush:flushDisplayBatch}),
   display:()=>viewport.displayState(),frame:()=>{flushDisplayBatch();if(lastWarnings.some(w=>w.code==='DISPLAY_FAILED'))throw Object.assign(new Error('Display failed; call redraw'),{code:'DISPLAY_FAILED'});viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});return viewport.frame();},capture:(opts)=>viewport.screenshot(opts),
-  view:async input=>{flushDisplayBatch();ui.setWorkspaceLayout(input);viewport.setViewInteraction(input.interactionPhase??'end');if(input.anchorVisible!==undefined)viewport.setAnchorVisible(input.anchorVisible);if(input.panels)ui.setPanels(input.panels);if(input.temporaryDisplay)viewport.setTemporaryDisplay(input.temporaryDisplay);if(input.display)viewport.setDisplay(input.display);if(input.grid!==undefined)viewport.grid.visible=input.grid;if(input.snap!==undefined)viewport.snapEnabled=input.snap;if(input.gizmo){if(input.gizmo!=='off'){viewport.setAnchorDrag(false);viewport.setSelectionMode('body');selectedTopology=null;}viewport.setGizmo(input.gizmo);}if(input.selectionMode){if(input.selectionMode!=='body')viewport.setGizmo('off');viewport.setSelectionMode(input.selectionMode);selectedTopology=null;}if(input.language){setLanguage(input.language);viewport.updateLanguage();ui.update({language:input.language});}if(input.camera){viewport.camera.position.fromArray(input.camera.position);viewport.controls.target.fromArray(input.camera.target);viewport.controls.update();}if(input.section)viewport.setSection(input.section);if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){if(JSON.stringify(input.selectedIds)!==JSON.stringify(selectedIds))ui.discardForSelection();selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);}if(input.display!==undefined)clearSelection();viewport.setSelection(selectedIds,selectedTopology);refresh();await viewport.frame();},
+  view:async input=>{flushDisplayBatch();ui.setWorkspaceLayout(input);viewport.setViewInteraction(input.interactionPhase??'end');if(input.anchorVisible!==undefined)viewport.setAnchorVisible(input.anchorVisible);if(input.panels)ui.setPanels(input.panels);if(input.temporaryDisplay)viewport.setTemporaryDisplay(input.temporaryDisplay);if(input.display)viewport.setDisplay(input.display);if(input.grid!==undefined)viewport.grid.visible=input.grid;if(input.snap!==undefined)viewport.snapEnabled=input.snap;if(input.gizmo){if(input.gizmo!=='off'){viewport.setAnchorDrag(false);viewport.setSelectionMode('body');selectedTopology=null;}viewport.setGizmo(input.gizmo);}if(input.selectionMode){if(input.selectionMode!=='body')viewport.setGizmo('off');viewport.setSelectionMode(input.selectionMode);selectedTopology=null;}if(input.language){setLanguage(input.language);viewport.updateLanguage();ui.update({language:input.language});}if(input.camera)viewport.setCamera(input.camera);if(input.section)viewport.setSection(input.section);if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){if(JSON.stringify(input.selectedIds)!==JSON.stringify(selectedIds))ui.discardForSelection();selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);}if(input.display!==undefined)clearSelection();viewport.setSelection(selectedIds,selectedTopology);refresh();await viewport.frame();},
   redraw:async()=>{flushDisplayBatch();viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();lastWarnings=lastWarnings.filter(w=>w.code!=='DISPLAY_FAILED');},
 });
 const assistantPanel=createAssistantPanel({getApi:()=>pageAPI,hostControl,onChange:state=>ui.setAgentPanel(state)});

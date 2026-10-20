@@ -2,7 +2,7 @@
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "none",
   "description": "cancelJob({jobId})",
   "synonyms": [
@@ -25,6 +25,10 @@
     "groupTitle": "执行、批次与异步作业",
     "chooseWhen": "请求取消指定页面作业；是否停止/提交以最终回执为准。",
     "alternatives": [
+      {
+        "id": "getBatchReceipt",
+        "chooseWhen": "用原 idempotencyKey 和 documentInstanceId 只读查批次回执；不重发几何，不等同 getJob 查询异步作业。"
+      },
       {
         "id": "execute",
         "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
@@ -68,5 +72,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:2bb8ef0e80e52a78739dc985110fa26509ae31354ecbdccfc3e3f78c5b3d3de6"
+  "docsHash": "sha256:9f3ad2471d1fccd6a8e97c5ccae2aee5248463d7754c6757816aaa90bb8ffde5"
 }

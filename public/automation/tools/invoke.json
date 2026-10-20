@@ -2,7 +2,7 @@
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "none",
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
@@ -26,6 +26,10 @@
     "groupTitle": "执行、批次与异步作业",
     "chooseWhen": "公开方法的结构化调用封装；不是任意函数/代码执行。",
     "alternatives": [
+      {
+        "id": "getBatchReceipt",
+        "chooseWhen": "用原 idempotencyKey 和 documentInstanceId 只读查批次回执；不重发几何，不等同 getJob 查询异步作业。"
+      },
       {
         "id": "execute",
         "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
@@ -61,5 +65,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:a42abd500285631b799c30ce1d0ef2a108fd8be9d05cc6ab27010e5148e4fd19"
+  "docsHash": "sha256:f8d4f39dea5184f2fcf604ed261cd17e183adbda27f334e1098f1b0aa474b7db"
 }

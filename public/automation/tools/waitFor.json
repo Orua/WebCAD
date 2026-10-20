@@ -2,7 +2,7 @@
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.52.3",
+  "version": "1.53.2",
   "contextPolicy": "none",
   "description": "waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。",
   "synonyms": [
@@ -32,6 +32,10 @@
     "groupTitle": "执行、批次与异步作业",
     "chooseWhen": "等待指定修订变化或 job 变化；不是持续执行建模。",
     "alternatives": [
+      {
+        "id": "getBatchReceipt",
+        "chooseWhen": "用原 idempotencyKey 和 documentInstanceId 只读查批次回执；不重发几何，不等同 getJob 查询异步作业。"
+      },
       {
         "id": "execute",
         "chooseWhen": "提交一个明确 action 的命令；不接收任意脚本。"
@@ -67,5 +71,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:5a2e5a2cc2030292bb371ce0ac76be42fe13d1b9e23b9b1815abab2ae29132e2"
+  "docsHash": "sha256:f88e01f75242093b91ddc31b19c3eaad9e6dbbb22d54939adc331f9e92351f5e"
 }

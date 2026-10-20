@@ -35,7 +35,7 @@ export function validateSubdCage(cage) {
   for (const [k, adjacent] of edgeFaces) {
     if (adjacent.length !== 2) throw new Error(`control cage must be closed; edge ${k} has ${adjacent.length} incident face(s)`);
     const directions = directedEdges.get(k);
-    if (directions[0] === directions[1]) throw new Error(`control cage faces must be consistently oriented at edge ${k}`);
+    if (directions[0] === directions[1]) throw Object.assign(new Error(`control cage faces must be consistently oriented at edge ${k}: faces[${adjacent[0]}] and faces[${adjacent[1]}] traverse this edge in the same direction; reverse one face and revalidate the entire cage`),{code:'GEOMETRY_INVALID',path:'args.params.cage.faces',details:{edge:k,faceIndices:[...adjacent]}});
   }
   if (vertexFaces.some(list => list.length < 3)) throw new Error('every cage vertex must have valence at least 3');
   const sharpness = new Map();

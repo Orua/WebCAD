@@ -8,12 +8,12 @@ const cage={type:'object',additionalProperties:false,required:['vertices','faces
   }}}
 }};
 const brushes={type:'array',maxItems:64,items:{type:'object',additionalProperties:false,required:['centerMm','radiusMm','strength'],properties:{
-  centerMm:p3,radiusMm:positive,strength:{type:'number'},mode:{type:'string',enum:['push','smooth','inflate']},falloff:{type:'string',enum:['smooth','linear']}
+  centerMm:p3,radiusMm:positive,strength:{type:'number',description:'push/inflate: signed maximum control-vertex displacement in mm, weighted by falloff; smooth: dimensionless interpolation factor in [0,1]. Brushes affect cage vertices, not the refined surface.'},mode:{type:'string',enum:['push','smooth','inflate']},falloff:{type:'string',enum:['smooth','linear']}
 }}};
 export const SUBD_OPERATION={
   description:'细分曲面体 / Catmull–Clark cage to sewn B-spline solid',refs:0,
   paramsSchema:{type:'object',additionalProperties:false,required:['cage'],properties:{cage,brushes,
     sampleDepth:{type:'integer',minimum:3,maximum:6},fitGrid:{type:'integer',minimum:5,maximum:17},referenceGrid:{type:'integer',minimum:4,maximum:64},fittingTolerance:{...positive,maximum:.5},sewingTolerance:{...positive,maximum:.5}
   }},
-  notes:'Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. Refined-face budget 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee.'
+  notes:'Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee.'
 };

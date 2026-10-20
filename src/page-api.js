@@ -161,7 +161,7 @@ export function createPageAPI(host){
         if(input.fields!==undefined&&(!Array.isArray(input.fields)||!input.fields.length||input.fields.length>32||input.fields.some(x=>typeof x!=='string'||!x.length||x.length>40)))fail('PARAM_SCHEMA_INVALID','fields must list 1..32 top-level state field names');
         if(input.sinceRevision!==undefined&&(!Number.isInteger(input.sinceRevision)||input.sinceRevision<0))fail('PARAM_SCHEMA_INVALID','sinceRevision must be a non-negative integer');
         if(input.compact!==undefined&&typeof input.compact!=='boolean')fail('PARAM_SCHEMA_INVALID','compact must be boolean');
-        if(input.include!==undefined&&(!Array.isArray(input.include)||input.include.some(x=>!['summary','features','bodies','bodiesLite','selection','capabilities','references'].includes(x))))fail('PARAM_SCHEMA_INVALID','Unknown include field');
+        if(input.include!==undefined&&(!Array.isArray(input.include)||input.include.some(x=>!['summary','features','bodies','bodiesLite','selection','capabilities','references'].includes(x))))fail('PARAM_SCHEMA_INVALID','include supports summary/features/bodies/bodiesLite/selection/capabilities/references. For appearance use fields:["appearance","colors","renderFinish"] instead.');
       }else if(input&&(typeof input!=='object'||Array.isArray(input)))fail('PARAM_SCHEMA_INVALID','getState takes an object');
       const {fields,sinceRevision,...stateInput}=input||{};
       const state=host.state(stateInput);
@@ -362,6 +362,13 @@ export function createPageAPI(host){
     planPatternMachining:guarded(input=>{
       check(input,['context','intent']);return {...planPatternMachining(input.intent),context:current().context};
     }),
+    readLogo:guarded(async input=>{
+      const keys=['context','resourceId','name','targetWidthMm','page','sizeConfirmed','allowUpload','raster'];check(input,keys);
+      if(typeof input.resourceId!=='string'||!input.resourceId||typeof input.name!=='string'||!input.name||input.name.length>255)fail('PARAM_SCHEMA_INVALID','Provide the selected LOGO resourceId and its file name');
+      const blob=await rawFiles.read({resourceId:input.resourceId});
+      const logo=await readBrowserLogo(new File([blob],input.name),x=>x,input);check(input,keys);
+      return {status:'read',context:current().context,logo,reviewRequired:true,nextAction:'Review contours, holes and size; set source.reviewed=true only after that review, then use logo with the selected face, point and depth.'};
+    }),
     readRelief:guarded(async input=>{
       const keys=['context','resourceId','name','samples','whiteHigh','style','threshold','sourceInterpretation'];check(input,keys);
       if(typeof input.resourceId!=='string'||!input.resourceId||typeof input.name!=='string')fail('PARAM_SCHEMA_INVALID','Provide a registered image resourceId and its file name');
@@ -440,7 +447,7 @@ export function createPageAPI(host){
     getServices:async()=>getServicesConfig(),
     getServicesCapabilities:async()=>servicesClient.capabilities(),
     getServicesRequest:async input=>{if(!input||Object.keys(input).some(k=>k!=='idempotencyKey')||!/^[a-zA-Z0-9_-]{1,160}$/.test(input.idempotencyKey))fail('PARAM_SCHEMA_INVALID','Provide a Services idempotencyKey');return servicesClient.getRequest(input.idempotencyKey);},
-    setServices:guarded(async input=>{check(input,['context','url','credential','enabled','computeMode','allowGeometryUploads','localTimeoutMs','serverWaitMs']);const {context,...config}=input;if(config.enabled!==false)await createServicesClient({config,credential:config.credential}).capabilities();return {status:'applied',context:current().context,...saveServicesConfig(config)};}),
+    setServices:guarded(async input=>{check(input,['context','url','authMode','credential','enabled','computeMode','allowGeometryUploads','localTimeoutMs','serverWaitMs']);const {context,...config}=input;if(config.enabled!==false)await createServicesClient({config,credential:config.credential}).capabilities();return {status:'applied',context:current().context,...saveServicesConfig(config)};}),
     getServicesRouting:()=>host.servicesRouting?.()??{lastDecision:null,historyStorage:'bounded-session-memory'},
     decideServicesWait:guarded(async input=>{
       if(!input||Object.keys(input).some(key=>!['jobId','decision'].includes(key))||typeof input.jobId!=='string'||!/^[a-f0-9]{32}$/.test(input.jobId)||!['continue','stop'].includes(input.decision))fail('PARAM_SCHEMA_INVALID','选择当前任务的 continue 或 stop');
@@ -479,6 +486,7 @@ export function createPageAPI(host){
   };
   const run=createPageBatch(api,{display:host.displayBatch});
   api.run=guarded(input=>run(input));
+  api.getBatchReceipt=guarded(input=>{if(!input||Object.keys(input).some(key=>!['idempotencyKey','documentInstanceId'].includes(key)))fail('PARAM_SCHEMA_INVALID','Provide only idempotencyKey and original documentInstanceId');return run.getReceipt(input);});
   const callable=new Set([...Object.keys(api),...Object.keys(files).map(k=>`files.${k}`)]);
   api.invoke=async(input={})=>{
     try{

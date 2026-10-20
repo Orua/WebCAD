@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:45dcf7494d3c3acce61b7f78f42440f1c92e37f5f4c2df2d55f16277bb93a707",
-  "docsHash": "sha256:1aa042c1af0acfd195f86a186d2dfc0ca09d2bff1539732a1696a0c48c950b8d",
+  "catalogHash": "sha256:a0b3347d8824d5ca1d021b8d1bbce03706c21921df197771cab262982db12ca9",
+  "docsHash": "sha256:304ec5d2ed3f1c68905f9fa31f0746b9b1a2ec5b4283089789e9a5e00e8ce786",
   "bootstrapDocIds": [
     "api.knowledge-cache",
     "api.connection",
@@ -11,6 +11,39 @@
   ],
   "selectionPolicy": "Route by task, read a workflow, then only needed complete cards. Exact UI actions use routes.json. Live context/IDs always come from the page.",
   "routes": [
+    {
+      "id": "modeling-pitfalls",
+      "title": "建模坐标、引用、未知结果与故障恢复",
+      "keywords": [
+        "错位",
+        "坐标",
+        "避让",
+        "centerMm",
+        "UUID",
+        "STALE_REFERENCE",
+        "UNKNOWN_OUTCOME",
+        "unknown",
+        "崩核",
+        "笔刷",
+        "stations",
+        "sections",
+        "绕序",
+        "watertight"
+      ],
+      "docs": [
+        "api.modeling-pitfalls",
+        "api.run",
+        "api.references"
+      ],
+      "tools": [
+        "getBatchReceipt",
+        "getState",
+        "recoverKernel",
+        "transform",
+        "ellipsoid",
+        "subdBody"
+      ]
+    },
     {
       "id": "tool-selection",
       "title": "相似工具比较与选择",
@@ -407,6 +440,9 @@
       "title": "图案加工：先区分恒深LOGO与连续浮雕",
       "keywords": [
         "LOGO",
+        "JPG",
+        "PNG",
+        "图片雕刻",
         "凹字",
         "凸字",
         "刻字",
@@ -418,10 +454,14 @@
         "relief"
       ],
       "docs": [
+        "api.logo",
         "api.relief-taxonomy",
         "api.pattern-machining"
       ],
       "tools": [
+        "readLogo",
+        "getServices",
+        "getServicesCapabilities",
         "planPatternMachining",
         "meshHeightfieldRelief",
         "heightfieldSculpt",
@@ -429,7 +469,7 @@
         "relief",
         "logo"
       ],
-      "note": "Legacy route ID retained. Discovery is not a geometry decision: read the shared workflow, declare user intent/source, then load only matched full tool cards. Never swap routes after failure; shaded reference brightness is not depth."
+      "note": "Monochrome JPG/PNG uses readLogo with actual width and explicit upload permission; review contours and holes before logo engraving. Local SVG and reviewed JSON need no server. Photos/shaded references require authored height data. Read current compute capabilities; configuration readback never discloses credentials."
     },
     {
       "id": "inspection",
