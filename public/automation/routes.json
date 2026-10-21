@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
   "pageApiVersion": "1.55.4",
-  "buildId": "d50dfa9ca2ef5405a8f305cf7965a226f4973faa-src-690dabf978032674-working",
-  "catalogHash": "sha256:6acf9033be70932dd776357853f955c9f65380679e0d26017dda0f5e2e8963fb",
-  "docsHash": "sha256:8f84d2ed7c7311232b4dc3d8045aa11f907eca0e4dbdf437d97da994d423a0d8",
+  "buildId": "6a2cd9b680ef68d9a9d7b0f0ccbc7d9602fb11b4-src-a8cd50fe1d7ee0e4-working",
+  "catalogHash": "sha256:d102554be35d5defa399fc192b37d989d5e9d17fa8474850a65932023ea4f493",
+  "docsHash": "sha256:6738e7a7da3e73779c3fd3af905c575d35bb5bc81e8e28a6d9b4e87a1e1a9eac",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -599,7 +599,7 @@
         "files.download"
       ],
       "method": "reviewLogo",
-      "usage": "LOGO紧凑向导：来源→轮廓校对→目标面。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。"
+      "usage": "LOGO紧凑向导：来源→轮廓校对→目标面。位图加工精度由readLogo.machining或logoWizard.parameters.machining设置enabled/toleranceMm/minDetailMm，共享报告和原始轮廓。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。"
     },
     "mcp": {
       "tools": [

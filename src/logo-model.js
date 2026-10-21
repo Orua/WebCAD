@@ -14,14 +14,14 @@ const dot = (a, b) => a.reduce((sum, value, i) => sum + value * b[i], 0);
 const norm = a => Math.hypot(...a);
 const cross2 = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
 
-function readRing(input, label) {
+function readRing(input, label, maxVertices=64000) {
   if (!Array.isArray(input)) throw new Error(`${label} must be an array`);
   const points = input.map((p, i) => {
     if (!Array.isArray(p) || p.length !== 2) throw new Error(`${label}[${i}] must be [x,y]`);
     return [finite(p[0], `${label}[${i}].x`), finite(p[1], `${label}[${i}].y`)];
   });
   if (points.length > 3 && points[0][0] === points.at(-1)[0] && points[0][1] === points.at(-1)[1]) points.pop();
-  if (points.length < 3 || points.length > 2000) throw new Error(`${label} must have 3..2000 vertices`);
+  if (points.length < 3 || points.length > maxVertices) throw new Error(`${label} must have 3..${maxVertices} vertices`);
   const unique = new Set();
   for (let i = 0; i < points.length; i++) {
     const a = points[i], b = points[(i + 1) % points.length];
@@ -90,7 +90,14 @@ function boundariesMeet(ringA, ringB, budget) {
   return false;
 }
 function ringContainsRing(parent, child) { return pointInRing(child[0], parent); }
-export function validateRegions(params,{maxRegions=150,maxVertices=12000}={}) {
+export function inspectLogoMachiningCapacity(logo){
+  const regions=logo.regions??[],rings=regions.flatMap(r=>[r.outer,...(r.holes??[])]);
+  const counts={regions:regions.length,vertices:rings.reduce((sum,r)=>sum+r.length,0),maxRingVertices:rings.reduce((max,r)=>Math.max(max,r.length),0)};
+  const limits={regions:150,vertices:12000,maxRingVertices:2000};
+  const supported=Object.keys(limits).every(key=>counts[key]<=limits[key]);
+  return {supported,counts,limits,code:supported?null:'CONTOUR_TOO_COMPLEX',reason:supported?null:`轮廓已识别，但有 ${counts.regions} 个区域、${counts.vertices} 个顶点（最大单环 ${counts.maxRingVertices} 点），超过当前实体雕刻上限：150 区域、总计 12000 点、每环 2000 点。可继续校对和导出轮廓，暂不能直接雕刻。`};
+}
+export function validateRegions(params,{maxRegions=1024,maxVertices=64000,maxRingVertices=64000}={}) {
   const raw = params.regions;
   if (!Array.isArray(raw) || raw.length < 1 || raw.length > maxRegions) throw new Error(`regions must contain 1..${maxRegions} regions`);
   let declaredPoints = 0;
@@ -108,9 +115,9 @@ export function validateRegions(params,{maxRegions=150,maxVertices=12000}={}) {
   let total = 0;
   const regions = raw.map((region, ri) => {
     if (!region || typeof region !== 'object') throw new Error(`region ${ri} is invalid`);
-    const outer = readRing(region.outer, `regions[${ri}].outer`), holesRaw = region.holes ?? [];
+    const outer = readRing(region.outer, `regions[${ri}].outer`,maxRingVertices), holesRaw = region.holes ?? [];
     if (!Array.isArray(holesRaw)) throw new Error(`regions[${ri}].holes must be an array`);
-    const holes = holesRaw.map((h, hi) => readRing(h, `regions[${ri}].holes[${hi}]`));
+    const holes = holesRaw.map((h, hi) => readRing(h, `regions[${ri}].holes[${hi}]`,maxRingVertices));
     total += outer.length + holes.reduce((s, h) => s + h.length, 0);
     if (total > maxVertices) throw new Error(`total contour vertices exceed ${maxVertices}`);
     return { outer, holes };
@@ -174,7 +181,7 @@ export function buildLogoOnPlane(source, params, cad, supportPrism) {
   if(draftAngle<0||draftAngle>=45)throw new Error('脱模斜度必须为 0 到小于 45 度');
   const mirrorX = params.mirrorX ?? false;
   if (typeof mirrorX !== 'boolean') throw new Error('mirrorX must be boolean');
-  const { normal, x } = validateFrame(params), regions = validateRegions(params);
+  const { normal, x } = validateFrame(params), regions = validateRegions(params,{maxRegions:150,maxVertices:12000,maxRingVertices:2000});
   const y = [normal[1] * x[2] - normal[2] * x[1], normal[2] * x[0] - normal[0] * x[2], normal[0] * x[1] - normal[1] * x[0]];
   const theta = angle * Math.PI / 180, c = Math.cos(theta), s = Math.sin(theta);
   const transformRing = ring => ring.map(([rawX, rawY]) => {
@@ -185,6 +192,8 @@ export function buildLogoOnPlane(source, params, cad, supportPrism) {
   const plane = new cad.Plane([params.x, params.y, params.z], x, normal);
   const direction = mode === 'engrave' ? -1 : 1;
   let current = source, ownsCurrent = false;
+  const batchEngrave=mode==='engrave'&&!!params.source?.machiningOptimization&&!draftAngle,cutters=[];
+  let expectedRemoval=0;
   try {
     const sourceVolume = area(source, cad), initialSolids = countSolids(source);
     if (!(sourceVolume > 0) || initialSolids < 1) throw new Error('source must contain at least one solid');
@@ -223,6 +232,11 @@ export function buildLogoOnPlane(source, params, cad, supportPrism) {
           const outside = hold(tool.cut(supportPrism)), outsideVolume = outside ? area(outside, cad) : 0;
           if (outsideVolume > Math.max(1e-7, toolVolume * 1e-9)) throw new Error(`region ${ri} crosses the selected face boundary or a hole`);
         }
+        if(batchEngrave){
+          const intersection=hold(source.intersect(tool)),removed=intersection?area(intersection,cad):0;
+          if(!(removed>Math.max(1e-7,sourceVolume*1e-12)))throw new Error(`region ${ri} does not change the source solid`);
+          expectedRemoval+=removed;cutters.push(independentCopy(tool,cad));continue;
+        }
         if (mode === 'engrave') next = current.cut(tool);
         else next = current.fuse(tool);
         if (!next) throw new Error(`region ${ri} boolean operation failed`);
@@ -246,17 +260,26 @@ export function buildLogoOnPlane(source, params, cad, supportPrism) {
         owned.reverse().forEach(dispose);
       }
     }
+    if(batchEngrave){
+      let compound,next;
+      try{
+        compound=cad.makeCompound(cutters);next=current.cut(compound);
+        const removed=sourceVolume-area(next,cad);
+        if(Math.abs(removed-expectedRemoval)>Math.max(1e-6,expectedRemoval*1e-7))throw new Error('LOGO 批量雕刻体积校验失败，未提交结果。');
+        dispose(current);current=next;next=null;
+      }finally{dispose(next);dispose(compound);}
+    }
     ownsCurrent = false;
     return current;
   } catch (error) {
     if (ownsCurrent) dispose(current);
     throw error;
-  } finally { dispose(plane); }
+  } finally { cutters.forEach(dispose);dispose(plane); }
 }
 
 /** Independent planar faces or extruded solids from reviewed closed vector regions. */
 export function buildVectorProfile(params, cad) {
-  const regions=validateRegions(params),scale=positive(params.scale??1,'scale'),angle=finite(params.angle??0,'angle');
+  const regions=validateRegions(params,{maxRegions:150,maxVertices:12000,maxRingVertices:2000}),scale=positive(params.scale??1,'scale'),angle=finite(params.angle??0,'angle');
   if(!['face','solid'].includes(params.output))throw new Error('请选择生成面或实体 / Choose face or solid');
   const frames={XY:[[1,0,0],[0,0,1]],XZ:[[1,0,0],[0,-1,0]],YZ:[[0,1,0],[1,0,0]]};
   const frame=frames[params.plane??'XY'];if(!frame)throw new Error('无效工作平面');

@@ -16,6 +16,10 @@ const base = overrides => ({
   faceX: [1, 0, 0], faceNormal: [0, 0, 1], ...overrides,
 });
 const sourceBytes = shape => shape.serialize();
+test('optimized disjoint cutters use one compound cut with preserved holes, expected volume and source identity',()=>{
+ const source=plate(),before=sourceBytes(source),result=buildLogoOnPlane(source,base({source:{machiningOptimization:{algorithm:'test'}}}),cad);
+ try{assert.ok(Math.abs(area(result)-(12000-160))<1e-5);assert.equal(result.solids.length,1);assert.equal(sourceBytes(source),before);}finally{dispose(result);dispose(source);}
+});
 
 test('engraves a holed region and independent island with exact volume; source BREP is unchanged and STEP roundtrips', async () => {
   const source = plate(), before = sourceBytes(source), result = buildLogoOnPlane(source, base(), cad);

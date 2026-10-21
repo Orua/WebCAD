@@ -12,6 +12,7 @@ import {createLogoReviewSession,logoReviewArtifacts} from './logo-vector-review.
 import {runReliefDesignField,readReliefDesignField,cancelReliefDesignField,candidateReliefDesignField,runReliefDesignFit,readReliefDesignFit,cancelReliefDesignFit} from './relief-design-runtime.js';
 import {prepareReliefReferenceSource} from './relief-design-reference.js';
 import {logoDXF} from './logo-dxf.js';
+import {inspectLogoMachiningCapacity} from './logo-model.js';
 import {getLogoConverterConfig,setLogoConverterConfig} from './logo-converter-settings.js';
 import {getServicesConfig,saveServicesConfig,clearServicesCredential} from './services/settings.js';
 import {servicesClient,createServicesClient} from './services/client.js';
@@ -67,7 +68,7 @@ export function createPageAPI(host){
   const explained=fn=>(...args)=>{try{const result=fn(...args);return result&&typeof result.then==='function'?result.then(withErrorRecovery,explainThrown):withErrorRecovery(result);}catch(error){return explainThrown(error);}};
   const requestPolicies=new WeakMap();
   const current=()=>host.state();
-  const failure=e=>withErrorRecovery({status:e.status==='unknown'||e.commitState==='unknown'?'unknown':'failed',commitState:e.commitState==='unknown'||e.status==='unknown'?'unknown':'not_committed',error:{...(e.jobId?{jobId:e.jobId}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:e.retryable===true,recoveryAction:e.recoveryAction||((e.commitState==='unknown'||e.status==='unknown')?'RECONCILE_ORIGINAL_REQUEST':null)||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
+  const failure=e=>withErrorRecovery({status:e.status==='unknown'||e.commitState==='unknown'?'unknown':'failed',commitState:e.commitState==='unknown'||e.status==='unknown'?'unknown':'not_committed',error:{...(e.jobId?{jobId:e.jobId}:{}),...(e.idempotencyKey?{idempotencyKey:e.idempotencyKey}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:e.retryable===true,recoveryAction:e.recoveryAction||((e.commitState==='unknown'||e.status==='unknown')?'RECONCILE_ORIGINAL_REQUEST':null)||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
   const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
   function check(input,keys,requiredContext=true){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!keys.includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected request fields');
@@ -500,13 +501,13 @@ export function createPageAPI(host){
       return {...result,context:current().context};
     }),
     readLogo:guarded(async input=>{
-      const keys=['context','resourceId','name','targetWidthMm','page','sizeConfirmed','allowUpload','raster','pdfJoinToleranceMm'];check(input,keys);
+      const keys=['context','resourceId','name','targetWidthMm','page','sizeConfirmed','allowUpload','raster','pdfJoinToleranceMm','machining'];check(input,keys);
       if(typeof input.resourceId!=='string'||!input.resourceId||typeof input.name!=='string'||!input.name||input.name.length>255)fail('PARAM_SCHEMA_INVALID','Provide the selected LOGO resourceId and its file name');
       const blob=await rawFiles.read({resourceId:input.resourceId});
       const logo=await readBrowserLogo(new File([blob],input.name),x=>x,input);check(input,keys);
       const cached={logo:structuredClone(logo),reviewSession:createLogoReviewSession(logo),sourceResourceId:input.resourceId,sourceName:input.name,documentInstanceId:current().context.documentInstanceId};
       const logoId=addLogoEntry(cached);
-      return {status:'read',context:current().context,logoId,logo,review:cached.reviewSession.get(),sourceResourceId:input.resourceId,reviewRequired:true,nextAction:'Use reviewLogo get/select/setPoint/deletePoint/deleteContour/undo/confirm for explicit contour review. reviewLogo action artifacts generates JSON/SVG/DXF/report resources; files.read/download retrieves them. Independent exportDrawing remains available. No geometry is committed by review.'};
+      return {status:'read',context:current().context,logoId,logo,machiningReadiness:inspectLogoMachiningCapacity(logo),review:cached.reviewSession.get(),sourceResourceId:input.resourceId,reviewRequired:true,nextAction:'Use reviewLogo get/select/setPoint/deletePoint/deleteContour/undo/confirm for explicit contour review. reviewLogo action artifacts generates JSON/SVG/DXF/report resources; files.read/download retrieves them. Independent exportDrawing remains available. No geometry is committed by review.'};
     }),
     reviewLogo:guarded(async input=>{
       const keys=['context','logoId','action','expectedRevision','regionIndex','holeIndex','pointIndex','pointMm','confirmed'],s=check(input,keys),cached=cachedLogo(input.logoId,s),action=input.action??'get';

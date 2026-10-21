@@ -144,6 +144,7 @@ namespace LogoVector.Worker
                 double cy = (regions.Min(r => r.Outer.Min(p => p[1])) + regions.Max(r => r.Outer.Max(p => p[1]))) / 2;
                 source["rasterFrame"] = new { pixelWidth = nativeWidth, pixelHeight = rasterHeight, mmPerPixel = factor, xMm = -cx, yMm = -rasterHeight * factor - cy, widthMm = nativeWidth * factor, heightMm = rasterHeight * factor };
                 source["rasterOptions"] = new { threshold = options.Raster.Threshold, invert = options.Raster.Invert, alphaThreshold = options.Raster.AlphaThreshold, smoothingPx };
+                source["rasterTopology"] = new { algorithm = "four-connected-corner-bevel-v1", diagonalContacts = smoothing.DiagonalContacts, cornerTrimPx = smoothing.DiagonalContacts > 0 ? .25 : 0, curveDistanceUpperBoundMm = smoothing.CornerBoundPx * factor, foregroundPixelCentresPreserved = true, reviewRequired = true };
                 string originalGeometryHash = null;
                 if (smoothing.OriginalRegions != null)
                 {
@@ -160,7 +161,8 @@ namespace LogoVector.Worker
             var logo = LogoGeometry.Normalize(Path.GetFileNameWithoutExtension(name), regions, source);
             var geometryHash = LogoGeometry.GeometryHash(logo);
             bool review = format == "raster" || reconstructed;
-            var report = new ConversionReport { Method = method, RequestedToleranceMm = format == "raster" ? smoothing.RequestedPx * factor : options.ToleranceMm, ApproximationBoundMm = format == "svg" ? (double?)null : pdfCurves ? factor * 0.0001 : smoothing != null && smoothing.ActualPx > 0 ? smoothing.ActualPx * factor + Math.Sqrt(2) * 1e-9 : 0, SourceReconstructionErrorMm = null, GeometryHash = geometryHash };
+            var report = new ConversionReport { Method = method, RequestedToleranceMm = format == "raster" ? smoothing.RequestedPx * factor : options.ToleranceMm, ApproximationBoundMm = format == "svg" ? (double?)null : pdfCurves ? factor * 0.0001 : smoothing != null && smoothing.ActualPx + smoothing.CornerBoundPx > 0 ? (smoothing.ActualPx + smoothing.CornerBoundPx) * factor + Math.Sqrt(2) * 1e-9 : 0, SourceReconstructionErrorMm = null, GeometryHash = geometryHash };
+            if (smoothing?.DiagonalContacts > 0) report.Warnings.Add("RASTER_DIAGONAL_CONTACTS: 已按前景四连通分离 " + smoothing.DiagonalContacts + " 处角点接触，每条相邻边裁角 0.25 源像素；请叠加原图校对。");
             if (format == "raster") report.Warnings.Add("RASTER_TRACED: 位图重建误差未知，须人工复核。");
             if (smoothing?.Status == "rejected-topology") report.Warnings.Add("RASTER_SMOOTHING_REJECTED: 平滑候选未通过拓扑检查（" + smoothing.FailureCode + "），未应用平滑，完整保留原始轮廓；须复核。");
             else if (smoothing?.ActualPx > 0) report.Warnings.Add("RASTER_SMOOTHED: 已显式应用单次有界轮廓平滑；原始像素轮廓可读，原稿重建误差仍未知，须复核。");

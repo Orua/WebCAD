@@ -53,7 +53,7 @@ test('failed raster conversion reports effective options and retains the origina
     wait:async route=>{if(route==='logo/inspect')return {result:{pageCount:1}};throw original;}};
   await assert.rejects(readBrowserLogo(new File(['image'],'tiger.jpg'),x=>x,{targetWidthMm:30,sizeConfirmed:true,allowUpload:true,client}),error=>{
     assert.equal(error,original);assert.equal(error.jobId,'original-failed-job');
-    assert.deepEqual(error.details,{stage:'worker',rasterOptions:{threshold:128,invert:false,alphaThreshold:1,smoothingPx:0},rasterOptionsSupplied:false});return true;
+    assert.deepEqual(error.details,{stage:'worker',logoFailure:{reason:'当前黑白阈值下没有识别到图案。',next:'请检查黑白阈值或反转前景后重新识别。'},rasterOptions:{threshold:128,invert:false,alphaThreshold:1,smoothingPx:0},rasterOptionsSupplied:false});return true;
   });
   assert.equal(converts,1);
 });
@@ -62,10 +62,10 @@ test('smoothing remains explicit and scaling preserves the original proof frame'
  for(const smoothingPx of [null,'0.2',NaN,Infinity,-.1,.51])assert.throws(()=>validateLogoRasterOptions({smoothingPx}),{code:'PARAM_SCHEMA_INVALID'});
  for(const smoothingPx of [0,.2,.5])assert.doesNotThrow(()=>validateLogoRasterOptions({smoothingPx}));
  const original={type:'webcad-logo',version:1,units:'mm',sizeMm:[10,5],regions:[{outer:[[0,0],[10,0],[10,5],[0,5]],holes:[]}]};
- const logo={...structuredClone(original),source:{rasterOriginalContours:structuredClone(original),rasterSmoothing:{requestedTolerancePx:.5,requestedToleranceMm:.1,effectiveToleranceMm:.08,curveDistanceUpperBoundMm:.08,coordinateRoundingMm:1e-9,originalGeometryHash:'converter-proof'},conversion:{requestedToleranceMm:.1,approximationBoundMm:.08},conversionReport:{requestedToleranceMm:.1,approximationBoundMm:.08}}};
+ const logo={...structuredClone(original),source:{rasterTopology:{diagonalContacts:1,cornerTrimPx:.25,curveDistanceUpperBoundMm:.02},rasterOriginalContours:structuredClone(original),rasterSmoothing:{requestedTolerancePx:.5,requestedToleranceMm:.1,effectiveToleranceMm:.08,curveDistanceUpperBoundMm:.08,coordinateRoundingMm:1e-9,originalGeometryHash:'converter-proof'},conversion:{requestedToleranceMm:.1,approximationBoundMm:.08},conversionReport:{requestedToleranceMm:.1,approximationBoundMm:.08}}};
  const fitted=fitLogoWidth(logo,20);
  assert.deepEqual(fitted.source.rasterOriginalContours,original);assert.equal(fitted.source.rasterOriginalContoursToLogo.scale,2);
- assert.equal(fitted.source.rasterSmoothing.curveDistanceUpperBoundMm,.16);
+ assert.equal(fitted.source.rasterSmoothing.curveDistanceUpperBoundMm,.16);assert.equal(fitted.source.rasterTopology.curveDistanceUpperBoundMm,.04);assert.equal(fitted.source.rasterTopology.cornerTrimPx,.25);
  assert.equal(fitted.source.rasterSmoothing.requestedTolerancePx,.5);
  assert.equal(fitted.source.conversionReport.approximationBoundMm,.16);assert.equal(fitted.source.conversion.approximationBoundMm,.16);
  assert.equal(fitLogoWidth(fitted,40).source.rasterOriginalContoursToLogo.scale,4);

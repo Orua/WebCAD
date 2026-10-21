@@ -97,7 +97,11 @@ namespace WebCADServices.Runtime
         {
             if((string)row["id"]!=previous||(string)row["state"]!="interrupted"||row["result"].Type!=JTokenType.Null||(long)row["cancel"]!=0||JObject.Parse((string)row["request"])["recovery"]!=null)throw new ServiceError("RECOVERY_NOT_ALLOWED","Only one reviewed environment interruption without a result may resume; geometry failures remain blocked",409);
             foreach(string file in new[]{"geometry.brep","result.partial.json"})if(File.Exists(Path.Combine(Root,"jobs",previous,file)))throw new ServiceError("RECOVERY_RESULT_UNRESOLVED","Inspect existing unpublished result before recovery",409);
-            using(var command=Command("SELECT pid FROM attempts WHERE job=@p0 AND pid>0",previous))using(var reader=command.ExecuteReader())while(reader.Read()){
+            AssertWorkerStopped(previous);
+        }
+        void AssertWorkerStopped(string previous)
+        {
+            using(var command=Command("SELECT pid FROM attempts WHERE job=@p0 AND pid>0 AND finished IS NULL",previous))using(var reader=command.ExecuteReader())while(reader.Read()){
                 try{using(var process=System.Diagnostics.Process.GetProcessById(Convert.ToInt32(reader["pid"])))if(!process.HasExited)throw new ServiceError("RECOVERY_WORKER_ACTIVE","A prior process identity remains active; inspect without retry",409);}catch(ArgumentException){}
             }
         }
@@ -121,7 +125,14 @@ namespace WebCADServices.Runtime
                     }
                     var same=Read("SELECT * FROM jobs WHERE owner=@p0 AND fingerprint=@p1 ORDER BY created DESC LIMIT 1",owner,fingerprint);
                     if(recoveryJob!=null){if(same==null)throw new ServiceError("RECOVERY_INPUT_CHANGED","Current engine/input differs from the interrupted task",409);AssertRecoverable(same,owner,recoveryJob);}
-                    else if(same!=null){if(new[]{"failed","terminated","interrupted"}.Contains((string)same["state"]))throw new ServiceError("KNOWN_INPUT_FAILED","This exact computation already failed; inspect job "+(string)same["id"]+" before another strategy",409);Execute("INSERT INTO client_keys(owner,idem,payload_hash,job,binding_json) VALUES(@p0,@p1,@p2,@p3,@p4)",owner,idem,payloadHash,(string)same["id"],binding?.ToString(Newtonsoft.Json.Formatting.None));transaction.Commit();return Accepted(same,idem,binding,true);}
+                    else if(same!=null){
+                        // A new explicit LOGO read may retry a stopped conversion.
+                        // The original key still reconciles its original receipt;
+                        // queued/running work and successful artifacts remain shared.
+                        bool retryLogo=((string)request["operation"]).StartsWith("logo.") && new[]{"failed","terminated","cancelled","interrupted"}.Contains((string)same["state"]);
+                        if(retryLogo)AssertWorkerStopped((string)same["id"]);
+                        if(!retryLogo){if(new[]{"failed","terminated","interrupted"}.Contains((string)same["state"]))throw new ServiceError("KNOWN_INPUT_FAILED","This exact computation already failed; inspect job "+(string)same["id"]+" before another strategy",409);Execute("INSERT INTO client_keys(owner,idem,payload_hash,job,binding_json) VALUES(@p0,@p1,@p2,@p3,@p4)",owner,idem,payloadHash,(string)same["id"],binding?.ToString(Newtonsoft.Json.Formatting.None));transaction.Commit();return Accepted(same,idem,binding,true);}
+                    }
                     string id = Guid.NewGuid().ToString("N");
                     Execute("INSERT INTO jobs(id,owner,idem,fingerprint,request,state,created,payload_hash,engine) VALUES(@p0,@p1,@p2,@p3,@p4,'queued',@p5,@p6,@p7)", id, owner, idem, fingerprint, canonical, DateTime.UtcNow.ToString("o"), payloadHash, ((string)request["operation"]).StartsWith("logo.") ? "logo" : ((string)request["operation"]).StartsWith("mesh.")?"mesh":"occt");
                     Execute("INSERT INTO client_keys(owner,idem,payload_hash,job,binding_json) VALUES(@p0,@p1,@p2,@p3,@p4)",owner,idem,payloadHash,id,binding?.ToString(Newtonsoft.Json.Formatting.None));

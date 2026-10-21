@@ -67,6 +67,14 @@ internal static class Program
                 }
             }
         }
+        using(var bitmap=new Bitmap(4,4))using(var stream=new MemoryStream())
+        {
+            for(int y=0;y<4;y++)for(int x=0;x<4;x++)bitmap.SetPixel(x,y,(x==1&&y==1)||(x==2&&y==2)?Color.Black:Color.White);
+            bitmap.Save(stream,ImageFormat.Png);int height;
+            var traced=RasterTracer.Trace(stream.ToArray(),new RasterOptions(),out height,0,out report);
+            Check(traced.Item1.Count==2 && report.DiagonalContacts==1 && report.CornerBoundPx<.18,"diagonal pixels remain separate valid islands with bounded corner bevel");
+            Check(Document(traced.Item1).Regions.Count==2,"diagonal source passes independent geometry normalization");
+        }
         Console.WriteLine("PASS raster smoothing checks: "+count);
     }
 }

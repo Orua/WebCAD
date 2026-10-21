@@ -35,6 +35,18 @@ test('wizard Agent read defaults to no upload and validates explicit boolean con
   await assert.rejects(actLogoWizard({action:'read',expectedRevision:getLogoWizardState().revision,allowUpload:'true'}),{code:'PARAM_SCHEMA_INVALID'});
  }finally{ctx.restore();}
 });
+test('reading locks all source controls and restores them after failure, preserving Agent details',async()=>{
+ const ctx=setup();try{
+  let release;const pending=new Promise(resolve=>{release=resolve;});
+  ctx.input.files=[{name:'waiting.logo.json',size:10,text:async()=>{await pending;throw Object.assign(new Error('specific failure'),{code:'MALFORMED_FILE',jobId:'original-job',stage:'worker',details:{serviceMessage:'specific failure'}});}}];
+  const run=actLogoWizard({action:'read',expectedRevision:getLogoWizardState().revision});
+  await Promise.resolve();assert.equal(getLogoWizardState().busy,true);
+  for(const label of ['选择 LOGO 文件','轮廓平滑源像素','图案实际宽度 mm'])assert.equal(ctx.nodes.find(n=>n.attributes['aria-label']===label).disabled,true);
+  await assert.rejects(actLogoWizard({action:'parameters',expectedRevision:getLogoWizardState().revision,parameters:{targetWidthMm:30}}),{code:'LOGO_WIZARD_BUSY'});
+  release();await assert.rejects(run,{code:'MALFORMED_FILE'});
+  assert.equal(ctx.input.disabled,false);assert.equal(getLogoWizardState().errorDetails.details.serviceMessage,'specific failure');assert.equal(getLogoWizardState().errorDetails.jobId,'original-job');
+ }finally{ctx.restore();}
+});
 test('wizard exposes explicit PDF join tolerance and rejects invalid values before invalidating state',async()=>{
  const ctx=setup();try{
   assert.equal(getLogoWizardState().parameters.pdfJoinToleranceMm,0);

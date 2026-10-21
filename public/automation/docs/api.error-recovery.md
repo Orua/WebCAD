@@ -332,11 +332,11 @@
 
 ### budget
 
-相同输入已有失败记录、仍有在途任务，或当前不允许重新计算。
+此前相同输入的任务未成功，本次未重新计算。
 
-保留原回执；先查原任务。只有新的机制证据、可用的共享试验预算和明确恢复条件同时满足才评估下一候选。
+查看原任务的具体错误；LOGO 识别任务确认已停止后，可重新点击识别。其他建模任务须先核对失败原因和当前工程。
 
-代码：`KNOWN_INPUT_FAILED`、`PREVIOUS_ATTEMPT_FAILED`、`RECOVERY_NOT_ALLOWED`、`RECOVERY_WORKER_ACTIVE`
+代码：`KNOWN_INPUT_FAILED`、`PREVIOUS_ATTEMPT_FAILED`
 
 ### material
 
@@ -385,6 +385,22 @@ PDF页面渲染或渲染底图校验未通过。
 读取实际约束与保护区，明确修改哪一项条件；不能自动解除锁定、删除孔或覆盖保护区域。
 
 代码：`PROFILE_CONSTRAINT_CONFLICT`、`PROFILE_CONSTRAINT_GEOMETRY_INVALID`、`PROFILE_CONSTRAINT_INVALID`、`PROFILE_CONSTRAINT_NUMERICAL`、`PROFILE_CONSTRAINT_UNSATISFIED`、`REFERENCE_LOCKED`、`RELIEF_BOUNDARY_CONFLICT`、`RELIEF_CONSTRAINT_CONFLICT`、`RELIEF_CONSTRAINT_INVALID`、`RELIEF_DESIGN_PROTECTED`、`RELIEF_PATCH_PROTECTION`
+
+### recovery-denied
+
+此任务不能从中断位置恢复。
+
+查看原任务状态和失败原因；已完成或已停止的任务不能当作可恢复任务继续。
+
+代码：`RECOVERY_NOT_ALLOWED`
+
+### recovery-active
+
+上一任务的计算进程仍在运行。
+
+等待原任务完成，或停止原任务并确认结束后再操作。
+
+代码：`RECOVERY_WORKER_ACTIVE`
 
 ### design-base
 

@@ -2960,5 +2960,34 @@
       "one actual saved draft field fit UI and report readback",
       "release gate"
     ]
+  },
+  "logoRasterReadRetry20261021": {
+    "localImpact": "Lock every source control while reading; retain public wizard busy state; recognize/review up to 1024 regions and 64000 points, leaving BRep machining limits unchanged",
+    "servicesImpact": "New explicit LOGO requests may retry failed/terminated/cancelled work; same request key retains original receipt, running and successful computations are reused; complex geometry retry guards unchanged",
+    "logoImpact": "Four-connected foreground bevels only diagonal corner contacts by 0.25 source pixels per incident edge, retaining all foreground pixel centres and holes. Exact spatial intersection validation with bounded candidates, no denoise or lossy contour simplification",
+    "contractImpact": "source.rasterTopology exposes contact count and error bound; error.details.logoFailure reason/next and serviceMessage retain readable reason alongside original code/message/jobId/idempotencyKey/stage",
+    "documentImpact": "No committed geometry or project mutation during recognition; contour review remains required",
+    "cacheImpact": "Rebuild Worker/Geometry/Logo/Runtime and generated page contracts; worker build hash invalidates old conversion cache; successful input sharing remains",
+    "requiredTests": [
+      "Actual supplied tiger JPG through local service and current page",
+      "Pixel-centre mask equivalence and retained contour/holes",
+      "Diagonal raster fixture and exact topology validation",
+      "Terminal LOGO retry, active deduplication, original receipt retention",
+      "Wizard locks all controls and Agent receives original structured failures"
+    ]
+  },
+  "logoMachiningOptimization20261021": {
+    "localImpact": "Explicit mm-bounded RDP simplification, compact island/hole removal and original outline retention; UI bitmap default profile 0.05mm deviation/0.2mm compact detail, editable and disableable",
+    "servicesImpact": "None: Services still emits raw contours; optimizer runs once after final mm width fitting in shared browser/API path",
+    "logoImpact": "Only explicitly optimized planar engraving without draft uses disjoint cutter compound and one cut; per-region source intersection and total removed volume checked; ordinary/emboss/draft behavior retained",
+    "contractImpact": "readLogo.machining and logoWizard.parameters.machining schema; report original/optimized counts, removed features, actual deviation and unchanged-ring fallback; no claim of machine capability",
+    "documentImpact": "Save optimized contour recipe plus original contour snapshot and explicit optimization report; fresh review required; source solid unmodified on failure",
+    "cacheImpact": "Backend cache remains raw and shared; rebuild page docs and knowledge for browser algorithm and mm parameters",
+    "requiredTests": [
+      "Real 30mm tiger: 32164 -> 1716 vertices, 470 -> 148 regions, 5 retained holes",
+      "Actual local WASM BRep engraving 40x40x2 plate, depth .15mm, one solid and source unchanged",
+      "Targeted parameter, bounds, topology, tiny-feature and compound-cut tests",
+      "One existing 17674 browser source/upload/review/preview check"
+    ]
   }
 }
