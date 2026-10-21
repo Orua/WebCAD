@@ -3,7 +3,7 @@
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.55.7",
+  "version": "1.55.8",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -98,5 +98,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:592d76beab88a2bddb239c41e769d3001634a2698640b401e4e525fc04f066a5"
+  "docsHash": "sha256:e39711b143b2617b24761c8d910747856378a8567518e37810e52601f39dc08c"
 }

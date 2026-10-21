@@ -2,7 +2,7 @@
   "id": "markLocation",
   "title": "markLocation",
   "category": "page-method",
-  "version": "1.55.7",
+  "version": "1.55.8",
   "contextPolicy": "revision",
   "docs": "api.location-marker",
   "inputSchema": {
@@ -118,5 +118,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:9be8f05bb190b54205cf7887def52e5d66ec4cf883a9ca767e11a065e845e1c8"
+  "docsHash": "sha256:6f15ebe4a6505493ce7245f52795384d2f5a49aaa12070dd4cc3996dd6355348"
 }

@@ -2,7 +2,7 @@
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.55.7",
+  "version": "1.55.8",
   "contextPolicy": "none",
   "description": "getUILayout({includeModelLibrary?:boolean})",
   "synonyms": [
@@ -81,5 +81,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:7ac706f70f02eef47e063deac2b997e9cae495fdec26a5698a6ea19df22c942c"
+  "docsHash": "sha256:7023efcf54a4a8aa8a699bf674cf633f674485fff121ad35456f66c1fb3fac6d"
 }
