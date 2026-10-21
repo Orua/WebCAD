@@ -2,7 +2,7 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.55.6",
+  "version": "1.55.7",
   "contextPolicy": "revision",
   "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
   "synonyms": [
@@ -77,5 +77,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:6129a1e5d259bcbb81fed40e31d0fd47c492e153ef70d92b13c1d914227aa6f9"
+  "docsHash": "sha256:05b90e55a495724b3634c50c4de77880a7e4d85c97f6eecaf3902f5f8302bb9e"
 }

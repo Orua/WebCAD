@@ -2,7 +2,7 @@
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.55.6",
+  "version": "1.55.7",
   "contextPolicy": "identity",
   "description": "capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:\"webp\"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。",
   "synonyms": [
@@ -51,6 +51,10 @@
         "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
       },
       {
+        "id": "markLocation",
+        "chooseWhen": "拾取可见模型表面的近似世界坐标，插入AI对话草稿；只用于指出位置，不自动发送、不修改几何。"
+      },
+      {
         "id": "setDisplayPreferences",
         "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
       },
@@ -85,5 +89,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:a96df6e5ab59dabc0a10454fe2120a6857110be8c1775b1fcf40d2cf46f52406"
+  "docsHash": "sha256:af07cf29c9e5bd726bbc8ebd83bab3ce24db89244385eb35b08c0339efdbb1f3"
 }

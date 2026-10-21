@@ -2,7 +2,7 @@
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.55.6",
+  "version": "1.55.7",
   "contextPolicy": "identity",
   "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
   "synonyms": [
@@ -49,6 +49,10 @@
         "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
       },
       {
+        "id": "markLocation",
+        "chooseWhen": "拾取可见模型表面的近似世界坐标，插入AI对话草稿；只用于指出位置，不自动发送、不修改几何。"
+      },
+      {
         "id": "setDisplayPreferences",
         "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
       },
@@ -75,5 +79,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:f4ef51b794a8e90c25a4c61b7df8e66f1a29ad2d89d5f9c064035b3404eb54e2"
+  "docsHash": "sha256:d6f2a89059ea16261fcc34807d4003c99c08b9062a12b5a341903d4081493f20"
 }

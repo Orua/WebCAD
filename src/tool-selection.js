@@ -253,6 +253,7 @@ const groups = [
     'feature.rename':'只改指定历史步骤及同 ID 实体名称。',
     'body.appearance':'指定实体颜色/材质覆盖，保存于工程且可撤销。',
     'document.appearance':'工程材质默认覆盖，仅作用于无单独覆盖的实体。',
+    markLocation:'拾取可见模型表面的近似世界坐标，插入AI对话草稿；只用于指出位置，不自动发送、不修改几何。',
     setDisplayPreferences:'浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。',
     setView:'相机、投影、显示、选择及剖切视图；不移动几何或执行切割。',
     setRenderQuality:'调整显示网格质量，不改变精确几何精度。',

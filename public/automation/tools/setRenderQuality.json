@@ -2,7 +2,7 @@
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.55.6",
+  "version": "1.55.7",
   "contextPolicy": "identity",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
@@ -53,6 +53,10 @@
         "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
       },
       {
+        "id": "markLocation",
+        "chooseWhen": "拾取可见模型表面的近似世界坐标，插入AI对话草稿；只用于指出位置，不自动发送、不修改几何。"
+      },
+      {
         "id": "setDisplayPreferences",
         "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
       },
@@ -79,5 +83,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:7087b777f31d0263a088a85034846bbb23954d33208cb7fecf275b188242c5a4"
+  "docsHash": "sha256:d94aaf81100229d1067c918ed2a2e1d2fd2c3036dd6afe415cdec5caa1f043d6"
 }

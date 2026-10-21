@@ -2,7 +2,7 @@
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.55.6",
+  "version": "1.55.7",
   "contextPolicy": "identity",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
@@ -54,6 +54,10 @@
         "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
       },
       {
+        "id": "markLocation",
+        "chooseWhen": "拾取可见模型表面的近似世界坐标，插入AI对话草稿；只用于指出位置，不自动发送、不修改几何。"
+      },
+      {
         "id": "setView",
         "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
       },
@@ -80,5 +84,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:315047f1804a5386d3054f689b2e2dd68b6bd0c0486dac8fc76c5caf43a820fc"
+  "docsHash": "sha256:c03e1be5848d498513a91d9245d9050cd37d4ce4d7da15d57bdded101db76901"
 }

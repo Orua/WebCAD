@@ -6,3 +6,4 @@
 .host-control-status[data-locked="true"] .host-lock{color:#d97706}
 .webcad-app.is-host-locked .busy-overlay{display:none}
 .webcad-app.is-host-locked .ribbon button,.webcad-app.is-host-locked .selection-modes button{opacity:.45;cursor:not-allowed}
+.webcad-app.is-host-locked .selection-modes [data-action="markLocation"]{opacity:1;cursor:pointer}

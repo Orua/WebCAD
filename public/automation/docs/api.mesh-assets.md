@@ -73,6 +73,7 @@ setDisplayPreferences: contextPolicy=identity
 getAgentPanel: contextPolicy=none
 configureAgentPanel: contextPolicy=revision
 setAgentPanel: contextPolicy=revision
+markLocation: contextPolicy=revision
 getServices: contextPolicy=none
 setServices: contextPolicy=revision
 getServicesCapabilities: contextPolicy=none

@@ -2,6 +2,7 @@ import { listOperations } from './operation-registry.js';
 
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
+  markLocation:{tools:['markLocation'],method:'markLocation',usage:'标记位置或选择箭头模式双击模型表面；markLocation({context,screen:[u,v]})使用相对视口0–1坐标，插入带实体/修订/世界mm坐标的AI草稿，不发送。active:true/false启动/取消拾取；只传context读active/last。显示网格坐标不是精确加工定位。'},
  logoReview:{tools:['readLogo','reviewLogo','logoWizard','files.read','files.download'],method:'reviewLogo',usage:'LOGO紧凑向导：来源→轮廓校对→目标面。位图加工精度由readLogo.machining或logoWizard.parameters.machining设置enabled/toleranceMm/minDetailMm，共享报告和原始轮廓。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。'},
  logoExport:{tools:['readLogo','exportDrawing','files.download'],method:'exportDrawing',usage:'LOGO识别后下载原毫米轮廓DXF；API先readLogo取得logoId，再exportDrawing({context,logoId,format:"dxf"})。保留外环和孔洞，不创建实体，不自动确认描摹精度。'},
  rodJunction:{tools:['rodJunction','queryGeometry','preview.start','preview.commit','preview.cancel','feature.edit','getState'],method:'execute',usage:'实体加工→圆杆接头倒 R。refs:[当前单实体ID]，params:{faceIds:[贯通主杆圆柱面ID,支杆圆柱面ID],radiusMm:独立半径mm}。支持等径、共面垂直T接头；查询当前面号，预览后确认；sourceJunctionReport读回实际R、线径、局部域和误差，失败保留来源。'},

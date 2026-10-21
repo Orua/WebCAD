@@ -3,7 +3,7 @@
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.55.6",
+  "version": "1.55.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -73,5 +73,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:8dc4f761a993fbbec763e9000ec367ff14663c259e050b4e33864a056d650b00"
+  "docsHash": "sha256:aeb283dd6e447f549bfddf8f5598fe6ce03b5b6e003af0ad42c4555d9e6d0ca7"
 }

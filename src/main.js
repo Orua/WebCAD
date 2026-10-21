@@ -1,3 +1,4 @@
+import {createLocationMarker} from './location-marker.js';
 import {validateReliefDesigns,updateReliefDesigns} from './relief-design-drafts.js';
 import {applyReliefDesignReference,readReliefDesignReference} from './relief-design-reference.js';
 import {legacyReliefParams} from './relief-param-migration.js';
@@ -206,6 +207,7 @@ const viewport=new CADViewport(document.getElementById('viewport'),{
   onRefineDisplay:input=>busy||!kernelReady||pending.size?null:request('refineDisplay',input),
   onRectangleSelect:input=>selectRectangle(input),
   onPick:pick,
+  onLocationMark:hit=>{deliverLocationMarker(hit).catch(reportError);},
   onPickCandidates:candidates=>ui.showPickCandidates(candidates),
   onSketch:({expectedFrameVersion,...params})=>{if(expectedFrameVersion!==documentModel.referenceSystem.workFrame.frameVersion){reportError(Object.assign(new Error('绘制期间参考锚点已变化，请重新绘制，避免轮廓落在错误平面。'),{code:'STALE_REFERENCE'}));return;}performAction('extrude',params).catch(reportError);},
   onMeasure:(distance,delta)=>setStatus(`距离 ${distance.toFixed(3)} mm · ΔX ${delta[0].toFixed(3)} / ΔY ${delta[1].toFixed(3)} / ΔZ ${delta[2].toFixed(3)}`),
@@ -704,6 +706,7 @@ async function rebuildLargeImport(next,options){
   }
 }
 async function performAction(action,params={}){
+  if(action==='markLocation'){const result=await pageAPI.markLocation({context:pageAPI.getState().context,active:true});if(result.status==='failed')reportError(result.error);return result;}
   if(!['save','downloadResource'].includes(action))assertHumanEditing();
   if(['copySelection','pasteSelection'].includes(action))return performShortcut(action);
   if(action==='downloadResource'){const result=await pageAPI.files.download({resourceId:params.resourceId});setStatus('下载已发起；请在浏览器下载记录中确认。');return result;}
@@ -992,7 +995,7 @@ async function executeAI(command,args={},options={}){
     if(action==='feature.rename'){const body=bodies.find(b=>b.id===a.featureId);if(body)body.name=a.name.trim();}
     lastWarnings=[];
     if(origin==='agent'&&action==='body.appearance'&&a.color!==undefined&&a.finish&&a.finish!=='design')lastWarnings.push({code:'COLOR_IGNORED_BY_METAL_FINISH',finish:a.finish,color:a.color});
-    try{if(origin!=='agent'&&['body.appearance','document.appearance'].includes(action))clearSelection();applyAppearance();viewport.setHidden(next.hidden);flushDisplayBatch();viewport.markModel({documentId:next.documentId,documentInstanceId,revision});refresh();}catch(e){lastWarnings.push({code:'DISPLAY_FAILED',message:e.message});}
+    try{if(['body.appearance','document.appearance'].includes(action))clearSelection();applyAppearance();viewport.setHidden(next.hidden);flushDisplayBatch();viewport.markModel({documentId:next.documentId,documentInstanceId,revision});refresh();}catch(e){lastWarnings.push({code:'DISPLAY_FAILED',message:e.message});}
     void autosave();return aiState();
   }
   if(command==='set_parameters'){
@@ -1085,6 +1088,7 @@ const pageAPI=createPageAPI({
   decideServicesWait:input=>decideServicesWait(input.jobId,input.decision),
   servicesRouting:()=>({operationPolicy:{localOnly:EXECUTION_POLICY.localOnlyOperations,conditionalServices:EXECUTION_POLICY.servicesEligibleOperations,quickModels:'all-local',unknownOperation:EXECUTION_POLICY.unknownOperation},unavailableOperations:tbdCapabilities.operations,policyVersion:EXECUTION_POLICY.policyVersion,executionTimeouts:{localTimeoutMs:getServicesConfig().localTimeoutMs,serverWaitMs:getServicesConfig().serverWaitMs},pendingWait:pendingServicesWait?{jobId:pendingServicesWait.jobId,elapsedMs:pendingServicesWait.elapsedMs,execution:pendingServicesWait.execution,requestKey:pendingServicesWait.requestKey,decisionRequired:true}:null,lastDecision:lastServicesDecision?.documentInstanceId===documentInstanceId?clone(lastServicesDecision):null,historyStorage:'bounded-session-memory',automaticUploadConsent:getServicesConfig().allowGeometryUploads}),
   history:()=>timelineList(documentModel),
+  locationMarker:async input=>{if(input.screen)return deliverLocationMarker(viewport.pickLocation(input.screen));if(input.active!==undefined){if(input.active){if(!hostControl.get().connected)throw Object.assign(new Error('请先连接原生 Agent，再标记位置。'),{code:'AGENT_COMPOSER_UNAVAILABLE'});if(busy||previewNext||viewport.sketch||viewport.measuring||ui.hasActiveTask())throw Object.assign(new Error('请先完成当前操作再标记位置。'),{code:'UI_TASK_ACTIVE'});viewport.startLocationMarking();}else if(viewport.locationMarking)viewport.cancelTask();}const last=lastLocationMarker?.marker.context;return {status:'read',active:!!viewport.locationMarking,last:last?.documentInstanceId===documentInstanceId?lastLocationMarker:null};},
   planAlignment:input=>planBodyAlignment(input,bodies,documentModel.referenceSystem),
   selectRectangle:input=>{if(ui.hasActiveTask())throw Object.assign(new Error('请先完成当前人工任务'),{code:'UI_TASK_ACTIVE'});return selectRectangle(input);},
   createDrawing:async input=>{const expected=revision;if(input.bodyIds.reduce((sum,id)=>sum+(bodies.find(b=>b.id===id)?.faceGroups.length||0),0)>1500)throw Object.assign(new Error('选择的面超过1500个，请分批出图'),{code:'RESOURCE_LIMIT'});setBusy(true,'生成三视图与截面…');try{const result=await request('technicalDrawing',{input});checkTransaction(undefined,expected);return result.drawing;}finally{setBusy(false);}},
@@ -1124,6 +1128,16 @@ const pageAPI=createPageAPI({
   view:async input=>{flushDisplayBatch();ui.setWorkspaceLayout(input);viewport.setViewInteraction(input.interactionPhase??'end');if(input.anchorVisible!==undefined)viewport.setAnchorVisible(input.anchorVisible);if(input.panels)ui.setPanels(input.panels);if(input.temporaryDisplay)viewport.setTemporaryDisplay(input.temporaryDisplay);if(input.display)viewport.setDisplay(input.display);if(input.grid!==undefined)viewport.grid.visible=input.grid;if(input.snap!==undefined)viewport.snapEnabled=input.snap;if(input.gizmo){if(input.gizmo!=='off'){viewport.setAnchorDrag(false);viewport.setSelectionMode('body');selectedTopology=null;}viewport.setGizmo(input.gizmo);}if(input.selectionMode){if(input.selectionMode!=='body')viewport.setGizmo('off');viewport.setSelectionMode(input.selectionMode);selectedTopology=null;}if(input.language){setLanguage(input.language);viewport.updateLanguage();ui.update({language:input.language});}if(input.camera)viewport.setCamera(input.camera);if(input.section)viewport.setSection(input.section);if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){if(JSON.stringify(input.selectedIds)!==JSON.stringify(selectedIds))ui.discardForSelection();selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);}if(input.display!==undefined)clearSelection();viewport.setSelection(selectedIds,selectedTopology);refresh();await viewport.frame();},
   redraw:async()=>{flushDisplayBatch();viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();lastWarnings=lastWarnings.filter(w=>w.code!=='DISPLAY_FAILED');},
 });
+let lastLocationMarker=null,locationMarkerNumber=0;
+async function deliverLocationMarker(hit){
+  if(!hostControl.get().connected)throw Object.assign(new Error('请先连接原生 Agent，再标记位置。'),{code:'AGENT_COMPOSER_UNAVAILABLE'});
+  if(busy||previewNext||viewport.sketch||viewport.measuring)throw Object.assign(new Error('请先完成当前操作再标记位置。'),{code:'UI_TASK_ACTIVE'});
+  const marker=createLocationMarker(hit,pageAPI.getState().context,++locationMarkerNumber);
+  lastLocationMarker={marker,delivery:'pending'};
+  const result=await assistantPanel.insertLocation(marker);
+  lastLocationMarker={marker,...result};setStatus(result.delivery==='composer'?`位置 ${marker.label} 已插入 AI 输入框，尚未发送`:`位置 ${marker.label} 已生成可复制文本`);
+  return {status:'applied',...lastLocationMarker,context:pageAPI.getState().context};
+}
 const assistantPanel=createAssistantPanel({getApi:()=>pageAPI,hostControl,onChange:state=>ui.setAgentPanel(state)});
 Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI,hostControl,assistantPanel,agent:Object.freeze({contract:AGENT_CONTRACT,createHostAdapter,uploadChunked,uploadArtifact,createBrokerUploadClient})}),writable:false,configurable:false});
 ui.setAgentPanel(assistantPanel.get());

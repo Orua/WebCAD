@@ -2,7 +2,7 @@
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.55.6",
+  "version": "1.55.7",
   "contextPolicy": "revision",
   "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
   "synonyms": [
@@ -81,5 +81,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:f7eae298e0b401ce0e44a6052c9a66127b83a377a736c34777d5e7b67554cb17"
+  "docsHash": "sha256:18aee922c17b4546d896df438c4ea66bfc521be06aabc7ab5431dacf2686d0b2"
 }

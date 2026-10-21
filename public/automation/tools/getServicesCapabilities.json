@@ -2,7 +2,7 @@
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.55.6",
+  "version": "1.55.7",
   "contextPolicy": "none",
   "description": "getServicesCapabilities()；读取已配置服务。",
   "synonyms": [
@@ -98,5 +98,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:a1f911bafa351c6a3d690e0fae0cf469dd4bed21eddf5883fb2ff6e0bb4d2a71"
+  "docsHash": "sha256:fa01c3ed1495e6badd8de382aa7ad3a693f2025ef525438c549e7f92dda14c90"
 }

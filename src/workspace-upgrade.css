@@ -103,16 +103,16 @@
 .webcad-app .file-menu>summary::after{display:none}
 .webcad-app .ribbon{height:44px;min-height:44px;padding:5px 12px;gap:8px;overflow-x:auto}
 .webcad-app .ribbon-group{flex-direction:row;border-color:var(--ui-border);padding-right:8px}
-.webcad-app .ribbon .tool-button,.webcad-app .ribbon .view-tool{width:auto;height:34px;min-width:34px;max-width:none;min-height:34px;padding:7px;border:0;gap:5px;flex:0 0 auto;flex-direction:row;box-sizing:border-box}
-.webcad-app .ribbon .tool-label{display:inline}
+.webcad-app .ribbon .tool-button,.webcad-app .ribbon .view-tool{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;min-width:34px;max-width:34px;min-height:34px;padding:7px;border:0;gap:0;flex:0 0 34px;flex-direction:row;box-sizing:border-box}
+.webcad-app .ribbon .tool-label{display:none}
 .webcad-app .ribbon .tool-icon{color:var(--accent-ink);font-size:0;line-height:1;display:flex;align-items:center;justify-content:center}
 .webcad-app .ribbon .ui-vector-icon,.webcad-app .ribbon svg.selection-arrow{width:20px;height:20px}
 .webcad-app .ribbon .tool-icon{width:20px;height:20px;flex:0 0 20px}
 .webcad-app .ribbon .tool-icon svg,.webcad-app .ribbon .view-tool .tool-icon svg{width:20px;height:20px;min-width:20px;min-height:20px;flex:none}
 .webcad-app .ribbon .tool-button.active,.webcad-app .ribbon .view-tool.active,.webcad-app .ribbon button[aria-pressed=true]{background:var(--accent-soft);border:0;box-shadow:none;color:var(--accent-ink)}
-.webcad-app .ribbon-more-items .tool-button{width:100%;max-width:none;justify-content:flex-start;gap:8px}
-.webcad-app .ribbon-more-items .tool-label{display:inline}
-.webcad-app .ribbon .view-grid{display:flex;gap:2px}
+.webcad-app .ribbon-more-items{grid-template-columns:repeat(4,34px);width:max-content;max-width:calc(100vw - 24px);gap:4px}
+.webcad-app .ribbon-more summary{width:34px;height:34px;padding:7px}
+.webcad-app .ribbon .view-grid{display:flex;gap:2px;max-width:none;flex-wrap:nowrap}
 .webcad-app .library-controls .library-control-icon,.webcad-app .library-controls .library-close{width:34px;height:34px;min-width:34px;padding:6px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px}
 .webcad-app .library-control-icon .ui-vector-icon,.webcad-app .library-close .ui-vector-icon{width:18px;height:18px}
 @container model-picker (max-width:640px){.library-content{grid-template-columns:minmax(0,1fr)}.library-detail{order:-1;position:static;display:grid;grid-template-columns:64px minmax(0,1fr);gap:4px 12px;padding:12px}.library-detail>.quick-model-icon{grid-row:1/4;height:64px}.library-detail>p,.library-detail .library-defaults,.library-detail .library-contract,.library-detail>.secondary{display:none}.library-detail>button{margin:0}.library-detail h2{font-size:14px}.library-grid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}}

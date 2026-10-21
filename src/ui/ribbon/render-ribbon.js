@@ -38,7 +38,8 @@ export function renderWorkspaceRibbon({q,toolButtons,activeCategory,UI_LAYOUT,gr
       (more&&(policy.overflowActions?policy.overflowActions.includes(action):index>=policy.visibleActions)?menu:row).append(b);toolButtons.push(b);
     }
     if(more){
-      const summary=element('summary',{'aria-label':label+'：更多工具'},policy.overflowLabel);
+      const summary=element('summary',{'aria-label':label+'：更多工具',title:label+'：更多工具'});
+      summary.append(actionIcon('moreTools'));
       more.append(summary,menu);
       more.addEventListener('toggle',()=>{
         if(!more.open)return;
@@ -56,7 +57,7 @@ export function renderWorkspaceRibbon({q,toolButtons,activeCategory,UI_LAYOUT,gr
     const control=UI_LAYOUT.controls[id],row=group(control.label);row.classList.add('view-grid');row.setAttribute('role','group');row.setAttribute('aria-label',control.label);
     for(const [label,value]of control.items){
       const action=control.action||value,b=button('',()=>emit(action,control.key?{[control.key]:value}:undefined),'view-tool');
-      b.append(actionIcon(value),element('span',{class:'tool-label'},UI_LAYOUT.shortLabels?.[value]||label));b.dataset.action=action;b.dataset.fullLabel=label;b.dataset.group=control.label;b.setAttribute('aria-label',label);
+      b.append(actionIcon(value),element('span',{class:'tool-label'},UI_LAYOUT.shortLabels?.[value]||label));b.dataset.action=action;b.dataset.fullLabel=label;b.dataset.group=control.label;b.setAttribute('aria-label',label);b.title=label;
       if(control.setting){b.dataset.setting=control.setting;b.dataset.value=value;}row.append(b);toolButtons.push(b);
     }
   }

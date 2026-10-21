@@ -1,5 +1,71 @@
 {
   "version": 1,
+  "aiLocationMarkers20261021": {
+    "localImpact": "Read-only point marker tool and selection-mode double click; normalized screen pick returns world-mm mesh position bound to current document/revision",
+    "servicesImpact": "No compute service change; Goldenluck workspace composer receives validated text drafts through existing host/iframe channel",
+    "logoImpact": "None: source geometry and Logo workflows unchanged",
+    "contractImpact": "Page API 1.55.7 markLocation screen/active/state with explicit no-hit and active-task errors; UI route and Agent view method registered",
+    "documentImpact": "Transient marker, no geometry/history/dirty change; user draft preserved, never automatically sent",
+    "cacheImpact": "Rebuild frontend knowledge and bump workspace script cache version; both local integrations required",
+    "requiredTests": ["Visible mesh point, clipped/empty pick, context/parameter validation", "Draft append/dedup/no-send and stale binding", "One 17674 tool/API/double-click pass with composer readback"]
+  },
+  "clearSelectionAfterRendering20261021": {
+    "localImpact": "Body and document appearance clear all body/topology selection for both UI and API origins so highlight does not mask the material",
+    "servicesImpact": "None: browser selection and appearance only",
+    "logoImpact": "None: source geometry and Logo processing unchanged",
+    "contractImpact": "Align API with the existing api.interaction selection-clearing contract; arguments and errors unchanged",
+    "documentImpact": "Geometry and appearance history semantics unchanged; selection is transient",
+    "cacheImpact": "Rebuild frontend and matching static build identity",
+    "requiredTests": ["Selection feedback and agent geometry selection preservation", "One 17674 UI/API appearance pass with previously selected bodies"]
+  },
+  "deeper24kPlating20261021": {
+    "localImpact": "Deepen polished 24K gold linear RGB and reduce its body tint; keep roughness/reflection strength and other finishes unchanged",
+    "servicesImpact": "None: browser finish data only",
+    "logoImpact": "None: source and geometry unchanged",
+    "contractImpact": "Existing 24k-gold key and appearance operations unchanged",
+    "documentImpact": "Existing 24K finish references use corrected colour; no geometry/history migration",
+    "cacheImpact": "Rebuild matching frontend assets and static identity",
+    "requiredTests": ["Material and selection checks", "One 17674 shallow-gold versus deeper 24K comparison"]
+  },
+  "hdrPlatingBrightness20261021": {
+    "localImpact": "Raise standard HDR reflection intensity from 1 to 1.2; slightly lighten antique-brass base RGB while preserving roughness and patina",
+    "servicesImpact": "None: browser material and display settings only",
+    "logoImpact": "None: geometry and source contours unchanged",
+    "contractImpact": "Existing environmentIntensity range unchanged; document the new standard value",
+    "documentImpact": "Preserve finish keys, geometry and history; only untouched old display presets migrate",
+    "cacheImpact": "Rebuild matching frontend assets and static documentation",
+    "requiredTests": ["Material and selection tests", "Default and cookie checks", "One same-camera six-colour HDR comparison"]
+  },
+  "restoreHdrMetalDefault20261021": {
+    "localImpact": "All metal presets default to the existing HDR reflection path; migrate only untouched former studio defaults and retain custom display preferences",
+    "servicesImpact": "None: browser rendering only",
+    "logoImpact": "None: source and machining geometry unchanged",
+    "contractImpact": "Same environmentMode and finish keys; update display default documentation and knowledge hashes",
+    "documentImpact": "Preserve body and project finish assignments, geometry and history",
+    "cacheImpact": "One frontend build with regenerated static discovery",
+    "requiredTests": ["All metal presets use HDR by default", "Cookie migration preserves custom settings", "Targeted material and selection tests", "One 17674 pass comparing plating colours on the same samples and camera"]
+  },
+  "polishedLightGoldReflection20261021": {
+    "localImpact": "Polished light gold uses the existing PMREM studio environment and Three metal BRDF, without the analytic reflection blur floor or lacquer; retain the same plating colour and user roughness/light controls",
+    "servicesImpact": "None: browser material/shader selection only",
+    "logoImpact": "None: geometry and Logo sources unchanged",
+    "contractImpact": "Same finish key and display preference arguments; no new operation",
+    "documentImpact": "Existing light-gold appearance remains valid; no model or saved preference migration",
+    "cacheImpact": "Rebuild frontend assets; keep HDR and other finish paths unchanged",
+    "requiredTests": ["Metal material and selection tests", "Build release gate", "One 17674 light-gold rendering check; original open model acceptance when browser control is available"]
+  },
+  "menuAndFileChoiceLayout20261021": {
+    "localImpact": "Separate recent-file rows from dialog actions; icon-only ribbon and overflow with named hover hints; repair malformed and ambiguous menu icons",
+    "servicesImpact": "None: presentation only, no service requests or configuration changes",
+    "logoImpact": "None: no contour, source or Logo worker changes",
+    "contractImpact": "No action or argument changes; retain current UI/API routes, accessible names and disabled reasons",
+    "documentImpact": "None: preserve open/save behavior, geometry and project history",
+    "cacheImpact": "Rebuild frontend assets and matching static discovery identity",
+    "requiredTests": [
+      "Build and existing release contract checks",
+      "One 17674 browser pass: all menu icons and hints, long recent filename, narrow layout, cancel and unchanged document"
+    ]
+  },
   "reliefDesignNumericalCore20261021": {
     "localImpact": "Product Pro domain/pipeline/field-solver/local-edit run in a bounded cancellable numerical Worker; UI visual field/residual readback and supported candidate creation use current CommandService",
     "servicesImpact": "None: no server protocol or renderer/Native changes; supported meshHeightfieldRelief remains local",
