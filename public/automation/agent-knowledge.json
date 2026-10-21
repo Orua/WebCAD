@@ -1,31 +1,31 @@
 {
   "schemaVersion": 1,
-  "pageApiVersion": "1.55.4",
-  "catalogHash": "sha256:d102554be35d5defa399fc192b37d989d5e9d17fa8474850a65932023ea4f493",
-  "docsHash": "sha256:6738e7a7da3e73779c3fd3af905c575d35bb5bc81e8e28a6d9b4e87a1e1a9eac",
+  "pageApiVersion": "1.55.6",
+  "catalogHash": "sha256:2417605d67b979c14cd3a1b97ec79d97839e1145a1d833cae8db3641c6c9bc45",
+  "docsHash": "sha256:67fbab2b0b5ef3234d94681914996f531b7f50d0b63ab80b426f64da4c916261",
   "policy": "required-on-first-handshake",
   "scope": "static-docs-and-contracts-only",
   "files": [
     {
       "name": "index.json",
       "url": "index.json",
-      "sizeBytes": 5152883,
-      "sha256": "sha256:8ddc6e0a2ac5ed6d2411ffcf823e3fadc5cd0576b427e5fe3fa04e61965ebf43"
+      "sizeBytes": 5167208,
+      "sha256": "sha256:13721dc2902d7ea72cfe20cb100bc8e696bd3d239a8097e96c5c09475cafb7f8"
     },
     {
       "name": "agent-routing.json",
       "url": "agent-routing.json",
       "sizeBytes": 30539,
-      "sha256": "sha256:cdd5b528373b6065db25e81fb89250e1371f7140a778262fd120a9f2b0fa5e70"
+      "sha256": "sha256:121d2411fca83ab50f5a0f2a7aa8e398230d281dd3c7488c7bf9580cbda09f2b"
     },
     {
       "name": "routes.json",
       "url": "routes.json",
       "sizeBytes": 65793,
-      "sha256": "sha256:bbd344eeda9fae07e808bd68f4bfb14af54e10434c118b4e6045de4d6e02d5bc"
+      "sha256": "sha256:949142474aae72e096819e6976694a32b29e260b4b4a5431df8aca3f4fd970bf"
     }
   ],
-  "totalBytes": 5249215,
+  "totalBytes": 5263540,
   "routing": "agent-routing.json",
   "index": "index.json",
   "uiRoutes": "routes.json",

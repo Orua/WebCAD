@@ -2989,5 +2989,31 @@
       "Targeted parameter, bounds, topology, tiny-feature and compound-cut tests",
       "One existing 17674 browser source/upload/review/preview check"
     ]
+  },
+  "logoContourFitting20261021": {
+    "localImpact": "Shared browser UI/API raster machining optimizer fits straight segments and circular arcs within a certified two-sided complete-polyline deviation, caps tolerance by short physical dimension, and validates complete topology",
+    "servicesImpact": "None: uses existing source raster conversion unchanged; no new backend job or binary",
+    "logoImpact": "Raster machining only; preserve source originals, region/hole identity, zero-tolerance behavior and raw fallback; vector RDP unchanged; actual tiger uses same-tolerance certified conservative source-vertex reduction for self-touching fitted rings",
+    "contractImpact": "API docs 1.55.6; existing machining arguments retained, report conservativeFallbackRings as well as effective tolerance and fitting/readiness; arcs remain sampled polylines",
+    "documentImpact": "Only new optimized sources freeze fitted contours and report; existing geometry/history not reinterpreted",
+    "cacheImpact": "Rebuild matching static docs and frontend; preserve projects and backend jobs",
+    "requiredTests": [
+      "Noisy straight edges, circular contours, two-sided bound rejection, holes, zero tolerance",
+      "Actual MARC raster contour topology and successful 17674 BRep engraving with visible comparison",
+      "Actual 30mm tiger: retain 148 regions/5 holes, same 0.05mm bound, conservative fallback and one BRep engraving comparison"
+    ]
+  },
+  "reliefDesignFitBrep20261021": {
+    "localImpact": "Read-only prepareReliefDesignRelief turns the retained fit plus a trusted planar support read into ordinary relief params; CadKernel re-verifies params.designBinding before buildRelief",
+    "servicesImpact": "none: complex fit-bound grids are blocked (RELIEF_DESIGN_NATIVE_REQUIRED); no Services/Native capability opened; physicalExecutionKey strips only designBinding.audit",
+    "logoImpact": "none",
+    "contractImpact": "relief params.designBinding strict optional schema and RELIEF_DESIGN_* error codes merged into current API 1.55.6; regenerate shared contracts from the combined current source; no new page tool yet",
+    "documentImpact": "binding persists in feature.params and recipe fingerprints; reopen rebuilds from stored controls/mask without re-fitting",
+    "cacheImpact": "relief schemaHash/catalog/docs refresh; binding participates in recipe and cache keys",
+    "requiredTests": [
+      "planner provenance, blockers and stale rejection",
+      "kernel build, tamper/source-change rejection, preview/commit, reopen, STEP",
+      "release gate"
+    ]
   }
 }

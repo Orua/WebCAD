@@ -585,6 +585,319 @@
           }
         }
       },
+      "designBinding": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Strict fit→planar relief binding (version 1). Physical inputs are re-verified before every kernel execution; audit is provenance only.",
+        "required": [
+          "version",
+          "kind",
+          "datum",
+          "support",
+          "placement",
+          "field",
+          "controls",
+          "mask",
+          "audit"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "const": 1
+          },
+          "kind": {
+            "type": "string",
+            "const": "reliefDesignFit"
+          },
+          "datum": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "baselineMm"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "authoredBaselineOnSelectedFace"
+              },
+              "baselineMm": {
+                "type": "number"
+              }
+            }
+          },
+          "support": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sourceSha256",
+              "faceId",
+              "centerMm",
+              "normal"
+            ],
+            "properties": {
+              "sourceSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "faceId": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000,
+                "unit": "1",
+                "quantityKind": "index",
+                "quantizationPolicy": "none"
+              },
+              "centerMm": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number",
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "normal": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number",
+                  "unit": "1",
+                  "quantityKind": "direction",
+                  "quantizationPolicy": "none"
+                },
+                "unit": "1",
+                "quantityKind": "direction",
+                "quantizationPolicy": "none"
+              }
+            }
+          },
+          "placement": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "originMm",
+              "xDirection"
+            ],
+            "properties": {
+              "originMm": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number",
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "xDirection": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "field": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "columns",
+              "rows",
+              "widthMm",
+              "heightMm",
+              "active",
+              "fixedMask",
+              "activeSha256",
+              "fixedMaskSha256"
+            ],
+            "properties": {
+              "columns": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 129
+              },
+              "rows": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 129
+              },
+              "widthMm": {
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "heightMm": {
+                "type": "number",
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "active": {
+                "type": "string",
+                "minLength": 4,
+                "maxLength": 24000,
+                "pattern": "^[A-Za-z0-9+/]+=*$"
+              },
+              "fixedMask": {
+                "type": "string",
+                "minLength": 4,
+                "maxLength": 24000,
+                "pattern": "^[A-Za-z0-9+/]+=*$"
+              },
+              "activeSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "fixedMaskSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "controls": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "columns",
+              "rows",
+              "mode",
+              "locked",
+              "lockedSha256",
+              "controlsSha256",
+              "maxDeltaMm"
+            ],
+            "properties": {
+              "columns": {
+                "type": "integer",
+                "minimum": 4,
+                "maximum": 65
+              },
+              "rows": {
+                "type": "integer",
+                "minimum": 4,
+                "maximum": 65
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "emboss",
+                  "engrave"
+                ]
+              },
+              "locked": {
+                "type": "string",
+                "minLength": 4,
+                "maxLength": 24000,
+                "pattern": "^[A-Za-z0-9+/]+=*$"
+              },
+              "lockedSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "controlsSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "maxDeltaMm": {
+                "type": "number"
+              }
+            }
+          },
+          "mask": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "generator",
+              "regionsSha256"
+            ],
+            "properties": {
+              "generator": {
+                "type": "string",
+                "const": "analyzeDesignMask-rowflip-exact-collinear-v1"
+              },
+              "regionsSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          "audit": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "designId",
+              "draftRevision",
+              "draftFingerprint",
+              "fieldFingerprint",
+              "optionsFingerprint",
+              "metrics"
+            ],
+            "properties": {
+              "designId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "draftRevision": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000000
+              },
+              "draftFingerprint": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "fieldFingerprint": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "optionsFingerprint": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "metrics": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "trainingMaxMm",
+                  "independentMaxMm",
+                  "protectionMaxMm",
+                  "deviationKind"
+                ],
+                "properties": {
+                  "trainingMaxMm": {
+                    "type": "number"
+                  },
+                  "independentMaxMm": {
+                    "type": "number"
+                  },
+                  "protectionMaxMm": {
+                    "type": "number"
+                  },
+                  "deviationKind": {
+                    "type": "string",
+                    "const": "sampled-not-global"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "localPatches": {
         "type": "array",
         "minItems": 1,
@@ -911,7 +1224,7 @@
     "小图）"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:6c7abf7774ab9f388aae84156279366aa94917fda28f339d839ec8519c0fe298",
+  "schemaHash": "sha256:5f1776cd124b9bf8b61dbd7c05e735246c36511e0a63826d1db3df41bb3ef351",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -1172,6 +1485,11 @@
     "RELIEF_INVALID",
     "RELIEF_CURVE_DEVIATION",
     "RELIEF_CURVE_TOPOLOGY_INVALID",
+    "RELIEF_DESIGN_BINDING_INVALID",
+    "RELIEF_DESIGN_SOURCE_CHANGED",
+    "RELIEF_DESIGN_SUPPORT_INVALID",
+    "RELIEF_DESIGN_NATIVE_REQUIRED",
+    "RELIEF_DESIGN_MASK_BLOCKED",
     "RELIEF_SAMPLE_OUTSIDE",
     "RELIEF_SHOULDER_INVALID",
     "RELIEF_SHOULDER_UNSUPPORTED",
@@ -1300,6 +1618,17 @@
       },
       "machiningIntent": {
         "meaning": "machiningIntent: 浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "designBinding": {
+        "meaning": "Strict fit→planar relief binding (version 1). Physical inputs are re-verified before every kernel execution; audit is provenance only.",
         "unit": "none",
         "range": [
           null,
@@ -1615,6 +1944,31 @@
       },
       {
         "code": "RELIEF_CURVE_TOPOLOGY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_DESIGN_BINDING_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_DESIGN_SOURCE_CHANGED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_DESIGN_SUPPORT_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_DESIGN_NATIVE_REQUIRED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "RELIEF_DESIGN_MASK_BLOCKED",
         "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
       },
@@ -1956,6 +2310,31 @@
       "recovery": "读取当前工具卡并修正参数或来源"
     },
     {
+      "code": "RELIEF_DESIGN_BINDING_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_DESIGN_SOURCE_CHANGED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_DESIGN_SUPPORT_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_DESIGN_NATIVE_REQUIRED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "RELIEF_DESIGN_MASK_BLOCKED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
       "code": "RELIEF_SAMPLE_OUTSIDE",
       "when": "输入违反该操作源码的校验或几何约束",
       "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
@@ -2084,5 +2463,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:ca8e64288330000ecfc98d1c794831da026810a206d9a98cec0619a6a8998b98"
+  "docsHash": "sha256:d0d291ac941732188187acaf39ab07bc860eaa970d8ad4346f016cccfeacb91c"
 }

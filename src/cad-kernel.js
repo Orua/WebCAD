@@ -41,6 +41,8 @@ import {inspectFaceRoundSource} from './services/face-round-plan.js';
 import {geometryFeatureSignature} from './services/geometry-signature.js';
 import {ReliefLayerCache} from './modeling/manufacturing/relief-layer-cache.js';
 import {binaryHash} from './contracts/operation-schema.js';
+import {planarFace as referencePlanarFace} from './reference-profile-wires.js';
+import {verifyReliefDesignBinding,readPlanarSupport} from './modeling/manufacturing/relief-design-binding.js';
 import { buildAdvancedLoft } from './advanced-loft.js';
 import { buildCurveSweep } from './curve-sweep.js';
 import { buildArcProfile } from './arc-profile.js';
@@ -321,7 +323,11 @@ export class CadKernel {
       case 'curvedLogo': return buildCurvedLogo(source(),p,cad);
       case 'fittedSurface': return buildFittedSurface(p,cad);
       case 'reliefShoulder': throw Object.assign(new Error('中央肩部需要已配置的 Services；离线仅能打开已保存结果'),{code:'SERVICES_CONFIG_REQUIRED'});
-      case 'relief': return buildRelief(source(),p,this.oc,cad,{onProgress:this.onProgress,layerCache:this.reliefLayerCache,sourceFingerprint:execution.sourceFingerprint});
+      case 'relief': {
+        // Fit-bound relief: re-verify frozen source bytes, face, placement, masks and controls before any geometry.
+        if(p.designBinding){const shape=source();verifyReliefDesignBinding(p,{sourceSha256:execution.sourceFingerprint?.slice(7),support:readPlanarSupport(shape,p.faceId,cad,referencePlanarFace)});}
+        return buildRelief(source(),p,this.oc,cad,{onProgress:this.onProgress,layerCache:this.reliefLayerCache,sourceFingerprint:execution.sourceFingerprint});
+      }
       case 'badge': return buildBadge(source(),p,cad);
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
       case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0,frame},cad);
@@ -766,6 +772,13 @@ export class CadKernel {
       if(selected?.geomType==='PLANE'){const wires=Array.from(cad.iterTopo(selected.wrapped,'wire'));try{holes=Math.max(0,wires.length-1);}finally{wires.forEach(wire=>wire.delete());}}
       return {bytes:data.length,faces:faces.length,edges:edges.length,solids:solids.length,holes,sourceSha256:binaryHash(data).slice(7),holeCountStatus:holes===null?'unknown-not-inferred-from-cylindrical-wires':'selected-planar-face-inner-wires'};
     }finally{faces.forEach(face=>face.delete());edges.forEach(edge=>edge.delete());solids.forEach(solid=>solid.delete());}
+  }
+  // Trusted planar support summary for prepareReliefDesignRelief: frozen snapshot SHA first, then face facts.
+  reliefDesignSupport(featureId,faceId){
+    const shape=this.shapes.get(featureId);if(!shape)throw Object.assign(new Error('来源特征几何已失效'),{code:'STALE_REFERENCE'});
+    if(!Number.isInteger(faceId)||faceId<0)throw Object.assign(new Error('请明确选择一个支撑平面'),{code:'PARAM_SCHEMA_INVALID'});
+    const sourceSha256=binaryHash(new TextEncoder().encode(this.geometrySourceSnapshot(shape))).slice(7);
+    return {bodyId:featureId,sourceSha256,...readPlanarSupport(shape,faceId,cad,referencePlanarFace)};
   }
   prepareReliefPlan(sourceFeatureId,params){
     const shape=this.shapes.get(sourceFeatureId);if(!shape)throw Object.assign(new Error('浮雕来源特征几何已失效'),{code:'STALE_REFERENCE'});
