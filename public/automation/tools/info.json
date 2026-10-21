@@ -2,7 +2,7 @@
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.55.7",
+  "version": "1.55.8",
   "contextPolicy": "none",
   "description": "info() 无参数。",
   "synonyms": [
@@ -70,5 +70,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:cbb0947355f1615b8923f8da14649ae7bf56ea43f4b723b8abe181bc6997c250"
+  "docsHash": "sha256:fd018bac41d44ad17e2d88aee1a083a3913aeee5b201a93cbb32546d0e1c88a1"
 }

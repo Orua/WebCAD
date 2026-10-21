@@ -2,7 +2,7 @@
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.55.7",
+  "version": "1.55.8",
   "contextPolicy": "identity",
   "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
   "synonyms": [
@@ -74,5 +74,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:4e072507f3e42bdee3ef87dbd946bc97f445bb51953acbbba201c098f0b26f79"
+  "docsHash": "sha256:7460cb73e3b4a0a297fe1381905e79e8f622516ed70e41387416bae8a038601a"
 }

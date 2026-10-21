@@ -2,7 +2,7 @@
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.55.7",
+  "version": "1.55.8",
   "contextPolicy": "none",
   "description": "recoverServicesJob({jobId,reason,approved:true,acknowledgedState:\"interrupted\",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。",
   "synonyms": [
@@ -99,5 +99,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:aa480297054954edd74ad4b9d2f5ea7b786df9ee156d87b19ff8027619f8fc51"
+  "docsHash": "sha256:6cefcf45bb33f881044f03c8b5d58fa0638ef788c4c90f9d4aa2bb804ca9f399"
 }

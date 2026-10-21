@@ -2,7 +2,7 @@
   "id": "reliefDesignField",
   "title": "reliefDesignField",
   "category": "page-method",
-  "version": "1.55.7",
+  "version": "1.55.8",
   "contextPolicy": "revision",
   "description": "reliefDesignField({context,action:\"solve\"|\"get\"|\"cancel\"|\"candidate\",designId,expectedDraftRevision,options?,baseMm?})。先document.reliefDesign保存草稿；solve在30秒可取消Worker中运行Pro求解器。options可用columns/rows 9–129（默认33）、smoothWeight默认1、maxIterations 1–20000（默认10000）、toleranceMm默认0.0001、edits。圆形/矩形支撑、孔和保护域均进入保守掩码，最低设计高度为保护基线；高度点是weight=100软毫米约束，不是控制极点。",
   "synonyms": [
@@ -194,5 +194,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:0fd1989428290a2d140d8561930a1c250424bff3056f58c9d0217faf37552c74"
+  "docsHash": "sha256:4a20e0dd20853a6435bd935bc5913431bd82fbf2c7ac8605947fc8623c8471fe"
 }
