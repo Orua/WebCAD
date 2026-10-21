@@ -49,5 +49,10 @@ export function remotePlacementSupported(feature={}){
   Array.isArray(quaternion)&&quaternion.length===4&&quaternion.every(Number.isFinite)&&quaternion.slice(0,3).every(value=>value===0)&&Math.abs(quaternion[3])===1);
 }
 export function physicalExecutionKey(feature,sourceSha256,kernelBuildId,endpoint){
- return contractHash({operation:feature.op,params:feature.op==='cut'?{}:feature.params,placement:feature.placement??null,sourceSha256,kernelBuildId,endpoint});
+ // A fit-bound relief's audit identity (design/draft revision, fingerprints, metrics)
+ // has no physical effect; drop only that block so new audit ids cannot wash the
+ // unknown/failed ledger of the same physical inputs. Everything else stays keyed.
+ let params=feature.op==='cut'?{}:feature.params;
+ if(feature.op==='relief'&&params?.designBinding){const {audit,...physical}=params.designBinding;params={...params,designBinding:physical};}
+ return contractHash({operation:feature.op,params,placement:feature.placement??null,sourceSha256,kernelBuildId,endpoint});
 }

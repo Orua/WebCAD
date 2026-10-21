@@ -1,4 +1,5 @@
 import {validateRegions,inspectLogoMachiningCapacity} from './logo-model.js';
+import {fitRasterRing,contourDeviationBound} from './logo-contour-fit.js';
 
 export const LOGO_MACHINING_SCHEMA={type:'object',additionalProperties:false,properties:{enabled:{type:'boolean',default:false},toleranceMm:{type:'number',minimum:0,maximum:0.1,default:0.05},minDetailMm:{type:'number',minimum:0,maximum:1,default:0.2}}};
 export function validateLogoMachining(options){
@@ -28,13 +29,25 @@ function simplify(ring,tolerance){
 export function optimizeLogoForMachining(logo,options){
  validateLogoMachining(options);if(options?.enabled!==true)return logo;
  if(logo.source?.machiningOptimization)throw Object.assign(new Error('请从原始来源重新优化，避免累积近似。'),{code:'LOGO_REVIEW_STALE'});
- const toleranceMm=options.toleranceMm??.05,minDetailMm=options.minDetailMm??.2;
+ const requestedToleranceMm=options.toleranceMm??.05,minDetailMm=options.minDetailMm??.2;
+ const raster=logo.source?.kind==='raster',shortSideMm=Math.min(...(logo.sizeMm??[]).filter(v=>v>0));
+ const toleranceMm=raster&&Number.isFinite(shortSideMm)?Math.min(requestedToleranceMm,shortSideMm*.02):requestedToleranceMm;
+ const propose=ring=>{
+  if(!raster)return simplify(ring,toleranceMm);
+  const fit=fitRasterRing(ring,toleranceMm);
+  try{validateRegions({regions:[{outer:fit.ring,holes:[]}]});if(!fit.rejected)return fit;}catch{}
+  // Dense artwork can fold a fitted arc across a neighbouring segment. Use
+  // conservative source-vertex reduction at the SAME tolerance, never raw
+  // overflow or a larger hidden tolerance. The full arrangement is checked below.
+  const conservative=simplify(ring,toleranceMm),bound=contourDeviationBound(ring,conservative.ring,toleranceMm);
+  return bound===null?{ring,bound:0,lines:0,arcs:0,rejected:true}:{...conservative,bound,lines:0,arcs:0,rejected:false,conservativeFallback:true};
+ };
  validateRegions(logo);const original=structuredClone(logo.regions),before=count(original);
  let removedRegions=0,removedHoles=0,removedMaxSpanMm=0;
  const regions=original.filter(r=>{if(minDetailMm>0&&span(r.outer)<minDetailMm){removedRegions++;removedMaxSpanMm=Math.max(removedMaxSpanMm,span(r.outer));removedHoles+=(r.holes??[]).length;return false;}return true;}).map(r=>({...r,holes:(r.holes??[]).filter(h=>{if(minDetailMm>0&&span(h)<minDetailMm){removedHoles++;removedMaxSpanMm=Math.max(removedMaxSpanMm,span(h));return false;}return true;})}));
  if(!regions.length)throw Object.assign(new Error('图案所有区域均小于微小细节阈值，请减小阈值。'),{code:'NO_VECTOR_CONTENT',details:{logoFailure:{reason:'图案所有区域均小于设定的微小细节尺寸，未生成加工轮廓。',next:'请减小微小细节阈值后重新识别。'}}});
  validateRegions({regions});let maxDeviationMm=0,rejectedRings=0;
- const proposals=regions.map(region=>({outer:simplify(region.outer,toleranceMm),holes:region.holes.map(h=>simplify(h,toleranceMm))}));
+ const proposals=regions.map(region=>({outer:propose(region.outer),holes:region.holes.map(h=>propose(h))}));
  const batch=proposals.map(r=>({outer:r.outer.ring,holes:r.holes.map(h=>h.ring)}));
  let batchAccepted=false;
  try{validateRegions({regions:batch});batchAccepted=true;maxDeviationMm=Math.max(0,...proposals.flatMap(r=>[r.outer.bound,...r.holes.map(h=>h.bound)]));}catch{}
@@ -42,11 +55,12 @@ export function optimizeLogoForMachining(logo,options){
  // A topology conflict retains that original ring; no hidden tolerance retries.
  if(batchAccepted)regions.splice(0,regions.length,...batch);
  else for(const region of regions)for(let h=-1;h<region.holes.length;h++){
-  const old=h<0?region.outer:region.holes[h],candidate=simplify(old,toleranceMm);if(candidate.ring.length===old.length)continue;
+  const old=h<0?region.outer:region.holes[h],candidate=propose(old);if(candidate.ring===old)continue;
   if(h<0)region.outer=candidate.ring;else region.holes[h]=candidate.ring;
   try{validateRegions({regions:[region]});for(const other of regions)if(other!==region)validateRegions({regions:[region,other]});maxDeviationMm=Math.max(maxDeviationMm,candidate.bound);}catch{if(h<0)region.outer=old;else region.holes[h]=old;rejectedRings++;}
  }
- const after=count(regions),report={algorithm:'mm-rdp-extrema-topology-v1',toleranceMm,minDetailMm,maxDeviationMm,before,after,removedRegions,removedHoles,removedMaxSpanMm,rejectedRings,deviationAppliesTo:'retained contours only; removed compact features use minDetailMm',detailRemovalRule:'remove only whole regions/holes whose longest bounding-box dimension is below minDetailMm; retain long narrow strokes',machineCapability:'user-adjustable approximation; not verified machine/tool/depth capability',reviewRequired:true};
+ const fits=proposals.flatMap(r=>[r.outer,...r.holes]);
+ const after=count(regions),report={algorithm:raster?'mm-line-arc-topology-v2':'mm-rdp-extrema-topology-v1',requestedToleranceMm,toleranceMm,shortSideMm:Number.isFinite(shortSideMm)?shortSideMm:null,tolerancePolicy:raster?'min(requested tolerance, artwork short side * 0.02)':'explicit-mm',minDetailMm,maxDeviationMm,before,after,removedRegions,removedHoles,removedMaxSpanMm,rejectedRings,fitting:raster?{lineCandidates:fits.reduce((s,f)=>s+(f.lines??0),0),arcCandidates:fits.reduce((s,f)=>s+(f.arcs??0),0),rejectedDeviationRings:fits.filter(f=>f.rejected).length,conservativeFallbackRings:fits.filter(f=>f.conservativeFallback).length,acceptedAllCandidates:batchAccepted,curveOutput:'polyline sampled from circular arcs, then bounded join cleanup; final symmetric deviation <= toleranceMm',deviationCheck:'certified symmetric distance between complete input and output polylines'}:null,deviationAppliesTo:'retained contours only; removed compact features use minDetailMm',detailRemovalRule:'remove only whole regions/holes whose longest bounding-box dimension is below minDetailMm; retain long narrow strokes',machineCapability:'user-adjustable approximation; not verified machine/tool/depth capability',reviewRequired:true};
  const source={...(typeof logo.source==='object'?logo.source:{}),reviewed:false,reviewRequired:true,machiningOriginalContours:{type:'webcad-logo',version:1,units:'mm',name:logo.name,sizeMm:logo.sizeMm,regions:original},machiningOptimization:report};
  const points=regions.flatMap(r=>r.outer);let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;for(const [x,y]of points){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);}
  const result={...logo,sizeMm:[x1-x0,y1-y0],regions,source};result.source.machiningOptimization.machiningReadiness=inspectLogoMachiningCapacity(result);return result;

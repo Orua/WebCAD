@@ -1,6 +1,7 @@
 // One bounded, cancellable numerical task per page. The current document stays authority.
 import {reliefDesignCandidate} from './relief-design-field.js';
 import {prepareReliefDesignFit} from './relief-design-fit.js';
+import {prepareReliefDesignRelief} from './relief-design-brep.js';
 let task=null,retained=null,retainedFit=null;
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
 const key=(context,entry)=>JSON.stringify([context.sessionId,context.documentId,context.documentInstanceId,context.revision??context.expectedRevision,entry.id,entry.revision,entry.draft]);
@@ -70,4 +71,11 @@ export function readReliefDesignFit(context,entry){
  if(!retainedFit)return {status:'empty',designId:entry.id,draftRevision:entry.revision,geometryReady:false,brepComputed:false,commitState:'notCommitted'};
  if(retainedFit.binding!==binding||retainedFit.sourceField!==retained){retainedFit=null;fail('RELIEF_DESIGN_STALE','Document, design or solved field changed; fit the current field again');}
  return {status:'fitted',designId:entry.id,draftRevision:entry.revision,...structuredClone(retainedFit.result),sourceBinding:structuredClone(retainedFit.sourceBinding)};
+}
+// Read-only bridge: current retained fit (stale-checked) -> relief preview args.
+// `support` must come from the trusted kernel reliefDesignSupport(bodyId,faceId) read
+// of the user's current selection. No preview/apply is started here.
+export function prepareReliefDesignReliefFromRetained(context,entry,request,support){
+ const fit=readReliefDesignFit(context,entry),solved=readReliefDesignField(context,entry);
+ return prepareReliefDesignRelief({...request,fit,solved,entry,support});
 }

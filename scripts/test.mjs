@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
-    'error-recovery','relief-design-drafts','relief-design-reference','relief-design-edits-ui','relief-design-bspline-fit','relief-design-fit-runtime','relief-design-fit-api','relief-design-field','logo-export','logo-review-api','logo-vector-review','logo-wizard-state','panel-layout','receipt-capacity-recovery','relief-intent-runtime','relief-sculpt-preflight','report-regressions','tool-selection',
+    'error-recovery','relief-design-drafts','relief-design-reference','relief-design-edits-ui','relief-design-bspline-fit','relief-design-fit-runtime','relief-design-fit-api','relief-design-field','relief-design-brep','logo-export','logo-review-api','logo-vector-review','logo-wizard-state','logo-machining-optimization','logo-pdf-renderer','panel-layout','receipt-capacity-recovery','relief-intent-runtime','relief-sculpt-preflight','report-regressions','tool-selection',
     'agent-selection-preservation', 'count-summary', 'floor-grid', 'free-placement',
     'logo-selection-draft', 'metal-warning', 'open-file-recent',
     'tap-contract', 'agent-single-call', 'metal-occlusion', 'selection-feedback',
@@ -50,7 +50,7 @@ const groups = {
     'step-export-colors',
     'freecad-organization',
     'freecad-machining',
-    'relief-kernel', 'relief-sculpt-kernel', 'relief-local-patch', 'relief-shoulder',
+    'relief-kernel', 'relief-design-brep-kernel', 'relief-sculpt-kernel', 'relief-local-patch', 'relief-shoulder',
     'clevis-practice',
     'history-import-kernel',
     'primitive-contract-kernel',

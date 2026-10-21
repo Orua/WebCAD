@@ -4,7 +4,7 @@ import {prepareReliefSculpt,effectiveReliefParams,reliefHeights,createReliefStro
 import {cubicBasis,sampleReliefSurface} from '../src/relief-sculpt-surface.js';
 import {validateSchema} from '../src/contracts/operation-schema.js';
 import {reliefOperations} from '../src/modeling/manufacturing/relief-contracts.js';
-import {validateRegions} from '../src/logo-model.js';
+import {validateRegions,inspectLogoMachiningCapacity} from '../src/logo-model.js';
 import {showReliefSculptDialog} from '../src/ui/forms/relief-sculpt-dialog.js';
 test('layered sculpt dialog switches independent drafts and commits only the chosen layer',async()=>{
  const oldStorage=globalThis.sessionStorage,oldRAF=globalThis.requestAnimationFrame,oldCancel=globalThis.cancelAnimationFrame;
@@ -65,11 +65,13 @@ test('explicit layer sculpt preserves other layers, contours, holes and serializ
  assert.throws(()=>sampleReliefHeight(reopened,[-.3,-.3],{layerIndex:1}),{code:'RELIEF_SAMPLE_OUTSIDE'});
  assert.throws(()=>prepareReliefSculpt(reopened,[],{layerIndex:1,samples:33}),{code:'PARAM_SCHEMA_INVALID'});
 });
-test('relief accepts independent ornament collections above the old 150-region cap while logo retains its own limit',()=>{
+test('relief and LOGO recognition accept independent ornament collections while LOGO machining retains its own limit',()=>{
  const regions=Array.from({length:165},(_,i)=>{const x=-.45+(i%15)*.06,y=-.4+Math.floor(i/15)*.07;return {outer:[[x,y],[x+.025,y],[x+.025,y+.025],[x,y+.025]]};});
  validateSchema(reliefOperations.relief.paramsSchema,{...source(),regions});
  assert.equal(validateRegions({regions},{maxRegions:1024,maxVertices:64000}).length,165);
- assert.throws(()=>validateRegions({regions}),/150/);
+ assert.equal(validateRegions({regions}).length,165);
+ assert.equal(inspectLogoMachiningCapacity({regions}).supported,false);
+ assert.throws(()=>validateRegions({regions},{maxRegions:150,maxVertices:12000,maxRingVertices:2000}),/150/);
 });
 test('eyedropper samples flat, sculpted and sloped controls without mutating them; rejects holes and invalid points',()=>{
  const p=source();delete p.regions;
