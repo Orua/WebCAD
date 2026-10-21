@@ -63,7 +63,7 @@ export class CADViewport {
     this.renderer.domElement.addEventListener('pointerdown',e=>{this.down=[e.clientX,e.clientY,e.button];});
     this.renderer.domElement.addEventListener('pointerup',e=>{if(this.gizmo.axis||Date.now()<(this.suppressPickUntil||0)||!this.down||this.down[2]!==0||Math.hypot(e.clientX-this.down[0],e.clientY-this.down[1])>5)return;this.pick(e);});
     this.renderer.domElement.addEventListener('pointermove',e=>this.onMove(e));
-    this.renderer.domElement.addEventListener('dblclick',e=>{if(e.button!==0||this.selectionMode!=='body'||this.gizmoMode!=='off'||this.busy||this.sketch||this.measuring||this.locationMarking||performance.now()-(this.lastLocationClick??-1000)<500)return;const r=this.renderer.domElement.getBoundingClientRect();try{this.callbacks.onLocationMark?.(this.pickLocation([(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]));}catch(error){this.callbacks.onRenderError?.(error);}});
+    this.renderer.domElement.addEventListener('dblclick',e=>{if(e.button!==0||this.selectionMode!=='body'||this.gizmoMode!=='off'||this.busy||this.sketch||this.measuring||this.locationMarking||performance.now()-(this.lastLocationClick??-1000)<500)return;const r=this.renderer.domElement.getBoundingClientRect();try{this.callbacks.onLocationMark?.(this.pickLocation([(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]));}catch(error){if(error.code!=='LOCATION_NO_HIT')this.callbacks.onRenderError?.(error);}});
     window.addEventListener('keydown',e=>{if(e.key!=='Tab'||!(this.measuring||this.anchorDragEnabled)||!this.snapCandidates?.length||e.target instanceof HTMLElement&&(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)||e.target.isContentEditable))return;e.preventDefault();this.snapCandidateIndex=((this.snapCandidateIndex||0)+1)%this.snapCandidates.length;this.showSnapCandidate();});
     this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(host);
     this.frameSequence=0;this.renderer.setAnimationLoop(()=>{try{this.renderFrame();}catch(error){this.displayError=error.message;this.callbacks.onRenderError?.(error);}});this.resize();this.updateHud();
@@ -270,7 +270,7 @@ export class CADViewport {
   pick(e){
     if(this.interactionLocked&&!this.locationMarking)return;
     const ray=this.ray(e);
-    if(this.locationMarking){const rect=this.renderer.domElement.getBoundingClientRect();try{const hit=this.pickLocation([(e.clientX-rect.left)/rect.width,(e.clientY-rect.top)/rect.height]);this.lastLocationClick=performance.now();this.cancelTask();this.callbacks.onLocationMark?.(hit);}catch(error){this.callbacks.onRenderError?.(error);}return;}
+    if(this.locationMarking){const rect=this.renderer.domElement.getBoundingClientRect();try{const hit=this.pickLocation([(e.clientX-rect.left)/rect.width,(e.clientY-rect.top)/rect.height]);this.lastLocationClick=performance.now();this.cancelTask();this.callbacks.onLocationMark?.(hit);}catch(error){if(error.code!=='LOCATION_NO_HIT')this.callbacks.onRenderError?.(error);}return;}
     if(this.sketch){const p=this.sketchCoordinates(ray);if(p){
       const snap=Math.max(.01,Number(this.overlay.querySelector('[name=snap]').value)||1);let point=this.sketch.snap?[Math.round(p[0]/snap)*snap,Math.round(p[1]/snap)*snap]:p;
       const previous=this.sketch.points.at(-1),constraint=this.overlay.querySelector('[name=constraint]').value;
@@ -337,7 +337,7 @@ export class CADViewport {
   }
   drawSketch(){this.clearGuides();const points=this.sketch.points.map(p=>this.sketchWorldPoint(p));if(points.length>1)this.guideRoot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([...points,points[0]]),new THREE.LineBasicMaterial({color:0x008d7e,depthTest:false})));for(const point of points){const dot=new THREE.Mesh(new THREE.SphereGeometry(this.span*.007,10,6),new THREE.MeshBasicMaterial({color:0x008d7e}));dot.position.copy(point);this.guideRoot.add(dot);}this.overlay.querySelector('[data-count]').textContent=`${points.length} ${say('个顶点','vertices')}`;}
   cancelTask(){if(this.sketch)this.grid.visible=this.sketch.previousGridVisible;this.locationMarking=false;this.callbacks.onInteraction?.(null);this.sketch=null;this.measuring=null;this.controls.enableRotate=true;this.overlay.style.display='none';this.clearGuides();this.updateHud();}
-  startLocationMarking(){this.cancelTask();this.setGizmo('off');this.locationMarking=true;this.callbacks.onInteraction?.('locationMarker');this.overlay.style.display='block';this.overlay.replaceChildren();const text=document.createElement('p');text.textContent='点击模型表面，将位置插入 AI 草稿；Esc 取消。';const cancel=document.createElement('button');cancel.type='button';cancel.textContent='取消标记';cancel.dataset.hostControlAllowed='true';cancel.onclick=()=>this.cancelTask();this.overlay.append(text,cancel);}
+  startLocationMarking(){this.cancelTask();this.setGizmo('off');this.locationMarking=true;this.callbacks.onInteraction?.('locationMarker');}
   pickLocation(screen){
     const rect=this.renderer.domElement.getBoundingClientRect(),ray=this.ray({clientX:rect.left+screen[0]*rect.width,clientY:rect.top+screen[1]*rect.height});
     const hit=ray.intersectObjects([...this.objects.values()].filter(v=>v.root.visible&&v.mesh.visible).map(v=>v.mesh),false).find(item=>this.isVisiblePoint(item.point));

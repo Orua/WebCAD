@@ -2,7 +2,7 @@
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.55.8",
+  "version": "1.55.9",
   "contextPolicy": "none",
   "label": "登记文件资源",
   "synonyms": [
@@ -94,5 +94,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:4d1a0623649751093cc92d1c68d4279595fd3163b5ab42fa57ef1ba92a9cdc85"
+  "docsHash": "sha256:14c5f7c48a3632ca91c0cf25c7681eaab798f0b27fe65fa30dcf8d236f865aab"
 }

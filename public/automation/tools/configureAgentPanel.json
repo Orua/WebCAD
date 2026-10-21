@@ -2,7 +2,7 @@
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.55.8",
+  "version": "1.55.9",
   "contextPolicy": "revision",
   "description": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
   "synonyms": [
@@ -34,5 +34,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:b4be2cbb53020526110d7baa65a1c41f4d9eb3bbd2195bedb533d5cd862f7ecb"
+  "docsHash": "sha256:dfa1391ff1298afbcd49430716e9f99c6da09721eaf0e7bac4882a81ecce65a5"
 }
