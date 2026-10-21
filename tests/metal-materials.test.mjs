@@ -10,6 +10,27 @@ function fixture(){
   Object.assign(metals,{disposed:false,materials:new Map(),atlas:null,fallback:new THREE.Texture(),environment:new THREE.Texture(),studioTarget:{texture:new THREE.Texture()}});
   return {metals,material:new THREE.MeshStandardMaterial()};
 }
+
+test('all metal presets default to HDR, and only untouched studio cookies migrate',()=>{
+  assert.equal(DISPLAY_DEFAULTS.environmentMode,'hdr');
+  for(const key of Object.keys(METAL_FINISHES).filter(key=>key!=='design')){
+    const {metals,material}=fixture();metals.apply(material,key);
+    assert.equal(material.envMap,metals.environment,key);
+    assert.equal(metals.materials.get(material).uniforms.webcadProductStudio.value,0,key);
+  }
+  const previous=globalThis.document;
+  try{
+    const old={...DISPLAY_DEFAULTS,environmentMode:'studio',environmentIntensity:1,defaultColor:'#123456'};
+    globalThis.document={cookie:'webcad.display.v1='+encodeURIComponent(JSON.stringify(old))};
+    assert.equal(loadDisplayPreferences().environmentMode,'hdr');
+    assert.equal(loadDisplayPreferences().environmentIntensity,1.2);
+    assert.equal(loadDisplayPreferences().defaultColor,'#123456');
+    old.roughnessOffset=0.17;
+    globalThis.document.cookie='webcad.display.v1='+encodeURIComponent(JSON.stringify(old));
+    assert.equal(loadDisplayPreferences().environmentMode,'studio');
+    assert.equal(loadDisplayPreferences().roughnessOffset,0.17);
+  }finally{if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
+});
 test('reference light gold uses linear RGB, HDR, true roughness, reflectance and body tint',()=>{
   const {metals,material}=fixture();metals.apply(material,'light-gold',{displayPreferences:{environmentMode:'hdr'}});
   assert.deepEqual(material.color.toArray(),METAL_FINISHES['light-gold'].color);
@@ -32,11 +53,32 @@ test('HDR upload preserves linear radiance and source scanline orientation',()=>
   assert.equal(texture.colorSpace,THREE.LinearSRGBColorSpace);assert.equal(texture.image.data,data);
   assert.deepEqual(Array.from(data),Array.from(new Float32Array([0.1,0.2,4.0,1.0])));
 });
+
+test('polished light gold uses physical studio reflections without analytic blur or lacquer; switching finishes resets the path',()=>{
+  const {metals,material}=fixture();
+  metals.apply(material,'24k-gold',{displayPreferences:{environmentMode:'studio'}});
+  const u=metals.materials.get(material).uniforms;
+  assert.equal(u.webcadProductStudio.value,1);
+  metals.apply(material,'light-gold',{displayPreferences:{environmentMode:'studio',environmentIntensity:0.8,roughnessOffset:0.1}});
+  assert.equal(u.webcadProductStudio.value,0);
+  assert.equal(u.webcadCoat.value,0);
+  assert.equal(u.webcadMetalBodyTint.value,0.012);
+  assert.equal(material.metalness,1);
+  assert.ok(Math.abs(material.roughness-0.24)<1e-12);
+  assert.equal(material.envMap,metals.studioTarget.texture);
+  assert.equal(material.envMapIntensity,1.08*0.8);
+  metals.apply(material,'24k-gold',{displayPreferences:{environmentMode:'studio'}});
+  assert.equal(u.webcadProductStudio.value,1);
+  assert.equal(u.webcadCoat.value,METAL_FINISHES['24k-gold'].coat);
+  metals.apply(material,'light-gold',{displayPreferences:{environmentMode:'hdr'}});
+  assert.equal(material.envMap,metals.environment);
+  assert.equal(u.webcadMetalBodyTint.value,0.13);
+});
 test('real Three shader receives reference tone/gamma and design colours retain host conversion',()=>{
   const {metals,material}=fixture();metals.apply(material,'24k-gold',{displayPreferences:{environmentMode:'hdr'}});
   const shader={vertexShader:THREE.ShaderLib.standard.vertexShader,fragmentShader:THREE.ShaderLib.standard.fragmentShader,uniforms:{}};
   material.onBeforeCompile(shader);
-  assert.equal(shader.uniforms.webcadMetalBodyTint.value,0.13);
+  assert.equal(shader.uniforms.webcadMetalBodyTint.value,METAL_FINISHES['24k-gold'].metalBodyTint);
   assert.match(shader.fragmentShader,/outgoingLight\+=diffuseColor\.rgb\*webcadMetalBodyTint/);
   assert.match(shader.fragmentShader,/outgoingLight-=reflectedLight\.directSpecular\*webcadSuppressDirect/);
   assert.match(shader.fragmentShader,/webcadReferenceToneMap\(gl_FragColor\.rgb\*webcadExposure\)/);
@@ -69,7 +111,8 @@ test('custom lighting and missing HDR keep direct highlights; repeated apply kee
   assert.equal(metals.materials.get(material).uniforms.webcadSuppressDirect.value,0);
 });
 test('new product studio defaults leave previously saved display cookies unchanged',()=>{
-  for(const key of ['environmentMode','exposure','environmentIntensity','roughnessOffset'])assert.equal(DISPLAY_DEFAULTS[key],CADVIEWER_METAL_REFERENCE[key]);
+  for(const key of ['environmentMode','exposure','roughnessOffset'])assert.equal(DISPLAY_DEFAULTS[key],CADVIEWER_METAL_REFERENCE[key]);
+  assert.equal(DISPLAY_DEFAULTS.environmentIntensity,1.2);
   const original=globalThis.document;
   try{
     globalThis.document={cookie:'webcad.display.v1='+encodeURIComponent(JSON.stringify({environmentMode:'studio',roughnessOffset:0.12,environmentIntensity:0.65,exposure:1.4}))};
@@ -79,7 +122,7 @@ test('new product studio defaults leave previously saved display cookies unchang
 });
 
 test('product studio puts its key light to the side and migrates only untouched old defaults',()=>{
-  const {metals,material}=fixture();metals.apply(material,'nickel');
+  const {metals,material}=fixture();metals.apply(material,'nickel',{displayPreferences:{environmentMode:'studio'}});
   const u=metals.materials.get(material).uniforms;
   assert.equal(u.webcadProductStudio.value,1);
   assert.ok(u.webcadStudioKey.value.x < -0.75);
@@ -89,7 +132,7 @@ test('product studio puts its key light to the side and migrates only untouched 
   try{
     const old={environmentMode:'hdr',exposure:1,environmentIntensity:1,environmentRotation:0,roughnessOffset:0,lightAzimuth:-60,lightElevation:55,keyIntensity:1.3,fillIntensity:0.6,ambientIntensity:0.7,defaultColor:'#123456'};
     globalThis.document={cookie:'webcad.display.v1='+encodeURIComponent(JSON.stringify(old))};
-    assert.equal(loadDisplayPreferences().environmentMode,'studio');
+    assert.equal(loadDisplayPreferences().environmentMode,'hdr');
     assert.equal(loadDisplayPreferences().defaultColor,'#123456');
     old.exposure=0.8;globalThis.document.cookie='webcad.display.v1='+encodeURIComponent(JSON.stringify(old));
     assert.equal(loadDisplayPreferences().environmentMode,'hdr');
@@ -99,9 +142,9 @@ test('product studio puts its key light to the side and migrates only untouched 
 
 test('studio v2: lacquer coat on polished plating, brushed anisotropy on matt finishes, HDR keeps reference',()=>{
   const {metals,material}=fixture();
-  metals.apply(material,'24k-gold');let u=metals.materials.get(material).uniforms;
+  metals.apply(material,'24k-gold',{displayPreferences:{environmentMode:'studio'}});let u=metals.materials.get(material).uniforms;
   assert.equal(u.webcadProductStudio.value,1);assert.equal(u.webcadCoat.value,METAL_FINISHES['24k-gold'].coat);assert.ok(u.webcadCoat.value>0);assert.equal(u.webcadAnisotropy.value,0);
-  metals.apply(material,'matt-nickel');assert.equal(u.webcadAnisotropy.value,0.35);assert.equal(u.webcadCoat.value,0);
+  metals.apply(material,'matt-nickel',{displayPreferences:{environmentMode:'studio'}});assert.equal(u.webcadAnisotropy.value,0.35);assert.equal(u.webcadCoat.value,0);
   metals.apply(material,'nickel',{displayPreferences:{environmentMode:'hdr'}});assert.equal(u.webcadCoat.value,0);assert.equal(u.webcadAnisotropy.value,0);
   metals.apply(material,'antique-brass');assert.equal(u.webcadCoat.value,0);assert.equal(u.webcadAnisotropy.value,0);
   const shader={vertexShader:THREE.ShaderLib.standard.vertexShader,fragmentShader:THREE.ShaderLib.standard.fragmentShader,uniforms:{}};
@@ -124,16 +167,19 @@ test('matte nickel remains brighter than gunmetal and precious metal finishes ar
 test('studio v3 light tent keeps dark seams and plating colours stay physically ordered',()=>{
   assert.equal(PRODUCT_STUDIO.version,3);assert.equal(PRODUCT_STUDIO.model,'light-tent');
   for(const name of ['horizon','seamTop','seamSide','cameraOpening'])assert.match(PRODUCT_STUDIO_SHADER,new RegExp(`float ${name}=`));
-  for(const name of ['24k-gold','light-gold']){const [r,g,b]=METAL_FINISHES[name].color;assert.ok(r>=g&&g>b,name);assert.ok(g/r>=0.65&&b/r>=0.22,`${name} must read yellow gold, not orange`);}
+  for(const name of ['24k-gold','light-gold']){const [r,g,b]=METAL_FINISHES[name].color;assert.ok(r>=g&&g>b,name);assert.ok(g/r>=0.6&&b/r>=0.15,`${name} must retain a yellow-gold hue`);}
+  const light=METAL_FINISHES['light-gold'],gold=METAL_FINISHES['24k-gold'];
+  assert.ok(gold.color.every((channel,index)=>channel<light.color[index]),'24K base is deeper than light gold across all channels');
+  assert.equal(gold.roughness,light.roughness,'depth must not be created by dulling the polished finish');
   const [nr,ng,nb]=METAL_FINISHES.nickel.color;assert.ok(Math.max(nr,ng,nb)-Math.min(nr,ng,nb)<0.02,'bright nickel is neutral');
 });
-test('24K gold reads deep and saturated, light gold is the bright lacquered gold, matt 24K matches deep gold; depth and hue keep only in studio',()=>{
+test('24K gold retains its depth and hue, polished light gold has no lacquer, matt 24K matches deep gold',()=>{
   const sat=([r,g,b])=>(Math.max(r,g,b)-Math.min(r,g,b))/Math.max(r,g,b);
   const gold=METAL_FINISHES['24k-gold'],light=METAL_FINISHES['light-gold'];
-  // 浅金 is the bright lacquered yellow gold (user-approved look); 24K reads deeper through depth/hue keep, not a paler colour.
-  assert.deepEqual(light.color,[1.00,0.69,0.25]);assert.equal(light.coat,0.45);assert.equal(light.reflectionStrength,1.08);
+  // Preserve the plating colour; brightness must come from metallic reflection.
+  assert.deepEqual(light.color,[1.00,0.69,0.25]);assert.equal(light.coat,0);assert.equal(light.reflectionStrength,1.08);
   assert.equal(light.depth??0,0);assert.equal(light.hueKeep??0,0);
-  assert.ok(gold.depth>0&&gold.hueKeep>0&&gold.coat<light.coat,'24K must be the deeper, less lacquered gold');
+  assert.ok(gold.depth>0&&gold.hueKeep>0,'24K retains its deeper gold treatment');
   const matt=METAL_FINISHES['matt-24k-gold'];assert.ok(matt.depth>0&&matt.hueKeep>0&&matt.roughness>0.5);
   const [mr,mg,mb]=matt.color;assert.ok(mg/mr>=0.65&&mb/mr>=0.22&&sat(matt.color)<=0.8,'matt 24K must stay yellow gold, not olive/orange');
   const {metals,material}=fixture();metals.apply(material,'24k-gold',{displayPreferences:{environmentMode:'studio'}});

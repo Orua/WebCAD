@@ -3,7 +3,7 @@
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.55.6",
+  "version": "1.55.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -77,5 +77,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:cb14f37a08190aa9f7df62fbb3183bfa65c6b398765bb611e3c796ecc525b2a0"
+  "docsHash": "sha256:65db3be7821584646935bd6d9fb42453db6d8106d3d3dbd58b054d54c19a1308"
 }

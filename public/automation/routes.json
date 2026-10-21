@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.55.6",
-  "buildId": "26a6cb08705c6d9c0e966e124ec2b057ddf38993-src-3a6cdeac150eda91-working",
-  "catalogHash": "sha256:2417605d67b979c14cd3a1b97ec79d97839e1145a1d833cae8db3641c6c9bc45",
-  "docsHash": "sha256:67fbab2b0b5ef3234d94681914996f531b7f50d0b63ab80b426f64da4c916261",
+  "pageApiVersion": "1.55.7",
+  "buildId": "f7a6deff700bdd5220d2a0217a68fc1b6d8110b3-src-65921f16363531b2-working",
+  "catalogHash": "sha256:68ebee459d3b95424af6a636ecfd162de4606f8e56d092e265510ef00ae62097",
+  "docsHash": "sha256:754e3d6a0a4514faf3caf61ff5df404bc702365fdc331758b584bb48c3a456e9",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -600,6 +600,13 @@
       ],
       "method": "reviewLogo",
       "usage": "LOGO紧凑向导：来源→轮廓校对→目标面。位图加工精度由readLogo.machining或logoWizard.parameters.machining设置enabled/toleranceMm/minDetailMm，共享报告和原始轮廓。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。"
+    },
+    "markLocation": {
+      "tools": [
+        "markLocation"
+      ],
+      "method": "markLocation",
+      "usage": "标记位置或选择箭头模式双击模型表面；markLocation({context,screen:[u,v]})使用相对视口0–1坐标，插入带实体/修订/世界mm坐标的AI草稿，不发送。active:true/false启动/取消拾取；只传context读active/last。显示网格坐标不是精确加工定位。"
     },
     "mcp": {
       "tools": [
@@ -1465,6 +1472,7 @@
     }
   },
   "labels": {
+    "markLocation": "markLocation",
     "logoReview": "readLogo / reviewLogo / logoWizard / 读取文件字节 / 下载文件",
     "logoExport": "readLogo / exportDrawing / 下载文件",
     "rodJunction": "圆杆接头倒 R",

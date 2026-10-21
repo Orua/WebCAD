@@ -6,7 +6,7 @@ import {PRODUCT_STUDIO_SHADER} from './viewport/product-studio.js';
 
 // CadViewer's reference uses linear RGB, unit exposure, and a +0.15 turn
 // longitude offset in its HDR sampler. Keep finish data separate from sRGB UI colours.
-export const CADVIEWER_METAL_REFERENCE = Object.freeze({environmentMode:'studio',exposure:1,environmentIntensity:1,roughnessOffset:0,hdrLongitudeOffsetDeg:54,metalBodyTint:0.012,keyIntensity:1.3,fillIntensity:0.45,ambientIntensity:0.4,lightAzimuth:-65,lightElevation:25});
+export const CADVIEWER_METAL_REFERENCE = Object.freeze({environmentMode:'hdr',exposure:1,environmentIntensity:1,roughnessOffset:0,hdrLongitudeOffsetDeg:54,metalBodyTint:0.012,keyIntensity:1.3,fillIntensity:0.45,ambientIntensity:0.4,lightAzimuth:-65,lightElevation:25});
 
 export function prepareReferenceHdr(texture){
   texture.colorSpace=THREE.LinearSRGBColorSpace;
@@ -19,9 +19,9 @@ export function prepareReferenceHdr(texture){
 // Finish values and reference atlas are carried over from the original CadViewer.
 export const METAL_FINISHES = Object.freeze({
   design: { label: '设计原色', metalness: 0.15, roughness: 0.42, reflectionStrength: 0 },
-  'light-gold': { label: '浅金', color: [1.00, 0.69, 0.25], roughness: 0.14, reflectionStrength: 1.08, metalBodyTint: 0.13, coat: 0.45 },
+  'light-gold': { label: '浅金', color: [1.00, 0.69, 0.25], roughness: 0.14, reflectionStrength: 1.08, metalBodyTint: 0.13, studioReflection: 'environment', coat: 0 },
   nickel: { label: '亮镍', color: [0.76, 0.76, 0.76], roughness: 0.12, reflectionStrength: 1.22, coat: 0.15 },
-  '24k-gold': { label: '24K 金', color: [1.00, 0.75, 0.30], roughness: 0.14, reflectionStrength: 1.0, metalBodyTint: 0.13, coat: 0.12, hueKeep: 0.85, depth: 0.95 },
+  '24k-gold': { label: '24K 金', color: [0.90, 0.58, 0.16], roughness: 0.14, reflectionStrength: 1.0, metalBodyTint: 0.08, coat: 0.12, hueKeep: 0.85, depth: 0.95 },
   gunmetal: { label: '枪色', color: [0.18, 0.21, 0.24], roughness: 0.15, reflectionStrength: 0.86, coat: 0.35 },
   'matt-nickel': { label: '哑镍', color: [0.70, 0.72, 0.74], roughness: 0.54, reflectionStrength: 0.74, anisotropy: 0.35 },
   'rose-gold': { label: '玫瑰金', color: [0.474, 0.156, 0.191], roughness: 0.2, reflectionStrength: 0.98, metalBodyTint: 0.1, coat: 0.28 },
@@ -30,7 +30,7 @@ export const METAL_FINISHES = Object.freeze({
   'matt-light-gold': { label: '哑浅金', color: [0.70, 0.48, 0.21], roughness: 0.59, reflectionStrength: 0.50, anisotropy: 0.35 },
   'matt-24k-gold': { label: '哑 24K 金', color: [1.00, 0.72, 0.27], roughness: 0.58, reflectionStrength: 0.78, anisotropy: 0.35, hueKeep: 0.6, depth: 0.5 },
   'matt-gunmetal': { label: '哑枪色', color: [0.15, 0.17, 0.19], roughness: 0.62, reflectionStrength: 0.46, anisotropy: 0.35 },
-  'antique-brass': { label: '仿古黄铜', color: [0.46, 0.29, 0.075], roughness: 0.60, reflectionStrength: 0.36, antiqueStrength: 0.97, patinaColor: [0.055, 0.035, 0.015], antiqueAtlasOffset: 0, antiqueTextureScale: 1.35, antiquePitStrength: 0.82 },
+  'antique-brass': { label: '仿古黄铜', color: [0.50, 0.32, 0.09], roughness: 0.60, reflectionStrength: 0.36, antiqueStrength: 0.97, patinaColor: [0.055, 0.035, 0.015], antiqueAtlasOffset: 0, antiqueTextureScale: 1.35, antiquePitStrength: 0.82 },
   'antique-silver': { label: '仿古银', color: [0.88, 0.86, 0.83], roughness: 0.46, reflectionStrength: 0.72, antiqueStrength: 0.55, patinaColor: [0.014, 0.012, 0.011], antiqueAtlasOffset: 0.5, antiqueTextureScale: 2.1, antiquePitStrength: 0.72 },
 });
 
@@ -186,7 +186,11 @@ export class MetalMaterials {
     const u=state.uniforms;
     const preferences={...CADVIEWER_METAL_REFERENCE,...displayPreferences};
     u.webcadFinishMetal.value=key==='design'?0:1;
-    const productStudio=key!=='design'&&preferences.environmentMode==='studio';
+    // Polished plating uses Three's roughness-filtered PMREM/metal BRDF.
+    // The analytic light tent has a fixed blur floor and cannot represent its
+    // sharp reflections; an extra dielectric coat also washes out bare plating.
+    const studio=key!=='design'&&preferences.environmentMode==='studio';
+    const productStudio=studio&&finish.studioReflection!=='environment';
     u.webcadProductStudio.value=productStudio?1:0;
     u.webcadReflectionStrength.value=finish.reflectionStrength*preferences.environmentIntensity;
     // Lacquer and brushing only shape the product-studio reflection; HDR mode keeps the reference look.
@@ -197,7 +201,7 @@ export class MetalMaterials {
     const az=(preferences.lightAzimuth+(preferences.environmentRotation??0))*Math.PI/180,el=preferences.lightElevation*Math.PI/180;
     u.webcadStudioKey.value.set(Math.cos(el)*Math.sin(az),Math.sin(el),Math.cos(el)*Math.cos(az));
     u.webcadStudioLevels.value.set(preferences.keyIntensity/1.3,preferences.fillIntensity/0.45,preferences.ambientIntensity/0.4);
-    u.webcadMetalBodyTint.value=key==='design'?0:productStudio?0.012:(finish.metalBodyTint??0.055);
+    u.webcadMetalBodyTint.value=key==='design'?0:studio?0.012:(finish.metalBodyTint??0.055);
     u.webcadExposure.value=preferences.exposure;
     // CadViewer disables its extra direct highlight once HDR is available.
     // Keep custom light controls and the RoomEnvironment/loading fallback useful.

@@ -10,7 +10,7 @@ export function createHostControl(onChange=()=>{}){
   }});
 }
 
-export function hostControlAllowed(target){return !!target?.closest?.('[data-action="save"],[data-command-id="save"],[data-command-id="agentPanel"],.file-menu,[data-host-control-allowed="true"]');}
+export function hostControlAllowed(target){return !!target?.closest?.('[data-action="save"],[data-command-id="save"],[data-action="markLocation"],[data-command-id="agentPanel"],.file-menu,[data-host-control-allowed="true"]');}
 export function installHostInteractionGuard(surface,isLocked,isViewport){
   const guard=event=>{
     if(!isLocked()||event.isTrusted===false)return;

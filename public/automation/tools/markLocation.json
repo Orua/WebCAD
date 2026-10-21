@@ -1,0 +1,122 @@
+{
+  "id": "markLocation",
+  "title": "markLocation",
+  "category": "page-method",
+  "version": "1.55.7",
+  "contextPolicy": "revision",
+  "docs": "api.location-marker",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "screen": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "active": {
+        "type": "boolean"
+      }
+    },
+    "not": {
+      "required": [
+        "screen",
+        "active"
+      ]
+    }
+  },
+  "description": "markLocation({context,screen?:[u,v],active?:boolean})；screen与active互斥，screen是相对视口左上角的归一化0–1坐标；active:true/false启动/取消一次拾取；仅context读取active/last。",
+  "synonyms": [
+    "markLocation",
+    "位置",
+    "标记",
+    "AI",
+    "草稿",
+    "坐标",
+    "双击"
+  ],
+  "inputContract": "markLocation({context,screen?:[u,v],active?:boolean})；screen与active互斥，screen是相对视口左上角的归一化0–1坐标；active:true/false启动/取消一次拾取；仅context读取active/last。",
+  "outputContract": "返回marker（id/label/context/bodyId/faceId/point/units/coordinateSystem/source/precision/text）和delivery。坐标是世界mm、display-mesh近似，仅用于对话指位置；精确加工须按当前修订重查几何。插入已连接的AI输入框且保留已有草稿，不自动发送；必须连接原生Agent，未连接返回AGENT_COMPOSER_UNAVAILABLE。LOCATION_NO_HIT表示点到空白，UI_TASK_ACTIVE表示当前操作未完成；不改几何/历史/dirty。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "LOCATION_NO_HIT",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "AGENT_COMPOSER_UNAVAILABLE",
+    "AGENT_PANEL_TIMEOUT"
+  ],
+  "selectionGuide": {
+    "groupId": "appearance",
+    "groupTitle": "名称、外观与显示",
+    "chooseWhen": "拾取可见模型表面的近似世界坐标，插入AI对话草稿；只用于指出位置，不自动发送、不修改几何。",
+    "alternatives": [
+      {
+        "id": "document.reliefDesign",
+        "chooseWhen": "保存人工毫米设计约束草稿；支撑/孔/保护/高度点，随工程撤销重开，不求解高度场或生成加工几何。"
+      },
+      {
+        "id": "document.rename",
+        "chooseWhen": "只改工程名，不改每个实体名称。"
+      },
+      {
+        "id": "feature.rename",
+        "chooseWhen": "只改指定历史步骤及同 ID 实体名称。"
+      },
+      {
+        "id": "body.appearance",
+        "chooseWhen": "指定实体颜色/材质覆盖，保存于工程且可撤销。"
+      },
+      {
+        "id": "document.appearance",
+        "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
+      },
+      {
+        "id": "setDisplayPreferences",
+        "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
+      },
+      {
+        "id": "setView",
+        "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
+      },
+      {
+        "id": "setRenderQuality",
+        "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
+      },
+      {
+        "id": "redraw",
+        "chooseWhen": "重绘当前显示，不重建特征历史。"
+      },
+      {
+        "id": "selectRectangle",
+        "chooseWhen": "按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。"
+      },
+      {
+        "id": "capture",
+        "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
+      },
+      {
+        "id": "getUILayout",
+        "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:9be8f05bb190b54205cf7887def52e5d66ec4cf883a9ca767e11a065e845e1c8"
+}

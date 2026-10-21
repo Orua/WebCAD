@@ -2,6 +2,13 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "markLocation": {
+    "tools": [
+      "markLocation"
+    ],
+    "method": "markLocation",
+    "usage": "标记位置或选择箭头模式双击模型表面；markLocation({context,screen:[u,v]})使用相对视口0–1坐标，插入带实体/修订/世界mm坐标的AI草稿，不发送。active:true/false启动/取消拾取；只传context读active/last。显示网格坐标不是精确加工定位。"
+  },
   "logoReview": {
     "tools": [
       "readLogo",
@@ -1531,6 +1538,7 @@ setDisplayPreferences: contextPolicy=identity
 getAgentPanel: contextPolicy=none
 configureAgentPanel: contextPolicy=revision
 setAgentPanel: contextPolicy=revision
+markLocation: contextPolicy=revision
 getServices: contextPolicy=none
 setServices: contextPolicy=revision
 getServicesCapabilities: contextPolicy=none

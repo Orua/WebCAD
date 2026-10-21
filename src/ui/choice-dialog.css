@@ -1,0 +1,7 @@
+/* Recent files have their own rows; actions never share their width budget. */
+.choice-dialog{width:440px;max-height:calc(100dvh - 32px)}
+.choice-dialog .choice-list{display:grid;gap:4px;max-height:40dvh;overflow:auto;margin-top:12px;min-width:0}
+.choice-dialog .choice-list button{display:block;width:100%;min-width:0;min-height:40px;padding:10px 12px;text-align:left;white-space:normal;overflow-wrap:anywhere;line-height:1.5;border:1px solid var(--ui-border,var(--line));background:var(--ui-surface,#fff)}
+.choice-dialog .choice-list button:hover{background:var(--accent-soft,#e9f0f2)}
+.choice-dialog .message-footer{flex-wrap:wrap;gap:8px}
+.choice-dialog .message-footer button{flex:0 0 auto;max-width:100%;white-space:normal;overflow-wrap:anywhere}
