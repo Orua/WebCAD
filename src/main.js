@@ -1135,7 +1135,7 @@ async function deliverLocationMarker(hit){
   const marker=createLocationMarker(hit,pageAPI.getState().context,++locationMarkerNumber);
   lastLocationMarker={marker,delivery:'pending'};
   const result=await assistantPanel.insertLocation(marker);
-  lastLocationMarker={marker,...result};setStatus(result.delivery==='composer'?`位置 ${marker.label} 已插入 AI 输入框，尚未发送`:`位置 ${marker.label} 已生成可复制文本`);
+  lastLocationMarker={marker,...result};
   return {status:'applied',...lastLocationMarker,context:pageAPI.getState().context};
 }
 const assistantPanel=createAssistantPanel({getApi:()=>pageAPI,hostControl,onChange:state=>ui.setAgentPanel(state)});
