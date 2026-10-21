@@ -131,6 +131,28 @@
             "maximum": 0.1,
             "default": 0
           },
+          "machining": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": false
+              },
+              "toleranceMm": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 0.1,
+                "default": 0.05
+              },
+              "minDetailMm": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "default": 0.2
+              }
+            }
+          },
           "raster": {
             "type": "object",
             "additionalProperties": false,
@@ -242,5 +264,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:1f7908c4bbe1f1f9f7507d3520e07e7e6b898579a84350ffdb907a6cd10e21ee"
+  "docsHash": "sha256:013af8885a0df6729450749eb24c95a8fbb15a411b7b95dca1c0674dd13270ad"
 }

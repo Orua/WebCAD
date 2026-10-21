@@ -21,7 +21,9 @@ const rules=[
   rule('binding','INSTANCE_MISMATCH DOCUMENT_MISMATCH REVISION_CONFLICT LIBRARY_REVISION_CONFLICT STALE_REFERENCE SELECTOR_CONTEXT_STALE SELECTOR_CONTEXT_REQUIRED LOGO_REVIEW_STALE SOURCE_HASH_MISMATCH RECOVERY_INPUT_CHANGED MACHINING_SOURCE_CONFLICT SOURCE_ANCHOR_INVALID COORDINATE_MODE_CONFLICT FRAME_SURFACE_MISMATCH TOPOLOGY_REFERENCE_STALE','请求引用的工程、版本、来源或定位已变化。','读取当前状态与来源，重新查询引用并重规划尚未完成的步骤；不要沿用旧面边编号。',['getState','queryGeometry','queryReferences'],{hardStop:true}),
   rule('idempotency','IDEMPOTENCY_KEY_REUSED idempotency_conflict','请求标识已绑定另一份参数。','先取原回执并核对是否已提交；只有明确修订后的剩余请求才使用新标识。',['getBatchReceipt','getJob','getState'],{hardStop:true}),
   rule('reconcile','SERVICES_CONNECTION_UNKNOWN OBSERVATION_CANCELLED PREVIOUS_ATTEMPT_UNKNOWN RESULT_UNKNOWN JOB_TIMEOUT JOB_NOT_FOUND REQUEST_NOT_FOUND JOB_RESULT_UNAVAILABLE receipt_unavailable RECOVERY_RESULT_UNRESOLVED HOST_TIMEOUT HOST_INTERRUPTED TIMEOUT SERVICE_STOPPING RESULT_NOT_READY','原任务的执行或提交结果尚未确认。','按原 jobId、请求键或批次标识查询状态并与当前工程对账；确认前不要重放、换键或另起计算。',['getJob','getBatchReceipt','getServicesJob','getServicesRequest','getState'],{hardStop:true,reconcile:true}),
-  rule('budget','PREVIOUS_ATTEMPT_FAILED KNOWN_INPUT_FAILED RECOVERY_NOT_ALLOWED RECOVERY_WORKER_ACTIVE','相同输入已有失败记录、仍有在途任务，或当前不允许重新计算。','保留原回执；先查原任务。只有新的机制证据、可用的共享试验预算和明确恢复条件同时满足才评估下一候选。',['getJob','getServicesJob','getServicesRequest'],{hardStop:true}),
+  rule('budget','PREVIOUS_ATTEMPT_FAILED KNOWN_INPUT_FAILED','此前相同输入的任务未成功，本次未重新计算。','查看原任务的具体错误；LOGO 识别任务确认已停止后，可重新点击识别。其他建模任务须先核对失败原因和当前工程。',['getJob','getServicesJob','getServicesRequest'],{hardStop:true}),
+  rule('recovery-active','RECOVERY_WORKER_ACTIVE','上一任务的计算进程仍在运行。','等待原任务完成，或停止原任务并确认结束后再操作。',['getServicesJob'],{hardStop:true}),
+  rule('recovery-denied','RECOVERY_NOT_ALLOWED','此任务不能从中断位置恢复。','查看原任务状态和失败原因；已完成或已停止的任务不能当作可恢复任务继续。',['getServicesJob'],{hardStop:true}),
   rule('schema','PARAM_SCHEMA_INVALID PARAM_RANGE_INVALID INVALID_OPTIONS REQUEST_INVALID GATEWAY_REQUEST_INVALID NAME_INVALID BADGE_INVALID TYPE_MISMATCH FRAME_INVALID HOST_CONTROL_INVALID HOST_FRAME_INVALID INVALID_INPUT FIT_INPUT_INVALID','输入字段、类型、范围或坐标格式不符合当前工具契约。','读取对应完整工具卡，核对报错字段及实际单位后修正请求；保留原设计尺寸和加工意图。',['getTool'],{hardStop:true}),
   rule('units','PARAM_UNIT_MISMATCH MESH_UNITS_REQUIRED SIZE_REQUIRED MACHINING_INTENT_REQUIRED MACHINING_INTENT_CONFLICT INTENT_CONFLICT RELIEF_UPGRADE_STRATEGY_REQUIRED RECOVERY_REASON_REQUIRED MIXED_PLAN_REQUIRED SOURCE_PREPARATION_REQUIRED','尺寸单位、加工意图、来源准备或恢复依据尚未明确。','补齐来源支持的毫米尺寸、凸凹方向、深度与明确策略；混合图案先拆分明确加工计划，照片先准备受支持高度/矢量来源，不能从亮度、文件名或默认值猜测。',['getTool','planPatternMachining'],{hardStop:true}),
   rule('parameters','PARAM_CYCLE PARAM_EXPRESSION_INVALID PARAM_PATH_INVALID PARAM_UNDEFINED PARAMETER_BOUND','命名参数存在循环、无效表达式或绑定冲突。','检查参数依赖与引用路径，修改原参数定义；不要绕过绑定另写一个尺寸。',['getState','getTool'],{hardStop:true}),
@@ -89,7 +91,8 @@ export function recoveryRule(code,message=''){
 
 export function errorRecovery(error={},receipt={}){
   const code=String(error.code||'UNCLASSIFIED_ERROR'),base=recoveryRule(code,String(error.message||''));
-  const detail=businessReason(error.message),reason=detail?(base===unknown?detail:`${base.reason}${detail}`):base.reason;
+  const logoFailure=error.details?.logoFailure,logoReason=businessReason(logoFailure?.reason),logoNext=businessReason(logoFailure?.next);
+  const detail=businessReason(error.message),reason=logoReason??(detail?(base===unknown?detail:`${base.reason}${detail}`):base.reason);
   const commit=receipt.commitState??error.commitState??error.serviceCommitState;
   const uncertain=receipt.status==='unknown'||commit==='unknown'||base.reconcile===true;
   const partial=receipt.status==='partial'||receipt.atomic===false&&receipt.results?.some(step=>['committed','completed'].includes(step.result?.status));
@@ -97,10 +100,10 @@ export function errorRecovery(error={},receipt={}){
   const committed=['committed','applied'].includes(commit);
   const preservation=uncertain?'执行结果尚未确认；请保留当前工程和原任务回执。':partial?'前面已提交的步骤仍保留，后续步骤已经停止；不要重建已成功部分。':notCommitted?'本次失败步骤未提交，先前已提交内容保留。':committed?'已有操作提交，请先核对当前工程与显示状态。':'请保留当前工程；是否已有提交须以原回执和状态为准。';
   const classification=uncertain?'reconcile':base.id;
-  const next=uncertain?'先按原任务或请求标识查询回执并与当前工程对账，确认前不要重放、换键或另起计算。':base.next;
+  const next=uncertain?'先按原任务或请求标识查询回执并与当前工程对账，确认前不要重放、换键或另起计算。':logoNext??base.next;
   const candidate=base.candidate===true&&!uncertain&&notCommitted&&error.budgetExhausted!==true;
   return {version:ERROR_RECOVERY_VERSION,code,classification,reason,preservation,next,
-    userMessage:`${reason}${preservation}${next}`,automaticRetry:false,
+    userMessage:logoReason?`${reason}${next}`:`${reason}${preservation}${next}`,automaticRetry:false,
     retry:{allowed:false,condition:base.readRetry&&!uncertain?'仅重试只读画面/截图一次；不重做建模。':'原错误条件已明确修正、状态已对账且共享预算允许；不得自动重放。'},
     candidate:{eligible:candidate,allowed:false,mode:candidate?'evaluate-existing-preview-conditions':'blocked',requires:['known-not-committed','new-mechanism-evidence','shared-budget-available','supported-tool-contract','unchanged-design-intent'],commit:'only-after-valid-preview-and-explicit-task-authorization'},
     alternatives:{mode:'contract-compatible-only',readTools:uncertain?['getJob','getBatchReceipt','getServicesJob','getServicesRequest','getState']:base.tools,automaticFallback:false},

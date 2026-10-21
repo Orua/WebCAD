@@ -15,6 +15,8 @@ namespace LogoVector.Worker
             public string Status, FailureCode;
             public double RequestedPx, ActualPx;
             public int PointsBefore, PointsAfter, RegionCount, HoleCount;
+            public int DiagonalContacts;
+            public double CornerBoundPx;
             public List<LogoRegion> OriginalRegions;
         }
         internal static List<LogoRegion> CopyRegions(IEnumerable<LogoRegion> regions) => regions.Select(r => new LogoRegion { Outer = r.Outer.Select(p => (double[])p.Clone()).ToList(), Holes = r.Holes.Select(h => h.Select(p => (double[])p.Clone()).ToList()).ToList() }).ToList();
@@ -75,7 +77,7 @@ namespace LogoVector.Worker
             return candidate;
         }
         static long Key(int x, int y) => ((long)y << 32) | (uint)x;
-        static double[] Point(long key) => new[] { (double)(uint)key, -(double)(key >> 32) };
+        static double[] Point(long key) => new[] { (uint)key / 4.0, -(key >> 32) / 4.0 };
         public static Tuple<List<LogoRegion>, double> Trace(byte[] bytes, RasterOptions options, out int pixelHeight)
         {
             SmoothingReport ignored;
@@ -97,10 +99,11 @@ namespace LogoVector.Worker
                 int luma = (image.Data[q] * 299 + image.Data[q + 1] * 587 + image.Data[q + 2] * 114) / 1000;
                 black[i] = options.Invert ? luma >= options.Threshold : luma < options.Threshold;
             }
+            var contacts = new HashSet<long>();
             for (int y = 0; y < height - 1; y++) for (int x = 0; x < width - 1; x++)
             {
                 bool a = black[y * width + x], b = black[y * width + x + 1], c = black[(y + 1) * width + x], d = black[(y + 1) * width + x + 1];
-                if (a && d && !b && !c || b && c && !a && !d) throw new LogoVectorException("RASTER_TOPOLOGY_AMBIGUOUS", "位图存在仅角点相接的像素。");
+                if (a && d && !b && !c || b && c && !a && !d) contacts.Add(Key((x + 1) * 4, (y + 1) * 4));
             }
             var edges = new Dictionary<long, long>();
             Action<int, int, int, int> add = (x0, y0, x1, y1) =>
@@ -109,12 +112,25 @@ namespace LogoVector.Worker
                 if (edges.ContainsKey(start)) throw new LogoVectorException("RASTER_TOPOLOGY_AMBIGUOUS", "位图边界分叉。");
                 edges.Add(start, Key(x1, y1));
             };
+            // Four-connected foreground: retain every pixel centre and all holes.
+            // Only a zero-width diagonal contact is bevelled inside its own cell,
+            // by 1/4 pixel along each incident edge; never join separate islands.
+            Action<int, int, int, int> side = (x0, y0, x1, y1) =>
+            {
+                x0 *= 4; y0 *= 4; x1 *= 4; y1 *= 4;
+                int dx = Math.Sign(x1 - x0), dy = Math.Sign(y1 - y0);
+                bool first = contacts.Contains(Key(x0,y0)), last = contacts.Contains(Key(x1,y1));
+                add(x0 + (first ? dx : 0), y0 + (first ? dy : 0), x1 - (last ? dx : 0), y1 - (last ? dy : 0));
+                // Clockwise boundary, foreground on the right. Connect the incoming
+                // edge to the outgoing edge of the same foreground cell.
+                if(last) add(x1-dx,y1-dy,x1-dy,y1+dx);
+            };
             for (int y = 0; y < height; y++) for (int x = 0; x < width; x++) if (black[y * width + x])
             {
-                if (y == 0 || !black[(y - 1) * width + x]) add(x, y, x + 1, y);
-                if (x == width - 1 || !black[y * width + x + 1]) add(x + 1, y, x + 1, y + 1);
-                if (y == height - 1 || !black[(y + 1) * width + x]) add(x + 1, y + 1, x, y + 1);
-                if (x == 0 || !black[y * width + x - 1]) add(x, y + 1, x, y);
+                if (y == 0 || !black[(y - 1) * width + x]) side(x, y, x + 1, y);
+                if (x == width - 1 || !black[y * width + x + 1]) side(x + 1, y, x + 1, y + 1);
+                if (y == height - 1 || !black[(y + 1) * width + x]) side(x + 1, y + 1, x, y + 1);
+                if (x == 0 || !black[y * width + x - 1]) side(x, y + 1, x, y);
                 if (edges.Count > 500000) throw new LogoVectorException("CONTOUR_TOO_COMPLEX", "位图边界过于复杂。");
             }
             if (edges.Count == 0) throw new LogoVectorException("NO_VECTOR_CONTENT", "阈值下没有前景像素。");
@@ -138,7 +154,10 @@ namespace LogoVector.Worker
                 rings.Add(ring);
             }
             var regions = LogoGeometry.FromEvenOddRings(rings);
-            return Tuple.Create(SmoothContours(regions, smoothingPx, out smoothing), (double)width);
+            var result = SmoothContours(regions, smoothingPx, out smoothing);
+            smoothing.DiagonalContacts = contacts.Count;
+            smoothing.CornerBoundPx = contacts.Count > 0 ? .25 / Math.Sqrt(2) : 0;
+            return Tuple.Create(result, (double)width);
         }
     }
 }

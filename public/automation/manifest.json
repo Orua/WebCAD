@@ -1,9 +1,9 @@
 {
   "version": "1.55.4",
-  "buildId": "d50dfa9ca2ef5405a8f305cf7965a226f4973faa-src-690dabf978032674-working",
+  "buildId": "6a2cd9b680ef68d9a9d7b0f0ccbc7d9602fb11b4-src-a8cd50fe1d7ee0e4-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:6acf9033be70932dd776357853f955c9f65380679e0d26017dda0f5e2e8963fb",
-  "docsHash": "sha256:8f84d2ed7c7311232b4dc3d8045aa11f907eca0e4dbdf437d97da994d423a0d8",
+  "catalogHash": "sha256:d102554be35d5defa399fc192b37d989d5e9d17fa8474850a65932023ea4f493",
+  "docsHash": "sha256:6738e7a7da3e73779c3fd3af905c575d35bb5bc81e8e28a6d9b4e87a1e1a9eac",
   "apiMethods": [
     "reliefDesignFit",
     "reliefDesignReference",
@@ -1398,7 +1398,7 @@
       "title": "readLogo",
       "category": "page-method",
       "version": "1.55.4",
-      "docsHash": "sha256:d27e68bf8761c4a81c27efc0c03908921fdd52d27cafd34ab2ea7a6032bb9112",
+      "docsHash": "sha256:f02c8953ca0fcab9ac2cc3328a4619cc6dc4100d5d99dbe85de72a9a09dd25f6",
       "url": "tools/readLogo.json"
     },
     {
@@ -1414,7 +1414,7 @@
       "title": "logoWizard",
       "category": "page-method",
       "version": "1.55.4",
-      "docsHash": "sha256:1f7908c4bbe1f1f9f7507d3520e07e7e6b898579a84350ffdb907a6cd10e21ee",
+      "docsHash": "sha256:013af8885a0df6729450749eb24c95a8fbb15a411b7b95dca1c0674dd13270ad",
       "url": "tools/logoWizard.json"
     },
     {
@@ -2466,7 +2466,7 @@
     },
     {
       "id": "api.error-recovery",
-      "docsHash": "sha256:20209b88234e4e759f7c8916d865231f1473da28b560cb2fb3b28c7e40b76811",
+      "docsHash": "sha256:96c4add3d9f659668eaa55ba4ea2e42efaccc9eac415b16812833e54bbdd072d",
       "url": "docs/api.error-recovery.md"
     },
     {
@@ -2506,7 +2506,7 @@
     },
     {
       "id": "api.logo",
-      "docsHash": "sha256:e05d2c2f5064d152d860c9dcb69aa0d50cc2e8bff456a731b12072bfaff3d10c",
+      "docsHash": "sha256:463fcee0532bd9433b29ddd19a3eaf9d9c4ecd767afddd38028a2980c2a6f378",
       "url": "docs/api.logo.md"
     },
     {
@@ -2646,7 +2646,7 @@
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:d1622c622bacb6142d32f76b851a3d3b0a70b4b7f799116ce400af89309d7633",
+      "docsHash": "sha256:228410d4c458ba4ea2ec6a9a6b34a8829da836c4cce4d85e9927202c2a659eb5",
       "url": "docs/api.ui-coverage.md"
     },
     {

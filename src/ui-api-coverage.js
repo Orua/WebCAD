@@ -2,7 +2,7 @@ import { listOperations } from './operation-registry.js';
 
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
- logoReview:{tools:['readLogo','reviewLogo','logoWizard','files.read','files.download'],method:'reviewLogo',usage:'LOGO紧凑向导：来源→轮廓校对→目标面。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。'},
+ logoReview:{tools:['readLogo','reviewLogo','logoWizard','files.read','files.download'],method:'reviewLogo',usage:'LOGO紧凑向导：来源→轮廓校对→目标面。位图加工精度由readLogo.machining或logoWizard.parameters.machining设置enabled/toleranceMm/minDetailMm，共享报告和原始轮廓。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。'},
  logoExport:{tools:['readLogo','exportDrawing','files.download'],method:'exportDrawing',usage:'LOGO识别后下载原毫米轮廓DXF；API先readLogo取得logoId，再exportDrawing({context,logoId,format:"dxf"})。保留外环和孔洞，不创建实体，不自动确认描摹精度。'},
  rodJunction:{tools:['rodJunction','queryGeometry','preview.start','preview.commit','preview.cancel','feature.edit','getState'],method:'execute',usage:'实体加工→圆杆接头倒 R。refs:[当前单实体ID]，params:{faceIds:[贯通主杆圆柱面ID,支杆圆柱面ID],radiusMm:独立半径mm}。支持等径、共面垂直T接头；查询当前面号，预览后确认；sourceJunctionReport读回实际R、线径、局部域和误差，失败保留来源。'},
   agentPanelResize:{tools:['getAgentPanel','setAgentPanel'],method:'setAgentPanel',usage:'拖动Agent分隔线或键盘方向键调尺寸；setAgentPanel({context,layout:{widthPx?,heightPx?,collapsed?}})，getAgentPanel().layout读回手机高度/PC宽度、有效尺寸及收起状态；与可见性分开调用，不修改工程。'},

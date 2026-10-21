@@ -20,9 +20,27 @@ namespace LogoVector.Geometry
             double x = Cross(a, b, c), y = Cross(a, b, d), z = Cross(c, d, a), w = Cross(c, d, b);
             return (x * y < -Epsilon && z * w < -Epsilon) || OnSegment(a, b, c) || OnSegment(a, b, d) || OnSegment(c, d, a) || OnSegment(c, d, b);
         }
+        sealed class Edge
+        {
+            public double[] A,B; public double MinX,MaxX,MinY,MaxY; public int Ring,Index;
+        }
         static bool BoundariesMeet(IList<double[]> a, IList<double[]> b)
         {
-            for (int i = 0; i < a.Count; i++) for (int j = 0; j < b.Count; j++) if (Intersects(a[i], a[(i + 1) % a.Count], b[j], b[(j + 1) % b.Count])) return true;
+            bool self=ReferenceEquals(a,b);var entries=new List<Edge>();
+            Action<IList<double[]>,int> append=(ring,id)=>{for(int i=0;i<ring.Count;i++){var p=ring[i];var q=ring[(i+1)%ring.Count];entries.Add(new Edge{A=p,B=q,MinX=Math.Min(p[0],q[0]),MaxX=Math.Max(p[0],q[0]),MinY=Math.Min(p[1],q[1]),MaxY=Math.Max(p[1],q[1]),Ring=id,Index=i});}};
+            append(a,0);if(!self)append(b,1);entries.Sort((x,y)=>x.MinX.CompareTo(y.MinX));
+            var active=new List<Edge>();int candidates=0;
+            foreach(var edge in entries){
+                active.RemoveAll(other=>other.MaxX<edge.MinX-Epsilon);
+                foreach(var other in active){
+                    if(!self && edge.Ring==other.Ring)continue;
+                    if(self){int distance=Math.Abs(edge.Index-other.Index);if(distance==1||distance==a.Count-1)continue;}
+                    if(other.MaxY<edge.MinY-Epsilon||edge.MaxY<other.MinY-Epsilon)continue;
+                    if(++candidates>2000000)throw new LogoVectorException("CONTOUR_TOO_COMPLEX","轮廓交叉检查超过安全计算范围。");
+                    if(Intersects(edge.A,edge.B,other.A,other.B))return true;
+                }
+                active.Add(edge);
+            }
             return false;
         }
         static bool Inside(double[] p, IList<double[]> ring)
@@ -38,7 +56,9 @@ namespace LogoVector.Geometry
         }
         public static List<LogoRegion> FromEvenOddRings(IEnumerable<List<double[]>> input)
         {
-            var rings = input.Select(Clean).ToList();
+            var raw = input.ToList();
+            if(raw.Sum(r=>r.Count)>64000)throw new LogoVectorException("CONTOUR_TOO_COMPLEX","识别轮廓总顶点超过 64000，无法处理此位图的全部细节。");
+            var rings = raw.Select(Clean).ToList();
             if (rings.Count == 0) throw new LogoVectorException("NO_VECTOR_CONTENT", "没有闭合轮廓。");
             for (int i = 0; i < rings.Count; i++) for (int j = i + 1; j < rings.Count; j++) if (BoundariesMeet(rings[i], rings[j])) throw new LogoVectorException("REGIONS_TOUCH_OR_OVERLAP", "轮廓相交或相接。");
             var parent = new int[rings.Count];
@@ -67,15 +87,11 @@ namespace LogoVector.Geometry
         {
             var p = points.Select(x => x == null ? null : (double[])x.Clone()).ToList();
             if (p.Count > 1 && p[0] != null && p[p.Count - 1] != null && Same(p[0], p[p.Count - 1])) p.RemoveAt(p.Count - 1);
-            if (p.Count < 3 || p.Count > 2000) throw new LogoVectorException("CONTOUR_TOO_COMPLEX", "环需要 3–2000 个顶点。");
+            if (p.Count < 3 || p.Count > 64000) throw new LogoVectorException("CONTOUR_TOO_COMPLEX", "闭合轮廓需要 3–64000 个顶点。");
             foreach (var x in p) if (x == null || x.Length != 2 || x.Any(v => double.IsNaN(v) || double.IsInfinity(v))) throw new LogoVectorException("INVALID_CONTOUR", "坐标必须是有限二维数值。");
             for (int i = 0; i < p.Count; i++) if (Same(p[i], p[(i + 1) % p.Count])) throw new LogoVectorException("INVALID_CONTOUR", "轮廓包含零长度边。");
             if (Math.Abs(Area(p)) <= Epsilon) throw new LogoVectorException("INVALID_CONTOUR", "轮廓面积为零。");
-            for (int i = 0; i < p.Count; i++) for (int j = i + 1; j < p.Count; j++)
-            {
-                if (j == i + 1 || (i == 0 && j == p.Count - 1)) continue;
-                if (Intersects(p[i], p[(i + 1) % p.Count], p[j], p[(j + 1) % p.Count])) throw new LogoVectorException("SELF_INTERSECTION", "轮廓自交或自身接触。");
-            }
+            if(BoundariesMeet(p,p))throw new LogoVectorException("SELF_INTERSECTION", "轮廓自交或自身接触。");
             return p;
         }
         static void OrientAndRotate(List<double[]> p, bool ccw)
@@ -88,9 +104,9 @@ namespace LogoVector.Geometry
         public static LogoDocument Normalize(string name, IEnumerable<LogoRegion> input, IDictionary<string, object> source, bool center = true)
         {
             var regions = input.Select(r => new LogoRegion { Outer = Clean(r.Outer), Holes = (r.Holes ?? new List<List<double[]>>()).Select(Clean).ToList() }).ToList();
-            if (regions.Count < 1 || regions.Count > 150) throw new LogoVectorException("CONTOUR_TOO_COMPLEX", "区域数须为 1–150。");
+            if (regions.Count < 1 || regions.Count > 1024) throw new LogoVectorException("CONTOUR_TOO_COMPLEX", "识别区域数须为 1–1024，无法处理此位图的全部细节。");
             int total = regions.Sum(r => r.Outer.Count + r.Holes.Sum(h => h.Count));
-            if (total > 12000) throw new LogoVectorException("CONTOUR_TOO_COMPLEX", "总顶点超过 12000。");
+            if (total > 64000) throw new LogoVectorException("CONTOUR_TOO_COMPLEX", "识别轮廓总顶点超过 64000。");
             foreach (var r in regions)
             {
                 foreach (var h in r.Holes) { if (BoundariesMeet(r.Outer, h) || !Inside(h[0], r.Outer)) throw new LogoVectorException("INVALID_HOLE", "孔洞须严格位于外轮廓内。"); }

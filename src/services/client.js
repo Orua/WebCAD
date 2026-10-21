@@ -40,7 +40,7 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
   if(current.execution!=='succeeded'){
    const failure=current.error??{},stage=failure.stage??current.stage;
    const code=failure.code??'SERVICES_JOB_FAILED',commitState=failure.commitState??failure.commit??current.commit??'notCommitted';
-   throw serviceError(code,`${failure.message??`任务状态 ${current.execution}`}（${code}，jobId: ${current.jobId}${stage?`，阶段: ${stage}`:''}，提交: ${commitState}${failure.diagnosticsRef?`，诊断: ${failure.diagnosticsRef}`:''}）`,{job:current,jobId:current.jobId,supportBinding:failure.supportBinding,stage,diagnosticsRef:failure.diagnosticsRef,commitState,recoveryAction:failure.recoveryAction});
+   throw serviceError(code,failure.message??`任务状态 ${current.execution}`,{job:current,jobId:current.jobId,idempotencyKey:job.requestKey,details:{...(failure.details||{}),serviceMessage:failure.message??null,execution:current.execution},supportBinding:failure.supportBinding,stage,diagnosticsRef:failure.diagnosticsRef,commitState,recoveryAction:failure.recoveryAction});
   }
   const manifest=await request(job.requestKey?`/v1/requests/${job.requestKey}/result`:`/v1/jobs/${job.jobId}/result`);if(manifest.jobId!==job.jobId||manifest.inputFingerprint!==job.inputFingerprint)throw serviceError('RESULT_MISMATCH','任务结果指纹不一致');
   if(job.requestBinding&&JSON.stringify(manifest.requestBinding)!==JSON.stringify(job.requestBinding))throw serviceError('RESULT_MISMATCH','服务未返回对应请求的安装绑定');
