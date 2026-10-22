@@ -8,7 +8,7 @@ export function validateFloatingPosition(position){
 export function createFloatingToggle({root,onOpen,onMove=()=>{}}){
   const button=document.createElement('button');button.type='button';button.className='agent-floating-toggle';button.hidden=true;
   button.dataset.hostControlAllowed='true';button.dataset.commandId='agentPanelFloating';button.setAttribute('aria-expanded','false');
-  button.innerHTML='<span class="agent-floating-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 7v5M5 21v7M35 21v7"/><circle class="agent-robot-antenna" cx="20" cy="5" r="2"/><rect x="8" y="12" width="24" height="23" rx="7"/><g class="agent-robot-eyes"><rect x="13" y="20" width="4" height="5" rx="2"/><rect x="23" y="20" width="4" height="5" rx="2"/></g><path d="M17 29h6"/></svg><span class="agent-floating-dots"><i></i><i></i><i></i></span></span><span class="agent-floating-copy"><strong class="agent-floating-status"></strong><small>点击展开对话</small></span>';
+  button.innerHTML='<span class="agent-floating-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 7v5M5 21v7M35 21v7"/><circle class="agent-robot-antenna" cx="20" cy="5" r="2"/><rect x="8" y="12" width="24" height="23" rx="7"/><g class="agent-robot-eyes"><rect x="13" y="20" width="4" height="5" rx="2"/><rect x="23" y="20" width="4" height="5" rx="2"/></g><path d="M17 29h6"/></svg><span class="agent-floating-dots"><i></i><i></i><i></i></span></span>';
   root.append(button);
   let position=null,drag=null,suppressClick=false,activity='idle';
   function bounds(){return {maxX:Math.max(8,root.clientWidth-button.offsetWidth-8),maxY:Math.max(8,root.clientHeight-button.offsetHeight-8)};}
@@ -46,8 +46,7 @@ export function createFloatingToggle({root,onOpen,onMove=()=>{}}){
   function get(){return {visible:!button.hidden,activity,position:position?{...position}:null};}
   return {get,setPosition(value){validateFloatingPosition(value);position={...value};place();return get();},sync({visible,activity:next='idle'}){
     activity=Object.hasOwn(labels,next)?next:'idle';button.hidden=!visible||activity!=='thinking';button.dataset.activity=activity;
-    button.querySelector('.agent-floating-status').textContent=labels[activity];
-    button.title=`${labels[activity]} · 单击展开，拖动移位`;button.setAttribute('aria-label',`展开 AI 对话框 · ${labels[activity]}`);
+    button.setAttribute('aria-label',`展开 AI 对话框 · ${labels[activity]}`);
     if(button.hidden)finish(null,true);place();
   },destroy(){observer.disconnect();button.remove();}};
 }
