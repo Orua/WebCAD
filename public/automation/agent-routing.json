@@ -1,15 +1,13 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:75755343858844e5a7ae93dc29cd087dc3e05faf9819086ffb7a23f049698b0c",
-  "docsHash": "sha256:d5c014a7751c0f7f396799667cf87984a29e768b149f2a99f89160c6a6b5d83c",
+  "catalogHash": "sha256:5575991880db71d694917ad8a76c05a8c28f5108646c2c0455fd09932ba569f9",
+  "docsHash": "sha256:390610337f751be82bf3a0b36d1147b19ccbcaf980b028327cc72e61d0e5afe0",
   "bootstrapDocIds": [
+    "api.reading-map",
     "api.knowledge-cache",
-    "api.connection",
-    "api.workflow",
-    "api.run",
-    "api.reconstruction"
+    "api.connection"
   ],
-  "selectionPolicy": "Route by task, read a workflow, then only needed complete cards. Exact UI actions use routes.json. Live context/IDs always come from the page.",
+  "selectionPolicy": "Read api.reading-map once; route by task; read only readFirst; compare selectionGuide; fetch selected complete cards. docs/tools are candidates, not mandatory bulk reads. Exact UI actions use routes.json. Live IDs come from the page.",
   "routes": [
     {
       "id": "error-recovery",
@@ -28,6 +26,7 @@
         "recovery"
       ],
       "docs": [
+        "api.guide.errors",
         "api.error-recovery",
         "api.reliability",
         "api.run",
@@ -41,7 +40,9 @@
         "getServicesRequest",
         "getTool"
       ],
-      "note": "Use error.recovery/userMessage; retain raw code/requestId for audit. Reconcile unknown before replay. Preview is conditional on unchanged intent, new mechanism and shared budget; never auto-retry, change dimensions, switch kernel or claim rollback without readback."
+      "note": "Use error.recovery/userMessage; retain raw code/requestId for audit. Reconcile unknown before replay. Preview is conditional on unchanged intent, new mechanism and shared budget; never auto-retry, change dimensions, switch kernel or claim rollback without readback.",
+      "readFirst": "api.guide.errors",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "modeling-pitfalls",
@@ -74,7 +75,9 @@
         "transform",
         "ellipsoid",
         "subdBody"
-      ]
+      ],
+      "readFirst": "api.modeling-pitfalls",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "tool-selection",
@@ -96,7 +99,9 @@
         "searchTools",
         "getTools"
       ],
-      "note": "Use every candidate selectionGuide: compare input geometry, section/path, units, result and side effects; read exact cards without adding execution gates."
+      "note": "Use every candidate selectionGuide: compare input geometry, section/path, units, result and side effects; read exact cards without adding execution gates.",
+      "readFirst": "api.tool-selection",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "relief-taxonomy",
@@ -107,13 +112,12 @@
         "灰度图",
         "照片",
         "网格",
-        "STL",
-        "STEP",
         "heightmap",
         "relief",
         "mesh boolean"
       ],
       "docs": [
+        "api.guide.pattern",
         "api.relief-taxonomy",
         "api.pattern-machining"
       ],
@@ -129,7 +133,9 @@
         "reliefSculpt",
         "reliefShoulder"
       ],
-      "note": "作者高度图与精确矢量分流；照片须先制作高度图，亮度不直接代表深度。"
+      "note": "作者高度图与精确矢量分流；照片须先制作高度图，亮度不直接代表深度。",
+      "readFirst": "api.guide.pattern",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "agent-runtime-recovery",
@@ -140,14 +146,12 @@
         "恢复",
         "内核",
         "未就绪",
-        "保存",
         "版本",
         "握手",
         "钻石",
         "布局",
         "kernel",
         "reconnect",
-        "save",
         "layout"
       ],
       "docs": [
@@ -163,7 +167,9 @@
         "group",
         "feature.addMany"
       ],
-      "note": "WebCAD publishes the adapter and contract. Verify build/software hashes before writes; save the committed snapshot even when kernel unavailable. Compute explicit analytic layout on the host using webcad_docs planLayout; never guess dimensions or replay unknown commands."
+      "note": "WebCAD publishes the adapter and contract. Verify build/software hashes before writes; save the committed snapshot even when kernel unavailable. Compute explicit analytic layout on the host using webcad_docs planLayout; never guess dimensions or replay unknown commands.",
+      "readFirst": "api.agent-runtime",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "mesh-relief-editing",
@@ -177,10 +183,11 @@
         "relief plate",
         "分层",
         "冻结",
-        "截面",
-        "局部移动"
+        "浮雕截面",
+        "浮雕局部移动"
       ],
       "docs": [
+        "api.guide.pattern",
         "api.mesh-relief-edit",
         "api.mesh-assets",
         "api.editor"
@@ -201,7 +208,9 @@
         "history.undo",
         "history.redo"
       ],
-      "note": "Use explicit support, current geometry hash and on-surface seed. Mesh tools retain Float64 assets; do not claim BRep or STEP. New/changed tools require this same public path; no pointer automation."
+      "note": "Use explicit support, current geometry hash and on-surface seed. Mesh tools retain Float64 assets; do not claim BRep or STEP. New/changed tools require this same public path; no pointer automation.",
+      "readFirst": "api.guide.pattern",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "model-library-management",
@@ -230,7 +239,9 @@
         "setView",
         "getUILayout"
       ],
-      "note": "Read live library revision and per-entry schema. Resolve to frozen quickModel params before run/add; library IDs never become saved geometry kinds."
+      "note": "Read live library revision and per-entry schema. Resolve to frozen quickModel params before run/add; library IDs never become saved geometry kinds.",
+      "readFirst": "api.model-library",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "product-understanding",
@@ -269,6 +280,7 @@
         "链"
       ],
       "docs": [
+        "api.guide.source",
         "api.product-source",
         "api.reconstruction"
       ],
@@ -277,7 +289,9 @@
         "planeSection",
         "inspectFit"
       ],
-      "note": "Use host planSource with evidence; type names do not establish section, dimensions or a complete product."
+      "note": "Use host planSource with evidence; type names do not establish section, dimensions or a complete product.",
+      "readFirst": "api.guide.source",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "source-reconstruction",
@@ -298,6 +312,7 @@
         "reconstruction"
       ],
       "docs": [
+        "api.guide.source",
         "api.reconstruction",
         "api.product-source",
         "api.feature-plan",
@@ -312,7 +327,9 @@
         "inspectDesign",
         "feature.addMany"
       ],
-      "note": "Acquire/read the original with the available authorized host file tools, then plan and draw with current page contracts. Host product-file tools are not page methods. Download, parsed evidence, drawing image, committed geometry and delivery are distinct receipts."
+      "note": "Acquire/read the original with the available authorized host file tools, then plan and draw with current page contracts. Host product-file tools are not page methods. Download, parsed evidence, drawing image, committed geometry and delivery are distinct receipts.",
+      "readFirst": "api.guide.source",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "templates",
@@ -336,7 +353,9 @@
         "template.sliderBuckle",
         "template.flatFrame"
       ],
-      "toolLookup": "Select the exact template.* card matching the requested section/path; use live search for other templates. Do not load the quickModel master catalog to inspect one template."
+      "toolLookup": "Select the exact template.* card matching the requested section/path; use live search for other templates. Do not load the quickModel master catalog to inspect one template.",
+      "readFirst": "api.workflow",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "profiles",
@@ -353,6 +372,7 @@
         "loft"
       ],
       "docs": [
+        "api.guide.sweep-loft",
         "api.vector-import",
         "api.mechanical",
         "api.references",
@@ -366,7 +386,9 @@
         "inspectProfile",
         "inspectConstraints",
         "planeSection"
-      ]
+      ],
+      "readFirst": "api.guide.sweep-loft",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "machining",
@@ -389,7 +411,9 @@
         "multiHole",
         "multiPocket",
         "thread"
-      ]
+      ],
+      "readFirst": "api.mechanical",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "booleans",
@@ -410,6 +434,7 @@
         "intersect"
       ],
       "docs": [
+        "api.guide.boolean",
         "api.workflow",
         "api.run"
       ],
@@ -418,7 +443,9 @@
         "union",
         "intersect"
       ],
-      "note": "Inspect existing bodies before a local patch. Use explicit target and cutter bodies; preserve completed geometry and ask before a complex destructive plan."
+      "note": "Inspect existing bodies before a local patch. Use explicit target and cutter bodies; preserve completed geometry and ask before a complex destructive plan.",
+      "readFirst": "api.guide.boolean",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "references",
@@ -439,7 +466,9 @@
         "queryReferences",
         "reference.setBodyAnchor"
       ],
-      "note": "Distinguish the insertion work frame from a body-owned anchor. Read the current frame before placing new geometry."
+      "note": "Distinguish the insertion work frame from a body-owned anchor. Read the current frame before placing new geometry.",
+      "readFirst": "api.references",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "rounding",
@@ -455,6 +484,7 @@
         "rounding"
       ],
       "docs": [
+        "api.guide.rounding",
         "api.smooth-transition",
         "api.workflow"
       ],
@@ -465,7 +495,9 @@
         "roundEnd",
         "chamfer"
       ],
-      "note": "Distinguish outline/section radii from a 3D blend and end reconstruction. Re-query current topology. A requested radius must not be silently reduced."
+      "note": "Distinguish outline/section radii from a 3D blend and end reconstruction. Re-query current topology. A requested radius must not be silently reduced.",
+      "readFirst": "api.guide.rounding",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "logo-relief",
@@ -486,6 +518,7 @@
         "relief"
       ],
       "docs": [
+        "api.guide.pattern",
         "api.logo",
         "api.relief-taxonomy",
         "api.pattern-machining"
@@ -502,7 +535,9 @@
         "relief",
         "logo"
       ],
-      "note": "Monochrome JPG/PNG uses readLogo with actual width and explicit upload permission; review contours and holes before logo engraving. Local SVG and reviewed JSON need no server. Photos/shaded references require authored height data. Read current compute capabilities; configuration readback never discloses credentials."
+      "note": "Monochrome JPG/PNG uses readLogo with actual width and explicit upload permission; review contours and holes before logo engraving. Local SVG and reviewed JSON need no server. Photos/shaded references require authored height data. Read current compute capabilities; configuration readback never discloses credentials.",
+      "readFirst": "api.guide.pattern",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "inspection",
@@ -532,7 +567,9 @@
         "inspectFit",
         "measureRelation",
         "planeSection"
-      ]
+      ],
+      "readFirst": "api.design-checks",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "editing",
@@ -560,7 +597,9 @@
         "getHistory",
         "feature.edit",
         "history.undo"
-      ]
+      ],
+      "readFirst": "api.editor",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
       "id": "files",
@@ -571,12 +610,14 @@
         "打开",
         "STP",
         "STEP",
+        "STL",
         "文件",
         "save",
         "export",
         "open"
       ],
       "docs": [
+        "api.guide.files",
         "recipe.file-workflow",
         "api.file-errors"
       ],
@@ -588,7 +629,9 @@
         "files.export",
         "files.read",
         "files.write"
-      ]
+      ],
+      "readFirst": "api.guide.files",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     }
   ],
   "productFamilies": [
