@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.57.3 · sha256:0e01c61081fb2ad3689b96ffd9e8921aa2eaa2fd8520cd94eea73085d3056752
+API 1.57.3 · sha256:8c31c759640ed47dd977d554c700af9f2ac9f13733cf3b2dc6f6150101b2b62c
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -6749,7 +6749,7 @@ files.release: contextPolicy=none
       "setAgentPanel"
     ],
     "method": "setAgentPanel",
-    "usage": "折叠且思考时显示可拖动机器人头像及“AI 正在思考”，其余时间隐藏；普通展开按钮在空闲时保留。setAgentPanel({context,layout:{collapsed:false}})展开，layout.floatingPosition:{xPx,yPx}按画布CSS像素移位；getAgentPanel().floating读回实际位置及活动状态。拖动不触发展开，不取消任务，不修改工程。"
+    "usage": "折叠且思考时只显示透明背景、无可见文字的可拖动机器人动画，其余时间隐藏；普通展开按钮在空闲时保留。setAgentPanel({context,layout:{collapsed:false}})展开，layout.floatingPosition:{xPx,yPx}按画布CSS像素移位；getAgentPanel().floating读回实际位置及活动状态。拖动不触发展开，不取消任务，不修改工程。"
   },
   "markLocation": {
     "tools": [
@@ -130153,7 +130153,7 @@ files.release: contextPolicy=none
     "思考"
   ],
   "inputContract": "setAgentPanel({context,visible:true|false})；true接入，false退出释放。或setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false,floatingPosition?:{xPx:80,yPx:80}}})；layout与visible分开调用。宽高1–4096像素，浮标坐标0–100000像素并夹限到画布内。",
-  "outputContract": "status=applied；getAgentPanel().layout返回version/mobile/axis/widthPx/heightPx/effectiveSizePx/collapsed/visible，floating返回visible/activity/position。collapsed:true仅折叠，保留任务和连接，腾出全部面板空间；只有activity=thinking时显示带机器人思考头像的“AI 正在思考”浮标，空闲、执行、连接或断线均隐藏，空闲用普通展开按钮恢复面板。单击或Enter/Space展开，拖动或方向键移位，松手不展开。眼睛、天线及三点动画遵循减少动态设置。PC调宽、手机调高，至少保留画布280/160px、助手240/156px。不改revision/dirty/相机/历史，不写工程。字段错误PARAM_SCHEMA_INVALID。网络失败releasePending=true；旧会话须核对释放，不重跑。仅匹配配置origin、实际iframe、一次性channel消息可用。",
+  "outputContract": "status=applied；getAgentPanel().layout返回version/mobile/axis/widthPx/heightPx/effectiveSizePx/collapsed/visible，floating返回visible/activity/position。collapsed:true仅折叠，保留任务和连接，腾出全部面板空间；只有activity=thinking时显示透明背景、无可见文字及阴影的机器人思考动画，其余状态隐藏；空闲用普通展开按钮恢复面板。单击或Enter/Space展开，拖动或方向键移位，松手不展开。眼睛、天线及三点动画遵循减少动态设置，保留无障碍名称。PC调宽、手机调高，至少保留画布280/160px、助手240/156px。不改revision/dirty/相机/历史，不写工程。字段错误PARAM_SCHEMA_INVALID。网络失败releasePending=true；旧会话须核对释放，不重跑。仅匹配配置origin、实际iframe、一次性channel消息可用。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -130175,7 +130175,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b6f0ece664da9d3d7cef92326799c4ad4ebbcf6b40455054e3c96eed180ef802"
+  "docsHash": "sha256:200bb59eac72cca77364f99371bc8161fbd2d59036e5b1304d471440a8933f0f"
 }
 ```
 

@@ -8,7 +8,7 @@
       "setAgentPanel"
     ],
     "method": "setAgentPanel",
-    "usage": "折叠且思考时显示可拖动机器人头像及“AI 正在思考”，其余时间隐藏；普通展开按钮在空闲时保留。setAgentPanel({context,layout:{collapsed:false}})展开，layout.floatingPosition:{xPx,yPx}按画布CSS像素移位；getAgentPanel().floating读回实际位置及活动状态。拖动不触发展开，不取消任务，不修改工程。"
+    "usage": "折叠且思考时只显示透明背景、无可见文字的可拖动机器人动画，其余时间隐藏；普通展开按钮在空闲时保留。setAgentPanel({context,layout:{collapsed:false}})展开，layout.floatingPosition:{xPx,yPx}按画布CSS像素移位；getAgentPanel().floating读回实际位置及活动状态。拖动不触发展开，不取消任务，不修改工程。"
   },
   "markLocation": {
     "tools": [
