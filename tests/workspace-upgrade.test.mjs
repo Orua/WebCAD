@@ -78,4 +78,5 @@ test('all configurable header/tab/control actions have public routes',()=>{
  for(const action of actions)assert(UI_API_ROUTES[action],action);
  for(const action of UI_LAYOUT.tabs.flatMap(tab=>tab.groups.flatMap(([,items])=>items)))assert(UI_LAYOUT.icons[action]?.length,`missing vector icon: ${action}`);
  for(const control of Object.values(UI_LAYOUT.controls))for(const [,value]of control.items)assert(UI_LAYOUT.icons[value]?.length,`missing view icon: ${value}`);
+ const seen=new Map();for(const action of UI_LAYOUT.tabs.flatMap(tab=>tab.groups.flatMap(([,items])=>items))){const key=JSON.stringify(UI_LAYOUT.icons[action]);assert(!seen.has(key),`${action} duplicates ${seen.get(key)}`);seen.set(key,action);}
 });
