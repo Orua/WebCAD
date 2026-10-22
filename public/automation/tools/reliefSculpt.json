@@ -70,6 +70,10 @@
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -96,5 +100,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:c25eb9b4a3e0832fe4920313f988ada5b26fce043633e215b96e04e9a70afd7e"
+  "docsHash": "sha256:d21f6d6072da9e207d50942bc18cf3d076abd24f64f5f9c1300867cfb1fdc555"
 }

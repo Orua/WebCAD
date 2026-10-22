@@ -204,6 +204,7 @@
 - prepareReliefSculpt：准备有明确 domain/mask 的精修草稿，尚未应用。
 - prepareReliefTopologyUpgrade：评估/准备浮雕拓扑升级；不等同已提交升级成功。
 - reliefDesignReference：绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。
+- prepareReliefDesignRelief：把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。
 - reliefDesignFit：将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。
 - reliefDesignField：从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。
 - sampleReliefHeight：读取浮雕参数/草稿指定点的控制高度，不是修改高度。
@@ -344,6 +345,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity

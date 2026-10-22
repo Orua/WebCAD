@@ -989,6 +989,10 @@
   "reliefDesign": {
     "tools": [
       "reliefDesignFit",
+      "prepareReliefDesignRelief",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
       "reliefDesignReference",
       "files.register",
       "files.read",
@@ -1481,6 +1485,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity

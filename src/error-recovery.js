@@ -3,9 +3,13 @@ import sourceCodes from '../contracts/error-recovery-codes.json' with {type:'jso
 // changes an argument, clears a guard, commits/undoes geometry, or cancels a job.
 const rule=(id,codes,reason,next,tools=[],options={})=>({id,codes:new Set(codes.split(' ').filter(Boolean)),reason,next,tools,...options});
 const rules=[
+  rule('relief-services-response','SERVICES_RESPONSE_INVALID','Services 浮雕响应与请求、哈希或误差不一致。','保留当前工程，核对原任务与返回产物；不提交、不自动重算或回退。',['getServicesJob','getState'],{hardStop:true}),
+  rule('relief-services-required','RELIEF_DESIGN_SERVICES_REQUIRED','临时控制网需要 Services 完成首次拟合。','保留当前设计并检查 Services 能力；如需本地执行，由用户明确选择浏览器拟合后重新准备。',['reliefDesignFit','getServicesCapabilities'],{hardStop:true}),
   rule('design-fit-capacity','FIT_CAPACITY FIT_WORK_BUDGET FIT_UNDERSAMPLED','拟合的采样、控制网格或数值工作量超出当前范围。','核对显式控制数与原场采样及容量；保留设计，不自动降低精度、改变误差或重试耗尽任务。',['reliefDesignFit','getTool'],{hardStop:true}),
   rule('design-fit-constraints','FIT_SOURCE_INVALID FIT_CONSTRAINT_CONFLICT FIT_DIRECTION_CONFLICT FIT_DOMAIN_CONFLICT FIT_DOMAIN_EMPTY FIT_DOMAIN_UNSUPPORTED FIT_NO_FREEDOM FIT_PARAMETER_OUTSIDE','当前高度方向、支撑或保护约束与拟合条件不一致。','读取原设计、baseline及受保护极点报告；不能删孔、放松保护或翻转高度来通过。',['reliefDesignFit','reliefDesignField'],{hardStop:true}),
   rule('design-fit-quality','FIT_FAILED NUMERICAL_RESULT_MISMATCH FIT_DEVIATION FIT_PROTECTION_FAILED FIT_NOT_CONVERGED FIT_TIMEOUT FIT_WORKER_FAILED','本次拟合未达到明确误差、保护或求解条件。','保留原设计场和实际诊断，不提交为实体；先核对误差与约束，不能自动修改容差或换算法重算。',['reliefDesignFit'],{hardStop:true}),
+  rule('design-fit-brep-binding','RELIEF_DESIGN_BINDING_INVALID RELIEF_DESIGN_SOURCE_CHANGED RELIEF_DESIGN_SUPPORT_INVALID RELIEF_DESIGN_MASK_BLOCKED','拟合与支撑面、放置或掩码的绑定不再一致。','重新读取当前工程，重新选择真实平面并重新准备；不沿用旧面编号，不放宽绑定或改用其他轮廓策略。',['prepareReliefDesignRelief','reliefDesignFit','getState'],{hardStop:true}),
+  rule('design-fit-brep-native','RELIEF_DESIGN_NATIVE_REQUIRED','该拟合浮雕的控制网格复杂度需要尚未开放的Native平面B样条能力。','保留拟合与工程；减少显式控制网格后重新拟合，或等待Native验收；不降级本地执行。',['reliefDesignFit','prepareReliefDesignRelief'],{hardStop:true}),
   rule('design-fit-cancel','FIT_CANCELLED','数值拟合已停止。','原已解设计场保留；读取当前拟合状态，不自动重启。',['reliefDesignFit'],{hardStop:true}),
   rule('relief-reference','RELIEF_REFERENCE_INVALID RELIEF_REFERENCE_MISSING','浮雕原参考图不存在、已改变或未通过原件校验。','读取当前设计草稿与已登记原图资源；核对真实图片格式、SHA256、大小和解码结果。原图仅供参考，不能按照片明暗自动生成高度。',['reliefDesignReference','getState'],{hardStop:true}),
   rule('design-capacity','DOMAIN_CAPACITY FIELD_CAPACITY PIPELINE_CAPACITY','设计场的采样数量或求解工作量超过当前范围。','读取数值场工具的采样与迭代上限，保留草稿；不要自动降低用户要求的造型精度。',['reliefDesignField','getTool'],{hardStop:true}),

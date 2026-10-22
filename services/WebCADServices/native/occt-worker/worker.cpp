@@ -45,6 +45,7 @@ static json measure(const TopoDS_Shape& shape) {
 #include "face_boundary_round.hxx"
 #include "relief_shoulder.hxx"
 #include "deform.hxx"
+#include "relief_design.hxx"
 static TopoDS_Face bindPlanarRoundFace(const TopoDS_Shape& source,const json& intent,double radius) {
  keys(intent,{"kind","point","normal"});
  if(intent.at("kind")!="planar-face-geometric-intent")throw std::runtime_error("Expected explicit planar-face geometric intent");
@@ -70,7 +71,7 @@ static TopoDS_Face bindPlanarRoundFace(const TopoDS_Shape& source,const json& in
 int main(int argc,char** argv) {
   if(argc!=2) return 2;
   std::string reportPath,stage="read-request";
-  json supportBinding,roundBoundary,shoulderReport,deformReport;
+  json supportBinding,roundBoundary,shoulderReport,deformReport,reliefDesignReport;
   const auto began=std::chrono::steady_clock::now();
   try {
     std::ifstream file(argv[1],std::ios::binary|std::ios::ate);
@@ -89,7 +90,17 @@ int main(int argc,char** argv) {
     const bool faceRound=request.at("operation")=="round"&&request.at("semanticVersion")=="round.planar-boundary-1.0"&&request.at("strategy")=="planar-boundary-cutter";
     const bool shoulder=request.at("operation")=="reliefShoulder"&&request.at("semanticVersion")=="relief.central-shoulder-1.0"&&request.at("strategy")=="source-boundary-replacement";
     const bool deformation=request.at("operation")=="deform"&&request.at("semanticVersion")=="deform.nurbs-1.0"&&request.at("strategy")=="nurbs-control-point-map";
-    if(!translation&&!relief&&!booleanCut&&!faceRound&&!shoulder&&!deformation)throw std::runtime_error("Unsupported operation semantics");
+    const bool reliefDesign=request.at("operation")=="reliefDesign"&&request.at("semanticVersion")=="relief.design-fit-brep-1"&&request.at("strategy")=="masked-bspline-face-replacement";
+    const bool sourceConvert=request.at("operation")=="reliefSourceConvert"&&request.at("semanticVersion")=="relief.source-convert-1"&&request.at("strategy")=="rgba-area-average";
+    if(sourceConvert){
+     // No BRep: RGBA asset -> height grid JSON, published atomically to outputPath.
+     stage="source-convert";progress();const auto converted=webcad::relief_design::sourceConvert(request.at("sourcePath").get<std::string>(),request.at("params"));
+     const auto path=request.at("outputPath").get<std::string>(),partial=path+".partial";{std::ofstream out(partial,std::ios::binary);out<<converted.dump();if(!out)throw std::runtime_error("Grid write failed");}
+     if(std::rename(partial.c_str(),path.c_str())!=0)throw std::runtime_error("Grid atomic publication failed");
+     json report={{"ok",true},{"operation",request.at("operation")},{"semanticVersion",request.at("semanticVersion")},{"strategy",request.at("strategy")},{"inputFingerprint",request.at("inputFingerprint")},{"featureId",request.at("featureId")},{"expectedRevision",request.at("expectedRevision")},{"grid",{{"columns",converted.at("grid").at("columns")},{"rows",converted.at("grid").at("rows")},{"sha256",converted.at("grid").at("sha256")}}},{"precision",converted.at("precision")},{"timings",{{"totalMs",std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-began).count()}}}};
+     std::ofstream reportFile(reportPath,std::ios::binary);reportFile<<report.dump();reportFile.flush();if(!reportFile)throw std::runtime_error("Report write failed");return 0;
+    }
+    if(!translation&&!relief&&!booleanCut&&!faceRound&&!shoulder&&!deformation&&!reliefDesign)throw std::runtime_error("Unsupported operation semantics");
     const auto& params=request.at("params");
     stage="read-brep";std::ifstream source(request.at("sourcePath").get<std::string>(),std::ios::binary|std::ios::ate);
     if(!source||source.tellg()>20*1024*1024)throw std::runtime_error("Source BRep exceeds bridge budget");source.seekg(0);
@@ -102,6 +113,10 @@ int main(int argc,char** argv) {
      stage="deform-nurbs-map";progress();
      result=webcad::deform::run(input,params,request.at("operation"),before.at("volumeMm3").get<double>(),deformReport);
      stages.push_back({{"stage","nurbs-control-point-map"},{"kind",params.at("kind")}});
+    }else if(reliefDesign){
+     const auto designed=webcad::relief_design::build(input,params,before.at("volumeMm3").get<double>(),[&](const char* name){stage=name;progress();});
+     result=designed.shape;reliefDesignReport=designed.report;
+     stages.push_back({{"stage","fit-masked-bspline"},{"ms",designed.report.at("timingsMs").at("fit")}});stages.push_back({{"stage","replace-face-exact-trim"},{"trim",designed.report.at("trim")}});
     }else if(booleanCut)result=runBooleanCut(input,params,stages,stage,progress);
     else if(faceRound){
      keys(params,{"radius","faceIntent"});const double radius=params.at("radius").get<double>();if(!std::isfinite(radius)||radius<=0||radius>10000)throw std::runtime_error("Round boundary requires a bounded positive radius");
@@ -130,14 +145,22 @@ int main(int argc,char** argv) {
     stage="write-brep";const auto path=request.at("outputPath").get<std::string>(),partial=path+".partial";
     {std::ofstream output(partial,std::ios::binary);BRepTools::Write(result,output,false,false,TopTools_FormatVersion_VERSION_3);output.flush();if(!output)throw std::runtime_error("Precise result write failed");if((booleanCut||faceRound||shoulder||deformation)&&output.tellp()>20*1024*1024)throw BooleanFailure("RESULT_TOO_LARGE_FOR_CLIENT","Native result exceeds the accepted 20 MiB client import budget");}
     if(std::rename(partial.c_str(),path.c_str())!=0)throw std::runtime_error("Precise result atomic publication failed");
+#ifdef WEBCAD_RELIEF_STEP
+    if(reliefDesign){stage="write-step";webcad::relief_design::writeStep(result,path+".step");std::ifstream st(path+".step",std::ios::binary|std::ios::ate);reliefDesignReport["step"]={{"available",true},{"bytes",(long long)st.tellg()},{"schema","AP214IS"},{"units","mm"}};}
+#else
+    if(reliefDesign)reliefDesignReport["step"]={{"available",false},{"reason","worker built without WEBCAD_RELIEF_STEP; the browser exports STEP from the committed BRep"}};
+#endif
     PROCESS_MEMORY_COUNTERS_EX counters{};counters.cb=sizeof(counters);const bool hasMemory=GetProcessMemoryInfo(GetCurrentProcess(),reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&counters),sizeof(counters));
     json report={{"ok",true},{"operation",request.at("operation")},{"semanticVersion",request.at("semanticVersion")},{"strategy",request.at("strategy")},{"stages",stages},{"kernelVersion",OCC_VERSION_COMPLETE},{"codec","occt-text-brep-v1"},{"brepVersion",3},{"units","mm"},{"coordinateSystem","world-xyz-right-handed"},{"inputFingerprint",request.at("inputFingerprint")},{"featureId",request.at("featureId")},{"expectedRevision",request.at("expectedRevision")},{"topologyBinding",{{"kind",translation||deformation?"whole-source":params.contains("supportIntent")?"outer-cylinder-geometric-intent":"private-prototype-boundary"},{"matchCount",1},{"numericIndicesTransferred",false}}},{"before",before},{"validation",after},{"timings",{{"totalMs",std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-began).count()},{"peakWorkingSetBytes",hasMemory?json(counters.PeakWorkingSetSize):json("unavailable")}}}};
     if(booleanCut)report["topologyBinding"]={{"kind","whole-sources"},{"matchCount",params.at("toolPaths").size()+1},{"numericIndicesTransferred",false}};
     if(faceRound){report["topologyBinding"]={{"kind","planar-face-geometric-intent"},{"matchCount",1},{"numericIndicesTransferred",false}};report["roundBoundary"]=roundBoundary;}
     if(shoulder){report["topologyBinding"]={{"kind","planar-face-geometric-intent"},{"matchCount",1},{"numericIndicesTransferred",false}};report["shoulderReport"]=shoulderReport;}
+    if(reliefDesign){report["topologyBinding"]={{"kind","planar-face-geometric-intent"},{"matchCount",1},{"numericIndicesTransferred",false}};report["reliefDesign"]=reliefDesignReport;}
     if(deformation){report["deformation"]=deformReport;report["warnings"]=json::array();if(deformReport.value("analyticFacesMayBecomeBSplines",false))report["warnings"].push_back("Analytic source faces may be represented as B-spline faces after affine scaling");}
     if(!supportBinding.is_null()){report["supportBinding"]=supportBinding;report["topologyBinding"]["matchCount"]=supportBinding.at("counts").at("matchCount");}
     std::ofstream reportFile(reportPath,std::ios::binary);reportFile<<report.dump();reportFile.flush();if(!reportFile)throw std::runtime_error("Report write failed");return 0;
+  } catch(const webcad::relief_design::Failure& error) {
+    if(!reportPath.empty()){std::ofstream report(reportPath);report<<json({{"ok",false},{"code",error.code},{"stage",stage},{"message",std::string(error.what()).substr(0,1024)},{"details",error.details}}).dump();}return 4;
   } catch(const webcad_face_round::Failure& error) {
     if(!reportPath.empty()){std::ofstream report(reportPath);report<<json({{"ok",false},{"code",error.code},{"stage",stage},{"message",std::string(error.what()).substr(0,1024)}}).dump();}return 4;
   } catch(const BooleanFailure& error) {

@@ -151,6 +151,10 @@
         "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -177,5 +181,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:b819727fe6f59af320c1a2bb64870c7d0d3e44a6d7886f07bdffcf5a4168f00f"
+  "docsHash": "sha256:99d90a4c123a67f8e55506ad2524f360fcd7419c6f26e27a684ccb157fe4a031"
 }

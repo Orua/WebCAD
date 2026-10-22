@@ -255,5 +255,45 @@
     "vectorProfile",
     "rodJunction"
   ],
-  "localOnlyOverride": "never-automatic-or-explicit-services"
+  "localOnlyOverride": "never-automatic-or-explicit-services",
+  "reliefPipeline": {
+    "version": "relief-pipeline-1",
+    "principle": "首次完整计算在 Services 执行；浏览器只做微调/预览，Services 不可用或失败时用相同纯模块回退",
+    "firstPassExecutor": "remote-when-capability-advertised",
+    "fineTuneExecutor": "local",
+    "fallbackExecutor": "local-same-modules",
+    "fallbackLimits": {
+      "fieldSide": 129,
+      "controlSide": 33
+    },
+    "servicesLimits": {
+      "fieldSide": 257,
+      "controlSide": 129
+    },
+    "browserReverification": [
+      "controlDeltasSha256",
+      "lockedControlsZero",
+      "resampledFieldDeviation<=acceptanceToleranceMm",
+      "inputFingerprint-echo"
+    ],
+    "operations": [
+      {
+        "contract": "relief.source-convert-1",
+        "operation": "reliefSourceConvert",
+        "semanticVersion": "relief.source-convert-1",
+        "strategy": "rgba-area-average",
+        "resultFormat": "relief-height-grid-u16le-v1"
+      },
+      {
+        "contract": "relief.design-fit-brep-1",
+        "operation": "reliefDesign",
+        "semanticVersion": "relief.design-fit-brep-1",
+        "strategy": "masked-bspline-face-replacement",
+        "resultFormat": "occt-text-brep-v1",
+        "additionalArtifacts": [
+          "step-ap214-mm"
+        ]
+      }
+    ]
+  }
 }

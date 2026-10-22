@@ -785,7 +785,8 @@ export class CadKernel {
     const shape=this.shapes.get(featureId);if(!shape)throw Object.assign(new Error('来源特征几何已失效'),{code:'STALE_REFERENCE'});
     if(!Number.isInteger(faceId)||faceId<0)throw Object.assign(new Error('请明确选择一个支撑平面'),{code:'PARAM_SCHEMA_INVALID'});
     const sourceSha256=binaryHash(new TextEncoder().encode(this.geometrySourceSnapshot(shape))).slice(7);
-    return {bodyId:featureId,sourceSha256,...readPlanarSupport(shape,faceId,cad,referencePlanarFace)};
+    const facts=readPlanarSupport(shape,faceId,cad,referencePlanarFace);
+    return {bodyId:featureId,sourceSha256,...facts,circularEdges:facts.planar?readCircularFaceEdges(shape,faceId):[]};
   }
   prepareReliefPlan(sourceFeatureId,params){
     const shape=this.shapes.get(sourceFeatureId);if(!shape)throw Object.assign(new Error('浮雕来源特征几何已失效'),{code:'STALE_REFERENCE'});
@@ -1201,3 +1202,25 @@ export class CadKernel {
   dispose() { this.shapes.forEach(dispose); this.shapes.clear(); this.active.clear(); this.renderCache.clear();this.reliefLayerCache.clear();this.geometryMetrics=new WeakMap(); this.historySignature = []; this.importsSignature = ''; }
 }
 
+
+// Exact circle centres of the selected face's circular boundary edges (holes, round rims), from three
+// points on the real OCCT edge; the face centroid is not used because holes shift it.
+function readCircularFaceEdges(shape,faceId){
+  const faces=shape.faces;
+  try{
+    const face=faces[faceId];if(!face)return [];
+    const edges=face.edges,out=[];
+    try{
+      edges.forEach((edge,index)=>{
+        if(edge.geomType!=='CIRCLE')return;
+        const pts=[0,1/3,2/3].map(t=>{const v=edge.pointAt(t);try{return [v.x,v.y,v.z];}finally{v.delete?.();}});
+        const [a,b,c]=pts,sub=(p,q)=>p.map((x,i)=>x-q[i]),dot=(p,q)=>p.reduce((s,x,i)=>s+x*q[i],0),cross=(p,q)=>[p[1]*q[2]-p[2]*q[1],p[2]*q[0]-p[0]*q[2],p[0]*q[1]-p[1]*q[0]];
+        const u=sub(b,a),v=sub(c,a),n=cross(u,v),nn=dot(n,n);if(!(nn>1e-24))return;
+        const w=cross(n,u).map(x=>x*dot(v,v)),z=cross(v,n).map(x=>x*dot(u,u)),centerMm=a.map((x,i)=>x+(w[i]+z[i])/(2*nn));
+        const radiusMm=Math.hypot(...sub(a,centerMm));
+        out.push({edgeIndex:index,centerMm,radiusMm});
+      });
+    }finally{edges.forEach(e=>e.delete());}
+    return out;
+  }finally{faces.forEach(f=>f.delete());}
+}

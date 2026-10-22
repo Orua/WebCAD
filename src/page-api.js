@@ -10,7 +10,7 @@ import {validateDisplayPreferences} from './display-preferences.js';
 import {createPageBatch} from './page-batch.js';
 import {readBrowserLogo,getLogoWizardState,actLogoWizard,getLogoWizardReviewBinding,refreshLogoWizardReview} from './browser-logo-input.js';
 import {createLogoReviewSession,logoReviewArtifacts} from './logo-vector-review.js';
-import {runReliefDesignField,readReliefDesignField,cancelReliefDesignField,candidateReliefDesignField,runReliefDesignFit,readReliefDesignFit,cancelReliefDesignFit} from './relief-design-runtime.js';
+import {runReliefDesignField,readReliefDesignField,cancelReliefDesignField,candidateReliefDesignField,runReliefDesignFit,provisionalReliefDesignFit,readReliefDesignFit,cancelReliefDesignFit,prepareReliefDesignReliefFromRetained} from './relief-design-runtime.js';
 import {prepareReliefReferenceSource} from './relief-design-reference.js';
 import {logoDXF} from './logo-dxf.js';
 import {inspectLogoMachiningCapacity} from './logo-model.js';
@@ -487,11 +487,38 @@ export function createPageAPI(host){
       const action=input.action??'get',entry=host.state({include:['reliefDesigns']}).reliefDesigns?.find(d=>d.id===input.designId);
       if(!entry)fail('STALE_REFERENCE','设计草稿不存在，请读取当前工程中的设计草稿。');
       if(entry.revision!==input.expectedDraftRevision)fail('REVISION_CONFLICT','草稿已改变，请读取当前草稿修订。');
-      if(!['fit','get','cancel'].includes(action))fail('PARAM_SCHEMA_INVALID','拟合只接受 fit、get 或 cancel。');
-      if(input.options!==undefined&&action!=='fit')fail('PARAM_SCHEMA_INVALID','只有 fit 接受 options；读取或取消不应携带拟合参数。');
+      if(!['fit','get','cancel','servicesFirst'].includes(action))fail('PARAM_SCHEMA_INVALID','拟合只接受 fit、get、cancel 或 servicesFirst。');
+      if(input.options!==undefined&&!['fit','servicesFirst'].includes(action))fail('PARAM_SCHEMA_INVALID','只有 fit 接受 options；读取或取消不应携带拟合参数。');
       const latest=()=>{const state=host.state({include:['reliefDesigns']});return {context:state.context,entry:state.reliefDesigns?.find(d=>d.id===input.designId)};};
-      const result=action==='fit'?await runReliefDesignFit(s.context,entry,input.options,latest):action==='cancel'?cancelReliefDesignFit():readReliefDesignFit(s.context,entry);
+      const result=action==='fit'?await runReliefDesignFit(s.context,entry,input.options,latest):action==='servicesFirst'?provisionalReliefDesignFit(s.context,entry,input.options):action==='cancel'?cancelReliefDesignFit():readReliefDesignFit(s.context,entry);
       return {...result,context:current().context};
+    }),
+    // Read-only: retained fit + the caller's explicit current face/placement/datum/intent ->
+    // ordinary relief preview.start args. Never previews, commits, picks a face or guesses a datum.
+    prepareReliefDesignRelief:guarded(async input=>{
+      const keys=['context','designId','expectedDraftRevision','target','placement','datum','machiningIntent'];
+      const s=check(input,keys),entry=host.state({include:['reliefDesigns']}).reliefDesigns?.find(d=>d.id===input.designId);
+      if(!entry)fail('STALE_REFERENCE','设计草稿不存在，请读取当前工程中的设计草稿。');
+      if(entry.revision!==input.expectedDraftRevision)fail('REVISION_CONFLICT','草稿已改变，请读取当前草稿修订。');
+      const t=input.target;
+      if(!t||typeof t!=='object'||Array.isArray(t)||Object.keys(t).some(k=>!['bodyId','faceId','expectedSourceSha256'].includes(k))||typeof t.bodyId!=='string'||!Number.isInteger(t.faceId)||t.faceId<0)fail('PARAM_SCHEMA_INVALID','target 需要 {bodyId,faceId,expectedSourceSha256?}，来自当前选中的真实平面。');
+      if(!s.bodies.some(b=>b.id===t.bodyId))fail('STALE_REFERENCE','目标实体不是当前实体，请重新选择支撑面。');
+      for(const [key,allowed] of [['placement',['originMm','xDirection','alignTo']],['datum',['kind','baselineMm']]]){const v=input[key];if(v!==undefined&&(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).some(k=>!allowed.includes(k))))fail('PARAM_SCHEMA_INVALID',`${key} 只接受 ${allowed.join('/')}`);}
+      const support=await host.reliefDesignSupport(t.bodyId,t.faceId);
+      if(current().context.revision!==s.context.revision)fail('REVISION_CONFLICT','读取支撑面期间工程已改变，请重新读取并选择。');
+      // placement.alignTo:{kind:'circularEdge',edgeIndex} takes the exact centre of a real circular edge of the selected face.
+      let placement=input.placement;
+      if(placement?.alignTo!==undefined){
+        const a=placement.alignTo;
+        if(placement.originMm!==undefined)fail('PARAM_SCHEMA_INVALID','placement.alignTo 与 originMm 只能二选一。');
+        if(!a||typeof a!=='object'||Array.isArray(a)||Object.keys(a).some(k=>!['kind','edgeIndex'].includes(k))||a.kind!=='circularEdge'||!Number.isInteger(a.edgeIndex))fail('PARAM_SCHEMA_INVALID','placement.alignTo 需要 {kind:"circularEdge",edgeIndex}，edgeIndex 取自 support.circularEdges。');
+        const edge=support.circularEdges?.find(e=>e.edgeIndex===a.edgeIndex);
+        if(!edge)fail('STALE_REFERENCE','所选面上没有该圆形边，请重新读取选面并从 support.circularEdges 中选择。');
+        const {alignTo,...rest}=placement;placement={...rest,originMm:edge.centerMm};
+      }
+      const result=prepareReliefDesignReliefFromRetained(s.context,entry,{expectedDraftRevision:input.expectedDraftRevision,target:t,placement,datum:input.datum,machiningIntent:input.machiningIntent},support);
+      if(result.status==='prepared'){const card=getTool({id:'relief'});result.previewArgs={...result.previewArgs,opVersion:card.version,schemaHash:card.schemaHash};}
+      return {...result,support:{bodyId:support.bodyId,faceId:support.faceId,planar:support.planar,centerMm:support.centerMm,normal:support.normal,sourceSha256:support.sourceSha256,circularEdges:support.circularEdges??[]},...(placement?.originMm?{resolvedOriginMm:placement.originMm}:{}),context:current().context};
     }),
     reliefDesignField:guarded(async input=>{
       const s=check(input,['context','action','designId','expectedDraftRevision','options','baseMm']);

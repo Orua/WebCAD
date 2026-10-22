@@ -1,4 +1,5 @@
 import {validateReliefReference} from './relief-design-reference-contract.js';
+import {validateReliefHeightSource} from './relief-source/source.js';
 // Authored design intent only: no inferred image heights, sampled surface or CAD result.
 const fail=(path,message,code='PARAM_SCHEMA_INVALID')=>{throw Object.assign(new Error(message),{code,path});};
 function object(value,keys,path){
@@ -20,7 +21,7 @@ function inside(shape,[x,y]){
  return shape.kind==='circle'?Math.hypot(dx,dy)<=shape.radiusMm:dx<=shape.widthMm/2&&dy<=shape.heightMm/2;
 }
 export function validateReliefDesign(input,path='draft'){
- object(input,['schemaVersion','name','support','throughHoles','protectedZones','heightRangeMm','points','fieldSettings','reference'],path);
+ object(input,['schemaVersion','name','support','throughHoles','protectedZones','heightRangeMm','points','fieldSettings','reference','heightSource'],path);
  if(input.schemaVersion!==1)fail(`${path}.schemaVersion`,'需要设计草稿 schemaVersion:1');
  const name=text(input.name,`${path}.name`),support=validateDesignRegion(input.support,`${path}.support`);
  const regions=key=>{const values=input[key];if(!Array.isArray(values)||values.length>32)fail(`${path}.${key}`,'需要最多32项的区域数组');return values.map((v,i)=>validateDesignRegion(v,`${path}.${key}[${i}]`));};
@@ -40,11 +41,19 @@ export function validateReliefDesign(input,path='draft'){
  });
  let fieldSettings;
  if(input.fieldSettings!==undefined){
-  const p=path+'.fieldSettings',v=input.fieldSettings;object(v,['columns','rows','smoothWeight','maxIterations','toleranceMm','edits'],p);fieldSettings={};
-  for(const [key,min,max,integer]of [['columns',9,129,true],['rows',9,129,true],['smoothWeight',0,100000,false],['maxIterations',1,20000,true],['toleranceMm',1e-10,1,false]])if(v[key]!==undefined){fieldSettings[key]=number(v[key],p+'.'+key,min,max);if(integer&&!Number.isInteger(v[key]))fail(p+'.'+key,'需要整数');}
+  const p=path+'.fieldSettings',v=input.fieldSettings;object(v,['columns','rows','smoothWeight','maxIterations','toleranceMm','edits','machiningPrecisionMm'],p);fieldSettings={};
+  for(const [key,min,max,integer]of [['columns',9,129,true],['rows',9,129,true],['smoothWeight',0,100000,false],['maxIterations',1,20000,true],['toleranceMm',1e-10,1,false],['machiningPrecisionMm',.01,.5,false]])if(v[key]!==undefined){fieldSettings[key]=number(v[key],p+'.'+key,min,max);if(integer&&!Number.isInteger(v[key]))fail(p+'.'+key,'需要整数');}
   if(v.edits!==undefined){if(!Array.isArray(v.edits)||v.edits.length>256)fail(p+'.edits','最多256笔');fieldSettings.edits=v.edits.map((e,i)=>{const q=p+'.edits['+i+']';object(e,['mode','centerMm','radiusMm','strength','amountMm','targetMm'],q);if(!['raise','lower','flatten','smooth'].includes(e.mode))fail(q+'.mode','不支持的笔刷');const r={mode:e.mode,centerMm:xy(e.centerMm,q+'.centerMm'),radiusMm:number(e.radiusMm,q+'.radiusMm',.001,10000)};for(const [k,a,b]of [['strength',0,1],['amountMm',0,100],['targetMm',-100,100]])if(e[k]!==undefined)r[k]=number(e[k],q+'.'+k,a,b);return r;});}
  }
- return {schemaVersion:1,name,support,throughHoles,protectedZones,heightRangeMm,points,...(fieldSettings?{fieldSettings}:{}),...(input.reference!==undefined?{reference:validateReliefReference(input.reference)}:{})};
+ // Optional imported height map: covers the support bounding box, maps 0..1 to baseline..baseline+depthMm.
+ let heightSource;
+ if(input.heightSource!==undefined){
+  const p=path+'.heightSource',v=input.heightSource;object(v,['source','depthMm','weight','edgeKeepoutMm','edgeFadeMm'],p);
+  const span=heightRangeMm[1]-heightRangeMm[0];if(!(span>0))fail(p,'导入高度图需要高度范围大于 0','PARAM_RANGE_INVALID');
+  if(v.source?.grid&&(v.source.grid.columns>513||v.source.grid.rows>513))fail(p+'.source.grid','草稿内高度网格最多 513×513','RELIEF_LIMIT');
+  heightSource={source:validateReliefHeightSource(v.source,p+'.source'),depthMm:number(v.depthMm,p+'.depthMm',1e-6,span),...(v.weight!==undefined?{weight:number(v.weight,p+'.weight',1e-3,1e6)}:{}),...(v.edgeKeepoutMm!==undefined?{edgeKeepoutMm:number(v.edgeKeepoutMm,p+'.edgeKeepoutMm',0,1000)}:{}),...(v.edgeFadeMm!==undefined?{edgeFadeMm:number(v.edgeFadeMm,p+'.edgeFadeMm',0,1000)}:{})};
+ }
+ return {schemaVersion:1,name,support,throughHoles,protectedZones,heightRangeMm,points,...(fieldSettings?{fieldSettings}:{}),...(input.reference!==undefined?{reference:validateReliefReference(input.reference)}:{}),...(heightSource?{heightSource}:{})};
 }
 export function validateReliefDesigns(input){
  if(input===undefined)return [];

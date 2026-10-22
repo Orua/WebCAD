@@ -11,6 +11,13 @@ target_include_directories(WebCADOcctWorker PRIVATE ${OpenCASCADE_INCLUDE_DIR} $
 target_link_directories(WebCADOcctWorker PRIVATE ${OpenCASCADE_LIBRARY_DIR})
 target_compile_definitions(WebCADOcctWorker PRIVATE OCCT_STATIC_BUILD)
 target_link_libraries(WebCADOcctWorker PRIVATE "-Wl,--start-group" TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim TKBO TKBool TKHLR TKFillet TKOffset TKFeat TKMesh TKXMesh TKShHealing "-Wl,--end-group" psapi winmm ws2_32)
+# relief.design-fit-brep-1 optional server-side STEP artifact (261022-04). OFF until the static
+# OCCT data-exchange link (TKDESTEP needs TKXCAF/TKV3d/TKService and their system libs) is verified on Windows.
+option(WEBCAD_RELIEF_STEP "Write a STEP artifact for relief.design-fit-brep-1" OFF)
+if(WEBCAD_RELIEF_STEP)
+  target_compile_definitions(WebCADOcctWorker PRIVATE WEBCAD_RELIEF_STEP)
+  target_link_libraries(WebCADOcctWorker PRIVATE "-Wl,--start-group" TKDESTEP TKDE TKXSBase TKXCAF TKVCAF TKCAF TKLCAF TKCDF TKV3d TKService TKShHealing TKMesh TKHLR "-Wl,--end-group" ${WEBCAD_RELIEF_STEP_SYSTEM_LIBS})
+endif()
 install(TARGETS WebCADOcctWorker RUNTIME DESTINATION bin)
 add_executable(WebCADShoulderCheck ../../../../tests/native/shoulder/check.cpp)
 target_include_directories(WebCADShoulderCheck PRIVATE ${OpenCASCADE_INCLUDE_DIR} ${JSON_INCLUDE_DIR})

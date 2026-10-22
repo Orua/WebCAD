@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
   "pageApiVersion": "1.57.1",
-  "buildId": "c50bdf6c78a306097d8c464ef24917baa27374e8-src-a36f8a21391185ac-working",
-  "catalogHash": "sha256:31c36d4e3d6a058c3d6e0ba7651d9f7fbbc57ece4bbb2f083deab2893c025a5e",
-  "docsHash": "sha256:cb3c096047fe153de80f09fb8d374321a3cdd36f83c3178c346a6111fa4f402e",
+  "buildId": "e11f0c54d9e186347c8152a1b6206a9bbcd66519-src-c51cbcbad2f68dd5-working",
+  "catalogHash": "sha256:b215573e5def92ebbdca1780893995b7d2dce8fd548763f69db56ecbe74c1485",
+  "docsHash": "sha256:b7ded2e25026e12538a8679303983fc411044ece71f81d101e78cca9761963bb",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -1059,6 +1059,10 @@
     "reliefDesign": {
       "tools": [
         "reliefDesignFit",
+        "prepareReliefDesignRelief",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel",
         "reliefDesignReference",
         "files.register",
         "files.read",
@@ -1605,7 +1609,7 @@
     "reference.alignSelectedFace": "queryGeometry / 设置参考锚点（工作基准）",
     "renderQuality": "setRenderQuality",
     "downloadResource": "下载文件",
-    "reliefDesign": "设计草稿 / reliefDesignFit / reliefDesignReference / 登记文件资源 / 读取文件字节 / 释放文件资源 / reliefDesignField / 高度图浮雕（网格） / 浮雕设计约束草稿 / getState / 撤销 / 重做 / 保存工程 / 打开工程",
+    "reliefDesign": "设计草稿 / reliefDesignFit / prepareReliefDesignRelief / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / reliefDesignReference / 登记文件资源 / 读取文件字节 / 释放文件资源 / reliefDesignField / 高度图浮雕（网格） / 浮雕设计约束草稿 / getState / 撤销 / 重做 / 保存工程 / 打开工程",
     "reliefSculpt": "精确浮雕精修 / sampleReliefHeight / prepareReliefSculpt / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
     "precisionSettings": "精度 / setDisplayPreferences",
     "themeSettings": "风格 / setDisplayPreferences",

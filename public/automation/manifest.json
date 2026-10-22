@@ -1,13 +1,14 @@
 {
   "version": "1.57.1",
-  "buildId": "c50bdf6c78a306097d8c464ef24917baa27374e8-src-a36f8a21391185ac-working",
+  "buildId": "e11f0c54d9e186347c8152a1b6206a9bbcd66519-src-c51cbcbad2f68dd5-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:31c36d4e3d6a058c3d6e0ba7651d9f7fbbc57ece4bbb2f083deab2893c025a5e",
-  "docsHash": "sha256:cb3c096047fe153de80f09fb8d374321a3cdd36f83c3178c346a6111fa4f402e",
+  "catalogHash": "sha256:b215573e5def92ebbdca1780893995b7d2dce8fd548763f69db56ecbe74c1485",
+  "docsHash": "sha256:b7ded2e25026e12538a8679303983fc411044ece71f81d101e78cca9761963bb",
   "apiMethods": [
     "getMaterials",
     "measureMass",
     "reliefDesignFit",
+    "prepareReliefDesignRelief",
     "reliefDesignReference",
     "reliefDesignField",
     "readLogo",
@@ -208,7 +209,7 @@
       "label": "曲面 LOGO",
       "category": "surface",
       "version": "legacy-1",
-      "docsHash": "sha256:0b3da2639f8ad8e8dc44a31fd03c09e77f511570e3cf5b8de77094c5cff04a00",
+      "docsHash": "sha256:a396c34faa953d2a13beb4dff1269ce12d12b23d8ba4b745a822aed212df5729",
       "url": "tools/curvedLogo.json"
     },
     {
@@ -442,7 +443,7 @@
       "label": "LOGO",
       "category": "modification",
       "version": "2.0.0",
-      "docsHash": "sha256:1d1f867fb18822ede5bfc877cfc23632b54724b2f65e218feba6697b8a35eacd",
+      "docsHash": "sha256:c11c4af17d06f87cb2ad8101a1f8e18b07a3d3babf7212e901e30f6e90c08aa0",
       "url": "tools/logo.json"
     },
     {
@@ -460,7 +461,7 @@
       "label": "高度图浮雕（网格）",
       "category": "creation",
       "version": "2.0.0",
-      "docsHash": "sha256:d3c8aa7022b1b7751d9a1bb57a9e1e777e0f2ee5010b63678bb0e1c0cadafb13",
+      "docsHash": "sha256:92450c0ec4420fe247470a9b8114b79bc3809c96307535c5c19f9164f825ee8f",
       "url": "tools/meshHeightfieldRelief.json"
     },
     {
@@ -469,7 +470,7 @@
       "label": "网格局部修高",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:0ac797c715bb3d658dccea0f1e7dc1424e514adf0a9404173405b82f29c58760",
+      "docsHash": "sha256:f21fc8efb0a31d7d90984cd240397a1751f9019e35f1ad26cb263ee656cee752",
       "url": "tools/meshReliefEdit.json"
     },
     {
@@ -478,7 +479,7 @@
       "label": "网格底板（起伏点）",
       "category": "creation",
       "version": "2.0.0",
-      "docsHash": "sha256:0b6bca55a0fe311512827b36c98cd987c1cb32b2f1c365ce08079bf089f4fcf9",
+      "docsHash": "sha256:9a500bf29611abf0737e4b786a99553c0b250ae8ef00be86ca1088f0062d06e1",
       "url": "tools/meshReliefPlate.json"
     },
     {
@@ -658,7 +659,7 @@
       "label": "精确浮雕（矢量/小图）",
       "category": "modification",
       "version": "2.0.0",
-      "docsHash": "sha256:d0d291ac941732188187acaf39ab07bc860eaa970d8ad4346f016cccfeacb91c",
+      "docsHash": "sha256:13c270e0e8e678e9dd43d5ce383a5c7392dbffdd4bd0b2d8f63d646473258c7a",
       "url": "tools/relief.json"
     },
     {
@@ -667,7 +668,7 @@
       "label": "浮雕层肩部",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:30b5f9bf372ecb8a1cb67fc1874bca30ad1e60c26dfaa02baeed59abc4610a57",
+      "docsHash": "sha256:1f3942804f9f10ec189982c7976d1a667894d9e4d80c4544196aa114de1fd3b2",
       "url": "tools/reliefShoulder.json"
     },
     {
@@ -883,7 +884,7 @@
       "label": "高度图浮雕精修",
       "category": "command",
       "version": "1.57.1",
-      "docsHash": "sha256:01070dc203c6707b1be03132addb294e092838705a749d12199f4b556493971d",
+      "docsHash": "sha256:865e22b41c1b4c6b4150f19c756ea1562635cec6b3b026773239e118ad92b834",
       "url": "tools/heightfieldSculpt.json"
     },
     {
@@ -892,7 +893,7 @@
       "label": "精确浮雕精修",
       "category": "command",
       "version": "1.57.1",
-      "docsHash": "sha256:c25eb9b4a3e0832fe4920313f988ada5b26fce043633e215b96e04e9a70afd7e",
+      "docsHash": "sha256:d21f6d6072da9e207d50942bc18cf3d076abd24f64f5f9c1300867cfb1fdc555",
       "url": "tools/reliefSculpt.json"
     },
     {
@@ -1393,15 +1394,23 @@
       "title": "reliefDesignFit",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:bdac82ddeb8c9dbfed71b283498c24e4f939651ccd065fa9485ca513e8d35f97",
+      "docsHash": "sha256:3d2e348bf76114fff7604032ab48d66a1bd13f8efe3db272e73d3adfb5ef167d",
       "url": "tools/reliefDesignFit.json"
+    },
+    {
+      "id": "prepareReliefDesignRelief",
+      "title": "prepareReliefDesignRelief",
+      "category": "page-method",
+      "version": "1.57.1",
+      "docsHash": "sha256:c5cfa66eb030c7def8362bbf68b3b9d5f9d8996272fe911edc09bc5a3b52f243",
+      "url": "tools/prepareReliefDesignRelief.json"
     },
     {
       "id": "reliefDesignReference",
       "title": "reliefDesignReference",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:b819727fe6f59af320c1a2bb64870c7d0d3e44a6d7886f07bdffcf5a4168f00f",
+      "docsHash": "sha256:99d90a4c123a67f8e55506ad2524f360fcd7419c6f26e27a684ccb157fe4a031",
       "url": "tools/reliefDesignReference.json"
     },
     {
@@ -1409,7 +1418,7 @@
       "title": "reliefDesignField",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:e9921415224ecf44a5661b043deae8eda17f6c13033c10a9cc020af352d34994",
+      "docsHash": "sha256:ebbd80488c33c900eb538a36cb9afdf52ada1b39f21ab103ca94add6d325bdc2",
       "url": "tools/reliefDesignField.json"
     },
     {
@@ -1465,7 +1474,7 @@
       "title": "sampleMeshRelief",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:6a6916c18f4cd9224281e90c73be24ba2bce4519cd5ead72d2fa2e06328b7839",
+      "docsHash": "sha256:743e5652e8f8c5f880546af2a241782852939426209790a8477f6fa5bbb42fb5",
       "url": "tools/sampleMeshRelief.json"
     },
     {
@@ -1497,7 +1506,7 @@
       "title": "planPatternMachining",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:f486599f9dbb42d3e1c7fb9986ac54d278fa3e9ebf0ff92096d0cf7852cedcaa",
+      "docsHash": "sha256:a6022ce29cc4aacb823d5093107a6917421b6bc4f74bd30c2bf02e0b949beac7",
       "url": "tools/planPatternMachining.json"
     },
     {
@@ -1521,7 +1530,7 @@
       "title": "prepareReliefTopologyUpgrade",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:f1f315f4e890cd71e98fa69d91c77179d410ea72d386f79aa0b4f999d3793db7",
+      "docsHash": "sha256:6474cc2d391996ed8926ec48b9fedc23325298a98671033454b37e9975de1307",
       "url": "tools/prepareReliefTopologyUpgrade.json"
     },
     {
@@ -1529,7 +1538,7 @@
       "title": "sampleReliefHeight",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:8dfca65223c06f44703f6df0c44cc2e19fc7f30406917113244e20ef3f64a267",
+      "docsHash": "sha256:3a59dc272213e1add12cfb9da20312c7f97df18a1bf3b22ee59610dab69d3948",
       "url": "tools/sampleReliefHeight.json"
     },
     {
@@ -1537,7 +1546,7 @@
       "title": "prepareReliefSculpt",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:2173bd8ae07bf0e1682c61f692a31fee4fa18e528df2c451af1a56485a06621e",
+      "docsHash": "sha256:a923eaeca37ec03bdcacbc0a2dab593b14ccfe723f64363f11f565ef6d652821",
       "url": "tools/prepareReliefSculpt.json"
     },
     {
@@ -1545,7 +1554,7 @@
       "title": "readRelief",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:3e2d874d71d5a73a6f596716b9499e307c9b3dd5be2c684d5b3088ad2c4b026c",
+      "docsHash": "sha256:ac2219b5ccea366011a9a988d8ada8de54d47dfe48cebd6e232f1fbb75251060",
       "url": "tools/readRelief.json"
     },
     {
@@ -2105,7 +2114,7 @@
       "title": "浮雕设计约束草稿",
       "category": "command",
       "version": "1.57.1",
-      "docsHash": "sha256:d372cd6333adb7520f8b9c7eef5acf30b8d280a60b5246ec580c62f99a34574f",
+      "docsHash": "sha256:b46f3fa7ccf73929318ef0fbfa0d0703d119a2f90f30a58ab6bda8efef92d9c1",
       "url": "tools/document.reliefDesign.json"
     },
     {
@@ -2461,252 +2470,252 @@
   "docs": [
     {
       "id": "api.agent-runtime",
-      "docsHash": "sha256:3337a3a296c4845ae02b3f9933f50eea8b82e29d2cb9ebe694bd00543c7aa268",
+      "docsHash": "sha256:e795cd575434b00a0d3d2970a18d0ec90332ddc3f3c1f83694266c7fafdbfc1b",
       "url": "docs/api.agent-runtime.md"
     },
     {
       "id": "api.blend-radius",
-      "docsHash": "sha256:c149e22b13c1073aecfe040550975b1f8fb4e3e6bdc703a418ae2bf38aa10a80",
+      "docsHash": "sha256:9579dc1c08c7feda77dd2403a49175e2db2be2131e7a43b38a1bdad1e9ae7ba5",
       "url": "docs/api.blend-radius.md"
     },
     {
       "id": "api.connection",
-      "docsHash": "sha256:82bb4489509d753704d7f950dfd1b64ea1d06fbf5514a030cde40ad83a85b1fa",
+      "docsHash": "sha256:e45ab4db0f54ea4e915e6866d7ba95819e41c923b1f9e4d5f420e8b6f9818365",
       "url": "docs/api.connection.md"
     },
     {
       "id": "api.design-checks",
-      "docsHash": "sha256:fb55fbf1e021c9e4ad9af57b1471093a0e187e4200718e660590bedb87726c6f",
+      "docsHash": "sha256:1e04e7a631b67a88215df5e818c660f8a3fc7d655163e96e9d44e1bf00ed0aa5",
       "url": "docs/api.design-checks.md"
     },
     {
       "id": "api.discovery",
-      "docsHash": "sha256:43f458696e15c0bb52706cbfe1c9643209905d9cd6706801db1261bf537afaad",
+      "docsHash": "sha256:aad8c64c2f19d583c4771e5a98e3dacfd0cebe545c1d4d0bde92813db30a6718",
       "url": "docs/api.discovery.md"
     },
     {
       "id": "api.display-preferences",
-      "docsHash": "sha256:4706d25ad1a96d484c530875c56f711d80cc8f71d0e012ee1c1552ae77bf5729",
+      "docsHash": "sha256:a8d14432018bc149a65453e6c0739c5ff01bacce60c8be7b5fb766ed00ada914",
       "url": "docs/api.display-preferences.md"
     },
     {
       "id": "api.dwg-spline-twin-window",
-      "docsHash": "sha256:ee567fc8a88754cc0d012a02a1dab2f57f4bc14989f4d136d75f3d4b5015ed3e",
+      "docsHash": "sha256:697ed41d6b1af6bc586cb820db634d401f2e0be24a75e1f251db75c71c48034c",
       "url": "docs/api.dwg-spline-twin-window.md"
     },
     {
       "id": "api.editor",
-      "docsHash": "sha256:d5db70e4929bc39b74479649d27de3c6ce0375cb730f1965a8d33e0a2abcbdb6",
+      "docsHash": "sha256:34c0a835f8bb0ede508c3b6001b19c9f75732f1667f65fb9fa55b2e5306e60ed",
       "url": "docs/api.editor.md"
     },
     {
       "id": "api.error-recovery",
-      "docsHash": "sha256:edf21fb60ae2babcb3ab406624e9a28b2b89b2b1b91cc639c5136fd77f1a8ec4",
+      "docsHash": "sha256:92014b506f5f6b1d6065586a25ada59be803adbc085849e8954234c54ea26715",
       "url": "docs/api.error-recovery.md"
     },
     {
       "id": "api.exact-source-assets",
-      "docsHash": "sha256:b893f68d2f8bc5be8eaebc7be428fe665dff0716a6f626c0d650417bd86c6773",
+      "docsHash": "sha256:fb4ae255bedc9e692ff251e69a300300e8293bb8fb39b580fdf74f8da2098b49",
       "url": "docs/api.exact-source-assets.md"
     },
     {
       "id": "api.execute",
-      "docsHash": "sha256:a63b2daa843786c7ac3dd314ea2f557c23d9fdf7caf2d58018359a5086393c7e",
+      "docsHash": "sha256:eee6dfb91496771b12d8bb1d0151a6dc67113efba8647ba38f83260c2b95d864",
       "url": "docs/api.execute.md"
     },
     {
       "id": "api.feature-plan",
-      "docsHash": "sha256:ca34a605c184495e6bb1bbedc1eec2fb5dba9f2ef7fadf569e2c0fd36a33c263",
+      "docsHash": "sha256:425b4bbef9edc0b745279422a665ccafd7f2b3f50d30e3887aeeb5beec2e7e79",
       "url": "docs/api.feature-plan.md"
     },
     {
       "id": "api.file-errors",
-      "docsHash": "sha256:12be39bd6163e83fb3e39a03fa2089921bb68298fe9eab79bcd82f0cfb967c5d",
+      "docsHash": "sha256:fea40c124faa3a4d873beafe25230560679271384d9ae34ac7ee090cc866c782",
       "url": "docs/api.file-errors.md"
     },
     {
       "id": "api.host-control",
-      "docsHash": "sha256:ea3ecd7050661846e4e8e6f31540c4d6ac541e80d7717979143d2b08b3fa589e",
+      "docsHash": "sha256:f8cacd0eb70663ded627e188f07010406d84a8c83ff3fa01cbc794eba9df4fd9",
       "url": "docs/api.host-control.md"
     },
     {
       "id": "api.interaction",
-      "docsHash": "sha256:d33cc2430560078c96bf90628f3d97e841aad1382e538146ca0435f96a6b5d21",
+      "docsHash": "sha256:1bc9fcb7b490a690ea0f3343dea3713dc94495d57b026d0dc03fbdb21c7947a4",
       "url": "docs/api.interaction.md"
     },
     {
       "id": "api.knowledge-cache",
-      "docsHash": "sha256:94b02bb966e6dadbbec9ff2bb7088733af2dd3aa815c4406cc1bf3da6f60ea88",
+      "docsHash": "sha256:41b1faa21d19a8002df43e2a93ba423bf2e70aeaf5c6d75bf667652f91d6f50f",
       "url": "docs/api.knowledge-cache.md"
     },
     {
       "id": "api.location-marker",
-      "docsHash": "sha256:ebc1f583a8f6454bba86ee161a8832053996b5af6979ba8c882e88cd55cc0cfe",
+      "docsHash": "sha256:2873525fc07ccce25fe31b6e310cc0b755554091b430bed503909ac74a0a9f35",
       "url": "docs/api.location-marker.md"
     },
     {
       "id": "api.logo",
-      "docsHash": "sha256:b4df27d26393082ff84d33b043f86ffa7199b7c72be24529553677b486ee841d",
+      "docsHash": "sha256:7443207206979969911c0d9518bc713d165b1789ea164908b46a83354d20f6b2",
       "url": "docs/api.logo.md"
     },
     {
       "id": "api.mechanical",
-      "docsHash": "sha256:3b4848187b76f92519ca5f324018f7ca776e859e7f7d5aed1572e4db63515189",
+      "docsHash": "sha256:254d74eaab787ec40701f15461d8c4bdf89d85263c7592238cdac263fd6d8d2a",
       "url": "docs/api.mechanical.md"
     },
     {
       "id": "api.mesh-assets",
-      "docsHash": "sha256:ae636c9d78ef05537d8c9485b588f00e70fdc85b05ce187761a0003431d7cd15",
+      "docsHash": "sha256:795d80a96494a50952fdd95999e616f463486c67077f81da38c1d95d72f64aa2",
       "url": "docs/api.mesh-assets.md"
     },
     {
       "id": "api.mesh-relief-edit",
-      "docsHash": "sha256:ad14d230aa8cf027b4b0b9d537204088b1b0c31fd1efc9d3908fcbce7a963bc9",
+      "docsHash": "sha256:3bb2d7dce66a3c143ddb512352f7e1d06e8012bddd2eff09cc1614a5f14eea42",
       "url": "docs/api.mesh-relief-edit.md"
     },
     {
       "id": "api.model-library",
-      "docsHash": "sha256:3425fb550587cb090fbadb4a28989c657c93a3f9debbc1f78839e8816c987311",
+      "docsHash": "sha256:8769a570c748825efe6a6edca823fbe443b3a0522092c9619a8238ad5f03c7f4",
       "url": "docs/api.model-library.md"
     },
     {
       "id": "api.modeling-pitfalls",
-      "docsHash": "sha256:6876c4230964420a35355bd45da4ece42514314f86fc7478371f2a567b3ca61f",
+      "docsHash": "sha256:69a9afa30e8804ae6acc820d7847fec8393b80d72a9bc6e706b5bb7675b8ca8e",
       "url": "docs/api.modeling-pitfalls.md"
     },
     {
       "id": "api.named-parameters",
-      "docsHash": "sha256:1563c271c507fbf858ee9927207012dc9cd51a9f97e158d3ba86d6249b0b508a",
+      "docsHash": "sha256:0545dbddcc23fe4434beef7f115dae6bb9b68ed716d102d2aa2444d4fa62970d",
       "url": "docs/api.named-parameters.md"
     },
     {
       "id": "api.pattern-machining",
-      "docsHash": "sha256:74c2db5803d7f99b9c66f4507eb65f71cc48346989ca1319b04513591b0d6eb7",
+      "docsHash": "sha256:e50429c47d01763ecdc8222b6ae0dd8d20868d8471ecad0541e9d2694a1bb5f3",
       "url": "docs/api.pattern-machining.md"
     },
     {
       "id": "api.printability",
-      "docsHash": "sha256:e6e2ad2d434c27f6eec68410163de9afa879b16876591ba3bf3f4814bdec73ee",
+      "docsHash": "sha256:e6ca60d93a738f55133909edc228aaca247b7b1d303dee2d6698bcd6cd9992ce",
       "url": "docs/api.printability.md"
     },
     {
       "id": "api.product-source",
-      "docsHash": "sha256:bb58952ec1a61c7e058b226918cc402bb5ac0e1aba67e3e12822f1c2c6a216d1",
+      "docsHash": "sha256:148a3485f6936624dc71f4ecb220f6ab8f484e5d15f16b1088610d2963b04adc",
       "url": "docs/api.product-source.md"
     },
     {
       "id": "api.profile-fitting",
-      "docsHash": "sha256:99cae258d79201407f5fe6a46a959078c5f8724f62bac7a8e88d91e316e43991",
+      "docsHash": "sha256:2f06e48df566d7c745158557174158367874f35cad48dcc5ddf8ad90f639bef3",
       "url": "docs/api.profile-fitting.md"
     },
     {
       "id": "api.query-geometry",
-      "docsHash": "sha256:072e4b5de1f1277e5c4660aa83f7ce088a727e8d2d733c62d13f231c1b5bdce6",
+      "docsHash": "sha256:d48434629766efc76abcfcd7f51905b049bdc1153b8e2c447542d4808f9cadb5",
       "url": "docs/api.query-geometry.md"
     },
     {
       "id": "api.quick-chains",
-      "docsHash": "sha256:147ddbd5bdad33ddec332e0d9c8d1bdeb0091409104685365174f1871f6cc5ca",
+      "docsHash": "sha256:c8c031e69b99e3a975b94b70785a5074d7b631f1e5890df9fab296e9a5689013",
       "url": "docs/api.quick-chains.md"
     },
     {
       "id": "api.quick-eyelets",
-      "docsHash": "sha256:e6b33a59301175f6eb128c3fb4030d27b90a001902e008d48fcd1819c24e7fd3",
+      "docsHash": "sha256:3410a8bf76b73625a37e3e77be490cb44a7d073cafd4ceaeb647d67742b3840e",
       "url": "docs/api.quick-eyelets.md"
     },
     {
       "id": "api.quick-hardware",
-      "docsHash": "sha256:11e3bf0bc45e02301b92d3076136eea09cf95318c10eea049fada3ad4b9b207a",
+      "docsHash": "sha256:b29f088bf80d18fbb251d4cbee9f3a17a4febe1d3484d86f1652974f6001c50f",
       "url": "docs/api.quick-hardware.md"
     },
     {
       "id": "api.quick-installation",
-      "docsHash": "sha256:fa6852cc95d8516d4cdd27dfe773ce5958bec71b8118c4c44094b0b3714e9cce",
+      "docsHash": "sha256:917b570dbbce7d31956d48176b136ee2da833f3d9cf20137507dee92d3bc1ae0",
       "url": "docs/api.quick-installation.md"
     },
     {
       "id": "api.reconstruction",
-      "docsHash": "sha256:b39e73ff1f37dcaa205ff2f7e80d90549ff3ccf561fb6a0d611488de0b2b310c",
+      "docsHash": "sha256:969204f74d9489a74fc14a3e9d8ce8d004fc3185a4e55fc9acd083e19edda581",
       "url": "docs/api.reconstruction.md"
     },
     {
       "id": "api.references",
-      "docsHash": "sha256:4d2d027baa99538264fb0065e2efc30e033f7c35779e7b0f35ef7c5005c33e30",
+      "docsHash": "sha256:ab35137aa418862ea1d4718c1e98c5a6abe611e2a6e77ca699fe35a77e2658d6",
       "url": "docs/api.references.md"
     },
     {
       "id": "api.refine",
-      "docsHash": "sha256:a1d740af7ceaa199dd4c3f6ccaac847392a5d5002fedfa26f830c8840c1fdeeb",
+      "docsHash": "sha256:5b7332faf5b399c7b1a551cc97b22605e1522ea0f435d9b0d5c931266534b9d4",
       "url": "docs/api.refine.md"
     },
     {
       "id": "api.reliability",
-      "docsHash": "sha256:541a00618a11e2a4a25b59f330081e31811e0839ec4b8510b8cd49c1a3811892",
+      "docsHash": "sha256:cec72895fc145fe8eefd93595b46ccf3647ff9c3928275576cfe46571c4edeff",
       "url": "docs/api.reliability.md"
     },
     {
       "id": "api.relief",
-      "docsHash": "sha256:7d61df40aaa06e64de462330cf185e8605e22abad0bb0ba6011f30a3dea44c84",
+      "docsHash": "sha256:83e8cd77402f9ce1a934a41e79a1eca2093c8495d11f74b4bca969df20c439f0",
       "url": "docs/api.relief.md"
     },
     {
       "id": "api.relief-taxonomy",
-      "docsHash": "sha256:6bea921df1c724c779e64e2af2986962be65c9689fa3280aecb28af84df63a5e",
+      "docsHash": "sha256:200edd59d6e7a9cfadb032be7779a08928774fa253184a850b34f480bb1d01b0",
       "url": "docs/api.relief-taxonomy.md"
     },
     {
       "id": "api.round-preflight",
-      "docsHash": "sha256:5e96de2398709dbf874fdadbd0a1af54df2fedc2ca3ba6dc0afa0119c79db319",
+      "docsHash": "sha256:b75914f5f5d3e08ef421a1b2d4677561f17c610bd706e684b4741610592b9ed1",
       "url": "docs/api.round-preflight.md"
     },
     {
       "id": "api.run",
-      "docsHash": "sha256:fd45a07d1c0ad2b9b05c52a7d5343785da241366edebd8664f9d281bd8205b44",
+      "docsHash": "sha256:b3a68819d722352f1168cb938a013bd08cff0a5fbd2f63301f340bd617e59e31",
       "url": "docs/api.run.md"
     },
     {
       "id": "api.smooth-transition",
-      "docsHash": "sha256:b4c00d60da91e14544a0142a7cef47e7d6a3c2a567c88f35051de95be941f23d",
+      "docsHash": "sha256:774c58f1d38053d45716ac62cf6c6c41961637838c6920d92fd192fcf85a56f1",
       "url": "docs/api.smooth-transition.md"
     },
     {
       "id": "api.source-curves",
-      "docsHash": "sha256:9d656a66f9da4e151aed8fb8631f10c03aba66003dce2fb3955ddfae31702642",
+      "docsHash": "sha256:5ebecd8e3837f6191c718969c5d88e9ca5f699a52176d38099c0588149b34b64",
       "url": "docs/api.source-curves.md"
     },
     {
       "id": "api.text-command",
-      "docsHash": "sha256:9ae4e731861990b96c98ee74e10a898e840858353576d9ec69bfb3eaa611cd3d",
+      "docsHash": "sha256:6476368935c711e4c912209a226a141dd1392944872baf77fb5d75a1c70d64a8",
       "url": "docs/api.text-command.md"
     },
     {
       "id": "api.tool-selection",
-      "docsHash": "sha256:597341324026330a915c7b368e8c5515d52f93728a35818f14ca5e6d91a95fae",
+      "docsHash": "sha256:199e2bee465ece67ed2883ea80b81e11ef0403de41630a4204b483c4516b28e7",
       "url": "docs/api.tool-selection.md"
     },
     {
       "id": "api.ui-coverage",
-      "docsHash": "sha256:cae12574b33daac390564fd7a0cf6e56fff40e2c9d4f9e523a0f120cb1a137a1",
+      "docsHash": "sha256:62857ba053745ae1d24921a49234f941d71df97b8dbb6f64e216a0b4769b9b47",
       "url": "docs/api.ui-coverage.md"
     },
     {
       "id": "api.vector-import",
-      "docsHash": "sha256:e83058dca057b3925e2daf9cadd82b0823cdef58a3ca61b59a4da1bc66d4e768",
+      "docsHash": "sha256:800ecca685b820597a094e9c8759a97beec744319cd36a9f1a83b8963cfc63f8",
       "url": "docs/api.vector-import.md"
     },
     {
       "id": "api.views",
-      "docsHash": "sha256:2edbd99e23fb09470aaafcde2f5c33a71dd1bcfdd07e69c1d1ebfca135ce7de4",
+      "docsHash": "sha256:41958f5612029c0a8446bfeefc653f08fbfce8ca8740ba909346c1fa5a235d12",
       "url": "docs/api.views.md"
     },
     {
       "id": "api.workflow",
-      "docsHash": "sha256:70f72c97c5746fe45a689a3bd783a946c5dbd9a4efbc8bace16a7387905f264a",
+      "docsHash": "sha256:2a33568e37e8b05ad4891dfce0ef3a5ae04f9cbb9be79d6e33530bd26c0d20c8",
       "url": "docs/api.workflow.md"
     },
     {
       "id": "api.workspace",
-      "docsHash": "sha256:43f452b2fedea8b298666adcb8747839d1901c5e4c7b7781a33e8801362b1275",
+      "docsHash": "sha256:11ae10df248aee44645621799b1d22d3137b95b5bb3ab464b7cc7c26dd460aa9",
       "url": "docs/api.workspace.md"
     },
     {
@@ -2721,397 +2730,397 @@
     },
     {
       "id": "product.bar-heads",
-      "docsHash": "sha256:5417e8782ff130a6aefae5d719e7a7ffa1c8e0b53771442c41ffbe38b197beb3",
+      "docsHash": "sha256:0612ba98e1ebd2a4783b94d89692da132fb890f04c2757c54f29239919e6d259",
       "url": "docs/product.bar-heads.md"
     },
     {
       "id": "product.bridge",
-      "docsHash": "sha256:9c48325408c445ed06c8dc655f9b7f70d69766c8b5c6c843fe7a2cb121308191",
+      "docsHash": "sha256:bef605a87d99c9276cd6c99718a745913f2577b3d3fb2e26d0f1334ba96fcb7c",
       "url": "docs/product.bridge.md"
     },
     {
       "id": "product.chain",
-      "docsHash": "sha256:4ff05d9b5bff53be71fe363b8d16d17e9ca5986597c41965f86647718b1fc9f4",
+      "docsHash": "sha256:3f9b888d99634f87dd1f0d25c8c082fcb0cb6333d3306ff4346cc25b65a6f0a2",
       "url": "docs/product.chain.md"
     },
     {
       "id": "product.cord-lock",
-      "docsHash": "sha256:2ca50acb51ec7338b0dfd3cedfd4965ffba5383d74f4f31fed0cb29a40190e81",
+      "docsHash": "sha256:3db8ed2fa3a832910d047edddece947467077dc02a92433df0760087c38e6ec4",
       "url": "docs/product.cord-lock.md"
     },
     {
       "id": "product.end-cap",
-      "docsHash": "sha256:4e4da30e5573c28f505ef3b92a42d1c512f044e5ac84e3a8e0774a47cce4d8f1",
+      "docsHash": "sha256:0db91e6ef23e182f41f3bb53afb90a2d3aff88e2edd820a081f0780a5ebb126b",
       "url": "docs/product.end-cap.md"
     },
     {
       "id": "product.eyelet",
-      "docsHash": "sha256:ecebb4f78c942f4cbd886266c9b50eacf562e6c608165f9255be82e8c925f5a9",
+      "docsHash": "sha256:fc2892ca6f5ce20b89b3c86515e2721dede73b320b1335346b77eb8b078e513b",
       "url": "docs/product.eyelet.md"
     },
     {
       "id": "product.flap-lock",
-      "docsHash": "sha256:07aab4335b89f6bae07671550ce5d59c70fddf92a1a4430c294b8ed5d61c1ad3",
+      "docsHash": "sha256:e80631810682b5fd950dbb0d404358da71fdbd6e70385f518403a5ac75b9f678",
       "url": "docs/product.flap-lock.md"
     },
     {
       "id": "product.flat-loop",
-      "docsHash": "sha256:308edfb82f263ec04a7bb9dd0ec2b4d0f6f15ff3141a0c617acadad165945a8f",
+      "docsHash": "sha256:2176bed10fc9e4c79f2f20f93929ccc53be4f9312b4a542837523062fd423182",
       "url": "docs/product.flat-loop.md"
     },
     {
       "id": "product.gate",
-      "docsHash": "sha256:cc05e4c19b84e558c10a2d9e39bceac745512f21be23f92c6949c1e1c2578c06",
+      "docsHash": "sha256:98e1982e6d0da235085d14e9cebace02cc06facec7ac7a3b9e076d52e01d7271",
       "url": "docs/product.gate.md"
     },
     {
       "id": "product.handle",
-      "docsHash": "sha256:033ed803d0ce68a248c0ff133bfc1d631a2aca2e9609b6770a188ba5e2223f34",
+      "docsHash": "sha256:8ea4ce72801c8fe1ebc57a0331468fe787ed5fbad6cb5e270cdd4c75bc8707a3",
       "url": "docs/product.handle.md"
     },
     {
       "id": "product.headed-fastener",
-      "docsHash": "sha256:19dc3816b8137fa8c38af3bc8e62fa0ff07c443912884672757ef1453482cdee",
+      "docsHash": "sha256:b6c943aaf84e7649c4147b849e029b879a8a6b0645dd48becb1c61a1d6ee1eee",
       "url": "docs/product.headed-fastener.md"
     },
     {
       "id": "product.hinge",
-      "docsHash": "sha256:b96f5c54d75918fd37e1677acf589e680127334678d51870911086ca62b08699",
+      "docsHash": "sha256:05ccd55cc4819070ffe5dc750cdb2735f4048339f59b4d0d27bc56aeb9c9d4f8",
       "url": "docs/product.hinge.md"
     },
     {
       "id": "product.hollow-cap",
-      "docsHash": "sha256:f32094cdf9012c7a6adc5d9381074839e9d5b8dc663f2585d95a55a276acf1bb",
+      "docsHash": "sha256:42c281a6363b46a74d896c1cb6135c20b1c1124f80146e913ac6df888b500274",
       "url": "docs/product.hollow-cap.md"
     },
     {
       "id": "product.insert-lock",
-      "docsHash": "sha256:cd42a45dac9f572f4e869a1908a753027d512744cfaa3b9d68d561388e7490fc",
+      "docsHash": "sha256:5f16fc912ea8c1cf4a49e9a1bcf4d2c233125287111ea05196ffaf4ffd42e0f8",
       "url": "docs/product.insert-lock.md"
     },
     {
       "id": "product.keeper",
-      "docsHash": "sha256:e225e60ec0ab90fc74f0b1aa191271223c0f920f163d404bfd0bdbe525fd24e8",
+      "docsHash": "sha256:ecea3a39f976d7a608626a3506049d004243888ece93fd78fce8aa583826cbde",
       "url": "docs/product.keeper.md"
     },
     {
       "id": "product.magnetic",
-      "docsHash": "sha256:022078de067ef81bd55ba46b3c23d6e9ae4d45f0e7b79d1b4ad8d33f67b6beb9",
+      "docsHash": "sha256:403426733d79aadf8caffbd265aab8f51672876eba856340224dfdd942618e88",
       "url": "docs/product.magnetic.md"
     },
     {
       "id": "product.multi-window",
-      "docsHash": "sha256:a6e388661cae7e4c650b2ce37d34993bea88f350e1ec598d312a6e51e1574eee",
+      "docsHash": "sha256:b5b021e70b34cfee64bfbf7ea5fad68e3d696c5d79e3610bf068ce24865db610",
       "url": "docs/product.multi-window.md"
     },
     {
       "id": "product.plate-mount",
-      "docsHash": "sha256:9fcf7497d0103a5874b289bd775aba894af409802d06194dffc6cf0bf33aae15",
+      "docsHash": "sha256:bbf7b5d7f453d827700898a916d75e0d030435ef72e4b76fccd69cd8a40a869b",
       "url": "docs/product.plate-mount.md"
     },
     {
       "id": "product.prong",
-      "docsHash": "sha256:86ca562869c07680bd503aff8c47f57dfecb749577429bd2e1668410fd26049c",
+      "docsHash": "sha256:ccd9b1cf8769d757b1abf9e08b36be246029653ca73f74994dcad6be85440168",
       "url": "docs/product.prong.md"
     },
     {
       "id": "product.pull-core",
-      "docsHash": "sha256:87d9888e47bcdbeca2baca6c4d9d9230e984584c0bbb14b939ff2955907b93c1",
+      "docsHash": "sha256:bd5e7aeb902ccb6c01ef76d9d854b8f682823ce08f471c919326227fa9fa32f1",
       "url": "docs/product.pull-core.md"
     },
     {
       "id": "product.pull-tab",
-      "docsHash": "sha256:3f0a49ac1e735f3e2da9b69827acde033faa7b89ff4771d221caf819a210db35",
+      "docsHash": "sha256:3fbdea990ec924af210882613dae6bec16bda04086458b0c960b623c1c910594",
       "url": "docs/product.pull-tab.md"
     },
     {
       "id": "product.rivet",
-      "docsHash": "sha256:7b4c0bd3c5df2edf6a1daab0a9c46869e4670c4627d93b9db083bfe6f66eca65",
+      "docsHash": "sha256:e4b546e72cb3faaafb3524011a928782404f88beaaff200ce63896b25149e7ee",
       "url": "docs/product.rivet.md"
     },
     {
       "id": "product.sliding-clasp",
-      "docsHash": "sha256:5e86328f81cf1a1743fb1e2f754b308988d6ed3113c509636e27ab6c965782a2",
+      "docsHash": "sha256:c5e7f968efd6c9395efb5f9b4a2bdf45ff4553f57da0299fad4a83d7a3ef5c63",
       "url": "docs/product.sliding-clasp.md"
     },
     {
       "id": "product.snap",
-      "docsHash": "sha256:602822432d4927b47a8376725e53189a891086a229a46bf5f350bde2f15a39e3",
+      "docsHash": "sha256:eeb63e5d66c506100ac25052d3ae8aeb1884bfd0ed5664870df201683b63b064",
       "url": "docs/product.snap.md"
     },
     {
       "id": "product.split-ring",
-      "docsHash": "sha256:62c06fbcb5d9c6b9531a1fc603a850b24f599c18c696b71a347f472711eb8a7a",
+      "docsHash": "sha256:a10739c5c743542819ab3ed94435cf5e2d32846205d3a7287019233d342c1646",
       "url": "docs/product.split-ring.md"
     },
     {
       "id": "product.stud",
-      "docsHash": "sha256:5a22014d69e75c35c72f8b66b59dc71b30ff4964b99ffb729a191992c418cc7a",
+      "docsHash": "sha256:c7b45dd2222b28aedef5d3a9b84529f5534a8f10f30880d48ae3b0ffe438d522",
       "url": "docs/product.stud.md"
     },
     {
       "id": "product.tbar",
-      "docsHash": "sha256:f7cd674371e67a54b41421380e7480c05a667fc211e3416acd51f74d49ed488e",
+      "docsHash": "sha256:83a255c8d0fe2ee9bdb07ec755b29dfffb52b32692697c5152da91d9605fa77c",
       "url": "docs/product.tbar.md"
     },
     {
       "id": "product.turn-lock",
-      "docsHash": "sha256:ab3cd82aecfdbdca16c2ec94b76eb34641cfdd7b4616a5b617e77fe00303d4ef",
+      "docsHash": "sha256:8c8453342c6845ddf400c54f89172dd6b8f2f5db2e4043bd461fbbff526bb5a0",
       "url": "docs/product.turn-lock.md"
     },
     {
       "id": "product.variable-loop",
-      "docsHash": "sha256:58970c82483fbbbd4b88a7d01151dd47ae536d0f37145dc47efed0c53a682b2a",
+      "docsHash": "sha256:ee18d5f4e37784af7b6a7d5dae7aa55623001b1984588b7b05ec1ca9504b8ad6",
       "url": "docs/product.variable-loop.md"
     },
     {
       "id": "product.wire-loop",
-      "docsHash": "sha256:d9c3b892f66a55eb45d4d88aca39d563bd583d270a665825709445e94fecd6b0",
+      "docsHash": "sha256:00c7a19fa97ec3bc31ec2bcd67472e88307e3206e11e9c6a5d5af7ac07c60b71",
       "url": "docs/product.wire-loop.md"
     },
     {
       "id": "recipe.examples",
-      "docsHash": "sha256:2c652796ef570d0ae0de396831c38c4c8fe75ef06f3831b99e2e34b877e7fe6a",
+      "docsHash": "sha256:53f86f956085f8b621962a7cb0cb4c8417abfc175f9446204e855f7aed83e927",
       "url": "docs/recipe.examples.md"
     },
     {
       "id": "recipe.file-workflow",
-      "docsHash": "sha256:c51bd2017f89daf0f025f7ff3cc764d5dffe15e3ef87c01fa2bd90ffa35702a6",
+      "docsHash": "sha256:a541751952b79c0098473150b9b6207902b4360245a62902ba02e3ad96043d82",
       "url": "docs/recipe.file-workflow.md"
     },
     {
       "id": "recipes.analytic-arc-profile",
-      "docsHash": "sha256:6ecf93c13a1fcf4243b78e7969a6bc4d86f938e91370da8f53fdd9b22c650cad",
+      "docsHash": "sha256:8451189d5100864a45dda4406bc70b20e53ecd2d1848afc6ea89fa0fdfc50d5f",
       "url": "docs/recipes.analytic-arc-profile.md"
     },
     {
       "id": "recipes.analytic-root-revolve",
-      "docsHash": "sha256:c9ffffbf2b70ee5f07de669d64fead8cdf0e5f69c4fdacde48756a07ed551448",
+      "docsHash": "sha256:799a4264957f623c3d773939b8b08816a3e8ab9c28541927dfe230cdd57b563e",
       "url": "docs/recipes.analytic-root-revolve.md"
     },
     {
       "id": "recipes.arc-band-plate",
-      "docsHash": "sha256:1d1bd129636a6d0a778070021f804d9449d99ab3ea982ff5f6920fe9b4543fef",
+      "docsHash": "sha256:017c344f35549d7659fc99c38fd1fb409f7952bc85f22913557f4c8ed1847659",
       "url": "docs/recipes.arc-band-plate.md"
     },
     {
       "id": "recipes.arched-twin-window",
-      "docsHash": "sha256:1732bef5d2a6c8425e2d3b05e054c5acd5291a78c851e9dc2db0cba20df4f727",
+      "docsHash": "sha256:aefd481629e3d664f764d7b76aa25eb6993ea21c67a20f25fb3255a6d419cb3f",
       "url": "docs/recipes.arched-twin-window.md"
     },
     {
       "id": "recipes.bowed-twin-window",
-      "docsHash": "sha256:3917d0f03e906bea7c879ae89ba351fd61fdf52c23565418519a5abfe8c1a131",
+      "docsHash": "sha256:53d76ebac1bcb8400dd34c1f1b7b0748ad8275000c86a738a95b6db979b6ed4f",
       "url": "docs/recipes.bowed-twin-window.md"
     },
     {
       "id": "recipes.capsule-wire",
-      "docsHash": "sha256:ea4b7266f307776e1630556cb4145c3a458cae65392582fb1a9f92a006a833e8",
+      "docsHash": "sha256:597897f10f2b039c5219d42603f1d66f9654e0820ef3a2b5d699ab6ebbc8a98a",
       "url": "docs/recipes.capsule-wire.md"
     },
     {
       "id": "recipes.chamfered-wire-frame",
-      "docsHash": "sha256:0fdde19bad03b1ebe3f3e135dff665dadba4390db31e618cbffd57fcc5980c9a",
+      "docsHash": "sha256:7198f0ef6133f2c567b538cedb41ac3744fe96abb8e14474e37c1ba0bf418282",
       "url": "docs/recipes.chamfered-wire-frame.md"
     },
     {
       "id": "recipes.clevis-practice",
-      "docsHash": "sha256:2ba4363de0ea23ba41c6534a5545366a1ec0f03189efaa18833fe67a0d81980b",
+      "docsHash": "sha256:4232c953fc13c3f33a323df9bde60cc2792cbb1a95d9be44130e0e5a0801b390",
       "url": "docs/recipes.clevis-practice.md"
     },
     {
       "id": "recipes.closed-chamfered-path",
-      "docsHash": "sha256:687941f5e47d20bf32f29f099a5f2be06bdcca89e4febe54370607fbd2b4d817",
+      "docsHash": "sha256:24a638bc5acd43ccb36f4d48c733dbed04808d4aadf9648abf0be589dc742485",
       "url": "docs/recipes.closed-chamfered-path.md"
     },
     {
       "id": "recipes.compact-rect-buckle",
-      "docsHash": "sha256:4c837f975877fcd7fc7e903a1449a1029b831dde2f74342b3e95f7532e913489",
+      "docsHash": "sha256:379425fd936d435cdbf62f9bf1a06363627c7069c483c450a727e029b08765b6",
       "url": "docs/recipes.compact-rect-buckle.md"
     },
     {
       "id": "recipes.compact-slider-buckle",
-      "docsHash": "sha256:6c78e7d353d815493e7e4a8a0c25a71929f168eca854bb2eb336ea0d345b1285",
+      "docsHash": "sha256:0ae6b6aa0a48ea21827ecbdaecfba8f3895a32f04baa4fa49d3183956152b7fb",
       "url": "docs/recipes.compact-slider-buckle.md"
     },
     {
       "id": "recipes.d-flat-frame",
-      "docsHash": "sha256:720f2d8c2804f6bac4e7ab13254137263681d1c1c64e1f767cc977383dda6a63",
+      "docsHash": "sha256:4175e83df6e2939abf07056b4651e0cd4574f7482e03c0c83236d7e2e921c49e",
       "url": "docs/recipes.d-flat-frame.md"
     },
     {
       "id": "recipes.dxf-arc-profile",
-      "docsHash": "sha256:737ac490f8aed65d17cd184114838a0f26400611c7efc5f78b705ba8b61c1c4f",
+      "docsHash": "sha256:74dc1a3bd6381b6c97afd0d9e58cb4e807dd81de0abfea937776debc4bb388eb",
       "url": "docs/recipes.dxf-arc-profile.md"
     },
     {
       "id": "recipes.dxf-bulge-analytic-profile",
-      "docsHash": "sha256:143f65f15be0acf6bc7ef89845254f9f9640d5b509c05de9f5571a645e2b0920",
+      "docsHash": "sha256:c716d4a52667ec8f847160a9fb3dc2123a6ed648ab38761df8011c26704b38b8",
       "url": "docs/recipes.dxf-bulge-analytic-profile.md"
     },
     {
       "id": "recipes.dxf-paired-midline",
-      "docsHash": "sha256:51608439d32aa38c510a84c5b98d1bb7dbca8d9942aa29fe4c8bf793034d80d7",
+      "docsHash": "sha256:8f45d8bebfeeec9f284f56ad3440e285ee1ccea843f599ebb09eb91c33ec7f7a",
       "url": "docs/recipes.dxf-paired-midline.md"
     },
     {
       "id": "recipes.ellipse-bar",
-      "docsHash": "sha256:7f8f0e005d845842280fc612131ebed4d59ed77ec19bd35cd8d0451147f71c07",
+      "docsHash": "sha256:fc0705156ddfdca68d478a423c23202aeb77598cf9ea42953007b4e46ca39871",
       "url": "docs/recipes.ellipse-bar.md"
     },
     {
       "id": "recipes.ellipse-open-wire",
-      "docsHash": "sha256:e210cf5c31f567f457dbe0c2c89c36653bfea3382ba8db68f36656702d39cb1d",
+      "docsHash": "sha256:8ab904c79e2737cb029ded15772581986aa55c5de0847a4b89b20e0d7c5c4295",
       "url": "docs/recipes.ellipse-open-wire.md"
     },
     {
       "id": "recipes.ellipse-section-rect",
-      "docsHash": "sha256:b389445227973bf620c6f5aff1fd0531858e1b5ea84f41f1208d19b0d00fcdd3",
+      "docsHash": "sha256:bdb6cfff1fce30abd2d3d99b92f57bc30aa09ef3db0deccc9b936e43259e6f9a",
       "url": "docs/recipes.ellipse-section-rect.md"
     },
     {
       "id": "recipes.ellipse-section-ring",
-      "docsHash": "sha256:733cdb56d830e81ba2b6c32a2b1da29cb9214624e87fc1d5703b745fe329deab",
+      "docsHash": "sha256:5ca1d3dcacc59604b156b0b79473f3c63c245fb5f2e017687ce352cbe0e441c7",
       "url": "docs/recipes.ellipse-section-ring.md"
     },
     {
       "id": "recipes.ellipse-u-wire",
-      "docsHash": "sha256:7703039ad8764d3951b765f1af652151b89d40ba7074d7817ff26a3f703f7b29",
+      "docsHash": "sha256:42c47b046373547c9be4ce6fe08aad2f9f6a4a2fa3ecf412ef451c476da0f446",
       "url": "docs/recipes.ellipse-u-wire.md"
     },
     {
       "id": "recipes.figure-eight-capsule",
-      "docsHash": "sha256:731aab77a0adadec3e0b80f65c3d7153ce4a821dfd46f20fa922ceda397b0ac1",
+      "docsHash": "sha256:cfba14efdf37964b1bb64e8e2ab916a5690db3b4903d6e025039d38af0e729a6",
       "url": "docs/recipes.figure-eight-capsule.md"
     },
     {
       "id": "recipes.flat-washer",
-      "docsHash": "sha256:6b25bf983ac5df7c40dc62806df116888ab3ed2a5f3d3384a934d28579dc11a7",
+      "docsHash": "sha256:7446c73cb5a80569f4ff6d56066171b7897f000de9c29661ba848044028a356d",
       "url": "docs/recipes.flat-washer.md"
     },
     {
       "id": "recipes.gable-open-frame",
-      "docsHash": "sha256:4a57abf87eabae6611b2a46d2a7bcfd38e3100e588850b68c40736d930ef9e8c",
+      "docsHash": "sha256:3a2061a85b292da08e6f3a09acce531d4dc92dd24742f48074d08221b1c1b8d1",
       "url": "docs/recipes.gable-open-frame.md"
     },
     {
       "id": "recipes.hardware-practice",
-      "docsHash": "sha256:3871bbdf4affad11004fab2dc27a9c28ce5b64c2426d0da758088ffa9a8d4efb",
+      "docsHash": "sha256:987784af25224bbc9267c8bc88a9efe18bab68fa9bc4b75c0585ae95ed91fab9",
       "url": "docs/recipes.hardware-practice.md"
     },
     {
       "id": "recipes.mounting-plate",
-      "docsHash": "sha256:9806312822fc1be4907657836b4c00e44df42def6cc194ddca995fc2aa7c270e",
+      "docsHash": "sha256:bc326a8890f29295ecd31dc73aaa04b17ec47d4ceafa7a5ab896b5bb5dd9da2e",
       "url": "docs/recipes.mounting-plate.md"
     },
     {
       "id": "recipes.multi-boss",
-      "docsHash": "sha256:a28c25d22897b4b8b641d3db491315be502823dda7004b6cde3b4bbf665441f7",
+      "docsHash": "sha256:5921bf64f1fd6048632458a88c3b0a0825a24df8a7b01915dc35e87f77abc1f3",
       "url": "docs/recipes.multi-boss.md"
     },
     {
       "id": "recipes.multi-pocket",
-      "docsHash": "sha256:22a53e7b3482dd102fa777e570ae4038fa3c0f34be1188bb2293d624f05b916d",
+      "docsHash": "sha256:aa4f8fcabc0d3caf2bd586bd998de8e51bc77d1be708adbe6101c4237779bcbc",
       "url": "docs/recipes.multi-pocket.md"
     },
     {
       "id": "recipes.open-oval",
-      "docsHash": "sha256:6ebb40914d06c54b2e258cd6c6452a7cda214a040a8d283f0def4b72302a8c54",
+      "docsHash": "sha256:53960e089290b11a21ff152c4a7850d00b355761d9ff044c5942cb232317b712",
       "url": "docs/recipes.open-oval.md"
     },
     {
       "id": "recipes.pg11419-analytic-profile",
-      "docsHash": "sha256:9bf3787f1f0de25139cef6d8d189724b46a6fa1a587bca205107070ce7a1a3c4",
+      "docsHash": "sha256:130caa412d7d5dacf0dedd534d7cafee91c06449263770972517d0cd40ad6f5f",
       "url": "docs/recipes.pg11419-analytic-profile.md"
     },
     {
       "id": "recipes.pg5752-two-source-parts",
-      "docsHash": "sha256:8e14292ab5b2d2debbb0ed21a4bf95013e1b882a47b7ea75898ebb3d41689408",
+      "docsHash": "sha256:e511d9f6d7518a858e7977d4b2b6210559cc3a0986020ef72af87a9ed60ecbd3",
       "url": "docs/recipes.pg5752-two-source-parts.md"
     },
     {
       "id": "recipes.pg8091-analytic-profile",
-      "docsHash": "sha256:bcdaac8128ae2d1bb9421874b8ecc7b7ca2cb3aa27ac479931159f0e30629d56",
+      "docsHash": "sha256:76f4fe4c566994a33f1fa611c96287cb4c41b0bb35aa992ce8a6f83f3695c809",
       "url": "docs/recipes.pg8091-analytic-profile.md"
     },
     {
       "id": "recipes.polar-hole-ring",
-      "docsHash": "sha256:095ccc4af5a702e83b8cefb483f3563d7fa11c58147a6711ec754e693a78ae00",
+      "docsHash": "sha256:33d9956b10798a0131f312f250fd3af09d0de4f8e34e49668ae7ee42851d2eff",
       "url": "docs/recipes.polar-hole-ring.md"
     },
     {
       "id": "recipes.profile-loop",
-      "docsHash": "sha256:4a7cbd2f7733dc0e1926f48885149649c481765421015645b8468376858ce9bc",
+      "docsHash": "sha256:a27b89c8f838f933365e66bc997a14bb75ef5b70d8c502e1ad64ff602703c9df",
       "url": "docs/recipes.profile-loop.md"
     },
     {
       "id": "recipes.rectangle-profile",
-      "docsHash": "sha256:c8ea09b10d5ff126850ad408f145c0799576405c15236a12c780113764b65d52",
+      "docsHash": "sha256:8ad3a048525d81bd76f5841e273bc6f2dae88f507fea74d41f9ea46b7e023908",
       "url": "docs/recipes.rectangle-profile.md"
     },
     {
       "id": "recipes.reference-reconstruction",
-      "docsHash": "sha256:11579fcd0ca31152cb459dfcf0ff782786103662d01bc4a20600b0f5f9f9eaab",
+      "docsHash": "sha256:19b394e64ca5d9b79c761ccf28927c90f3b9c07a88188f6c17dca8488654f692",
       "url": "docs/recipes.reference-reconstruction.md"
     },
     {
       "id": "recipes.ring-bar",
-      "docsHash": "sha256:c77406125969cd6825bea90e2c38105eb6c90807c944432ecfdc7d1824b44a27",
+      "docsHash": "sha256:5ae2f94accdd7b84d5b2a17fc5a2fc1e6734dce50f7118ed562e0a0d529ec41f",
       "url": "docs/recipes.ring-bar.md"
     },
     {
       "id": "recipes.round-wire-slider",
-      "docsHash": "sha256:cbc94fe3f052944dbe1efa96d28d8794683e06fa498fc7f0bd7ea22acb0a4f44",
+      "docsHash": "sha256:1f1019201b106304af0d2ac72549b14b0a5bc199207f2362abe3d6e988715576",
       "url": "docs/recipes.round-wire-slider.md"
     },
     {
       "id": "recipes.rounded-flat-frame",
-      "docsHash": "sha256:06f49c7afe5477035fa0961aee0fcdb8526bdd234a0ae327280dc5c5572c99c0",
+      "docsHash": "sha256:0624a33017f3609d63026a337ea9b0738b59c60451644d277d390cb635d1af55",
       "url": "docs/recipes.rounded-flat-frame.md"
     },
     {
       "id": "recipes.segmented-curve-sweep",
-      "docsHash": "sha256:a149865fbdc171ce2ce96c32c993b78a00dd5c519f1e5e7a9d94e75b21f3e669",
+      "docsHash": "sha256:209032d2139095cea19d67a56b3c89263cf5f3f0e31a02d7971775a3ccbd1076",
       "url": "docs/recipes.segmented-curve-sweep.md"
     },
     {
       "id": "recipes.small-twin-window",
-      "docsHash": "sha256:66bb65c6293f2fe078cdf61e36f8bf04829ef8cf609b7ec1ce16b73434565952",
+      "docsHash": "sha256:c65af5d34d18e4237e16cdb53ae6aa25e2d065d647c2a3898b9333e708ddf754",
       "url": "docs/recipes.small-twin-window.md"
     },
     {
       "id": "recipes.source-analytic-round",
-      "docsHash": "sha256:10b08e5db5594396119cb3a62d40a32bc64c29430847da6589d909ced0a0e06a",
+      "docsHash": "sha256:fcb9556f62644ff0653727f73ee7b58aae399b857c6e51ef96194a694e0e1f0e",
       "url": "docs/recipes.source-analytic-round.md"
     },
     {
       "id": "recipes.source-arc-band-profile",
-      "docsHash": "sha256:9a48dff21aec0f7012989d1d506f31b020113ce3ed8bb12063ba466f12c15352",
+      "docsHash": "sha256:6a77490961578f29a1dbde33a517b4d150b0626f41dee9c962cbbe4baf6593b9",
       "url": "docs/recipes.source-arc-band-profile.md"
     },
     {
       "id": "recipes.source-faces",
-      "docsHash": "sha256:be93236cf2ce7d59af5f190896cc24343064d918a7e8dcae305f2a7074c503f1",
+      "docsHash": "sha256:cdd1739b09610925f8424221c553bb47034b26657d52b5a96c5f011cf5e11353",
       "url": "docs/recipes.source-faces.md"
     },
     {
       "id": "recipes.source-round-rect",
-      "docsHash": "sha256:22878f6b40e0fa9286f568425667c4692ae83d20657a538f95da7d2ef7d2db64",
+      "docsHash": "sha256:85895a4c38649ab835d635f57cebc99388d9cb7844cdbd0f912070782e17c598",
       "url": "docs/recipes.source-round-rect.md"
     },
     {
       "id": "recipes.twin-window-plate",
-      "docsHash": "sha256:863d523dd525ab37fcd5bac531566ff5b9360979cbffe4b8f0667da7f5b3cd70",
+      "docsHash": "sha256:b1d148edce69df22868cb35ca9a7262af8714aea57561e8ef38ebcc5319ed6b6",
       "url": "docs/recipes.twin-window-plate.md"
     },
     {
       "id": "recipes.u-end-hole-plate",
-      "docsHash": "sha256:85a9df9b6c3f24404814e75511d94d17a11a09ae7cdf2645532a25b6abff24b1",
+      "docsHash": "sha256:e41f880238f7842503db159c0019541d8137d4ebbbbaa82c46b3383451dc37c3",
       "url": "docs/recipes.u-end-hole-plate.md"
     },
     {
       "id": "start",
-      "docsHash": "sha256:8182103949c4149fa6f6996eabb621b5bf5802e6780cca90eea93063bd232af3",
+      "docsHash": "sha256:e470bcbfeeb939ef19b153a3ac3f3132e76610beca62785991381f5e8ed44270",
       "url": "docs/start.md"
     }
   ],

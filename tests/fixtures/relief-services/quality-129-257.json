@@ -1,0 +1,135 @@
+{
+ "note": "Native worker runs on the Linux box (Debian 13, OCCT 7.8.1 shared, g++ 14); synthetic authored fields; timings are box measurements, not Windows/IIS.",
+ "cases": [
+  {
+   "case": "box-129-65",
+   "ok": true,
+   "iterations": 406,
+   "acceptanceToleranceMm": 0.1,
+   "trainingMaxMm": 0.042676085798159485,
+   "independentMaxMm": 0.03843860326015347,
+   "protectionMaxMm": 0,
+   "trim": "whole-selected-face-host-boundary",
+   "boundaryDeviationMm": 0,
+   "maxTrimEdgeToleranceMm": 1e-7,
+   "quality": {
+    "consistent": true,
+    "fieldIntegralMm3": 86.37553733254141,
+    "gpropDeltaMm3": 86.33223907960928,
+    "meshDeltaMm3": 87.72647076941212,
+    "meshVsFieldRel": 0.01564023192897405
+   },
+   "valid": true,
+   "solidCount": 1,
+   "timingsMs": {
+    "total": 4815,
+    "fit": 1798
+   },
+   "stepBytes": 293898
+  },
+  {
+   "case": "disc-129-65",
+   "ok": true,
+   "iterations": 450,
+   "acceptanceToleranceMm": 0.1,
+   "trainingMaxMm": 0.06247601045436996,
+   "independentMaxMm": 0.06344236100185417,
+   "protectionMaxMm": 0,
+   "trim": "whole-selected-face-host-boundary",
+   "boundaryDeviationMm": 0,
+   "maxTrimEdgeToleranceMm": 1e-7,
+   "quality": {
+    "consistent": true,
+    "fieldIntegralMm3": 76.01803287961552,
+    "gpropDeltaMm3": 75.16950806254499,
+    "meshDeltaMm3": 76.13452901152232,
+    "meshVsFieldRel": 0.0015324802220452968
+   },
+   "valid": true,
+   "solidCount": 1,
+   "timingsMs": {
+    "total": 5580,
+    "fit": 1432
+   },
+   "stepBytes": 277037
+  },
+  {
+   "case": "box-257-129",
+   "ok": true,
+   "iterations": 265,
+   "acceptanceToleranceMm": 0.1,
+   "trainingMaxMm": 0.008281097163741782,
+   "independentMaxMm": 0.008292924403979446,
+   "protectionMaxMm": 0,
+   "trim": "whole-selected-face-host-boundary",
+   "boundaryDeviationMm": 0,
+   "maxTrimEdgeToleranceMm": 1e-7,
+   "quality": {
+    "consistent": true,
+    "fieldIntegralMm3": 87.25813249361565,
+    "gpropDeltaMm3": 87.55268648831043,
+    "meshDeltaMm3": 87.71819318222333,
+    "meshVsFieldRel": 0.0052724104385496
+   },
+   "valid": true,
+   "solidCount": 1,
+   "timingsMs": {
+    "total": 11891,
+    "fit": 8827
+   },
+   "stepBytes": 1189037
+  },
+  {
+   "case": "disc-257-129",
+   "ok": true,
+   "iterations": 341,
+   "acceptanceToleranceMm": 0.1,
+   "trainingMaxMm": 0.016737262817881668,
+   "independentMaxMm": 0.017431327554281225,
+   "protectionMaxMm": 0,
+   "trim": "whole-selected-face-host-boundary",
+   "boundaryDeviationMm": 0,
+   "maxTrimEdgeToleranceMm": 1e-7,
+   "quality": {
+    "consistent": true,
+    "fieldIntegralMm3": 76.8670109573986,
+    "gpropDeltaMm3": 80.10102798055414,
+    "meshDeltaMm3": 76.90520214869684,
+    "meshVsFieldRel": 0.0004968476180165935
+   },
+   "valid": true,
+   "solidCount": 1,
+   "timingsMs": {
+    "total": 11902,
+    "fit": 6544
+   },
+   "stepBytes": 1137187
+  },
+  {
+   "case": "disc-257-65",
+   "ok": true,
+   "iterations": 440,
+   "acceptanceToleranceMm": 0.1,
+   "trainingMaxMm": 0.05646998256887051,
+   "independentMaxMm": 0.05687967752078746,
+   "protectionMaxMm": 0,
+   "trim": "whole-selected-face-host-boundary",
+   "boundaryDeviationMm": 0,
+   "maxTrimEdgeToleranceMm": 1e-7,
+   "quality": {
+    "consistent": true,
+    "fieldIntegralMm3": 76.32570626185209,
+    "gpropDeltaMm3": 78.64776907967098,
+    "meshDeltaMm3": 76.46132069674968,
+    "meshVsFieldRel": 0.001776785850265639
+   },
+   "valid": true,
+   "solidCount": 1,
+   "timingsMs": {
+    "total": 9293,
+    "fit": 5456
+   },
+   "stepBytes": 277480
+  }
+ ]
+}

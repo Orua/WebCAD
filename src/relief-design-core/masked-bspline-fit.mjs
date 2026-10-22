@@ -137,7 +137,7 @@ export function fitMaskedReliefBSpline(options){
  for(let k=0;k<n;k++)if(columnSum[k]===0)locked[k]=1;
  const free=n-locked.reduce((s,v)=>s+v,0);
  if(!free&&maximum>0)fail('FIT_NO_FREEDOM','Protection leaves no free observed control poles',{controlPoints:n,lockedControlPoints:n,retry:'none'});
- for(const s of samples)if(s.target>acceptance&&s.ids.every((k,i)=>locked[k]||s.weights[i]===0))fail('FIT_CONSTRAINT_CONFLICT','Requested relief lies entirely in locked basis support',{xMm:s.x,yMm:s.y,retry:'none'});
+ for(const s of samples)if(s.target>acceptance&&s.ids.every((k,i)=>locked[k]||s.weights[i]===0)){const spacing=Math.max(widthMm/Math.max(1,nx-3),heightMm/Math.max(1,ny-3));fail('FIT_CONSTRAINT_CONFLICT','Requested relief lies entirely in locked basis support',{xMm:s.x,yMm:s.y,controlSpacingMm:spacing,suggestedMarginMm:2*spacing,retry:'none'});}
  const L=Math.max(1,...columnSum),project=(v,k)=>locked[k]?0:Math.max(0,Math.min(envelope,v));
  const gradient=values=>{
   work.charge(samples.length*32+n);
