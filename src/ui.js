@@ -197,9 +197,11 @@ export function createUI(root,callbacks={}) {
  for(const [label,action]of []){const start=button(label,()=>run(action),action==='quickModel'?'primary':'secondary');start.dataset.commandId=action;startActions.append(start);}
  q('.empty-state').append(startActions);
  const viewportNav=element('div',{class:'viewport-nav',role:'group','aria-label':'标准视角'});
+ viewportNav.hidden=true;
  for(const direction of ['top','front','right']){const [label]=UI_LAYOUT.controls.directions.items.find(([,value])=>value===direction),control=button(label.slice(0,1),()=>emit('view',{direction}),'secondary');control.title=label;control.setAttribute('aria-label',label);control.dataset.commandId='view';viewportNav.append(control);}
  q('.canvas-panel').append(viewportNav);
  const frameBar=element('div',{class:'work-frame-bar','aria-label':'参考锚点'});
+ frameBar.hidden=true;
  const frameTitle=element('strong',{},'工作基准 XYZ'),frameMode=element('select',{'aria-label':'工作基准输入方式'});
  for(const [value,label] of [['world','世界位置'],['relative','相对位移']]){const option=element('option',{value},label);frameMode.append(option);}
  let frameInputDirty=false;
