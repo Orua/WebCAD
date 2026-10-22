@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "adapterVersion": 2,
-  "buildId": "7341e733a73e9ccd02c9b9de2d1ec777793ddb1a-src-1df95178076a2878-working",
-  "catalogHash": "sha256:5575991880db71d694917ad8a76c05a8c28f5108646c2c0455fd09932ba569f9",
-  "docsHash": "sha256:390610337f751be82bf3a0b36d1147b19ccbcaf980b028327cc72e61d0e5afe0",
+  "buildId": "7341e733a73e9ccd02c9b9de2d1ec777793ddb1a-src-43d4935b6d7dfcf8-working",
+  "catalogHash": "sha256:ba93c769291c0125f8b866f29c4d44fdc758c17c43bd99dbad5a29215334b3ef",
+  "docsHash": "sha256:62b616a73e6648a02c3a13d6249051edcc3d7ad31c1113f18e0c90afe96ee7a3",
   "contractHash": "sha256:3b1161680f4b7884d1aaa654375b0ec80ae025dcf98241f87c0c81e0c8464b52",
   "protocol": "goldenluck.webcad/1",
   "files": [
     {
       "name": "host-adapter.mjs",
       "url": "remote-agent/host-adapter.js",
-      "sizeBytes": 71672,
-      "sha256": "sha256:d761b1c0dfe8e1bd0a797f335f2e413200b5d5534db723878263a1832a9496ae"
+      "sizeBytes": 71697,
+      "sha256": "sha256:1604049dad865a24cd5a5896f960699068e32643b2db31d128c31e1b55ef9fcc"
     },
     {
       "name": "runtime-contract.json",
@@ -22,8 +22,8 @@
     {
       "name": "layout-planner.py",
       "url": "remote-agent/layout-planner.py.txt",
-      "sizeBytes": 5512,
-      "sha256": "sha256:1410d6840f05aff15d914b40c18594ffe10c8f59eb94f0b15a91ad324bf4791b"
+      "sizeBytes": 5427,
+      "sha256": "sha256:0b2407d8f7b07ce7954e7d8db340150452f8131d60ec3e9272afce23ab633490"
     }
   ]
 }

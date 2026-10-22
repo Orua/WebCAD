@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.57.1 · sha256:5575991880db71d694917ad8a76c05a8c28f5108646c2c0455fd09932ba569f9
+API 1.57.1 · sha256:ba93c769291c0125f8b866f29c4d44fdc758c17c43bd99dbad5a29215334b3ef
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -71521,6 +71521,13 @@ files.release: contextPolicy=none
               "metrics"
             ],
             "properties": {
+              "deviationPolicy": {
+                "type": "string",
+                "enum": [
+                  "strict",
+                  "candidate"
+                ]
+              },
               "designId": {
                 "type": "string",
                 "minLength": 1,
@@ -71910,7 +71917,7 @@ files.release: contextPolicy=none
     "小图）"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:bb8edd74e03713ca05af880e857b3839f982c96e5d2121f495581e242c0b5400",
+  "schemaHash": "sha256:f94a3e051f5bcfdee8e69c6fce7cc59260ced74650aef4efc2e271ef2861a8a3",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -73154,7 +73161,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:56594d53a4d5bdb579408ab8bbb63365b7a82628332802d4b7d6a52a56467582"
+  "docsHash": "sha256:043ae3603eb5487981181627a53a4a50e2341e224b8b796aba866d5872139cb5"
 }
 ```
 
@@ -121909,7 +121916,7 @@ files.release: contextPolicy=none
   "category": "page-method",
   "version": "1.57.1",
   "contextPolicy": "revision",
-  "description": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\"|\"servicesFirst\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；servicesFirst（需 Services 提供 relief.design-fit-brep-1）不在浏览器拟合，只保存临时控制网用于准备，首次完整拟合在 Services 预览时完成，Services 不可用时须改用 fit；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave（可选heightInterpretation:signed默认/engraveDepth，engraveDepth仅限engrave，把高于最低基线的作者高度当作下刻深度，边界与保护区仍为基线）、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。",
+  "description": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\"|\"servicesFirst\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；servicesFirst（需 Services 提供 relief.design-fit-brep-1）不在浏览器拟合，只保存临时控制网用于准备，首次完整拟合在 Services 预览时完成，Services 不可用时须改用 fit；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave（可选heightInterpretation:signed默认/engraveDepth，engraveDepth仅限engrave，把高于最低基线的作者高度当作下刻深度，边界与保护区仍为基线）、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)作为参考误差；deviationPolicy默认candidate，超差或达到迭代上限返回approximation-candidate并带warnings/withinTolerance/converged，可继续预览保存；strict保留严格拒绝。保护与实体有效性不放宽；候选体积复核不一致时quality.status=candidate-volume-unverified、warnings含RELIEF_VOLUME_UNVERIFIED，不启动耗时网格复核，不宣称加工合格；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。",
   "synonyms": [
     "reliefDesignFit",
     "浮雕",
@@ -121920,7 +121927,7 @@ files.release: contextPolicy=none
     "保护",
     "误差"
   ],
-  "inputContract": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\"|\"servicesFirst\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；servicesFirst（需 Services 提供 relief.design-fit-brep-1）不在浏览器拟合，只保存临时控制网用于准备，首次完整拟合在 Services 预览时完成，Services 不可用时须改用 fit；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave（可选heightInterpretation:signed默认/engraveDepth，engraveDepth仅限engrave，把高于最低基线的作者高度当作下刻深度，边界与保护区仍为基线）、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。",
+  "inputContract": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\"|\"servicesFirst\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；servicesFirst（需 Services 提供 relief.design-fit-brep-1）不在浏览器拟合，只保存临时控制网用于准备，首次完整拟合在 Services 预览时完成，Services 不可用时须改用 fit；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave（可选heightInterpretation:signed默认/engraveDepth，engraveDepth仅限engrave，把高于最低基线的作者高度当作下刻深度，边界与保护区仍为基线）、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)作为参考误差；deviationPolicy默认candidate，超差或达到迭代上限返回approximation-candidate并带warnings/withinTolerance/converged，可继续预览保存；strict保留严格拒绝。保护与实体有效性不放宽；候选体积复核不一致时quality.status=candidate-volume-unverified、warnings含RELIEF_VOLUME_UNVERIFIED，不启动耗时网格复核，不宣称加工合格；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。",
   "outputContract": "get读普通JSON控制高度/增量、原掩码、sourceBinding及训练/独立/保护metrics，fit不修改工程。常值保护由所有相交基函数支撑锁定保证；整体偏差sampled-not-global，不是全域制造公差。最低草稿高度是baseline，不因engrave翻转高度；非零场通常仅emboss兼容。改草稿/工程、重解数值场使旧拟合失效；cancel停止拟合并保留已解原场。结果geometryReady:false、brepComputed:false、notCommitted；不返回feature.add参数，不冒称BRep/STEP，不能绕过后续真实支撑面datum/来源/路由预检。禁止自动加密、调误差或删保护追成功。get需cad.read，fit/cancel需cad.edit。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -122005,6 +122012,14 @@ files.release: contextPolicy=none
           "acceptanceToleranceMm"
         ],
         "properties": {
+          "deviationPolicy": {
+            "type": "string",
+            "enum": [
+              "candidate",
+              "strict"
+            ],
+            "default": "candidate"
+          },
           "mode": {
             "type": "string",
             "enum": [
@@ -122140,7 +122155,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:688af4d95f5d733a98dbb218dc0a84f793d81a998b8858e4dad143f7b497a06e"
+  "docsHash": "sha256:f724976c035d5c3e9e1997505d9e5231329cd63c3752183fbb4dbc8689c481ad"
 }
 ```
 
@@ -127284,7 +127299,7 @@ files.release: contextPolicy=none
     "鼠标手柄"
   ],
   "inputContract": "getState({include?,compact?,fields?,sinceRevision?}={}); 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
-  "outputContract": "当前 context、referenceSystem、parameters、parameterValues、view 和 display；kernelPerformance 返回最近成功重建的 totalMs、perFeatureMs、slowest 前10项、compiledReuse 和 compiledInvalidated。view.transform 为 {mode,bodyIds,attached,canDrag,blocker}，读回移动/旋转手柄与当前不可拖原因。不会默认返回导入源字节。",
+  "outputContract": "当前 context、stateSeq、referenceSystem、parameters、parameterValues、view 和 display；stateSeq 在页面实例内递增，覆盖选择/拓扑/工作坐标系/预览/就绪变化；sinceRevision 的 unchanged 只表示几何修订未变。kernelPerformance 返回最近成功重建的 totalMs、perFeatureMs、slowest 前10项、compiledReuse 和 compiledInvalidated。view.transform 为 {mode,bodyIds,attached,canDrag,blocker}，读回移动/旋转手柄与当前不可拖原因。不会默认返回导入源字节。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -127392,7 +127407,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4bfdd7e2b01cdefb653b3394d72b7eda6451051a1e7b2e28f33ce6b2191c9abb"
+  "docsHash": "sha256:d6c9974a19933aa81290a702d227560a43a5f91c8f3bef90eadaabae79f57cef"
 }
 ```
 
@@ -130006,7 +130021,7 @@ files.release: contextPolicy=none
     "状态"
   ],
   "inputContract": "getAgentPanel()",
-  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；phase=agent_offline 表示助手已断开，请在面板重新连接；phase=release_pending 表示本地已解锁但服务端释放待核对。断线保留工程与原命令回执，不自动重放。",
+  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；channelState返回已验证的transport=direct|bridge|unavailable、actualOrigin、syncStatus=confirmed|pending|stopped|unavailable和原因，不把同域名视作同源；刷新连接状态仅读此投影，不刷新工程、不扩大权限。phase=agent_offline 表示助手已断开；release_pending 表示本地已解锁但服务端释放待核对。断线保留工程与原命令回执，不自动重放。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -130028,7 +130043,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1f212706dab8e7870788dec4b1471ca49b951a88cdfd7dd825d6206fe9841c4e"
+  "docsHash": "sha256:84ec0d69995a0c4837fda6a3e0b4e61247eedb0b3350b912a4854a93257ddb13"
 }
 ```
 

@@ -1,0 +1,15 @@
+{
+  "protocol": "goldenluck.webcad.state/1",
+  "schemaVersion": 1,
+  "authority": "current page, CommandService and Worker",
+  "kind": "snapshot",
+  "maxBytes": 524288,
+  "ordering": "stateSeq is monotonic within one page session and includes selection, reference frame, preview and readiness; nullable only for legacy pages",
+  "coverage": "Only listed snapshot fields are present; absent bodies never means an empty document",
+  "send": "Freeze the bounded projection with the message and keep the same packet and idempotency key on retry",
+  "receipt": "Persist the command result independently of an optional stateUpdate; bad optional updates require mirror repair and never replay the command",
+  "transport": "Direct requires verified exact origin, window, path and channel; otherwise retain authenticated postMessage bridge",
+  "subscription": "Await explicit subscribed receipt, subscribe before initial projection, ignore prior generations and unsubscribe on exit",
+  "permissions": "A mirror or a dialogue-only conversation never grants CAD execution; live lease, document identity, revision and scopes remain mandatory",
+  "compatibility": "Only send cadState or stateUpdate when the broker advertises this protocol; legacy external mode remains supported"
+}

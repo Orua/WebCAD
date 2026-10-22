@@ -17,6 +17,15 @@ export function showWorkspaceSettings(action,{openDialog,element,button,state,em
     const page=window.webcad.api,panel=page.getAgentPanel();
     const addressLabel=element('label',{class:'form-field wide'}),address=element('input',{type:'url','aria-label':'Agent 助手页面地址',required:''});address.value=panel.url;address.style.width='100%';addressLabel.append(element('span',{},'Agent 助手页面地址'),address);form.append(addressLabel);
     note('保存助手页面地址后，点击顶栏的立方体 Agent 按钮，助手将接入当前工程；再次点击即可退出并恢复编辑。助手使用已有登录与授权。');
+    const connection=element('dl',{class:'wide','aria-live':'polite'});
+    const readConnection=()=>{
+      const current=page.getAgentPanel(),channel=current.channelState||{},runtime=page.getState({compact:true});
+      connection.replaceChildren();
+      const entries=[['助手来源',channel.actualOrigin||'尚未验证'],['页面通道',({direct:'直接共享',bridge:'本地桥接',unavailable:'不可用'})[channel.transport]||'待检测'],['状态同步',({confirmed:'已确认',pending:'待同步',stopped:'已停止',unavailable:'不可用'})[channel.syncStatus]||'待同步'],['对话服务',current.phase==='agent_offline'?'不可用':channel.conversation?'可用':'待连接'],['CAD 执行',!current.visible?'已主动退出':runtime.summary?.busy?'计算中':current.connected?'可用':'待恢复']];
+      for(const [label,value]of entries)connection.append(element('dt',{},label),element('dd',{},value));
+      if(current.error||channel.syncError)connection.append(element('dd',{},current.error||channel.syncError));
+    };
+    readConnection();const refreshConnection=button('刷新连接状态',readConnection,'secondary');refreshConnection.dataset.commandId='agentPanel';form.append(connection,refreshConnection);
     note('若助手面板显示登录页，请先在新标签打开上方完全相同的地址完成登录，再退出并重新进入 Agent 模式。localhost 与 127.0.0.1 的登录态不通用；顶层已登录不代表嵌入认证通过。仍无法接入时保留当前工程并报告登录状态，不要重复发送作图任务。');
     const saveAddress=button('保存配置',async()=>{if(!address.reportValidity())return;const result=await page.configureAgentPanel({context:page.getState().context,url:address.value.trim()});if(result.status==='failed'){api.showError(result.error);return;}closeDialog();},'primary');saveAddress.dataset.commandId='agentPanel';form.append(saveAddress);
     const guide=element('details',{class:'agent-config-guide wide'});guide.append(element('summary',{},'连接说明与安装'));

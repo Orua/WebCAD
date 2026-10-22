@@ -13,9 +13,9 @@ export function validateAssistantUrl(value,base=location.href){
 export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface=document.body}){
   const defaultUrl=new URL('/AI/WebCAD/WebCADWorkspace.aspx',location.hostname==='127.0.0.1'&&location.port==='17674'?'http://127.0.0.1/':location.href).href;
   let url=defaultUrl,frame=null,channel=null,origin=null,adapter=null,visible=false,collapsed=false,panelToggle=null,phase='closed',error=null,external=null,exitOperation=null;
-  let requestSeq=0,handshakeTimer=null,hostResponded=false;const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
+  let requestSeq=0,handshakeTimer=null,hostResponded=false,channelState={transport:'unavailable',syncStatus:'pending'};const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
   try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)url=validateAssistantUrl(saved);}catch{}
-  const state=()=>{const size=external?.getLayout?.()||layout.get();return {version:1,url,configured:Boolean(url),visible,collapsed:visible&&size.collapsed,expanded:visible&&!size.collapsed,layout:size,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external)};};
+  const state=()=>{const size=external?.getLayout?.()||layout.get();return {version:1,url,configured:Boolean(url),visible,collapsed:visible&&size.collapsed,expanded:visible&&!size.collapsed,layout:size,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external),channelState:{...channelState,configuredOrigin:new URL(url,location.href).origin}};};
   const notify=()=>onChange(state());
   const layout=createPanelLayout({root:surface,visible:()=>visible&&!external,collapsed:()=>collapsed,collapsedSize:()=>isMobileLayout()?0:28,onCollapsed:setCollapsed,onChange:notify,widthProperty:'--agent-panel-width',heightProperty:'--agent-panel-height'});
   function syncPanelToggle(){
@@ -61,7 +61,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
       if(revisionSubscriptions.has(subscriptionId))return {status:'subscribed'};
       if(revisionSubscriptions.size>=16)fail('RESOURCE_LIMIT','修订订阅数量已达上限。');
       const stop=getApi().watchRevision(change=>{if(revisionSubscriptions.has(subscriptionId))post({kind:'revision',subscriptionId,change});},args?.options||{});
-      revisionSubscriptions.set(subscriptionId,stop);return {status:'subscribed'};
+      revisionSubscriptions.set(subscriptionId,stop);return stop.ready?await stop.ready:{status:'subscribed',context:getApi().getState({compact:true}).context};
     }
     if(method==='page.watchRevision.unsubscribe'){
       const subscriptionId=args?.subscriptionId,stop=revisionSubscriptions.get(subscriptionId);
@@ -77,7 +77,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
       return adapter.state();
     }
     if(method.startsWith('adapter.')){const name=method.slice(8),bound=adapters.get(args?.adapterId);if(!bound||!['receive','endTask','release','retryReports','state'].includes(name))fail('AGENT_METHOD_DENIED','助手适配器尚未就绪。');const result=await bound[name](args.payload);if(name==='retryReports'&&bound!==adapter&&!bound.state().pending.length)adapters.delete(args.adapterId);return result;}
-    if(method==='host.state'){if(!visible){setHostState({locked:false,connected:false});return state();}const {agent,...control}=args;phase=agent==='offline'?'agent_offline':args.connected?'connected':'connecting';setHostState(control);return state();}
+    if(method==='host.state'){if(!visible){setHostState({locked:false,connected:false});return state();}const {agent,conversation,channelState:diagnostics,...control}=args;if(diagnostics&&['direct','bridge'].includes(diagnostics.transport)&&diagnostics.actualOrigin===origin)channelState={...diagnostics,conversation:Boolean(conversation),cad:Boolean(args.connected)};phase=agent==='offline'?'agent_offline':args.connected?'connected':'connecting';setHostState(control);return state();}
     if(method==='panel.userExit')return exit();
     if(method==='panel.close'){closeLocal();return state();}
     fail('AGENT_METHOD_DENIED','未知助手接入请求。');
@@ -91,14 +91,14 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     if(data.kind==='request'){try{post({kind:'response',id:data.id,result:await handle(data.method,data.args)});}catch(e){post({kind:'response',id:data.id,error:{code:e.code||'AGENT_PANEL_FAILED',message:e.message}});}}
   });
   function closeLocal(){
-    clearTimeout(handshakeTimer);stopRevisionSubscriptions();adapter?.release();visible=false;phase='closed';error=null;hostControl.set({locked:false,connected:false});surface.classList.remove('has-agent-panel');removePanelToggle();if(frame)frame.hidden=true;notify();
+    clearTimeout(handshakeTimer);stopRevisionSubscriptions();channelState={transport:'unavailable',syncStatus:'stopped'};adapter?.release();visible=false;phase='closed';error=null;hostControl.set({locked:false,connected:false});surface.classList.remove('has-agent-panel');removePanelToggle();if(frame)frame.hidden=true;notify();
   }
   async function exit(){
     if(exitOperation)return exitOperation;
     if(!external&&!hostResponded&&!adapter&&!adapters.size){closeLocal();return {status:'applied',release:null,releasePending:false,...state()};}
     // Revoke local writes and unlock immediately, retain the iframe until the
     // existing broker has reconciled cancel/release and outstanding receipts.
-    clearTimeout(handshakeTimer);stopRevisionSubscriptions();adapter?.release();hostControl.set({locked:false,connected:false});visible=false;surface.classList.remove('has-agent-panel');removePanelToggle();if(frame)frame.hidden=true;phase='releasing';notify();
+    clearTimeout(handshakeTimer);stopRevisionSubscriptions();channelState={transport:'unavailable',syncStatus:'stopped'};adapter?.release();hostControl.set({locked:false,connected:false});visible=false;surface.classList.remove('has-agent-panel');removePanelToggle();if(frame)frame.hidden=true;phase='releasing';notify();
     exitOperation=(async()=>{try{const receipt=external?await external.exit():frame?await request('panel.exit'):null;phase=receipt?.pendingRelease?'release_pending':'closed';return {status:'applied',release:receipt,releasePending:Boolean(receipt?.pendingRelease),...state()};}catch(e){phase='release_pending';error=e.message;return {status:'applied',releasePending:true,...state()};}finally{exitOperation=null;notify();}})();return exitOperation;
   }
   async function enter(){
@@ -109,9 +109,17 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     if(frame){frame.hidden=false;try{await request('panel.connect');}catch(e){phase='error';error=e.message;notify();}return {status:'applied',...state()};}
     hostResponded=false;channel=crypto.randomUUID();origin=new URL(url).origin;
     frame=document.createElement('iframe');frame.id='webcad-agent-assistant-frame';frame.className='agent-assistant-panel';frame.title='CAD Agent 助手';frame.referrerPolicy='strict-origin';panelToggle?.setAttribute('aria-controls',frame.id);
+    frame.addEventListener('load',()=>{stopRevisionSubscriptions();adapter?.release();channelState={transport:'unavailable',syncStatus:'pending'};hostControl.set({locked:false,connected:false});if(visible){phase='connecting';notify();}});
     const target=new URL(url);target.searchParams.set('assistant','1');target.hash=new URLSearchParams({channel,parentOrigin:location.origin}).toString();frame.src=target.href;surface.append(frame);
     handshakeTimer=setTimeout(()=>{if(visible&&phase==='connecting'){phase='error';error='助手尚未接入。若面板显示登录页，请在新标签打开“设置 → Agent 配置”中的同一助手地址完成登录，再退出并重新进入 Agent 模式。localhost 与 127.0.0.1 的登录态不通用；顶层已登录但嵌入仍要求登录时，说明嵌入认证未通过，不要重复发送作图任务。';notify();}},30000);
     return {status:'applied',...state()};
+  }
+  function localChannel(input){
+    if(!visible||!frame||input?.source!==frame.contentWindow||input.channel!==channel||input.origin!==location.origin||origin!==location.origin)fail('AGENT_METHOD_DENIED','当前窗口没有直接通道授权。');
+    const actual=new URL(frame.contentWindow.location.href),configured=new URL(url);
+    if(actual.origin!==location.origin||actual.pathname!==configured.pathname)fail('AGENT_METHOD_DENIED','实际助手页面尚未通过验证。');
+    const expected=channel;
+    return Object.freeze({request(method,args){if(!visible||channel!==expected||input.source!==frame.contentWindow)fail('lease_revoked','原直接通道已释放。');const current=new URL(frame.contentWindow.location.href);if(current.origin!==configured.origin||current.pathname!==configured.pathname)fail('AGENT_METHOD_DENIED','助手页面已发生导航，原直接通道不可复用。');return handle(method,args);}});
   }
   async function insertLocation(marker){
     if(!hostControl.get().connected)fail('AGENT_COMPOSER_UNAVAILABLE','请先连接原生 Agent，再标记位置。');
@@ -119,5 +127,5 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     if(frame&&hostResponded){if(frame.hidden)frame.hidden=false;visible=true;surface.classList.add('has-agent-panel');setCollapsed(false);return request('composer.insertLocation',marker);}
     fail('AGENT_COMPOSER_UNAVAILABLE','AI 输入框尚未连接。');
   }
-  return Object.freeze({get:state,enter,exit,theme,insertLocation,setLayout(input){const result=external?external.setLayout(input):layout.set(input);notify();return {status:'applied',layout:result};},configure(value){if(visible||phase==='releasing'||phase==='release_pending')fail('AGENT_PANEL_ACTIVE','先退出并确认原连接释放，再修改助手地址。');url=validateAssistantUrl(value);frame?.remove();frame=null;try{localStorage.setItem('webcad.assistant-url.v1',url);}catch{return {status:'applied',persisted:false,...state()};}notify();return {status:'applied',persisted:true,...state()};},bindExternal(controller){external=controller;visible=true;phase='connecting';layout.sync();notify();theme();return state();},sync(){theme();layout.sync();notify();}});
+  return Object.freeze({get:state,enter,exit,theme,insertLocation,localChannel,setLayout(input){const result=external?external.setLayout(input):layout.set(input);notify();return {status:'applied',layout:result};},configure(value){if(visible||phase==='releasing'||phase==='release_pending')fail('AGENT_PANEL_ACTIVE','先退出并确认原连接释放，再修改助手地址。');url=validateAssistantUrl(value);frame?.remove();frame=null;try{localStorage.setItem('webcad.assistant-url.v1',url);}catch{return {status:'applied',persisted:false,...state()};}notify();return {status:'applied',persisted:true,...state()};},bindExternal(controller){external=controller;visible=true;phase='connecting';layout.sync();notify();theme();return state();},sync(){theme();layout.sync();notify();}});
 }

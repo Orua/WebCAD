@@ -1,9 +1,9 @@
 {
   "version": "1.57.1",
-  "buildId": "7341e733a73e9ccd02c9b9de2d1ec777793ddb1a-src-1df95178076a2878-working",
+  "buildId": "7341e733a73e9ccd02c9b9de2d1ec777793ddb1a-src-43d4935b6d7dfcf8-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:5575991880db71d694917ad8a76c05a8c28f5108646c2c0455fd09932ba569f9",
-  "docsHash": "sha256:390610337f751be82bf3a0b36d1147b19ccbcaf980b028327cc72e61d0e5afe0",
+  "catalogHash": "sha256:ba93c769291c0125f8b866f29c4d44fdc758c17c43bd99dbad5a29215334b3ef",
+  "docsHash": "sha256:62b616a73e6648a02c3a13d6249051edcc3d7ad31c1113f18e0c90afe96ee7a3",
   "apiMethods": [
     "getMaterials",
     "measureMass",
@@ -659,7 +659,7 @@
       "label": "精确浮雕（矢量/小图）",
       "category": "modification",
       "version": "2.0.0",
-      "docsHash": "sha256:56594d53a4d5bdb579408ab8bbb63365b7a82628332802d4b7d6a52a56467582",
+      "docsHash": "sha256:043ae3603eb5487981181627a53a4a50e2341e224b8b796aba866d5872139cb5",
       "url": "tools/relief.json"
     },
     {
@@ -1394,7 +1394,7 @@
       "title": "reliefDesignFit",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:688af4d95f5d733a98dbb218dc0a84f793d81a998b8858e4dad143f7b497a06e",
+      "docsHash": "sha256:f724976c035d5c3e9e1997505d9e5231329cd63c3752183fbb4dbc8689c481ad",
       "url": "tools/reliefDesignFit.json"
     },
     {
@@ -1714,7 +1714,7 @@
       "title": "getState",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:4bfdd7e2b01cdefb653b3394d72b7eda6451051a1e7b2e28f33ce6b2191c9abb",
+      "docsHash": "sha256:d6c9974a19933aa81290a702d227560a43a5f91c8f3bef90eadaabae79f57cef",
       "url": "tools/getState.json"
     },
     {
@@ -1930,7 +1930,7 @@
       "title": "getAgentPanel",
       "category": "page-method",
       "version": "1.57.1",
-      "docsHash": "sha256:1f212706dab8e7870788dec4b1471ca49b951a88cdfd7dd825d6206fe9841c4e",
+      "docsHash": "sha256:84ec0d69995a0c4837fda6a3e0b4e61247eedb0b3350b912a4854a93257ddb13",
       "url": "tools/getAgentPanel.json"
     },
     {

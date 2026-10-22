@@ -86,7 +86,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
     entry.resultReportPromise=(async()=>{
       try{await report('result',entry.command,{result:entry.result});entry.reported=true;entry.reportError=null;return true;}
       catch(error){entry.reportError={code:error.code||'RESULT_REPORT_FAILED',message:error.message};return false;}
-      finally{entry.resultReportPromise=null;if(endedTasks.has(entry.command.taskId)&&![...commands.values()].some(item=>item.command.taskId===entry.command.taskId&&pending(item)))activeTask=null;archiveFinished();}
+      finally{entry.resultReportPromise=null;if(endedTasks.has(entry.command.taskId)&&![...commands.values()].some(item=>item.command.taskId===entry.command.taskId&&pending(item)))activeTask=null;archiveFinished();onStateChange();}
     })();
     return entry.resultReportPromise;
   }
