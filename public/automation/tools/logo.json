@@ -60,6 +60,14 @@
         "minLength": 12,
         "maxLength": 100
       },
+      "projectionMode": {
+        "type": "string",
+        "description": "singleFace preserves original normal depth; connectedFaces projects onto adjacent front faces and subtracts exact fused cutters; depth measured along inward anchor normal",
+        "enum": [
+          "singleFace",
+          "connectedFaces"
+        ]
+      },
       "mode": {
         "type": "string",
         "description": "Material operation",
@@ -375,8 +383,8 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face.",
-  "title": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. singleFace (default/missing) rejects face boundaries and seams. Explicit projectionMode:connectedFaces requires placementVersion:2, mode:engrave and draftAngle:0. It crosses connected front-facing plane/round/periodic seams with one projection direction (inward normal at point); depth is along that direction, not surface-normal depth. Preserves outline scale/holes; rejects incomplete projection, overlap, grazing/back faces, thin walls, disconnected solids, invalid geometry or stale face. Read getState().bodies[].logoProjectionReport for crossed source face IDs, direction, depth and actual removedVolumeMm3.",
+  "title": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
   "category": "modification",
   "synonyms": [
     "恒深LOGO",
@@ -385,8 +393,8 @@
     "logo",
     "LOGO"
   ],
-  "description": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
-  "schemaHash": "sha256:591c1cb4a4c70b34a8d98ef2fe01a53011a5f40c9ea49180eee1a17fe4ca77bf",
+  "description": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
+  "schemaHash": "sha256:4f33879eb1f75337a54e20f26a7bb56c6d39733f14ca39c49863a5994cfcef2e",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -447,12 +455,13 @@
     }
   ],
   "knownUnsupportedCases": [
-    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. Reject boundary, seam, invalid geometry or stale face."
+    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. singleFace (default/missing) rejects face boundaries and seams. Explicit projectionMode:connectedFaces requires placementVersion:2, mode:engrave and draftAngle:0. It crosses connected front-facing plane/round/periodic seams with one projection direction (inward normal at point); depth is along that direction, not surface-normal depth. Preserves outline scale/holes; rejects incomplete projection, overlap, grazing/back faces, thin walls, disconnected solids, invalid geometry or stale face. Read getState().bodies[].logoProjectionReport for crossed source face IDs, direction, depth and actual removedVolumeMm3."
   ],
   "minimalExample": {
     "op": "logo",
     "params": {
       "placementVersion": 2,
+      "projectionMode": "singleFace",
       "faceId": 0,
       "point": [
         5,
@@ -502,6 +511,7 @@
     "op": "logo",
     "params": {
       "placementVersion": 2,
+      "projectionMode": "singleFace",
       "faceId": 0,
       "point": [
         5,
@@ -551,6 +561,7 @@
     {
       "params": {
         "placementVersion": 2,
+        "projectionMode": "singleFace",
         "faceId": 0,
         "point": [
           5,
@@ -619,9 +630,9 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "contract": {
-    "purpose": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
+    "purpose": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
     "whenToUse": [
-      "明确矢量LOGO或文字，在单个精确面恒定深度凸起或凹刻"
+      "明确矢量LOGO或文字；单面等深凹凸，或跨相连面投影凹刻（深度沿投影方向）"
     ],
     "whenNotToUse": [
       {
@@ -650,7 +661,7 @@
         }
       },
       "placementVersion": {
-        "meaning": "placementVersion: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "meaning": "placementVersion: Reviewed LOGO: single-face normal depth or connected-face directional projection",
         "unit": "none",
         "range": [
           null,
@@ -661,7 +672,7 @@
         }
       },
       "targetSurfaceType": {
-        "meaning": "targetSurfaceType: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "meaning": "targetSurfaceType: Reviewed LOGO: single-face normal depth or connected-face directional projection",
         "unit": "none",
         "range": [
           1,
@@ -694,7 +705,7 @@
         }
       },
       "targetFaceSignature": {
-        "meaning": "targetFaceSignature: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "meaning": "targetFaceSignature: Reviewed LOGO: single-face normal depth or connected-face directional projection",
         "unit": "none",
         "range": [
           12,
@@ -705,11 +716,22 @@
         }
       },
       "targetGeometryFingerprint": {
-        "meaning": "targetGeometryFingerprint: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "meaning": "targetGeometryFingerprint: Reviewed LOGO: single-face normal depth or connected-face directional projection",
         "unit": "none",
         "range": [
           12,
           100
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "projectionMode": {
+        "meaning": "singleFace preserves original normal depth; connectedFaces projects onto adjacent front faces and subtracts exact fused cutters; depth measured along inward anchor normal",
+        "unit": "none",
+        "range": [
+          null,
+          null
         ],
         "default": {
           "behavior": "omitted; retain the operation source default"
@@ -798,7 +820,7 @@
         }
       },
       "regions": {
-        "meaning": "regions: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "meaning": "regions: Reviewed LOGO: single-face normal depth or connected-face directional projection",
         "unit": "none",
         "range": [
           1,
@@ -817,7 +839,7 @@
         }
       },
       "name": {
-        "meaning": "name: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "meaning": "name: Reviewed LOGO: single-face normal depth or connected-face directional projection",
         "unit": "none",
         "range": [
           null,
@@ -828,7 +850,7 @@
         }
       },
       "sizeMm": {
-        "meaning": "sizeMm: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "meaning": "sizeMm: Reviewed LOGO: single-face normal depth or connected-face directional projection",
         "unit": "mm",
         "range": [
           null,
@@ -839,7 +861,7 @@
         }
       },
       "schemaVersion": {
-        "meaning": "schemaVersion: Unified reviewed LOGO on one exact face; legacy entries remain planar",
+        "meaning": "schemaVersion: Reviewed LOGO: single-face normal depth or connected-face directional projection",
         "unit": "none",
         "range": [
           null,
@@ -941,6 +963,7 @@
         "op": "logo",
         "params": {
           "placementVersion": 2,
+          "projectionMode": "singleFace",
           "faceId": 0,
           "point": [
             5,
@@ -990,6 +1013,7 @@
         "op": "logo",
         "params": {
           "placementVersion": 2,
+          "projectionMode": "singleFace",
           "faceId": 0,
           "point": [
             5,
@@ -1039,6 +1063,7 @@
         {
           "params": {
             "placementVersion": 2,
+            "projectionMode": "singleFace",
             "faceId": 0,
             "point": [
               5,
@@ -1096,9 +1121,9 @@
       "src/logo-model.js"
     ]
   },
-  "purpose": "Unified reviewed LOGO on one exact face; legacy entries remain planar",
+  "purpose": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
   "whenToUse": [
-    "明确矢量LOGO或文字，在单个精确面恒定深度凸起或凹刻"
+    "明确矢量LOGO或文字；单面等深凹凸，或跨相连面投影凹刻（深度沿投影方向）"
   ],
   "whenNotToUse": [
     {
@@ -1195,7 +1220,7 @@
   "selectionGuide": {
     "groupId": "relief",
     "groupTitle": "LOGO、矢量浮雕与网格精修",
-    "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。",
+    "chooseWhen": "已审阅矢量LOGO：单面法向等深，或跨相连面投影凹刻；后者depth沿投影方向，保持轮廓、尺寸和孔。",
     "alternatives": [
       {
         "id": "curvedLogo",
@@ -1273,5 +1298,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:7d4f2799a669655e483df11716fb3450e9fbbcf09abf4d7728665fef36f25ed8"
+  "docsHash": "sha256:47c17609735a170ea6a9979e4f080c74c2530469af4dbf63aa8729034fb0121e"
 }

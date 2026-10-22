@@ -9,7 +9,7 @@ const scenarios={
  meshReliefEdit:{when:['对已有STL或网格做有明确支撑和保护区域的局部修高'],avoid:{case:'编辑保存的高度图笔刷配方',use:'meshHeightfieldRelief'},related:['sampleMeshRelief','meshReliefPlate','meshBoolean','files.export']},
  relief:{when:['小图案、分层矢量或外凸圆柱面，需要精确曲面与STEP'],avoid:{case:'百万采样高度图的毛发纹理用于打印',use:'meshHeightfieldRelief'},related:['readRelief','prepareReliefSculpt','reliefShoulder','logo','files.export']},
  reliefShoulder:{when:['已有精确分层浮雕需要层间肩部过渡，并已配置支持此操作的Services'],avoid:{case:'高度图浮雕网格的笔刷平滑',use:'meshHeightfieldRelief'},related:['relief','prepareReliefTopologyUpgrade','files.export']},
- logo:{when:['明确矢量LOGO或文字，在单个精确面恒定深度凸起或凹刻'],avoid:{case:'目标为连续起伏或分层高度',use:'relief'},related:['readVector','relief','files.export']}
+ logo:{when:['明确矢量LOGO或文字；单面等深凹凸，或跨相连面投影凹刻（深度沿投影方向）'],avoid:{case:'目标为连续起伏或分层高度',use:'relief'},related:['readVector','relief','files.export']}
 };
 const errorDetails={
  HEIGHTFIELD_INVALID:['尺寸、采样数量、编码或 heights 字节与 columns×rows 不匹配','核对正尺寸及 columns×rows，并重新提供匹配的u8/u16le高度样本'],
