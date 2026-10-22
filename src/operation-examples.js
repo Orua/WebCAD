@@ -31,7 +31,7 @@ export const operationExamples = {badge:{faceId:0,thicknessMm:2,side:'double',di
   linearPattern: { count: 3, dx: 20 }, circularPattern: { count: 3, angle: 360, axis: 'Z' },
   split: { plane: 'XY', offset: 1 }, extractSolid: { solidIndex: 0 }, group: {}, union: {}, cut: {}, intersect: {},
   quickModel: { kind: 'tube' }, remove: {}, import: {},
-  logo: { placementVersion:2, faceId: 0, point:[5,5,3], mode: 'engrave', depth: 0.2, draftAngle:0, regions, source:{kind:'reviewed-contours',reviewed:true} },
+  logo: { placementVersion:2, projectionMode:'singleFace', faceId: 0, point:[5,5,3], mode: 'engrave', depth: 0.2, draftAngle:0, regions, source:{kind:'reviewed-contours',reviewed:true} },
   vectorProfile: { regions, output: 'solid', height: 2 },
   arcProfile: { outer:[{type:'line',points:[[0,0],[10,0]]},{type:'line',points:[[10,0],[10,5]]},{type:'line',points:[[10,5],[0,5]]},{type:'line',points:[[0,5],[0,0]]}],height:2 },
   curveSweep: { pathType: 'arc', points: [[10, 0, 0], [7.071, 7.071, 0], [0, 10, 0]], radius: 1 },

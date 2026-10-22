@@ -640,7 +640,7 @@
     "alternatives": [
       {
         "id": "logo",
-        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+        "chooseWhen": "已审阅矢量LOGO：单面法向等深，或跨相连面投影凹刻；后者depth沿投影方向，保持轮廓、尺寸和孔。"
       },
       {
         "id": "curvedLogo",
@@ -714,5 +714,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:6a2e2c411ce1f273f96b06e006befde131e51f8aab64d8481eb39e24b5382afd"
+  "docsHash": "sha256:b443cbc15588a6fddc1b66fe2636863476e8e1b5f2c8db3f47f2f07f277d1396"
 }

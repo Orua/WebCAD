@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.57.1 · 操作目录 sha256:3306e95f4f4cea2b12fbe53272d25eb7343470bd7f3b62e3292410db76f439cc
+API 1.57.2 · 操作目录 sha256:bb2fd444f65ab54707e4e078c7730d1d39e51da62ee35586370dead7b4755aa8
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -153,7 +153,7 @@ API 1.57.1 · 操作目录 sha256:3306e95f4f4cea2b12fbe53272d25eb7343470bd7f3b62
 - `intersect` · migrated · Common volume of bodies
 - `linearPattern` · migrated · Linear copies as a compound or explicitly fused solid
 - `loft` · advisory · Ruled loft between parallel XY profiles
-- `logo` · migrated · Unified reviewed LOGO on one exact face; legacy entries remain planar
+- `logo` · migrated · Reviewed LOGO: single-face normal depth or connected-face directional projection
 - `meshBoolean` · migrated · 网格布尔合并 / Mesh boolean
 - `meshHeightfieldRelief` · migrated · 高度图浮雕 / Heightfield relief
 - `meshReliefEdit` · migrated · 网格局部修高 / Local mesh relief height
