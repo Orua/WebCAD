@@ -2,13 +2,13 @@
   "generatedFrom": "src/page-api-docs.js and src/operation-registry.js",
   "metadata": {
     "product": "WebCAD",
-    "buildId": "e57714fba61cb65c4aeb4fd815b12096781d5499-src-b2564f7e992a9470-working",
+    "buildId": "52daa333274ab94678d24609804fe379b46570cc-src-853ff1e655b60f77-working",
     "apiVersion": "2.0",
     "pageApiVersion": "1.57.1",
     "transport": "in-page",
     "entrypoint": "window.webcad.api",
-    "catalogHash": "sha256:b215573e5def92ebbdca1780893995b7d2dce8fd548763f69db56ecbe74c1485",
-    "docsHash": "sha256:34deafc03828515837d472b6820b173807c322906a6e469a4eb69023f078cd17",
+    "catalogHash": "sha256:75755343858844e5a7ae93dc29cd087dc3e05faf9819086ffb7a23f049698b0c",
+    "docsHash": "sha256:d5c014a7751c0f7f396799667cf87984a29e768b149f2a99f89160c6a6b5d83c",
     "discovery": {
       "searchVersion": "2",
       "pageApiVersion": "1.57.1",
@@ -28,8 +28,8 @@
         "file",
         "unavailable"
       ],
-      "catalogHash": "sha256:b215573e5def92ebbdca1780893995b7d2dce8fd548763f69db56ecbe74c1485",
-      "docsHash": "sha256:34deafc03828515837d472b6820b173807c322906a6e469a4eb69023f078cd17",
+      "catalogHash": "sha256:75755343858844e5a7ae93dc29cd087dc3e05faf9819086ffb7a23f049698b0c",
+      "docsHash": "sha256:d5c014a7751c0f7f396799667cf87984a29e768b149f2a99f89160c6a6b5d83c",
       "agentProtocol": {
         "schemaVersion": 1,
         "adapterVersion": 2,
@@ -113893,7 +113893,50 @@
       "category": "page-method",
       "version": "1.57.1",
       "contextPolicy": "revision",
-      "description": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
+      "docs": "api.run",
+      "minimalExample": {
+        "context": {
+          "sessionId": "<live sessionId>",
+          "documentId": "<live documentId>",
+          "documentInstanceId": "<live documentInstanceId>",
+          "expectedRevision": 0
+        },
+        "idempotencyKey": "<fresh unique key>",
+        "steps": [
+          {
+            "id": "ring",
+            "method": "add",
+            "args": {
+              "op": "torus",
+              "params": {
+                "majorRadius": 15,
+                "minorRadius": 2.5
+              }
+            }
+          },
+          {
+            "id": "size",
+            "method": "measure",
+            "args": {
+              "bodyId": {
+                "$ref": "ring.createdBodyIds.0"
+              }
+            }
+          }
+        ]
+      },
+      "exampleInstructions": "替换完整 context 为本页最新 requestContext，幂等键为本次新请求生成；不要沿用示例 revision=0。先读取 torus/measure 完整卡。世界坐标、局部坐标及 relative/absolute 以对应工具卡和 placement 为准；居中实体不能假定从0开始，先读真实 bounds/center。",
+      "executeExample": {
+        "id": "rename",
+        "method": "execute",
+        "args": {
+          "action": "document.rename",
+          "args": {
+            "name": "示例工程"
+          }
+        }
+      },
+      "description": "run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:\"api.run\"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。addMany 的原子计划见 api.feature-plan。",
       "synonyms": [
         "run",
         "批量",
@@ -113902,7 +113945,7 @@
         "指令",
         "无CLI"
       ],
-      "inputContract": "run({context,idempotencyKey,steps}); see readDocs({docId:\"api.run\"}); addMany for one atomic feature plan: api.feature-plan.",
+      "inputContract": "run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:\"api.run\"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。addMany 的原子计划见 api.feature-plan。",
       "outputContract": "completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false。后续操作前核对实时状态。",
       "implementationStatus": "implemented",
       "contractStatus": "page-method",
@@ -113966,7 +114009,7 @@
         ],
         "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
       },
-      "docsHash": "sha256:1922a8f94acc01eb20c85fbdb52e2533d3efd4847d50ea23d0f1cdc4eb3baaf0"
+      "docsHash": "sha256:ccd64804f4646e8c1822af8f32dcea2dd3aa02e30a830169c4f7a24860634424"
     },
     {
       "id": "document.materials",

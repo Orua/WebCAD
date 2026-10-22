@@ -2,6 +2,25 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createPageBatch} from '../src/page-batch.js';
 import {createPageJobs} from '../src/page-jobs.js';
+import {getTool} from '../src/page-api-docs.js';
+
+test('published run example uses valid add, measure refs and execute nesting',async()=>{
+  const f=fixture(),card=getTool({id:'run'}),example=structuredClone(card.minimalExample);
+  example.context=f.request().context;example.idempotencyKey='documented-run';
+  assert.equal(card.docs,'api.run');assert.match(card.inputContract,/唯一 id/);
+  assert.match(card.inputContract,/不接受 opVersion\/schemaHash/);
+  assert.equal((await f.run(example)).status,'completed');
+  const next=f.request();next.steps=[card.executeExample];next.idempotencyKey='documented-execute';
+  assert.equal((await f.run(next)).status,'completed');
+});
+
+test('run.add rejects execute-only contract fields without committing geometry',async()=>{
+ for(const field of ['opVersion','schemaHash']){
+  const f=fixture(),request=f.request();request.steps[0].args[field]='wrong-place';
+  const result=await f.run(request);
+  assert.equal(result.status,'failed');assert.equal(result.error.code,'PARAM_SCHEMA_INVALID');assert.equal(f.count,0);
+ }
+});
 
 test('new receipt keys cannot repeat a known failed mutation at unchanged geometry',async()=>{
   const f=fixture(),req=f.request();req.steps=[{id:'bad',stage:'收边',method:'add',args:{op:'round',params:{bad:true}}}];
