@@ -39,10 +39,15 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   function stopRevisionSubscriptions(){for(const stop of revisionSubscriptions.values())try{stop();}catch{}revisionSubscriptions.clear();}
   function request(method,args){
     const id='page-'+(++requestSeq);
-    const timeout=method==='adapter.artifact'?900000:35000;
+    const timeout=['adapter.artifact','project.artifactReady'].includes(method)?900000:35000;
     return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{pending.delete(id);reject(Object.assign(new Error('助手响应超时；原请求结果尚未确定，请查询原任务或重传已有回执。'),{code:'AGENT_PANEL_TIMEOUT',status:'unknown',commitState:'unknown',requestId:id}));},timeout);pending.set(id,{resolve,reject,timer});try{post({kind:'request',id,method,args});}catch(e){clearTimeout(timer);pending.delete(id);reject(e);}});
   }
   function theme(){const tokens=workspaceThemeTokens(getApi().getState().displayPreferences?.themeColor);post({kind:'theme',tokens});external?.setTheme?.(tokens);}
+  window.addEventListener('webcad:artifact-ready',event=>{
+    if(!visible||!event.detail?.resourceId)return;
+    const operation=external?.stageArtifact?external.stageArtifact(event.detail):frame?request('project.artifactReady',event.detail):null;
+    Promise.resolve(operation).catch(error=>{post({kind:'project-storage-error',code:error.code||'PROJECT_STORE_FAILED',message:error.message});});
+  });
   function setHostState(patch){hostControl.set(patch);notify();}
   async function handle(method,args){
     if(method==='page.invoke'){

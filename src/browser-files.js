@@ -103,6 +103,10 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       expiresAt: Date.now() + TTL_MS, ...(context ? { context: Object.freeze({ ...context }) } : {}) });
     resources.set(resourceId, { ...descriptor, blob, kind, saveSnapshot });
     usedBytes += blob.size;
+    // Metadata-only signal. The bound native host reads/transfers bytes itself;
+    // the model never needs to echo a vector, image or project payload.
+    if (typeof window !== 'undefined' && typeof CustomEvent !== 'undefined')
+      window.dispatchEvent(new CustomEvent('webcad:artifact-ready', {detail:descriptor}));
     return descriptor;
   }
   async function run(context, action, args = {}) {
