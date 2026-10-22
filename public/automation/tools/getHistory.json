@@ -2,7 +2,7 @@
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.57.1",
+  "version": "1.57.2",
   "contextPolicy": "none",
   "description": "getHistory()。会话最多20状态/512KiB，磁盘新保存文件不保留timeline。",
   "synonyms": [
@@ -64,5 +64,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d1314e744f355ae1ab865eda9eddb481be8fe4532cce7bfc36a3a8230a23b3da"
+  "docsHash": "sha256:dcdc0d829dc3a9ae3803337ed83e86a444e1afe23d90b12816429b765bc3a6c1"
 }

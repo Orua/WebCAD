@@ -1,5 +1,14 @@
 {
   "version": 1,
+  "agentFloatingToggle20261023": {
+    "localImpact": "Collapsed Agent canvas toggle: draggable, click/keyboard reopen, thinking/working/idle/offline feedback; preserve task and control lease. Hide bottom-right standard views and anchor controls per user screenshot; menu/API retained",
+    "servicesImpact": "Companion workspace reports transient thinking state and collapse sync; no Services or Native binary/compute change",
+    "logoImpact": "None: source Logo and worker unchanged",
+    "contractImpact": "Add layout.floatingPosition and getAgentPanel.floating; page API1.57.2; existing host control booleans unchanged",
+    "documentImpact": "Transient view state only; no geometry, revision, history or saved-project changes",
+    "cacheImpact": "Regenerate page docs, tool cards, routes and host workspace script/CSS cache version",
+    "requiredTests": ["Drag threshold and click suppression; bounds and cancelled pointer", "Existing assistant lifecycle and host lock", "17674 collapse/drag/reopen and activity states"]
+  },
   "nativeStateSync20261022": {
     "localImpact": "Page-owned event-driven stateSeq and read-only state projection; confirmed direct or authenticated bridge transport",
     "servicesImpact": "No Services geometry or binary change; companion CodexAgent task and receipt transport changes are required for state/1",

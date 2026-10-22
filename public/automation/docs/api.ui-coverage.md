@@ -2,6 +2,14 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "agentPanelFloating": {
+    "tools": [
+      "getAgentPanel",
+      "setAgentPanel"
+    ],
+    "method": "setAgentPanel",
+    "usage": "折叠显示可拖动AG状态浮标；setAgentPanel({context,layout:{collapsed:false}})展开，layout.floatingPosition:{xPx,yPx}按画布CSS像素移位；getAgentPanel().floating读回实际位置及活动状态。拖动不触发展开，不取消任务，不修改工程。"
+  },
   "markLocation": {
     "tools": [
       "markLocation"

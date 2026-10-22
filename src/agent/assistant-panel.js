@@ -1,6 +1,7 @@
 import {createHostAdapter} from './host-adapter.js';
 import {workspaceThemeTokens} from '../ui/config/theme-colors.js';
 import {createPanelLayout,isMobileLayout} from './panel-layout.js';
+import {createFloatingToggle,validateFloatingPosition} from './floating-toggle.js';
 
 const PROTOCOL='webcad.assistant-panel/1';
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
@@ -13,11 +14,21 @@ export function validateAssistantUrl(value,base=location.href){
 export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface=document.body}){
   const defaultUrl=new URL('/AI/WebCAD/WebCADWorkspace.aspx',location.hostname==='127.0.0.1'&&location.port==='17674'?'http://127.0.0.1/':location.href).href;
   let url=defaultUrl,frame=null,channel=null,origin=null,adapter=null,visible=false,collapsed=false,panelToggle=null,phase='closed',error=null,external=null,exitOperation=null;
-  let requestSeq=0,handshakeTimer=null,hostResponded=false,channelState={transport:'unavailable',syncStatus:'pending'};const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
+  let requestSeq=0,handshakeTimer=null,hostResponded=false,activity='idle',floating=null,channelState={transport:'unavailable',syncStatus:'pending'};const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
   try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)url=validateAssistantUrl(saved);}catch{}
   const state=()=>{const size=external?.getLayout?.()||layout.get();return {version:1,url,configured:Boolean(url),visible,collapsed:visible&&size.collapsed,expanded:visible&&!size.collapsed,layout:size,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external),channelState:{...channelState,configuredOrigin:new URL(url,location.href).origin}};};
-  const notify=()=>onChange(state());
-  const layout=createPanelLayout({root:surface,visible:()=>visible&&!external,collapsed:()=>collapsed,collapsedSize:()=>isMobileLayout()?0:28,onCollapsed:setCollapsed,onChange:notify,widthProperty:'--agent-panel-width',heightProperty:'--agent-panel-height'});
+  const notify=()=>{syncFloating();onChange({...state(),floating:floating?.get()||{visible:false,activity:'idle',position:null}});};
+  const layout=createPanelLayout({root:surface,visible:()=>visible&&!external,collapsed:()=>collapsed,collapsedSize:()=>0,onCollapsed:setCollapsed,onChange:notify,widthProperty:'--agent-panel-width',heightProperty:'--agent-panel-height'});
+  function ensureFloating(){
+    const root=surface.querySelector?.('.canvas-panel');
+    if(!floating&&root)floating=createFloatingToggle({root,onOpen:()=>{external?external.setLayout({collapsed:false}):layout.set({collapsed:false});notify();},onMove:()=>notify()});
+  }
+  function syncFloating(){
+    const size=external?.getLayout?.()||{collapsed};
+    if(visible&&size.collapsed)ensureFloating();
+    const current=external?.getActivity?.()||activity;
+    floating?.sync({visible:visible&&size.collapsed,activity:phase==='agent_offline'||external?.agentState?.()==='offline'?'offline':hostControl.get().locked?'working':current==='thinking'?'thinking':phase==='connecting'&&!hostControl.get().connected?'connecting':'idle'});
+  }
   function syncPanelToggle(){
     if(!panelToggle)return;
     const header=isMobileLayout()?surface.querySelector?.('.app-header .header-actions'):null;
@@ -27,7 +38,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     if(frame)panelToggle.setAttribute('aria-controls',frame.id);
     panelToggle.innerHTML=collapsed?'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4v16M10 8l-4 4 4 4"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 4v16M14 8l4 4-4 4"/></svg>';
   }
-  window.addEventListener('resize',syncPanelToggle);
+  window.addEventListener('resize',()=>{syncPanelToggle();syncFloating();});
   function setCollapsed(value){collapsed=Boolean(value);surface.classList.toggle('agent-panel-collapsed',collapsed);syncPanelToggle();layout.sync();notify();}
   function ensurePanelToggle(){
     if(panelToggle)return;
@@ -77,7 +88,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
       return adapter.state();
     }
     if(method.startsWith('adapter.')){const name=method.slice(8),bound=adapters.get(args?.adapterId);if(!bound||!['receive','endTask','release','retryReports','state'].includes(name))fail('AGENT_METHOD_DENIED','助手适配器尚未就绪。');const result=await bound[name](args.payload);if(name==='retryReports'&&bound!==adapter&&!bound.state().pending.length)adapters.delete(args.adapterId);return result;}
-    if(method==='host.state'){if(!visible){setHostState({locked:false,connected:false});return state();}const {agent,conversation,channelState:diagnostics,...control}=args;if(diagnostics&&['direct','bridge'].includes(diagnostics.transport)&&diagnostics.actualOrigin===origin)channelState={...diagnostics,conversation:Boolean(conversation),cad:Boolean(args.connected)};phase=agent==='offline'?'agent_offline':args.connected?'connected':'connecting';setHostState(control);return state();}
+    if(method==='host.state'){if(!visible){setHostState({locked:false,connected:false});return state();}const {agent,conversation,activity:nextActivity,channelState:diagnostics,...control}=args;activity=nextActivity==='thinking'?'thinking':'idle';if(diagnostics&&['direct','bridge'].includes(diagnostics.transport)&&diagnostics.actualOrigin===origin)channelState={...diagnostics,conversation:Boolean(conversation),cad:Boolean(args.connected)};phase=agent==='offline'?'agent_offline':args.connected?'connected':'connecting';setHostState(control);return state();}
     if(method==='panel.userExit')return exit();
     if(method==='panel.close'){closeLocal();return state();}
     fail('AGENT_METHOD_DENIED','未知助手接入请求。');
@@ -127,5 +138,5 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     if(frame&&hostResponded){if(frame.hidden)frame.hidden=false;visible=true;surface.classList.add('has-agent-panel');setCollapsed(false);return request('composer.insertLocation',marker);}
     fail('AGENT_COMPOSER_UNAVAILABLE','AI 输入框尚未连接。');
   }
-  return Object.freeze({get:state,enter,exit,theme,insertLocation,localChannel,setLayout(input){const result=external?external.setLayout(input):layout.set(input);notify();return {status:'applied',layout:result};},configure(value){if(visible||phase==='releasing'||phase==='release_pending')fail('AGENT_PANEL_ACTIVE','先退出并确认原连接释放，再修改助手地址。');url=validateAssistantUrl(value);frame?.remove();frame=null;try{localStorage.setItem('webcad.assistant-url.v1',url);}catch{return {status:'applied',persisted:false,...state()};}notify();return {status:'applied',persisted:true,...state()};},bindExternal(controller){external=controller;visible=true;phase='connecting';layout.sync();notify();theme();return state();},sync(){theme();layout.sync();notify();}});
+  return Object.freeze({get:()=>({...state(),floating:floating?.get()||{visible:false,activity:'idle',position:null}}),enter,exit,theme,insertLocation,localChannel,setLayout(input){if(!input||typeof input!=='object'||Array.isArray(input))fail('PARAM_SCHEMA_INVALID','无效的助手布局字段');const {floatingPosition,...size}=input;if(floatingPosition!==undefined)validateFloatingPosition(floatingPosition);const result=external?external.setLayout(size):layout.set(size);syncFloating();if(floatingPosition!==undefined){ensureFloating();floating?.setPosition(floatingPosition);}notify();return {status:'applied',layout:result,floating:floating?.get()};},configure(value){if(visible||phase==='releasing'||phase==='release_pending')fail('AGENT_PANEL_ACTIVE','先退出并确认原连接释放，再修改助手地址。');url=validateAssistantUrl(value);frame?.remove();frame=null;try{localStorage.setItem('webcad.assistant-url.v1',url);}catch{return {status:'applied',persisted:false,...state()};}notify();return {status:'applied',persisted:true,...state()};},bindExternal(controller){external=controller;visible=true;phase='connecting';layout.sync();notify();theme();return state();},sync(){theme();layout.sync();notify();}});
 }

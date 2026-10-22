@@ -33,3 +33,26 @@ body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed{grid-template-r
 body.has-agent-panel[data-cad-mobile=true] .app-header .agent-panel-toggle{position:static;inset:auto;transform:none;flex:0 0 30px;width:30px;height:30px;min-height:30px;padding:0;border:0;border-radius:4px;box-shadow:none;background:transparent;color:var(--accent)}
 body.has-agent-panel[data-cad-mobile=true] .app-header .agent-panel-toggle:hover{background:var(--accent-soft)}
 body.has-agent-panel[data-cad-mobile=true] .app-header .agent-panel-toggle svg{width:18px;height:18px;stroke-width:1.6}
+/* The collapsed conversation returns its space to the canvas. */
+body.has-agent-panel.agent-panel-collapsed[data-cad-mobile=false]{grid-template-columns:minmax(0,1fr) 0}
+body.has-agent-panel.agent-panel-collapsed[data-cad-mobile=true]{grid-template-rows:minmax(0,1fr) 0}
+body.has-agent-panel.agent-panel-collapsed .agent-panel-toggle{display:none}
+.agent-floating-toggle{position:absolute;left:0;top:0;z-index:12;display:flex;align-items:center;gap:10px;width:136px;height:56px;padding:9px 12px;border:0;border-radius:14px;background:var(--ui-surface,#fff);color:var(--ui-text,#263e4d);box-shadow:0 4px 16px #162a3b26;cursor:grab;touch-action:none;user-select:none;text-align:left}
+.agent-floating-toggle:hover{background:var(--accent-soft,#e4f2f1)}
+.agent-floating-toggle.is-dragging{cursor:grabbing}
+.agent-floating-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.agent-floating-mark{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--accent);flex:none}
+.agent-floating-mark svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.agent-floating-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.agent-floating-copy strong{font-size:13px;line-height:16px;font-weight:650}
+.agent-floating-status{font-size:11px;line-height:15px}
+.agent-floating-dots{display:flex;gap:3px;height:4px}
+.agent-floating-dots i{width:3px;height:3px;border-radius:50%;background:currentColor;opacity:.45}
+.agent-floating-toggle:is([data-activity=thinking],[data-activity=connecting]) .agent-floating-dots i{animation:agent-thought 1.2s ease-in-out infinite}
+.agent-floating-dots i:nth-child(2){animation-delay:.16s!important}
+.agent-floating-dots i:nth-child(3){animation-delay:.32s!important}
+.agent-floating-toggle[data-activity=working] .agent-floating-mark svg{animation:agent-working 1.6s ease-in-out infinite}
+.agent-floating-toggle[data-activity=offline] .agent-floating-mark{color:#b91c1c}
+@keyframes agent-thought{0%,70%,100%{transform:translateY(0);opacity:.4}35%{transform:translateY(-3px);opacity:1}}
+@keyframes agent-working{0%,100%{opacity:.5}50%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.agent-floating-toggle .agent-floating-dots i,.agent-floating-toggle .agent-floating-mark svg{animation:none!important;opacity:1}}
