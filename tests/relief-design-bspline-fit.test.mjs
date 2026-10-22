@@ -83,3 +83,17 @@ test('bounded iterations, total work and cancellation never return a partial suc
  const allFixed=fixture();allFixed.field.fixedMask.fill(1);allFixed.field.heightsMm.fill(.35);
  const baseline=fitMaskedReliefBSpline(allFixed);assert.ok(Math.abs(sampleMaskedReliefBSpline(baseline,.713,-.37)-.35)<1e-12);
 });
+
+
+test('candidate policy retains over-tolerance and iteration-limited fits with truthful warnings',()=>{
+ const o={...fixture(),acceptanceToleranceMm:1e-6,deviationPolicy:'candidate'},fit=fitMaskedReliefBSpline(o);
+ assert.equal(fit.report.status,'approximation-candidate');assert.equal(fit.report.withinTolerance,false);assert.ok(fit.report.warnings.includes('FIT_DEVIATION'));
+ assert.ok(fit.controlDeltasMm.some(v=>v>0));assert.ok(fit.report.metrics.protection.maxMm<1e-12);
+ const limited=fitMaskedReliefBSpline({...o,maxIterations:1,toleranceMm:1e-14});assert.equal(limited.report.converged,false);assert.ok(limited.report.warnings.includes('FIT_NOT_CONVERGED'));
+ const invalid={...o,mode:'engrave'};assert.throws(()=>fitMaskedReliefBSpline(invalid),{code:'FIT_DIRECTION_CONFLICT'});
+});
+
+test('server control sampling accepts 129 poles without expanding local solving capacity',()=>{
+ const fit={kind:'webcad-masked-baseline-bspline-v1',columns:129,rows:129,widthMm:20,heightMm:20,controlHeightsMm:new Float64Array(129*129).fill(.25)};
+ assert.ok(Math.abs(sampleMaskedReliefBSpline(fit,0,0)-.25)<1e-12);
+});

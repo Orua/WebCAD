@@ -71,7 +71,7 @@ export const RELIEF_SERVICES_OPERATIONS=Object.freeze({
  sourceConvert:{operation:'reliefSourceConvert',semanticVersion:'relief.source-convert-1',strategy:'rgba-area-average'}
 });
 export function designFitWorkerParams({draft,solved,fitOptions,placement,faceIntent}){
- const prepared=prepareFitInput(draft,solved,fitOptions),{field,domain,baselineMm,maxControlPoints,maxWork,...fit}=prepared.input; // server applies its own work budget
+ const prepared=prepareFitInput(draft,solved,fitOptions,{maxControlSide:129}),{field,domain,baselineMm,maxControlPoints,maxWork,...fit}=prepared.input; // server applies its own work budget
  if(!placement||!Array.isArray(placement.originMm)||!Array.isArray(placement.xDirection))fail('RELIEF_DESIGN_PLACEMENT_REQUIRED','请明确给出图案中心和X方向');
  if(!faceIntent||faceIntent.kind!=='planar-face-geometric-intent')fail('RELIEF_DESIGN_TARGET_REQUIRED','需要平面选面意图（point+normal）');
  const params={field:{...field,heightsMm:Array.from(field.heightsMm),active:Array.from(field.active),fixedMask:Array.from(field.fixedMask)},domain,baselineMm,fit,placement:{originMm:[...placement.originMm],xDirection:[...placement.xDirection]}};
@@ -86,6 +86,7 @@ export function designFitWorkerParams({draft,solved,fitOptions,placement,faceInt
 import {sampleMaskedReliefBSpline} from '../relief-design-core/masked-bspline-fit.mjs';
 export function controlDeltasSha256(deltas){const f=Float64Array.from(deltas);return rawHash(new Uint8Array(f.buffer)).slice(7);}
 export function verifyServicesFit(params,report){
+ if(params?.quality)return verifyServicesQualityFit(params,report); // adaptive full-resolution net: verified against the browser-built target
  const r=report?.reliefDesign?.fit;if(!r)fail('SERVICES_RESPONSE_INVALID','Services 结果缺少拟合数据');
  // Binary controls survive .NET Framework JSON floating-point parse/serialization exactly.
  // Keep the numeric array for legacy clients; verify and sample the authoritative f64le payload.
@@ -103,7 +104,7 @@ export function verifyServicesFit(params,report){
  const f=params.field,sign=params.fit.mode==='emboss'?1:-1,fit={kind:'webcad-masked-baseline-bspline-v1',columns:r.columns,rows:r.rows,widthMm:r.widthMm,heightMm:r.heightMm,controlHeightsMm:deltas.map(d=>params.baselineMm+d)};
  let maxMm=0;const step=Math.max(1,Math.floor(f.columns/33));
  for(let j=0;j<f.rows;j+=step)for(let i=0;i<f.columns;i+=step){const k=j*f.columns+i;if(!f.active[k])continue;const x=(i/(f.columns-1)-.5)*f.widthMm,y=(j/(f.rows-1)-.5)*f.heightMm;maxMm=Math.max(maxMm,Math.abs(sampleMaskedReliefBSpline(fit,x,y)-f.heightsMm[k]));}
- if(maxMm>params.fit.acceptanceToleranceMm+1e-9)fail('SERVICES_RESPONSE_INVALID',`Services 拟合复核偏差 ${maxMm.toFixed(4)} mm 超过容差`);
+ if(params.fit.deviationPolicy!=='candidate'&&maxMm>params.fit.acceptanceToleranceMm+1e-9)fail('SERVICES_RESPONSE_INVALID',`Services 拟合复核偏差 ${maxMm.toFixed(4)} mm 超过容差`);
  return {verified:true,controlDeltasSha256:r.controlDeltasSha256,resampledMaxMm:maxMm,sign};
 }
 // relief.source-convert-1 worker params (raw RGBA8 asset + normalized settings + optional mm precision).
@@ -140,14 +141,14 @@ export function faceIntentPoint(binding){
  return o.map((c,a)=>c+best.u*x[a]+best.v*y[a]);
 }
 export function servicesControlResolution(fieldSide,browserControls=0){return Math.min(129,fieldSide,Math.max(4,browserControls,Math.ceil((fieldSide+1)/2)));}
-export function reliefDesignServicesPlan(document,feature){
+function legacyReliefDesignServicesPlan(document,feature){
  const b=feature?.params?.designBinding;if(!b)fail('RELIEF_DESIGN_BINDING_INVALID','缺少拟合绑定');
  const entry=(document.reliefDesigns||[]).find(d=>d.id===b.audit?.designId);
  if(!entry)fail('RELIEF_DESIGN_STALE','拟合绑定引用的设计草稿不存在；请重新拟合');
  const draft=validateReliefDesign(entry.draft);if(recipeHash(draft)!==b.audit.draftFingerprint)fail('RELIEF_DESIGN_STALE','设计草稿已修改，拟合绑定失效；请重新求解并拟合');
  const solved=solveReliefDesign(draft),f=solved.field,first=b.audit.servicesFirstFit,n=first?Math.min(129,f.columns,f.rows):servicesControlResolution(Math.min(f.columns,f.rows),Math.max(b.controls.columns??0,b.controls.rows??0)),range=draft.heightRangeMm[1]-draft.heightRangeMm[0];
  const precision=draft.fieldSettings?.machiningPrecisionMm??RELIEF_PRECISION_LIMITS.defaultMm;
- const fitOptions={mode:b.controls.mode,controlColumns:n,controlRows:n,controlMaxMm:Math.min(20,Math.abs(range)),acceptanceToleranceMm:Math.min(20,first?Math.max(.1,2*precision,first.acceptanceToleranceMm):Math.max(.1,2*precision,Math.ceil(1.05*Math.max(b.audit.metrics?.trainingMaxMm??0,b.audit.metrics?.independentMaxMm??0)*100)/100)),maxIterations:50000};
+ const fitOptions={deviationPolicy:b.audit.deviationPolicy??'strict',mode:b.controls.mode,controlColumns:n,controlRows:n,controlMaxMm:Math.min(20,Math.abs(range)),acceptanceToleranceMm:Math.min(20,first?Math.max(.1,2*precision,first.acceptanceToleranceMm):Math.max(.1,2*precision,Math.ceil(1.05*Math.max(b.audit.metrics?.trainingMaxMm??0,b.audit.metrics?.independentMaxMm??0)*100)/100)),maxIterations:50000};
  const {params}=designFitWorkerParams({draft,solved,fitOptions,placement:b.placement,faceIntent:{kind:'planar-face-geometric-intent',point:faceIntentPoint(b),normal:[...b.support.normal]}});
  return {semanticVersion:RELIEF_SERVICES_OPERATIONS.designFitBrep.semanticVersion,paramsFingerprint:recipeHash(feature.params),params,faceIntent:params.faceIntent,controls:n,field:{columns:f.columns,rows:f.rows}};
 }
@@ -179,3 +180,53 @@ export async function convertSourceOnServices({rgba,params,context,imageSha256,c
  return {grid,precision:done.result.precision??null,jobId:job.jobId,timings:done.manifest?.timings??null};
 }
 function contractHashOf(v){return recipeHash(v).replace(/^sha256:/,'');}
+
+// ---- relief quality mode (fit.quality v1) ----
+// Image reliefs fit on Services from the full-resolution height source (not the ≤129 authored field): the native core
+// builds a precision-filtered target at an adaptive physical pitch and picks the control spacing from the physical
+// size and the machining precision (see relief_quality.hxx). Drafts with authored points or local edits keep the
+// legacy field fit, because those edits only exist on the authored field.
+import {decodeQualitySource,buildQualityTarget,finestControlSpacing,evaluateQualitySurface,RELIEF_QUALITY_LIMITS} from '../relief-design-core/quality-target.mjs';
+export const RELIEF_QUALITY_DEFAULTS=Object.freeze({mode:'adaptive',maxControlSide:RELIEF_QUALITY_LIMITS.maxControlSide});
+export function reliefQualityParams(draft){
+ const d=validateReliefDesign(draft),q={...RELIEF_QUALITY_DEFAULTS,...d.fieldSettings?.servicesQuality},h=d.heightSource;
+ if(q.mode==='off'||!h||d.points.length||d.fieldSettings?.edits?.length)return null;
+ const g=h.source.grid,p=d.fieldSettings?.machiningPrecisionMm??RELIEF_PRECISION_LIMITS.defaultMm;
+ return {version:1,machiningPrecisionMm:p,maxControlSide:q.maxControlSide,source:{columns:g.columns,rows:g.rows,encoding:g.encoding??'u16le',data:g.data,sha256:g.sha256},depthMm:h.depthMm,edgeKeepoutMm:h.edgeKeepoutMm??0,edgeFadeMm:h.edgeFadeMm??0};
+}
+export function reliefDesignServicesPlan(document,feature){
+ const plan=legacyReliefDesignServicesPlan(document,feature),entry=(document.reliefDesigns||[]).find(d=>d.id===feature.params.designBinding.audit?.designId);
+ const quality=reliefQualityParams(entry.draft);if(!quality)return plan;
+ Object.defineProperty(plan.params,'quality',{value:quality,enumerable:true});
+ return {...plan,quality:{mode:'adaptive',machiningPrecisionMm:quality.machiningPrecisionMm,maxControlSide:quality.maxControlSide,source:[quality.source.columns,quality.source.rows]}};
+}
+// Independent browser re-verification: hash + locked zeros + the returned surface, sampled on a sub-grid of the
+// target the browser builds itself from the same source, must agree with the server's reported training deviation.
+export function verifyServicesQualityFit(params,report){
+ const r=report?.reliefDesign?.fit,q=params.quality,L=RELIEF_QUALITY_LIMITS;if(!r)fail('SERVICES_RESPONSE_INVALID','Services 结果缺少拟合数据');
+ if(!Number.isInteger(r.columns)||!Number.isInteger(r.rows)||r.columns<4||r.rows<4||r.columns>Math.min(L.maxControlSide,q.maxControlSide??L.maxControlSide)||r.rows>Math.min(L.maxControlSide,q.maxControlSide??L.maxControlSide))fail('SERVICES_RESPONSE_INVALID','Services 自适应控制网尺寸无效');
+ if(r.widthMm!==params.field.widthMm||r.heightMm!==params.field.heightMm)fail('SERVICES_RESPONSE_INVALID','Services 拟合尺寸与请求不符');
+ const n=r.columns*r.rows;let bytes;try{bytes=Uint8Array.from(atob(r.controlDeltasF64LE??''),c=>c.charCodeAt(0));}catch{fail('SERVICES_RESPONSE_INVALID','Services 控制网格二进制编码无效');}
+ if(bytes.length!==n*8)fail('SERVICES_RESPONSE_INVALID','Services 控制网格二进制长度无效');
+ const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength),deltas=Float64Array.from({length:n},(_,i)=>view.getFloat64(i*8,true));
+ if(deltas.some(v=>!Number.isFinite(v)))fail('SERVICES_RESPONSE_INVALID','Services 控制网格数值无效');
+ if(controlDeltasSha256(deltas)!==r.controlDeltasSha256)fail('SERVICES_RESPONSE_INVALID','Services 拟合控制哈希与数据不符');
+ if(!Array.isArray(r.lockedControlMask)||r.lockedControlMask.length!==n)fail('SERVICES_RESPONSE_INVALID','Services 锁定掩码无效');
+ r.lockedControlMask.forEach((l,k)=>{if(l&&deltas[k]!==0)fail('SERVICES_RESPONSE_INVALID','Services 锁定控制点不为零');});
+ const sign=params.fit.mode==='emboss'?1:-1;if(deltas.some(v=>v*sign< -1e-12))fail('SERVICES_RESPONSE_INVALID','Services 控制点方向与模式不符');
+ let verificationMaxSide=q.maxControlSide;
+ const retry=report.reliefDesign.qualityCapacityRetry;
+ if(retry){
+  if(retry.fromMaxControlSide!==q.maxControlSide||retry.toMaxControlSide!==513||q.maxControlSide<=513||!['RELIEF_DESIGN_NO_CHANGE','RELIEF_QUALITY_CHECK_FAILED'].includes(retry.reason)||r.columns>513||r.rows>513)
+   fail('SERVICES_RESPONSE_INVALID','Services 控制网容量重试记录与请求不符');
+  verificationMaxSide=513;
+ }
+ const W=params.field.widthMm,H=params.field.heightMm,source=decodeQualitySource(q),spacing=finestControlSpacing({widthMm:W,heightMm:H,source,precisionMm:q.machiningPrecisionMm,maxControlSide:verificationMaxSide});
+ const t=buildQualityTarget({source,domain:params.domain,widthMm:W,heightMm:H,baselineMm:params.baselineMm,upperMm:params.baselineMm+Math.max(params.fit.controlMaxMm??q.depthMm,q.depthMm),precisionMm:q.machiningPrecisionMm,controlSpacingMm:spacing});
+ const stride=Math.max(1,Math.floor(Math.sqrt(t.C*t.R/40000))),ci=[],ri=[];for(let i=0;i<t.C;i+=stride)ci.push(i);for(let j=0;j<t.R;j+=stride)ri.push(j);
+ const z=evaluateQualitySurface(deltas,r.columns,r.rows,W,H,ci.map(i=>i*t.pitchX-W/2),ri.map(j=>j*t.pitchY-H/2));let maxMm=0;
+ ri.forEach((j,b)=>ci.forEach((i,a)=>{const k=j*t.C+i;if(t.active[k])maxMm=Math.max(maxMm,Math.abs(params.baselineMm+z[b*ci.length+a]-t.h[k]));}));
+ const reported=r.report?.metrics?.training?.maxMm;if(!Number.isFinite(reported)||maxMm>reported+1e-6)fail('SERVICES_RESPONSE_INVALID',`Services 质量拟合复核偏差 ${maxMm.toFixed(4)} mm 大于服务器报告值`);
+ if(params.fit.deviationPolicy==='strict'&&maxMm>params.fit.acceptanceToleranceMm+1e-9)fail('SERVICES_RESPONSE_INVALID',`Services 拟合复核偏差 ${maxMm.toFixed(4)} mm 超过容差`);
+ return {verified:true,mode:'quality',controlDeltasSha256:r.controlDeltasSha256,resampledMaxMm:maxMm,checkedSamples:ri.length*ci.length,controls:[r.columns,r.rows],sign};
+}

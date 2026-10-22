@@ -114,7 +114,13 @@ int main(int argc,char** argv) {
      result=webcad::deform::run(input,params,request.at("operation"),before.at("volumeMm3").get<double>(),deformReport);
      stages.push_back({{"stage","nurbs-control-point-map"},{"kind",params.at("kind")}});
     }else if(reliefDesign){
-     const auto designed=webcad::relief_design::build(input,params,before.at("volumeMm3").get<double>(),[&](const char* name){stage=name;progress();});
+     // Quality mode: OCCT volume measurement (GProp/mesh) is unreliable on some >513-pole faces; on a kernel
+     // check failure retry once at the proven 513 capacity and report it (never silently).
+     const auto designed=[&]{namespace rd=webcad::relief_design;json qp=rd::quality::withQuality(params);const double bv=before.at("volumeMm3").get<double>();auto onStage=[&](const char* name){stage=name;progress();};
+      try{return rd::build(input,qp,bv,onStage);}catch(const rd::Failure& e){
+       const bool q=qp.contains("fit")&&qp["fit"].contains("quality");const int side=q?qp["fit"]["quality"].value("maxControlSide",1025):0;
+       if(!q||side<=513||(e.code!="RELIEF_DESIGN_NO_CHANGE"&&e.code!="RELIEF_QUALITY_CHECK_FAILED"))throw;
+       qp["fit"]["quality"]["maxControlSide"]=513;auto r=rd::build(input,qp,bv,onStage);r.report["qualityCapacityRetry"]={{"fromMaxControlSide",side},{"toMaxControlSide",513},{"reason",e.code}};return r;}}();
      result=designed.shape;reliefDesignReport=designed.report;
      stages.push_back({{"stage","fit-masked-bspline"},{"ms",designed.report.at("timingsMs").at("fit")}});stages.push_back({{"stage","replace-face-exact-trim"},{"trim",designed.report.at("trim")}});
     }else if(booleanCut)result=runBooleanCut(input,params,stages,stage,progress);

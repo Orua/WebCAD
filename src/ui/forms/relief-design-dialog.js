@@ -30,6 +30,10 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  const low=numeric('最低高度 mm',-100,100),high=numeric('最高高度 mm',-100,100);
  const resolution=numeric('数值场每轴采样（9–129）',9,129,advancedForm);resolution.value=33;
  const precision=numeric('加工精度 mm（0.01–0.5，小于此值的起伏、噪声和台阶被平滑）',.01,.5,advancedForm);precision.value=.05;
+ // Services 高精度拟合: image reliefs fit from the full-resolution height source with an adaptive control net
+ // (spacing chosen from size and machining precision); authored points/local edits keep the field fit.
+ const qualityMode=field('服务器高精度拟合（图像浮雕）',element('select',{'data-relief-quality-mode':'true'}),advancedForm);for(const [value,label]of [['adaptive','自适应控制网（默认）'],['off','关闭（沿用数值场拟合）']])qualityMode.append(element('option',{value},label));
+ const qualitySide=numeric('高精度最大控制网边长（16–1025）',16,1025,advancedForm);qualitySide.step='1';qualitySide.value=1025;
  const base=numeric('网格底厚 mm',.001,100,advancedForm);base.value=1;
  function section(title,hint,rows=4){
   const wrap=element('details',{}),summary=element('summary',{},title),help=element('p',{class:'property-footnote'},hint);
@@ -46,7 +50,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  referencePanel.append(referenceSummary,referenceInfo,referencePreview,referenceButtons);
  // Imported height map: undefined = keep the loaded draft's, null = remove, object = replace.
  let pendingHeight;
- const heightPanel=createReliefHeightPanel({element,button,field,getPrecision:()=>{const v=Number(precision.value);return v>=.01&&v<=.5?v:.05;},getCurrent:()=>pendingHeight===undefined?loaded?.draft.heightSource:pendingHeight,onApply:value=>{pendingHeight=value;name.dispatchEvent(new Event('input',{bubbles:true}));}});
+ const heightPanel=createReliefHeightPanel({element,button,field,getSizeMm:()=>{const w=Number(width.value),h=kind.value==='circle'?w:Number(height.value);return w>0&&h>0?[w,h]:null;},getPrecision:()=>{const v=Number(precision.value);return v>=.01&&v<=.5?v:.05;},getCurrent:()=>pendingHeight===undefined?loaded?.draft.heightSource:pendingHeight,onApply:value=>{pendingHeight=value;name.dispatchEvent(new Event('input',{bubbles:true}));}});
  scroller.append(heightPanel.panel);
  const points=section('高度点','每行：X Y 高度（mm），用空格或逗号分隔。点必须避开孔和保护区。');points.wrap.open=true;
  const holes=section('贯穿孔','每行：圆 X Y 半径，或 矩形 X Y 宽 高（mm）。留空表示没有孔。',3);
@@ -64,7 +68,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  const editSave=button('加入并保存当前修改',()=>saveEdit(false),'primary'),editRemove=button('移除此笔并保存',()=>saveEdit(true),'secondary'),editNew=button('放弃本笔输入 / 新笔',()=>{resetEditEditor();status.textContent='仅重置笔画输入；其他未保存设计修改仍保留。';try{draw(read());}catch{ /* Preserve invalid form input for correction. */ }},'secondary');
  editButtons.append(editNew,editRemove,editSave);editsPanel.append(editsSummary,editsHint,editList,editForm,editButtons);advanced.append(editsPanel);
  const fitPanel=element('details',{}),fitSummary=element('summary',{},'数值 B 样条拟合');
- const fitHint=element('p',{class:'property-footnote'},'先将草稿和笔画保存到工程，再求解当前数值场。以下为明确起值，失败不会自动增加控制点或放宽误差；拟合不生成 BRep，也不代表可加工。');
+ const fitHint=element('p',{class:'property-footnote'},'先将草稿和笔画保存到工程，再求解当前数值场。默认交付近似候选，超过采样误差仅提示，不拒绝生成。边界保护和实体有效性仍会检查；拟合不代表加工验收。');
  const fitForm=element('div',{});fitForm.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));gap:8px 12px';
  const fitMode=field('拟合模式',element('select',{'aria-label':'拟合模式'}),fitForm);for(const [value,label]of [['emboss','凸起（基准以上）'],['engrave','凹刻（基准以下）'],['engraveDepth','凹刻（设计高度=下刻深度）']])fitMode.append(element('option',{value},label));fitMode.value='emboss';
  const advancedFit=element('div',{});advancedFit.style.cssText=fitForm.style.cssText;advanced.append(element('p',{class:'property-footnote'},'拟合控制点与误差'),advancedFit);
@@ -131,7 +135,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  function syncFitControls(){brep?.sync();fitStart.disabled=busy||dirty||editInputsDirty||!loaded||!fieldResult;fitStop.disabled=!fitRunning;}
  function showFitReport(result){
   const report=result.fit?.report||result.error?.details?.metrics&&{metrics:result.error.details.metrics},metric=(label,m)=>m?`${label}：最大 ${m.maxMm} mm，RMS ${m.rmsMm} mm（${m.count} 点）`:'';
-  const lines=[metric('训练采样',report?.metrics?.training),metric('独立采样',report?.metrics?.independent),metric('保护采样',report?.metrics?.protection)].filter(Boolean);
+  const lines=[...(report?.status==='approximation-candidate'?['已生成近似候选：偏差或收敛未达参考值，可继续生成并保存；请检查实际效果。']:[]),metric('训练采样',report?.metrics?.training),metric('独立采样',report?.metrics?.independent),metric('保护采样',report?.metrics?.protection)].filter(Boolean);
   if(report?.controlPoints!==undefined)lines.push(`锁定控制点 ${report.lockedControlPoints} / ${report.controlPoints}；投影残差 ${report.projectedResidualMm} mm。`);
   if(report?.protectionCertificate)lines.push(`保护证据：相交基函数支撑锁定到基准；固定单元 ${report.protectionCertificate.fixedCellCount}，检查舍入界 ${report.protectionCertificate.roundoffCheckMm} mm。`);
   const pr=result.fit?.precision;if(pr)lines.push(`加工精度 ${pr.machiningPrecisionMm} mm：独立采样最大偏差 ${(+pr.independentMaxMm).toFixed(3)} mm，${pr.withinPrecision?'在精度内':'超过精度——小于精度的细节已在数值场中平滑，建议接受误差不大于加工精度'}。`);
@@ -193,7 +197,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
    const [x,y,z]=fields.map(Number);return {id:loaded?.draft.points[i]?.id||'point-'+(i+1),pointMm:[x,y],heightMm:z};
   });
   const heightSource=pendingHeight===undefined?loaded?.draft.heightSource:pendingHeight;
-  return validateReliefDesign({...(loaded?.draft.reference?{reference:loaded.draft.reference}:{}),...(heightSource?{heightSource}:{}),schemaVersion:1,name:name.value,support,throughHoles:regions(holes.area),protectedZones:regions(zones.area),heightRangeMm:[number(low),number(high)],points:authored,fieldSettings:{...loaded?.draft.fieldSettings,columns:number(resolution),machiningPrecisionMm:number(precision),rows:resolutionTouched?number(resolution):(loaded?.draft.fieldSettings?.rows??number(resolution))}});
+  return validateReliefDesign({...(loaded?.draft.reference?{reference:loaded.draft.reference}:{}),...(heightSource?{heightSource}:{}),schemaVersion:1,name:name.value,support,throughHoles:regions(holes.area),protectedZones:regions(zones.area),heightRangeMm:[number(low),number(high)],points:authored,fieldSettings:{...loaded?.draft.fieldSettings,columns:number(resolution),machiningPrecisionMm:number(precision),servicesQuality:{mode:qualityMode.value,maxControlSide:Math.round(number(qualitySide))},rows:resolutionTouched?number(resolution):(loaded?.draft.fieldSettings?.rows??number(resolution))}});
  }
  function draw(draft){
   const ctx=canvas.getContext('2d');ctx.clearRect(0,0,640,240);
@@ -210,7 +214,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
   loaded=entry?structuredClone(entry):null;
   const draft=entry?.draft||{name:'新设计草稿',support:{kind:'circle',centerMm:[0,0],radiusMm:30},heightRangeMm:[0,3],throughHoles:[],protectedZones:[],points:[]},s=draft.support;
   name.value=draft.name;kind.value=s.kind;cx.value=s.centerMm[0];cy.value=s.centerMm[1];width.value=s.kind==='circle'?s.radiusMm*2:s.widthMm;height.value=s.kind==='rect'?s.heightMm:s.radiusMm*2;
-  low.value=draft.heightRangeMm[0];high.value=draft.heightRangeMm[1];resolution.value=draft.fieldSettings?.columns??33;precision.value=draft.fieldSettings?.machiningPrecisionMm??.05;points.area.value=draft.points.map(p=>[...p.pointMm,p.heightMm].join(' ')).join('\n');
+  low.value=draft.heightRangeMm[0];high.value=draft.heightRangeMm[1];resolution.value=draft.fieldSettings?.columns??33;precision.value=draft.fieldSettings?.machiningPrecisionMm??.05;qualityMode.value=draft.fieldSettings?.servicesQuality?.mode??'adaptive';qualitySide.value=draft.fieldSettings?.servicesQuality?.maxControlSide??513;points.area.value=draft.points.map(p=>[...p.pointMm,p.heightMm].join(' ')).join('\n');
   holes.area.value=regionText(draft.throughHoles);zones.area.value=regionText(draft.protectedZones);height.disabled=kind.value==='circle';
   selector.replaceChildren(element('option',{value:''},'未保存的新草稿'));
   for(const item of initial.document.reliefDesigns||[])selector.append(element('option',{value:item.id},item.draft.name+' · r'+item.revision));

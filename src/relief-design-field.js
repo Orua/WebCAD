@@ -10,7 +10,7 @@ export function solveReliefDesign(draft,options={}){
  draft=validateReliefDesign(draft);
  if(!options||typeof options!=='object'||Array.isArray(options))fail('PARAM_SCHEMA_INVALID','options must be an object');
  options={...draft.fieldSettings,...options};
- for(const k of Object.keys(options))if(!['columns','rows','smoothWeight','maxIterations','toleranceMm','edits','machiningPrecisionMm'].includes(k))fail('PARAM_SCHEMA_INVALID','Unknown field option: '+k);
+ for(const k of Object.keys(options))if(!['columns','rows','smoothWeight','maxIterations','toleranceMm','edits','machiningPrecisionMm','servicesQuality'].includes(k))fail('PARAM_SCHEMA_INVALID','Unknown field option: '+k);
  const columns=options.columns??33,rows=options.rows??33;
  if(![columns,rows].every(v=>Number.isInteger(v)&&v>=9&&v<=129))fail('FIELD_CAPACITY','columns/rows must be integers 9–129');
  if(options.maxIterations!==undefined&&(!Number.isInteger(options.maxIterations)||options.maxIterations<1||options.maxIterations>20000))fail('FIELD_CAPACITY','maxIterations must be 1–20000');

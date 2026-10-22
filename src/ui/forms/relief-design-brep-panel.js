@@ -25,7 +25,7 @@ export function createReliefBrepPanel({element,button,request,isBusy,setBusy,get
  // Preview routes: the host's UI path (fromUI) when provided, so the open design dialog is not an "active task" blocker.
  const route=async(action,args)=>{if(runPreview)return runPreview(action,args);return api().execute({context:api().getState().requestContext,idempotencyKey:crypto.randomUUID(),action,args});};
  const panel=element('details',{});panel.style.cssText='margin-top:12px;border:1px solid var(--border);padding:8px';
- panel.append(element('summary',{},'生成精确浮雕（B样条 BRep）'));
+ panel.append(element('summary',{},'生成浮雕实体（B样条 BRep）'));
  // Placement/baseline/evidence inputs are not design edits: keep them from marking the draft dirty.
  for(const type of ['input','change'])panel.addEventListener(type,event=>event.stopPropagation());
  const hint=element('p',{class:'property-footnote'},'在模型上选中一个真实平面后点“读取当前选面”。图案中心、X方向和基线须明确确认；先预览，再应用或取消。');
@@ -70,7 +70,7 @@ export function createReliefBrepPanel({element,button,request,isBusy,setBusy,get
  async function startPreview(){
   if(!prepared)return;setBusy(true);sync();info.textContent='正在计算精确浮雕预览…';
   try{const r=await route('preview.start',prepared.previewArgs);
-   if(r.status!=='previewing')throw Object.assign(new Error(r.error?.message||'预览未生成'),{code:r.error?.code});preview=r.preview??{};info.textContent='预览已生成：请检查后“应用”提交，或“取消预览”保留原工程。';}
+   if(r.status!=='previewing')throw Object.assign(new Error(r.error?.message||'预览未生成'),{code:r.error?.code});preview=r.preview??{};info.textContent='浮雕候选已生成：拟合超差不会拒绝，请查看实际效果后“应用”并保存，或“取消预览”。BRep 实体有效不等于图案细节完全一致；候选的体积一致性也可能未核实，质量指标随 Services 报告返回。';}
   catch(error){preview=null;info.textContent=humanError(error);}finally{setBusy(false);sync();}
  }
  const identity=()=>preview?.previewId?{previewId:preview.previewId,expectedGeneration:preview.generation}:{};

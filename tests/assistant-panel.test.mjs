@@ -11,7 +11,7 @@ function createAssistantPanel(options){
   options.surface.style={setProperty(){}};options.surface.dataset={};
   options.surface.getBoundingClientRect=()=>({width:1200,height:800});
   const create=globalThis.document.createElement;
-  globalThis.document.createElement=tag=>Object.assign(create(tag),{style:{}});
+  globalThis.document.createElement=tag=>Object.assign(create(tag),{style:{},addEventListener(){},removeEventListener(){}});
   const previous=globalThis.ResizeObserver;
   globalThis.ResizeObserver=class{observe(){}disconnect(){}};
   try{return createRealAssistantPanel(options);}

@@ -71,8 +71,10 @@ function finish(m){return {count:m.count,maxMm:m.maxMm,rmsMm:m.count?Math.sqrt(m
  * an executable relief params fragment: baseline/support binding is still needed.
  */
 export function fitMaskedReliefBSpline(options){
- keys(options,['field','domain','baselineMm','controlColumns','controlRows','mode','maxControlPoints','controlMaxMm','maxIterations','maxWork','toleranceMm','acceptanceToleranceMm','shouldCancel'],'options');
+ keys(options,['field','domain','baselineMm','controlColumns','controlRows','mode','maxControlPoints','controlMaxMm','maxIterations','maxWork','toleranceMm','acceptanceToleranceMm','deviationPolicy','shouldCancel'],'options');
  if(options.shouldCancel!==undefined&&typeof options.shouldCancel!=='function')fail('FIT_INPUT_INVALID','shouldCancel must be a function');
+ const deviationPolicy=options.deviationPolicy??'strict';if(!['strict','candidate'].includes(deviationPolicy))fail('FIT_INPUT_INVALID','Unknown deviationPolicy');
+ const candidate=deviationPolicy==='candidate';
  const work=budget(options);work.charge(1);
  const f=options.field;keys(f,['columns','rows','widthMm','heightMm','heightsMm','active','fixedMask'],'field');
  const columns=integer(f.columns,'field.columns',2,LIMIT.side),rows=integer(f.rows,'field.rows',2,LIMIT.side),count=columns*rows;
@@ -137,7 +139,7 @@ export function fitMaskedReliefBSpline(options){
  for(let k=0;k<n;k++)if(columnSum[k]===0)locked[k]=1;
  const free=n-locked.reduce((s,v)=>s+v,0);
  if(!free&&maximum>0)fail('FIT_NO_FREEDOM','Protection leaves no free observed control poles',{controlPoints:n,lockedControlPoints:n,retry:'none'});
- for(const s of samples)if(s.target>acceptance&&s.ids.every((k,i)=>locked[k]||s.weights[i]===0)){const spacing=Math.max(widthMm/Math.max(1,nx-3),heightMm/Math.max(1,ny-3));fail('FIT_CONSTRAINT_CONFLICT','Requested relief lies entirely in locked basis support',{xMm:s.x,yMm:s.y,controlSpacingMm:spacing,suggestedMarginMm:2*spacing,retry:'none'});}
+ for(const s of samples)if(!candidate&&s.target>acceptance&&s.ids.every((k,i)=>locked[k]||s.weights[i]===0)){const spacing=Math.max(widthMm/Math.max(1,nx-3),heightMm/Math.max(1,ny-3));fail('FIT_CONSTRAINT_CONFLICT','Requested relief lies entirely in locked basis support',{xMm:s.x,yMm:s.y,controlSpacingMm:spacing,suggestedMarginMm:2*spacing,retry:'none'});}
  const L=Math.max(1,...columnSum),project=(v,k)=>locked[k]?0:Math.max(0,Math.min(envelope,v));
  const gradient=values=>{
   work.charge(samples.length*32+n);
@@ -153,7 +155,7 @@ export function fitMaskedReliefBSpline(options){
   const m=(1+Math.sqrt(1+4*momentum*momentum))/2;
   accelerated=Float64Array.from(next,(v,k)=>v+(momentum-1)/m*(v-c[k]));c=next;momentum=m;
  }
- if(residual>tolerance)fail('FIT_NOT_CONVERGED','Projected residual did not converge',{iterations,projectedResidualMm:residual,estimatedWork:work.work,retry:'none'});
+ if(!candidate&&residual>tolerance)fail('FIT_NOT_CONVERGED','Projected residual did not converge',{iterations,projectedResidualMm:residual,estimatedWork:work.work,retry:'none'});
  const deltas=Float64Array.from(c,v=>v*sign),poles=Float64Array.from(deltas,v=>baselineMm+v),training=metric(),independent=metric(),protection=metric();
  const xCache=new Map(xs.map((x,i)=>[x,bx[i]])),yCache=new Map(ys.map((y,j)=>[y,by[j]]));
  const axis=(cache,n,x,span)=>{if(!cache.has(x))cache.set(x,atPhysical(n,x,span,work));return cache.get(x);};
@@ -183,10 +185,11 @@ export function fitMaskedReliefBSpline(options){
  }
  const metrics={training:finish(training),independent:finish(independent),protection:finish(protection)},protectionRoundoffMm=1e-10*Math.max(1,Math.abs(baselineMm));
  if(protection.maxMm>protectionRoundoffMm)fail('FIT_PROTECTION_FAILED','Independent protection samples do not retain baseline',{metrics,retry:'none'});
- if(Math.max(training.maxMm,independent.maxMm)>acceptance)fail('FIT_DEVIATION','Fit exceeds explicitly accepted sampled deviation',{metrics,acceptanceToleranceMm:acceptance,deviationKind:'sampled-not-global',retry:'none'});
+ const withinTolerance=Math.max(training.maxMm,independent.maxMm)<=acceptance,converged=residual<=tolerance;
+ if(!candidate&&!withinTolerance)fail('FIT_DEVIATION','Fit exceeds explicitly accepted sampled deviation',{metrics,acceptanceToleranceMm:acceptance,deviationKind:'sampled-not-global',retry:'none'});
  return {kind:'webcad-masked-baseline-bspline-v1',columns:nx,rows:ny,widthMm,heightMm,baselineMm,mode:options.mode,controlHeightsMm:poles,controlDeltasMm:deltas,
   domain:{support,throughHoles,protectedZones},sourceMasks:{active,fixedMask:fixed},lockedControlMask:locked,
-  report:{status:'numerically-accepted',method:'masked-bounded-accelerated-projected-gradient',iterations,projectedResidualMm:residual,solverToleranceMm:tolerance,estimatedWork:work.work,maxWork:work.max,
+  report:{status:withinTolerance&&converged?'numerically-accepted':'approximation-candidate',deviationPolicy,withinTolerance,converged,warnings:[...(!withinTolerance?['FIT_DEVIATION']:[]),...(!converged?['FIT_NOT_CONVERGED']:[])],method:'masked-bounded-accelerated-projected-gradient',iterations,projectedResidualMm:residual,solverToleranceMm:tolerance,estimatedWork:work.work,maxWork:work.max,
    controlPoints:n,freeControlPoints:free,lockedControlPoints:n-free,controlEnvelopeDeltaMm:options.mode==='emboss'?[0,envelope]:[-envelope,0],acceptanceToleranceMm:acceptance,metrics,
    protectionCertificate:{kind:'all-intersecting-basis-supports-locked-to-constant-baseline',continuousDomains:['declared-support-boundary','declared-hole-boundaries','declared-protected-zones','fully-fixed-authored-cells'],fixedCellCount,fixedNodeGuarantee:'baseline-at-active-fixed-nodes',roundoffCheckMm:protectionRoundoffMm},
    deviationKind:'sampled-not-global',reference:'bilinear-authored-field-on-fully-active-cells',automaticResize:false,brepComputed:false,commitState:'notCommitted',needsGeometryValidation:true,routePreflightRequired:true,
@@ -195,7 +198,7 @@ export function fitMaskedReliefBSpline(options){
 
 export function sampleMaskedReliefBSpline(fit,xMm,yMm){
  if(fit?.kind!=='webcad-masked-baseline-bspline-v1')fail('FIT_INPUT_INVALID','Expected a masked baseline numerical fit');
- integer(fit.columns,'fit.columns',4,LIMIT.controlSide);integer(fit.rows,'fit.rows',4,LIMIT.controlSide);
+ integer(fit.columns,'fit.columns',4,129);integer(fit.rows,'fit.rows',4,129);
  positive(fit.widthMm,'fit.widthMm',1000);positive(fit.heightMm,'fit.heightMm',1000);
  if(!array(fit.controlHeightsMm)||fit.controlHeightsMm.length!==fit.columns*fit.rows)fail('FIT_INPUT_INVALID','Invalid fitted controls');
  for(const value of fit.controlHeightsMm)finite(value,'control height');

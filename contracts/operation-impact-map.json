@@ -16,6 +16,19 @@
       "113 recorded simple-task timing spot check after explicit candidate installation approval"
     ]
   },
+  "reliefServicesControlCapacity20261022": {
+    "localImpact": "Browser fitting retains the 65 control-side limit; Services request preparation accepts the advertised 129 limit",
+    "servicesImpact": "Use existing relief.design-fit-brep-1 Native 129-control support; no backend binary change",
+    "logoImpact": "None: no Logo operations changed",
+    "contractImpact": "No public argument or semantic version change; repair internal Services plan validation",
+    "documentImpact": "Preserve authored height field, dimensions, baseline and tolerance",
+    "cacheImpact": "Rebuild frontend with unchanged public tool signatures",
+    "requiredTests": [
+      "Services 129 plan accepted and browser 129 rejected",
+      "Existing relief fit tests",
+      "Original tiger heightmap on 17674"
+    ]
+  },
   "iconsAndViewportCapture20261022": {
     "localImpact": "Distinct fixed-R versus fillet and render versus precision icons; viewport capture composites visible P labels and returns dimensions",
     "servicesImpact": "None: existing native Agent webcad_view capture forwards the page dataUrl as MCP image and persists the attachment; no service or host binary change",
@@ -23,7 +36,11 @@
     "contractImpact": "Page API1.57.1 capture arguments unchanged, dimensions added; clarify PNG/WebP and actual screenshot route",
     "documentImpact": "No geometry/history/dirty changes",
     "cacheImpact": "Rebuild knowledge, frontend and matching runtime contract",
-    "requiredTests": ["Unique menu function icons", "Capture revision/frame checks and API dispatch", "17674 real capture bytes and dimensions"]
+    "requiredTests": [
+      "Unique menu function icons",
+      "Capture revision/frame checks and API dispatch",
+      "17674 real capture bytes and dimensions"
+    ]
   },
   "materialDensity20261022": {
     "localImpact": "Configurable reference densities and default/body materials, property estimate, exact-volume measureMass; inherit source material after geometry operations",
@@ -32,7 +49,12 @@
     "contractImpact": "Page API1.57.0 getMaterials/measureMass/document.materials; helper, scopes, job/batch dispatcher and generated cards updated",
     "documentImpact": "Persist version1 materialSettings in legacy/current and final-state projects, bounded validated values; reversible project updates; browser cookie default for new documents",
     "cacheImpact": "Rebuild finite knowledge and runtime contract; host re-handshake required",
-    "requiredTests": ["Unit conversion, null volume and validation", "Material inheritance/final-save pruning", "API/Agent contract dispatch", "17674 settings and 1cm3 mass check"]
+    "requiredTests": [
+      "Unit conversion, null volume and validation",
+      "Material inheritance/final-save pruning",
+      "API/Agent contract dispatch",
+      "17674 settings and 1cm3 mass check"
+    ]
   },
   "agentComposerCompact20261022": {
     "localImpact": "Viewport P labels and short composer location tokens; temporary marker data expands on send only. CADAgent attachments and replies use scoped compact styling",
@@ -41,9 +63,13 @@
     "contractImpact": "Page API1.56.1 marker text token and tooltip; point/revision binding unchanged; host resolves referenced tokens and rejects stale positions",
     "documentImpact": "Markers are transient, never geometry/history/dirty; session data discarded after accepted send",
     "cacheImpact": "Rebuild knowledge; host cache version20261022-compact1 and location2",
-    "requiredTests": ["Location hit/no-hit and send resolution/staleness", "Bounded attachment display names", "One17674 visual/API pass; host login may be required"]
+    "requiredTests": [
+      "Location hit/no-hit and send resolution/staleness",
+      "Bounded attachment display names",
+      "One17674 visual/API pass; host login may be required"
+    ]
   },
-"finalStateSave20261022": {
+  "finalStateSave20261022": {
     "documentImpact": "No disk modelling recipe/timeline; preserve ids/visibility/appearance/anchors; session recipes unchanged",
     "contractImpact": "Page API 1.56.0 files.save final-state semantics; legacy formats remain readable",
     "cacheImpact": "Rebuild API discovery and static knowledge",
@@ -63,7 +89,11 @@
     "contractImpact": "Page API 1.55.7 markLocation screen/active/state with explicit no-hit and active-task errors; UI route and Agent view method registered",
     "documentImpact": "Transient marker, no geometry/history/dirty change; user draft preserved, never automatically sent",
     "cacheImpact": "Rebuild frontend knowledge and bump workspace script cache version; both local integrations required",
-    "requiredTests": ["Visible mesh point, clipped/empty pick, context/parameter validation", "Draft append/dedup/no-send and stale binding", "One 17674 tool/API/double-click pass with composer readback"]
+    "requiredTests": [
+      "Visible mesh point, clipped/empty pick, context/parameter validation",
+      "Draft append/dedup/no-send and stale binding",
+      "One 17674 tool/API/double-click pass with composer readback"
+    ]
   },
   "clearSelectionAfterRendering20261021": {
     "localImpact": "Body and document appearance clear all body/topology selection for both UI and API origins so highlight does not mask the material",
@@ -72,7 +102,10 @@
     "contractImpact": "Align API with the existing api.interaction selection-clearing contract; arguments and errors unchanged",
     "documentImpact": "Geometry and appearance history semantics unchanged; selection is transient",
     "cacheImpact": "Rebuild frontend and matching static build identity",
-    "requiredTests": ["Selection feedback and agent geometry selection preservation", "One 17674 UI/API appearance pass with previously selected bodies"]
+    "requiredTests": [
+      "Selection feedback and agent geometry selection preservation",
+      "One 17674 UI/API appearance pass with previously selected bodies"
+    ]
   },
   "deeper24kPlating20261021": {
     "localImpact": "Deepen polished 24K gold linear RGB and reduce its body tint; keep roughness/reflection strength and other finishes unchanged",
@@ -81,7 +114,10 @@
     "contractImpact": "Existing 24k-gold key and appearance operations unchanged",
     "documentImpact": "Existing 24K finish references use corrected colour; no geometry/history migration",
     "cacheImpact": "Rebuild matching frontend assets and static identity",
-    "requiredTests": ["Material and selection checks", "One 17674 shallow-gold versus deeper 24K comparison"]
+    "requiredTests": [
+      "Material and selection checks",
+      "One 17674 shallow-gold versus deeper 24K comparison"
+    ]
   },
   "hdrPlatingBrightness20261021": {
     "localImpact": "Raise standard HDR reflection intensity from 1 to 1.2; slightly lighten antique-brass base RGB while preserving roughness and patina",
@@ -90,7 +126,11 @@
     "contractImpact": "Existing environmentIntensity range unchanged; document the new standard value",
     "documentImpact": "Preserve finish keys, geometry and history; only untouched old display presets migrate",
     "cacheImpact": "Rebuild matching frontend assets and static documentation",
-    "requiredTests": ["Material and selection tests", "Default and cookie checks", "One same-camera six-colour HDR comparison"]
+    "requiredTests": [
+      "Material and selection tests",
+      "Default and cookie checks",
+      "One same-camera six-colour HDR comparison"
+    ]
   },
   "restoreHdrMetalDefault20261021": {
     "localImpact": "All metal presets default to the existing HDR reflection path; migrate only untouched former studio defaults and retain custom display preferences",
@@ -99,7 +139,12 @@
     "contractImpact": "Same environmentMode and finish keys; update display default documentation and knowledge hashes",
     "documentImpact": "Preserve body and project finish assignments, geometry and history",
     "cacheImpact": "One frontend build with regenerated static discovery",
-    "requiredTests": ["All metal presets use HDR by default", "Cookie migration preserves custom settings", "Targeted material and selection tests", "One 17674 pass comparing plating colours on the same samples and camera"]
+    "requiredTests": [
+      "All metal presets use HDR by default",
+      "Cookie migration preserves custom settings",
+      "Targeted material and selection tests",
+      "One 17674 pass comparing plating colours on the same samples and camera"
+    ]
   },
   "polishedLightGoldReflection20261021": {
     "localImpact": "Polished light gold uses the existing PMREM studio environment and Three metal BRDF, without the analytic reflection blur floor or lacquer; retain the same plating colour and user roughness/light controls",
@@ -108,7 +153,11 @@
     "contractImpact": "Same finish key and display preference arguments; no new operation",
     "documentImpact": "Existing light-gold appearance remains valid; no model or saved preference migration",
     "cacheImpact": "Rebuild frontend assets; keep HDR and other finish paths unchanged",
-    "requiredTests": ["Metal material and selection tests", "Build release gate", "One 17674 light-gold rendering check; original open model acceptance when browser control is available"]
+    "requiredTests": [
+      "Metal material and selection tests",
+      "Build release gate",
+      "One 17674 light-gold rendering check; original open model acceptance when browser control is available"
+    ]
   },
   "menuAndFileChoiceLayout20261021": {
     "localImpact": "Separate recent-file rows from dialog actions; icon-only ribbon and overflow with named hover hints; repair malformed and ambiguous menu icons",
@@ -3145,9 +3194,78 @@
     "contractImpact": "new page method prepareReliefDesignRelief; page API version unchanged",
     "documentImpact": "no mutation until the user applies the ordinary preview; binding persists in relief params",
     "cacheImpact": "docs/catalog refresh",
-    "requiredTests": ["page tool + UI helper + real kernel build", "existing relief/fit suites", "browser UI check on 17674"]
+    "requiredTests": [
+      "page tool + UI helper + real kernel build",
+      "existing relief/fit suites",
+      "browser UI check on 17674"
+    ]
   },
-  "reliefImageHeightImport20261022": {"localImpact": "image -> height grid conversion (crop/levels/gamma/blur/invert, hashed settings) and relief design heightSource feeding field observations; design dialog import panel", "servicesImpact": "none; browser kernel only, small grids", "logoImpact": "none; generated LOGO cards intentionally not regenerated in this patch", "contractImpact": "relief design draft gains optional heightSource; photos require explicit confirmation (MACHINING_SOURCE_CONFLICT otherwise); page API version unchanged", "documentImpact": "heightSource stored in the design draft (u16 grid <=513^2); legacy drafts unchanged", "cacheImpact": "docs/catalog refresh", "requiredTests": ["relief-source-import real kernel (swirl flat/round, photos confirmed/unconfirmed, legacy)", "existing relief/fit suites", "browser UI check on 17674"]},
-  "reliefUiFixPrecision20261022": {"localImpact": "relief design dialog: BRep preview/apply via UI fromUI route; prepare-time circular-edge footprint check; photo/fit explanations; machiningPrecisionMm (default 0.05) field smoothing", "servicesImpact": "none; browser kernel only, small grids", "logoImpact": "none; generated LOGO cards intentionally not regenerated in this patch", "contractImpact": "draft fieldSettings.machiningPrecisionMm optional (default 0.05); prepareReliefDesignRelief may now block RELIEF_OUTSIDE_FACE; FIT_CONSTRAINT_CONFLICT details gain controlSpacingMm/suggestedMarginMm; page API version unchanged", "documentImpact": "precision stored in draft fieldSettings and draft fingerprint; legacy drafts use 0.05 default", "cacheImpact": "docs/catalog refresh", "requiredTests": ["relief-machining-precision", "relief-design-* suites", "UI acceptance A-E in headless browser"]},
-  "reliefServicesPipeline20261022": {"localImpact": "relief design dialog: design constraints moved into collapsed 高级配置 with defaults; fitted relief preview/apply routes to Services when relief.design-fit-brep-1 is advertised, browser fallback otherwise", "servicesImpact": "new native operations reliefDesign (relief.design-fit-brep-1, masked-bspline-face-replacement) and reliefSourceConvert (relief.source-convert-1); NativeAdapter/ServiceRuntime registration gated by acceptance proof; occt-worker relief_design*.hxx; optional STEP artifact", "logoImpact": "none; LogoVector and LOGO cards untouched", "contractImpact": "execution-routing reliefPipeline section; tbd reliefDesign.cylindrical-support; compiledSemanticVersion of designBinding relief = relief.design-fit-brep-1; page API version unchanged", "documentImpact": "precision stored in draft fieldSettings and draft fingerprint; legacy drafts use 0.05 default", "cacheImpact": "docs/catalog refresh", "requiredTests": ["relief-machining-precision", "relief-design-* suites", "UI acceptance A-E in headless browser"]}
+  "reliefImageHeightImport20261022": {
+    "localImpact": "image -> height grid conversion (crop/levels/gamma/blur/invert, hashed settings) and relief design heightSource feeding field observations; design dialog import panel",
+    "servicesImpact": "none; browser kernel only, small grids",
+    "logoImpact": "none; generated LOGO cards intentionally not regenerated in this patch",
+    "contractImpact": "relief design draft gains optional heightSource; photos require explicit confirmation (MACHINING_SOURCE_CONFLICT otherwise); page API version unchanged",
+    "documentImpact": "heightSource stored in the design draft (u16 grid <=513^2); legacy drafts unchanged",
+    "cacheImpact": "docs/catalog refresh",
+    "requiredTests": [
+      "relief-source-import real kernel (swirl flat/round, photos confirmed/unconfirmed, legacy)",
+      "existing relief/fit suites",
+      "browser UI check on 17674"
+    ]
+  },
+  "reliefUiFixPrecision20261022": {
+    "localImpact": "relief design dialog: BRep preview/apply via UI fromUI route; prepare-time circular-edge footprint check; photo/fit explanations; machiningPrecisionMm (default 0.05) field smoothing",
+    "servicesImpact": "none; browser kernel only, small grids",
+    "logoImpact": "none; generated LOGO cards intentionally not regenerated in this patch",
+    "contractImpact": "draft fieldSettings.machiningPrecisionMm optional (default 0.05); prepareReliefDesignRelief may now block RELIEF_OUTSIDE_FACE; FIT_CONSTRAINT_CONFLICT details gain controlSpacingMm/suggestedMarginMm; page API version unchanged",
+    "documentImpact": "precision stored in draft fieldSettings and draft fingerprint; legacy drafts use 0.05 default",
+    "cacheImpact": "docs/catalog refresh",
+    "requiredTests": [
+      "relief-machining-precision",
+      "relief-design-* suites",
+      "UI acceptance A-E in headless browser"
+    ]
+  },
+  "reliefServicesPipeline20261022": {
+    "localImpact": "relief design dialog: design constraints moved into collapsed 高级配置 with defaults; fitted relief preview/apply routes to Services when relief.design-fit-brep-1 is advertised, browser fallback otherwise",
+    "servicesImpact": "new native operations reliefDesign (relief.design-fit-brep-1, masked-bspline-face-replacement) and reliefSourceConvert (relief.source-convert-1); NativeAdapter/ServiceRuntime registration gated by acceptance proof; occt-worker relief_design*.hxx; optional STEP artifact",
+    "logoImpact": "none; LogoVector and LOGO cards untouched",
+    "contractImpact": "execution-routing reliefPipeline section; tbd reliefDesign.cylindrical-support; compiledSemanticVersion of designBinding relief = relief.design-fit-brep-1; page API version unchanged",
+    "documentImpact": "precision stored in draft fieldSettings and draft fingerprint; legacy drafts use 0.05 default",
+    "cacheImpact": "docs/catalog refresh",
+    "requiredTests": [
+      "relief-machining-precision",
+      "relief-design-* suites",
+      "UI acceptance A-E in headless browser"
+    ]
+  },
+  "reliefCandidate20261022": {
+    "localImpact": "Dense spline display streams faces at requested tolerance and avoids repeat edge tessellation. Default candidate fit preserves finite bounded controls on sampled deviation or iteration limit; public UI and API expose warnings. Server readback supports 129 control axes.",
+    "servicesImpact": "Native candidate policy, cached independent basis sampling, early face/placement preflight and candidate volume discrepancy warning without expensive mesh check; strict mode retains mesh volume check; managed validator accepts explicit policy.",
+    "logoImpact": "none: Logo source and behavior unchanged",
+    "contractImpact": "Optional deviationPolicy candidate/strict in fit options and persisted audit; legacy binding defaults strict.",
+    "documentImpact": "Candidate controls and actual quality remain in existing compiled checkpoint and saved recipe; geometry validity remains mandatory.",
+    "cacheImpact": "Regenerate current API docs/catalog and matching release artifacts",
+    "requiredTests": [
+      "candidate/strict numeric regressions and server 129 readback",
+      "actual tiger and public bull/city heightmaps",
+      "17674 actual geometry save and STEP export; release consistency"
+    ]
+  },
+  "reliefQuality20261022": {
+    "localImpact": "Automatic image-grid sizing 129–1025, draft grid up to 1025; shared UI/API quality settings and independent result verification",
+    "servicesImpact": "Rebuild net48 NativeAdapter quality validation and OCCT 7.8.1 quality-adaptive native worker, preserve resource supervision and exact geometry validation",
+    "logoImpact": "None: LogoVector/LOGO/PDF implementation unchanged",
+    "contractImpact": "Optional fieldSettings.servicesQuality mode adaptive/off and maxControlSide16–1025; fit.quality v1, existing relief.design-fit-brep-1 semantic and strict policy retained",
+    "documentImpact": "Self-contained u16 source grid up to1025 persists with draft; existing sources and final-state save format preserved",
+    "cacheImpact": "Regenerate current main readable API/knowledge; new verified worker fingerprint",
+    "requiredTests": [
+      "npm test and baseline-failure reconciliation",
+      "relief-quality-mode six checks",
+      "Windows native build and real image case",
+      "net48 build and16 validation checks",
+      "17674 image import/Services fit/page commit",
+      "production matched release and server compute"
+    ]
+  }
 }

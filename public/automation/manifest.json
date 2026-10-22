@@ -1,9 +1,9 @@
 {
   "version": "1.57.1",
-  "buildId": "7341e733a73e9ccd02c9b9de2d1ec777793ddb1a-src-43d4935b6d7dfcf8-working",
+  "buildId": "7341e733a73e9ccd02c9b9de2d1ec777793ddb1a-src-03a1edfd854a63ca-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:ba93c769291c0125f8b866f29c4d44fdc758c17c43bd99dbad5a29215334b3ef",
-  "docsHash": "sha256:62b616a73e6648a02c3a13d6249051edcc3d7ad31c1113f18e0c90afe96ee7a3",
+  "catalogHash": "sha256:3306e95f4f4cea2b12fbe53272d25eb7343470bd7f3b62e3292410db76f439cc",
+  "docsHash": "sha256:a3a4ccd5027df4d108acee08b69cd9112e3de05dc0d5f58206309359d80e4c79",
   "apiMethods": [
     "getMaterials",
     "measureMass",
@@ -2114,7 +2114,7 @@
       "title": "浮雕设计约束草稿",
       "category": "command",
       "version": "1.57.1",
-      "docsHash": "sha256:8b3b0e63408e33013b2fe6530e9cab677e934935127a8d872eee52dcb4998051",
+      "docsHash": "sha256:fa5ec3f843359aa177c0b29f64f7dbc6f3b9167e990c9c6eed03ba287ced51f8",
       "url": "tools/document.reliefDesign.json"
     },
     {
@@ -2505,12 +2505,12 @@
     },
     {
       "id": "api.editor",
-      "docsHash": "sha256:34c0a835f8bb0ede508c3b6001b19c9f75732f1667f65fb9fa55b2e5306e60ed",
+      "docsHash": "sha256:30cd5dd4c3595fdffadb6c50f44543b5fc18fe6261ae5aa15ef307bdb7083f15",
       "url": "docs/api.editor.md"
     },
     {
       "id": "api.error-recovery",
-      "docsHash": "sha256:d8cee502326bccffc66358130107da292fff2e1ac55929607d446189c97bd0e3",
+      "docsHash": "sha256:172ad6ca14fbd83f6381e6da69654f35fbef064f45142ff8b9501f205c069a03",
       "url": "docs/api.error-recovery.md"
     },
     {

@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
+    'agent-state-observer', 'tool-reading-guide',
     'location-marker','error-recovery','relief-design-drafts','relief-design-reference','relief-design-edits-ui','relief-design-bspline-fit','relief-design-fit-runtime','relief-design-fit-api','relief-design-field','relief-design-brep','logo-export','logo-review-api','logo-vector-review','logo-wizard-state','logo-machining-optimization','logo-pdf-renderer','panel-layout','receipt-capacity-recovery','relief-intent-runtime','relief-sculpt-preflight','report-regressions','tool-selection',
     'agent-selection-preservation', 'count-summary', 'floor-grid', 'free-placement',
     'logo-selection-draft', 'metal-warning', 'open-file-recent',
@@ -50,7 +51,7 @@ const groups = {
     'step-export-colors',
     'freecad-organization',
     'freecad-machining',
-    'relief-kernel', 'relief-design-brep-kernel','relief-design-brep-shapes','relief-design-brep-align','relief-source-import','relief-machining-precision','relief-services-pipeline','relief-services-first','relief-services-native-golden', 'relief-design-brep-api', 'relief-sculpt-kernel', 'relief-local-patch', 'relief-shoulder',
+    'relief-kernel', 'relief-design-brep-kernel','relief-design-brep-shapes','relief-design-brep-align','relief-source-import','relief-machining-precision','relief-quality-mode','relief-services-pipeline','relief-services-first','relief-services-native-golden', 'relief-design-brep-api', 'relief-sculpt-kernel', 'relief-local-patch', 'relief-shoulder',
     'clevis-practice',
     'history-import-kernel',
     'primitive-contract-kernel',

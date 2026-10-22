@@ -5,6 +5,16 @@ const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,..
 export const RELIEF_CONVERT_VERSION=1;
 export const RELIEF_CONVERT_LIMITS=Object.freeze({minSide:2,maxSide:2049,maxBlurPx:32,maxSourcePixels:16777216});
 const num=(v,d,min,max,path)=>{const x=v??d;if(typeof x!=='number'||!Number.isFinite(x)||x<min||x>max)fail('PARAM_RANGE_INVALID',`${path} 需要 ${min}–${max}`,path);return x;};
+// Default import grid (relief.source-convert-1 settings are always explicit; this only picks them).
+// Long side = clamp(physical need = ceil(max(W,H)/precision)+1, 129, 1025), never denser than the (cropped)
+// source pixels; aspect follows the cropped image so grid cells stay square.
+export const RELIEF_AUTO_GRID=Object.freeze({minSide:129,maxSide:1025});
+export function autoGridSize({width,height,crop={width:1,height:1},sizeMm,precisionMm=.05}){
+ const pw=width*(crop.width??1),ph=height*(crop.height??1);if(!(pw>=2&&ph>=2))fail('PARAM_RANGE_INVALID','图像尺寸无效','image');
+ const A=RELIEF_AUTO_GRID,px=Math.floor(Math.max(pw,ph)),need=sizeMm&&precisionMm>0?Math.ceil(Math.max(sizeMm[0],sizeMm[1])/precisionMm)+1:A.maxSide;
+ const L=Math.max(2,Math.min(px,A.maxSide,Math.max(A.minSide,need))),k=L/Math.max(pw,ph);
+ return {columns:Math.max(2,Math.min(L,Math.round(pw*k))),rows:Math.max(2,Math.min(L,Math.round(ph*k)))};
+}
 export function normalizeConvertSettings(s={}){
  if(!s||typeof s!=='object'||Array.isArray(s))fail('PARAM_SCHEMA_INVALID','转换设置需要对象','settings');
  const allowed=['version','columns','rows','crop','levels','gamma','blurPx','invert'];

@@ -3,6 +3,7 @@ import sourceCodes from '../contracts/error-recovery-codes.json' with {type:'jso
 // changes an argument, clears a guard, commits/undoes geometry, or cancels a job.
 const rule=(id,codes,reason,next,tools=[],options={})=>({id,codes:new Set(codes.split(' ').filter(Boolean)),reason,next,tools,...options});
 const rules=[
+  rule('project-store','PROJECT_STORE_FAILED','当前工程的本地存储写入失败。','保留当前页面工程，先检查浏览器存储和原保存回执；不能宣称已保存或自动重算几何。',['getState'],{hardStop:true}),
   rule('relief-services-response','SERVICES_RESPONSE_INVALID','Services 浮雕响应与请求、哈希或误差不一致。','保留当前工程，核对原任务与返回产物；不提交、不自动重算或回退。',['getServicesJob','getState'],{hardStop:true}),
   rule('relief-services-required','RELIEF_DESIGN_SERVICES_REQUIRED','临时控制网需要 Services 完成首次拟合。','保留当前设计并检查 Services 能力；如需本地执行，由用户明确选择浏览器拟合后重新准备。',['reliefDesignFit','getServicesCapabilities'],{hardStop:true}),
   rule('design-fit-capacity','FIT_CAPACITY FIT_WORK_BUDGET FIT_UNDERSAMPLED','拟合的采样、控制网格或数值工作量超出当前范围。','核对显式控制数与原场采样及容量；保留设计，不自动降低精度、改变误差或重试耗尽任务。',['reliefDesignFit','getTool'],{hardStop:true}),

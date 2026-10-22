@@ -105,13 +105,16 @@ inline bool intersects(const Shape& s,double a,double b,double c,double d,bool b
 struct Metric{int count=0;double maxMm=0,sum=0;json worst=nullptr;void add(double a,double e,double x,double y){double d=std::abs(a-e);count++;sum+=d*d;if(d>maxMm){maxMm=d;worst={{"xMm",x},{"yMm",y},{"actualMm",a},{"expectedMm",e}};}}json finish()const{return {{"count",count},{"maxMm",maxMm},{"rmsMm",count?std::sqrt(sum/count):0.0},{"worst",worst}};}};
 struct Fit{int nx,ny;double widthMm,heightMm,baselineMm;int sign;std::vector<double> deltas,poles;std::vector<uint8_t> locked;json report;};
 inline double valueAt(const std::vector<double>& poles,int nx,const std::vector<B>& bx,const std::vector<B>& by){double z=0;for(auto& y:by)for(auto& x:bx)z+=poles[size_t(y.index)*nx+x.index]*x.weight*y.weight;return z;}
+namespace quality{inline Fit fitQuality(const json& field,const json& domain,double baselineMm,const json& o);} // defined in relief_quality.hxx
 
 // field: {columns,rows,widthMm,heightMm,heightsMm,active,fixedMask}; domain: centred support/throughHoles/protectedZones.
 inline Fit fitMasked(const json& field,const json& domain,double baselineMm,const json& o,const Limits& L={}){
+ const std::string policy=o.value("deviationPolicy",std::string("strict"));if(policy!="strict"&&policy!="candidate")fail("FIT_INPUT_INVALID","Unknown deviationPolicy");const bool candidate=policy=="candidate";
  Work work{0,std::min(L.work,o.value("maxWork",L.work))};work.charge(1);
  const int columns=field.at("columns"),rows=field.at("rows"),count=columns*rows;
  if(columns<2||rows<2||columns>L.side||rows>L.side)fail("FIT_CAPACITY","Too many authored samples");
  const double widthMm=field.at("widthMm"),heightMm=field.at("heightMm");
+ if(o.contains("quality"))return quality::fitQuality(field,domain,baselineMm,o); // relief_quality.hxx: full-resolution source, adaptive net
  const int nx=o.at("controlColumns"),ny=o.at("controlRows"),n=nx*ny;
  if(nx<4||ny<4||nx>L.controlSide||ny>L.controlSide)fail("FIT_CAPACITY","Control net outside server capacity (4–"+std::to_string(L.controlSide)+")");
  if(nx>columns||ny>rows)fail("FIT_UNDERSAMPLED","Authored grid must not be smaller than the control net");
@@ -146,7 +149,7 @@ inline Fit fitMasked(const json& field,const json& domain,double baselineMm,cons
  for(int k=0;k<n;k++)if(columnSum[k]==0)locked[k]=1;
  int lockedCount=0;for(auto v:locked)lockedCount+=v;const int freeCount=n-lockedCount;
  if(!freeCount&&maximum>0)fail("FIT_NO_FREEDOM","Protection leaves no free observed control poles",{{"controlPoints",n}});
- for(auto& s:samples){if(s.target<=acceptance)continue;bool all=true;for(size_t t=0;t<s.ids.size();t++)all=all&&(locked[s.ids[t]]||s.w[t]==0);if(all){double spacing=std::max(widthMm/std::max(1,nx-3),heightMm/std::max(1,ny-3));fail("FIT_CONSTRAINT_CONFLICT","Requested relief lies entirely in locked basis support",{{"xMm",s.x},{"yMm",s.y},{"controlSpacingMm",spacing},{"suggestedMarginMm",2*spacing}});}}
+ for(auto& s:samples){if(candidate||s.target<=acceptance)continue;bool all=true;for(size_t t=0;t<s.ids.size();t++)all=all&&(locked[s.ids[t]]||s.w[t]==0);if(all){double spacing=std::max(widthMm/std::max(1,nx-3),heightMm/std::max(1,ny-3));fail("FIT_CONSTRAINT_CONFLICT","Requested relief lies entirely in locked basis support",{{"xMm",s.x},{"yMm",s.y},{"controlSpacingMm",spacing},{"suggestedMarginMm",2*spacing}});}}
  double Lc=1;for(double v:columnSum)Lc=std::max(Lc,v);
  auto project=[&](double v,int k){return locked[k]?0.0:std::max(0.0,std::min(envelope,v));};
  auto gradient=[&](const std::vector<double>& v,std::vector<double>& out){work.charge(samples.size()*32.0+n);std::fill(out.begin(),out.end(),0.0);for(auto& s:samples){double z=0;for(size_t t=0;t<s.ids.size();t++)z+=v[s.ids[t]]*s.w[t];const double r=z-s.target;for(size_t t=0;t<s.ids.size();t++)out[s.ids[t]]+=r*s.w[t];}};
@@ -156,7 +159,7 @@ inline Fit fitMasked(const json& field,const json& domain,double baselineMm,cons
   work.charge(n*8.0);residual=0;for(int k=0;k<n;k++)residual=std::max(residual,std::abs(next[k]-project(next[k]-check[k]/Lc,k)));
   if(residual<=tolerance){c=next;iterations++;break;}
   const double m=(1+std::sqrt(1+4*momentum*momentum))/2;for(int k=0;k<n;k++)acc[k]=next[k]+(momentum-1)/m*(next[k]-c[k]);c=next;momentum=m;}
- if(residual>tolerance)fail("FIT_NOT_CONVERGED","Projected residual did not converge",{{"iterations",iterations},{"projectedResidualMm",residual}});
+ if(!candidate&&residual>tolerance)fail("FIT_NOT_CONVERGED","Projected residual did not converge",{{"iterations",iterations},{"projectedResidualMm",residual}});
  Fit out{nx,ny,widthMm,heightMm,baselineMm,sign,{},{},locked,{}};out.deltas.resize(n);out.poles.resize(n);for(int k=0;k<n;k++){out.deltas[k]=c[k]*sign;out.poles[k]=baselineMm+out.deltas[k];}
  Metric training,independent,protection;
  auto sample=[&](double x,double y){work.charge(32);return valueAt(out.poles,nx,atPhysical(nx,x,widthMm,nullptr),atPhysical(ny,y,heightMm,nullptr));};
@@ -164,9 +167,12 @@ inline Fit fitMasked(const json& field,const json& domain,double baselineMm,cons
   for(int j=0,s=0;j<rows;j++)for(int i=0;i<columns;i++){int k=j*columns+i;if(!active[k])continue;training.add(valueAt(out.poles,nx,bx[i],by[j]),baselineMm+sign*samples[s].target,xs[i],ys[j]);s++;}
  }
  const double fr[2]={.2113248654051871,.7886751345948129};
+ std::vector<std::vector<B>> qx(2*(columns-1)),qy(2*(rows-1));
+ for(int i=0;i<columns-1;i++)for(int a=0;a<2;a++)qx[2*i+a]=atPhysical(nx,xs[i]+fr[a]*(xs[i+1]-xs[i]),widthMm,&work);
+ for(int j=0;j<rows-1;j++)for(int a=0;a<2;a++)qy[2*j+a]=atPhysical(ny,ys[j]+fr[a]*(ys[j+1]-ys[j]),heightMm,&work);
  for(int j=0;j<rows-1;j++)for(int i=0;i<columns-1;i++){const int k=j*columns+i;if(!(active[k]&&active[k+1]&&active[k+columns]&&active[k+columns+1]))continue;
   const bool allFixed=fixed[k]&&fixed[k+1]&&fixed[k+columns]&&fixed[k+columns+1];
-  for(double u:fr)for(double v:fr){double x=xs[i]+u*(xs[i+1]-xs[i]),y=ys[j]+v*(ys[j+1]-ys[j]);double e=(1-v)*((1-u)*heights[k]+u*heights[k+1])+v*((1-u)*heights[k+columns]+u*heights[k+columns+1]);double a=sample(x,y);independent.add(a,e,x,y);if(allFixed)protection.add(a,baselineMm,x,y);}}
+  for(int a=0;a<2;a++)for(int b=0;b<2;b++){const double u=fr[a],v=fr[b];double x=xs[i]+u*(xs[i+1]-xs[i]),y=ys[j]+v*(ys[j+1]-ys[j]);double e=(1-v)*((1-u)*heights[k]+u*heights[k+1])+v*((1-u)*heights[k+columns]+u*heights[k+columns+1]);work.charge(32);double z=valueAt(out.poles,nx,qx[2*i+a],qy[2*j+b]);independent.add(z,e,x,y);if(allFixed)protection.add(z,baselineMm,x,y);}}
  auto inspect=[&](double x,double y){if(x>=-widthMm/2&&x<=widthMm/2&&y>=-heightMm/2&&y<=heightMm/2)protection.add(sample(x,y),baselineMm,x,y);};
  std::vector<std::pair<Shape,bool>> all={{support,false}};for(auto& s:holes)all.push_back({s,false});for(auto& s:zones)all.push_back({s,true});
  for(auto& [s,zone]:all){if(s.circle)for(int k=0;k<67;k++){double t=2*M_PI*(k+.371)/67;inspect(s.cx+s.r*std::cos(t),s.cy+s.r*std::sin(t));}
@@ -174,8 +180,10 @@ inline Fit fitMasked(const json& field,const json& domain,double baselineMm,cons
   if(zone)for(double u:{.173,.431,.793})for(double v:{.219,.617,.887}){double px=s.cx+(u-.5)*(s.circle?s.r*2:s.w),py=s.cy+(v-.5)*(s.circle?s.r*2:s.h);if(contains(s,px,py))inspect(px,py);}}
  json metrics={{"training",training.finish()},{"independent",independent.finish()},{"protection",protection.finish()}};const double roundoff=1e-10*std::max(1.0,std::abs(baselineMm));
  if(protection.maxMm>roundoff)fail("FIT_PROTECTION_FAILED","Independent protection samples do not retain baseline",{{"metrics",metrics}});
- if(std::max(training.maxMm,independent.maxMm)>acceptance)fail("FIT_DEVIATION","Fit exceeds explicitly accepted sampled deviation",{{"metrics",metrics},{"acceptanceToleranceMm",acceptance}});
- out.report={{"status","numerically-accepted"},{"method","masked-bounded-accelerated-projected-gradient"},{"implementation","native-cpp-port-of-masked-bspline-fit.mjs"},{"iterations",iterations},{"projectedResidualMm",residual},{"estimatedWork",work.work},{"maxWork",work.max},{"controlPoints",n},{"freeControlPoints",freeCount},{"lockedControlPoints",lockedCount},{"fixedCellCount",fixedCellCount},{"acceptanceToleranceMm",acceptance},{"metrics",metrics},{"deviationKind","sampled-not-global"}};
+ const bool withinTolerance=std::max(training.maxMm,independent.maxMm)<=acceptance,converged=residual<=tolerance;
+ if(!candidate&&!withinTolerance)fail("FIT_DEVIATION","Fit exceeds explicitly accepted sampled deviation",{{"metrics",metrics},{"acceptanceToleranceMm",acceptance}});
+ json warnings=json::array();if(!withinTolerance)warnings.push_back("FIT_DEVIATION");if(!converged)warnings.push_back("FIT_NOT_CONVERGED");
+ out.report={{"status",withinTolerance&&converged?"numerically-accepted":"approximation-candidate"},{"deviationPolicy",policy},{"withinTolerance",withinTolerance},{"converged",converged},{"warnings",warnings},{"method","masked-bounded-accelerated-projected-gradient"},{"implementation","native-cpp-port-of-masked-bspline-fit.mjs"},{"iterations",iterations},{"projectedResidualMm",residual},{"estimatedWork",work.work},{"maxWork",work.max},{"controlPoints",n},{"freeControlPoints",freeCount},{"lockedControlPoints",lockedCount},{"fixedCellCount",fixedCellCount},{"acceptanceToleranceMm",acceptance},{"metrics",metrics},{"deviationKind","sampled-not-global"}};
  return out;
 }
 }}
