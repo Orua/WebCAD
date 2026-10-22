@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.55.9 · 操作目录 sha256:20350d13d39267b37a4e30ed8b277f3cb8b5dd7e684b78fa7ab2de4c031dff48
+API 1.57.1 · 操作目录 sha256:31c36d4e3d6a058c3d6e0ba7651d9f7fbbc57ece4bbb2f083deab2893c025a5e
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -8,6 +8,8 @@ API 1.55.9 · 操作目录 sha256:20350d13d39267b37a4e30ed8b277f3cb8b5dd7e684b78
 
 ## 页面方法
 
+- `getMaterials`
+- `measureMass`
 - `reliefDesignFit`
 - `reliefDesignReference`
 - `reliefDesignField`
@@ -254,6 +256,8 @@ API 1.55.9 · 操作目录 sha256:20350d13d39267b37a4e30ed8b277f3cb8b5dd7e684b78
 - `template.uEndHolePlate` · advisory · 半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。
 - `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
 - `template.gableOpenFrame` · advisory · 两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。
+- `getMaterials` · page-method · getMaterials()读取version1配置、常用金属参考密度及默认/对象材料映射。execute({context,idempotencyKey,action:"document.materials",args:{settings}})完整更新；settings={version:1,defaultMaterial,densities,bodyMaterials}。密度g/cm³须0<值≤30，材料编号和默认值从返回materials读取。
+- `measureMass` · page-method · measureMass({context,bodyId,materialId?})；测量当前对象体积，再按显式材料/对象材料/工程默认材料优先级计算。
 - `reliefDesignFit` · page-method · reliefDesignFit({context,action:"fit"|"get"|"cancel",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。
 - `reliefDesignReference` · page-method · reliefDesignReference({context,action:"get"|"attach"|"detach"|"resource",designId,expectedDraftRevision,resourceId?,expectedSha256?,expectedSize?,idempotencyKey?})。attach仅接受当前files.register的PNG/JPEG/WebP原图资源（20MiB、16M像素、64:1）；以实际签名/尺寸预检及浏览器完整解码校验，再同CommandService事务绑定/替换。get只读metadata不生成资源；resource把当前草稿实际绑定的持久原件登记成合法resourceId，可files.read/download并在用完后files.release。不能直接提供source.bytes、imports、importKey或猜填SHA代替原件。
 - `reliefDesignField` · page-method · reliefDesignField({context,action:"solve"|"get"|"cancel"|"candidate",designId,expectedDraftRevision,options?,baseMm?})。先document.reliefDesign保存草稿；solve在30秒可取消Worker中运行Pro求解器。options可用columns/rows 9–129（默认33）、smoothWeight默认1、maxIterations 1–20000（默认10000）、toleranceMm默认0.0001、edits。圆形/矩形支撑、孔和保护域均进入保守掩码，最低设计高度为保护基线；高度点是weight=100软毫米约束，不是控制极点。
@@ -274,7 +278,7 @@ API 1.55.9 · 操作目录 sha256:20350d13d39267b37a4e30ed8b277f3cb8b5dd7e684b78
 - `sampleReliefHeight` · page-method · sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。
 - `prepareReliefSculpt` · page-method · prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:"raise"|"lower"|"smooth"|"flatten"|"restore"|"mask"|"unmask"|"fill"|"scrape"|"sharpen",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:"none"|"x"|"y"|"xy",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。
 - `readRelief` · page-method · readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。
-- `getHistory` · page-method · getHistory()。返回已保留状态，不含导入源字节。
+- `getHistory` · page-method · getHistory()。会话最多20状态/512KiB，磁盘新保存文件不保留timeline。
 - `planAlignment` · page-method · planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true：true=整体按联合包围盒移动并保持相对位置，false=每个实体各自对齐。
 - `selectRectangle` · page-method · selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。
 - `createDrawing` · page-method · createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。
@@ -337,8 +341,9 @@ API 1.55.9 · 操作目录 sha256:20350d13d39267b37a4e30ed8b277f3cb8b5dd7e684b78
 - `convertLogoPdf` · page-method · convertLogoPdf({context,name,data,targetWidthMm?,page?,pdfJoinToleranceMm?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。
 - `setView` · page-method · setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
-- `capture` · page-method · capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:"webp"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。
+- `capture` · page-method · capture({context,maxWidth?:64..4096,format?:"png"|"webp",quality?:0<q<=1}); 建议 maxWidth:800,format:"webp"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:"capture",args:{context,maxWidth:800,format:"webp"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。
 - `run` · page-method · run({context,idempotencyKey,steps}); see readDocs({docId:"api.run"}); addMany for one atomic feature plan: api.feature-plan.
+- `document.materials` · page-command · 设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。
 - `feature.compileServices` · page-command · 按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。
 - `body.align` · page-command · 按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:"body",bodyId:基准实体ID},axes:["Y"],sourceSide:"center",targetSide:"center",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。
 - `history.restore` · page-command · 用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。
@@ -375,7 +380,7 @@ API 1.55.9 · 操作目录 sha256:20350d13d39267b37a4e30ed8b277f3cb8b5dd7e684b78
 - `files.new` · browser-file-adapter · new({context}); complete current context; dirty replacement is always rejected by page API. Default name: 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits); no explicit name argument.
 - `files.open` · browser-file-adapter · open({context,resourceId,unsaved:"fail"|"discard",units?}); 打开=替换当前设计，从不合并。.webcad/.json 工程或单个 STEP/BREP/STL 模型（放入新文档；STL 需 units）。unsaved 必填：fail 在未保存时返回 UNSAVED_REPLACEMENT，discard 放弃修改。要加入当前设计请用 files.import。
 - `files.import` · browser-file-adapter · import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. Exact-source typed imports preserve optional legacy key behavior; supply idempotencyKey for replay protection; read api.exact-source-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.
-- `files.save` · browser-file-adapter · save({context,name?}); complete current context. name may omit its extension; the output uses .webcad.
+- `files.save` · browser-file-adapter · save({context,name?}); complete current context. Save final BRep/typed mesh only, no modelling recipes or timeline; keep ids/appearance/visibility/material/anchors. Session undo20 and timeline20/512KiB remain in memory. name may omit .webcad.
 - `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).
 - `files.reattach` · browser-file-adapter · reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。
 - `files.read` · browser-file-adapter · read({resourceId,as?}); as is blob (default) or bytes.

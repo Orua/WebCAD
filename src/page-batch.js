@@ -13,6 +13,7 @@ const contextual = new Set(['execute','queryGeometry','queryReferences','resolve
 contextual.add('readLogo');
 contextual.add('reviewLogo');contextual.add('logoWizard');contextual.add('reliefDesignField');contextual.add('reliefDesignReference');
 methods.add('inspectDesign');
+methods.add('getMaterials');methods.add('measureMass');contextual.add('measureMass');
 methods.add('inspectRound');
 contextual.add('inspectRound');
 methods.add('prepareReliefSculpt');

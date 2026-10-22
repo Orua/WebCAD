@@ -17,7 +17,7 @@ export const FILE_ERROR_CODES=Object.freeze(Object.fromEntries(Object.entries({
   capabilities:[],register:['NAME_INVALID','ASSET_INVALID','SIZE_LIMIT','RESOURCE_LIMIT'],
   new:commandErrors,open:[...commandErrors,...resourceErrors,'FORMAT_UNSUPPORTED','MESH_UNITS_REQUIRED'],
   import:[...commandErrors,...resourceErrors,'FORMAT_UNSUPPORTED','IDEMPOTENCY_KEY_REUSED','MESH_UNITS_REQUIRED','MESH_SOURCE_INVALID','MESH_ASSET_CORRUPT','MESH_DISPLAY_CAPACITY'],
-  save:generatedErrors,export:[...generatedErrors,'FORMAT_UNSUPPORTED'],
+  save:[...generatedErrors,'PROJECT_SNAPSHOT_UNAVAILABLE','PROJECT_ENCODING_FAILED','PROJECT_ENCODING_TIMEOUT','PROJECT_ENCODING_MESSAGE_ERROR','PROJECT_ENCODING_SEND_FAILED'],export:[...generatedErrors,'FORMAT_UNSUPPORTED'],
   reattach:resourceErrors,read:['RESOURCE_EXPIRED'],download:[...resourceErrors,'CAPABILITY_UNAVAILABLE'],
   write:[...resourceErrors,'RESOURCE_BUSY','HANDLE_REQUIRED','PERMISSION_REQUIRED','HASH_MISMATCH','SAVE_CONFIRMATION_FAILED'],
   confirmWritten:[...resourceErrors,'HASH_MISMATCH','INSTANCE_MISMATCH','REVISION_CONFLICT','SAVE_CONFIRMATION_FAILED'],

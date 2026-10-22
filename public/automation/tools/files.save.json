@@ -2,15 +2,15 @@
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.55.9",
+  "version": "1.57.1",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
     "保存工程",
     "save"
   ],
-  "description": "save({context,name?}); complete current context. name may omit its extension; the output uses .webcad.",
-  "inputContract": "save({context,name?}); complete current context. name may omit its extension; the output uses .webcad.",
+  "description": "save({context,name?}); complete current context. Save final BRep/typed mesh only, no modelling recipes or timeline; keep ids/appearance/visibility/material/anchors. Session undo20 and timeline20/512KiB remain in memory. name may omit .webcad.",
+  "inputContract": "save({context,name?}); complete current context. Save final BRep/typed mesh only, no modelling recipes or timeline; keep ids/appearance/visibility/material/anchors. Session undo20 and timeline20/512KiB remain in memory. name may omit .webcad.",
   "outputContract": "status=generated native project resource with exact source snapshot; not a disk save.",
   "units": {
     "length": "mm",
@@ -61,7 +61,12 @@
     "SIZE_LIMIT",
     "ASSET_INVALID",
     "NAME_INVALID",
-    "RESOURCE_LIMIT"
+    "RESOURCE_LIMIT",
+    "PROJECT_SNAPSHOT_UNAVAILABLE",
+    "PROJECT_ENCODING_FAILED",
+    "PROJECT_ENCODING_TIMEOUT",
+    "PROJECT_ENCODING_MESSAGE_ERROR",
+    "PROJECT_ENCODING_SEND_FAILED"
   ],
   "selectionGuide": {
     "groupId": "file-output",
@@ -107,5 +112,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:0e81dd7a350affa6d0fff2e94079c4a65ec5afbc6411b14fd37f0bcc2bfde2ae"
+  "docsHash": "sha256:69bf920266be5f8f9958a04f3ace896c812d836bc0c9a1c3a6819a4a16f6a70a"
 }

@@ -1,4 +1,5 @@
 import {updateReliefDesigns} from './relief-design-drafts.js';
+import {validateMaterialSettings} from './material-density.js';
 import {validateReliefReference} from './relief-design-reference-contract.js';
 // Public editor actions: one contract for the UI, AI, and generated documentation.
 export const FINISH_KEYS = Object.freeze(['design','light-gold','nickel','24k-gold','gunmetal','matt-nickel','matt-light-gold','matt-24k-gold','matt-gunmetal','antique-brass','antique-silver','rose-gold','silver-925','white-gold-18k']);
@@ -6,6 +7,7 @@ export const FINISH_KEYS = Object.freeze(['design','light-gold','nickel','24k-go
 // page method may dispatch it with the private CommandService validation option.
 export const INTERNAL_EDITOR_ACTIONS=Object.freeze({'document.reliefDesignReference':{title:'浮雕原参考图绑定',fields:['designId','expectedDraftRevision','action','source']}});
 export const EDITOR_ACTIONS = Object.freeze({
+  'document.materials':{title:'材料密度与重量',fields:['settings'],example:{settings:{version:1,defaultMaterial:'zincAlloy',densities:{zincAlloy:6.6,copper:8.94,iron:7.87,steel:7.85,brass:8.5,stainless:7.9,aluminum:2.7},bodyMaterials:{}}},description:'设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。'},
   'feature.compileServices':{title:'Services 原特征编译',fields:['featureId','allowUpload'],example:{featureId:'<featureId>',allowUpload:true},description:'按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。'},
   'body.align': {title:'快速对齐',fields:['bodyIds','target','axes','sourceSide','targetSide','group','gapMm'],example:{bodyIds:['<bodyId>'],target:{kind:'origin'},axes:['X','Y','Z'],sourceSide:'center',targetSide:'center',group:true},description:'按世界 X/Y/Z 对齐包围范围的 min/center/max；移动件和基准件显式分开；group=true 保持相对位置。一次原子历史操作。'},
   'history.restore': {title:'退回工程状态',fields:['stateId'],example:{stateId:'<stateId>'},description:'用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。'},
@@ -35,6 +37,7 @@ export function validateEditorAction(action,args,state){
     else if(args.source!==undefined)fail('Detach cannot contain source bytes');
   }
   const current=id=>state.bodies.some(b=>b.id===id);
+  if(action==='document.materials'){validateMaterialSettings(args.settings);if(Object.keys(args.settings.bodyMaterials).some(id=>!state.features.some(f=>f.id===id)))fail('材料对象已失效','STALE_REFERENCE');}
   if(action==='feature.compileServices'&&(typeof args.featureId!=='string'||!state.features.some(f=>f.id===args.featureId)||args.allowUpload!==true))fail('请选择当前特征并明确授权上传','UPLOAD_AUTH_REQUIRED');
   if(action==='history.restore'&&(typeof args.stateId!=='string'||args.stateId.length>150))fail('需要有效的历史状态 ID');
   if(action==='body.align'&&(!Array.isArray(args.bodyIds)||!args.bodyIds.length||args.bodyIds.some(id=>!current(id))))fail('请选择当前移动件','STALE_REFERENCE');

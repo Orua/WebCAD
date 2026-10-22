@@ -3,7 +3,7 @@ export function createLocationMarker(hit,context,number){
   if(!hit||typeof hit.bodyId!=='string'||!Array.isArray(hit.point)||hit.point.length!==3||hit.point.some(v=>!Number.isFinite(v)))throw Object.assign(new Error('请点击可见模型表面'),{code:'LOCATION_NO_HIT'});
   const marker={version:1,id:crypto.randomUUID(),label:`P${number}`,context:{...context},bodyId:hit.bodyId,faceId:hit.faceId??null,point:[...hit.point],units:'mm',coordinateSystem:'world',source:'display-mesh',precision:'approximate'};
   const coordinates=marker.point.map(v=>Number(v.toFixed(4)));
-  return {...marker,text:`位置 ${marker.label}：X=${coordinates[0]}，Y=${coordinates[1]}，Z=${coordinates[2]} mm（世界坐标，显示表面拾取）\n位置标记：${JSON.stringify(marker)}\n此标记用于指出位置；精确加工前请按当前修订重新查询几何。`};
+  return {...marker,text:`【位置${marker.label}】`,tooltip:`${marker.label}：X=${coordinates[0]}，Y=${coordinates[1]}，Z=${coordinates[2]} mm（世界坐标，显示表面拾取）`};
 }
 export function showLocationDraft(marker){
   const dialog=document.createElement('dialog');dialog.className='cad-dialog message-dialog';dialog.dataset.hostControlAllowed='true';

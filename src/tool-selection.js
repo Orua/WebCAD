@@ -1,6 +1,11 @@
 // Tool-family distinctions belong to the shared CAD catalog, not a host prompt
 // or a product-specific decision branch. These are discovery hints, never gates.
 const groups = [
+  ['materials','密度与估算重量',{
+    getMaterials:'读取工程密度、默认材料和对象材料，参考值不等于实际合金检测。',
+    measureMass:'测量当前对象体积并按密度计算克重；无体积返回null，不是电镀外观设置。',
+    'document.materials':'写入工程密度和对象材料；不修改几何或镀色，可撤销并保存。',
+  }],
   ['primitives','基础实体与参数模型',{
     box:'用宽、深、高创建长方体；不是空壳或带孔板。',
     cylinder:'用半径、高度创建实心直圆柱；圆筒用内外径模板。',

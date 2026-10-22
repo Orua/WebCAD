@@ -10,6 +10,7 @@ export function createPageJobs(api,{runBatch}={}) {
   const settle = job => {const d=done.get(job.jobId);if(d){done.delete(job.jobId);d.resolve();}};
   const methods = new Set(['run','execute','queryGeometry','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','setView','setRenderQuality','files.save','files.export','files.import']);
   methods.add('inspectDesign');
+  methods.add('measureMass');methods.add('reliefDesignFit');
   methods.add('inspectRound');
   methods.add('readLogo');
   methods.add('reviewLogo');

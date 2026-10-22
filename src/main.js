@@ -5,6 +5,8 @@ import {legacyReliefParams} from './relief-param-migration.js';
 import {markTopologySemantics} from './legacy-topology-policy.js';
 import {intentForUIParameterEdit} from './machining-intent.js';
 import {encodeCommittedProject} from './project-save.js';
+import {finalStateProject} from './project-final-state.js';
+import {loadMaterialSettings,validateMaterialSettings,rememberMaterialSettings,inheritBodyMaterials} from './material-density.js';
 import {createHostAdapter} from './agent/host-adapter.js';
 import {uploadChunked,uploadArtifact,createBrokerUploadClient} from './transfer/chunked-upload.js';
 import {AGENT_CONTRACT} from './agent/protocol.js';
@@ -78,12 +80,14 @@ import {chooseAction,UNSAVED_CHOICES,DROP_CHOICE_LABELS} from './ui/choice-dialo
 import {createLoadingTracker,LOADING_TEXT} from './loading-progress.js';
 
 
-const emptyDocument = () => ({version:2,documentId:crypto.randomUUID(),name:nextProjectName(),features:[],imports:{},hidden:[],referenceSystem:createReferenceSystem()});
+const emptyDocument = () => ({version:2,documentId:crypto.randomUUID(),name:nextProjectName(),features:[],imports:{},hidden:[],materialSettings:loadMaterialSettings(),referenceSystem:createReferenceSystem()});
 const pageSessionId=crypto.randomUUID();
 let documentInstanceId=crypto.randomUUID(),lastWarnings=[],persistenceCheckpoint='pending';
 const clone = cloneAssetDocument;
 const labels = {meshReliefPlate:'浮雕网格底板',meshHeightfieldRelief:'高度图浮雕',meshBoolean:'网格布尔合并',meshReliefEdit:'网格局部修高',round:'圆润',roundEnd:'端头圆润',rounding:'自动打磨',autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
 let documentModel=emptyDocument(),bodies=[],selectedIds=[],selectedTopology=null,busy=false,kernelReady=false,dirty=false;
+let committedFinalSources=[];
+let lastLocationMarker=null,locationMarkerNumber=0,locationMarkers=[];
 const servicesExecutionHistory=createExecutionHistory();let lastServicesDecision=null;
 let qualityKey='standard';
 function qualityState(){return {quality:qualityKey,...RENDER_QUALITIES[qualityKey],triangleCount:bodies.reduce((n,b)=>n+b.indices.length/3,0),source:'viewer-tessellation',adaptive:bodies.some(b=>!!b.adaptiveDisplay)};}
@@ -240,7 +244,7 @@ function endDisplayBatchDeferred(){if(displayBatchDepth>0&&--displayBatchDepth==
 function refresh(){if(displayBatchDepth){deferredRefresh=true;return;}document.title=(dirty?'● ':'')+documentModel.name+' — WebCAD';const url=new URL(location.href);if(url.searchParams.get('document')!==documentModel.documentId){url.searchParams.set('document',documentModel.documentId);history.replaceState(null,'',url);}ui.update({renderQuality:qualityState(),document:documentModel,bodies,selectedIds,selectedTopology,undoAvailable:undoStack.length>0,redoAvailable:redoStack.length>0,busy,status,kernelReady,dirty,displayPreferences:viewport.displayPreferences,metalFinish:viewport.finishKey,aiStatus,revision,viewState:{quality:qualityKey,display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selection:viewport.selectionMode,anchorDrag:viewport.anchorDragEnabled,anchorVisible:viewport.anchorVisible,temporaryDisplay:viewport.temporaryDisplay}});}
 function setStatus(message){status=message;ui.setStatus(t(message));}
 function reportError(error){console.error(error);const recovery=errorRecovery(error);ui.showError(error);setStatus(recovery.userMessage);}
-function pushUndo(next,label){if(next){recordTimeline(documentModel,next,{label});validateTimeline(next);assertDocumentCapacity(next);}const {imports,timeline,...rest}=documentModel;undoStack.push({...clone(rest),imports,timeline});if(undoStack.length>40)undoStack.shift();redoStack=[];}
+function pushUndo(next,label){if(next){recordTimeline(documentModel,next,{label});validateTimeline(next);assertDocumentCapacity(next);}const {imports,timeline,...rest}=documentModel;undoStack.push({...clone(rest),imports,timeline});if(undoStack.length>20)undoStack.shift();redoStack=[];}
 function setBusy(value,message){if(value&&!busy){loadingTracker.reset();ui.setBusyProgress?.(null);}busy=value;viewport.setBusy?.(value);ui.setBusy(value,value?LOADING_TEXT:undefined);if(message)setStatus(message);refresh();}
 // Opening/inserting/startup show only 载入中 (+ a bar when real progress is known).
 async function withLoading(task){loadingDepth++;loadingTracker.reset();ui.setBusyProgress?.(null);if(!busy){ui.setBusy(true,LOADING_TEXT);setStatus(LOADING_TEXT);}try{return await task();}finally{loadingDepth--;if(!busy&&!loadingDepth)ui.setBusy(false);}}
@@ -383,10 +387,11 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     const newQuickModels=record&&!newInstance&&documentModel.documentId===next.documentId?next.features.filter(f=>f.op==='quickModel'&&!documentModel.features.some(old=>old.id===f.id)):[];
     // Anchors and retained history can grow after preflight. Validate the final
     // snapshot before changing undo/redo, revision, or the authoritative model.
+    if(next.materialSettings)next.materialSettings=inheritBodyMaterials(next.materialSettings,next.features,result.bodies.map(b=>b.id));
     try{if(record)pushUndo(next,historyLabel);else {recordTimeline(rebuildBaseline,next,{label:'保留恢复后的重建状态'});validateTimeline(next);assertDocumentCapacity(next);}}
     catch(error){await request('rebuild',{document:documentModel});throw error;}
     if(newInstance||documentModel.documentId!==next.documentId){documentInstanceId=crypto.randomUUID();projectFileHandle=null;}
-    documentModel=next;bodies=result.bodies;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;committed=true;
+    documentModel=next;bodies=result.bodies;committedFinalSources=result.finalSources;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;committed=true;
     kernelPerformance={totalMs:performance.now()-localBegan,...(result.parallelRebuild?{parallelRebuild:result.parallelRebuild}:{}),perFeatureMs:result.perFeatureMs||[],compiledReuse:result.compiledReuse||[],compiledInvalidated:result.compiledInvalidated||[],slowest:(result.perFeatureMs||[]).slice().sort((a,b)=>b.ms-a.ms).slice(0,10)};
     for(const feature of newQuickModels)recordQuickModelUse(feature.params.kind);
     lastWarnings=bodyWarnings(bodies);if(placementWarning)lastWarnings.push(placementWarning);dirty=true;if(save)void autosave(); // selection-origin
@@ -608,7 +613,7 @@ function validateDocument(doc){
   const ids=new Set();for(const f of doc.features){if(!f.id||ids.has(f.id)||typeof f.op!=='string'||!f.params||!Array.isArray(f.refs))throw new Error('工程特征结构无效。');for(const ref of f.refs)if(!ids.has(ref))throw new Error('工程包含无效的操作引用。');if(f.placement!==undefined){if(![2,3,4].includes(doc.version)||f.semanticsVersion!==2)throw Object.assign(new Error('定位特征需要工程版本 2 和语义版本 2。'),{code:'DOCUMENT_VERSION_UNSUPPORTED'});validateResolvedPlacement(f.placement,f.op);}ids.add(f.id);}
   validateReliefDesigns(doc.reliefDesigns);
   if(doc.timeline)validateTimeline(doc);
-  const normalized={...(doc.timeline?clone(doc):{}),...(doc.reliefDesigns!==undefined?{reliefDesigns:validateReliefDesigns(doc.reliefDesigns)}:{}),version:doc.version>=3?doc.version:2,...(doc.version===4?{binaryAssets:doc.binaryAssets||{}}:{}),...(doc.version>=3?{compiledArtifacts:doc.compiledArtifacts||{}}:{}),referenceSystem:doc.referenceSystem!==undefined?validateReferenceSystem(doc.referenceSystem):createReferenceSystem(),...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{},colors:doc.colors&&typeof doc.colors==='object'?Object.fromEntries(Object.entries(doc.colors).filter(([,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))):{},renderFinish:doc.renderFinish??null};
+  const normalized={materialSettings:validateMaterialSettings(doc.materialSettings??loadMaterialSettings()),...(doc.timeline?clone(doc):{}),...(doc.reliefDesigns!==undefined?{reliefDesigns:validateReliefDesigns(doc.reliefDesigns)}:{}),version:doc.version>=3?doc.version:2,...(doc.version===4?{binaryAssets:doc.binaryAssets||{}}:{}),...(doc.version>=3?{compiledArtifacts:doc.compiledArtifacts||{}}:{}),referenceSystem:doc.referenceSystem!==undefined?validateReferenceSystem(doc.referenceSystem):createReferenceSystem(),...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{},colors:doc.colors&&typeof doc.colors==='object'?Object.fromEntries(Object.entries(doc.colors).filter(([,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))):{},renderFinish:doc.renderFinish??null};
   // Add missing legacy defaults as a new transition; never rewrite old states
   // or drop their source bytes. Explicit invalid reference data still fails.
   if(doc.timeline){recordTimeline(doc,normalized,{label:'兼容旧版工程元数据'});validateTimeline(normalized);}
@@ -766,6 +771,7 @@ async function performAction(action,params={}){
   if(action==='inspectThickness'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.inspectThickness({context:{...identity,expectedRevision:r},...params});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
   if(action==='inspectDraft'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.inspectDraft({context:{...identity,expectedRevision:r},...params});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
   if(action==='measureRelation'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.measureRelation({context:{...identity,expectedRevision:r},...params});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
+  if(action==='materialSettings')return runEditorAction('document.materials',{settings:params});
   if(action==='metalFinish')return runEditorAction('document.appearance',{finish:params.key});
   if(action==='fit'){viewport.fit();return;}
   if(action==='floorSelected'){
@@ -916,7 +922,7 @@ function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:doc
 async function executeAI(command,args={},options={}){
   const origin=options.origin==='agent'?'agent':'user';
   if(command==='file_save'){
-    const snapshot=clone(documentModel),savedRevision=revision,instance=documentInstanceId,docId=snapshot.documentId;
+    const snapshot=finalStateProject(clone(documentModel),committedFinalSources),savedRevision=revision,instance=documentInstanceId,docId=snapshot.documentId;
     const bytes=await encodeCommittedProject(snapshot);
     if(options.signal?.aborted)throw Object.assign(new Error('保存已取消；原工程保留'),{code:'JOB_CANCELED'});
     return {revision:savedRevision,documentId:docId,documentInstanceId:instance,encoding:'bytes',data:bytes,extension:'webcad',mime:snapshot.version>=3?'application/zip':'application/json'};
@@ -984,6 +990,7 @@ async function executeAI(command,args={},options={}){
     }
     if(action==='document.reliefDesign'){next.reliefDesigns=updateReliefDesigns(documentModel.reliefDesigns,a);if(JSON.stringify(next.reliefDesigns)===JSON.stringify(documentModel.reliefDesigns||[]))return aiState();}
     if(action==='document.reliefDesignReference'){const updated=applyReliefDesignReference(documentModel,a);if(JSON.stringify(updated.reliefDesigns)===JSON.stringify(documentModel.reliefDesigns||[]))return aiState();Object.assign(next,updated);}
+    if(action==='document.materials'){next.materialSettings=validateMaterialSettings(a.settings);}
     if(action==='document.rename')next.name=a.name.trim();
     if(action==='feature.rename')next.features.find(f=>f.id===a.featureId).name=a.name.trim();
     if(action==='body.visibility')next.hidden=[...new Set([...next.hidden.filter(id=>!a.bodyIds.includes(id)),...(a.visible?[]:a.bodyIds)])];
@@ -991,7 +998,7 @@ async function executeAI(command,args={},options={}){
     if(action==='body.appearance')for(const id of a.bodyIds){
       for(const [field,value] of [['colors',a.color],['appearance',a.finish]])if(value!==undefined){next[field]={...next[field]};if(value===null)delete next[field][id];else next[field][id]=value;}
     }
-    checkTransaction(options.signal,options.expectedRevision);pushUndo(next,EDITOR_ACTIONS[action]?.title||(action==='document.reliefDesignReference'?'浮雕原参考图绑定':undefined));documentModel=next;dirty=true;revision++;
+    checkTransaction(options.signal,options.expectedRevision);pushUndo(next,EDITOR_ACTIONS[action]?.title||(action==='document.reliefDesignReference'?'浮雕原参考图绑定':undefined));documentModel=next;dirty=true;revision++;if(action==='document.materials')rememberMaterialSettings(next.materialSettings);
     if(action==='feature.rename'){const body=bodies.find(b=>b.id===a.featureId);if(body)body.name=a.name.trim();}
     lastWarnings=[];
     if(origin==='agent'&&action==='body.appearance'&&a.color!==undefined&&a.finish&&a.finish!=='design')lastWarnings.push({code:'COLOR_IGNORED_BY_METAL_FINISH',finish:a.finish,color:a.color});
@@ -1087,7 +1094,7 @@ const pageAPI=createPageAPI({
   },
   decideServicesWait:input=>decideServicesWait(input.jobId,input.decision),
   servicesRouting:()=>({operationPolicy:{localOnly:EXECUTION_POLICY.localOnlyOperations,conditionalServices:EXECUTION_POLICY.servicesEligibleOperations,quickModels:'all-local',unknownOperation:EXECUTION_POLICY.unknownOperation},unavailableOperations:tbdCapabilities.operations,policyVersion:EXECUTION_POLICY.policyVersion,executionTimeouts:{localTimeoutMs:getServicesConfig().localTimeoutMs,serverWaitMs:getServicesConfig().serverWaitMs},pendingWait:pendingServicesWait?{jobId:pendingServicesWait.jobId,elapsedMs:pendingServicesWait.elapsedMs,execution:pendingServicesWait.execution,requestKey:pendingServicesWait.requestKey,decisionRequired:true}:null,lastDecision:lastServicesDecision?.documentInstanceId===documentInstanceId?clone(lastServicesDecision):null,historyStorage:'bounded-session-memory',automaticUploadConsent:getServicesConfig().allowGeometryUploads}),
-  history:()=>timelineList(documentModel),
+  history:()=>timelineList(documentModel),materialSettings:()=>validateMaterialSettings(documentModel.materialSettings),
   locationMarker:async input=>{if(input.screen)return deliverLocationMarker(viewport.pickLocation(input.screen));if(input.active!==undefined){if(input.active){if(!hostControl.get().connected)throw Object.assign(new Error('请先连接原生 Agent，再标记位置。'),{code:'AGENT_COMPOSER_UNAVAILABLE'});if(busy||previewNext||viewport.sketch||viewport.measuring||ui.hasActiveTask())throw Object.assign(new Error('请先完成当前操作再标记位置。'),{code:'UI_TASK_ACTIVE'});viewport.setSelectionMode('view');viewport.startLocationMarking();refresh();}else if(viewport.locationMarking)viewport.cancelTask();}const last=lastLocationMarker?.marker.context;return {status:'read',active:!!viewport.locationMarking,last:last?.documentInstanceId===documentInstanceId?lastLocationMarker:null};},
   planAlignment:input=>planBodyAlignment(input,bodies,documentModel.referenceSystem),
   selectRectangle:input=>{if(ui.hasActiveTask())throw Object.assign(new Error('请先完成当前人工任务'),{code:'UI_TASK_ACTIVE'});return selectRectangle(input);},
@@ -1128,13 +1135,14 @@ const pageAPI=createPageAPI({
   view:async input=>{flushDisplayBatch();ui.setWorkspaceLayout(input);viewport.setViewInteraction(input.interactionPhase??'end');if(input.anchorVisible!==undefined)viewport.setAnchorVisible(input.anchorVisible);if(input.panels)ui.setPanels(input.panels);if(input.temporaryDisplay)viewport.setTemporaryDisplay(input.temporaryDisplay);if(input.display)viewport.setDisplay(input.display);if(input.grid!==undefined)viewport.grid.visible=input.grid;if(input.snap!==undefined)viewport.snapEnabled=input.snap;if(input.gizmo){if(input.gizmo!=='off'){viewport.setAnchorDrag(false);viewport.setSelectionMode('body');selectedTopology=null;}viewport.setGizmo(input.gizmo);}if(input.selectionMode){if(input.selectionMode!=='body')viewport.setGizmo('off');viewport.setSelectionMode(input.selectionMode);selectedTopology=null;}if(input.language){setLanguage(input.language);viewport.updateLanguage();ui.update({language:input.language});}if(input.camera)viewport.setCamera(input.camera);if(input.section)viewport.setSection(input.section);if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){if(JSON.stringify(input.selectedIds)!==JSON.stringify(selectedIds))ui.discardForSelection();selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);}if(input.display!==undefined)clearSelection();viewport.setSelection(selectedIds,selectedTopology);refresh();await viewport.frame();},
   redraw:async()=>{flushDisplayBatch();viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();lastWarnings=lastWarnings.filter(w=>w.code!=='DISPLAY_FAILED');},
 });
-let lastLocationMarker=null,locationMarkerNumber=0;
 async function deliverLocationMarker(hit){
   if(!hostControl.get().connected)throw Object.assign(new Error('请先连接原生 Agent，再标记位置。'),{code:'AGENT_COMPOSER_UNAVAILABLE'});
   if(busy||previewNext||viewport.sketch||viewport.measuring)throw Object.assign(new Error('请先完成当前操作再标记位置。'),{code:'UI_TASK_ACTIVE'});
   const marker=createLocationMarker(hit,pageAPI.getState().context,++locationMarkerNumber);
   lastLocationMarker={marker,delivery:'pending'};
   const result=await assistantPanel.insertLocation(marker);
+  if(locationMarkers.some(m=>m.context.documentInstanceId!==marker.context.documentInstanceId||m.context.revision!==marker.context.revision))locationMarkers=[];
+  locationMarkers.push(marker);locationMarkers=locationMarkers.slice(-128);viewport.setLocationMarkers(locationMarkers);
   lastLocationMarker={marker,...result};
   return {status:'applied',...lastLocationMarker,context:pageAPI.getState().context};
 }

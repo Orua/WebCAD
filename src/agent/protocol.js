@@ -5,7 +5,7 @@ import {errorRecovery} from '../error-recovery.js';
 export const PROTOCOL = 'goldenluck.webcad/1';
 export const IDENTITY_KEYS = Object.freeze(['sessionId','documentId','documentInstanceId']);
 export const READ_METHODS = new Set(['getBatchReceipt','connect','info','getState','waitFor','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs',
-  'queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectDesign','inspectProfile',
+  'getMaterials','measureMass','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectDesign','inspectProfile',
   'inspectConstraints','inspectFit','inspectThickness','inspectDraft','inspectPrintability','files.capabilities',
   'planPatternMachining','prepareProfileEdit','projectProfile','sampleMeshRelief','sampleReliefHeight','prepareReliefSculpt','readRelief','readVector','connectVector',
   'fitProfile','traceTwinWindow','planAlignment','getUILayout','getQuickModelUsage','inspectRound','getModelLibrary','resolveModelLibrary']);
@@ -13,7 +13,7 @@ export const VIEW_METHODS = new Set(['setView','setRenderQuality','setDisplayPre
 export const DISCOVERY_METHODS = new Set(['getBatchReceipt','connect','info','getState','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage','getModelLibrary']);
 const CONTEXTLESS_READ_METHODS = new Set(['getServices','getServicesCapabilities','getServicesRouting']);
 export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.edit','feature.rename','document.rename',
-  'feature.compileServices','document.reliefDesign',
+  'document.materials','feature.compileServices','document.reliefDesign',
   'body.visibility','body.appearance','body.explode','document.appearance','history.undo','history.redo',
   'reference.setWorkFrame','reference.resetWorkFrame','reference.setLocked','reference.setBodyAnchor',
   'reference.saveFrame','reference.activateFrame','reference.renameFrame','reference.deleteFrame','reference.deleteBodyAnchor',
@@ -24,6 +24,7 @@ export const JOB_METHODS = new Set(['run','execute','queryGeometry','measure','m
 export const EDIT_METHODS = new Set(['execute','files.import','copySelection','pasteSelection','recoverKernel']);
 export const EXPORT_METHODS = new Set(['files.save','files.export','files.reattach','createDrawing','exportDrawing']);
 JOB_METHODS.add('recoverKernel');
+JOB_METHODS.add('measureMass');
 READ_METHODS.add('probeBlendRadius');
 for(const method of ['getServices','getServicesCapabilities','getServicesRouting','readLogo'])READ_METHODS.add(method);
 for(const method of ['reviewLogo','logoWizard','reliefDesignField','reliefDesignReference','reliefDesignFit']){READ_METHODS.add(method);JOB_METHODS.add(method);}

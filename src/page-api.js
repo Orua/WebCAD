@@ -1,4 +1,5 @@
 import {meshReliefSampleSchema} from './mesh/relief-sample.js';
+import {METAL_DENSITIES,materialWeight} from './material-density.js';
 import {validateSchema} from './contracts/operation-schema.js';
 import {layoutDrawing} from './drawing/technical-layout.js';
 import {drawingSVG,drawingDXF,drawingPDF,drawingJPEG} from './drawing/drawing-export.js';
@@ -277,6 +278,12 @@ export function createPageAPI(host){
       const keys=['context','bodyId','inputGeometryHash','support','pointsMm'],s=check(input,keys),{context,...args}=input;validateSchema(meshReliefSampleSchema,args);
       if(!s.bodies.some(b=>b.id===input.bodyId))fail('STALE_REFERENCE','Unknown current mesh body');
       const result=await host.sampleMeshRelief(args);check(input,keys);return {status:'read',context:current().context,bodyId:input.bodyId,...result};
+    }),
+    getMaterials:guarded(async(input={})=>{if(Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getMaterials takes no arguments');return {status:'read',settings:host.materialSettings(),materials:METAL_DENSITIES,context:current().context};}),
+    measureMass:guarded(async input=>{
+      check(input,['context','bodyId','materialId']);if(input.materialId!==undefined&&!Object.hasOwn(METAL_DENSITIES,input.materialId))fail('PARAM_SCHEMA_INVALID','Unknown materialId');
+      const measurement=await api.measure({context:input.context,bodyId:input.bodyId});if(measurement.status==='failed')return measurement;
+      check(input,['context','bodyId','materialId']);return {status:'read',source:measurement.source,...materialWeight(measurement.volume,host.materialSettings(),input.bodyId,input.materialId),context:current().context};
     }),
     measure:guarded(async input=>{
       check(input,['context','bodyId','kind','topologyId','points']);
@@ -656,7 +663,7 @@ export function createPageAPI(host){
       const dataUrl=typeof shot==='string'?shot:shot.dataUrl;
       const mime=typeof shot==='string'?'image/png':shot.mime;
       return {status:'read',mime,dataUrl,context:current().context,requestContext:requestContext(current().context),display:host.display(),
-        ...(input.maxWidth?{maxWidth:input.maxWidth}:{}),format};
+        ...(input.maxWidth?{maxWidth:input.maxWidth}:{}),...(shot.width?{width:shot.width,height:shot.height}:{}),format};
     }),files:Object.freeze(files),
   };
   const run=createPageBatch(api,{display:host.displayBatch});

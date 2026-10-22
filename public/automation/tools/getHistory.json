@@ -2,9 +2,9 @@
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.55.9",
+  "version": "1.57.1",
   "contextPolicy": "none",
-  "description": "getHistory()。返回已保留状态，不含导入源字节。",
+  "description": "getHistory()。会话最多20状态/512KiB，磁盘新保存文件不保留timeline。",
   "synonyms": [
     "getHistory",
     "历史",
@@ -12,8 +12,8 @@
     "退回",
     "检查点"
   ],
-  "inputContract": "getHistory()。返回已保留状态，不含导入源字节。",
-  "outputContract": "entries:{id,label,at,featureId?}、storedSteps、prunedSteps、bytes、maxSteps、maxBytes。bytes/maxBytes仅计历史基线与差量，导入资源在工程中共享一次；资源只有在当前工程与所有保留状态都不引用时才回收，已存在的内存撤销快照不被改写。execute action=history.restore,args:{stateId} 恢复；旧工程只能从开始记录时回退。缺失历史所需源资源的工程拒绝载入（HISTORY_INVALID）。",
+  "inputContract": "getHistory()。会话最多20状态/512KiB，磁盘新保存文件不保留timeline。",
+  "outputContract": "entries:{id,label,at,featureId?}、storedSteps、prunedSteps、bytes、maxSteps、maxBytes；撤销最多20次。旧工程历史读取兼容，下一次记录收紧上限。execute action=history.restore,args:{stateId}恢复当前仍保留的状态。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -63,5 +63,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:588124e4f18b7fc319a9273f12bbebffadf93dd52458974b8f74d692725b351e"
+  "docsHash": "sha256:8afacdf14c3bca7275073fe274f2c407f5c2792a6bd9483b56b9a9309376e5fe"
 }

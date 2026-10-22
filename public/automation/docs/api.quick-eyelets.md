@@ -3,6 +3,8 @@
 铜皮鸡眼template.twoPieceEyelet与合金鸡眼template.alloyEyelet均为一个quickModel特征、两个独立同轴实体。通过run的add op:quickModel、params.kind创建，feature.edit修改、getState/measure读取实体和尺寸；kind名称不是execute操作名。faceStyle=flat或curved，faceRiseMm为弧面径向拱高，flat忽略该值。A长脚件在上方（+Z），脚向下；B底片在下方（-Z），颈口向上，两片外观面朝外，底面Z=0。铜皮鸡眼新建默认explodedOffsetMm=0，assemblyGapMm=0，按长脚与短脚尺寸静态套合；assemblyGapMm为额外轴向拉开距离，正的explodedOffsetMm横向错开展示但仍相向。旧配方无faceStyle且未写横移时沿用24mm同向分开展示；新建会冻结faceStyle和定位参数。铜皮薄板以圆弧旋转形成曲面，轴向板厚保持，不模拟冲压。合金鸡眼参考PG14922，A外套管与B内套管相套，无内侧爪针；outerDiameterMm/boreDiameterMm为两面共用外径孔径，aFaceThicknessMm/bFaceThicknessMm为面厚，edgeChamferMm为真实面框倒角。a/bNeckOuterDiameterMm、InnerDiameterMm、LengthMm分别为两套管尺寸。materialGapMm为两面框内侧平面净距，须比最长套管大至少0.01mm；B套管外径须小于A套管内径。倒角须小于两面厚及环宽的一半，弧高须小于有效面环径向宽的一半。尺寸关系不成立明确失败且不提交工程。默认合金外径19.8/孔10及套管尺寸参考来源，平面/倒角/无针是用户指定改型，间隙与弧高为可调设计值，不冒充原图标注。铜皮装配朝向参考PG15211，默认尺寸仍为通用尺寸。两类均不模拟压铆、变形、锁扣与安装材料。原frameEyelet为带安装螺丝柱的另一类鸡眼面，保留其现有接口。保存重开与撤销共用标准历史配方。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision

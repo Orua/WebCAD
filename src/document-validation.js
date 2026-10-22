@@ -1,8 +1,10 @@
 import {assertDocumentCapacity} from './document-limits.js';
+import {validateMaterialSettings} from './material-density.js';
 import {validateTimeline} from './document-timeline.js';
 import {validateReferenceSystem,validateResolvedPlacement} from './work-frame.js';
 import {validateOperationRefs,validateOperationExample} from './operation-registry.js';
 export function validateProject(document){
+  if(document?.materialSettings!==undefined)validateMaterialSettings(document.materialSettings);
   const checks={idsRefsPlacement:false,paramSchemas:false,capacity:false,timeline:false,referenceSystem:false};
   if(!document||![1,2,3,4].includes(document.version)||!Array.isArray(document.features)||!document.imports||typeof document.imports!=='object')throw Object.assign(new Error('不是有效的WebCAD工程'),{code:'DOCUMENT_INVALID',checks});
   assertDocumentCapacity(document);checks.capacity=true;

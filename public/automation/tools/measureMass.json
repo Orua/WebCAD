@@ -1,0 +1,74 @@
+{
+  "id": "measureMass",
+  "title": "measureMass",
+  "category": "page-method",
+  "version": "1.57.1",
+  "contextPolicy": "identity",
+  "description": "measureMass({context,bodyId,materialId?})；测量当前对象体积，再按显式材料/对象材料/工程默认材料优先级计算。",
+  "synonyms": [
+    "measureMass",
+    "重量",
+    "质量",
+    "密度",
+    "体积"
+  ],
+  "inputContract": "measureMass({context,bodyId,materialId?})；测量当前对象体积，再按显式材料/对象材料/工程默认材料优先级计算。",
+  "outputContract": "status=read,materialId,materialName,densityGcm3,volumeMm3,massGrams,estimated:true,reason,source,context；g=mm³×g/cm³÷1000。无有效体积返回massGrams:null/reason:VOLUME_UNAVAILABLE，不报0；不包含镀层、损耗或另装配件。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "INSTANCE_MISMATCH",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context",
+      "bodyId"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "bodyId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "materialId": {
+        "type": "string",
+        "enum": [
+          "zincAlloy",
+          "copper",
+          "iron",
+          "steel",
+          "brass",
+          "stainless",
+          "aluminum"
+        ]
+      }
+    }
+  },
+  "selectionGuide": {
+    "groupId": "materials",
+    "groupTitle": "密度与估算重量",
+    "chooseWhen": "测量当前对象体积并按密度计算克重；无体积返回null，不是电镀外观设置。",
+    "alternatives": [
+      {
+        "id": "getMaterials",
+        "chooseWhen": "读取工程密度、默认材料和对象材料，参考值不等于实际合金检测。"
+      },
+      {
+        "id": "document.materials",
+        "chooseWhen": "写入工程密度和对象材料；不修改几何或镀色，可撤销并保存。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:d097c7eb7f6730ed4b002f60cbc9dc844a3b61c9c465b9ab885167af562a6aed"
+}
