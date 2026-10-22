@@ -115,3 +115,16 @@ export const PATTERN_MACHINING_GUIDANCE=`图案加工分流 v1
 planPatternMachining({context,intent})只读规划。intent.version=1；requestedGeometry=constantDepthContours|layeredRelief|continuousRelief|mixed|unspecified；sourceInterpretation=reviewedVectors|rasterArtwork|authoredHeightMap|shadedReference|sculptMesh；userIntentEvidence保留用户原请求/已确认上下文。提供原始sourceHash、dimensionsMm:{width,height}、direction、specifiedDepthsMm或targetPeakMm、preserve、supportBinding:{bodyId,geometryFingerprint}、placementSnapshot:{origin,quaternion}。看route/missingInputs/capabilityBlockers/canExecute，不把关键词命中视为执行许可。规划不证明来源/支撑绑定；执行仍读当前面与几何、完整工具卡。
 新LOGO/relief创建和预览params必须携带machiningIntent；Worker执行端再次核对声明，UI明确修改已声明的深度/方向时同步数值声明；旧文件重建、编辑、撤销保留旧版本，无字段不自动升级。新LOGO需reviewedVectors及原孔/空白；照片浮雕标shadedReference，当前语义雕刻未启用，不得把亮度映射后报成品。readRelief显式提供sourceInterpretation；灰度只能用于authoredHeightMap。旧depthMm是控制点比例，不是实际峰值；targetPeakMm不走旧算法。自然圆滑不等于固定R。
 转换失败、超时或不支持保持原目标和原工程；不互换LOGO/浮雕，不去耳朵/封孔/改深度或盲目重提任务。任务completed、几何提交、生成文件、落盘、离线重开及造型验收分别报告；取消先读已提交revision和原commandId。`;
+
+// Relief height sources (relief design import). Photos are shaded references: they may only feed a
+// height field after the user explicitly confirms the converted grid as their own authored height map.
+export const PHOTO_HEIGHTMAP_CONFIRMATION='我确认此结果为我制作的高度图';
+export function assertReliefHeightSourceIntent(record){
+ const conflict=message=>{throw Object.assign(new Error(message),{code:'MACHINING_SOURCE_CONFLICT'});};
+ if(record?.interpretation!=='authoredHeightMap')conflict('浮雕高度来源必须是作者高度图；照片需先经用户确认转换。');
+ const d=record.derivedFrom;
+ if(d===undefined)return;
+ if(!d||typeof d!=='object'||Object.keys(d).some(k=>!['kind','sourceSha256','settingsHash','confirmation'].includes(k))||d.kind!=='shadedReference')conflict('派生记录无效。');
+ if(d.sourceSha256!==record.original?.sha256||d.settingsHash!==record.settingsHash)conflict('派生记录与原图或转换设置不一致，需要重新确认。');
+ if(!d.confirmation||d.confirmation.text!==PHOTO_HEIGHTMAP_CONFIRMATION||typeof d.confirmation.confirmedAt!=='string'||Number.isNaN(Date.parse(d.confirmation.confirmedAt))||Object.keys(d.confirmation).some(k=>!['text','confirmedAt'].includes(k)))conflict(`照片转换缺少用户确认“${PHOTO_HEIGHTMAP_CONFIRMATION}”。`);
+}

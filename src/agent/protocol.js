@@ -28,6 +28,7 @@ JOB_METHODS.add('measureMass');
 READ_METHODS.add('probeBlendRadius');
 for(const method of ['getServices','getServicesCapabilities','getServicesRouting','readLogo'])READ_METHODS.add(method);
 for(const method of ['reviewLogo','logoWizard','reliefDesignField','reliefDesignReference','reliefDesignFit']){READ_METHODS.add(method);JOB_METHODS.add(method);}
+READ_METHODS.add('prepareReliefDesignRelief');
 JOB_METHODS.add('readLogo');
 JOB_METHODS.add('probeBlendRadius');
 JOB_METHODS.add('files.reattach');

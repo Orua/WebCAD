@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.57.1 · sha256:31c36d4e3d6a058c3d6e0ba7651d9f7fbbc57ece4bbb2f083deab2893c025a5e
+API 1.57.1 · sha256:b215573e5def92ebbdca1780893995b7d2dce8fd548763f69db56ecbe74c1485
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -12,6 +12,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -118,6 +119,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -242,6 +244,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -372,6 +375,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -482,6 +486,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -588,6 +593,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -694,6 +700,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -800,6 +807,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -1084,7 +1092,7 @@ files.release: contextPolicy=none
 
 读取对应工具卡和报错阶段，复核来源截面、路径、支撑及参数关系；先修正已证实的输入问题，不能用试错改变设计。
 
-代码：`DEGENERATE_PROJECTION`、`FIT_DEGENERATE`、`HEIGHTFIELD_INVALID`、`HEIGHTFIELD_SCULPT_INVALID`、`MESH_CODEC_INVALID`、`MESH_INDEX_INVALID`、`MESH_NONFINITE`、`MESH_NOT_MANIFOLD`、`MESH_REPORT_INVALID`、`MESH_SOURCE_CLASSIFICATION_REQUIRED`、`MESH_SOURCE_INVALID`、`MESH_TRANSFORM_INVALID`、`PROFILE_CAPACITY`、`PROFILE_EDIT_INVALID`、`PROFILE_EXTRUDE_INVALID`、`PROFILE_INVALID`、`PROFILE_LOFT_INVALID`、`PROFILE_OFFSET_INVALID`、`PROFILE_OUTSIDE`、`PROFILE_REPAIR_INVALID`、`PROFILE_REVOLVE_INVALID`、`PROFILE_SWEEP_INVALID`、`PROJECTION_INVALID`、`RELIEF_CURVE_DEVIATION`、`RELIEF_CURVE_TOPOLOGY_INVALID`、`RELIEF_DEFORMATION_INVALID`、`RELIEF_DESIGN_BINDING_INVALID`、`RELIEF_DESIGN_INTENT_REQUIRED`、`RELIEF_DESIGN_MASK_BLOCKED`、`RELIEF_DESIGN_NATIVE_REQUIRED`、`RELIEF_DESIGN_SOURCE_CHANGED`、`RELIEF_DESIGN_STALE`、`RELIEF_DESIGN_SUPPORT_INVALID`、`RELIEF_DESIGN_UNSOLVED`、`RELIEF_FIELD_INVALID`、`RELIEF_INVALID`、`RELIEF_LAYERS_INVALID`、`RELIEF_PATCH_INVALID`、`RELIEF_PLATE_INVALID`、`RELIEF_PROFILE_INVALID`、`RELIEF_REGION_INVALID`、`RELIEF_SHOULDER_INVALID`、`RELIEF_SUPPORT_INVALID`
+代码：`DEGENERATE_PROJECTION`、`FIT_DEGENERATE`、`HEIGHTFIELD_INVALID`、`HEIGHTFIELD_SCULPT_INVALID`、`MESH_CODEC_INVALID`、`MESH_INDEX_INVALID`、`MESH_NONFINITE`、`MESH_NOT_MANIFOLD`、`MESH_REPORT_INVALID`、`MESH_SOURCE_CLASSIFICATION_REQUIRED`、`MESH_SOURCE_INVALID`、`MESH_TRANSFORM_INVALID`、`PROFILE_CAPACITY`、`PROFILE_EDIT_INVALID`、`PROFILE_EXTRUDE_INVALID`、`PROFILE_INVALID`、`PROFILE_LOFT_INVALID`、`PROFILE_OFFSET_INVALID`、`PROFILE_OUTSIDE`、`PROFILE_REPAIR_INVALID`、`PROFILE_REVOLVE_INVALID`、`PROFILE_SWEEP_INVALID`、`PROJECTION_INVALID`、`RELIEF_CURVE_DEVIATION`、`RELIEF_CURVE_TOPOLOGY_INVALID`、`RELIEF_DEFORMATION_INVALID`、`RELIEF_DESIGN_INTENT_REQUIRED`、`RELIEF_DESIGN_PLACEMENT_REQUIRED`、`RELIEF_DESIGN_STALE`、`RELIEF_DESIGN_TARGET_REQUIRED`、`RELIEF_DESIGN_UNSOLVED`、`RELIEF_FIELD_INVALID`、`RELIEF_INVALID`、`RELIEF_LAYERS_INVALID`、`RELIEF_PATCH_INVALID`、`RELIEF_PLATE_INVALID`、`RELIEF_PROFILE_INVALID`、`RELIEF_REGION_INVALID`、`RELIEF_SHOULDER_INVALID`、`RELIEF_SUPPORT_INVALID`
 
 ### design_check
 
@@ -1318,6 +1326,14 @@ PDF页面渲染或渲染底图校验未通过。
 
 代码：`RELIEF_DESIGN_BASE_INTERSECTION`
 
+### design-fit-brep-binding
+
+拟合与支撑面、放置或掩码的绑定不再一致。
+
+重新读取当前工程，重新选择真实平面并重新准备；不沿用旧面编号，不放宽绑定或改用其他轮廓策略。
+
+代码：`RELIEF_DESIGN_BINDING_INVALID`、`RELIEF_DESIGN_MASK_BLOCKED`、`RELIEF_DESIGN_SOURCE_CHANGED`、`RELIEF_DESIGN_SUPPORT_INVALID`
+
 ### design-boundary
 
 当前采样尚不能完整保留支撑边界或贯穿孔。
@@ -1334,6 +1350,14 @@ PDF页面渲染或渲染底图校验未通过。
 
 代码：`RELIEF_DESIGN_MASK_INVALID`
 
+### design-fit-brep-native
+
+该拟合浮雕的控制网格复杂度需要尚未开放的Native平面B样条能力。
+
+保留拟合与工程；减少显式控制网格后重新拟合，或等待Native验收；不降级本地执行。
+
+代码：`RELIEF_DESIGN_NATIVE_REQUIRED`
+
 ### outside
 
 操作点、深度或加工范围未落在允许的实际目标区域。
@@ -1342,6 +1366,14 @@ PDF页面渲染或渲染底图校验未通过。
 
 代码：`RELIEF_DESIGN_OUTSIDE`、`RELIEF_OUTSIDE_FACE`、`RELIEF_SAMPLE_OUTSIDE`、`RELIEF_TARGET_OUTSIDE`、`SUBD_BRUSH_NO_HIT`、`TAP_DEPTH_INVALID`、`TAP_POINT_INVALID`
 
+### relief-services-required
+
+临时控制网需要 Services 完成首次拟合。
+
+保留当前设计并检查 Services 能力；如需本地执行，由用户明确选择浏览器拟合后重新准备。
+
+代码：`RELIEF_DESIGN_SERVICES_REQUIRED`
+
 ### relief-reference
 
 浮雕原参考图不存在、已改变或未通过原件校验。
@@ -1349,6 +1381,14 @@ PDF页面渲染或渲染底图校验未通过。
 读取当前设计草稿与已登记原图资源；核对真实图片格式、SHA256、大小和解码结果。原图仅供参考，不能按照片明暗自动生成高度。
 
 代码：`RELIEF_REFERENCE_INVALID`、`RELIEF_REFERENCE_MISSING`
+
+### relief-services-response
+
+Services 浮雕响应与请求、哈希或误差不一致。
+
+保留当前工程，核对原任务与返回产物；不提交、不自动重算或回退。
+
+代码：`SERVICES_RESPONSE_INVALID`
 
 ### wait
 
@@ -1371,6 +1411,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -1477,6 +1518,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -1584,6 +1626,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -1693,6 +1736,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -1799,6 +1843,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -1905,6 +1950,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -2012,6 +2058,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -2124,6 +2171,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -2230,6 +2278,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -2344,6 +2393,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -2456,6 +2506,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -2563,6 +2614,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -2669,6 +2721,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -2775,6 +2828,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -2927,6 +2981,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -3034,6 +3089,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -3159,6 +3215,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -3265,6 +3322,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -3378,6 +3436,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -3484,6 +3543,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -3590,6 +3650,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -3696,6 +3757,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -3802,6 +3864,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -3908,6 +3971,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -4014,6 +4078,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -4133,6 +4198,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -4239,6 +4305,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -4345,6 +4412,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -4451,6 +4519,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -4563,6 +4632,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -4682,6 +4752,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -4788,6 +4859,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -4899,6 +4971,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -5005,6 +5078,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -5111,6 +5185,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -5217,6 +5292,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -5521,6 +5597,7 @@ files.release: contextPolicy=none
 - prepareReliefSculpt：准备有明确 domain/mask 的精修草稿，尚未应用。
 - prepareReliefTopologyUpgrade：评估/准备浮雕拓扑升级；不等同已提交升级成功。
 - reliefDesignReference：绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。
+- prepareReliefDesignRelief：把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。
 - reliefDesignFit：将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。
 - reliefDesignField：从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。
 - sampleReliefHeight：读取浮雕参数/草稿指定点的控制高度，不是修改高度。
@@ -5661,6 +5738,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -6750,6 +6828,10 @@ files.release: contextPolicy=none
   "reliefDesign": {
     "tools": [
       "reliefDesignFit",
+      "prepareReliefDesignRelief",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
       "reliefDesignReference",
       "files.register",
       "files.read",
@@ -7242,6 +7324,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -7348,6 +7431,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -7454,6 +7538,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -7581,6 +7666,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -7687,6 +7773,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -7818,6 +7905,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -7928,6 +8016,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -8038,6 +8127,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -8148,6 +8238,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -8258,6 +8349,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -8368,6 +8460,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -8478,6 +8571,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -8588,6 +8682,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -8698,6 +8793,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -8808,6 +8904,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -8918,6 +9015,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -9028,6 +9126,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -9138,6 +9237,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -9248,6 +9348,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -9358,6 +9459,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -9468,6 +9570,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -9578,6 +9681,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -9688,6 +9792,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -9798,6 +9903,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -9908,6 +10014,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -10018,6 +10125,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -10128,6 +10236,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -10238,6 +10347,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -10348,6 +10458,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -10458,6 +10569,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -10568,6 +10680,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -10678,6 +10791,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -10788,6 +10902,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -10898,6 +11013,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -11008,6 +11124,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -11114,6 +11231,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -11221,6 +11339,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -11327,6 +11446,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -11433,6 +11553,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -11539,6 +11660,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -11645,6 +11767,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -11751,6 +11874,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -11857,6 +11981,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -11963,6 +12088,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -12069,6 +12195,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -12175,6 +12302,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -12281,6 +12409,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -12387,6 +12516,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -12493,6 +12623,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -12599,6 +12730,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -12705,6 +12837,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -12811,6 +12944,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -12917,6 +13051,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -13023,6 +13158,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -13129,6 +13265,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -13235,6 +13372,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -13341,6 +13479,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -13447,6 +13586,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -13553,6 +13693,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -13659,6 +13800,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -13765,6 +13907,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -13872,6 +14015,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -13978,6 +14122,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -14084,6 +14229,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -14190,6 +14336,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -14296,6 +14443,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -14402,6 +14550,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -14508,6 +14657,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -14614,6 +14764,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -14720,6 +14871,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -14828,6 +14980,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -14934,6 +15087,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -15040,6 +15194,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -15146,6 +15301,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -15252,6 +15408,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -15358,6 +15515,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -15464,6 +15622,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -15570,6 +15729,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -15676,6 +15836,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -15782,6 +15943,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -15888,6 +16050,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -15994,6 +16157,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -16100,6 +16264,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -16208,6 +16373,7 @@ Context policy: none = no document context; identity = sessionId/documentId/docu
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision
 readLogo: contextPolicy=identity
@@ -26151,6 +26317,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -26177,7 +26347,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:0b3da2639f8ad8e8dc44a31fd03c09e77f511570e3cf5b8de77094c5cff04a00"
+  "docsHash": "sha256:a396c34faa953d2a13beb4dff1269ce12d12b23d8ba4b745a822aed212df5729"
 }
 ```
 
@@ -42948,6 +43118,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -42974,7 +43148,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:1d1f867fb18822ede5bfc877cfc23632b54724b2f65e218feba6697b8a35eacd"
+  "docsHash": "sha256:c11c4af17d06f87cb2ad8101a1f8e18b07a3d3babf7212e901e30f6e90c08aa0"
 }
 ```
 
@@ -44549,6 +44723,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -44575,7 +44753,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:d3c8aa7022b1b7751d9a1bb57a9e1e777e0f2ee5010b63678bb0e1c0cadafb13"
+  "docsHash": "sha256:92450c0ec4420fe247470a9b8114b79bc3809c96307535c5c19f9164f825ee8f"
 }
 ```
 
@@ -46727,6 +46905,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -46753,7 +46935,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:0ac797c715bb3d658dccea0f1e7dc1424e514adf0a9404173405b82f29c58760"
+  "docsHash": "sha256:f21fc8efb0a31d7d90984cd240397a1751f9019e35f1ad26cb263ee656cee752"
 }
 ```
 
@@ -47445,6 +47627,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -47471,7 +47657,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:0b6bca55a0fe311512827b36c98cd987c1cb32b2f1c365ce08079bf089f4fcf9"
+  "docsHash": "sha256:9a500bf29611abf0737e4b786a99553c0b250ae8ef00be86ca1088f0062d06e1"
 }
 ```
 
@@ -70393,6 +70579,18 @@ files.release: contextPolicy=none
                 "type": "string",
                 "maxLength": 80
               },
+              "servicesFirstFit": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "acceptanceToleranceMm"
+                ],
+                "properties": {
+                  "acceptanceToleranceMm": {
+                    "type": "number"
+                  }
+                }
+              },
               "metrics": {
                 "type": "object",
                 "additionalProperties": false,
@@ -70748,7 +70946,7 @@ files.release: contextPolicy=none
     "小图）"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:5f1776cd124b9bf8b61dbd7c05e735246c36511e0a63826d1db3df41bb3ef351",
+  "schemaHash": "sha256:bb8edd74e03713ca05af880e857b3839f982c96e5d2121f495581e242c0b5400",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -71961,6 +72159,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -71987,7 +72189,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:d0d291ac941732188187acaf39ab07bc860eaa970d8ad4346f016cccfeacb91c"
+  "docsHash": "sha256:13c270e0e8e678e9dd43d5ce383a5c7392dbffdd4bd0b2d8f63d646473258c7a"
 }
 ```
 
@@ -72681,6 +72883,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -72707,7 +72913,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:30b5f9bf372ecb8a1cb67fc1874bca30ad1e60c26dfaa02baeed59abc4610a57"
+  "docsHash": "sha256:1f3942804f9f10ec189982c7976d1a667894d9e4d80c4544196aa114de1fd3b2"
 }
 ```
 
@@ -88656,6 +88862,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -88682,7 +88892,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:01070dc203c6707b1be03132addb294e092838705a749d12199f4b556493971d"
+  "docsHash": "sha256:865e22b41c1b4c6b4150f19c756ea1562635cec6b3b026773239e118ad92b834"
 }
 ```
 
@@ -88761,6 +88971,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -88787,7 +89001,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:c25eb9b4a3e0832fe4920313f988ada5b26fce043633e215b96e04e9a70afd7e"
+  "docsHash": "sha256:d21f6d6072da9e207d50942bc18cf3d076abd24f64f5f9c1300867cfb1fdc555"
 }
 ```
 
@@ -120649,7 +120863,7 @@ files.release: contextPolicy=none
   "category": "page-method",
   "version": "1.57.1",
   "contextPolicy": "revision",
-  "description": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。",
+  "description": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\"|\"servicesFirst\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；servicesFirst（需 Services 提供 relief.design-fit-brep-1）不在浏览器拟合，只保存临时控制网用于准备，首次完整拟合在 Services 预览时完成，Services 不可用时须改用 fit；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave（可选heightInterpretation:signed默认/engraveDepth，engraveDepth仅限engrave，把高于最低基线的作者高度当作下刻深度，边界与保护区仍为基线）、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。",
   "synonyms": [
     "reliefDesignFit",
     "浮雕",
@@ -120660,7 +120874,7 @@ files.release: contextPolicy=none
     "保护",
     "误差"
   ],
-  "inputContract": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。",
+  "inputContract": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\"|\"servicesFirst\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；servicesFirst（需 Services 提供 relief.design-fit-brep-1）不在浏览器拟合，只保存临时控制网用于准备，首次完整拟合在 Services 预览时完成，Services 不可用时须改用 fit；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave（可选heightInterpretation:signed默认/engraveDepth，engraveDepth仅限engrave，把高于最低基线的作者高度当作下刻深度，边界与保护区仍为基线）、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认及上限200000000。一次30秒可取消数值Worker，最多4225控制极点。",
   "outputContract": "get读普通JSON控制高度/增量、原掩码、sourceBinding及训练/独立/保护metrics，fit不修改工程。常值保护由所有相交基函数支撑锁定保证；整体偏差sampled-not-global，不是全域制造公差。最低草稿高度是baseline，不因engrave翻转高度；非零场通常仅emboss兼容。改草稿/工程、重解数值场使旧拟合失效；cancel停止拟合并保留已解原场。结果geometryReady:false、brepComputed:false、notCommitted；不返回feature.add参数，不冒称BRep/STEP，不能绕过后续真实支撑面datum/来源/路由预检。禁止自动加密、调误差或删保护追成功。get需cad.read，fit/cancel需cad.edit。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -120751,6 +120965,14 @@ files.release: contextPolicy=none
               "emboss",
               "engrave"
             ]
+          },
+          "heightInterpretation": {
+            "type": "string",
+            "enum": [
+              "signed",
+              "engraveDepth"
+            ],
+            "description": "engraveDepth仅用于engrave：作者高度(相对最低基线)作为下刻深度"
           },
           "controlColumns": {
             "type": "integer",
@@ -120845,6 +121067,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignField",
         "chooseWhen": "从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。"
       },
@@ -120867,7 +121093,405 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:bdac82ddeb8c9dbfed71b283498c24e4f939651ccd065fa9485ca513e8d35f97"
+  "docsHash": "sha256:3d2e348bf76114fff7604032ab48d66a1bd13f8efe3db272e73d3adfb5ef167d"
+}
+```
+
+## 工具 prepareReliefDesignRelief · prepareReliefDesignRelief
+
+```json
+{
+  "id": "prepareReliefDesignRelief",
+  "title": "prepareReliefDesignRelief",
+  "category": "page-method",
+  "version": "1.57.1",
+  "contextPolicy": "revision",
+  "description": "prepareReliefDesignRelief({context,designId,expectedDraftRevision,target:{bodyId,faceId,expectedSourceSha256?},placement:{originMm:[x,y,z]|alignTo:{kind:\"circularEdge\",edgeIndex},xDirection:[x,y,z]},datum:{kind:\"authoredBaselineOnSelectedFace\",baselineMm},machiningIntent:{version:1,requestedGeometry:\"continuousRelief\",sourceInterpretation:\"authoredHeightMap\",userIntentEvidence}})。只读规划：使用当前修订已拟合结果（reliefDesignFit get=fitted）和用户当前选中的真实平面（单一有效实体）；内核读取冻结源快照SHA、面心与法向。originMm为世界图案中心且须位于该平面，xDirection为面内单位切向；datum.baselineMm必须等于拟合baseline；不能填targetPeakMm。带孔面面心会偏离孔/圆心：先只传target读取support.circularEdges（真实圆形边精确圆心），再用placement.alignTo对齐，与originMm二选一。",
+  "synonyms": [
+    "prepareReliefDesignRelief",
+    "浮雕",
+    "拟合",
+    "精确BRep",
+    "支撑面",
+    "放置",
+    "基线",
+    "预览",
+    "应用"
+  ],
+  "inputContract": "prepareReliefDesignRelief({context,designId,expectedDraftRevision,target:{bodyId,faceId,expectedSourceSha256?},placement:{originMm:[x,y,z]|alignTo:{kind:\"circularEdge\",edgeIndex},xDirection:[x,y,z]},datum:{kind:\"authoredBaselineOnSelectedFace\",baselineMm},machiningIntent:{version:1,requestedGeometry:\"continuousRelief\",sourceInterpretation:\"authoredHeightMap\",userIntentEvidence}})。只读规划：使用当前修订已拟合结果（reliefDesignFit get=fitted）和用户当前选中的真实平面（单一有效实体）；内核读取冻结源快照SHA、面心与法向。originMm为世界图案中心且须位于该平面，xDirection为面内单位切向；datum.baselineMm必须等于拟合baseline；不能填targetPeakMm。带孔面面心会偏离孔/圆心：先只传target读取support.circularEdges（真实圆形边精确圆心），再用placement.alignTo对齐，与originMm二选一。",
+  "outputContract": "返回status:prepared|blocked、中文blockers、support、fingerprints及previewArgs{op:\"relief\",opVersion,schemaHash,refs,params(含严格designBinding)}。不自动预览/提交：用execute preview.start(previewArgs)→preview.commit或preview.cancel。草稿/求解场/拟合变化返回RELIEF_DESIGN_STALE须重新拟合；来源变化在执行时被内核拒绝；复杂控制网格blocked:RELIEF_DESIGN_NATIVE_REQUIRED（未开放Native，不降级）。不选面、不猜中心/基线、不转mesh。需cad.read；预览/提交另需cad.edit。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "RELIEF_DESIGN_STALE",
+    "RELIEF_DESIGN_BINDING_INVALID",
+    "RELIEF_DESIGN_SOURCE_CHANGED",
+    "RELIEF_DESIGN_SUPPORT_INVALID",
+    "RELIEF_DESIGN_MASK_BLOCKED",
+    "RELIEF_DESIGN_NATIVE_REQUIRED",
+    "STALE_REFERENCE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "PARAM_SCHEMA_INVALID",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.relief",
+  "argumentKeys": [
+    "context",
+    "designId",
+    "expectedDraftRevision",
+    "target",
+    "placement",
+    "datum",
+    "machiningIntent"
+  ],
+  "unknownFields": "rejected",
+  "units": {
+    "length": "mm"
+  },
+  "relatedTools": [
+    "reliefDesignFit",
+    "queryGeometry",
+    "execute",
+    "relief"
+  ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context",
+      "designId",
+      "expectedDraftRevision",
+      "target"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "designId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "expectedDraftRevision": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "target": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "bodyId",
+          "faceId"
+        ],
+        "properties": {
+          "bodyId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "faceId": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedSourceSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      },
+      "placement": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "xDirection"
+        ],
+        "properties": {
+          "originMm": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          },
+          "alignTo": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "edgeIndex"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "circularEdge"
+              },
+              "edgeIndex": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "xDirection": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "datum": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "baselineMm"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "authoredBaselineOnSelectedFace"
+          },
+          "baselineMm": {
+            "type": "number"
+          }
+        }
+      },
+      "machiningIntent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "requestedGeometry",
+          "sourceInterpretation",
+          "userIntentEvidence"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "const": 1
+          },
+          "requestedGeometry": {
+            "type": "string",
+            "enum": [
+              "constantDepthContours",
+              "layeredRelief",
+              "continuousRelief",
+              "mixed",
+              "unspecified"
+            ]
+          },
+          "sourceInterpretation": {
+            "type": "string",
+            "enum": [
+              "reviewedVectors",
+              "rasterArtwork",
+              "authoredHeightMap",
+              "shadedReference",
+              "sculptMesh"
+            ]
+          },
+          "userIntentEvidence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1200
+          },
+          "sourceHash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "emboss",
+              "engrave"
+            ]
+          },
+          "dimensionsMm": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100000
+              },
+              "height": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100000
+              }
+            }
+          },
+          "specifiedDepthsMm": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 32,
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 100000
+            }
+          },
+          "targetPeakMm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 100000
+          },
+          "preserve": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "supportBinding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "bodyId",
+              "geometryFingerprint"
+            ],
+            "properties": {
+              "bodyId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "geometryFingerprint": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            }
+          },
+          "placementSnapshot": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "origin",
+              "quaternion"
+            ],
+            "properties": {
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "executionPolicy": {
+    "readOnly": true,
+    "geometryComputed": false,
+    "previewStarted": false,
+    "fallbackAllowed": false
+  },
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "reliefDesignReference",
+        "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
+      },
+      {
+        "id": "reliefDesignFit",
+        "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
+      },
+      {
+        "id": "reliefDesignField",
+        "chooseWhen": "从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c5cfa66eb030c7def8362bbf68b3b9d5f9d8996272fe911edc09bc5a3b52f243"
 }
 ```
 
@@ -121027,6 +121651,10 @@ files.release: contextPolicy=none
         "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -121053,7 +121681,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:b819727fe6f59af320c1a2bb64870c7d0d3e44a6d7886f07bdffcf5a4168f00f"
+  "docsHash": "sha256:99d90a4c123a67f8e55506ad2524f360fcd7419c6f26e27a684ccb157fe4a031"
 }
 ```
 
@@ -121234,6 +121862,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -121256,7 +121888,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:e9921415224ecf44a5661b043deae8eda17f6c13033c10a9cc020af352d34994"
+  "docsHash": "sha256:ebbd80488c33c900eb538a36cb9afdf52ada1b39f21ab103ca94add6d325bdc2"
 }
 ```
 
@@ -122573,6 +123205,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -122595,7 +123231,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:6a6916c18f4cd9224281e90c73be24ba2bce4519cd5ead72d2fa2e06328b7839"
+  "docsHash": "sha256:743e5652e8f8c5f880546af2a241782852939426209790a8477f6fa5bbb42fb5"
 }
 ```
 
@@ -123136,6 +123772,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -123158,7 +123798,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:f486599f9dbb42d3e1c7fb9986ac54d278fa3e9ebf0ff92096d0cf7852cedcaa"
+  "docsHash": "sha256:a6022ce29cc4aacb823d5093107a6917421b6bc4f74bd30c2bf02e0b949beac7"
 }
 ```
 
@@ -123457,6 +124097,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -123483,7 +124127,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:f1f315f4e890cd71e98fa69d91c77179d410ea72d386f79aa0b4f999d3793db7"
+  "docsHash": "sha256:6474cc2d391996ed8926ec48b9fedc23325298a98671033454b37e9975de1307"
 }
 ```
 
@@ -123578,6 +124222,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -123600,7 +124248,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:8dfca65223c06f44703f6df0c44cc2e19fc7f30406917113244e20ef3f64a267"
+  "docsHash": "sha256:3a59dc272213e1add12cfb9da20312c7f97df18a1bf3b22ee59610dab69d3948"
 }
 ```
 
@@ -123700,6 +124348,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -123726,7 +124378,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:2173bd8ae07bf0e1682c61f692a31fee4fa18e528df2c451af1a56485a06621e"
+  "docsHash": "sha256:a923eaeca37ec03bdcacbc0a2dab593b14ccfe723f64363f11f565ef6d652821"
 }
 ```
 
@@ -123829,6 +124481,10 @@ files.release: contextPolicy=none
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -123851,7 +124507,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:3e2d874d71d5a73a6f596716b9499e307c9b3dd5be2c684d5b3088ad2c4b026c"
+  "docsHash": "sha256:ac2219b5ccea366011a9a988d8ada8de54d47dfe48cebd6e232f1fbb75251060"
 }
 ```
 
@@ -130470,13 +131126,13 @@ files.release: contextPolicy=none
 {
   "id": "document.reliefDesign",
   "title": "浮雕设计约束草稿",
-  "description": "保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。fieldSettings可选columns/rows(9–129)、smoothWeight、maxIterations(1–20000)、toleranceMm及edits笔刷数组(最多256笔，按顺序执行)。每笔显式mode:raise/lower/flatten/smooth、centerMm:[x,y]、radiusMm:0.001..10000；strength可选0..1默认1；raise/lower必填amountMm:0..100，flatten必填targetMm:-100..100，smooth为一次邻域平滑。坐标与草稿支撑同一毫米坐标系；孔、边缘固定节点及保护区保持基线，高度不超heightRangeMm。UI新增/更新/移除笔画会连同当前其他有效表单字段一次保存，Agent等价传整份draft并携带expectedDraftRevision；原图reference及其他既有设置必须保留。随工程保留可重算设计。使用reliefDesignField求解/残差回读和保留圆/矩形支撑、孔与作者保护基线的采样闭网格候选（边界近似，不是精确圆）；不从原图亮度推断设计高度。getState({include:[\"reliefDesigns\"]})读取。",
+  "description": "保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。heightSource可选{source,depthMm,edgeKeepoutMm?,edgeFadeMm?,weight?}：source为浏览器转换生成的高度来源记录（原图sha256、转换设置及哈希、u16le网格≤513²）；照片须带derivedFrom及用户确认“我确认此结果为我制作的高度图”，否则MACHINING_SOURCE_CONFLICT；高度图覆盖支撑外接矩形，亮=高，按depthMm映射到最低高度之上，作为求解观测。fieldSettings可选machiningPrecisionMm(0.01–0.5 mm，默认0.05，可调：小于该值的起伏/噪声/台阶以C1平滑方式去除，边缘与基线平齐，记入草稿指纹)、columns/rows(9–129)、smoothWeight、maxIterations(1–20000)、toleranceMm及edits笔刷数组(最多256笔，按顺序执行)。每笔显式mode:raise/lower/flatten/smooth、centerMm:[x,y]、radiusMm:0.001..10000；strength可选0..1默认1；raise/lower必填amountMm:0..100，flatten必填targetMm:-100..100，smooth为一次邻域平滑。坐标与草稿支撑同一毫米坐标系；孔、边缘固定节点及保护区保持基线，高度不超heightRangeMm。UI新增/更新/移除笔画会连同当前其他有效表单字段一次保存，Agent等价传整份draft并携带expectedDraftRevision；原图reference及其他既有设置必须保留。随工程保留可重算设计。使用reliefDesignField求解/残差回读和保留圆/矩形支撑、孔与作者保护基线的采样闭网格候选（边界近似，不是精确圆）；不从原图亮度推断设计高度。getState({include:[\"reliefDesigns\"]})读取。",
   "category": "command",
   "version": "1.57.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"document.reliefDesign\",args}); 保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。fieldSettings可选columns/rows(9–129)、smoothWeight、maxIterations(1–20000)、toleranceMm及edits笔刷数组(最多256笔，按顺序执行)。每笔显式mode:raise/lower/flatten/smooth、centerMm:[x,y]、radiusMm:0.001..10000；strength可选0..1默认1；raise/lower必填amountMm:0..100，flatten必填targetMm:-100..100，smooth为一次邻域平滑。坐标与草稿支撑同一毫米坐标系；孔、边缘固定节点及保护区保持基线，高度不超heightRangeMm。UI新增/更新/移除笔画会连同当前其他有效表单字段一次保存，Agent等价传整份draft并携带expectedDraftRevision；原图reference及其他既有设置必须保留。随工程保留可重算设计。使用reliefDesignField求解/残差回读和保留圆/矩形支撑、孔与作者保护基线的采样闭网格候选（边界近似，不是精确圆）；不从原图亮度推断设计高度。getState({include:[\"reliefDesigns\"]})读取。",
+  "inputContract": "execute({context,idempotencyKey,action:\"document.reliefDesign\",args}); 保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。heightSource可选{source,depthMm,edgeKeepoutMm?,edgeFadeMm?,weight?}：source为浏览器转换生成的高度来源记录（原图sha256、转换设置及哈希、u16le网格≤513²）；照片须带derivedFrom及用户确认“我确认此结果为我制作的高度图”，否则MACHINING_SOURCE_CONFLICT；高度图覆盖支撑外接矩形，亮=高，按depthMm映射到最低高度之上，作为求解观测。fieldSettings可选machiningPrecisionMm(0.01–0.5 mm，默认0.05，可调：小于该值的起伏/噪声/台阶以C1平滑方式去除，边缘与基线平齐，记入草稿指纹)、columns/rows(9–129)、smoothWeight、maxIterations(1–20000)、toleranceMm及edits笔刷数组(最多256笔，按顺序执行)。每笔显式mode:raise/lower/flatten/smooth、centerMm:[x,y]、radiusMm:0.001..10000；strength可选0..1默认1；raise/lower必填amountMm:0..100，flatten必填targetMm:-100..100，smooth为一次邻域平滑。坐标与草稿支撑同一毫米坐标系；孔、边缘固定节点及保护区保持基线，高度不超heightRangeMm。UI新增/更新/移除笔画会连同当前其他有效表单字段一次保存，Agent等价传整份draft并携带expectedDraftRevision；原图reference及其他既有设置必须保留。随工程保留可重算设计。使用reliefDesignField求解/残差回读和保留圆/矩形支撑、孔与作者保护基线的采样闭网格候选（边界近似，不是精确圆）；不从原图亮度推断设计高度。getState({include:[\"reliefDesigns\"]})读取。",
   "fields": [
     "id",
     "expectedDraftRevision",
@@ -130590,7 +131246,7 @@ files.release: contextPolicy=none
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:d372cd6333adb7520f8b9c7eef5acf30b8d280a60b5246ec580c62f99a34574f"
+  "docsHash": "sha256:b46f3fa7ccf73929318ef0fbfa0d0703d119a2f90f30a58ab6bda8efef92d9c1"
 }
 ```
 

@@ -105,3 +105,11 @@ The user (2026-10-10) chose one deterministic split: no configured/enabled Servi
 Settings/API setServices exposes localTimeoutMs (1000–600000, default60000) and serverWaitMs (1000–900000, default180000), saved in existing browser settings and applied to the next operation. Local deadline is absolute despite progress, and terminates its Worker while retaining committed state. After server reminder, UI and decideServicesWait share continue/stop: continue observes the same job; stop sends cancellation and checks actual terminal status. Agent callers without a wait-decision handler receive SERVICES_WAIT_DECISION_REQUIRED with job identity. Native hard limits are CPU600 seconds, wall900 seconds and1GiB process memory.
 
 Native algorithms are maintained independently from the local simple path. No dual-kernel geometry equality release gate; validate the executing end against declared geometry/design requirements and retain actual codec/import, source/recipe/revision binding, original-history installation and offline-save compatibility. Continuous shoulder and unspecified 3D weaving remain unavailable.
+
+## 2026-10-22 浮雕 Services
+
+`reliefSourceConvert / relief.source-convert-1 / rgba-area-average` 将 RGBA8 资产转换为经过加工精度平滑的 u16le 高度网格。`reliefDesign / relief.design-fit-brep-1 / masked-bspline-face-replacement` 接收绑定来源平面、放置、支撑、真实孔和保护区的数值场，完成拟合与按宿主真实边界裁剪的 BRep 面替换。能力须由匹配原生二进制哈希的验收证明开放；柱面及自由曲面替换仍未开放。
+
+`reliefDesign.fit.controlDeltasF64LE` 是控制增量的 base64 f64le 原始字节，长度必须等于 columns × rows × 8，SHA-256 必须等于 controlDeltasSha256。消费端解码后验证有限数值、锁点零值和原场采样误差，再接受 BRep。controlDeltasMm 数组为旧消费端保留；Windows .NET Framework JSON 解析及序列化可能改变极小 double 的末位，带二进制字段时不得用该数组替代校验字节。旧结果无二进制字段时仍严格核对数组哈希。
+
+本机 OCCT 7.8.1 SDK 未包含 STEP 头文件，新原生构建使用 WEBCAD_RELIEF_STEP=OFF，只返回精确 BRep；页面导入后可沿既有浏览器 STEP 导出通道生成交换文件。体积质量检查始终执行，不接受环境变量跳过。

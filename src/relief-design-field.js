@@ -4,12 +4,13 @@ import {compileDesignField} from './relief-design-core/pipeline.mjs';
 import {analyzeDesignMask} from './relief-design-core/closed-mesh.mjs';
 import {binaryHash} from './contracts/operation-schema.js';
 import {LIMITS} from './limits.js';
+import {decodeHeightGrid,sampleHeightGrid} from './relief-source/convert.js';
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
 export function solveReliefDesign(draft,options={}){
  draft=validateReliefDesign(draft);
  if(!options||typeof options!=='object'||Array.isArray(options))fail('PARAM_SCHEMA_INVALID','options must be an object');
  options={...draft.fieldSettings,...options};
- for(const k of Object.keys(options))if(!['columns','rows','smoothWeight','maxIterations','toleranceMm','edits'].includes(k))fail('PARAM_SCHEMA_INVALID','Unknown field option: '+k);
+ for(const k of Object.keys(options))if(!['columns','rows','smoothWeight','maxIterations','toleranceMm','edits','machiningPrecisionMm'].includes(k))fail('PARAM_SCHEMA_INVALID','Unknown field option: '+k);
  const columns=options.columns??33,rows=options.rows??33;
  if(![columns,rows].every(v=>Number.isInteger(v)&&v>=9&&v<=129))fail('FIELD_CAPACITY','columns/rows must be integers 9–129');
  if(options.maxIterations!==undefined&&(!Number.isInteger(options.maxIterations)||options.maxIterations<1||options.maxIterations>20000))fail('FIELD_CAPACITY','maxIterations must be 1–20000');
@@ -18,9 +19,9 @@ export function solveReliefDesign(draft,options={}){
  // The authored lower level is the baseline; protected/rim nodes stay exactly there.
  const initialMm=new Float64Array(columns*rows).fill(draft.heightRangeMm[0]);
  const edits=(options.edits??[]).map(e=>({...e,centerMm:e.centerMm?.map((v,i)=>v-s.centerMm[i])}));
- const solved=compileDesignField({domain:{grid:{columns,rows,widthMm,heightMm},support:shift(s),throughHoles:draft.throughHoles.map(shift),protectedZones:draft.protectedZones.map(shift),initialMm,lowerMm:draft.heightRangeMm[0],upperMm:draft.heightRangeMm[1]},points:draft.points.map(p=>({id:p.id,xMm:p.pointMm[0]-cx,yMm:p.pointMm[1]-cy,valueMm:p.heightMm,weight:100})),solver:{smoothWeight:options.smoothWeight??1,maxIterations:options.maxIterations??10000,toleranceMm:options.toleranceMm??1e-4},edits});
- const f=solved.field;
- return {field:{columns,rows,widthMm,heightMm,centerMm:[cx,cy],heightsMm:Array.from(f.heightsMm),active:Array.from(f.active),fixedMask:Array.from(f.fixedMask),previewTriangles:Array.from(f.previewTriangles)},report:{...solved.report,coordinateConvention:'row-zero-minus-Y; authored-mm-heights',protectionBaselineMm:draft.heightRangeMm[0],sourceKind:'authored-design-not-image-depth',designFingerprint:JSON.stringify(draft)}};
+ const solved=compileDesignField({domain:{grid:{columns,rows,widthMm,heightMm},support:shift(s),throughHoles:draft.throughHoles.map(shift),protectedZones:draft.protectedZones.map(shift),initialMm,lowerMm:draft.heightRangeMm[0],upperMm:draft.heightRangeMm[1]},points:[...draft.points.map(p=>({id:p.id,xMm:p.pointMm[0]-cx,yMm:p.pointMm[1]-cy,valueMm:p.heightMm,weight:100})),...heightSourcePoints(draft,columns,rows,widthMm,heightMm)],solver:{smoothWeight:options.smoothWeight??1,maxIterations:options.maxIterations??10000,toleranceMm:options.toleranceMm??1e-4},edits});
+ const f=solved.field,precision=applyMachiningPrecision(f,{columns,rows,lowerMm:draft.heightRangeMm[0],upperMm:draft.heightRangeMm[1],precisionMm:options.machiningPrecisionMm??MACHINING_PRECISION_DEFAULT_MM});
+ return {field:{columns,rows,widthMm,heightMm,centerMm:[cx,cy],heightsMm:Array.from(f.heightsMm),active:Array.from(f.active),fixedMask:Array.from(f.fixedMask),previewTriangles:Array.from(f.previewTriangles)},report:{...solved.report,precision,coordinateConvention:'row-zero-minus-Y; authored-mm-heights',protectionBaselineMm:draft.heightRangeMm[0],sourceKind:draft.heightSource?'authored-heightmap-observations':'authored-design-not-image-depth',...(draft.heightSource?{heightSource:{gridSha256:draft.heightSource.source.grid.sha256,settingsHash:draft.heightSource.source.settingsHash,derived:!!draft.heightSource.source.derivedFrom}}:{}),designFingerprint:JSON.stringify(draft)}};
 }
 export function reliefDesignCandidate(result,draft,baseMm=1){
  draft=validateReliefDesign(draft);
@@ -47,4 +48,47 @@ export function reliefDesignCandidate(result,draft,baseMm=1){
  if(blockers.length)return {status:'blocked',blockers:[...new Set(blockers)],geometryKind:'design-height-field',notCommitted:true,domainReport:report};
  const encode=values=>typeof Buffer!=='undefined'?Buffer.from(values).toString('base64'):btoa(String.fromCharCode(...values));
  return {status:'candidate',geometryKind:'closed-triangle-mesh',notCommitted:true,needsGeometryValidation:true,domainReport:report,quantizationBoundMm:span/65535/2,args:{op:'meshHeightfieldRelief',refs:[],params:{version:1,widthMm:f.widthMm,depthMm:f.heightMm,baseMm:baseMm+min,heightMm:span||1,columns:f.columns,rows:f.rows,heights:{encoding:'u16le',data:encode(bytes)},domainMask:{encoding:'u8',data:encode(mask)},gamma:1,smoothing:0,edgeFadeMm:0,invert:false},placement:{version:1,frame:{kind:'snapshot',origin:[...f.centerMm,0],quaternion:[0,0,0,1]},sourceAnchor:{kind:'model-origin'}}}};
+}
+
+// Imported height map -> one weighted observation per grid node inside the support and outside holes
+// and protected zones (those stay at the authored baseline). Image top is +Y; support bbox = image.
+function heightSourcePoints(draft,columns,rows,widthMm,heightMm){
+ const h=draft.heightSource;if(!h)return [];
+ const grid=h.source.grid,values=decodeHeightGrid(grid),[cx,cy]=draft.support.centerMm,base=draft.heightRangeMm[0],w=h.weight??100;
+ const inside=(s,x,y)=>{const dx=Math.abs(x-s.centerMm[0]),dy=Math.abs(y-s.centerMm[1]);return s.kind==='circle'?Math.hypot(dx,dy)<s.radiusMm:dx<s.widthMm/2&&dy<s.heightMm/2;};
+ // Edge keep-out/fade: the relief must return to the locked baseline at support rims, holes and protected zones.
+ const keep=h.edgeKeepoutMm??0,fade=h.edgeFadeMm??0;
+ const gap=(s,x,y,outside)=>{const dx=x-s.centerMm[0],dy=y-s.centerMm[1];if(s.kind==='circle'){const r=Math.hypot(dx,dy);return outside?r-s.radiusMm:s.radiusMm-r;}const ex=Math.abs(dx)-s.widthMm/2,ey=Math.abs(dy)-s.heightMm/2;return outside?(ex>0||ey>0?Math.hypot(Math.max(ex,0),Math.max(ey,0)):Math.max(ex,ey)):Math.min(-ex,-ey);};
+ const edgeFactor=(x,y)=>{if(!keep&&!fade)return 1;const d=Math.min(gap(draft.support,x,y,false),...draft.throughHoles.map(s=>gap(s,x,y,true)),...draft.protectedZones.map(s=>gap(s,x,y,true)));if(d<=keep)return 0;if(!fade)return 1;const t=Math.min(1,(d-keep)/fade);return t*t*(3-2*t);};
+ const out=[];
+ for(let j=0;j<rows;j++)for(let i=0;i<columns;i++){
+  const x=cx-widthMm/2+i*widthMm/(columns-1),y=cy-heightMm/2+j*heightMm/(rows-1);
+  if(!inside(draft.support,x,y)||draft.throughHoles.some(s=>inside(s,x,y))||draft.protectedZones.some(s=>inside(s,x,y)))continue;
+  const u=(x-(cx-widthMm/2))/widthMm,v=((cy+heightMm/2)-y)/heightMm;
+  out.push({id:`hs:${i}:${j}`,xMm:x-cx,yMm:y-cy,valueMm:base+h.depthMm*edgeFactor(x,y)*sampleHeightGrid(grid,values,u,v),weight:w});
+ }
+ if(out.length>65536)fail('FIELD_CAPACITY','导入高度图观测点过多');
+ return out;
+}
+
+// Machining precision (default 0.05 mm): height detail below the cutter's precision must not
+// appear. Two C1 soft knees (no new steps): (1) ripples whose amplitude relative to a local
+// 5-point average is below ~precision are faded out; (2) heights within 2×precision of the
+// baseline fade smoothly to it, so the retained-domain edge meets the face flush.
+export const MACHINING_PRECISION_DEFAULT_MM=.05;
+const smoothstep=t=>t<=0?0:t>=1?1:t*t*(3-2*t);
+export function softKnee(d,p){const a=Math.abs(d);return d*smoothstep(a/(2*p));}
+export function applyMachiningPrecision(f,{columns,rows,lowerMm,upperMm,precisionMm}){
+ const p=precisionMm,h=f.heightsMm,n=columns*rows,before=Float64Array.from(h);
+ if(!(p>0))return {machiningPrecisionMm:p,changedNodeCount:0,maxChangeMm:0};
+ const free=k=>f.active[k]&&!f.fixedMask[k];
+ const average=src=>{const out=Float64Array.from(src);for(let j=0;j<rows;j++)for(let i=0;i<columns;i++){const k=j*columns+i;if(!free(k))continue;let s=src[k],c=1;for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){const x=i+di,y=j+dj;if(x<0||y<0||x>=columns||y>=rows)continue;const q=y*columns+x;if(!f.active[q])continue;s+=src[q];c++;}out[k]=s/c;}return out;};
+ const s=average(average(before));
+ let changed=0,maxChange=0;
+ for(let k=0;k<n;k++){if(!free(k))continue;
+  let v=s[k]+softKnee(before[k]-s[k],p);
+  v=lowerMm+softKnee(v-lowerMm,p);
+  v=Math.min(upperMm,Math.max(lowerMm,v));
+  const c=Math.abs(v-before[k]);if(c>1e-12){changed++;maxChange=Math.max(maxChange,c);}h[k]=v;}
+ return {machiningPrecisionMm:p,method:'detail-soft-knee+baseline-dead-band-C1',changedNodeCount:changed,maxChangeMm:maxChange};
 }

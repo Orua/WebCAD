@@ -1,0 +1,25 @@
+# Linux CHECK build of the occt-worker (not the Windows release build; that stays ../CMakeLists.txt).
+# Debian 13: apt-get install cmake g++ nlohmann-json3-dev libtbb-dev libocct-*-dev   (OCCT 7.8.1, shared)
+#   cmake -S services/WebCADServices/native/occt-worker/linux-check -B /tmp/occt-check && cmake --build /tmp/occt-check -j
+# compat/ supplies the two Win32 calls worker.cpp uses (process memory, atomic rename).
+cmake_minimum_required(VERSION 3.16)
+project(WebCADOcctWorkerLinuxCheck LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+set(W ${CMAKE_CURRENT_SOURCE_DIR}/..)
+find_package(OpenCASCADE 7.8.1 EXACT CONFIG REQUIRED)
+set(LIBS TKernel TKMath TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo TKPrim TKBO TKBool TKHLR TKFillet TKOffset TKFeat TKMesh TKXMesh TKShHealing TKDESTEP TKXSBase TKDE)
+add_executable(WebCADOcctWorker ${W}/worker.cpp)
+target_include_directories(WebCADOcctWorker PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/compat ${OpenCASCADE_INCLUDE_DIR})
+target_link_libraries(WebCADOcctWorker PRIVATE ${LIBS})
+target_compile_definitions(WebCADOcctWorker PRIVATE WEBCAD_RELIEF_STEP)
+# test helpers: primitive source BReps and an independent volume/validity probe
+add_executable(mkshape mkshape.cpp)
+target_include_directories(mkshape PRIVATE ${OpenCASCADE_INCLUDE_DIR})
+target_link_libraries(mkshape PRIVATE ${LIBS})
+add_executable(vol vol.cpp)
+target_include_directories(vol PRIVATE ${OpenCASCADE_INCLUDE_DIR})
+target_link_libraries(vol PRIVATE ${LIBS})

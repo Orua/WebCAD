@@ -869,6 +869,18 @@
                 "type": "string",
                 "maxLength": 80
               },
+              "servicesFirstFit": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "acceptanceToleranceMm"
+                ],
+                "properties": {
+                  "acceptanceToleranceMm": {
+                    "type": "number"
+                  }
+                }
+              },
               "metrics": {
                 "type": "object",
                 "additionalProperties": false,
@@ -1224,7 +1236,7 @@
     "小图）"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:5f1776cd124b9bf8b61dbd7c05e735246c36511e0a63826d1db3df41bb3ef351",
+  "schemaHash": "sha256:bb8edd74e03713ca05af880e857b3839f982c96e5d2121f495581e242c0b5400",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -2437,6 +2449,10 @@
         "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
       },
       {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
         "id": "reliefDesignFit",
         "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
       },
@@ -2463,5 +2479,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:d0d291ac941732188187acaf39ab07bc860eaa970d8ad4346f016cccfeacb91c"
+  "docsHash": "sha256:13c270e0e8e678e9dd43d5ce383a5c7392dbffdd4bd0b2d8f63d646473258c7a"
 }

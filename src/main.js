@@ -28,6 +28,7 @@ import {showServicesWait} from './ui/forms/services-wait.js';
 import {patternComplexity,aggregateSourceComplexity,collectRoutingSources,remotePlacementSupported,physicalExecutionKey} from './services/execution-context.js';
 import {geometryFeatureRecord} from './services/geometry-signature.js';
 import {compileRemoteFeature} from './services/remote-executor.js';
+import {reliefDesignServicesPlan} from './services/relief-pipeline.js';
 import {assertCompilableFeature,geometryRecipeFingerprint,installCompiledCandidate,compiledCheckpointBytes,compiledSemanticVersion,VERIFIED_NATIVE_KERNELS,LOCAL_KERNEL_BUILD_ID,GEOMETRY_CODEC,TRANSLATION_SEMANTIC_VERSION} from './services/geometry-exchange.js';
 import {DOCUMENT_LIMITS,serializeBoundedDocument,assertDocumentCapacity} from './document-limits.js';
 import {planBodyAlignment} from './modeling/interaction/align-bodies.js';
@@ -199,6 +200,7 @@ const ui=createUI(document.getElementById('app'),{
   onRemoveTopology:id=>{if(!selectedTopology)return;selectedTopology.ids=id===null?[]:selectedTopology.ids.filter(value=>value!==id);if(!selectedTopology.ids.length)selectedTopology=null;viewport.setSelection(selectedIds,selectedTopology);refresh();},
   onReliefDesign:args=>runEditorAction('document.reliefDesign',args,{fromUI:true}),
   onReliefDesignGeometry:args=>runEditorAction('feature.add',args,{fromUI:true}),
+  onReliefDesignPreview:(action,args)=>runEditorAction(action,args,{fromUI:true}),
   onRename:name=>runEditorAction('document.rename',{name}).catch(reportError),
   onFrameDraft:frame=>{assertHumanEditing();viewport.setWorkFrame(frame);},
   onFrameCancel:()=>{viewport.cancelAnchorDrag();viewport.setWorkFrame(documentModel.referenceSystem.workFrame);},
@@ -306,14 +308,21 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  const base={servicesAvailable,explicitRemote,allowUpload:servicesAvailable||allowUpload===true,operation:feature.op,semanticVersion:compiledSemanticVersion(feature),params:feature.params,pattern:patternComplexity(feature),source:sourceSummary(feature)};
  const localReady=!!previewNext&&JSON.stringify(previewNext.features)===JSON.stringify(next.features);
  const savedReady=!!feature.compiledCheckpoint&&!!compiledCheckpointBytes(next,feature);
- if(localReady||savedReady){publish(chooseExecutor({...base,cache:{localCheckpoint:true}}));return {next};}
+ // Fitted relief (designBinding): the first full computation goes to Services when it advertises
+ // relief.design-fit-brep-1; the local preview is only the browser fine-tune view.
+ const designServices=servicesAvailable&&feature.op==='relief'&&!!feature.params?.designBinding;
+ // Services-first bindings carry only a provisional control net: never compute them locally.
+ const servicesFirst=feature.op==='relief'&&!!feature.params?.designBinding?.audit?.servicesFirstFit;
+ const needBrowserFit=reason=>serviceError('RELIEF_DESIGN_SERVICES_REQUIRED','首次拟合需在 Services 完成，但'+reason+'。请在“拟合”中先用浏览器拟合（回退），再重新准备。');
+ if(servicesFirst&&!servicesAvailable)throw needBrowserFit('后台计算未连接');
+ if((localReady&&!designServices)||savedReady){publish(chooseExecutor({...base,cache:{localCheckpoint:true}}));return {next};}
  if(servicesAvailable&&feature.op==='round'&&feature.refs?.length===1&&feature.params.faceIds?.length===1&&documentModel.features.some(row=>row.id===feature.refs[0])&&geometryRecipeFingerprint(next,feature.refs[0])===geometryRecipeFingerprint(documentModel,feature.refs[0])){
   const inspected=await request('faceRoundPlan',{sourceFeatureId:feature.refs[0],params:feature.params});checkTransaction(signal,expectedRevision);
   base.source.preexistingBoundaryRound=inspected.plan.candidate===true;
  }
  const classification=classifyComplexity(base);
  const pending=tbdForOperation(base);if(pending){publish(chooseExecutor(base));throw serviceError('OPERATION_TBD','TBD：'+pending.label+'尚未完成验收，已禁用，原工程保留。');}
- if(!servicesAvailable||!classification.complex&&!explicitRemote||classification.input.routingClass==='local-only'||classification.input.capacityGate==='bounded-local-mesh-contract'){
+ if(!servicesAvailable||!classification.complex&&!explicitRemote&&!designServices||classification.input.routingClass==='local-only'||classification.input.capacityGate==='bounded-local-mesh-contract'){
   const decision=chooseExecutor(base);publish(decision);
   if(decision.executor==='blocked')throw serviceError('SERVICES_OPERATION_UNAVAILABLE',decision.reason);
   if(explicitRemote&&classification.input.routingClass==='local-only')throw serviceError('SERVICES_OPERATION_UNAVAILABLE','本工具固定使用本地计算，无需后台精确计算。');
@@ -322,23 +331,29 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  if(!remotePlacementSupported(feature))throw serviceError('SERVICES_OPERATION_UNAVAILABLE','此复杂操作的放置尚未由原生服务器支持，请明确使用已支持的世界坐标语义；不会回退本地。');
  try{assertCompilableFeature(feature);}catch(error){throw serviceError('SERVICES_OPERATION_UNAVAILABLE','此复杂操作尚未由原生服务器实现：'+error.message,{operation:feature.op});}
  if(!feature.refs?.length||feature.refs.some(id=>!documentModel.features.some(row=>row.id===id)||geometryRecipeFingerprint(next,id)!==geometryRecipeFingerprint(documentModel,id)))throw serviceError('SERVICES_SOURCE_UNAVAILABLE','复杂操作的目标和全部刀具都必须是已提交、未变化的来源；请先完成来源步骤。');
- const capabilities=await servicesClient.capabilities();checkTransaction(signal,expectedRevision);
- const capability=capabilities.operations.find(row=>row.operation===feature.op&&row.semanticVersion===base.semanticVersion&&row.enabled);
+ let capabilities;try{capabilities=await servicesClient.capabilities();}catch(error){if(!(designServices&&!classification.complex))throw error;if(servicesFirst)throw needBrowserFit('Services 不可达');publish({executor:'local',reason:'Services 不可达（'+(error.code??'')+'），使用浏览器回退计算'});return {next};}checkTransaction(signal,expectedRevision);
+ const capability=capabilities.operations.find(row=>row.operation===(designServices?'reliefDesign':feature.op)&&row.semanticVersion===base.semanticVersion&&row.enabled);
  const sources=[];for(const id of feature.refs){sources.push(await request('sourceComplexity',{featureId:id,...(feature.op==='relief'?{faceId:feature.params.faceId}:{})}));checkTransaction(signal,expectedRevision);}
  const source=feature.op==='cut'?aggregateSourceComplexity(sources):{...sources[0],preexistingBoundaryRound:base.source.preexistingBoundaryRound};
  const pair=capabilities.geometryExchange?.testedKernelPairs?.some(row=>row.producerKernelBuildId===capability?.kernelBuildId&&row.consumerKernelBuildId===LOCAL_KERNEL_BUILD_ID&&row.codec===GEOMETRY_CODEC&&row.brepVersion===3);
  const input={...base,source,endpoint:config.url,kernelBuildId:capability?.kernelBuildId??'unavailable'},executionKey=physicalExecutionKey(feature,source.inputSha256??source.sourceSha256,input.kernelBuildId,input.endpoint);
- const decision=chooseExecutor({...input,capabilities,clientImportReady:!!pair&&VERIFIED_NATIVE_KERNELS.has(capability?.kernelBuildId),knownTask:servicesExecutionHistory.task(executionKey)});publish(decision);
+ const importReady=!!pair&&VERIFIED_NATIVE_KERNELS.has(capability?.kernelBuildId);
+ // Browser fallback: Services lacks the capability / verified kernel pair and the design is simple enough locally.
+ if(designServices&&!classification.complex&&(!capability||!importReady)){if(servicesFirst)throw needBrowserFit('Services 未提供已验证的 relief.design-fit-brep-1');publish({executor:'local',reason:'Services 未提供已验证的 relief.design-fit-brep-1，使用浏览器回退计算（相同纯模块，≤33 控制点）'});return {next};}
+ const decision=designServices&&capability&&importReady?{executor:'remote',reason:'首次完整计算在 Services 执行（relief.design-fit-brep-1：高分辨率拟合 + 精确裁剪）'}:chooseExecutor({...input,capabilities,clientImportReady:importReady,knownTask:servicesExecutionHistory.task(executionKey)});publish(decision);
  if(decision.executor==='blocked')throw serviceError('SERVICES_OPERATION_UNAVAILABLE',decision.reason,{executionKey,routingDecision:decision});
  if(decision.executor==='local')return {next};
  try{
   const snapshots=[];for(const id of feature.refs){snapshots.push((await request('serializeFeature',{featureId:id})).data);checkTransaction(signal,expectedRevision);}
   const bytes=feature.op==='cut'?snapshots:snapshots[0];
-  const plan=feature.op==='reliefShoulder'?(await request('shoulderPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:feature.op==='relief'?(await request('prepareReliefPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:feature.op==='round'?(await request('faceRoundPlan',{sourceFeatureId:feature.refs[0],params:feature.params,prepare:true})).plan:null;
+  const plan=feature.op==='reliefShoulder'?(await request('shoulderPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:designServices?reliefDesignServicesPlan(next,feature):feature.op==='relief'?(await request('prepareReliefPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:feature.op==='round'?(await request('faceRoundPlan',{sourceFeatureId:feature.refs[0],params:feature.params,prepare:true})).plan:null;
   const context={documentId:next.documentId,documentInstanceId,expectedRevision};
   const candidate=await compileRemoteFeature(next,feature.id,bytes,context,{allowUpload:true,plan,signal,waitTimeoutMs:config.serverWaitMs,onWaitTimeout:job=>waitForServicesDecision(job,{signal})});checkTransaction(signal,expectedRevision);
   return {next:installCompiledCandidate(next,{manifest:candidate.manifest,bytes:candidate.geometryBytes,context,recipeFingerprint:candidate.recipeFingerprint}),record:{executor:'remote',input,executionKey,measurements:candidate.executionMeasurements}};
- }catch(error){if(!(error.code==='CANCELLED'&&error.submitted===false))servicesExecutionHistory.failure(executionKey,error);error.routingDecision=decision;throw error;}
+ }catch(error){if(!(error.code==='CANCELLED'&&error.submitted===false))servicesExecutionHistory.failure(executionKey,error);
+  // Fitted relief: a Services failure falls back to the browser (same modules) when the design is locally computable.
+  if(designServices&&!classification.complex&&!['CANCELLED','OBSERVATION_CANCELLED','SERVICES_JOB_CANCELLED','REVISION_CONFLICT'].includes(error.code)){if(servicesFirst)throw needBrowserFit('Services 计算失败（'+(error.code??'')+'：'+error.message+'）');publish({executor:'local',reason:'Services 计算失败（'+(error.code??'')+'：'+error.message+'），已用浏览器回退计算'});return {next};}
+  error.routingDecision=decision;throw error;}
 }
 
 async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false,restoring=false,historyLabel,hardTimeoutMs,origin='user',autoPlaceFeatureId}={}){
@@ -1130,6 +1145,7 @@ const pageAPI=createPageAPI({
   inspectRound:input=>request('inspectRound',{input}),
   probeBlendRadius:input=>request('probeBlendRadius',{input}),
   measureRelation:input=>request('measureRelation',{input}),
+  reliefDesignSupport:(featureId,faceId)=>request('reliefDesignSupport',{featureId,faceId}),
   displayBatch:Object.freeze({begin:beginDisplayBatch,end:endDisplayBatch,endDeferred:endDisplayBatchDeferred,flush:flushDisplayBatch}),
   display:()=>viewport.displayState(),frame:()=>{flushDisplayBatch();if(lastWarnings.some(w=>w.code==='DISPLAY_FAILED'))throw Object.assign(new Error('Display failed; call redraw'),{code:'DISPLAY_FAILED'});viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});return viewport.frame();},capture:(opts)=>viewport.screenshot(opts),
   view:async input=>{flushDisplayBatch();ui.setWorkspaceLayout(input);viewport.setViewInteraction(input.interactionPhase??'end');if(input.anchorVisible!==undefined)viewport.setAnchorVisible(input.anchorVisible);if(input.panels)ui.setPanels(input.panels);if(input.temporaryDisplay)viewport.setTemporaryDisplay(input.temporaryDisplay);if(input.display)viewport.setDisplay(input.display);if(input.grid!==undefined)viewport.grid.visible=input.grid;if(input.snap!==undefined)viewport.snapEnabled=input.snap;if(input.gizmo){if(input.gizmo!=='off'){viewport.setAnchorDrag(false);viewport.setSelectionMode('body');selectedTopology=null;}viewport.setGizmo(input.gizmo);}if(input.selectionMode){if(input.selectionMode!=='body')viewport.setGizmo('off');viewport.setSelectionMode(input.selectionMode);selectedTopology=null;}if(input.language){setLanguage(input.language);viewport.updateLanguage();ui.update({language:input.language});}if(input.camera)viewport.setCamera(input.camera);if(input.section)viewport.setSection(input.section);if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){if(JSON.stringify(input.selectedIds)!==JSON.stringify(selectedIds))ui.discardForSelection();selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);}if(input.display!==undefined)clearSelection();viewport.setSelection(selectedIds,selectedTopology);refresh();await viewport.frame();},

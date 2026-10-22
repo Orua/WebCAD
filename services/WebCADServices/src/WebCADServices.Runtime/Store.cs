@@ -77,7 +77,7 @@ namespace WebCADServices.Runtime
         }
         public JObject AddAsset(string owner, string name, byte[] bytes, string kind = "logo")
         {
-            if (!new[] { "logo", "brep", "mesh" }.Contains(kind)) throw new ServiceError("PARAM_SCHEMA_INVALID", "Unknown asset role");
+            if (!new[] { "logo", "brep", "mesh", "raster" }.Contains(kind)) throw new ServiceError("PARAM_SCHEMA_INVALID", "Unknown asset role");
             if (bytes == null || bytes.Length == 0 || bytes.Length > (kind=="mesh"?Protocol.MaxMeshSource:Protocol.MaxUpload)) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);
             if (string.IsNullOrEmpty(name) || name.Length > 160 || name != Path.GetFileName(name) || name.Contains("\\") || name.Contains("/")) throw new ServiceError("PARAM_SCHEMA_INVALID", "Source name must be a display filename");
             string id = Guid.NewGuid().ToString("N"), sha = Protocol.Hash(bytes); Atomic(Path.Combine(Root, "assets", id), bytes);
@@ -189,6 +189,11 @@ namespace WebCADServices.Runtime
         {
             MeshAdapter.CheckCodec(bytes);string id=Guid.NewGuid().ToString("N"),sha=Protocol.Hash(bytes);Atomic(Path.Combine(Root,"artifacts",id),bytes);lock(gate)Execute("INSERT INTO artifacts VALUES(@p0,@p1,@p2,@p3)",id,owner,sha,bytes.Length);
             return new JObject{["artifactId"]=id,["sha256"]=sha,["bytes"]=bytes.Length,["format"]=MeshAdapter.Codec,["geometryType"]="rawMesh"};
+        }
+        // Non-BRep native artifacts (relief height grid JSON, STEP export) share the artifact table.
+        public JObject PublishArtifact(string owner,byte[] bytes,string format)
+        {
+            var result=PublishGeometry(owner,bytes);result["format"]=format;result.Remove("brepVersion");return result;
         }
         public JObject PublishGeometry(string owner,byte[] bytes)
         {

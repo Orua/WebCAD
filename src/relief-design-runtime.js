@@ -1,6 +1,6 @@
 // One bounded, cancellable numerical task per page. The current document stays authority.
 import {reliefDesignCandidate} from './relief-design-field.js';
-import {prepareReliefDesignFit} from './relief-design-fit.js';
+import {prepareReliefDesignFit,provisionalServicesFit} from './relief-design-fit.js';
 import {prepareReliefDesignRelief} from './relief-design-brep.js';
 let task=null,retained=null,retainedFit=null;
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
@@ -63,6 +63,15 @@ export async function runReliefDesignFit(context,entry,options,current){
   if(retained!==sourceField||result.source?.fieldFingerprint!==prepared.source.fieldFingerprint||result.source?.draftFingerprint!==prepared.source.draftFingerprint||result.source?.optionsFingerprint!==prepared.source.optionsFingerprint)fail('RELIEF_DESIGN_STALE','The original solved field or fit options changed');
   retainedFit={binding,sourceField,result,sourceBinding};return readReliefDesignFit(now.context,now.entry);
  });
+}
+// Services-first: install a provisional (non-geometry) net as the retained fit so 准备 needs no browser fit.
+export function provisionalReliefDesignFit(context,entry,options){
+ const solved=readReliefDesignField(context,entry);
+ if(solved.status!=='solved')fail('RELIEF_DESIGN_UNSOLVED','Solve the current design field before preparing');
+ const sourceField=retained,result=provisionalServicesFit(entry.draft,solved,options);
+ cancelTask();const revision=context.revision??context.expectedRevision;
+ retainedFit={binding:key(context,entry),sourceField,result,sourceBinding:{sessionId:context.sessionId,documentId:context.documentId,documentInstanceId:context.documentInstanceId,revision,designId:entry.id,draftRevision:entry.revision,...result.source}};
+ return readReliefDesignFit(context,entry);
 }
 export function readReliefDesignFit(context,entry){
  if(!entry)fail('STALE_REFERENCE','Design draft not found');

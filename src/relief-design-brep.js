@@ -17,6 +17,7 @@ const MESSAGES={
  RELIEF_DESIGN_TARGET_REQUIRED:'请在当前模型中明确选择一个实体上的平面作为支撑面',
  RELIEF_DESIGN_SUPPORT_MISMATCH:'可信读取的支撑面与所选目标不一致，请重新选择',
  RELIEF_DESIGN_SUPPORT_INVALID:'支撑面必须是单个有效实体上的真实平面',
+ RELIEF_OUTSIDE_FACE:'图案保留域与选面上的真实圆孔/圆形边界相交：图案会覆盖孔或超出选面。请用“对齐到圆孔/圆边中心”或移动图案中心',
  RELIEF_DESIGN_SOURCE_CHANGED:'来源实体已变化，请重新选择支撑面',
  RELIEF_DESIGN_PLACEMENT_REQUIRED:'请明确给出图案中心（世界坐标，位于支撑平面上）和图案X方向',
  RELIEF_DESIGN_PLACEMENT_INVALID:'图案中心必须位于支撑平面上，X方向必须是该平面内的单位切向',
@@ -76,14 +77,32 @@ export function prepareReliefDesignRelief({fit,solved,entry,expectedDraftRevisio
    controls:{columns:cols,rows,mode:F.mode,locked:encodeU8(lockedU8),lockedSha256:sha(lockedU8),controlsSha256:controlsSha256(values,depthMm,F.mode),maxDeltaMm:D},
    mask:{generator:RELIEF_DESIGN_MASK_GENERATOR,regionsSha256:regionsSha256(mask.regions)},
    audit:{designId:fit.designId,draftRevision:fit.draftRevision,draftFingerprint:fit.source.draftFingerprint,fieldFingerprint:fit.source.fieldFingerprint,optionsFingerprint:fit.source.optionsFingerprint,
+    ...(F.report.provisional?{servicesFirstFit:{acceptanceToleranceMm:F.report.acceptanceToleranceMm}}:{}),
     metrics:{trainingMaxMm:F.report.metrics.training.maxMm,independentMaxMm:F.report.metrics.independent.maxMm,protectionMaxMm:F.report.metrics.protection.maxMm,deviationKind:'sampled-not-global'}}}};
  // Locked (protected) controls must be exactly zero after translation.
  for(let k=0;k<locked.length;k++)if(locked[k]&&values[Math.floor(k/cols)][k%cols]!==0)stale('受保护控制点不为零，拟合数据不可信');
+ // Cheap pre-check at 准备 (exact check still runs at preview): sample every real circular edge of
+ // the selected face; a sample inside the retained relief domain means the relief would cover a
+ // hole or cross the face boundary.
+ const cross=circularEdgeConflict(support,placement,mask.regions,F.widthMm,F.heightMm);
+ if(cross){block('RELIEF_OUTSIDE_FACE',`边 ${cross.edgeIndex}（R${+cross.radiusMm.toFixed(3)}，中心 [${cross.centerMm.map(v=>+v.toFixed(3)).join(', ')}]）距图案中心 ${+cross.distanceMm.toFixed(3)} mm`);return done();}
  const complexity=reliefDesignComplexity(params);
- if(complexity.complex){block('RELIEF_DESIGN_NATIVE_REQUIRED',complexity.reasons.join(','));return done({complexity:{reasons:complexity.reasons}});}
+ // Services-first nets are computed on Services (never locally), so local complexity does not gate them.
+ if(complexity.complex&&!F.report?.provisional){block('RELIEF_DESIGN_NATIVE_REQUIRED',complexity.reasons.join(','));return done({complexity:{reasons:complexity.reasons}});}
  return {status:'prepared',blockers:[],geometryReady:false,brepComputed:false,commitState:'notCommitted',
   fingerprints:{sourceSha256:support.sourceSha256,draftFingerprint:fit.source.draftFingerprint,fieldFingerprint:fit.source.fieldFingerprint,optionsFingerprint:fit.source.optionsFingerprint,controlsSha256:params.designBinding.controls.controlsSha256,regionsSha256:params.designBinding.mask.regionsSha256},
   maskReport:{...mask.report,simplifiedVertexCount:mask.vertexCount,boundary:'retained-grid-cell-boundary-not-new-exact-circle'},
   previewArgs:{op:'relief',refs:[target.bodyId],params},
   next:'preview.start(previewArgs) -> preview.commit; no automatic preview/apply'};
+}
+
+function pointInRegions(regions,x,y){let inside=false;for(const r of regions)for(const loop of [r.outer,...(r.holes??[])])for(let i=0,j=loop.length-1;i<loop.length;j=i++){const [xi,yi]=loop[i],[xj,yj]=loop[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)inside=!inside;}return inside;}
+export function circularEdgeConflict(support,placement,regions,widthMm,heightMm,samples=96,toleranceMm=.05){
+ const n=support?.normal,X=placement?.xDirection,o=placement?.originMm;if(!finiteVec(n)||!finiteVec(X)||!finiteVec(o))return null;
+ const Y=[n[1]*X[2]-n[2]*X[1],n[2]*X[0]-n[0]*X[2],n[0]*X[1]-n[1]*X[0]];
+ for(const e of support.circularEdges??[]){if(!finiteVec(e.centerMm)||!(e.radiusMm>0))continue;
+  const d=e.centerMm.map((v,i)=>v-o[i]),cx=dot(d,X),cy=dot(d,Y);
+  for(let k=0;k<samples;k++){const t=2*Math.PI*k/samples,x=cx+e.radiusMm*Math.cos(t),y=cy+e.radiusMm*Math.sin(t);
+   if([[0,0],[toleranceMm,0],[-toleranceMm,0],[0,toleranceMm],[0,-toleranceMm]].every(([a,b])=>pointInRegions(regions,(x+a)/widthMm,(y+b)/heightMm)))return {edgeIndex:e.edgeIndex,radiusMm:e.radiusMm,centerMm:e.centerMm,distanceMm:Math.hypot(cx,cy)};}}
+ return null;
 }
