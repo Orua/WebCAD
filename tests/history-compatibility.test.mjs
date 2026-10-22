@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import init from 'replicad-opencascadejs';
 import {CadKernel} from '../src/cad-kernel.js';
+import {validateMaterialSettings,defaultMaterialSettings} from '../src/material-density.js';
+import {validateReliefDesigns} from '../src/relief-design-drafts.js';
 import {recordTimeline,restoreTimeline,validateTimeline,timelineList} from '../src/document-timeline.js';
 import {encodeProjectV3,encodeProjectV4,decodeProject} from '../src/project-container.js';
 import {assertDocumentCapacity} from '../src/document-limits.js';
@@ -13,7 +15,7 @@ const clone=structuredClone;
 function loader(){
   const source=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
   const code=source.slice(source.indexOf('function validateDocument('),source.indexOf('function checkInputFile('));
-  const context={clone,crypto,assertDocumentCapacity,validateTimeline,recordTimeline,validateReferenceSystem,validateResolvedPlacement,createReferenceSystem};
+  const context={clone,crypto,assertDocumentCapacity,validateTimeline,recordTimeline,validateReferenceSystem,validateResolvedPlacement,createReferenceSystem,validateMaterialSettings,loadMaterialSettings:defaultMaterialSettings,validateReliefDesigns};
   vm.createContext(context);vm.runInContext(code+'\nthis.load=validateDocument;',context);return context.load;
 }
 const box={id:'block',op:'box',params:{width:10,depth:8,height:6},refs:[]};
@@ -53,14 +55,14 @@ test('legacy v1/v2 JSON and v3/v4 containers restore, edit and save real non-tem
   }finally{engine.dispose();}
 });
 
-test('100 retained states can be restored, branched and saved after pruning',async()=>{
+test('20 retained states can be restored, branched and saved after pruning',async()=>{
   let doc={version:2,documentId:'bounded-history',name:'start',features:[clone(box)],imports:{},referenceSystem:createReferenceSystem()};
   for(let i=1;i<=112;i++){const next=clone(doc);next.name=`state-${i}`;recordTimeline(doc,next);doc=next;}
-  const history=timelineList(doc);assert.equal(history.storedSteps,100);assert.equal(history.prunedSteps,13);
+  const history=timelineList(doc);assert.equal(history.storedSteps,20);assert.equal(history.prunedSteps,93);
   const old=restoreTimeline(doc,history.entries[9].id);recordTimeline(doc,old,{label:'恢复保留状态'});validateTimeline(old);
   const branch=clone(old);branch.features[0].params.height=9;recordTimeline(old,branch);validateTimeline(branch);
   const reopened=await decodeProject(new TextEncoder().encode(JSON.stringify(branch)));validateTimeline(reopened);
-  assert.equal(reopened.features[0].params.height,9);assert.equal(timelineList(reopened).storedSteps,100);
+  assert.equal(reopened.features[0].params.height,9);assert.equal(timelineList(reopened).storedSteps,20);
 });
 
 test('genuinely inconsistent history and missing source bytes remain explicit failures without data loss',()=>{

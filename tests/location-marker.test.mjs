@@ -9,7 +9,7 @@ test('location text is plain, preserves world coordinates and binds the current 
   const marker=createLocationMarker({bodyId:'body-a',faceId:3,point:[1.234567,-2,4]},context,1);
   assert.deepEqual(marker.point,[1.234567,-2,4]);assert.deepEqual(marker.context,context);
   assert.equal(marker.source,'display-mesh');assert.equal(marker.precision,'approximate');
-  assert.match(marker.text,/位置 P1/);assert.doesNotMatch(marker.text,/\p{Extended_Pictographic}/u);
+  assert.equal(marker.text,'【位置P1】');assert.match(marker.tooltip,/X=1.2346/);assert.doesNotMatch(marker.text,/\p{Extended_Pictographic}/u);
   context.revision=8;assert.equal(marker.context.revision,7);
   assert.throws(()=>createLocationMarker({bodyId:'a',point:[NaN,0,0]},context,2),{code:'LOCATION_NO_HIT'});
 });
