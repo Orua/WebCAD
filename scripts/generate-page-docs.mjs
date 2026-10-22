@@ -46,7 +46,7 @@ for(const [action,route] of Object.entries(UI_API_ROUTES))for(const id of route.
 const index = { generatedFrom: 'src/page-api-docs.js and src/operation-registry.js',
   metadata, cards, docs, docMetadata };
 await mkdir(target, { recursive: true });
-await writeFile(resolve(target, 'index.json'), JSON.stringify(index, null, 2) + '\n', 'utf8');
+await writeFile(resolve(target, 'index.json'), JSON.stringify(index) + '\n', 'utf8');
 await writeFile(resolve(target, 'index.md'), createStaticPageApiIndex(), 'utf8');
 await mkdir(resolve(target,'tools'),{recursive:true});
 await mkdir(resolve(target,'docs'),{recursive:true});

@@ -1002,5 +1002,6 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:3ba7b4239d83f238c0ea94c3e8e3fbdb4c0ccdf5610cace4ffe890a2d339dc86"
+  "readingGuide": "api.guide.rounding",
+  "docsHash": "sha256:39abe790af758d68f958481e7c046bfff87e54c805c1c1cd3dbf23821c7ecf8d"
 }

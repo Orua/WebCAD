@@ -23,13 +23,14 @@ import {mechanicalIds} from './mechanical-tool-contracts.js';
 import {reliefNotes,reliefLayerNotes,reliefLocalPatchNotes} from './modeling/manufacturing/relief-contracts.js';
 import {DESIGN_INSPECTION_GUIDE,RECONSTRUCTION_WORKFLOW} from './design-inspection-guidance.js';
 import {KNOWLEDGE_GUIDANCE,KNOWLEDGE_ROUTES,KNOWLEDGE_TOOL_SYNONYMS} from './agent-knowledge.js';
+import {READING_MAP,COMPLEX_GUIDES,withReadingGuide} from './tool-reading-guide.js';
 import {withToolSelection,TOOL_SELECTION_DOC} from './tool-selection.js';
 import {PRODUCT_SOURCE_GUIDANCE,PRODUCT_FAMILY_DOCS,PRODUCT_FAMILIES} from './product-source-guidance.js';
 import {DESIGN_INSPECTION_SCHEMA} from './design-inspection.js';
 import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-intent.js';
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
 import {LOGO_RASTER_SCHEMA} from './logo-raster-options.js';
-import {ERROR_RECOVERY_VERSION,errorRecoveryCatalogDoc} from './error-recovery.js';
+import {ERROR_RECOVERY_VERSION,errorRecoveryCatalogDoc,errorRecovery} from './error-recovery.js';
 const PAGE_DOC_VERSION = '1.57.1';
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
@@ -68,6 +69,8 @@ const PAGE_METHODS = Object.freeze(['getMaterials','measureMass','reliefDesignFi
 const FILE_METHODS = Object.freeze(Object.keys(FILE_ARGUMENT_KEYS));
 const RELIEF_TAXONOMY = `浮雕 Agent 决策表\n输入/目标 | 工具 | 输出 | 限制\n作者制作的灰度高度图，毛发/纹理、打印 | meshHeightfieldRelief | 封闭网格/STL | 2049/边，1900000采样\n高度图局部抬高/压低/平滑/压平 | heightfieldSculpt，feature.edit追加params.sculpt | 网格/STL | 512笔，20000点\n网格与实体合并/挖出 | transform定位，再meshBoolean | 网格/STL | 2–16封闭实体\n恒深矢量LOGO | logo | BRep/STEP | 单精确面\n小图案或分层矢量、精确STEP | readRelief→relief | BRep/STEP | 4–65采样，32层\n精确浮雕局部修整 | reliefSculpt，prepareReliefSculpt→feature.edit | BRep | 7–65局部网格，128笔\n外凸圆柱浮雕 | relief | BRep | 外凸、角宽≤90°、总高≤R×20%、无旋转\n层间肩部过渡 | reliefShoulder | BRep | 需要Services\n已有STL局部修高 | sampleMeshRelief→meshReliefEdit | 网格 | 200000三角面\n圆形起伏底板 | meshReliefPlate | 网格 | 200000三角面\n照片/光影参考 | 先人工制作高度图，再meshHeightfieldRelief | 不直接加工 | 禁止把照片亮度当几何深度\nheightfieldSculpt和reliefSculpt是发现入口，执行真实feature.edit/prepareReliefSculpt，并非独立建模op。`;
 const PAGE_DOCS = Object.freeze({
+  'api.reading-map':READING_MAP,
+  ...COMPLEX_GUIDES,
   'api.error-recovery':errorRecoveryCatalogDoc(),
   'api.modeling-pitfalls': MODELING_PITFALLS,
   'api.blend-radius':'语义圆角使用selector:{seamBetween:{a:特征ID,b:特征ID}}、edgesNear:{pointMm,radiusMm,sharpOnly}或facesFromFeature:{featureId,role}，每次重建由当前OCCT历史解析，不保存面号。smoothTransition/fillet的radius可为正数或{maxMm,minMm,stepRatio:0.75,maxAttempts:6}，区间内只重用同一来源，不重建前缀；回执radiusSearchReport写明实际半径与逐次结果。probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?,maxAttempts?})只读当前独立BRep副本，不改变revision、历史和选择；feasibleMaxMm为最多6个下降样本中的最大可行半径，不是认证全局最大值。全部失败返回feasibility:infeasible、feasibleMaxMm:null和tried；不自动应用。优先给用户允许的区间，回显radiusUsedMm。',
@@ -536,8 +539,8 @@ function pageCards() {
     ...unavailable.map(card => ({ ...card, category: 'unavailable', version: PAGE_DOC_VERSION,
       implementationStatus: 'unavailable', contractStatus: 'unavailable', runtimeAvailability: 'unavailable',
       errorCodes: ['CAPABILITY_UNAVAILABLE'] })),
-  ].map(card=>withToolSelection(Object.hasOwn(KNOWLEDGE_TOOL_SYNONYMS,card.id)
-    ? {...card,synonyms:[...new Set([...(card.synonyms||[]),...KNOWLEDGE_TOOL_SYNONYMS[card.id]])]} : card));
+  ].map(card=>withReadingGuide(withToolSelection(Object.hasOwn(KNOWLEDGE_TOOL_SYNONYMS,card.id)
+    ? {...card,synonyms:[...new Set([...(card.synonyms||[]),...KNOWLEDGE_TOOL_SYNONYMS[card.id]])]} : card)));
 }
 export const pageCatalogHash = contractHash({ searchVersion: SEARCH_VERSION, cards: pageCards(), uiRoutes:UI_API_ROUTES, knowledgeRoutes:KNOWLEDGE_ROUTES, productFamilies:PRODUCT_FAMILIES, fileLimits: FILE_LIMITS });
 export const pageDocsHash = contractHash({ pageCatalogHash, pageDocs: PAGE_DOCS, agentProtocol:AGENT_CONTRACT, onboarding:AGENT_ONBOARDING, legacyReadable: [...LEGACY_READABLE], legacyDocsHash });
@@ -600,7 +603,7 @@ export function searchTools(input = {}, runtime = {}) {
   return { items: matches.slice(offset, offset + limit).map(hit => { const card = cardsById.get(hit.id); return ({ id: card.id, title: card.title,
     label: card.label || card.title, docsHash: card.docsHash, score: hit.score, matchedTerms: hit.matchedTerms,
     version: card.version, schemaHash: card.schemaHash || null, description: card.description.slice(0,240), descriptionTruncated:card.description.length>240,
-    selectionGuide:structuredClone(card.selectionGuide),
+    selectionGuide:structuredClone(card.selectionGuide), readFirst:card.readingGuide,
     category: card.category, contractStatus: card.contractStatus, strictContract: card.strictContract === true,
     runtimeAvailability: card.runtimeAvailability === 'unavailable' ? 'unavailable'
       : runtime.browserReady === false ? 'not_ready' : runtime.browserReady === true ? 'available' : 'unknown' }); }),
@@ -638,7 +641,7 @@ export function getTools(input) {
       const card = getTool({ id });
       return { id, version: card.version, docsHash: card.docsHash,
         ...(Object.hasOwn(known,id) && known[id] === card.docsHash ? { status:'not_modified' } : { status:'read', card }) };
-    } catch (error) { return { id, status:'error', error:{ code:error.code || 'UNKNOWN_OPERATION', message:error.message } }; }
+    } catch (error) { return { id, status:'error', error:{ code:error.code || 'UNKNOWN_OPERATION', message:error.message, recovery:errorRecovery(error) } }; }
   }) };
 }
 

@@ -11,8 +11,7 @@ const matches=(manifest,c)=>manifest?.schemaVersion===1&&manifest.catalogHash===
 function validateManifest(m,c){
   if(!matches(m,c))fail('KNOWLEDGE_STALE','Knowledge package and live page hashes differ; reconnect before downloading.');
   if(!Array.isArray(m.files)||m.files.length!==names.length||new Set(m.files.map(f=>f.name)).size!==names.length)fail('KNOWLEDGE_INVALID','Incomplete knowledge package.');
-  for(const f of m.files)if(!names.includes(f.name)||f.url!==f.name||!Number.isSafeInteger(f.sizeBytes)||f.sizeBytes<1||f.sizeBytes>5*1024*1024||!/^sha256:[a-f0-9]{64}$/.test(f.sha256))fail('KNOWLEDGE_INVALID','Invalid finite package file.');
-  if(m.files.reduce((n,f)=>n+f.sizeBytes,0)>8*1024*1024)fail('KNOWLEDGE_LIMIT','Knowledge package exceeds 8 MiB.');
+  for(const f of m.files)if(!names.includes(f.name)||f.url!==f.name||!Number.isSafeInteger(f.sizeBytes)||f.sizeBytes<1||!/^sha256:[a-f0-9]{64}$/.test(f.sha256))fail('KNOWLEDGE_INVALID','Invalid finite package file.');
 }
 function validatePayloads(payloads,c){
   const index=JSON.parse(payloads.get('index.json').toString('utf8'));
@@ -41,7 +40,7 @@ export async function syncKnowledge(connection,{baseUrl,directory=join((typeof p
   const download=async name=>{
     const response=await fetchImpl(new URL('automation/'+name,base));
     if(!response.ok)fail('KNOWLEDGE_DOWNLOAD_FAILED',`Knowledge file ${name} returned HTTP ${response.status}.`);
-    const bytes=Buffer.from(await response.arrayBuffer());if(bytes.length>5*1024*1024)fail('KNOWLEDGE_LIMIT','Knowledge file exceeds 5 MiB.');return bytes;
+    return Buffer.from(await response.arrayBuffer());
   };
   const manifest=JSON.parse((await download('agent-knowledge.json')).toString('utf8'));validateManifest(manifest,connection);
   const payloads=new Map(await Promise.all(manifest.files.map(async f=>{
@@ -65,7 +64,14 @@ async function openCache(cache){
 export async function routeKnowledge(cache,query,{limit=3}={}){
   if(typeof query!=='string'||query.length>500||!Number.isInteger(limit)||limit<1||limit>10)fail('KNOWLEDGE_QUERY_INVALID','Use a short query and limit 1..10.');
   const {routing}=await openCache(cache),text=query.toLocaleLowerCase();
-  return routing.routes.map(route=>({...route,score:route.keywords.filter(k=>text.includes(k.toLocaleLowerCase())).length})).filter(route=>route.score>0).sort((a,b)=>b.score-a.score).slice(0,limit);
+  const matches=word=>{
+    const term=word.toLocaleLowerCase();
+    if(!/^[a-z0-9 ._-]+$/.test(term))return text.includes(term);
+    return new RegExp('(?<![a-z0-9._-])'+term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![a-z0-9._-])').test(text);
+  };
+  return routing.routes.map(route=>{const matchedTerms=route.keywords.filter(matches);
+    return {...route,matchedTerms,score:matchedTerms.reduce((sum,word)=>sum+word.length,0)};
+  }).filter(route=>route.score>0).sort((a,b)=>b.score-a.score).slice(0,limit);
 }
 export async function readLocalKnowledge(cache,{docIds=[],toolIds=[],maxChars=32000}={}){
   const {index}=await openCache(cache);

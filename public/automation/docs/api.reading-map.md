@@ -1,0 +1,115 @@
+# api.reading-map
+
+# 分层取得工具
+1. 恢复入口：首次握手下载并校验知识包。压缩后保留本机工具、路由、项目文件；宿主支持时用 webcad_docs recovery 找回索引。已读记录不代表完整说明仍在模型上下文中，忘记参数就重读所需卡。
+2. 找方向：按任务查询 agent-routing.json；返回的是候选路线，不是执行计划。先看 readFirst 和 readPlan。精确 UI 动作用 routes.json；已知工具 ID 直接 getTools，不必重新搜索。
+3. 做选择：看搜索摘要、selectionGuide.chooseWhen 与相似工具区别；只读一个命中专题，不加载所有候选专题。来源、截面、路径、支撑面、精确实体/网格结果不清时，先补对应证据。
+4. 取契约：getTools({ids:[所需ID]}) 一次取得少量完整卡。readingGuide 指向阅读说明；按 selectionGuide、preconditions、inputSchema、refsSchema、units、limits、minimalExample、sideEffects、verification、errors 的顺序核对。调用入口以卡内 usage 和示例为准，discovery-only 不代表可直接执行。inputSchema/refsSchema/units/limits/minimalExample 才是参数依据，摘要不能代替契约。需要时按 nextCursor 读完专题，不能截断 schema。
+5. 执行：取得当前文档引用和 revision，按 run 或专用接口提交；逐项核对回执。minimalExample 只解释请求结构，不证明当前来源适用或几何必然成功。
+6. 出错：读 error.code/path/stage 和 error.recovery，先区分参数错误、来源缺失、能力不支持、计算失败、结果未知；按错误建议只读核对。unknown/partial 不能通过换键、换工具或重建全部来恢复。
+缓存规则：仅当完整内容仍可用时才传 knownHash/knownHashes；仅记得哈希或读过的ID时不传。工具版本变更重新读取卡；活文档状态和拓扑编号永不当静态缓存使用。
+未命中：缩小到一个明确能力词，或按 ID/工具组查找。无合适工具时返回能力缺口和缺少的来源，不重复搜索同一个词，不猜测不存在的工具。
+
+
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
+reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
+reliefDesignReference: contextPolicy=revision
+reliefDesignField: contextPolicy=revision
+readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
+getBatchReceipt: contextPolicy=none
+probeBlendRadius: contextPolicy=identity
+recoverKernel: contextPolicy=revision
+sampleMeshRelief: contextPolicy=identity
+getModelLibrary: contextPolicy=none
+updateModelLibrary: contextPolicy=revision
+resolveModelLibrary: contextPolicy=identity
+planPatternMachining: contextPolicy=identity
+decideServicesWait: contextPolicy=none
+recoverServicesJob: contextPolicy=none
+prepareReliefTopologyUpgrade: contextPolicy=identity
+sampleReliefHeight: contextPolicy=identity
+prepareReliefSculpt: contextPolicy=identity
+readRelief: contextPolicy=identity
+getHistory: contextPolicy=none
+planAlignment: contextPolicy=identity
+selectRectangle: contextPolicy=identity
+createDrawing: contextPolicy=revision
+exportDrawing: contextPolicy=revision
+getQuickModelUsage: contextPolicy=none
+copySelection: contextPolicy=revision
+pasteSelection: contextPolicy=revision
+createRequestContext: contextPolicy=none
+getUILayout: contextPolicy=none
+setRenderQuality: contextPolicy=identity
+invoke: contextPolicy=none
+submit: contextPolicy=none
+getJob: contextPolicy=none
+cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
+connect: contextPolicy=none
+info: contextPolicy=none
+getState: contextPolicy=none
+searchTools: contextPolicy=none
+getTools: contextPolicy=none
+getTool: contextPolicy=none
+readDocs: contextPolicy=none
+queryGeometry: contextPolicy=identity
+queryReferences: contextPolicy=identity
+resolvePlacement: contextPolicy=identity
+execute: contextPolicy=revision
+measure: contextPolicy=identity
+measureRelation: contextPolicy=identity
+inspectDesign: contextPolicy=identity
+inspectPrintability: contextPolicy=identity
+inspectProfile: contextPolicy=identity
+prepareProfileEdit: contextPolicy=identity
+inspectConstraints: contextPolicy=identity
+projectProfile: contextPolicy=identity
+inspectFit: contextPolicy=identity
+inspectThickness: contextPolicy=identity
+inspectDraft: contextPolicy=identity
+inspectRound: contextPolicy=identity
+readVector: contextPolicy=identity
+connectVector: contextPolicy=none
+fitProfile: contextPolicy=identity
+traceTwinWindow: contextPolicy=identity
+executeText: contextPolicy=revision
+setDisplayPreferences: contextPolicy=identity
+getAgentPanel: contextPolicy=none
+configureAgentPanel: contextPolicy=revision
+setAgentPanel: contextPolicy=revision
+markLocation: contextPolicy=revision
+getServices: contextPolicy=none
+setServices: contextPolicy=revision
+getServicesCapabilities: contextPolicy=none
+getServicesRouting: contextPolicy=none
+clearServicesCredential: contextPolicy=revision
+getServicesJob: contextPolicy=none
+getServicesRequest: contextPolicy=none
+cancelServicesJob: contextPolicy=revision
+getLogoConverter: contextPolicy=none
+setLogoConverter: contextPolicy=revision
+convertLogoPdf: contextPolicy=revision
+setView: contextPolicy=identity
+redraw: contextPolicy=identity
+capture: contextPolicy=identity
+run: contextPolicy=revision
+files.capabilities: contextPolicy=none
+files.register: contextPolicy=none
+files.new: contextPolicy=none
+files.open: contextPolicy=revision
+files.import: contextPolicy=revision
+files.save: contextPolicy=revision
+files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
+files.read: contextPolicy=none
+files.download: contextPolicy=none
+files.write: contextPolicy=none
+files.confirmWritten: contextPolicy=none
+files.release: contextPolicy=none
