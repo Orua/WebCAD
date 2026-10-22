@@ -1,5 +1,21 @@
 {
   "version": 1,
+  "nativeStateSync20261022": {
+    "localImpact": "Page-owned event-driven stateSeq and read-only state projection; confirmed direct or authenticated bridge transport",
+    "servicesImpact": "No Services geometry or binary change; companion CodexAgent task and receipt transport changes are required for state/1",
+    "logoImpact": "None: no Logo operation or worker changes",
+    "contractImpact": "Additive stateSeq/channelState and independent goldenluck.webcad.state/1; legacy pages and brokers retain compatibility",
+    "documentImpact": "No geometry/history/save-format changes; send selection is pinned; all execution still checks current authority",
+    "cacheImpact": "Regenerate affected readable API documentation and host adapter bundle; no tool algorithm or company knowledge changes",
+    "requiredTests": [
+      "State subscription acknowledgement and idle no polling",
+      "Pinned state reaches actual model turn",
+      "Optional mirror failure preserves receipt",
+      "Unbound analysis has no CAD authority",
+      "Lifecycle input release and takeover regressions",
+      "113 recorded simple-task timing spot check after explicit candidate installation approval"
+    ]
+  },
   "iconsAndViewportCapture20261022": {
     "localImpact": "Distinct fixed-R versus fillet and render versus precision icons; viewport capture composites visible P labels and returns dimensions",
     "servicesImpact": "None: existing native Agent webcad_view capture forwards the page dataUrl as MCP image and persists the attachment; no service or host binary change",

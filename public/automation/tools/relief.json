@@ -847,6 +847,13 @@
               "metrics"
             ],
             "properties": {
+              "deviationPolicy": {
+                "type": "string",
+                "enum": [
+                  "strict",
+                  "candidate"
+                ]
+              },
               "designId": {
                 "type": "string",
                 "minLength": 1,
@@ -1236,7 +1243,7 @@
     "小图）"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:bb8edd74e03713ca05af880e857b3839f982c96e5d2121f495581e242c0b5400",
+  "schemaHash": "sha256:f94a3e051f5bcfdee8e69c6fce7cc59260ced74650aef4efc2e271ef2861a8a3",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -2480,5 +2487,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:56594d53a4d5bdb579408ab8bbb63365b7a82628332802d4b7d6a52a56467582"
+  "docsHash": "sha256:043ae3603eb5487981181627a53a4a50e2341e224b8b796aba866d5872139cb5"
 }

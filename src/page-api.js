@@ -42,6 +42,7 @@ import {validateDesignRequirements} from './design-inspection.js';
 import {normalizeOperationParams} from './operation-registry.js';
 import {modelLibrary} from './model-library.js';
 import {errorRecovery,withErrorRecovery} from './error-recovery.js';
+import {createStateObserver} from './agent/state-observer.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 
@@ -69,6 +70,7 @@ export function createPageAPI(host){
   const explained=fn=>(...args)=>{try{const result=fn(...args);return result&&typeof result.then==='function'?result.then(withErrorRecovery,explainThrown):withErrorRecovery(result);}catch(error){return explainThrown(error);}};
   const requestPolicies=new WeakMap();
   const current=()=>host.state();
+  const stateObserver=createStateObserver({key:()=>host.revisionKey?host.revisionKey():JSON.stringify(current().context),context:()=>current().context,subscribe:host.subscribeState});
   const failure=e=>withErrorRecovery({status:e.status==='unknown'||e.commitState==='unknown'?'unknown':'failed',commitState:e.commitState==='unknown'||e.status==='unknown'?'unknown':'not_committed',error:{...(e.jobId?{jobId:e.jobId}:{}),...(e.idempotencyKey?{idempotencyKey:e.idempotencyKey}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:e.retryable===true,recoveryAction:e.recoveryAction||((e.commitState==='unknown'||e.status==='unknown')?'RECONCILE_ORIGINAL_REQUEST':null)||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
   const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
   function check(input,keys,requiredContext=true){
@@ -255,12 +257,12 @@ export function createPageAPI(host){
       const req=state.requestContext||requestContext(state.context);
       rememberBodies(state);
       // compact omits the heavy display descriptor (agents only need it for capture/redraw).
-      let out=stateInput.compact?{...state,requestContext:req}:{...state,requestContext:req,display:host.display()};
+      let out=stateInput.compact?{...state,stateSeq:stateObserver.version(),requestContext:req}:{...state,stateSeq:stateObserver.version(),requestContext:req,display:host.display()};
       if(sinceRevision!==undefined){
-        if(sinceRevision===out.context?.revision)return {status:'read',unchanged:true,context:out.context,requestContext:req,sinceRevision};
+        if(sinceRevision===out.context?.revision)return {status:'read',unchanged:true,context:out.context,requestContext:req,stateSeq:out.stateSeq,sinceRevision};
         out={...out,sinceRevision,changes:bodyChanges(sinceRevision,state)};
       }
-      if(fields)out=Object.fromEntries(Object.entries(out).filter(([k])=>['status','context','requestContext','changes','sinceRevision'].includes(k)||fields.includes(k)));
+      if(fields)out=Object.fromEntries(Object.entries(out).filter(([k])=>['status','context','requestContext','stateSeq','changes','sinceRevision'].includes(k)||fields.includes(k)));
       return out;
     },
     getQuickModelUsage:guarded(input=>{if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getQuickModelUsage takes no fields');return {status:'read',...structuredClone(host.quickModelUsage()),context:current().context};}),
@@ -714,19 +716,7 @@ export function createPageAPI(host){
   for(const name of Object.keys(api))if(typeof api[name]==='function')api[name]=explained(api[name]);
   // Native host mode (in-page only; not callable through invoke/agents and not part of the agent contract):
   // the embedding host is told when document identity, revision or readiness changes so it can push a fresh
-  // compact snapshot. Cheap key comparison on a short timer; the callback fires once the key is stable.
-  api.watchRevision=(callback,options={})=>{
-    if(typeof callback!=='function')fail('PARAM_SCHEMA_INVALID','watchRevision needs a callback');
-    const debounceMs=options.debounceMs??150,intervalMs=options.intervalMs??50;
-    if(!Number.isInteger(debounceMs)||debounceMs<0||debounceMs>5000||!Number.isInteger(intervalMs)||intervalMs<10||intervalMs>1000)fail('PARAM_RANGE_INVALID','debounceMs 0..5000, intervalMs 10..1000');
-    const key=()=>host.revisionKey?host.revisionKey():JSON.stringify(current().context);
-    let last=key(),changedAt=0,pending=false,stopped=false;
-    const timer=setInterval(()=>{
-      if(stopped)return;const next=key();
-      if(next!==last){last=next;changedAt=Date.now();pending=true;return;}
-      if(pending&&Date.now()-changedAt>=debounceMs){pending=false;try{const r=callback({key:next,context:current().context});if(r&&typeof r.catch==='function')r.catch(()=>{});}catch{}}
-    },intervalMs);
-    return ()=>{stopped=true;clearInterval(timer);};
-  };
+  // compact snapshot. The page refresh event coalesces changes; idle subscriptions do not poll state.
+  api.watchRevision=stateObserver.watch;
   return Object.freeze(api);
 }

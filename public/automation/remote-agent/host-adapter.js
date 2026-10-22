@@ -575,6 +575,7 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
         entry.resultReportPromise = null;
         if (endedTasks.has(entry.command.taskId) && ![...commands.values()].some((item) => item.command.taskId === entry.command.taskId && pending(item))) activeTask = null;
         archiveFinished();
+        onStateChange();
       }
     })();
     return entry.resultReportPromise;

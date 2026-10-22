@@ -13,7 +13,7 @@
     "状态"
   ],
   "inputContract": "getAgentPanel()",
-  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；phase=agent_offline 表示助手已断开，请在面板重新连接；phase=release_pending 表示本地已解锁但服务端释放待核对。断线保留工程与原命令回执，不自动重放。",
+  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；channelState返回已验证的transport=direct|bridge|unavailable、actualOrigin、syncStatus=confirmed|pending|stopped|unavailable和原因，不把同域名视作同源；刷新连接状态仅读此投影，不刷新工程、不扩大权限。phase=agent_offline 表示助手已断开；release_pending 表示本地已解锁但服务端释放待核对。断线保留工程与原命令回执，不自动重放。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -35,5 +35,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1f212706dab8e7870788dec4b1471ca49b951a88cdfd7dd825d6206fe9841c4e"
+  "docsHash": "sha256:84ec0d69995a0c4837fda6a3e0b4e61247eedb0b3350b912a4854a93257ddb13"
 }
