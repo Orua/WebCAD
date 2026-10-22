@@ -3,7 +3,7 @@
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.55.9",
+  "version": "1.57.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -77,5 +77,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:7209509e3636cd95de4139299d4895e4c22666a8b0b2566af44b78104c8bf1e3"
+  "docsHash": "sha256:d2a76a664363ef278487a7396d86248ba6f984d5930b0f7d7dc15df34ebd75da"
 }

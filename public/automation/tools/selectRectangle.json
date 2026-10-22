@@ -2,7 +2,7 @@
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.55.9",
+  "version": "1.57.1",
   "contextPolicy": "identity",
   "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
   "synonyms": [
@@ -79,5 +79,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:cc4380daa1f40ba970c36a2e69e9598ea59701cfa65775e78042b4d24adf7837"
+  "docsHash": "sha256:c2d923382d526a4faac94a623610949152510ba052d8c204d1e764581ff8411e"
 }

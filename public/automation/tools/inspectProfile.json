@@ -2,7 +2,7 @@
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.55.9",
+  "version": "1.57.1",
   "contextPolicy": "identity",
   "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
   "synonyms": [
@@ -82,5 +82,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:7556b091eaba2dce06762a461db75950050f32ed4f53f3e32751e827418979d3"
+  "docsHash": "sha256:d95866db267268557e4d3302a2b9715df8fb5ec5aefac4144f93602ca4381233"
 }

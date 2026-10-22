@@ -2,7 +2,7 @@
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.55.9",
+  "version": "1.57.1",
   "contextPolicy": "identity",
   "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
   "synonyms": [
@@ -93,5 +93,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:375d659da64eeff3a95e348ae762b79222b9b3fee62400d4b3fd8e5d3548a4e2"
+  "docsHash": "sha256:2a2b28e3b0373a7d445640fce21cbbf01642480a729632b1f20f7a98e984ea7f"
 }

@@ -12,7 +12,7 @@ const tabs = [
   {id:'finish',label:'修饰',groups:[['圆角与过渡',['round','chamfer','autoRound','smoothTransition','fillet','rounding'],{overflowActions:['autoRound','smoothTransition','fillet','rounding']}],['端部',['roundEnd']],['壳与偏置',['shell','offsetSolid']],['实体整理',['refineShape']],['拔模',['draftFaces','draftByPlane']]]},
   {id:'inspect',label:'检查',groups:[['测量',['measure','measureRelation']],['几何检查',['inspectThickness','inspectFit','inspectDraft','inspectPrintability']],['出图与记录',['quickDrawing','screenshot']]]},
   {id:'view',label:'视图',groups:[['剖切查看',['section']]],controls:['directions','projection','display','assists','quality']},
-  {id:'settings',label:'设置',groups:[['交互',['precisionSettings','snapSettings']],['外观',['themeSettings','displayPreferences','languageSettings']],['工程',['parameters']],['导入设置',['servicesSettings']],['AGENT',['agentGuide']]]},
+  {id:'settings',label:'设置',groups:[['交互',['precisionSettings','snapSettings']],['外观',['themeSettings','displayPreferences','languageSettings']],['工程',['parameters','materialSettings']],['导入设置',['servicesSettings']],['AGENT',['agentGuide']]]},
 ];
 const controls={
   directions:{label:'标准视角',action:'view',key:'direction',items:[['等轴','iso'],['前视','front'],['后视','back'],['俯视','top'],['仰视','bottom'],['左视','left'],['右视','right']]},
@@ -26,7 +26,7 @@ export const UI_LAYOUT=freeze({version:8,workspaces:[{id:'modeling',label:'建�
   viewportActions:[{action:'gizmoRotate',label:'鼠标旋转'},{action:'gizmoTranslate',label:'鼠标移动'}],
   icons:{badge:['M4 3h16v18H4Z M8 7h8 M8 11h8 M8 15h5 M8 18h5'],
     relief:['M3 19h18 M3 15c3 0 3-10 6-10s3 8 6 8 3-5 6-5 M3 15v4 M21 8v11 M3 10c3 0 3-7 6-7s3 6 6 6 3-3 6-3'],
-    ...ACTION_ICONS,refineShape:['M4 4h16v16H4Z M9 4v5 M9 15v5 M15 4v5 M15 15v5 M9 12h6'],quickDrawing:['M3 3h18v18H3Z M3 12h18 M12 3v18 M6 6h3v3H6Z M15 6h3v3h-3Z M6 15h3v3H6Z'],alignTool:ACTION_ICONS.alignObjects,round:ACTION_ICONS.fillet,roundEnd:ACTION_ICONS.roundEnd,rounding:ACTION_ICONS.rounding,servicesSettings:ACTION_ICONS.servicesSettings,precisionSettings:ACTION_ICONS.precisionSettings,
+    ...ACTION_ICONS,refineShape:['M4 4h16v16H4Z M9 4v5 M9 15v5 M15 4v5 M15 15v5 M9 12h6'],quickDrawing:['M3 3h18v18H3Z M3 12h18 M12 3v18 M6 6h3v3H6Z M15 6h3v3h-3Z M6 15h3v3H6Z'],alignTool:ACTION_ICONS.alignObjects,round:['M3 21V11a8 8 0 0 1 8-8h10 M3 3h18v18 M11 12h4a2 2 0 0 1 0 4h-4v5 M14 16l4 5'],roundEnd:ACTION_ICONS.roundEnd,rounding:ACTION_ICONS.rounding,servicesSettings:ACTION_ICONS.servicesSettings,precisionSettings:ACTION_ICONS.precisionSettings,
     helix:ACTION_ICONS.helix,coil:ACTION_ICONS.coil,thread:ACTION_ICONS.thread,offsetSolid:ACTION_ICONS.offsetSolid,offsetSurface:ACTION_ICONS.offsetSurface,draftByPlane:ACTION_ICONS.draftByPlane,profileConstraints:ACTION_ICONS.profileConstraints,
     moveTool:ACTION_ICONS.gizmoTranslate,rotateTool:ACTION_ICONS.gizmoRotate,copy:ACTION_ICONS.clone,
     copySelection:ACTION_ICONS.copy,pasteSelection:['M9 4H5v18h14V4h-4 M9 2h6v5H9Z M8 11h8 M8 15h8'],
@@ -47,7 +47,7 @@ export const UI_LAYOUT=freeze({version:8,workspaces:[{id:'modeling',label:'建�
     export:['M14 3h7v7 M21 3l-10 10 M10 4H3v17h17v-8'],
     parameters:['M3 4h18v16H3Z M3 10h18 M9 4v16 M15 10v10'],
     help:['M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20 M9 8a3 3 0 1 1 5 2c-2 1-2 2-2 4 M12 17h.01'],
-    displayPreferences:['M4 5h16 M4 12h16 M4 19h16 M8 2v6 M16 9v6 M10 16v6'],
+    displayPreferences:['M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12 M12 1v3 M12 20v3 M1 12h3 M20 12h3 M4 4l2 2 M18 18l2 2 M4 20l2-2 M18 6l2-2 M12 6v12'],
     reliefDesign:['M4 4h16v16H4Z M8 8h.1 M15 10h.1 M10 16h.1 M8 8l7 2-5 6'],
     reliefSculpt:['M3 18h18 M4 14l4-7 4 5 4-8 4 10 M6 18v3 M18 18v3'],
   },

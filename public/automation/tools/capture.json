@@ -2,18 +2,20 @@
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.55.9",
+  "version": "1.57.1",
   "contextPolicy": "identity",
-  "description": "capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:\"webp\"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。",
+  "description": "capture({context,maxWidth?:64..4096,format?:\"png\"|\"webp\",quality?:0<q<=1}); 建议 maxWidth:800,format:\"webp\"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:\"capture\",args:{context,maxWidth:800,format:\"webp\"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。",
   "synonyms": [
     "capture",
     "截图",
     "图像",
     "PNG",
-    "当前画面"
+    "WebP",
+    "当前画面",
+    "视口"
   ],
-  "inputContract": "capture({context,maxWidth?,format?,quality?}); 建议 maxWidth:800,format:\"webp\"。后台标签页也同步渲染一帧；超过 limits.transport.captureTimeoutMs（10 s）返回 CAPTURE_TIMEOUT，几何回执不受影响，不要循环等待 webcad_job。",
-  "outputContract": "status=read、mime=image/png、真实 dataUrl、当前 context 和匹配渲染帧的 display。",
+  "inputContract": "capture({context,maxWidth?:64..4096,format?:\"png\"|\"webp\",quality?:0<q<=1}); 建议 maxWidth:800,format:\"webp\"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:\"capture\",args:{context,maxWidth:800,format:\"webp\"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。",
+  "outputContract": "status=read、实际mime=image/png或image/webp、dataUrl、width/height、当前context和匹配修订的display；原生宿主转为MCP image内容并保存截图附件。生成图像、宿主落盘、模型收到图像是不同证明层级。不改几何/history/dirty。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -89,5 +91,5 @@
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
-  "docsHash": "sha256:75af65eea4261d7ee671b07a9339273e6b04a8fe7ed6f900d3467162909f5029"
+  "docsHash": "sha256:66fb74b21c770c5f23ce6276dd6bc9eecb743de27cf244f8fe04f7f965a6acbe"
 }

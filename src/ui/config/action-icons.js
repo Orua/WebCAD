@@ -11,6 +11,7 @@ export const ACTION_ICONS={
  moreTools:['M5 11h2v2H5Z M11 11h2v2h-2Z M17 11h2v2h-2Z'],
  clone:['M3 3h12v12H3Z M9 9h12v12H9Z M6 6h6 M6 9h3 M12 12h6 M12 15h6 M12 18h6'],
  precisionSettings:['M4 5h16 M4 12h16 M4 19h16 M8 2v6 M16 9v6 M10 16v6'],
+ materialSettings:['M5 20h14 M12 3v17 M4 7h16 M4 7l-3 7h6L4 7 M20 7l-3 7h6l-3-7'],
  bumpSet:['M3 18h18 M4 18v-4a3 3 0 0 1 6 0v4 M9 18V9a3 3 0 0 1 6 0v9 M14 18v-5a3 3 0 0 1 6 0v5'],
  subdBody:['M4 7Q12 1 20 7V17Q12 23 4 17Z M4 7Q12 13 20 7 M12 4V21 M4 12Q12 18 20 12'],
  folder:['M3 7h7l2 2h9v11H3Z'],

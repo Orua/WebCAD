@@ -29,6 +29,7 @@ export class CADViewport {
     this.metalOcclusion=new MetalOcclusionPass(this.renderer,this.metals.getOcclusionUniforms());
     this.metals.ready.then(()=>this.setMetalFinish(this.finishKey));
     host.append(this.renderer.domElement); this.renderer.domElement.setAttribute('aria-label','三维建模视口'); this.renderer.domElement.tabIndex=0;
+    this.locationLabels=document.createElement('div');this.locationLabels.className='location-labels';this.locationLabels.style.cssText='position:absolute;inset:0;pointer-events:none;overflow:hidden';host.append(this.locationLabels);this.locationMarkers=[];
     this.controls=new OrbitControls(this.camera,this.renderer.domElement); this.controls.enableDamping=true; this.controls.dampingFactor=.12;
     this.viewInteraction='settled';this.interactionDeadline=0;this.userViewActive=false;
     this.controls.addEventListener('start',()=>{this.userViewActive=true;this.setViewInteraction('start');});
@@ -338,6 +339,13 @@ export class CADViewport {
   drawSketch(){this.clearGuides();const points=this.sketch.points.map(p=>this.sketchWorldPoint(p));if(points.length>1)this.guideRoot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([...points,points[0]]),new THREE.LineBasicMaterial({color:0x008d7e,depthTest:false})));for(const point of points){const dot=new THREE.Mesh(new THREE.SphereGeometry(this.span*.007,10,6),new THREE.MeshBasicMaterial({color:0x008d7e}));dot.position.copy(point);this.guideRoot.add(dot);}this.overlay.querySelector('[data-count]').textContent=`${points.length} ${say('个顶点','vertices')}`;}
   cancelTask(){if(this.sketch)this.grid.visible=this.sketch.previousGridVisible;this.locationMarking=false;this.callbacks.onInteraction?.(null);this.sketch=null;this.measuring=null;this.controls.enableRotate=true;this.overlay.style.display='none';this.clearGuides();this.updateHud();}
   startLocationMarking(){this.cancelTask();this.setGizmo('off');this.locationMarking=true;this.callbacks.onInteraction?.('locationMarker');}
+  setLocationMarkers(markers){
+    this.locationMarkers=markers.map(marker=>{const label=document.createElement('span');label.textContent=marker.label;label.style.cssText='position:absolute;padding:2px 5px;border:1px solid #fff;border-radius:10px;background:#155e75;color:#fff;font:600 11px system-ui;transform:translate(-50%,-120%)';return {marker,label};});
+    this.locationLabels.replaceChildren(...this.locationMarkers.map(x=>x.label));
+  }
+  updateLocationMarkers(){
+    for(const {marker,label} of this.locationMarkers||[]){const point=new THREE.Vector3(...marker.point),p=point.clone().project(this.camera);label.hidden=p.z < -1||p.z>1||marker.context.revision!==this.modelContext?.revision||marker.context.documentInstanceId!==this.modelContext?.documentInstanceId||!this.isVisiblePoint(point)||!this.objects.get(marker.bodyId)?.root.visible;label.style.left=`${(p.x+1)*50}%`;label.style.top=`${(1-p.y)*50}%`;}
+  }
   pickLocation(screen){
     const rect=this.renderer.domElement.getBoundingClientRect(),ray=this.ray({clientX:rect.left+screen[0]*rect.width,clientY:rect.top+screen[1]*rect.height});
     const hit=ray.intersectObjects([...this.objects.values()].filter(v=>v.root.visible&&v.mesh.visible).map(v=>v.mesh),false).find(item=>this.isVisiblePoint(item.point));
@@ -368,7 +376,7 @@ export class CADViewport {
     const exactDetail=this.exactDisplayDetail.update(active);if(exactDetail)this.displayDetail={...this.displayDetail,...exactDetail};
     if(!active)this.viewInteraction='settled';
   }
-  renderFrame(forceFine=false){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.updateDisplayDetail(forceFine);
+  renderFrame(forceFine=false){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.updateDisplayDetail(forceFine);this.updateLocationMarkers();
     const stamp=[this.camera.matrixWorld.elements,this.camera.projectionMatrix.elements,this.scene.background?.getHex(),this.clipPlanes.map(p=>[p.normal.toArray(),p.constant]),this.renderer.toneMappingExposure,this.modelContext,this.scene.environment?.id,this.displayPreferences,this.finishKey,this.partFinishes,this.selected,this.topology];
     this.scene.traverse(o=>{if(o.geometry||o.isLight)stamp.push([o.id,o.visible,o.matrixWorld.elements,o.geometry?.id,o.intensity,o.material?.color?.getHex(),o.material?.emissive?.getHex(),o.material?.opacity,o.material?.wireframe,o.material?.version,o.material?.map?.id,o.material?.envMap?.id,o.material?.roughness,o.material?.metalness]);});
     const key=JSON.stringify(stamp);if(forceFine||key!==this.lastFrameKey){this.metalOcclusion.render(this.scene,this.camera,{enabled:this.mode!=='wire'&&this.mode!=='transparentEdges',clippingPlanes:this.clipPlanes});this.renderer.render(this.scene,this.camera);this.lastFrameKey=key;this.cachedFrameReused=false;this.lastRenderedTriangles=this.renderer.info.render.triangles;}else this.cachedFrameReused=true;this.displayDetail.actualRenderedTriangles=this.lastRenderedTriangles;const position=this.anchorProxy.position.clone().project(this.camera),width=this.host.clientWidth,height=this.host.clientHeight;this.anchorMarker.style.transform=`translate(${(position.x+1)*width/2}px,${(1-position.y)*height/2}px)`;this.anchorMarker.hidden=!this.anchorVisible||position.z>1;this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;}
@@ -385,10 +393,12 @@ export class CADViewport {
   screenshot(opts={}){
     this.renderFrame(true);
     const canvas=this.renderer.domElement,format=opts.format==='webp'?'image/webp':'image/png',quality=opts.quality;
-    if(!opts.maxWidth||canvas.width<=opts.maxWidth)return {mime:format,dataUrl:canvas.toDataURL(format,quality)};
-    const scale=opts.maxWidth/canvas.width,w=Math.max(1,Math.round(canvas.width*scale)),h=Math.max(1,Math.round(canvas.height*scale));
-    const off=document.createElement('canvas');off.width=w;off.height=h;off.getContext('2d').drawImage(canvas,0,0,w,h);
-    return {mime:format,dataUrl:off.toDataURL(format,quality)};
+    const scale=opts.maxWidth&&canvas.width>opts.maxWidth?opts.maxWidth/canvas.width:1,w=Math.max(1,Math.round(canvas.width*scale)),h=Math.max(1,Math.round(canvas.height*scale));
+    const off=document.createElement('canvas');off.width=w;off.height=h;const ctx=off.getContext('2d');ctx.drawImage(canvas,0,0,w,h);
+    // P labels live in a DOM overlay. Include those same visible labels in the
+    // public viewport image so the Agent sees the user's numbered locations.
+    for(const {marker,label} of this.locationMarkers||[]){if(label.hidden)continue;const p=new THREE.Vector3(...marker.point).project(this.camera),x=(p.x+1)*w/2,y=(1-p.y)*h/2;ctx.font='600 11px system-ui';ctx.textAlign='center';const width=ctx.measureText(marker.label).width+10;ctx.fillStyle='#155e75';ctx.fillRect(x-width/2,y-22,width,16);ctx.strokeStyle='#fff';ctx.strokeRect(x-width/2,y-22,width,16);ctx.fillStyle='#fff';ctx.fillText(marker.label,x,y-10);}
+    return {mime:format,dataUrl:off.toDataURL(format,quality),width:w,height:h};
   }
   destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();for(const entry of this.objects.values())this.exactDisplayDetail.release(entry);this.disposeObject(this.scene);this.metalOcclusion.dispose();this.metals.dispose();this.renderer.dispose();}
 }

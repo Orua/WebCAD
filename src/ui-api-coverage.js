@@ -84,6 +84,7 @@ export const UI_API_ROUTES = Object.freeze({
   rename:{tools:['document.rename'],method:'execute'},editFeature:{tools:['feature.edit','feature.rename'],method:'execute'},
   visibility:{tools:['body.visibility'],method:'execute'},explode:{tools:['body.explode'],method:'execute'},
   perPartMetal:{tools:['body.appearance'],method:'execute'},bodyColor:{tools:['body.appearance'],method:'execute'},metalFinish:{tools:['document.appearance'],method:'execute'},
+  materialSettings:{tools:['getMaterials','document.materials','measureMass'],method:'execute',usage:'配置参考密度和默认/对象重量材料；重量g=mm³×g/cm³÷1000，未知体积返回null。'},
   parameters:{tools:['document.parameters'],method:'execute'},undo:{tools:['history.undo'],method:'execute'},redo:{tools:['history.redo'],method:'execute'},
   preview:{tools:['preview.start','convertLogoPdf'],method:'execute',usage:'PDF 字节可用 convertLogoPdf 取得待复核 regions，再用 preview.start 放置。'},commitPreview:{tools:['preview.commit'],method:'execute'},cancelPreview:{tools:['preview.cancel'],method:'execute'},
   sketch:{tools:['extrude'],method:'execute',usage:'兼容的轮廓并拉伸入口对应 extrude，传 profile/points/plane 等显式参数。主绘制轮廓入口用 sketchProfile，再单独 profileExtrude；不需要模拟逐点点击。'},

@@ -240,6 +240,7 @@ function faceBoundaryEdges(shape, faceIds) {
   }
 }
 import {compiledCheckpointBytes,geometryRecipeFingerprint} from './services/geometry-exchange.js';
+import {encodeMesh} from './mesh/mesh-codec.js';
 import {LOCAL_KERNEL_BUILD_ID,LOCAL_REBUILD_SEMANTICS,GEOMETRY_CODEC,localCheckpointFingerprint} from './services/geometry-exchange.js';
 import {recordTimeline} from './document-timeline.js';
 import {checkpointReports,restoreCheckpointReports} from './local-checkpoint-reports.js';
@@ -748,6 +749,12 @@ export class CadKernel {
   serializeFeatureShape(featureId){
     const shape=this.shapes.get(featureId);if(!shape)throw Object.assign(new Error('来源特征几何已失效'),{code:'STALE_REFERENCE'});
     return {data:new TextEncoder().encode(this.geometrySourceSnapshot(shape))};
+  }
+  finalShapeSources(){
+    return [...this.active.keys()].map(id=>{
+      const shape=this.shapes.get(id),mesh=shape.geometryType==='mesh';
+      return {id,format:mesh?'mesh':'brep',data:mesh?encodeMesh(shape.transformed()):this.serializeFeatureShape(id).data};
+    });
   }
   bakeProject(document,{thresholdMs=1000,recordHistory=true}={}){
     const result={...document,features:document.features.map(f=>({...f})),compiledArtifacts:{...document.compiledArtifacts}},baked=[],skipped=[];

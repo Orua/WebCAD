@@ -1,0 +1,75 @@
+{
+  "id": "document.materials",
+  "title": "材料密度与重量",
+  "description": "设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。",
+  "category": "command",
+  "version": "1.57.1",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"document.materials\",args}); 设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。",
+  "fields": [
+    "settings"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "minimalExample": {
+    "action": "document.materials",
+    "args": {
+      "settings": {
+        "version": 1,
+        "defaultMaterial": "zincAlloy",
+        "densities": {
+          "zincAlloy": 6.6,
+          "copper": 8.94,
+          "iron": 7.87,
+          "steel": 7.85,
+          "brass": 8.5,
+          "stainless": 7.9,
+          "aluminum": 2.7
+        },
+        "bodyMaterials": {}
+      }
+    }
+  },
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
+  "docs": "api.editor",
+  "selectionGuide": {
+    "groupId": "materials",
+    "groupTitle": "密度与估算重量",
+    "chooseWhen": "写入工程密度和对象材料；不修改几何或镀色，可撤销并保存。",
+    "alternatives": [
+      {
+        "id": "getMaterials",
+        "chooseWhen": "读取工程密度、默认材料和对象材料，参考值不等于实际合金检测。"
+      },
+      {
+        "id": "measureMass",
+        "chooseWhen": "测量当前对象体积并按密度计算克重；无体积返回null，不是电镀外观设置。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "docsHash": "sha256:c89b2337eeff0dd8fe06f01709008af64f39fd24211ba4217fdf852260973a79"
+}

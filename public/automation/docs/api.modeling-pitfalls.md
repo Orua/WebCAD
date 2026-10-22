@@ -49,6 +49,8 @@ bodies[].displayReport.watertight/boundaryEdges 是显示三角网格在焊接�
 
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision

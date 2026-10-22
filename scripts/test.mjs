@@ -13,7 +13,7 @@ const groups = {
     'tap-contract', 'agent-single-call', 'metal-occlusion', 'selection-feedback',
     'metal-materials', 'model-library', 'workspace-theme',
     'remote-agent-adapter', 'agent-recovery-save', 'assistant-panel', 'runtime-uuid', 'model-script', 'page-context-policy', 'operation-contract',
-    'agent-knowledge', 'services-settings', 'services-routing', 'services-wait-policy', 'services-boolean-contract', 'project-container', 'geometry-cache',
+    'agent-knowledge', 'services-settings', 'services-routing', 'services-wait-policy', 'services-boolean-contract', 'project-container', 'project-final-state', 'material-density', 'geometry-cache',
     'design-inspection-contract',
     'agent-interface-coverage', 'relief-layers', 'relief-profile', 'relief-edit', 'mesh-assets', 'heightfield-relief', 'exact-source-assets', 'display-lod', 'pattern-machining', 'relief-contract', 'relief-sculpt',
     'document-capacity', 'limits', 'chunked-upload', 'page-wait', 'speed-round3', 'loading-ui', 'open-import', 'i18n-incremental',

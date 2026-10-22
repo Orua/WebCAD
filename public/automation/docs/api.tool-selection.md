@@ -2,6 +2,11 @@
 
 工具选择：相同或近似叫法可能属于不同结构、输入、结果或操作阶段。先读候选的 selectionGuide，比较输入几何、路径与截面、参数量纲、加减料/只读/提交的区别；再读取候选完整合同。不得按名称第一命中直接选型，不把预览/规划/文件生成冒充提交/写盘。用户纠正时核对并编辑、撤销或删除本次误建项，保留其它工程内容。此说明不新增执行限制。
 
+## 密度与估算重量
+- getMaterials：读取工程密度、默认材料和对象材料，参考值不等于实际合金检测。
+- measureMass：测量当前对象体积并按密度计算克重；无体积返回null，不是电镀外观设置。
+- document.materials：写入工程密度和对象材料；不修改几何或镀色，可撤销并保存。
+
 ## 基础实体与参数模型
 - box：用宽、深、高创建长方体；不是空壳或带孔板。
 - cylinder：用半径、高度创建实心直圆柱；圆筒用内外径模板。
@@ -336,6 +341,8 @@
 - exportDrawing：导出已有drawingId工程图，或readLogo返回的logoId原轮廓DXF/JSON；不必创建三维实体或写脚本。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision

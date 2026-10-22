@@ -1231,6 +1231,15 @@
     ],
     "method": "execute"
   },
+  "materialSettings": {
+    "tools": [
+      "getMaterials",
+      "document.materials",
+      "measureMass"
+    ],
+    "method": "execute",
+    "usage": "配置参考密度和默认/对象重量材料；重量g=mm³×g/cm³÷1000，未知体积返回null。"
+  },
   "parameters": {
     "tools": [
       "document.parameters"
@@ -1469,6 +1478,8 @@
 }
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision

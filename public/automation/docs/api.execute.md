@@ -4,6 +4,8 @@ execute(request) 使用当前 CommandService 的结构化请求：{context:{sess
 同一页面修改由原命令队列串行处理。幂等回执只在当前 documentInstanceId 的有限内存范围内有效，不跨页面重载。成功提交与后续显示或文件写入失败应分别报告。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
 reliefDesignReference: contextPolicy=revision
 reliefDesignField: contextPolicy=revision

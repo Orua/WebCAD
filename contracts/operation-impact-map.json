@@ -1,5 +1,45 @@
 {
   "version": 1,
+  "iconsAndViewportCapture20261022": {
+    "localImpact": "Distinct fixed-R versus fillet and render versus precision icons; viewport capture composites visible P labels and returns dimensions",
+    "servicesImpact": "None: existing native Agent webcad_view capture forwards the page dataUrl as MCP image and persists the attachment; no service or host binary change",
+    "logoImpact": "None",
+    "contractImpact": "Page API1.57.1 capture arguments unchanged, dimensions added; clarify PNG/WebP and actual screenshot route",
+    "documentImpact": "No geometry/history/dirty changes",
+    "cacheImpact": "Rebuild knowledge, frontend and matching runtime contract",
+    "requiredTests": ["Unique menu function icons", "Capture revision/frame checks and API dispatch", "17674 real capture bytes and dimensions"]
+  },
+  "materialDensity20261022": {
+    "localImpact": "Configurable reference densities and default/body materials, property estimate, exact-volume measureMass; inherit source material after geometry operations",
+    "servicesImpact": "No geometry service changes; Agent runtime software adds read methods and editor action",
+    "logoImpact": "None: independent of plating appearance and Logo source",
+    "contractImpact": "Page API1.57.0 getMaterials/measureMass/document.materials; helper, scopes, job/batch dispatcher and generated cards updated",
+    "documentImpact": "Persist version1 materialSettings in legacy/current and final-state projects, bounded validated values; reversible project updates; browser cookie default for new documents",
+    "cacheImpact": "Rebuild finite knowledge and runtime contract; host re-handshake required",
+    "requiredTests": ["Unit conversion, null volume and validation", "Material inheritance/final-save pruning", "API/Agent contract dispatch", "17674 settings and 1cm3 mass check"]
+  },
+  "agentComposerCompact20261022": {
+    "localImpact": "Viewport P labels and short composer location tokens; temporary marker data expands on send only. CADAgent attachments and replies use scoped compact styling",
+    "servicesImpact": "Goldenluck workspace JS/CSS/module cache only; no Services/Native binaries or compute protocol changes",
+    "logoImpact": "None: attachment bytes, names and hashes remain original",
+    "contractImpact": "Page API1.56.1 marker text token and tooltip; point/revision binding unchanged; host resolves referenced tokens and rejects stale positions",
+    "documentImpact": "Markers are transient, never geometry/history/dirty; session data discarded after accepted send",
+    "cacheImpact": "Rebuild knowledge; host cache version20261022-compact1 and location2",
+    "requiredTests": ["Location hit/no-hit and send resolution/staleness", "Bounded attachment display names", "One17674 visual/API pass; host login may be required"]
+  },
+"finalStateSave20261022": {
+    "documentImpact": "No disk modelling recipe/timeline; preserve ids/visibility/appearance/anchors; session recipes unchanged",
+    "contractImpact": "Page API 1.56.0 files.save final-state semantics; legacy formats remain readable",
+    "cacheImpact": "Rebuild API discovery and static knowledge",
+    "requiredTests": [
+      "Real kernel transformed BRep and raw mesh save/reopen invariants",
+      "Bounded timeline and unavailable-kernel save",
+      "17674 API save/reopen"
+    ],
+    "logoImpact": "No source processing change",
+    "localImpact": "Precompute committed final BRep/typed mesh; save only final objects, session undo20/timeline20-512KiB",
+    "servicesImpact": "No protocol/compute change; existing server results are saved as final geometry"
+  },
   "aiLocationMarkers20261021": {
     "localImpact": "Read-only point marker tool and selection-mode double click; normalized screen pick returns world-mm mesh position bound to current document/revision",
     "servicesImpact": "No compute service change; Goldenluck workspace composer receives validated text drafts through existing host/iframe channel",

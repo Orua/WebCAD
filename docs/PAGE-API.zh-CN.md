@@ -941,7 +941,7 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 
 ## 浏览器文件方法
 
-`api.files` 提供 `capabilities`、`register`、`new`、`open`、`import`、`save`、`export`、`read`、`download`、`write`、`release`。`capabilities()` 返回当前浏览器限制和格式。`register({name,data,mime?})` 的 `data` 是实际 `File`、`Blob`、`ArrayBuffer` 或 `Uint8Array`，`name` 是安全文件名；不能用本机路径字符串或远端 URL 代替。它返回 `resourceId`、字节长度和 SHA-256。`new({context})`、`open({context,resourceId})`、`import({context,resourceId})`、`save({context,name?})`、`export({context,format,ids?,name?})` 使用当前完整上下文。页面 API 的新建/打开遇 dirty **一律拒绝** `UNSAVED_REPLACEMENT`；UI 的真实用户确认是另一条路径。坏文件或重建失败保留原几何、历史、身份和 dirty。原生 `.webcad` 包含导入源字节和可编辑历史，重开生成新的 `documentInstanceId`。
+`api.files` 提供 `capabilities`、`register`、`new`、`open`、`import`、`save`、`export`、`read`、`download`、`write`、`release`。`capabilities()` 返回当前浏览器限制和格式。`register({name,data,mime?})` 的 `data` 是实际 `File`、`Blob`、`ArrayBuffer` 或 `Uint8Array`，`name` 是安全文件名；不能用本机路径字符串或远端 URL 代替。它返回 `resourceId`、字节长度和 SHA-256。`new({context})`、`open({context,resourceId})`、`import({context,resourceId})`、`save({context,name?})`、`export({context,format,ids?,name?})` 使用当前完整上下文。页面 API 的新建/打开遇 dirty **一律拒绝** `UNSAVED_REPLACEMENT`；UI 的真实用户确认是另一条路径。坏文件或重建失败保留原几何、历史、身份和 dirty。原生 `.webcad` 默认仅包含最终对象的精确 BRep 或完整网格，不保存建模步骤和撤销时间线；保留对象 ID、显隐、外观和锚点。会话可继续编辑，重开后不能编辑保存前的历史参数，重开生成新的 `documentInstanceId`。
 
 `save`/`export` 返回 `status: 'generated'` 的资源描述；`read({resourceId,as:'blob'|'bytes'})` 返回实际 Blob 或 `Uint8Array`。`download({resourceId})` 仅返回 `download_initiated`；`write({resourceId,handle})` 在已授权的 File System Access 句柄写入、关闭并校验回读大小和 SHA-256 后返回 `write_verified`。保存旧快照时若已有新 revision，dirty 仍为真。`release({resourceId})` 释放资源；已经启动的下载 Object URL 由定时器回收，不因 release 立即撤销。文件选择或授权可能需要真实用户操作，页面 API 不会伪造授权点击。跨插件 JSON 边界不能假设 Blob 会无损传递；客户端不能传真实字节时，可由用户在 WebCAD 页面选择文件。每个资源上限 20 MiB，最多 32 个、合计 64 MiB，有效期 30 分钟。
 
@@ -1052,7 +1052,7 @@ selectRectangle 使用视口归一化 [左,上,右,下]，mode 为 window/crossi
 
 createDrawing 返回 drawingId、views、dimensions、limitations 及 SVG 预览。最多 40 个当前对象、1500 面、三个截面；仅缓存四份图纸，模型修订变化后不能导出过期图纸。exportDrawing 支持 pdf/jpg/dxf/svg，disabledDimensions 明确排除的尺寸 ID；返回标准生成文件资源，可 files.read/download/write。PDF 为矢量、JPG 为 300 DPI、DXF 为真实毫米 1:1。生成、发起下载、实际写盘分别核验。DWG 不支持。
 
-getHistory 返回状态 ID、名称、时间、数量、字节数、合并数量和保留上限。history.restore 的 args 为 {stateId}，恢复全部工程数据并产生新的可撤销状态。磁盘格式保存一个基线和前向差量，原导入资源仅保存一次；默认 100 个状态/2 MiB，超限把最早变更合入基线。bytes/maxBytes 只统计历史基线和差量，不包括共享导入源。只有当前工程和所有保留状态都不再引用某个导入源时，才从后续保存的资源池移除；不会改写已有内存撤销/重做快照。载入时发现任一保留状态缺少导入源，返回 HISTORY_INVALID，避免保留无法重建的回退入口。历史是原生工程的 timeline 扩展，兼容旧工程无 timeline 的打开方式；旧版本应用不保证保留新历史扩展。
+getHistory 返回状态 ID、名称、时间、数量、字节数、合并数量和保留上限。history.restore 的 args 为 {stateId}，恢复全部工程数据并产生新的可撤销状态。旧工程磁盘timeline兼容基线/前向差量；新保存只含最终形态。当前会话会话默认 20 个状态/512 KiB，撤销最多 20 次；新保存文件不包含该时间线，超限把最早变更合入基线。bytes/maxBytes 只统计历史基线和差量，不包括共享导入源。只有当前工程和所有保留状态都不再引用某个导入源时，才从后续保存的资源池移除；不会改写已有内存撤销/重做快照。载入时发现任一保留状态缺少导入源，返回 HISTORY_INVALID，避免保留无法重建的回退入口。历史是原生工程的 timeline 扩展，兼容旧工程无 timeline 的打开方式；旧版本应用不保证保留新历史扩展。
 
 `body.align`、`body.explode`、`history.restore` 经 Worker 重建后成功提交，回执为 `validation.geometry:'passed'`；没有提交的 `no_change` 则为 `unchanged`。外观、显隐、改名保持几何 `unchanged`。该字段不代替渲染修订或文件写入确认。
 
@@ -1165,3 +1165,8 @@ inspectDesign对同实体的材料点合并一次精确common，边界距离仍�
 ### 动态包围盒落地（UP-30）
 
 读取当前 `transform` 完整卡后，用 `feature.add` 的 `op:"transform", refs:[当前实体ID], params:{align:{axis:"z",to:"min",valueMm:0}}` 落地。省略 `placement`、`mode`、`positionMode` 及平移字段；它使用世界轴，与明确源轴/目标轴的 `mode:"align"` 是不同参数。也可指定 x/y 轴或 max/center。每次重建按上游当前精确 BRep 的包围盒计算平移，不保存上次测出的固定 dz。读取 `getState().bodies[].alignmentReport` 的 `beforeMm`、`deltaMm` 和 `valueMm` 核对；检查点保留报告。UI「落地」记录相同配方，已位于零面的实体也保存对齐约束，便于后续尺寸修改。无效参数返回 `PARAM_SCHEMA_INVALID`，混用 placement 返回 `COORDINATE_MODE_CONFLICT`，失败不提交。
+
+
+### 2026-10-22 材料与截图
+
+材料配置及 getMaterials/measureMass/document.materials 见 [材料密度与重量](MATERIALS.zh-CN.md)。原生视口 capture、PNG/WebP、P编号与Agent图片链见 [视口截图](VIEWPORT-CAPTURE.zh-CN.md)。位置点只在视口和输入框上方显示P编号，草稿只插入【位置P1】，发送时展开临时引用，过期修订拒绝。

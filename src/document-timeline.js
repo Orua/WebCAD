@@ -49,11 +49,12 @@ function apply(base,patch){
  return out;
 }
 export function timelineList(doc){const t=doc.timeline;return t?{version:1,storedSteps:t.entries.length+1,prunedSteps:t.pruned||0,bytes:bytes(t),maxSteps:t.maxSteps,maxBytes:t.maxBytes,entries:[{id:t.baseId,label:t.baseLabel,at:t.baseAt},...t.entries.map(({id,label,at,featureId})=>({id,label,at,featureId}))]}:{version:1,storedSteps:0,prunedSteps:0,bytes:0,entries:[]};}
-export function recordTimeline(previous,next,{label,featureId,maxSteps=100,maxBytes=2*1024*1024}={}){
+export function recordTimeline(previous,next,{label,featureId,maxSteps=20,maxBytes=512*1024}={}){
  const before=state(previous),after=state(next),patch=diff(before,after);
  if(!patch.length){if(previous.timeline)next.timeline=previous.timeline;return next;}
  const now=new Date().toISOString();
  const t=previous.timeline?clone(previous.timeline):{version:1,baseId:crypto.randomUUID(),baseLabel:'开始记录时的工程',baseAt:now,base:before,entries:[],pruned:0,maxSteps,maxBytes};
+ t.maxSteps=Math.min(t.maxSteps,maxSteps);t.maxBytes=Math.min(t.maxBytes,maxBytes);
  const added=next.features?.filter(f=>!previous.features?.some(p=>p.id===f.id))||[];
  t.entries.push({id:crypto.randomUUID(),at:now,label:label||(added.length?(added.at(-1).name||added.at(-1).op)+(added.length>1?` 等 ${added.length} 项`:''):'修改工程状态'),...(featureId||added.at(-1)?.id?{featureId:featureId||added.at(-1).id}:{}),patch});
  // Never duplicate source bytes. Keep imports needed by older retained states.
