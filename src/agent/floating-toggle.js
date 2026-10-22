@@ -1,4 +1,4 @@
-const labels={thinking:'正在思考',working:'正在操作',idle:'等待指令',offline:'连接已断开',connecting:'正在连接'};
+const labels={thinking:'AI 正在思考',working:'AI 正在操作',idle:'AI 空闲',offline:'AI 已断开',connecting:'AI 正在连接'};
 export function validateFloatingPosition(position){
   if(!position||typeof position!=='object'||Array.isArray(position)||Object.keys(position).some(key=>!['xPx','yPx'].includes(key))||!['xPx','yPx'].every(key=>Number.isFinite(position[key])&&position[key]>=0&&position[key]<=100000))throw Object.assign(new Error('浮标位置须包含0–100000像素的xPx、yPx。'),{code:'PARAM_SCHEMA_INVALID'});
   return position;
@@ -8,7 +8,7 @@ export function validateFloatingPosition(position){
 export function createFloatingToggle({root,onOpen,onMove=()=>{}}){
   const button=document.createElement('button');button.type='button';button.className='agent-floating-toggle';button.hidden=true;
   button.dataset.hostControlAllowed='true';button.dataset.commandId='agentPanelFloating';button.setAttribute('aria-expanded','false');
-  button.innerHTML='<span class="agent-floating-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 9L4 7.5M12 12l8-4.5M12 12v9"/></svg><span class="agent-floating-dots"><i></i><i></i><i></i></span></span><span class="agent-floating-copy"><strong>AG</strong><span class="agent-floating-status"></span></span>';
+  button.innerHTML='<span class="agent-floating-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 7v5M5 21v7M35 21v7"/><circle class="agent-robot-antenna" cx="20" cy="5" r="2"/><rect x="8" y="12" width="24" height="23" rx="7"/><g class="agent-robot-eyes"><rect x="13" y="20" width="4" height="5" rx="2"/><rect x="23" y="20" width="4" height="5" rx="2"/></g><path d="M17 29h6"/></svg><span class="agent-floating-dots"><i></i><i></i><i></i></span></span><span class="agent-floating-copy"><strong class="agent-floating-status"></strong><small>点击展开对话</small></span>';
   root.append(button);
   let position=null,drag=null,suppressClick=false,activity='idle';
   function bounds(){return {maxX:Math.max(8,root.clientWidth-button.offsetWidth-8),maxY:Math.max(8,root.clientHeight-button.offsetHeight-8)};}
@@ -45,9 +45,9 @@ export function createFloatingToggle({root,onOpen,onMove=()=>{}}){
   const observer=new ResizeObserver(()=>place());observer.observe(root);
   function get(){return {visible:!button.hidden,activity,position:position?{...position}:null};}
   return {get,setPosition(value){validateFloatingPosition(value);position={...value};place();return get();},sync({visible,activity:next='idle'}){
-    activity=Object.hasOwn(labels,next)?next:'idle';button.hidden=!visible;button.dataset.activity=activity;
+    activity=Object.hasOwn(labels,next)?next:'idle';button.hidden=!visible||activity!=='thinking';button.dataset.activity=activity;
     button.querySelector('.agent-floating-status').textContent=labels[activity];
-    button.title=`Agent ${labels[activity]} · 单击展开，拖动移位`;button.setAttribute('aria-label',`展开 Agent 对话框 · ${labels[activity]}`);
-    if(!visible)finish(null,true);place();
+    button.title=`${labels[activity]} · 单击展开，拖动移位`;button.setAttribute('aria-label',`展开 AI 对话框 · ${labels[activity]}`);
+    if(button.hidden)finish(null,true);place();
   },destroy(){observer.disconnect();button.remove();}};
 }

@@ -36,23 +36,27 @@ body.has-agent-panel[data-cad-mobile=true] .app-header .agent-panel-toggle svg{w
 /* The collapsed conversation returns its space to the canvas. */
 body.has-agent-panel.agent-panel-collapsed[data-cad-mobile=false]{grid-template-columns:minmax(0,1fr) 0}
 body.has-agent-panel.agent-panel-collapsed[data-cad-mobile=true]{grid-template-rows:minmax(0,1fr) 0}
-body.has-agent-panel.agent-panel-collapsed .agent-panel-toggle{display:none}
-.agent-floating-toggle{position:absolute;left:0;top:0;z-index:12;display:flex;align-items:center;gap:10px;width:136px;height:56px;padding:9px 12px;border:0;border-radius:14px;background:var(--ui-surface,#fff);color:var(--ui-text,#263e4d);box-shadow:0 4px 16px #162a3b26;cursor:grab;touch-action:none;user-select:none;text-align:left}
+body.has-agent-panel.agent-panel-collapsed:has(.agent-floating-toggle:not([hidden])) .agent-panel-toggle{display:none}
+.agent-floating-toggle{position:absolute;left:0;top:0;z-index:12;display:flex;align-items:center;gap:10px;width:164px;height:62px;padding:8px 12px;border:0;border-radius:14px;background:var(--ui-surface,#fff);color:var(--ui-text,#263e4d);box-shadow:0 4px 16px #162a3b26;cursor:grab;touch-action:none;user-select:none;text-align:left}
 .agent-floating-toggle:hover{background:var(--accent-soft,#e4f2f1)}
 .agent-floating-toggle.is-dragging{cursor:grabbing}
 .agent-floating-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .agent-floating-mark{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--accent);flex:none}
-.agent-floating-mark svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.agent-floating-mark svg{width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.agent-robot-eyes,.agent-robot-antenna{fill:currentColor;stroke:none}
+.agent-floating-toggle[data-activity=thinking] .agent-robot-eyes{animation:agent-robot-look 3.2s ease-in-out infinite;transform-origin:20px 22px}
+.agent-floating-toggle[data-activity=thinking] .agent-robot-antenna{animation:agent-working 1.6s ease-in-out infinite}
 .agent-floating-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
 .agent-floating-copy strong{font-size:13px;line-height:16px;font-weight:650}
-.agent-floating-status{font-size:11px;line-height:15px}
+.agent-floating-copy small{font-size:11px;line-height:15px;color:var(--ui-text-secondary,#596b78)}
 .agent-floating-dots{display:flex;gap:3px;height:4px}
 .agent-floating-dots i{width:3px;height:3px;border-radius:50%;background:currentColor;opacity:.45}
-.agent-floating-toggle:is([data-activity=thinking],[data-activity=connecting]) .agent-floating-dots i{animation:agent-thought 1.2s ease-in-out infinite}
+.agent-floating-toggle[data-activity=thinking] .agent-floating-dots i{animation:agent-thought 1.2s ease-in-out infinite}
 .agent-floating-dots i:nth-child(2){animation-delay:.16s!important}
 .agent-floating-dots i:nth-child(3){animation-delay:.32s!important}
 .agent-floating-toggle[data-activity=working] .agent-floating-mark svg{animation:agent-working 1.6s ease-in-out infinite}
 .agent-floating-toggle[data-activity=offline] .agent-floating-mark{color:#b91c1c}
 @keyframes agent-thought{0%,70%,100%{transform:translateY(0);opacity:.4}35%{transform:translateY(-3px);opacity:1}}
 @keyframes agent-working{0%,100%{opacity:.5}50%{opacity:1}}
-@media(prefers-reduced-motion:reduce){.agent-floating-toggle .agent-floating-dots i,.agent-floating-toggle .agent-floating-mark svg{animation:none!important;opacity:1}}
+@keyframes agent-robot-look{0%,25%,100%{transform:translateX(0) scaleY(1)}35%,50%{transform:translateX(1.5px) scaleY(1)}60%,75%{transform:translateX(-1.5px) scaleY(1)}82%{transform:translateX(0) scaleY(.15)}88%{transform:translateX(0) scaleY(1)}}
+@media(prefers-reduced-motion:reduce){.agent-floating-toggle .agent-floating-dots i,.agent-floating-toggle .agent-floating-mark svg,.agent-floating-toggle .agent-robot-eyes,.agent-floating-toggle .agent-robot-antenna{animation:none!important;opacity:1;transform:none}}

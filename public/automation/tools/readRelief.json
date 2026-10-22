@@ -2,7 +2,7 @@
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.57.2",
+  "version": "1.57.3",
   "contextPolicy": "identity",
   "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
   "synonyms": [
@@ -47,7 +47,7 @@
     "alternatives": [
       {
         "id": "logo",
-        "chooseWhen": "在一张精确支持面上按闭合矢量轮廓做已审阅 LOGO 加工；深度和孔环须保真。"
+        "chooseWhen": "已审阅矢量LOGO：单面法向等深，或跨相连面投影凹刻；后者depth沿投影方向，保持轮廓、尺寸和孔。"
       },
       {
         "id": "curvedLogo",
@@ -121,5 +121,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:90a088ddb6c84bea83507ffcc05f0893c9885c69a453035d97c823578d485f83"
+  "docsHash": "sha256:5c6b0d6226b068b193e54619ca0e066c8959900ba02740e9bb87400e7630b8a3"
 }

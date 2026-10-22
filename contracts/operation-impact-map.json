@@ -1,10 +1,10 @@
 {
   "version": 1,
   "agentFloatingToggle20261023": {
-    "localImpact": "Collapsed Agent canvas toggle: draggable, click/keyboard reopen, thinking/working/idle/offline feedback; preserve task and control lease. Hide bottom-right standard views and anchor controls per user screenshot; menu/API retained",
+    "localImpact": "Collapsed thinking-only robot head with AI thinking text, eye/antenna/dot motion; hide outside thinking and retain ordinary reopen handle. Preserve task/control lease and draggable position. Hide bottom-right standard views and anchor controls; menu/API retained",
     "servicesImpact": "Companion workspace reports transient thinking state and collapse sync; no Services or Native binary/compute change",
     "logoImpact": "None: source Logo and worker unchanged",
-    "contractImpact": "Add layout.floatingPosition and getAgentPanel.floating; page API1.57.2; existing host control booleans unchanged",
+    "contractImpact": "layout.floatingPosition/getAgentPanel.floating; thinking-only visibility; merged page API1.57.3; host control booleans unchanged",
     "documentImpact": "Transient view state only; no geometry, revision, history or saved-project changes",
     "cacheImpact": "Regenerate page docs, tool cards, routes and host workspace script/CSS cache version",
     "requiredTests": ["Drag threshold and click suppression; bounds and cancelled pointer", "Existing assistant lifecycle and host lock", "17674 collapse/drag/reopen and activity states"]
@@ -3275,6 +3275,20 @@
       "net48 build and16 validation checks",
       "17674 image import/Services fit/page commit",
       "production matched release and server compute"
+    ]
+  },
+  "logoConnectedProjection20261023": {
+    "localImpact": "Exact WASM face prisms, shared-edge connectivity and fused cutters support plane/round seams with directional depth; source copied before booleans",
+    "servicesImpact": "None: logo is already fixed local execution; no Services operation/protocol/binary change",
+    "logoImpact": "Reviewed contours/holes/scale preserved. Explicit connectedFaces mode; singleFace/legacy normal depth unchanged",
+    "contractImpact": "Add projectionMode singleFace|connectedFaces and body logoProjectionReport; page API1.57.2; UI/AI share same operation",
+    "documentImpact": "Store explicit mode in feature params, preserve history/undo/rebuild; final BRep save format unchanged",
+    "cacheImpact": "Regenerate public knowledge/cards/docs and matching host runtime contract; re-handshake on candidate",
+    "requiredTests": [
+      "Original document 55/75x14 hollow-ring plane/round junction and .6mm directional bottom",
+      "Hole islands, rear wall, source identity, thin wall and incomplete projection rejection",
+      "Logo schema, kernel operation dispatch, historical single-face tests",
+      "One 17674 browser check without replacing user document"
     ]
   }
 }

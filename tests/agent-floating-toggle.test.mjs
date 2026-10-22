@@ -12,7 +12,7 @@ test('floating toggle clamps position, separates drag from click and keeps cance
   try{
     const floating=createFloatingToggle({root,onOpen:()=>opened++,onMove:()=>moved++});
     floating.sync({visible:true,activity:'thinking'});
-    assert.equal(status.textContent,'正在思考');assert.equal(button.dataset.hostControlAllowed,'true');
+    assert.equal(status.textContent,'AI 正在思考');assert.equal(button.dataset.hostControlAllowed,'true');assert.equal(floating.get().visible,true);assert.ok(button.innerHTML.includes('agent-robot-eyes'));assert.ok(!button.innerHTML.includes('>AG<'));
     floating.setPosition({xPx:100000,yPx:100000});assert.deepEqual(floating.get().position,{xPx:656,yPx:436});
     floating.setPosition({xPx:100,yPx:100});
     handlers.pointerdown(event());handlers.pointermove(event({clientX:102,clientY:101}));handlers.pointerup(event());handlers.click(event());assert.equal(opened,1);
@@ -22,7 +22,9 @@ test('floating toggle clamps position, separates drag from click and keeps cance
     handlers.click(event({detail:0}));assert.equal(opened,2);
     handlers.keydown(event({key:'ArrowLeft'}));assert.deepEqual(floating.get().position,{xPx:164,yPx:160});
     root.clientWidth=260;root.clientHeight=160;resize();assert.deepEqual(floating.get().position,{xPx:116,yPx:96});
-    floating.sync({visible:false});assert.equal(floating.get().visible,false);floating.destroy();
+    for(const activity of ['idle','working','offline','connecting']){floating.sync({visible:true,activity});assert.equal(floating.get().visible,false,activity+' must not show a thinking robot');}
+    floating.sync({visible:true,activity:'thinking'});assert.equal(floating.get().visible,true);
+    floating.sync({visible:false,activity:'thinking'});assert.equal(floating.get().visible,false);floating.destroy();
   }finally{for(const [key,value]of Object.entries(before))if(value===undefined)delete globalThis[key];else globalThis[key]=value;}
 });
 

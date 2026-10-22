@@ -2,7 +2,7 @@
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.57.2",
+  "version": "1.57.3",
   "contextPolicy": "identity",
   "description": "capture({context,maxWidth?:64..4096,format?:\"png\"|\"webp\",quality?:0<q<=1}); 建议 maxWidth:800,format:\"webp\"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:\"capture\",args:{context,maxWidth:800,format:\"webp\"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。",
   "synonyms": [
@@ -92,5 +92,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8b8dfdc5936a0ac385cebfb55367a0748e0333cdef258393d088d6025f5bdac0"
+  "docsHash": "sha256:d04beb9c97ba369d2280e3dbc0248a91aebb61b95d7b07a519264cc666387dec"
 }
