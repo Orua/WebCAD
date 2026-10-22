@@ -76,7 +76,7 @@ export function prepareReliefDesignRelief({fit,solved,entry,expectedDraftRevisio
    field:{columns:grid.columns,rows:grid.rows,widthMm:grid.widthMm,heightMm:grid.heightMm,active:encodeU8(active),fixedMask:encodeU8(fixed),activeSha256:sha(active),fixedMaskSha256:sha(fixed)},
    controls:{columns:cols,rows,mode:F.mode,locked:encodeU8(lockedU8),lockedSha256:sha(lockedU8),controlsSha256:controlsSha256(values,depthMm,F.mode),maxDeltaMm:D},
    mask:{generator:RELIEF_DESIGN_MASK_GENERATOR,regionsSha256:regionsSha256(mask.regions)},
-   audit:{designId:fit.designId,draftRevision:fit.draftRevision,draftFingerprint:fit.source.draftFingerprint,fieldFingerprint:fit.source.fieldFingerprint,optionsFingerprint:fit.source.optionsFingerprint,
+   audit:{deviationPolicy:fit.options.deviationPolicy??'strict',designId:fit.designId,draftRevision:fit.draftRevision,draftFingerprint:fit.source.draftFingerprint,fieldFingerprint:fit.source.fieldFingerprint,optionsFingerprint:fit.source.optionsFingerprint,
     ...(F.report.provisional?{servicesFirstFit:{acceptanceToleranceMm:F.report.acceptanceToleranceMm}}:{}),
     metrics:{trainingMaxMm:F.report.metrics.training.maxMm,independentMaxMm:F.report.metrics.independent.maxMm,protectionMaxMm:F.report.metrics.protection.maxMm,deviationKind:'sampled-not-global'}}}};
  // Locked (protected) controls must be exactly zero after translation.

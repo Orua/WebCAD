@@ -6,6 +6,7 @@
 // Included by worker.cpp after measure()/keys(); requires OCCT 7.8.1.
 #pragma once
 #include "relief_design_numeric.hxx"
+#include "relief_quality.hxx"
 #include <Geom_BSplineSurface.hxx>
 #include <TColgp_Array2OfPnt.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -104,16 +105,16 @@ inline DesignResult build(const TopoDS_Shape& input,const json& params,double be
  const auto began=std::chrono::steady_clock::now();auto ms=[&]{return std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-began).count();};
  json stageMs=json::object();std::string current;double mark=0;
  auto stage=[&](const char* name){const double t=ms();if(!current.empty())stageMs[current]=t-mark;current=name;mark=t;outerStage(name);};
- stage("fit-masked-bspline");
- Fit fit=fitMasked(params.at("field"),params.at("domain"),params.at("baselineMm").get<double>(),params.at("fit"));const double fitMs=ms();
  const auto& pl=params.at("placement");Frame fr;fr.origin=P3(pl.at("originMm"));
- stage("bind-planar-face");TopExp_Explorer solids(input,TopAbs_SOLID);const TopoDS_Shape solid=solids.Current();
+ stage("bind-planar-face");TopExp_Explorer solids(input,TopAbs_SOLID);if(!solids.More())fail("RELIEF_DESIGN_SUPPORT_INVALID","浮雕需要实体支撑面");const TopoDS_Shape solid=solids.Current();
  TopoDS_Face face=bindPlanarFace(solid,params.at("faceIntent"));
  {BRepAdaptor_Surface s(face,true);gp_Vec out(s.Plane().Axis().Direction());if(face.Orientation()==TopAbs_REVERSED)out.Reverse();fr.n=out;}
  fr.x=V3(pl.at("xDirection"));if(std::abs(fr.x.Magnitude()-1)>1e-9||std::abs(fr.x.Dot(fr.n))>1e-9)fail("RELIEF_DESIGN_PLACEMENT_INVALID","图案X方向必须是支撑面内的单位切向");
  fr.y=fr.n.Crossed(fr.x);
  {BRepAdaptor_Surface s(face,true);if(std::abs(gp_Vec(s.Plane().Location(),fr.origin).Dot(fr.n))>1e-6)fail("RELIEF_DESIGN_PLACEMENT_INVALID","图案中心必须位于支撑平面上");}
  const Shape support=shapeOf(params.at("domain").at("support"));
+ stage("fit-masked-bspline");const double fitStart=ms();
+ Fit fit=fitMasked(params.at("field"),params.at("domain"),params.at("baselineMm").get<double>(),params.at("fit"));const double fitMs=ms()-fitStart;
  const auto surface=fittedSurface(fit,fr);
  // 1) Does the analytic support cover the whole face? Sample every boundary edge.
  auto edgeInside=[&](const TopoDS_Edge& e,double pad){BRepAdaptor_Curve c(e);for(int k=0;k<=64;k++){double u,v,h;local(fr,c.Value(c.FirstParameter()+(c.LastParameter()-c.FirstParameter())*k/64),u,v,h);
@@ -158,7 +159,14 @@ inline DesignResult build(const TopoDS_Shape& input,const json& params,double be
  TopoDS_Shape result=reshape.Apply(host);
  {TopExp_Explorer rs(result,TopAbs_SOLID);if(!rs.More())fail("RELIEF_INVALID","替换后没有实体");TopoDS_Solid so=TopoDS::Solid(rs.Current());BRepLib::OrientClosedSolid(so);result=so;}
  stage("validate-result");
- json after;try{after=measure(result);}catch(const std::exception&){ShapeFix_Shape fix(result);fix.Perform();result=fix.Shape();after=measure(result);}
+ json after;try{after=measure(result);}catch(const std::exception&){
+  // Repairing an invalid dense face invokes OCCT's quadratic surface sampling
+  // (over 1 GiB at ~1000 controls). Enter the existing, reported capacity retry
+  // before repair; never raise the controlled process budget or accept invalid BRep.
+  if(params.at("fit").contains("quality")&&std::max(fit.nx,fit.ny)>513)
+   fail("RELIEF_QUALITY_CHECK_FAILED","Dense face needs repair beyond the controlled worker capacity");
+  ShapeFix_Shape fix(result);fix.Perform();result=fix.Shape();after=measure(result);
+ }
  const double delta=(after.at("volumeMm3").get<double>()-beforeVolume)*fit.sign;
  stage("quality-check");
  // Target faces as 2D polygons in pattern coords (ordered wire traversal, 48 samples per edge).
@@ -166,16 +174,21 @@ inline DesignResult build(const TopoDS_Shape& input,const json& params,double be
  for(auto& f:targets){std::vector<std::vector<std::pair<double,double>>> loops;for(TopExp_Explorer w(f,TopAbs_WIRE);w.More();w.Next()){std::vector<std::pair<double,double>> L;for(BRepTools_WireExplorer we(TopoDS::Wire(w.Current()));we.More();we.Next()){BRepAdaptor_Curve c(we.Current());const bool rev=we.Current().Orientation()==TopAbs_REVERSED;for(int k=0;k<48;k++){double t=k/48.0;if(rev)t=1-t;double u,v,h;local(fr,c.Value(c.FirstParameter()+(c.LastParameter()-c.FirstParameter())*t),u,v,h);L.push_back({u,v});}}loops.push_back(L);}polys.push_back(loops);}
  double fieldIntegral=0;{const int M=std::max(160,fit.nx*4);const double dx=fit.widthMm/M,dy=fit.heightMm/M;std::vector<std::vector<B>> bxs(M),bys(M);for(int i=0;i<M;i++)bxs[i]=atPhysical(fit.nx,-fit.widthMm/2+(i+.5)*dx,fit.widthMm,nullptr);for(int j=0;j<M;j++)bys[j]=atPhysical(fit.ny,-fit.heightMm/2+(j+.5)*dy,fit.heightMm,nullptr);
   for(int j=0;j<M;j++)for(int i=0;i<M;i++){const double h=valueAt(fit.deltas,fit.nx,bxs[i],bys[j]);if(h==0)continue;const gp_Pnt q=fr.at(-fit.widthMm/2+(i+.5)*dx,-fit.heightMm/2+(j+.5)*dy,0);bool in=false;const double qu=-fit.widthMm/2+(i+.5)*dx,qv=-fit.heightMm/2+(j+.5)*dy;(void)q;for(auto& loops:polys){bool odd=false;for(auto& L:loops)for(size_t a=0,b=L.size()-1;a<L.size();b=a++){if((L[a].second>qv)!=(L[b].second>qv)&&qu<(L[b].first-L[a].first)*(qv-L[a].second)/(L[b].second-L[a].second)+L[a].first)odd=!odd;}if(odd){in=true;break;}}if(in)fieldIntegral+=std::abs(h)*dx*dy;}}
-  const double meshBefore=meshVolume(input,.01),meshAfter=meshVolume(result,.01),meshDelta=(meshAfter-meshBefore)*fit.sign;
+ // GProp versus an independently integrated fitted field is already a complete check.
+ // Triangulate only for the known high-knot trimmed-face disagreement case.
+ const double relG=fieldIntegral>0?std::abs(delta-fieldIntegral)/fieldIntegral:0;
+ const bool candidate=params.at("fit").value("deviationPolicy",std::string("strict"))=="candidate";
+ const bool meshChecked=!candidate&&relG>.02;
+ const double meshDelta=meshChecked?(meshVolume(result,.01)-meshVolume(input,.01))*fit.sign:0;
  // Two independent kernel measurements; each has a known weak case (GProp: curved trims on high-knot
  // surfaces; mesh: steep fields). Consistent when either agrees with the analytic field integral.
- const double relG=fieldIntegral>0?std::abs(delta-fieldIntegral)/fieldIntegral:0,relM=fieldIntegral>0?std::abs(meshDelta-fieldIntegral)/fieldIntegral:0,relBest=std::min(relG,relM),material=relG<=relM?delta:meshDelta;
+ const double relM=meshChecked&&fieldIntegral>0?std::abs(meshDelta-fieldIntegral)/fieldIntegral:INFINITY,relBest=std::min(relG,relM),material=relG<=relM?delta:meshDelta;
  if(!(delta>1e-7))fail("RELIEF_DESIGN_NO_CHANGE","没有可测量的材料变化");
  // Expected volume from the fitted field (independent check, midpoint rule on the field grid).
- if(fieldIntegral>0&&relBest>.05)fail("RELIEF_QUALITY_CHECK_FAILED","浮雕实体体积与拟合曲面积分不一致（>5%），拒绝发布结果",{{"meshDeltaMm3",meshDelta},{"fieldIntegralMm3",fieldIntegral}});
+ if(!candidate&&fieldIntegral>0&&relBest>.05)fail("RELIEF_QUALITY_CHECK_FAILED","浮雕实体体积与拟合曲面积分不一致（>5%），拒绝发布结果",{{"meshDeltaMm3",meshDelta},{"fieldIntegralMm3",fieldIntegral}});
  stage("report");
  json report={{"kind","relief-design-fit-brep-1"},{"trim",trim},{"replacedFaceCount",targets.size()},{"boundaryEdges",boundaryEdges},{"boundaryEdgeKinds",std::vector<std::string>(edgeKinds.begin(),edgeKinds.end())},{"boundaryDeviationMm",boundaryDev},{"maxTrimEdgeToleranceMm",edgeTolMax},{"seam","none-inside-face; trimmed by host edges"+std::string(covered?"":" + analytic support outline")},
-  {"mode",fit.sign>0?"emboss":"engrave"},{"quality",{{"fieldIntegralMm3",fieldIntegral},{"meshDeltaMm3",meshDelta},{"gpropDeltaMm3",delta},{"meshVsFieldRel",relM},{"gpropVsFieldRel",relG},{"bestRel",relBest},{"consistent",fieldIntegral>0&&relBest<.02}}},{"addedMm3",fit.sign>0?material:0.0},{"removedMm3",fit.sign<0?material:0.0},{"materialMetric","kernel volume delta closest to the analytic field integral (GProp or triangulation)"},
+  {"mode",fit.sign>0?"emboss":"engrave"},{"quality",{{"status",relBest>.05?"candidate-volume-unverified":"volume-checked"},{"warnings",relBest>.05?json::array({"RELIEF_VOLUME_UNVERIFIED"}):json::array()},{"geometryValid",true},{"fieldIntegralMm3",fieldIntegral},{"meshChecked",meshChecked},{"meshDeltaMm3",meshChecked?json(meshDelta):json(nullptr)},{"gpropDeltaMm3",delta},{"meshVsFieldRel",relM},{"gpropVsFieldRel",relG},{"bestRel",relBest},{"consistent",fieldIntegral>0&&relBest<.02}}},{"addedMm3",fit.sign>0?material:0.0},{"removedMm3",fit.sign<0?material:0.0},{"materialMetric","kernel volume delta closest to the analytic field integral (GProp or triangulation)"},
   {"fit",{{"columns",fit.nx},{"rows",fit.ny},{"widthMm",fit.widthMm},{"heightMm",fit.heightMm},{"baselineMm",fit.baselineMm},{"controlDeltasMm",fit.deltas},{"controlDeltasF64LE",base64(f64bytes(fit.deltas))},{"lockedControlMask",fit.locked},{"controlDeltasSha256",sha256Hex(f64bytes(fit.deltas))},{"report",fit.report}}},
   {"timingsMs",{{"fit",fitMs},{"total",ms()},{"stages",stageMs}}}};
  return {result,report};

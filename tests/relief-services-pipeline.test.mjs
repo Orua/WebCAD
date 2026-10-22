@@ -6,6 +6,17 @@ const sha='a'.repeat(64);
 const draft=p=>({schemaVersion:1,name:'d',support:{kind:'rect',centerMm:[0,0],widthMm:20,heightMm:20},throughHoles:[],protectedZones:[],heightRangeMm:[0,1],points:[],fieldSettings:{columns:17,rows:17,machiningPrecisionMm:p,edits:[{mode:'raise',centerMm:[0,0],radiusMm:4,amountMm:.6,strength:1}]}});
 const fitOptions={mode:'emboss',controlColumns:9,controlRows:9,controlMaxMm:1,acceptanceToleranceMm:.2};
 
+test('Services 129 control net preserves browser 65 control limit',async()=>{
+ const {solveReliefDesign}=await import('../src/relief-design-field.js');
+ const {prepareReliefDesignFit}=await import('../src/relief-design-fit.js');
+ const {designFitWorkerParams}=await import('../src/services/relief-pipeline.js');
+ const d=draft(.05);d.fieldSettings.columns=129;d.fieldSettings.rows=129;
+ const solved=solveReliefDesign(d),options={...fitOptions,controlColumns:129,controlRows:129};
+ assert.throws(()=>prepareReliefDesignFit(d,solved,options),e=>e.code==='PARAM_RANGE_INVALID');
+ const plan=designFitWorkerParams({draft:d,solved,fitOptions:options,placement:{originMm:[0,0,0],xDirection:[1,0,0]},faceIntent:{kind:'planar-face-geometric-intent',point:[0,0,0],normal:[0,0,1]}});
+ assert.equal(plan.params.fit.controlColumns,129);assert.equal(plan.params.field.columns,129);
+});
+
 test('contracts: stable hashed requests; precision bounds 0.01–0.5 enforced; response must match',()=>{
  const a=sourceConvertRequest({sha256:sha,width:4,height:4,settings:{columns:4,rows:4}}),b=sourceConvertRequest({sha256:sha,width:4,height:4,settings:{rows:4,columns:4}});
  assert.equal(a.contract,RELIEF_PIPELINE_CONTRACTS.sourceConvert);assert.equal(a.requestHash,b.requestHash);

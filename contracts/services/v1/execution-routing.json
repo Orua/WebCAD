@@ -273,7 +273,7 @@
     "browserReverification": [
       "controlDeltasSha256",
       "lockedControlsZero",
-      "resampledFieldDeviation<=acceptanceToleranceMm",
+      "resampledFieldDeviation-reported; strict-policy-requires<=acceptanceToleranceMm",
       "inputFingerprint-echo"
     ],
     "operations": [

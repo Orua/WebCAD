@@ -41,16 +41,20 @@ export function validateReliefDesign(input,path='draft'){
  });
  let fieldSettings;
  if(input.fieldSettings!==undefined){
-  const p=path+'.fieldSettings',v=input.fieldSettings;object(v,['columns','rows','smoothWeight','maxIterations','toleranceMm','edits','machiningPrecisionMm'],p);fieldSettings={};
+  const p=path+'.fieldSettings',v=input.fieldSettings;object(v,['columns','rows','smoothWeight','maxIterations','toleranceMm','edits','machiningPrecisionMm','servicesQuality'],p);fieldSettings={};
   for(const [key,min,max,integer]of [['columns',9,129,true],['rows',9,129,true],['smoothWeight',0,100000,false],['maxIterations',1,20000,true],['toleranceMm',1e-10,1,false],['machiningPrecisionMm',.01,.5,false]])if(v[key]!==undefined){fieldSettings[key]=number(v[key],p+'.'+key,min,max);if(integer&&!Number.isInteger(v[key]))fail(p+'.'+key,'需要整数');}
   if(v.edits!==undefined){if(!Array.isArray(v.edits)||v.edits.length>256)fail(p+'.edits','最多256笔');fieldSettings.edits=v.edits.map((e,i)=>{const q=p+'.edits['+i+']';object(e,['mode','centerMm','radiusMm','strength','amountMm','targetMm'],q);if(!['raise','lower','flatten','smooth'].includes(e.mode))fail(q+'.mode','不支持的笔刷');const r={mode:e.mode,centerMm:xy(e.centerMm,q+'.centerMm'),radiusMm:number(e.radiusMm,q+'.radiusMm',.001,10000)};for(const [k,a,b]of [['strength',0,1],['amountMm',0,100],['targetMm',-100,100]])if(e[k]!==undefined)r[k]=number(e[k],q+'.'+k,a,b);return r;});}
  }
+ if(input.fieldSettings?.servicesQuality!==undefined){const q=input.fieldSettings.servicesQuality,p=path+'.fieldSettings.servicesQuality';object(q,['mode','maxControlSide'],p);
+  if(q.mode!==undefined&&!['adaptive','off'].includes(q.mode))fail(p+'.mode','服务器高精度拟合模式需要 adaptive 或 off');
+  if(q.maxControlSide!==undefined&&(!Number.isInteger(q.maxControlSide)||q.maxControlSide<16||q.maxControlSide>1025))fail(p+'.maxControlSide','最大控制网边长需要 16–1025 的整数');
+  fieldSettings.servicesQuality={...(q.mode!==undefined?{mode:q.mode}:{}),...(q.maxControlSide!==undefined?{maxControlSide:q.maxControlSide}:{})};}
  // Optional imported height map: covers the support bounding box, maps 0..1 to baseline..baseline+depthMm.
  let heightSource;
  if(input.heightSource!==undefined){
   const p=path+'.heightSource',v=input.heightSource;object(v,['source','depthMm','weight','edgeKeepoutMm','edgeFadeMm'],p);
   const span=heightRangeMm[1]-heightRangeMm[0];if(!(span>0))fail(p,'导入高度图需要高度范围大于 0','PARAM_RANGE_INVALID');
-  if(v.source?.grid&&(v.source.grid.columns>513||v.source.grid.rows>513))fail(p+'.source.grid','草稿内高度网格最多 513×513','RELIEF_LIMIT');
+  if(v.source?.grid&&(v.source.grid.columns>1025||v.source.grid.rows>1025))fail(p+'.source.grid','草稿内高度网格最多 1025×1025','RELIEF_LIMIT');
   heightSource={source:validateReliefHeightSource(v.source,p+'.source'),depthMm:number(v.depthMm,p+'.depthMm',1e-6,span),...(v.weight!==undefined?{weight:number(v.weight,p+'.weight',1e-3,1e6)}:{}),...(v.edgeKeepoutMm!==undefined?{edgeKeepoutMm:number(v.edgeKeepoutMm,p+'.edgeKeepoutMm',0,1000)}:{}),...(v.edgeFadeMm!==undefined?{edgeFadeMm:number(v.edgeFadeMm,p+'.edgeFadeMm',0,1000)}:{})};
  }
  return {schemaVersion:1,name,support,throughHoles,protectedZones,heightRangeMm,points,...(fieldSettings?{fieldSettings}:{}),...(input.reference!==undefined?{reference:validateReliefReference(input.reference)}:{}),...(heightSource?{heightSource}:{})};
