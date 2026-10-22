@@ -1,7 +1,7 @@
 {
   "version": 1,
   "agentFloatingToggle20261023": {
-    "localImpact": "Collapsed thinking-only robot head with AI thinking text, eye/antenna/dot motion; hide outside thinking and retain ordinary reopen handle. Preserve task/control lease and draggable position. Hide bottom-right standard views and anchor controls; menu/API retained",
+    "localImpact": "Collapsed thinking-only robot animation with transparent background, no visible text or shadow; eye/antenna/dot motion and accessible name retained. Preserve task/control lease, drag/reopen and idle hide. Bottom-right controls remain hidden; menu/API retained",
     "servicesImpact": "Companion workspace reports transient thinking state and collapse sync; no Services or Native binary/compute change",
     "logoImpact": "None: source Logo and worker unchanged",
     "contractImpact": "layout.floatingPosition/getAgentPanel.floating; thinking-only visibility; merged page API1.57.3; host control booleans unchanged",

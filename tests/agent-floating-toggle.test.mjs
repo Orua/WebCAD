@@ -12,7 +12,7 @@ test('floating toggle clamps position, separates drag from click and keeps cance
   try{
     const floating=createFloatingToggle({root,onOpen:()=>opened++,onMove:()=>moved++});
     floating.sync({visible:true,activity:'thinking'});
-    assert.equal(status.textContent,'AI 正在思考');assert.equal(button.dataset.hostControlAllowed,'true');assert.equal(floating.get().visible,true);assert.ok(button.innerHTML.includes('agent-robot-eyes'));assert.ok(!button.innerHTML.includes('>AG<'));
+    assert.equal(button.dataset.hostControlAllowed,'true');assert.equal(floating.get().visible,true);assert.ok(button.innerHTML.includes('agent-robot-eyes'));assert.ok(!button.innerHTML.includes('agent-floating-copy'));assert.ok(!button.innerHTML.includes('点击展开对话'));
     floating.setPosition({xPx:100000,yPx:100000});assert.deepEqual(floating.get().position,{xPx:656,yPx:436});
     floating.setPosition({xPx:100,yPx:100});
     handlers.pointerdown(event());handlers.pointermove(event({clientX:102,clientY:101}));handlers.pointerup(event());handlers.click(event());assert.equal(opened,1);
