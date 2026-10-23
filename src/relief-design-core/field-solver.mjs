@@ -114,8 +114,11 @@ export function createBilinearObservation(gridInput, observation = {}) {
   if (xMm < -grid.widthMm / 2 || xMm > grid.widthMm / 2
       || yMm < -grid.heightMm / 2 || yMm > grid.heightMm / 2)
     fail('FIELD_SAMPLE_OUTSIDE', 'The sample lies outside the physical grid frame.', { xMm, yMm });
-  const u = (xMm + grid.widthMm / 2) / grid.dxMm;
-  const v = (yMm + grid.heightMm / 2) / grid.dyMm;
+  // Samples placed on a grid node must hit that node exactly: floating round-off (u = 49.9999999…) would
+  // otherwise add a ~1e-15 term on the neighbouring node, which may be inactive near a curved support rim.
+  const snap = t => { const r = Math.round(t); return Math.abs(t - r) < 1e-9 ? r : t; };
+  const u = snap((xMm + grid.widthMm / 2) / grid.dxMm);
+  const v = snap((yMm + grid.heightMm / 2) / grid.dyMm);
   const i = Math.min(grid.columns - 2, Math.floor(u));
   const j = Math.min(grid.rows - 2, Math.floor(v));
   const a = Math.min(1, Math.max(0, u - i)), b = Math.min(1, Math.max(0, v - j));

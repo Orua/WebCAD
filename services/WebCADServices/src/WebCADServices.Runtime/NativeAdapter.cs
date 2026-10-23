@@ -162,12 +162,17 @@ namespace WebCADServices.Runtime
             int width=BoundedInt(parameters["width"],1,16384,"width"),height=BoundedInt(parameters["height"],1,16384,"height");if((long)width*height>16777216)throw new ServiceError("SIZE_LIMIT","Raster exceeds 16M pixels");
             if(parameters["settings"] is not JObject s)throw new ServiceError("PARAM_SCHEMA_INVALID","Normalized convert settings are required");Protocol.Keys(s,"version","columns","rows","crop","levels","gamma","blurPx","invert");
             if(s["version"]?.Type!=JTokenType.Integer||(int)s["version"]!=1)throw new ServiceError("PARAM_SCHEMA_INVALID","settings.version must be 1");
-            int c=BoundedInt(s["columns"],2,2049,"settings.columns"),r=BoundedInt(s["rows"],2,2049,"settings.rows");if((long)c*r>513L*513)throw new ServiceError("SIZE_LIMIT","Height grid exceeds 513x513 result budget");
+            int c=BoundedInt(s["columns"],2,2049,"settings.columns"),r=BoundedInt(s["rows"],2,2049,"settings.rows");/* over MaxGridNodes is downsampled in Execute (BudgetGrid), never rejected */
             if(s["crop"] is not JObject crop)throw new ServiceError("PARAM_SCHEMA_INVALID","settings.crop required");Protocol.Keys(crop,"x","y","width","height");double cx=Bounded(crop["x"],0,1,"crop.x"),cy=Bounded(crop["y"],0,1,"crop.y"),cw=Bounded(crop["width"],1e-6,1,"crop.width"),ch=Bounded(crop["height"],1e-6,1,"crop.height");if(cx+cw>1+1e-12||cy+ch>1+1e-12)throw new ServiceError("PARAM_SCHEMA_INVALID","Crop exceeds the image");
             if(s["levels"] is not JObject levels)throw new ServiceError("PARAM_SCHEMA_INVALID","settings.levels required");Protocol.Keys(levels,"black","white");if(Bounded(levels["white"],0,1,"levels.white")<=Bounded(levels["black"],0,1,"levels.black"))throw new ServiceError("PARAM_SCHEMA_INVALID","White level must exceed black level");
             Bounded(s["gamma"],.1,10,"settings.gamma");Bounded(s["blurPx"],0,32,"settings.blurPx");if(s["invert"]?.Type!=JTokenType.Boolean)throw new ServiceError("PARAM_SCHEMA_INVALID","settings.invert must be boolean");
             if(parameters["depthMm"]!=null)Bounded(parameters["depthMm"],1e-3,20,"depthMm");if(parameters["machiningPrecisionMm"]!=null){if(parameters["depthMm"]==null)throw new ServiceError("PARAM_SCHEMA_INVALID","machiningPrecisionMm requires depthMm");Bounded(parameters["machiningPrecisionMm"],.01,.5,"machiningPrecisionMm");}
         }
+        // Height-grid result budget, aligned with the browser auto grid / draft grid / control caps (1025).
+        public const long MaxGridNodes=1025L*1025;
+        // Same rule as src/relief-source/convert.js budgetGridSize: keep aspect, floor-scale, then trim the longer side.
+        public const int MaxGridSide=1025;
+        public static (int columns,int rows) BudgetGrid(int c,int r,long max=MaxGridNodes,int maxSide=MaxGridSide){if((long)c*r<=max&&c<=maxSide&&r<=maxSide)return (c,r);double k=Math.Min(Math.Sqrt((double)max/((double)c*r)),(double)maxSide/Math.Max(c,r));int nc=Math.Min(maxSide,Math.Max(2,(int)Math.Floor(c*k))),nr=Math.Min(maxSide,Math.Max(2,(int)Math.Floor(r*k)));while((long)nc*nr>max){if(nc>=nr)nc--;else nr--;}return (nc,nr);}
         static void Point(JToken value,bool unit=false){if(value is not JArray point||point.Count!=3)throw new ServiceError("PARAM_SCHEMA_INVALID","World XYZ point required");foreach(var v in point)Number(v,100000);if(unit&&Math.Abs(Math.Sqrt(point.Sum(v=>(double)v*(double)v))-1)>1e-9)throw new ServiceError("PARAM_SCHEMA_INVALID","Unit vector required");}
         static void ValidateRelief(JObject parameters,JObject assets,bool strokes){
             Protocol.Keys(parameters,"layers");if(parameters["layers"] is not JArray layers||layers.Count<1||layers.Count>32)throw new ServiceError("PARAM_SCHEMA_INVALID","Bounded layer plan required");int count=0;
@@ -187,6 +192,7 @@ namespace WebCADServices.Runtime
                 privateParams=new JObject{["toolPaths"]=toolPaths};
             }else if((string)input["operation"]=="reliefSourceConvert"){
                 privateParams["sourceSha256"]=payload["sourceSha256"];output=Path.Combine(dir,"grid.json");
+                var ps=(JObject)privateParams["settings"];int pc=(int)ps["columns"],pr=(int)ps["rows"];var budget=BudgetGrid(pc,pr);if(budget.columns!=pc||budget.rows!=pr){ps["columns"]=budget.columns;ps["rows"]=budget.rows;privateParams["downsampledFrom"]=new JArray(pc,pr);}
             }else if(new[]{"round","reliefShoulder","reliefDesign"}.Contains((string)input["operation"])){
                 privateParams["faceIntent"]=input["selectionIntent"].DeepClone();
             }else if((string)input["operation"]=="relief"){
@@ -209,7 +215,7 @@ namespace WebCADServices.Runtime
             result["supportBinding"]=BoundSupport(result["supportBinding"]);
             if((string)input["operation"]=="reliefSourceConvert"){
                 var grid=store.PublishArtifact(owner,File.ReadAllBytes(output),HeightGridFormat);
-                return new JObject{["jobId"]=id,["inputFingerprint"]=row["fingerprint"],["recipeFingerprint"]=input["recipeFingerprint"],["documentId"]=input["documentId"],["documentInstanceId"]=input["documentInstanceId"],["expectedRevision"]=input["expectedRevision"],["featureId"]=input["featureId"],["operation"]=input["operation"],["semanticVersion"]=input["semanticVersion"],["strategy"]=input["strategy"],["kernelBuildId"]=BuildId,["gridArtifact"]=grid,["grid"]=result["grid"],["precision"]=result["precision"],["sourceSha256"]=payload["sourceSha256"],["timings"]=result["timings"],["commit"]="notCommitted"};
+                return new JObject{["jobId"]=id,["inputFingerprint"]=row["fingerprint"],["recipeFingerprint"]=input["recipeFingerprint"],["documentId"]=input["documentId"],["documentInstanceId"]=input["documentInstanceId"],["expectedRevision"]=input["expectedRevision"],["featureId"]=input["featureId"],["operation"]=input["operation"],["semanticVersion"]=input["semanticVersion"],["strategy"]=input["strategy"],["kernelBuildId"]=BuildId,["gridArtifact"]=grid,["grid"]=result["grid"],["downsampledFrom"]=privateParams["downsampledFrom"]?.DeepClone(),["precision"]=result["precision"],["sourceSha256"]=payload["sourceSha256"],["timings"]=result["timings"],["commit"]="notCommitted"};
             }
             var artifact=store.PublishGeometry(owner,File.ReadAllBytes(output));
             var warnings=new JArray();

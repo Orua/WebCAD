@@ -1,5 +1,23 @@
 {
   "version": 1,
+  "agentLogTiming20261023": {
+    "localImpact": "Host CADAgent logs always show total, model-response, tool-execution and unclassified wall time; receipt diagnostics use closed details elements",
+    "servicesImpact": "None: CAD Services, authorization and geometry execution unchanged",
+    "logoImpact": "None: no Logo or native algorithm changes",
+    "contractImpact": "Additive Agent task requestMetadata.cadMetrics.timingBreakdown and historical-message timingBreakdown v1; existing step, SDK and command receipts retained; no page API operation changes",
+    "documentImpact": "None: CAD documents, geometry, undo and saved project data unchanged",
+    "cacheImpact": "Bump host JS/CSS URLs; include host turn-timing.js and Agent turn_timing.py together when releasing; no WebCAD static rebuild required",
+    "requiredTests": ["Observed silent model wait, concurrent tool union, cancellation, compaction and unknown phases", "Task persistence and historical timing readback", "Host timing and task-lifecycle regressions", "One 17674 desktop/mobile component render and receipt-fold check"]
+  },
+  "reliefFitFix20261023": {
+    "localImpact": "Adaptive numerical field and browser control net; scaled edge margins; selected-face mesh placement; retained dialog results and execution receipts. Browser fit defaults to Worker elapsed-time cancellation instead of a fixed operation-count budget",
+    "servicesImpact": "Rebuild managed Runtime/Gateway: accept 1025-square height grids and proportionally downsample larger requests; existing native worker unchanged",
+    "logoImpact": "None: Logo/PDF sources and native binaries unchanged",
+    "contractImpact": "Page API 1.57.4: optional candidate placement; explicit maxWork remains opt-in; candidate volume discrepancies retain consistent:false and visible warning, strict policy still rejects; getServicesRouting lastReliefDesign volume receipt",
+    "documentImpact": "Preserve authored height source, draft settings and committed geometry; effective margins reported explicitly",
+    "cacheImpact": "Regenerate knowledge snapshot and rebuild frontend; preserve user configuration and operational data",
+    "requiredTests": ["Targeted relief field/source/pipeline/UI regressions", "Managed native parameter checks and Gateway compilation", "17674 adaptive field, fallback, placement, reopening and Services receipt"]
+  },
   "agentFloatingToggle20261023": {
     "localImpact": "Collapsed thinking-only robot animation with transparent background, no visible text or shadow; eye/antenna/dot motion and accessible name retained. Preserve task/control lease, drag/reopen and idle hide. Bottom-right controls remain hidden; menu/API retained",
     "servicesImpact": "Companion workspace reports transient thinking state and collapse sync; no Services or Native binary/compute change",

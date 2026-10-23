@@ -4,6 +4,7 @@ import {DESIGN_EDIT_LABELS,changeDesignEdit,designEditSummary} from './relief-de
 import {createReliefBrepPanel} from './relief-design-brep-panel.js';
 import {reliefServicesReady} from '../../services/relief-pipeline.js';
 import {createReliefHeightPanel} from './relief-design-height-panel.js';
+import {adaptiveBrowserControlNet,adaptiveFieldResolution} from '../../relief-design-field.js';
 
 export function showReliefDesignDialog({getState,openDialog,element,button,onSave,onGenerate,onPreview,close}){
  let initial=getState(),loaded=null,busy=false,dirty=false,fieldResult=null,referenceUrl=null,referenceGeneration=0,selectedEdit=-1,editInputsDirty=false,resolutionTouched=false,fitRunning=false,fitBaselineMm=NaN,brep=null;
@@ -28,7 +29,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  const cx=numeric('中心 X mm',-10000,10000),cy=numeric('中心 Y mm',-10000,10000);
  const width=numeric('直径 / 宽度 mm',.002,10000),height=numeric('矩形高度 mm',.001,10000);
  const low=numeric('最低高度 mm',-100,100),high=numeric('最高高度 mm',-100,100);
- const resolution=numeric('数值场每轴采样（9–129）',9,129,advancedForm);resolution.value=33;
+ const resolution=numeric('数值场每轴采样（9–129）',9,129,advancedForm);resolution.value='';resolution.placeholder='自动（按高度图与加工精度）';
  const precision=numeric('加工精度 mm（0.01–0.5，小于此值的起伏、噪声和台阶被平滑）',.01,.5,advancedForm);precision.value=.05;
  // Services 高精度拟合: image reliefs fit from the full-resolution height source with an adaptive control net
  // (spacing chosen from size and machining precision); authored points/local edits keep the field fit.
@@ -73,11 +74,11 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  const fitMode=field('拟合模式',element('select',{'aria-label':'拟合模式'}),fitForm);for(const [value,label]of [['emboss','凸起（基准以上）'],['engrave','凹刻（基准以下）'],['engraveDepth','凹刻（设计高度=下刻深度）']])fitMode.append(element('option',{value},label));fitMode.value='emboss';
  const advancedFit=element('div',{});advancedFit.style.cssText=fitForm.style.cssText;advanced.append(element('p',{class:'property-footnote'},'拟合控制点与误差'),advancedFit);
  const fitNumber=(label,min,max,value,step='any')=>{const n=field(label,element('input',{type:'number',min,max,step,'aria-label':label}),advancedFit);n.value=value;return n;};
- const fitColumns=fitNumber('控制列数',4,65,9,1),fitRows=fitNumber('控制行数',4,65,9,1),fitMax=fitNumber('控制高度上限 mm',0,20,3),fitTolerance=fitNumber('接受的采样误差 mm',.000001,20,.05);
+ const fitColumns=fitNumber('控制列数',4,65,'',1),fitRows=fitNumber('控制行数',4,65,'',1),fitMax=fitNumber('控制高度上限 mm',0,20,3),fitTolerance=fitNumber('接受的采样误差 mm',.000001,20,.05);
  const fitControls=[fitMode,fitColumns,fitRows,fitMax,fitTolerance];for(const control of fitControls)control.dataset.designFit='true';
  const fitResult=element('p',{class:'property-footnote','aria-live':'polite'},'尚未拟合；需当前草稿的已求解数值场。');fitResult.style.cssText='white-space:pre-line;overflow-wrap:anywhere';
- const fitStart=button('拟合当前数值场',()=>computeFit(),'secondary'),fitStop=button('停止拟合',()=>stopFit(),'secondary');fitStop.disabled=true;
- const fitButtons=element('div',{});fitButtons.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px';fitButtons.append(fitStart,fitStop);fitPanel.append(fitSummary,fitHint,fitForm,fitButtons,fitResult);fitPanel.open=true;fitSummary.textContent='拟合（凸起 / 凹刻）';scroller.append(fitPanel);
+ const fitStart=button('拟合当前数值场',()=>fitPreferServices(),'secondary'),fitBrowser=button('浏览器拟合（回退）',()=>computeFit(),'secondary'),fitStop=button('停止拟合',()=>stopFit(),'secondary');fitStop.disabled=true;
+ const fitButtons=element('div',{});fitButtons.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px';fitButtons.append(fitStart,fitBrowser,fitStop);fitPanel.append(fitSummary,fitHint,fitForm,fitButtons,fitResult);fitPanel.open=true;fitSummary.textContent='拟合（凸起 / 凹刻）';scroller.append(fitPanel);
  let servicesFirstOK=false;reliefServicesReady('reliefDesign').then(v=>{servicesFirstOK=v;brep?.sync?.();});
  brep=createReliefBrepPanel({element,button,runPreview:onPreview,request:()=>({context:window.webcad.api.getState().context,designId:loaded?.id,expectedDraftRevision:loaded?.revision}),isBusy:()=>busy||dirty||editInputsDirty||!loaded||!Number.isFinite(fitBaselineMm)&&!servicesFirstOK,ensureFit:()=>ensureFit(),setBusy:value=>{busy=value;},getFitBaseline:()=>fitBaselineMm});scroller.append(brep.panel);
  const canvas=element('canvas',{width:640,height:240,'aria-label':'支撑范围和人工高度点示意'});
@@ -132,13 +133,14 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
    await commit(false,{draft,selectEdit:index,message:removing?'已移除此笔，并保存当前设计修改；可用工程撤销恢复。':'笔画和当前设计修改已一起保存；重新求解后查看局部编辑结果。'});
   }catch(error){status.textContent=humanError(error);}
  }
- function syncFitControls(){brep?.sync();fitStart.disabled=busy||dirty||editInputsDirty||!loaded||!fieldResult;fitStop.disabled=!fitRunning;}
+ function syncFitControls(){brep?.sync();fitStart.disabled=fitBrowser.disabled=busy||dirty||editInputsDirty||!loaded||!fieldResult;fitStop.disabled=!fitRunning;}
  function showFitReport(result){
   const report=result.fit?.report||result.error?.details?.metrics&&{metrics:result.error.details.metrics},metric=(label,m)=>m?`${label}：最大 ${m.maxMm} mm，RMS ${m.rmsMm} mm（${m.count} 点）`:'';
   const lines=[...(report?.status==='approximation-candidate'?['已生成近似候选：偏差或收敛未达参考值，可继续生成并保存；请检查实际效果。']:[]),metric('训练采样',report?.metrics?.training),metric('独立采样',report?.metrics?.independent),metric('保护采样',report?.metrics?.protection)].filter(Boolean);
-  if(report?.controlPoints!==undefined)lines.push(`锁定控制点 ${report.lockedControlPoints} / ${report.controlPoints}；投影残差 ${report.projectedResidualMm} mm。`);
+  if(report?.controlPoints!==undefined){lines.push(`锁定控制点 ${report.lockedControlPoints} / ${report.controlPoints}；投影残差 ${report.projectedResidualMm} mm。`);if(report.controlPoints&&report.lockedControlPoints/report.controlPoints>.8)lines.push('⚠ 超过 80% 控制点被边缘/孔/保护区锁定，图案细节可能丢失：请增大控制点数（或留空自动）、减小边缘留空/过渡，或增大支撑尺寸。');}
   if(report?.protectionCertificate)lines.push(`保护证据：相交基函数支撑锁定到基准；固定单元 ${report.protectionCertificate.fixedCellCount}，检查舍入界 ${report.protectionCertificate.roundoffCheckMm} mm。`);
   const pr=result.fit?.precision;if(pr)lines.push(`加工精度 ${pr.machiningPrecisionMm} mm：独立采样最大偏差 ${(+pr.independentMaxMm).toFixed(3)} mm，${pr.withinPrecision?'在精度内':'超过精度——小于精度的细节已在数值场中平滑，建议接受误差不大于加工精度'}。`);
+  if(result.fit?.columns)lines.unshift(`执行端：浏览器（回退）；控制网 ${result.fit.columns}×${result.fit.rows}；最大误差 ${report?.metrics?.training?.maxMm??'—'} mm。`);
   lines.push('偏差仅针对采样，非全局公差。尚未生成 BRep、未提交几何，不代表加工验收。');fitResult.textContent=lines.join('\n');
  }
  async function computeFit(){
@@ -153,7 +155,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
   }catch(error){fitResult.textContent=humanError(error);}
   finally{busy=fitRunning=false;for(const [el,disabled]of controls)el.disabled=disabled;save.disabled=solve.disabled=false;remove.disabled=!loaded;generate.disabled=wasGenerateDisabled||dirty||editInputsDirty||!fieldResult;syncEditControls();}
  }
- function readFitOptions(){const number=n=>n.value.trim()===''?NaN:Number(n.value);return {...(fitMode.value==='engraveDepth'?{mode:'engrave',heightInterpretation:'engraveDepth'}:{mode:fitMode.value}),controlColumns:number(fitColumns),controlRows:number(fitRows),controlMaxMm:number(fitMax),acceptanceToleranceMm:number(fitTolerance)};}
+ function readFitOptions(){const number=n=>n.value.trim()===''?NaN:Number(n.value),f=fieldResult?.field,auto=f?adaptiveBrowserControlNet(f.columns,f.rows):{columns:9,rows:9},pick=(n,a)=>n.value.trim()===''?a:Number(n.value);return {...(fitMode.value==='engraveDepth'?{mode:'engrave',heightInterpretation:'engraveDepth'}:{mode:fitMode.value}),controlColumns:pick(fitColumns,auto.columns),controlRows:pick(fitRows,auto.rows),controlMaxMm:number(fitMax),acceptanceToleranceMm:number(fitTolerance)};}
  // Services-first (261022-05): with Services ready, 准备 needs no browser fit — a provisional net is retained and
  // the first full (high-res) fit runs on Services at preview; the browser fit is only the fallback.
  async function ensureFit(){
@@ -163,14 +165,28 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
   if(r.status!=='fitted')throw Object.assign(new Error(r.error?.message??'Services 首次拟合准备失败'),{code:r.error?.code});
   fitBaselineMm=r.fit.baselineMm;fitResult.textContent='浏览器未拟合：首次完整拟合将在 Services 以高分辨率完成（预览时），浏览器复核结果；Services 不可用时请先用浏览器拟合（回退）。';return true;
  }
+ // 「拟合当前数值场」: Services first (high-precision adaptive net computed at preview, verified by the browser);
+ // browser fit only when Services is unavailable.
+ async function fitPreferServices(){
+  if(busy)return;if(!servicesFirstOK){await computeFit();fitResult.textContent='执行端：浏览器（Services 不可用或未提供 relief.design-fit-brep-1）\n'+fitResult.textContent;return;}
+  if(!loaded||dirty||editInputsDirty||!fieldResult){fitResult.textContent='请先保存草稿和笔画到工程，再求解当前数值场；不会自动求解。';return;}
+  busy=true;syncFitControls();
+  try{fitBaselineMm=NaN;brep.reset();const r=await window.webcad.api.reliefDesignFit(request('servicesFirst',{options:readFitOptions()}));
+   if(r.status!=='fitted')throw Object.assign(new Error(r.error?.message??'Services 首次拟合准备失败'),{code:r.error?.code});
+   fitBaselineMm=r.fit.baselineMm;const q=loaded.draft.fieldSettings?.servicesQuality,adaptive=!!loaded.draft.heightSource&&(q?.mode??'adaptive')==='adaptive';
+   fitResult.textContent=`执行端：Services（高精度拟合在“生成浮雕实体 → 预览”时执行，浏览器复核结果）\n控制网：${adaptive?`自适应，最大边长 ${q?.maxControlSide??1025}，按加工精度 ${loaded.draft.fieldSettings?.machiningPrecisionMm??.05} mm 选择`:`数值场拟合（临时 ${r.fit.columns}×${r.fit.rows}，Services 以 ≤129² 重新拟合）`}\n最终控制网与最大/RMS 误差在预览完成后显示于“生成浮雕实体”面板。Services 失败时请用“浏览器拟合（回退）”。`;}
+  catch(error){fitResult.textContent='Services 拟合准备失败：'+humanError(error)+'\n可改用“浏览器拟合（回退）”。';}
+  finally{busy=false;syncFitControls();}
+ }
  async function stopFit(){if(!fitRunning)return;fitStop.disabled=true;try{await window.webcad.api.reliefDesignFit(request('cancel'));fitResult.textContent='拟合已停止；已求解数值场仍保留。';}catch(error){fitResult.textContent=humanError(error);}}
  async function compute(){
   if(busy)return;
   if(!loaded||dirty||editInputsDirty){status.textContent='请先保存当前设计和笔画修改，再求解同工程草稿。';return;}
   busy=true;solve.disabled=save.disabled=true;cancel.disabled=false;generate.disabled=true;status.textContent='正在有界 Worker 中求解…';
-  try{const result=await window.webcad.api.reliefDesignField(request('solve'));if(result.status!=='solved')throw new Error(result.error?.message||'未得到数值场');fieldResult=result;drawField(result);const r=result.report.solver;status.textContent=`数值场 ${result.field.columns}×${result.field.rows}；实际投影残差 ${r.projectedResidualMm} mm；${r.iterations} 次迭代。孔为保守排除单元，保护区保持初始高度。`;const c=await window.webcad.api.reliefDesignField(request('candidate',{baseMm:Number(base.value)}));generate.disabled=c.status!=='candidate';if(c.blockers?.length)status.textContent+=' '+c.blockers.map(code=>humanError({code})).join(' ');else if(c.domainReport)status.textContent+=` 边界为采样折线，近似界 ${c.domainReport.boundaryApproximationBoundMm.toFixed(3)} mm；保留 ${c.domainReport.holeCount} 个贯穿孔。`;}
+  try{const result=await window.webcad.api.reliefDesignField(request('solve'));if(result.status!=='solved')throw new Error(result.error?.message||'未得到数值场');fieldResult=result;drawField(result);const r=result.report.solver;status.textContent=`数值场 ${result.field.columns}×${result.field.rows}；实际投影残差 ${r.projectedResidualMm} mm；${r.iterations} 次迭代。孔为保守排除单元，保护区保持初始高度。`+marginWarning(result);const c=await window.webcad.api.reliefDesignField(request('candidate',{baseMm:Number(base.value)}));generate.disabled=c.status!=='candidate';if(c.blockers?.length)status.textContent+=' '+c.blockers.map(code=>humanError({code})).join(' ');else if(c.domainReport)status.textContent+=` 边界为采样折线，近似界 ${c.domainReport.boundaryApproximationBoundMm.toFixed(3)} mm；保留 ${c.domainReport.holeCount} 个贯穿孔。`;}
   catch(e){status.textContent=humanError(e);}finally{busy=false;solve.disabled=save.disabled=false;cancel.disabled=true;syncEditControls();}
  }
+ function marginWarning(result){const m=result?.report?.edgeMargins;return m?.scaled?`\n⚠ 支撑尺寸较小：边缘留空 ${m.requestedMm[0]} mm / 过渡 ${m.requestedMm[1]} mm 合计超过最小半尺寸的 50%（${m.limitMm.toFixed(2)} mm），已按比例缩小为 ${m.keepMm.toFixed(2)} / ${m.fadeMm.toFixed(2)} mm，保证内部有足够自由控制点。如需其他值请在“图像高度”中修改。`:'';}
  function drawField(result){
   const f=result.field,ctx=canvas.getContext('2d'),min=Math.min(...f.heightsMm),max=Math.max(...f.heightsMm),scale=Math.min(580/f.widthMm,180/f.heightMm);ctx.clearRect(0,0,640,240);
   const point=k=>[320+((k%f.columns)/(f.columns-1)-.5)*f.widthMm*scale,120-(Math.floor(k/f.columns)/(f.rows-1)-.5)*f.heightMm*scale];
@@ -179,7 +195,8 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  }
  async function generateMesh(){
   if(busy||dirty||editInputsDirty||!fieldResult)return;busy=true;generate.disabled=true;
-  try{const api=window.webcad.api,c=await api.reliefDesignField(request('candidate',{baseMm:Number(base.value)}));if(c.status!=='candidate')throw Object.assign(new Error('请重新核对设计候选'),{code:c.blockers?.[0]||c.error?.code||'RELIEF_DESIGN_STALE'});const result=await onGenerate(c.args);if(result.status!=='committed')throw new Error(result.error?.message||'网格未提交');initial=getState();status.textContent='已生成真实封闭三角网格；可导出 STL。不是精确 BRep/STEP；保存工程保留实际高度样本与设计草稿。';fieldResult=null;}
+  try{const api=window.webcad.api;let placement=brep?.facePlacement?.();if(!placement){try{await brep?.readFace?.();placement=brep?.facePlacement?.();}catch{}}
+   const c=await api.reliefDesignField(request('candidate',{baseMm:Number(base.value),...(placement?{placement}:{})}));if(c.status!=='candidate')throw Object.assign(new Error('请重新核对设计候选'),{code:c.blockers?.[0]||c.error?.code||'RELIEF_DESIGN_STALE'});const result=await onGenerate(c.args);if(result.status!=='committed')throw new Error(result.error?.message||'网格未提交');initial=getState();status.textContent=(placement?`网格已放到所选面（中心 [${placement.originMm.map(v=>+v.toFixed(3)).join(', ')}]，沿面法向）。`:'未选中平面：网格放在草稿中心、世界 XY 平面 Z=0；如需贴面请先在模型上选中一个平面。')+'已生成真实封闭三角网格；可导出 STL。不是精确 BRep/STEP；保存工程保留实际高度样本与设计草稿。';fieldResult=null;}
   catch(e){status.textContent=humanError(e);}finally{busy=false;}
  }
  function values(line){return line.trim().split(/[\s,，]+/);}
@@ -197,7 +214,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
    const [x,y,z]=fields.map(Number);return {id:loaded?.draft.points[i]?.id||'point-'+(i+1),pointMm:[x,y],heightMm:z};
   });
   const heightSource=pendingHeight===undefined?loaded?.draft.heightSource:pendingHeight;
-  return validateReliefDesign({...(loaded?.draft.reference?{reference:loaded.draft.reference}:{}),...(heightSource?{heightSource}:{}),schemaVersion:1,name:name.value,support,throughHoles:regions(holes.area),protectedZones:regions(zones.area),heightRangeMm:[number(low),number(high)],points:authored,fieldSettings:{...loaded?.draft.fieldSettings,columns:number(resolution),machiningPrecisionMm:number(precision),servicesQuality:{mode:qualityMode.value,maxControlSide:Math.round(number(qualitySide))},rows:resolutionTouched?number(resolution):(loaded?.draft.fieldSettings?.rows??number(resolution))}});
+  return validateReliefDesign({...(loaded?.draft.reference?{reference:loaded.draft.reference}:{}),...(heightSource?{heightSource}:{}),schemaVersion:1,name:name.value,support,throughHoles:regions(holes.area),protectedZones:regions(zones.area),heightRangeMm:[number(low),number(high)],points:authored,fieldSettings:{...loaded?.draft.fieldSettings,columns:Number.isFinite(number(resolution))?number(resolution):undefined,machiningPrecisionMm:number(precision),servicesQuality:{mode:qualityMode.value,maxControlSide:Math.round(number(qualitySide))},rows:(r=>Number.isFinite(r)?r:undefined)(resolutionTouched?number(resolution):(loaded?.draft.fieldSettings?.rows??number(resolution)))}});
  }
  function draw(draft){
   const ctx=canvas.getContext('2d');ctx.clearRect(0,0,640,240);
@@ -214,13 +231,25 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
   loaded=entry?structuredClone(entry):null;
   const draft=entry?.draft||{name:'新设计草稿',support:{kind:'circle',centerMm:[0,0],radiusMm:30},heightRangeMm:[0,3],throughHoles:[],protectedZones:[],points:[]},s=draft.support;
   name.value=draft.name;kind.value=s.kind;cx.value=s.centerMm[0];cy.value=s.centerMm[1];width.value=s.kind==='circle'?s.radiusMm*2:s.widthMm;height.value=s.kind==='rect'?s.heightMm:s.radiusMm*2;
-  low.value=draft.heightRangeMm[0];high.value=draft.heightRangeMm[1];resolution.value=draft.fieldSettings?.columns??33;precision.value=draft.fieldSettings?.machiningPrecisionMm??.05;qualityMode.value=draft.fieldSettings?.servicesQuality?.mode??'adaptive';qualitySide.value=draft.fieldSettings?.servicesQuality?.maxControlSide??513;points.area.value=draft.points.map(p=>[...p.pointMm,p.heightMm].join(' ')).join('\n');
+  low.value=draft.heightRangeMm[0];high.value=draft.heightRangeMm[1];resolution.value=draft.fieldSettings?.columns??'';{const a=adaptiveFieldResolution(draft,draft.fieldSettings?.machiningPrecisionMm??.05);resolution.placeholder=`自动（${a.columns}×${a.rows}）`;}precision.value=draft.fieldSettings?.machiningPrecisionMm??.05;qualityMode.value=draft.fieldSettings?.servicesQuality?.mode??'adaptive';qualitySide.value=draft.fieldSettings?.servicesQuality?.maxControlSide??1025;points.area.value=draft.points.map(p=>[...p.pointMm,p.heightMm].join(' ')).join('\n');
   holes.area.value=regionText(draft.throughHoles);zones.area.value=regionText(draft.protectedZones);height.disabled=kind.value==='circle';
   selector.replaceChildren(element('option',{value:''},'未保存的新草稿'));
   for(const item of initial.document.reliefDesigns||[])selector.append(element('option',{value:item.id},item.draft.name+' · r'+item.revision));
   selector.value=entry?.id||'';selector.disabled=false;create.disabled=false;remove.disabled=!entry;
   const edits=draft.fieldSettings?.edits??[];editsSummary.textContent=`局部毫米编辑（${edits.length}笔）`;editList.replaceChildren(element('option',{value:''},'新笔（尚未加入）'));edits.forEach((edit,i)=>{const option=element('option',{value:String(i)},designEditSummary(edit,i));option.title=designEditSummary(edit,i);editList.append(option);});resetEditEditor();
   status.textContent=entry?'已读取工程草稿。':'新建示例范围为直径60 mm；请按实际设计填写。';draw(draft);showReference();
+  if(entry)restoreRetained(entry);
+ }
+ // Reopen: restore the retained (same session/document/revision/draft) field and fit instead of discarding them.
+ async function restoreRetained(entry){
+  const api=window.webcad.api,req=action=>({context:api.getState().context,action,designId:entry.id,expectedDraftRevision:entry.revision});
+  try{const f=await api.reliefDesignField(req('get'));if(loaded?.id!==entry.id||loaded?.revision!==entry.revision||f.status!=='solved')return;
+   fieldResult=f;drawField(f);status.textContent=`已恢复上次求解的数值场 ${f.field.columns}×${f.field.rows}（本次会话、同一草稿修订）。`;
+   const c=await api.reliefDesignField({...req('candidate'),baseMm:Number(base.value)});generate.disabled=c.status!=='candidate';
+   const fit=await api.reliefDesignFit(req('get'));if(loaded?.id!==entry.id||fit.status!=='fitted')return;
+   fitBaselineMm=fit.fit.baselineMm;
+   if(fit.fit.report?.provisional)fitResult.textContent=`已恢复：Services 首次拟合已准备（临时控制网 ${fit.fit.columns}×${fit.fit.rows}），高精度拟合在预览时执行。`;else{showFitReport(fit);fitResult.textContent='已恢复上次拟合结果。\n'+fitResult.textContent;}
+  }catch{/* stale or changed: keep the cleared state */}finally{syncEditControls();}
  }
  async function commit(deleting,{draft:prepared,selectEdit=-1,message}={}){
   if(busy)return false;

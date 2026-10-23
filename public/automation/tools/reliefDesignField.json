@@ -2,9 +2,9 @@
   "id": "reliefDesignField",
   "title": "reliefDesignField",
   "category": "page-method",
-  "version": "1.57.3",
+  "version": "1.57.4",
   "contextPolicy": "revision",
-  "description": "reliefDesignField({context,action:\"solve\"|\"get\"|\"cancel\"|\"candidate\",designId,expectedDraftRevision,options?,baseMm?})。先document.reliefDesign保存草稿；solve在30秒可取消Worker中运行Pro求解器。options可用columns/rows 9–129（默认33）、smoothWeight默认1、maxIterations 1–20000（默认10000）、toleranceMm默认0.0001、edits。圆形/矩形支撑、孔和保护域均进入保守掩码，最低设计高度为保护基线；高度点是weight=100软毫米约束，不是控制极点。",
+  "description": "reliefDesignField({context,action:\"solve\"|\"get\"|\"cancel\"|\"candidate\",designId,expectedDraftRevision,options?,baseMm?,placement?})。先document.reliefDesign保存草稿；solve在30秒可取消Worker中运行Pro求解器。options可用columns/rows 9–129（省略时有高度来源按尺寸与加工精度自动取值，最高129；无高度来源33）、smoothWeight默认1、maxIterations 1–20000（默认10000）、toleranceMm默认0.0001、edits。圆形/矩形支撑、孔和保护域均进入保守掩码，最低设计高度为保护基线；高度点是weight=100软毫米约束，不是控制极点。",
   "synonyms": [
     "reliefDesignField",
     "浮雕",
@@ -14,8 +14,8 @@
     "残差",
     "网格"
   ],
-  "inputContract": "reliefDesignField({context,action:\"solve\"|\"get\"|\"cancel\"|\"candidate\",designId,expectedDraftRevision,options?,baseMm?})。先document.reliefDesign保存草稿；solve在30秒可取消Worker中运行Pro求解器。options可用columns/rows 9–129（默认33）、smoothWeight默认1、maxIterations 1–20000（默认10000）、toleranceMm默认0.0001、edits。圆形/矩形支撑、孔和保护域均进入保守掩码，最低设计高度为保护基线；高度点是weight=100软毫米约束，不是控制极点。",
-  "outputContract": "get读回真实场、孔/固定掩码、previewTriangles及实际残差；修改文档/草稿使旧场失效。candidate返回保留圆/矩形支撑、贯穿孔及作者保护基线的meshHeightfieldRelief feature.add args，包含domainMask、量化界和domainReport；掩码每轴最多129，边界是保守采样折线，不是精确圆。报告孔数/面积/采样间距/边界近似界及设计绑定，孔合并、丢失或边界相触时阻断；再execute({context,idempotencyKey,action:\"feature.add\",args})实际提交。其他范围返回明确blockers，不能当精确BRep/STEP。fieldSettings随工程保存；场为可重算缓存，实际生成网格保存完整u16样本。",
+  "inputContract": "reliefDesignField({context,action:\"solve\"|\"get\"|\"cancel\"|\"candidate\",designId,expectedDraftRevision,options?,baseMm?,placement?})。先document.reliefDesign保存草稿；solve在30秒可取消Worker中运行Pro求解器。options可用columns/rows 9–129（省略时有高度来源按尺寸与加工精度自动取值，最高129；无高度来源33）、smoothWeight默认1、maxIterations 1–20000（默认10000）、toleranceMm默认0.0001、edits。圆形/矩形支撑、孔和保护域均进入保守掩码，最低设计高度为保护基线；高度点是weight=100软毫米约束，不是控制极点。",
+  "outputContract": "get读回真实场、孔/固定掩码、previewTriangles及实际残差；修改文档/草稿使旧场失效。candidate返回保留圆/矩形支撑、贯穿孔及作者保护基线的meshHeightfieldRelief feature.add args，包含domainMask、量化界和domainReport；candidate可选placement:{originMm:[x,y,z],normal:[x,y,z],xDirection:[x,y,z]}按所选面放置，省略保留草稿中心世界XY；掩码每轴最多129，边界是保守采样折线，不是精确圆。报告孔数/面积/采样间距/边界近似界及设计绑定，孔合并、丢失或边界相触时阻断；再execute({context,idempotencyKey,action:\"feature.add\",args})实际提交。其他范围返回明确blockers，不能当精确BRep/STEP。fieldSettings随工程保存；场为可重算缓存，实际生成网格保存完整u16样本。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -36,7 +36,8 @@
     "designId",
     "expectedDraftRevision",
     "options",
-    "baseMm"
+    "baseMm",
+    "placement"
   ],
   "unknownFields": "rejected",
   "units": {
@@ -79,6 +80,42 @@
       "baseMm": {
         "type": "number",
         "exclusiveMinimum": 0
+      },
+      "placement": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "originMm",
+          "normal",
+          "xDirection"
+        ],
+        "description": "candidate only: selected planar face placement (pattern centre on face, face normal, X direction, mm/world). Omit = draft centre on world XY.",
+        "properties": {
+          "originMm": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "normal": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "xDirection": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3
+          }
+        }
       },
       "options": {
         "type": "object",
@@ -199,5 +236,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:6b19750178c273bbc98f2b65ead82f911a9d330fc57d5a7b2db8b7e1bb012df9"
+  "docsHash": "sha256:012187da63899bc7c870828eef8911e5be439870f5211f88a182ef1621eb94d1"
 }

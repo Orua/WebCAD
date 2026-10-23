@@ -51,7 +51,7 @@ export function readReliefDesignField(context,entry){
  if(retained.binding!==binding){retained=null;retainedFit=null;fail('RELIEF_DESIGN_STALE','Document or design changed; solve again');}
  return {status:'solved',designId:entry.id,draftRevision:entry.revision,...structuredClone(retained.result),options:structuredClone(retained.options)};
 }
-export function candidateReliefDesignField(context,entry,baseMm){const result=readReliefDesignField(context,entry);if(result.status!=='solved')fail('RELIEF_DESIGN_UNSOLVED','Solve current design first');return {...reliefDesignCandidate(result,entry.draft,baseMm),designId:entry.id,draftRevision:entry.revision};}
+export function candidateReliefDesignField(context,entry,baseMm,placement){const result=readReliefDesignField(context,entry);if(result.status!=='solved')fail('RELIEF_DESIGN_UNSOLVED','Solve current design first');return {...reliefDesignCandidate(result,entry.draft,baseMm,placement??null),designId:entry.id,draftRevision:entry.revision};}
 export async function runReliefDesignFit(context,entry,options,current){
  const solved=readReliefDesignField(context,entry);
  if(solved.status!=='solved')fail('RELIEF_DESIGN_UNSOLVED','Solve the current design field before numerical fitting');
