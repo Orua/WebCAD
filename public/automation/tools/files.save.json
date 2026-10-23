@@ -9,9 +9,9 @@
     "保存工程",
     "save"
   ],
-  "description": "save({context,name?}); complete current context. Save final BRep/typed mesh only, no modelling recipes or timeline; keep ids/appearance/visibility/material/anchors. Session undo20 and timeline20/512KiB remain in memory. name may omit .webcad.",
-  "inputContract": "save({context,name?}); complete current context. Save final BRep/typed mesh only, no modelling recipes or timeline; keep ids/appearance/visibility/material/anchors. Session undo20 and timeline20/512KiB remain in memory. name may omit .webcad.",
-  "outputContract": "status=generated native project resource with exact source snapshot; not a disk save.",
+  "description": "save({context,name?}); complete current context. Save committed data even while busy, previewing or the kernel is unavailable. Normally final BRep/typed mesh with ids/appearance/visibility/material/anchors; if final checkpoints are unavailable, retain the original committed recipe and embedded assets in a recovery project. Codec failure uses direct encoding; no geometry recomputation. name may omit .webcad.",
+  "inputContract": "save({context,name?}); complete current context. Save committed data even while busy, previewing or the kernel is unavailable. Normally final BRep/typed mesh with ids/appearance/visibility/material/anchors; if final checkpoints are unavailable, retain the original committed recipe and embedded assets in a recovery project. Codec failure uses direct encoding; no geometry recomputation. name may omit .webcad.",
+  "outputContract": "status=generated native project resource with exact source snapshot; optional report.saveMode=recovery and report.reason. Not a disk save; use write/download and verify the receipt.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -113,5 +113,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:e3cf2349fe2195ba393d837d16dad90f3060fbe855dfcbe86a00545b3b28522a"
+  "docsHash": "sha256:f9b1217d420113f781d0ff3de22836568e37f21538440006258601c64dbd293f"
 }

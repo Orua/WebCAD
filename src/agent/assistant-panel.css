@@ -38,6 +38,17 @@ body.has-agent-panel[data-cad-mobile=true] .app-header .agent-panel-toggle svg{w
 body.has-agent-panel.agent-panel-collapsed[data-cad-mobile=false]{grid-template-columns:minmax(0,1fr) 0}
 body.has-agent-panel.agent-panel-collapsed[data-cad-mobile=true]{grid-template-rows:minmax(0,1fr) 0}
 body.has-agent-panel.agent-panel-collapsed:has(.agent-floating-toggle:not([hidden])) .agent-panel-toggle{display:none}
+/* Chat covers the existing canvas; its dimensions never drive camera scaling. */
+body.has-agent-panel[data-cad-mobile]{display:block;height:100dvh}
+body.has-agent-panel[data-cad-mobile]>.agent-assistant-panel{position:fixed;z-index:10008;inset:0 0 0 auto;width:var(--agent-panel-width);height:100%}
+body.has-agent-panel[data-cad-mobile=true]>.agent-assistant-panel{inset:auto 0 0;width:100%;height:var(--agent-panel-height)}
+body.has-agent-panel[data-cad-mobile=true]>.agent-panel-toggle{left:auto;right:4px;top:auto;bottom:calc(var(--agent-panel-height) - 32px);transform:none;width:28px;height:28px;border:0;box-shadow:none;background:transparent}
+body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed>.agent-panel-toggle{bottom:6px;left:auto;right:6px;transform:none}
+body.has-agent-panel[data-cad-mobile=true]{--cad-keyboard-inset:max(0px,calc(100dvh - var(--cad-layout-height,100dvh)))}
+body.has-agent-panel[data-cad-mobile=true]>.agent-assistant-panel{bottom:var(--cad-keyboard-inset)}
+body.has-agent-panel[data-cad-mobile=true]>.agent-panel-toggle{bottom:calc(var(--cad-keyboard-inset) + var(--agent-panel-height) - 32px)}
+body.has-agent-panel[data-cad-mobile=true]>.cad-assistant-resizer{bottom:calc(var(--cad-keyboard-inset) + var(--agent-panel-height) - 4px)}
+body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed>.agent-panel-toggle{bottom:calc(var(--cad-keyboard-inset) + 6px)}
 .agent-floating-toggle{position:absolute;left:0;top:0;z-index:12;display:grid;place-items:center;width:56px;height:56px;padding:4px;border:0;border-radius:0;background:transparent;color:var(--accent);box-shadow:none;cursor:grab;touch-action:none;user-select:none}
 .agent-floating-toggle:hover{background:transparent}
 .agent-floating-toggle.is-dragging{cursor:grabbing}

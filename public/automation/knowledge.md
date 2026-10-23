@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.57.5 · sha256:caecf69707b42cf850ed773f4b1452a4238061864bccbc55792aa39cc69afe0f
+API 1.57.5 · sha256:ec32fce3f1c16f502839c2317f2beabc175002a0f2abb8e4394bb3e16b462392
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -1312,6 +1312,14 @@ PDF页面渲染或渲染底图校验未通过。
 读取实际约束与保护区，明确修改哪一项条件；不能自动解除锁定、删除孔或覆盖保护区域。
 
 代码：`PROFILE_CONSTRAINT_CONFLICT`、`PROFILE_CONSTRAINT_GEOMETRY_INVALID`、`PROFILE_CONSTRAINT_INVALID`、`PROFILE_CONSTRAINT_NUMERICAL`、`PROFILE_CONSTRAINT_UNSATISFIED`、`REFERENCE_LOCKED`、`RELIEF_BOUNDARY_CONFLICT`、`RELIEF_CONSTRAINT_CONFLICT`、`RELIEF_CONSTRAINT_INVALID`、`RELIEF_DESIGN_PROTECTED`、`RELIEF_PATCH_PROTECTION`
+
+### unclassified
+
+操作未能完成，目前没有足够证据确定安全恢复方式。
+
+保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
+
+代码：`PROJECT_ENCODING`
 
 ### project-store
 
@@ -136441,9 +136449,9 @@ files.release: contextPolicy=none
     "保存工程",
     "save"
   ],
-  "description": "save({context,name?}); complete current context. Save final BRep/typed mesh only, no modelling recipes or timeline; keep ids/appearance/visibility/material/anchors. Session undo20 and timeline20/512KiB remain in memory. name may omit .webcad.",
-  "inputContract": "save({context,name?}); complete current context. Save final BRep/typed mesh only, no modelling recipes or timeline; keep ids/appearance/visibility/material/anchors. Session undo20 and timeline20/512KiB remain in memory. name may omit .webcad.",
-  "outputContract": "status=generated native project resource with exact source snapshot; not a disk save.",
+  "description": "save({context,name?}); complete current context. Save committed data even while busy, previewing or the kernel is unavailable. Normally final BRep/typed mesh with ids/appearance/visibility/material/anchors; if final checkpoints are unavailable, retain the original committed recipe and embedded assets in a recovery project. Codec failure uses direct encoding; no geometry recomputation. name may omit .webcad.",
+  "inputContract": "save({context,name?}); complete current context. Save committed data even while busy, previewing or the kernel is unavailable. Normally final BRep/typed mesh with ids/appearance/visibility/material/anchors; if final checkpoints are unavailable, retain the original committed recipe and embedded assets in a recovery project. Codec failure uses direct encoding; no geometry recomputation. name may omit .webcad.",
+  "outputContract": "status=generated native project resource with exact source snapshot; optional report.saveMode=recovery and report.reason. Not a disk save; use write/download and verify the receipt.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -136545,7 +136553,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:e3cf2349fe2195ba393d837d16dad90f3060fbe855dfcbe86a00545b3b28522a"
+  "docsHash": "sha256:f9b1217d420113f781d0ff3de22836568e37f21538440006258601c64dbd293f"
 }
 ```
 

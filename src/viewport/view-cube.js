@@ -17,14 +17,6 @@ const FACES=[
   {axis:2,sign:1,direction:'top',label:'顶'},
   {axis:2,sign:-1,direction:'bottom',label:'底'},
 ];
-const CORNERS=['bottom-left','top-left','bottom-right','top-right'];
-const OVERLAY_SELECTOR=[
-  'dialog[open]','[role="dialog"]:not([hidden])',
-  '.webcad-app.right-open .right-panel',
-  '.right-panel:has(.frame-task)',
-  '.right-panel:has(.cad-dialog[data-task-panel="true"])',
-  '.viewport-task','.viewport-topbar',
-].join(',');
 
 function svgElement(name,attributes={}){
   const node=document.createElementNS(NS,name);
@@ -53,17 +45,12 @@ function isVisible(element){
   return rect.width>0&&rect.height>0;
 }
 
-function isModalDialog(element){
-  if(!element.matches('dialog[open]'))return false;
-  try{return element.matches(':modal');}catch{return false;}
-}
-
 export function createViewCube(host,{getCamera,onSelect}){
   const root=document.createElement('div');root.className='view-cube-control';root.dataset.corner='bottom-left';root.setAttribute('role','group');root.setAttribute('aria-label','坐标视角选择');
   const svg=svgElement('svg',{class:'view-cube-svg',viewBox:'0 0 120 120',role:'group','aria-label':'可随相机转动的坐标视角方块'});
   const defs=svgElement('defs');
   for(const axis of AXES){
-    const marker=svgElement('marker',{id:`webcad-view-arrow-${axis.name}`,markerWidth:12,markerHeight:12,refX:10,refY:6,orient:'auto',markerUnits:'userSpaceOnUse',viewBox:'0 0 12 12'});
+    const marker=svgElement('marker',{id:`webcad-view-arrow-${axis.name}`,markerWidth:6,markerHeight:6,refX:10,refY:6,orient:'auto',markerUnits:'userSpaceOnUse',viewBox:'0 0 12 12'});
     marker.append(svgElement('path',{d:'M0 0 L12 6 L0 12 Z',fill:axis.color}));defs.append(marker);
   }
   svg.append(defs);
@@ -80,6 +67,18 @@ export function createViewCube(host,{getCamera,onSelect}){
     faces.push({definition:face,group,polygon,label});
   }
   svg.append(faceLayer);
+  // Draw each of the twelve edges once, including edges behind the cube.
+  const edgeLayer=svgElement('g',{class:'view-cube-edges'}),edges=[];
+  for(let axis=0;axis<3;axis++){
+    const free=[0,1,2].filter(index=>index!==axis);
+    for(const u of [-1,1])for(const v of [-1,1]){
+      const start=[0,0,0];start[axis]=-1;start[free[0]]=u;start[free[1]]=v;
+      const end=[...start];end[axis]=1;
+      const line=svgElement('line',{class:'view-cube-edge'});
+      edges.push({start,end,free,signs:[u,v],line});edgeLayer.append(line);
+    }
+  }
+  svg.append(edgeLayer);
   const axisLayer=svgElement('g',{class:'view-cube-axes'}),axes=[];
   for(const axis of AXES){
     const group=svgElement('g',{class:'view-cube-axis',tabindex:0,role:'button','aria-label':`${axis.name} 轴方向视图`,'aria-pressed':'false','data-axis':axis.name});
@@ -102,39 +101,31 @@ export function createViewCube(host,{getCamera,onSelect}){
   function updatePlacement(){
     placementFrame=0;
     if(!root.isConnected)return;
-    if(getComputedStyle(root).display==='none'){
-      root.style.visibility='';root.inert=false;root.setAttribute('aria-hidden','false');return;
-    }
-    const overlays=[...document.querySelectorAll(OVERLAY_SELECTOR)].filter(isVisible);
-    if(overlays.some(isModalDialog)){
-      root.style.visibility='hidden';root.inert=true;root.setAttribute('aria-hidden','true');root.dataset.occluded='modal';return;
-    }
-    const hostRect=host.getBoundingClientRect(),width=root.getBoundingClientRect().width,height=root.getBoundingClientRect().height;
-    if(!hostRect.width||!hostRect.height||!width||!height)return;
-    const gap=8,margin=8;
-    const blocked=overlays.map(element=>{
-      const rect=element.getBoundingClientRect();
-      return {left:rect.left-gap,top:rect.top-gap,right:rect.right+gap,bottom:rect.bottom+gap};
-    });
-    const rectFor=corner=>{
-      const left=corner.endsWith('left'),top=corner.startsWith('top');
-      const x=left?hostRect.left+margin:hostRect.right-margin-width;
-      const y=top?hostRect.top+margin:hostRect.bottom-margin-height;
-      return {left:x,top:y,right:x+width,bottom:y+height};
+    const rect=host.getBoundingClientRect();let bottom=Math.min(rect.bottom,window.visualViewport?.height||window.innerHeight);
+    const clipByPanel=(panel,offset=0)=>{
+      if(!isVisible(panel))return;
+      const other=panel.getBoundingClientRect();
+      // Only a bottom overlay intersecting the left navigation corner lifts it.
+      if(other.left<=rect.left+96&&other.right>rect.left&&other.top-offset>rect.top&&other.top-offset<bottom)bottom=other.top-offset;
     };
-    const corner=CORNERS.find(name=>{
-      const rect=rectFor(name);
-      return !blocked.some(other=>rect.left<other.right&&rect.right>other.left&&rect.top<other.bottom&&rect.bottom>other.top);
-    });
-    if(!corner){
-      root.style.visibility='hidden';root.inert=true;root.setAttribute('aria-hidden','true');root.dataset.occluded='layout';return;
-    }
-    root.dataset.corner=corner;root.style.visibility='visible';root.inert=false;root.setAttribute('aria-hidden','false');delete root.dataset.occluded;
+    clipByPanel(document.querySelector('.agent-assistant-panel'));
+    try{
+      if(window.parent!==window){
+        const frame=window.frameElement,frameRect=frame.getBoundingClientRect();
+        bottom=Math.min(bottom,(window.parent.visualViewport?.height||window.parent.innerHeight)-frameRect.top);
+        clipByPanel(window.parent.document.getElementById('assistant-panel'),frameRect.top);
+      }
+    }catch{/* Cross-origin hosts retain the local visible canvas bounds. */}
+    root.dataset.corner='bottom-left';root.style.left='8px';root.style.top='auto';root.style.right='auto';
+    root.style.bottom=Math.max(8,rect.bottom-bottom+8)+'px';
+    root.style.visibility='visible';root.inert=false;root.setAttribute('aria-hidden','false');
   }
   const schedulePlacement=()=>{if(!placementFrame)placementFrame=requestAnimationFrame(updatePlacement);};
   const resizeObserver=new ResizeObserver(schedulePlacement);resizeObserver.observe(host);
   window.addEventListener('resize',schedulePlacement,{passive:true});
-  const relevantSelector='dialog,[role="dialog"],.webcad-app,.right-panel,.frame-task,.viewport-task,.viewport-topbar';
+  window.visualViewport?.addEventListener('resize',schedulePlacement,{passive:true});
+  window.addEventListener('webcad:viewport-occlusion',schedulePlacement);
+  const relevantSelector='body,.agent-assistant-panel,.webcad-app,.right-panel,.frame-task,.viewport-task,.viewport-topbar';
   const mutationObserver=new MutationObserver(records=>{
     if(records.some(record=>{
       const target=record.target.nodeType===Node.ELEMENT_NODE?record.target:record.target.parentElement;
@@ -151,6 +142,12 @@ export function createViewCube(host,{getCamera,onSelect}){
     camera.updateMatrixWorld();
     const inverse=camera.quaternion.clone().invert();
     const towardCamera=new THREE.Vector3(0,0,1).applyQuaternion(camera.quaternion).normalize();
+    for(const edge of edges){
+      const from=viewPoint(edge.start,inverse),to=viewPoint(edge.end,inverse);
+      edge.line.setAttribute('x1',from.x);edge.line.setAttribute('y1',from.y);
+      edge.line.setAttribute('x2',to.x);edge.line.setAttribute('y2',to.y);
+      edge.line.dataset.hidden=String(edge.free.every((axis,index)=>towardCamera.getComponent(axis)*edge.signs[index]<=0.015));
+    }
     const visible=[];
     for(const item of faces){
       const {definition,group,polygon,label}=item;
@@ -193,6 +190,6 @@ export function createViewCube(host,{getCamera,onSelect}){
   update();
   return {element:root,update,destroy(){
     if(placementFrame)cancelAnimationFrame(placementFrame);
-    resizeObserver.disconnect();mutationObserver.disconnect();window.removeEventListener('resize',schedulePlacement);root.remove();
+    resizeObserver.disconnect();mutationObserver.disconnect();window.removeEventListener('resize',schedulePlacement);window.visualViewport?.removeEventListener('resize',schedulePlacement);window.removeEventListener('webcad:viewport-occlusion',schedulePlacement);root.remove();
   }};
 }
