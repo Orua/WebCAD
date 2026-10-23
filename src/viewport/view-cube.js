@@ -62,8 +62,8 @@ export function createViewCube(host,{getCamera,onSelect}){
   const svg=svgElement('svg',{class:'view-cube-svg',viewBox:'0 0 120 120',role:'group','aria-label':'可随相机转动的坐标视角方块'});
   const defs=svgElement('defs');
   for(const axis of AXES){
-    const marker=svgElement('marker',{id:`webcad-view-arrow-${axis.name}`,markerWidth:7,markerHeight:7,refX:6,refY:3.5,orient:'auto',markerUnits:'userSpaceOnUse',viewBox:'0 0 7 7'});
-    marker.append(svgElement('path',{d:'M0 0 L7 3.5 L0 7 Z',fill:axis.color}));defs.append(marker);
+    const marker=svgElement('marker',{id:`webcad-view-arrow-${axis.name}`,markerWidth:12,markerHeight:12,refX:10,refY:6,orient:'auto',markerUnits:'userSpaceOnUse',viewBox:'0 0 12 12'});
+    marker.append(svgElement('path',{d:'M0 0 L12 6 L0 12 Z',fill:axis.color}));defs.append(marker);
   }
   svg.append(defs);
   const faceLayer=svgElement('g',{class:'view-cube-faces'}),faces=[];
@@ -83,7 +83,7 @@ export function createViewCube(host,{getCamera,onSelect}){
     const group=svgElement('g',{class:'view-cube-axis',tabindex:0,role:'button','aria-label':`${axis.name} 轴方向视图`,'aria-pressed':'false','data-axis':axis.name});
     const hit=svgElement('line',{class:'view-cube-axis-hit','stroke-width':AXIS_HIT_WIDTH});
     const target=svgElement('circle',{class:'view-cube-axis-target',r:7});
-    const line=svgElement('line',{class:'view-cube-axis-line',stroke:axis.color,markerEnd:`url(#webcad-view-arrow-${axis.name})`});
+    const line=svgElement('line',{class:'view-cube-axis-line',stroke:axis.color,'marker-end':`url(#webcad-view-arrow-${axis.name})`});
     const label=svgElement('text',{class:'view-cube-axis-label',fill:axis.color,'text-anchor':'middle','dominant-baseline':'central','aria-hidden':'true'});
     group.append(hit,target,line,label);
     const item={definition:axis,group,hit,target,line,label,direction:axis.positive};
