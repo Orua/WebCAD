@@ -14,6 +14,7 @@ import {formatBodyCount} from './count-summary.js';
 import {floorGridZ} from './floor-grid.js';
 import {ExactDisplayDetail} from './viewport/exact-detail.js';
 import {MetalOcclusionPass,metalEdgeOpacity} from './viewport/metal-occlusion.js';
+import {createViewCube} from './viewport/view-cube.js';
 const say=(zh,en)=>getLanguage()==='en'?en:zh;
 
 const COLORS = [0xaac4d9, 0xc5b395, 0x91bdb1, 0xb3a6c8, 0x9db5c6, 0xc39e9e];
@@ -31,10 +32,11 @@ export class CADViewport {
     host.append(this.renderer.domElement); this.renderer.domElement.setAttribute('aria-label','三维建模视口'); this.renderer.domElement.tabIndex=0;
     this.locationLabels=document.createElement('div');this.locationLabels.className='location-labels';this.locationLabels.style.cssText='position:absolute;inset:0;pointer-events:none;overflow:hidden';host.append(this.locationLabels);this.locationMarkers=[];
     this.controls=new OrbitControls(this.camera,this.renderer.domElement); this.controls.enableDamping=true; this.controls.dampingFactor=.12;
+    this.viewCube=createViewCube(this.host,{getCamera:()=>this.camera,onSelect:direction=>this.view(direction)});
     this.viewInteraction='settled';this.interactionDeadline=0;this.userViewActive=false;
     this.controls.addEventListener('start',()=>{this.userViewActive=true;this.setViewInteraction('start');});
     this.controls.addEventListener('end',()=>{this.userViewActive=false;this.viewInteraction='settling';this.interactionDeadline=performance.now()+160;});
-    this.controls.addEventListener('change',()=>{if(this.userViewActive||this.viewInteraction==='settling')this.interactionDeadline=performance.now()+160;});
+    this.controls.addEventListener('change',()=>{this.viewCube.update();if(this.userViewActive||this.viewInteraction==='settling')this.interactionDeadline=performance.now()+160;});
     this.partFinishes={};this.partColors={};this.snapEnabled=true;this.clipPlanes=[];this.renderer.localClippingEnabled=true;
     this.gizmoProxy=new THREE.Object3D();this.scene.add(this.gizmoProxy);
     this.gizmo=new TransformControls(this.camera,this.renderer.domElement);this.gizmo.setSize(.8);this.gizmo.setSpace('world');this.gizmoMode='off';this.scene.add(this.gizmo.getHelper());

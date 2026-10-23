@@ -207,3 +207,25 @@
 
 /* Quick models follow the same theme accent as the other tool icons. */
 .quick-model-icon{display:inline-block;color:var(--accent);background-color:currentColor;mask-size:contain;mask-repeat:no-repeat;mask-position:center}
+
+/* A compact navigation cube replaces the hard-to-reach mobile view selector. */
+.view-cube-control{display:none;position:absolute;right:12px;bottom:12px;width:108px;height:108px;z-index:6;pointer-events:none;touch-action:manipulation;user-select:none}
+.view-cube-svg{display:block;width:100%;height:100%;overflow:visible;pointer-events:none}
+.view-cube-face{cursor:pointer;outline:none}
+.view-cube-face polygon{fill:#edf2f8;stroke:#7b8ca4;stroke-width:1.35;vector-effect:non-scaling-stroke;transition:fill .12s ease,stroke .12s ease,stroke-width .12s ease;pointer-events:visiblePainted}
+.view-cube-face[data-axis="Y"] polygon{fill:#e5eef2}
+.view-cube-face[data-axis="Z"] polygon{fill:#e7edf8}
+.view-cube-face text{fill:#33445d;font:700 9px system-ui,sans-serif;pointer-events:none}
+.view-cube-face:hover polygon,.view-cube-face:focus-visible polygon{fill:#cfe0fb;stroke:#235dcc;stroke-width:2.2}
+.view-cube-face:active polygon{fill:#aac7f3}
+.view-cube-face[aria-pressed="true"] polygon{fill:#dbe8fb;stroke:#285faa;stroke-width:2}
+.view-cube-axis-hit{stroke:transparent;stroke-width:16;pointer-events:stroke;cursor:pointer}
+.view-cube-axis-line{stroke-width:2.5;stroke-linecap:round;pointer-events:none;vector-effect:non-scaling-stroke;transition:stroke-width .12s ease}
+.view-cube-axis-label{font:700 9px system-ui,sans-serif;stroke:#fff;stroke-width:2.2;paint-order:stroke;pointer-events:none}
+.view-cube-axis:hover .view-cube-axis-line,.view-cube-axis:focus-visible .view-cube-axis-line{stroke-width:4}
+.view-cube-axis:focus-visible .view-cube-axis-label{font-size:11px}
+@media(max-width:680px){
+  .viewport-entity-status{display:none!important}
+  .view-cube-control{display:block;right:10px;bottom:10px;width:104px;height:104px}
+  .viewport-topbar .right-toggle[data-expanded="false"]{position:fixed;top:auto;left:50%;right:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 42px);transform:translateX(-50%);z-index:7;flex:0 0 42px;width:42px;height:34px;min-height:34px}
+}
