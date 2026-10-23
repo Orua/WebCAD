@@ -9,6 +9,16 @@ const num=(v,d,min,max,path)=>{const x=v??d;if(typeof x!=='number'||!Number.isFi
 // Long side = clamp(physical need = ceil(max(W,H)/precision)+1, 129, 1025), never denser than the (cropped)
 // source pixels; aspect follows the cropped image so grid cells stay square.
 export const RELIEF_AUTO_GRID=Object.freeze({minSide:129,maxSide:1025});
+// Height-grid node budget shared with Services (NativeAdapter.MaxGridNodes = 1025²). Over-budget (or >1025 side) requests are
+// downsampled (aspect kept: floor-scale, then trim the longer side) instead of failing — same rule on both sides.
+export const RELIEF_GRID_NODE_BUDGET=1025*1025;
+export const RELIEF_GRID_MAX_SIDE=1025;
+export function budgetGridSize(columns,rows,max=RELIEF_GRID_NODE_BUDGET,maxSide=RELIEF_GRID_MAX_SIDE){
+ if(columns*rows<=max&&columns<=maxSide&&rows<=maxSide)return {columns,rows,downsampled:false};
+ const k=Math.min(Math.sqrt(max/(columns*rows)),maxSide/Math.max(columns,rows));let c=Math.min(maxSide,Math.max(2,Math.floor(columns*k))),r=Math.min(maxSide,Math.max(2,Math.floor(rows*k)));
+ while(c*r>max){if(c>=r)c--;else r--;}
+ return {columns:c,rows:r,downsampled:true};
+}
 export function autoGridSize({width,height,crop={width:1,height:1},sizeMm,precisionMm=.05}){
  const pw=width*(crop.width??1),ph=height*(crop.height??1);if(!(pw>=2&&ph>=2))fail('PARAM_RANGE_INVALID','图像尺寸无效','image');
  const A=RELIEF_AUTO_GRID,px=Math.floor(Math.max(pw,ph)),need=sizeMm&&precisionMm>0?Math.ceil(Math.max(sizeMm[0],sizeMm[1])/precisionMm)+1:A.maxSide;

@@ -51,6 +51,13 @@ export function assertTranslationFeature(feature){
  if(feature?.op!=='transform'||feature.refs?.length!==1||Object.keys(feature.params||{}).some(k=>!['x','y','z','rx','ry','rz','scale'].includes(k))||['rx','ry','rz'].some(k=>(feature.params[k]??0)!==0)||(feature.params.scale??1)!==1)throw serviceError('OPERATION_UNAVAILABLE','此已验证桥接仅支持现有 transform 的世界坐标纯平移');
  return {x:feature.params.x??0,y:feature.params.y??0,z:feature.params.z??0};
 }
+export function reliefVolumeReview(feature,report){
+ const q=report?.quality;
+ if(q?.consistent===true)return q;
+ const candidate=feature?.params?.designBinding?.audit?.deviationPolicy==='candidate'&&report?.fit?.report?.deviationPolicy==='candidate';
+ if(!candidate||q?.geometryValid!==true||![q.fieldIntegralMm3,q.gpropDeltaMm3,q.bestRel].every(Number.isFinite)||q.fieldIntegralMm3<=0||q.gpropDeltaMm3<=0||q.bestRel<0)throw serviceError('RESULT_MISMATCH','服务未返回可复核的浮雕体积报告');
+ return {...q,status:'candidate-volume-unverified',warnings:[...new Set([...(q.warnings??[]),'RELIEF_VOLUME_UNVERIFIED'])]};
+}
 export function installCompiledCandidate(document,{manifest,bytes,context,recipeFingerprint}){
  const feature=document.features.find(f=>f.id===manifest.featureId);assertCompilableFeature(feature);
  const affected=new Set([feature.id]);for(const candidate of document.features.slice(document.features.indexOf(feature)+1)){if(!(candidate.refs||[]).some(id=>affected.has(id)))continue;affected.add(candidate.id);const topologySensitive=value=>value&&typeof value==='object'&&Object.entries(value).some(([key,item])=>['faceId','faceIds','edgeId','edgeIds','directionEdgeId'].includes(key)||topologySensitive(item));if(topologySensitive(candidate.params))throw serviceError('UNSAFE_LEGACY_REFERENCE','后续特征保存了旧内核的面/边索引，请先重新按几何意图定位',{affectedFeatureIds:[candidate.id]});}
@@ -72,7 +79,8 @@ export function installCompiledCandidate(document,{manifest,bytes,context,recipe
  }
  if(feature.op==='relief'&&isReliefDesign(feature)){
   const r=manifest.reliefDesign;
-  if(manifest.strategy!=='masked-bspline-face-replacement'||!r?.fit||!r.quality?.consistent||r.boundaryDeviationMm>1e-7)throw serviceError('RESULT_MISMATCH','服务未返回已校验的拟合浮雕（裁剪/体积复核）');
+  if(manifest.strategy!=='masked-bspline-face-replacement'||!r?.fit||!Number.isFinite(r.boundaryDeviationMm)||r.boundaryDeviationMm>1e-7)throw serviceError('RESULT_MISMATCH','服务未返回已校验的拟合浮雕（裁剪/边界复核）');
+  manifest={...manifest,reliefDesign:{...r,quality:reliefVolumeReview(feature,r)}};
  }else if(feature.op==='relief'){
   const members=manifest.stages?.flatMap(stage=>stage.memberLayerIds??[]);
   if(!['cutHoleSolids','faceWithHolesExtrude'].includes(manifest.strategy)||!members||members.length!==feature.params.layers.length||members.some((id,i)=>id!==`layer-${i}`))throw serviceError('RESULT_MISMATCH','服务返回的原浮雕层映射不完整');

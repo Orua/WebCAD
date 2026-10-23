@@ -21,6 +21,7 @@ internal static class Program
     {
         if(args.Length>0&&args[0]=="serve")return DevHost.Run(args);
         // ---- strict parameter validation (no worker needed) ----
+        {var b=NativeAdapter.BudgetGrid(1025,1025);Expect(b.columns==1025&&b.rows==1025,"grid budget keeps 1025x1025");var d=NativeAdapter.BudgetGrid(2049,1025);Expect((long)d.columns*d.rows<=NativeAdapter.MaxGridNodes&&d.columns<=1025&&Math.Abs((double)d.columns/d.rows-2)<.02,"grid budget downsamples 2049x1025 with aspect");}
         NativeAdapter.ValidateReliefDesignParameters(DesignParams(33,17));Expect(true,"design params 33/17 accepted");
         NativeAdapter.ValidateReliefDesignParameters(DesignParams(129,65));Expect(true,"design params 129/65 accepted");
         Expect(Rejects(()=>{var p=DesignParams(33,17);p["extra"]=1;NativeAdapter.ValidateReliefDesignParameters(p);}),"unknown design field rejected");
@@ -33,7 +34,7 @@ internal static class Program
         Expect(Rejects(()=>{var p=(JObject)sc.DeepClone();p["machiningPrecisionMm"]=0.005;NativeAdapter.ValidateSourceConvertParameters(p);}),"precision below 0.01 rejected");
         Expect(Rejects(()=>{var p=(JObject)sc.DeepClone();p["machiningPrecisionMm"]=0.6;NativeAdapter.ValidateSourceConvertParameters(p);}),"precision above 0.5 rejected");
         Expect(Rejects(()=>{var p=(JObject)sc.DeepClone();p.Remove("depthMm");NativeAdapter.ValidateSourceConvertParameters(p);}),"precision without depth rejected");
-        Expect(Rejects(()=>{var p=(JObject)sc.DeepClone();p["settings"]["columns"]=1000;p["settings"]["rows"]=1000;NativeAdapter.ValidateSourceConvertParameters(p);}),"grid above 513x513 budget rejected");
+        Expect(!Rejects(()=>{var p=(JObject)sc.DeepClone();p["settings"]["columns"]=1025;p["settings"]["rows"]=1025;NativeAdapter.ValidateSourceConvertParameters(p);}),"grid 1025x1025 accepted (no 513 cap)");Expect(Rejects(()=>{var p=(JObject)sc.DeepClone();p["settings"]["columns"]=3000;p["settings"]["rows"]=3000;NativeAdapter.ValidateSourceConvertParameters(p);}),"grid side above 2049 rejected");
         Expect(NativeAdapter.MatchesReliefDesign("reliefDesign","relief.design-fit-brep-1","masked-bspline-face-replacement")&&!NativeAdapter.MatchesReliefDesign("reliefDesign","relief.design-fit-brep-2","masked-bspline-face-replacement"),"exact design tuple only");
         Expect(NativeAdapter.MatchesSourceConvert("reliefSourceConvert","relief.source-convert-1","rgba-area-average")&&!NativeAdapter.MatchesSourceConvert("reliefSourceConvert","relief.source-convert-1","nearest"),"exact convert tuple only");
         Expect(!NativeAdapter.ReliefDesignEnabled&&!NativeAdapter.SourceConvertEnabled,"capabilities disabled without worker + acceptance proof");

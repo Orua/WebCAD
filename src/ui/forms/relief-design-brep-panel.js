@@ -20,6 +20,18 @@ export function brepRequestFields({target,support,origin,xDirection,baselineConf
   ...(typeof evidence==='string'&&evidence.trim()?{machiningIntent:{version:1,requestedGeometry:'continuousRelief',sourceInterpretation:'authoredHeightMap',userIntentEvidence:evidence.trim()}}:{})};
 }
 export function defaultFaceXDirection(normal){return reliefFaceAxes(normal).x;}
+// Pure: Services routing snapshot -> Chinese execution receipt (side, reason, control net, error).
+export function brepExecutionSummary(routing,{elapsedMs,done=false}={}){
+ const d=routing?.lastDecision,rd=routing?.lastReliefDesign,w=routing?.pendingWait,lines=[];
+ const side=d?.executor==='remote'?'Services（后台）':d?.executor==='local'?'浏览器（本地回退）':'判定中';
+ lines.push(`执行端：${side}${d?.reason?` — ${d.reason}`:''}`);
+ if(!done)lines.push(`阶段：${w?`Services 作业 ${w.jobId} 运行中（${Math.round((w.elapsedMs??0)/1000)} s，等待结果）`:d?.executor==='remote'?'Services 拟合/裁剪中':d?'浏览器计算中':'路由判定中'}${Number.isFinite(elapsedMs)?`，已用 ${(elapsedMs/1000).toFixed(1)} s`:''}`);
+ if(done&&rd&&d?.executor==='remote'){const f=v=>Number.isFinite(v)?v.toFixed(4):'—';lines.push(`最终控制网：${rd.controlNet?.[0]??'—'}×${rd.controlNet?.[1]??'—'}${rd.qualityCapacityRetry?`（容量重试 ${rd.qualityCapacityRetry.fromMaxControlSide}→${rd.qualityCapacityRetry.toMaxControlSide}）`:''}；拟合误差 max ${f(rd.maxErrorMm)} mm，RMS ${f(rd.rmsErrorMm)} mm${rd.jobId?`；作业 ${rd.jobId}`:''}`);}
+ else if(done&&d?.executor==='local')lines.push('最终控制网：使用“拟合”中已有的浏览器控制网（见准备信息）');
+ if(done&&Number.isFinite(elapsedMs))lines.push(`总用时 ${(elapsedMs/1000).toFixed(1)} s`);
+ if(done&&rd?.volumeReview?.consistent===false)lines.push(`体积复核差异${Number.isFinite(rd.volumeReview.relativeError)?` ${(rd.volumeReview.relativeError*100).toFixed(2)}%`:''}：按近似候选保留，尚未通过体积一致性验收。`);
+ return lines.join('\n');
+}
 
 export function createReliefBrepPanel({element,button,request,isBusy,setBusy,getFitBaseline,runPreview,ensureFit=async()=>true}){
  // Preview routes: the host's UI path (fromUI) when provided, so the open design dialog is not an "active task" blocker.
@@ -69,9 +81,12 @@ export function createReliefBrepPanel({element,button,request,isBusy,setBusy,get
  }
  async function startPreview(){
   if(!prepared)return;setBusy(true);sync();info.textContent='正在计算精确浮雕预览…';
+  const t0=performance.now(),routing=()=>{try{return api().getServicesRouting?.()??null;}catch{return null;}};
+  // Poll the routing snapshot so the panel shows which side is executing and the current stage.
+  const timer=setInterval(()=>{info.textContent='正在计算精确浮雕预览…\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0});},1000);
   try{const r=await route('preview.start',prepared.previewArgs);
-   if(r.status!=='previewing')throw Object.assign(new Error(r.error?.message||'预览未生成'),{code:r.error?.code});preview=r.preview??{};info.textContent='浮雕候选已生成：拟合超差不会拒绝，请查看实际效果后“应用”并保存，或“取消预览”。BRep 实体有效不等于图案细节完全一致；候选的体积一致性也可能未核实，质量指标随 Services 报告返回。';}
-  catch(error){preview=null;info.textContent=humanError(error);}finally{setBusy(false);sync();}
+   if(r.status!=='previewing')throw Object.assign(new Error(r.error?.message||'预览未生成'),{code:r.error?.code});preview=r.preview??{};info.textContent='浮雕候选已生成：拟合超差不会拒绝，请查看实际效果后“应用”并保存，或“取消预览”。BRep 实体有效不等于图案细节完全一致。\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0,done:true});}
+  catch(error){preview=null;info.textContent=humanError(error)+'\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0,done:true});}finally{clearInterval(timer);setBusy(false);sync();}
  }
  const identity=()=>preview?.previewId?{previewId:preview.previewId,expectedGeneration:preview.generation}:{};
  async function finish(action){
@@ -84,5 +99,7 @@ export function createReliefBrepPanel({element,button,request,isBusy,setBusy,get
  function applyPreview(){return finish('preview.commit');}
  sync();
  function moveAdvanced(advanced){advanced.append(advBox);}
- return {panel,sync,moveAdvanced,reset(){target=support=prepared=null;if(!preview)info.textContent='尚未读取选面。';sync();},hasPreview:()=>!!preview,cancelPreview};
+ // Selected-face placement for the mesh candidate (same face / centre / X as the BRep path), or null.
+ function facePlacement(){const v=a=>a.every(i=>i.value.trim()!==''&&Number.isFinite(Number(i.value)))?a.map(i=>Number(i.value)):null,o=v([ox,oy,oz]),x=v([xx,xy,xz]);return support?.planar&&o&&x?{originMm:o,normal:[...support.normal],xDirection:x}:null;}
+ return {panel,sync,moveAdvanced,facePlacement,readFace,reset(){target=support=prepared=null;if(!preview)info.textContent='尚未读取选面。';sync();},hasPreview:()=>!!preview,cancelPreview};
 }

@@ -523,14 +523,14 @@ export function createPageAPI(host){
       return {...result,support:{bodyId:support.bodyId,faceId:support.faceId,planar:support.planar,centerMm:support.centerMm,normal:support.normal,sourceSha256:support.sourceSha256,circularEdges:support.circularEdges??[]},...(placement?.originMm?{resolvedOriginMm:placement.originMm}:{}),context:current().context};
     }),
     reliefDesignField:guarded(async input=>{
-      const s=check(input,['context','action','designId','expectedDraftRevision','options','baseMm']);
+      const s=check(input,['context','action','designId','expectedDraftRevision','options','baseMm','placement']);
       const action=input.action??'get',entry=host.state({include:['reliefDesigns']}).reliefDesigns?.find(d=>d.id===input.designId);
       if(!entry)fail('STALE_REFERENCE','Design draft not found');
       if(entry.revision!==input.expectedDraftRevision)fail('REVISION_CONFLICT','Read the current design draft revision');
       if(!['solve','get','cancel','candidate'].includes(action))fail('PARAM_SCHEMA_INVALID','Unknown design field action');
-      if(input.options!==undefined&&action!=='solve'||input.baseMm!==undefined&&action!=='candidate')fail('PARAM_SCHEMA_INVALID','options only for solve; baseMm only for candidate');
+      if(input.options!==undefined&&action!=='solve'||(input.baseMm!==undefined||input.placement!==undefined)&&action!=='candidate')fail('PARAM_SCHEMA_INVALID','options only for solve; baseMm/placement only for candidate');
       const latest=()=>{const state=host.state({include:['reliefDesigns']});return {context:state.context,entry:state.reliefDesigns?.find(d=>d.id===input.designId)};};
-      const result=action==='solve'?await runReliefDesignField(s.context,entry,input.options,latest):action==='cancel'?cancelReliefDesignField():action==='candidate'?candidateReliefDesignField(s.context,entry,input.baseMm):readReliefDesignField(s.context,entry);
+      const result=action==='solve'?await runReliefDesignField(s.context,entry,input.options,latest):action==='cancel'?cancelReliefDesignField():action==='candidate'?candidateReliefDesignField(s.context,entry,input.baseMm,input.placement):readReliefDesignField(s.context,entry);
       if(action==='candidate'&&result.status==='candidate'){
         const card=getTool({id:result.args.op});
         result.args={...result.args,opVersion:card.version,schemaHash:card.schemaHash};

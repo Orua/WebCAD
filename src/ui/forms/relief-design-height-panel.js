@@ -61,12 +61,14 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
   if(running)return;running=true;apply.disabled=true;
   try{const r=heightPanelRequest({columns:columns.value,black:black.value,white:white.value,gamma:gamma.value,blur:blur.value,invert:invert.checked,depth:depth.value,keepout:keepout.value,fade:fade.value},ctx()),interpretation=use.value;
    const params=sourceConvertWorkerParams({width:image.width,height:image.height,settings:r.settings,depthMm:r.depthMm,machiningPrecisionMm:getPrecision()});
-   let grid,where='浏览器';
-   if(await servicesReady()){info.textContent='正在 Services 转换高度图…';try{const out=await convertRemote({rgba:image.rgba,params,context:window.webcad.api.getState().context,imageSha256:image.sha256});grid=out.grid;where='Services';}catch(e){info.textContent='Services 转换失败，改用浏览器：'+humanError(e);}}
+   let grid,settings=params.settings,where='浏览器转换（Services 不可用）';
+   if(await servicesReady()){info.textContent='正在 Services 转换高度图…';try{const out=await convertRemote({rgba:image.rgba,params,context:window.webcad.api.getState().context,imageSha256:image.sha256});grid=out.grid;settings=out.settings??params.settings;where='Services 转换';}catch(e){where='浏览器转换（Services 失败：'+humanError(e)+'）';info.textContent='Services 转换失败，改用浏览器：'+humanError(e);}}
    if(!grid)grid=sourceConvertLocal(image.rgba,params).grid;
-   const source=createReliefHeightSource({original:{sha256:image.sha256,name:image.name.slice(0,255)},interpretation,settings:params.settings,grid,...(interpretation==='shadedReference'?{confirmation:confirm.checked?{text:PHOTO_HEIGHTMAP_CONFIRMATION,confirmedAt:new Date().toISOString()}:undefined}:{})});
+   // Over the shared 1025² node budget the grid is downsampled (never rejected); say so.
+   const asked=r.settings,note=asked.columns!==grid.columns||asked.rows!==grid.rows?`，已按节点上限由 ${asked.columns}×${asked.rows} 降采样`:'';
+   const source=createReliefHeightSource({original:{sha256:image.sha256,name:image.name.slice(0,255)},interpretation,settings,grid,...(interpretation==='shadedReference'?{confirmation:confirm.checked?{text:PHOTO_HEIGHTMAP_CONFIRMATION,confirmedAt:new Date().toISOString()}:undefined}:{})});
    onApply({source,depthMm:r.depthMm,edgeKeepoutMm:r.edgeKeepoutMm,edgeFadeMm:r.edgeFadeMm});
-   info.textContent=`已应用到草稿（${grid.columns}×${grid.rows}${String(columns.value).trim()===''?' 自动':''}，${where}转换，加工精度 ${params.machiningPrecisionMm} mm${source.derivedFrom?'，照片已确认转换':''}）；保存草稿并重新求解后生效。`;
+   info.textContent=`已应用到草稿（${grid.columns}×${grid.rows}${String(columns.value).trim()===''?' 自动':''}${note}，${where}，加工精度 ${params.machiningPrecisionMm} mm${source.derivedFrom?'，照片已确认转换':''}）；保存草稿并重新求解后生效。`;
   }catch(e){info.textContent=humanError(e);}
   finally{running=false;}
   sync();

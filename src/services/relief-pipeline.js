@@ -7,7 +7,7 @@
 // unless a caller injects a Services `submit` function.
 import {contractHash} from '../contracts/operation-schema.js';
 import {convertRgbaToHeightGrid,normalizeConvertSettings,RELIEF_CONVERT_VERSION} from '../relief-source/convert.js';
-import {solveReliefDesign,MACHINING_PRECISION_DEFAULT_MM} from '../relief-design-field.js';
+import {solveReliefDesign,MACHINING_PRECISION_DEFAULT_MM,effectiveEdgeMargins} from '../relief-design-field.js';
 import {fitReliefDesignField} from '../relief-design-fit.js';
 import {validateReliefDesign} from '../relief-design-drafts.js';
 
@@ -109,9 +109,9 @@ export function verifyServicesFit(params,report){
 }
 // relief.source-convert-1 worker params (raw RGBA8 asset + normalized settings + optional mm precision).
 import {applyMachiningPrecision as precisionSmooth} from '../relief-design-field.js';
-import {encodeHeightGrid} from '../relief-source/convert.js';
+import {encodeHeightGrid,budgetGridSize} from '../relief-source/convert.js';
 export function sourceConvertWorkerParams({width,height,settings,depthMm,machiningPrecisionMm}){
- const s=normalizeConvertSettings(settings),params={width,height,settings:s};
+ const n=normalizeConvertSettings(settings),b=budgetGridSize(n.columns,n.rows),s=b.downsampled?{...n,columns:b.columns,rows:b.rows}:n,params={width,height,settings:s};
  if(depthMm!==undefined){if(!(depthMm>0&&depthMm<=20))fail('PARAM_RANGE_INVALID','depthMm 需要 0–20');params.depthMm=depthMm;const p=machiningPrecisionMm??RELIEF_PRECISION_LIMITS.defaultMm;if(!(p>=RELIEF_PRECISION_LIMITS.minMm&&p<=RELIEF_PRECISION_LIMITS.maxMm))fail('PARAM_SCHEMA_INVALID','machiningPrecisionMm 须在 0.01–0.5 mm');params.machiningPrecisionMm=p;}
  return params;
 }
@@ -175,9 +175,12 @@ export async function convertSourceOnServices({rgba,params,context,imageSha256,c
   placementSnapshot:null,selectionIntent:{kind:'whole-source'},params,requiredResultFormat:'relief-height-grid-u16le-v1',recipeFingerprint:'relief-source:'+contractHashOf({imageSha256,params})};
  const job=await client.submit('compute/jobs',payload,requestId),done=await client.wait(job,{signal});
  const grid=done.result?.grid;
- if(!grid||grid.columns!==params.settings.columns||grid.rows!==params.settings.rows)fail('SERVICES_RESPONSE_INVALID','Services 高度网格尺寸与请求不一致');
+ // Services may downsample an over-budget request (downsampledFrom); accept exactly the shared budget rule.
+ const ds=done.manifest?.downsampledFrom??done.result?.downsampledFrom,want=ds?budgetGridSize(params.settings.columns,params.settings.rows):params.settings;
+ if(ds&&(!Array.isArray(ds)||ds[0]!==params.settings.columns||ds[1]!==params.settings.rows))fail('SERVICES_RESPONSE_INVALID','Services 降采样回执与请求不符');
+ if(!grid||grid.columns!==want.columns||grid.rows!==want.rows)fail('SERVICES_RESPONSE_INVALID','Services 高度网格尺寸与请求不一致');
  const bytes=Uint8Array.from(atob(grid.data),c=>c.charCodeAt(0));if(bytes.length!==grid.columns*grid.rows*2||gridHash(bytes).slice(7)!==grid.sha256.replace(/^sha256:/,''))fail('SERVICES_RESPONSE_INVALID','Services 高度网格编码哈希不一致');
- return {grid,precision:done.result.precision??null,jobId:job.jobId,timings:done.manifest?.timings??null};
+ return {grid,settings:ds?{...params.settings,columns:want.columns,rows:want.rows}:params.settings,downsampledFrom:ds??null,precision:done.result.precision??null,jobId:job.jobId,timings:done.manifest?.timings??null};
 }
 function contractHashOf(v){return recipeHash(v).replace(/^sha256:/,'');}
 
@@ -192,7 +195,7 @@ export function reliefQualityParams(draft){
  const d=validateReliefDesign(draft),q={...RELIEF_QUALITY_DEFAULTS,...d.fieldSettings?.servicesQuality},h=d.heightSource;
  if(q.mode==='off'||!h||d.points.length||d.fieldSettings?.edits?.length)return null;
  const g=h.source.grid,p=d.fieldSettings?.machiningPrecisionMm??RELIEF_PRECISION_LIMITS.defaultMm;
- return {version:1,machiningPrecisionMm:p,maxControlSide:q.maxControlSide,source:{columns:g.columns,rows:g.rows,encoding:g.encoding??'u16le',data:g.data,sha256:g.sha256},depthMm:h.depthMm,edgeKeepoutMm:h.edgeKeepoutMm??0,edgeFadeMm:h.edgeFadeMm??0};
+ return {version:1,machiningPrecisionMm:p,maxControlSide:q.maxControlSide,source:{columns:g.columns,rows:g.rows,encoding:g.encoding??'u16le',data:g.data,sha256:g.sha256},depthMm:h.depthMm,...(m=>({edgeKeepoutMm:m.keepMm,edgeFadeMm:m.fadeMm}))(effectiveEdgeMargins(d))};
 }
 export function reliefDesignServicesPlan(document,feature){
  const plan=legacyReliefDesignServicesPlan(document,feature),entry=(document.reliefDesigns||[]).find(d=>d.id===feature.params.designBinding.audit?.designId);

@@ -5,7 +5,10 @@
  * Original attribution is retained; masked fitting and support locks are new.
  * No CAD, route authorization, geometry commit, or general surface-freeze claim.
  */
-const LIMIT={side:129,samples:16641,poles:4225,controlSide:65,iterations:50000,work:200000000,regions:64};
+// The product Worker owns elapsed-time cancellation. A caller may still supply
+// an explicit work budget; an arbitrary global operation count must not reject
+// otherwise supported adaptive fields before their time budget is used.
+const LIMIT={side:129,samples:16641,poles:4225,controlSide:65,iterations:50000,work:Number.MAX_SAFE_INTEGER,regions:64};
 const fail=(code,message,details={})=>{throw Object.assign(new Error(message),{code,details});};
 const finite=(v,label)=>{if(typeof v!=='number'||!Number.isFinite(v))fail('FIT_INPUT_INVALID',label+' must be finite');return v;};
 const integer=(v,label,min,max)=>{if(!Number.isInteger(v)||v<min||v>max)fail('FIT_INPUT_INVALID',label+' is outside its integer capacity');return v;};
