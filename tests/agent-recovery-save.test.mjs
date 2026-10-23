@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createCommandService} from '../src/command-service.js';
-import {encodeCommittedProject} from '../src/project-save.js';
+import {encodeCommittedProject,saveCommittedProject} from '../src/project-save.js';
 import {getTool,infoMetadata} from '../src/page-api-docs.js';
 import {AGENT_CONTRACT} from '../src/agent/protocol.js';
 const state={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:9,documentName:'retained',features:[],bodies:[],kernelReady:false,busy:true,preview:true,previewComputing:true};
@@ -41,4 +41,16 @@ test('recovery is discoverable and the downloadable contract matches current pag
  assert.equal(infoMetadata().agentProtocol.contractHash,AGENT_CONTRACT.contractHash);
  assert(AGENT_CONTRACT.jobMethods.includes('recoverKernel'));
  assert(AGENT_CONTRACT.readMethods.includes('getModelLibrary'));
+});
+test('missing final geometry still saves the original committed recipe and assets',async()=>{
+ const document={version:2,documentId:'retained',name:'existing',features:[{id:'star',op:'box',params:{width:30}}],imports:{original:{data:'source'}},hidden:[],appearance:{star:{color:'#123456'}}};
+ const saved=await saveCommittedProject(document,undefined);
+ assert.equal(saved.report.saveMode,'recovery');
+ const decoded=JSON.parse(new TextDecoder().decode(saved.bytes));
+ assert.deepEqual(decoded.features,document.features);assert.deepEqual(decoded.imports,document.imports);assert.deepEqual(decoded.appearance,document.appearance);
+});
+test('codec startup failure falls back to encoding committed data without the geometry worker',async()=>{
+ const document={version:2,documentId:'retained',features:[],hidden:[]};
+ const saved=await saveCommittedProject(document,[],{createWorker(){throw new Error('worker denied');}});
+ assert.equal(saved.bytes.length>0,true);assert.equal(saved.snapshot.version,4);
 });

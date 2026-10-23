@@ -209,27 +209,27 @@
 .quick-model-icon{display:inline-block;color:var(--accent);background-color:currentColor;mask-size:contain;mask-repeat:no-repeat;mask-position:center}
 
 /* A compact navigation cube replaces the hard-to-reach mobile view selector. */
-.view-cube-control{display:none;position:absolute;left:10px;bottom:10px;right:auto;top:auto;width:88px;height:88px;z-index:6;pointer-events:none;touch-action:manipulation;user-select:none}
+.view-cube-control{display:block;position:absolute;left:8px;bottom:8px;right:auto;top:auto;width:88px;height:88px;z-index:40;pointer-events:none;touch-action:manipulation;user-select:none}
 .view-cube-control[data-corner="bottom-left"]{left:10px;bottom:10px;right:auto;top:auto}
 .view-cube-control[data-corner="top-left"]{left:10px;top:10px;right:auto;bottom:auto}
 .view-cube-control[data-corner="bottom-right"]{right:10px;bottom:10px;left:auto;top:auto}
 .view-cube-control[data-corner="top-right"]{right:10px;top:10px;left:auto;bottom:auto}
 .view-cube-svg{display:block;width:100%;height:100%;overflow:visible;pointer-events:none}
 .view-cube-face{cursor:pointer;outline:none}
-.view-cube-face polygon{fill:#edf2f8;stroke:#7b8ca4;stroke-width:1.35;vector-effect:non-scaling-stroke;transition:fill .12s ease,stroke .12s ease,stroke-width .12s ease;pointer-events:visiblePainted}
-.view-cube-face[data-axis="Y"] polygon{fill:#e5eef2}
-.view-cube-face[data-axis="Z"] polygon{fill:#e7edf8}
+.view-cube-face polygon{fill:#edf2f81a;stroke:none;pointer-events:all}
+.view-cube-edge{stroke:#647b99;stroke-width:.6;vector-effect:non-scaling-stroke;pointer-events:none}
+.view-cube-edge[data-hidden="true"]{stroke:#b6c6d9}
 .view-cube-face text{fill:#33445d;font:700 11.5px system-ui,sans-serif;pointer-events:none}
-.view-cube-face:hover polygon,.view-cube-face:focus-visible polygon{fill:#cfe0fb;stroke:#235dcc;stroke-width:2.2}
+.view-cube-face:hover polygon,.view-cube-face:focus-visible polygon{fill:#cfe0fb66}
 .view-cube-face:active polygon{fill:#aac7f3}
-.view-cube-face[aria-pressed="true"] polygon{fill:#dbe8fb;stroke:#285faa;stroke-width:2}
-.view-cube-face[aria-pressed="true"]:hover polygon,.view-cube-face[aria-pressed="true"]:focus-visible polygon{fill:#aac7f3;stroke:#235dcc;stroke-width:2.2}
+.view-cube-face[aria-pressed="true"] polygon{fill:#dbe8fb33}
+.view-cube-face[aria-pressed="true"]:hover polygon,.view-cube-face[aria-pressed="true"]:focus-visible polygon{fill:#aac7f366}
 .view-cube-axis-hit{stroke:transparent;stroke-width:16;pointer-events:stroke;cursor:pointer}
 .view-cube-axis-target{fill:transparent;pointer-events:all;cursor:pointer}
-.view-cube-axis-line{stroke-width:2.5;stroke-linecap:round;pointer-events:none;vector-effect:non-scaling-stroke;transition:stroke-width .12s ease}
+.view-cube-axis-line{stroke-width:.6;stroke-linecap:round;pointer-events:none;vector-effect:non-scaling-stroke}
 .view-cube-axis-label{font:700 12.5px system-ui,sans-serif;stroke:#fff;stroke-width:2.2;paint-order:stroke;pointer-events:none}
-.view-cube-axis:hover .view-cube-axis-line,.view-cube-axis:focus-visible .view-cube-axis-line,.view-cube-axis[aria-pressed="true"] .view-cube-axis-line{stroke-width:4;filter:brightness(1.2)}
-.view-cube-axis:active .view-cube-axis-line{stroke-width:4.5;filter:brightness(1.35)}
+.view-cube-axis:hover .view-cube-axis-line,.view-cube-axis:focus-visible .view-cube-axis-line,.view-cube-axis[aria-pressed="true"] .view-cube-axis-line{filter:brightness(1.2)}
+.view-cube-axis:active .view-cube-axis-line{filter:brightness(1.35)}
 @media(max-width:680px){
   .viewport-entity-status{display:none!important}
   .view-cube-control{display:block;width:88px;height:88px}

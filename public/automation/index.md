@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.57.5 · 操作目录 sha256:caecf69707b42cf850ed773f4b1452a4238061864bccbc55792aa39cc69afe0f
+API 1.57.5 · 操作目录 sha256:ec32fce3f1c16f502839c2317f2beabc175002a0f2abb8e4394bb3e16b462392
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -382,7 +382,7 @@ API 1.57.5 · 操作目录 sha256:caecf69707b42cf850ed773f4b1452a4238061864bccbc
 - `files.new` · browser-file-adapter · new({context}); complete current context; dirty replacement is always rejected by page API. Default name: 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits); no explicit name argument.
 - `files.open` · browser-file-adapter · open({context,resourceId,unsaved:"fail"|"discard",units?}); 打开=替换当前设计，从不合并。.webcad/.json 工程或单个 STEP/BREP/STL 模型（放入新文档；STL 需 units）。unsaved 必填：fail 在未保存时返回 UNSAVED_REPLACEMENT，discard 放弃修改。要加入当前设计请用 files.import。
 - `files.import` · browser-file-adapter · import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. Exact-source typed imports preserve optional legacy key behavior; supply idempotencyKey for replay protection; read api.exact-source-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.
-- `files.save` · browser-file-adapter · save({context,name?}); complete current context. Save final BRep/typed mesh only, no modelling recipes or timeline; keep ids/appearance/visibility/material/anchors. Session undo20 and timeline20/512KiB remain in memory. name may omit .webcad.
+- `files.save` · browser-file-adapter · save({context,name?}); complete current context. Save committed data even while busy, previewing or the kernel is unavailable. Normally final BRep/typed mesh with ids/appearance/visibility/material/anchors; if final checkpoints are unavailable, retain the original committed recipe and embedded assets in a recovery project. Codec failure uses direct encoding; no geometry recomputation. name may omit .webcad.
 - `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).
 - `files.reattach` · browser-file-adapter · reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。
 - `files.read` · browser-file-adapter · read({resourceId,as?}); as is blob (default) or bytes.

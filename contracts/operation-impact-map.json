@@ -1,5 +1,14 @@
 {
   "version": 1,
+  "stableCanvasAndScripts20261024": {
+    "localImpact": "Chat overlays unchanged canvas dimensions; mobile collapse icon in chat heading; navigation cube stays at visible bottom-left with twelve thin edges",
+    "servicesImpact": "CAD Services unchanged; companion CodexAgent scoped script execution capability checked separately",
+    "logoImpact": "None: no Logo or Native geometry changes",
+    "contractImpact": "Existing setAgentPanel layout and setView operations retained; occlusion event is transient host UI signaling",
+    "documentImpact": "Saving retains committed recipe and embedded assets as a recoverable project when final checkpoints are unavailable; codec and picker failures have direct fallbacks; no geometry/revision mutation",
+    "cacheImpact": "Rebuild frontend and version companion workspace assets",
+    "requiredTests": ["Mobile and desktop expanded/collapsed pixel scale and model placement", "Visible bottom-left cube and twelve thin edges", "Owner workspace Python script execution"]
+  },
   "mobileCubeLayout20261023": {
     "localImpact": "Canvas fits available height with chat open; mobile collapse handle is 48x20 at canvas bottom; perspective cube and protruding XYZ guides share a fixed negative corner",
     "servicesImpact": "None: workspace CSS/JS only; no Services runtime or geometry changes",
