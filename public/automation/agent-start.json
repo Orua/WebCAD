@@ -1,9 +1,9 @@
 {
   "product": "WebCAD",
   "pageApiVersion": "1.57.4",
-  "buildId": "febfaad5666582c45de5831645949f4887edf641-src-27ae57286d2f9f51-working",
-  "catalogHash": "sha256:47db54ad710eabcdbd9a3bca80c18645919540798362bd4d2e47a5dc484d2cd1",
-  "docsHash": "sha256:7cd5ae6b6f0e8cda2a8f651e3c6e79c63d23108aed997c63cec263c43309b0d7",
+  "buildId": "92260c56e329ddf7158d67acb97794aab2af7f00-src-8d382fd623ef2c08-working",
+  "catalogHash": "sha256:fcbe6dfe0162c76fb0c223448f989b0edbc96074a7612c4046c6ac70f9849f98",
+  "docsHash": "sha256:1d1a3f118dd34ef659fc7a7cd8ced1624fab41f084d3bae9575eaefe207ccf55",
   "version": 1,
   "entrypoint": "window.webcad.api.connect",
   "startUrl": "automation/agent-start.html",
@@ -15,6 +15,13 @@
     "version": 1,
     "manifestUrl": "automation/agent-knowledge.json",
     "routingUrl": "automation/agent-routing.json",
+    "modeling": {
+      "entryDocId": "api.modeling.start",
+      "guideDocId": "api.modeling.guide",
+      "diagnosisDocId": "api.modeling.problems.diagnosis",
+      "routePrefix": "modeling.",
+      "loading": "route -> one workflow/method -> selected branch complete cards; never bulk context"
+    },
     "policy": "required-on-first-handshake",
     "cache": "source-base-url + catalogHash + docsHash",
     "contextPolicy": "download-to-host-storage; load only selected routes, docs and complete cards",
@@ -62,7 +69,7 @@
     {
       "id": "knowledge-cache",
       "action": "On the first handshake, download automation/agent-knowledge.json and its finite static files to host storage; verify hashes and route with agent-routing.json. Reuse only a verified cache matching source base URL, catalogHash and docsHash.",
-      "check": "Load bootstrap docs once, then only matched routes and needed full cards. Report unavailable host storage/download; never put the full library in model context or cache live identity/IDs."
+      "check": "Load bootstrap docs once. For modeling, read api.modeling.start, then the guide and one matching modeling.* workflow; choose a branch before full cards. On failure read api.modeling.problems.diagnosis. Report unavailable host storage/download; never put the full library in model context or cache live identity/IDs."
     },
     {
       "id": "contracts",

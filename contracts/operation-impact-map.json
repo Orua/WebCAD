@@ -1,5 +1,18 @@
 {
   "version": 1,
+  "modelingKnowledge20261023": {
+  "localImpact": "Read-only modeling guidance in shared page docs and host knowledge routes; no geometry/UI changes",
+  "servicesImpact": "None: Services runtime and geometry contracts unchanged",
+  "logoImpact": "None: no Logo or Native algorithm changes",
+  "contractImpact": "Additive onboarding.knowledge.modeling and modeling.* doc/route IDs; host route scope filter; operation signatures unchanged",
+  "documentImpact": "None: current document, revision, history, save format and topology untouched",
+  "cacheImpact": "Modeling docs and route changes included in docsHash; regenerate finite three-payload package and optional host kit",
+  "requiredTests": [
+    "Manifest hash and size validation, cache reuse and corruption refresh",
+    "Modeling task/diagnosis routing, selected full docs/cards and budget omission",
+    "Single localhost/webcad handshake/knowledge download and no document mutation"
+  ]
+},
   "agentLogTiming20261023": {
     "localImpact": "Host CADAgent logs always show total, model-response, tool-execution and unclassified wall time; receipt diagnostics use closed details elements",
     "servicesImpact": "None: CAD Services, authorization and geometry execution unchanged",

@@ -1,5 +1,5 @@
 # WebCAD finite local skill installer. Run explicitly; never starts a service.
-# Example: & .\install-agent.ps1 -BaseUrl 'http://localhost:17674/'
+# Example: & .\install-agent.ps1 -BaseUrl 'http://localhost/webcad/'
 [CmdletBinding()]
 param(
   [Parameter(Mandatory = $true)][string]$BaseUrl,

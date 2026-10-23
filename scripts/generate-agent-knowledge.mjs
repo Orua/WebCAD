@@ -8,9 +8,9 @@ const sha=bytes=>'sha256:'+createHash('sha256').update(bytes).digest('hex');
 export async function generateAgentKnowledge({target,metadata,cards,docs}){
   for(const route of KNOWLEDGE_ROUTES){
     for(const id of [...route.docs,route.readFirst])if(!Object.hasOwn(docs,id))throw new Error(`Knowledge route ${route.id} has unknown doc ${id}`);
-    for(const id of route.tools)if(!cards.some(card=>card.id===id))throw new Error(`Knowledge route ${route.id} has unknown tool ${id}`);
+    for(const id of [...route.tools,...(route.branches??[]).flatMap(branch=>branch.tools)])if(!cards.some(card=>card.id===id))throw new Error(`Knowledge route ${route.id} has unknown tool ${id}`);
   }
-  const routing={schemaVersion:1,catalogHash:metadata.catalogHash,docsHash:metadata.docsHash,bootstrapDocIds:AGENT_KNOWLEDGE.bootstrapDocIds,
+  const routing={schemaVersion:1,catalogHash:metadata.catalogHash,docsHash:metadata.docsHash,bootstrapDocIds:AGENT_KNOWLEDGE.bootstrapDocIds,modeling:AGENT_KNOWLEDGE.modeling,
     selectionPolicy:'Read api.reading-map once; route by task; read only readFirst; compare selectionGuide; fetch selected complete cards. docs/tools are candidates, not mandatory bulk reads. Exact UI actions use routes.json. Live IDs come from the page.',routes:KNOWLEDGE_ROUTES,productFamilies:PRODUCT_FAMILIES};
   for(const f of PRODUCT_FAMILIES){
     if(!Object.hasOwn(docs,f.docId))throw new Error(`Product family ${f.id} has unknown doc`);
@@ -24,7 +24,7 @@ export async function generateAgentKnowledge({target,metadata,cards,docs}){
   }
   const manifest={schemaVersion:1,pageApiVersion:metadata.pageApiVersion,catalogHash:metadata.catalogHash,docsHash:metadata.docsHash,
     policy:AGENT_KNOWLEDGE.policy,scope:'static-docs-and-contracts-only',files,totalBytes:files.reduce((n,f)=>n+f.sizeBytes,0),
-    routing:'agent-routing.json',index:'index.json',uiRoutes:'routes.json',bootstrapDocIds:AGENT_KNOWLEDGE.bootstrapDocIds,
+    routing:'agent-routing.json',index:'index.json',uiRoutes:'routes.json',bootstrapDocIds:AGENT_KNOWLEDGE.bootstrapDocIds,modeling:AGENT_KNOWLEDGE.modeling,
     contextPolicy:AGENT_KNOWLEDGE.contextPolicy,cache:AGENT_KNOWLEDGE.cache};
   await writeFile(resolve(target,'agent-knowledge.json'),JSON.stringify(manifest,null,2)+'\n');
   return manifest;

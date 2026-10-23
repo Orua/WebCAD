@@ -1,12 +1,19 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:47db54ad710eabcdbd9a3bca80c18645919540798362bd4d2e47a5dc484d2cd1",
-  "docsHash": "sha256:7cd5ae6b6f0e8cda2a8f651e3c6e79c63d23108aed997c63cec263c43309b0d7",
+  "catalogHash": "sha256:fcbe6dfe0162c76fb0c223448f989b0edbc96074a7612c4046c6ac70f9849f98",
+  "docsHash": "sha256:1d1a3f118dd34ef659fc7a7cd8ced1624fab41f084d3bae9575eaefe207ccf55",
   "bootstrapDocIds": [
     "api.reading-map",
     "api.knowledge-cache",
     "api.connection"
   ],
+  "modeling": {
+    "entryDocId": "api.modeling.start",
+    "guideDocId": "api.modeling.guide",
+    "diagnosisDocId": "api.modeling.problems.diagnosis",
+    "routePrefix": "modeling.",
+    "loading": "route -> one workflow/method -> selected branch complete cards; never bulk context"
+  },
   "selectionPolicy": "Read api.reading-map once; route by task; read only readFirst; compare selectionGuide; fetch selected complete cards. docs/tools are candidates, not mandatory bulk reads. Exact UI actions use routes.json. Live IDs come from the page.",
   "routes": [
     {
@@ -632,6 +639,783 @@
       ],
       "readFirst": "api.guide.files",
       "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
+    },
+    {
+      "id": "modeling.diagnosis",
+      "title": "按建模失败原因选择诊断工具",
+      "keywords": [
+        "PARAM_SCHEMA_INVALID",
+        "PARAM_RANGE_INVALID",
+        "REVISION_CONFLICT",
+        "STALE_REFERENCE",
+        "AMBIGUOUS_SELECTION",
+        "UNKNOWN_OUTCOME",
+        "GEOMETRY_INVALID",
+        "超时",
+        "断线",
+        "没出现",
+        "不见了",
+        "失败",
+        "扭转",
+        "零厚度"
+      ],
+      "readFirst": "api.modeling.problems.diagnosis",
+      "docs": [
+        "api.modeling.problems.diagnosis",
+        "api.modeling.methods.verification"
+      ],
+      "tools": [],
+      "readPlan": "Read diagnosis first; reconcile unknown outcomes before any retry. Read only the chosen diagnostic cards."
+    },
+    {
+      "id": "modeling.solid-section",
+      "title": "板件与固定截面",
+      "keywords": [
+        "板件",
+        "矩形板",
+        "安装板",
+        "固定截面",
+        "拉伸",
+        "轮廓成体",
+        "plate",
+        "extrude"
+      ],
+      "readFirst": "api.modeling.workflows.solid-section",
+      "docs": [
+        "api.modeling.workflows.solid-section",
+        "api.modeling.methods.construction-choice",
+        "api.modeling.methods.feature-order"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "box",
+          "tools": [
+            "box",
+            "measure"
+          ]
+        },
+        {
+          "id": "profile",
+          "tools": [
+            "sketchProfile",
+            "inspectProfile",
+            "profileExtrude",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.axisymmetric",
+      "title": "柱件、轴套与旋转体",
+      "keywords": [
+        "轴套",
+        "垫圈",
+        "圆筒",
+        "空心圆柱",
+        "铆钉",
+        "铆柱",
+        "旋转体",
+        "tube",
+        "revolve"
+      ],
+      "readFirst": "api.modeling.workflows.axisymmetric",
+      "docs": [
+        "api.modeling.workflows.axisymmetric",
+        "api.modeling.methods.construction-choice",
+        "api.modeling.methods.feature-order"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "cylinder",
+          "tools": [
+            "cylinder",
+            "measure"
+          ]
+        },
+        {
+          "id": "tube",
+          "tools": [
+            "template.tube",
+            "measure"
+          ]
+        },
+        {
+          "id": "revolve",
+          "tools": [
+            "sketchProfile",
+            "profileRevolve",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.path-section",
+      "title": "沿路径的线材或型材",
+      "keywords": [
+        "扫掠",
+        "线材",
+        "方线",
+        "弯线",
+        "沿路径",
+        "sweep"
+      ],
+      "readFirst": "api.modeling.workflows.path-section",
+      "docs": [
+        "api.modeling.workflows.path-section",
+        "api.modeling.methods.construction-choice",
+        "api.modeling.methods.feature-order"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "sweep",
+          "tools": [
+            "sketchProfile",
+            "inspectProfile",
+            "profileSweep",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.transition",
+      "title": "多截面过渡",
+      "keywords": [
+        "放样",
+        "多截面",
+        "截面过渡",
+        "loft"
+      ],
+      "readFirst": "api.modeling.workflows.transition",
+      "docs": [
+        "api.modeling.workflows.transition",
+        "api.modeling.methods.construction-choice",
+        "api.modeling.methods.feature-order"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "loft",
+          "tools": [
+            "inspectProfile",
+            "profileLoft",
+            "measure"
+          ]
+        },
+        {
+          "id": "guided",
+          "tools": [
+            "guidedLoft",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.cut-features",
+      "title": "开孔、挖槽与布尔去料",
+      "keywords": [
+        "打孔",
+        "钻孔",
+        "通孔",
+        "盲孔",
+        "双孔",
+        "两孔",
+        "孔位",
+        "沉头",
+        "沉孔",
+        "挖槽",
+        "切除",
+        "hole"
+      ],
+      "readFirst": "api.modeling.workflows.cut-features",
+      "docs": [
+        "api.modeling.workflows.cut-features",
+        "api.modeling.methods.construction-choice",
+        "api.modeling.methods.selection-and-placement"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "plain-hole",
+          "tools": [
+            "hole",
+            "queryGeometry",
+            "measure"
+          ]
+        },
+        {
+          "id": "multi-hole",
+          "tools": [
+            "multiHole",
+            "queryGeometry",
+            "measure"
+          ]
+        },
+        {
+          "id": "wizard",
+          "tools": [
+            "holeWizard",
+            "queryGeometry",
+            "measure"
+          ]
+        },
+        {
+          "id": "boolean",
+          "tools": [
+            "cut",
+            "inspectFit",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.placement",
+      "title": "部件定位与组合",
+      "keywords": [
+        "装配",
+        "对齐",
+        "定位",
+        "拼合",
+        "融合",
+        "合并实体",
+        "assembly"
+      ],
+      "readFirst": "api.modeling.workflows.placement",
+      "docs": [
+        "api.modeling.workflows.placement",
+        "api.modeling.methods.construction-choice",
+        "api.modeling.methods.selection-and-placement",
+        "api.modeling.methods.representations-units-and-mass"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "align",
+          "tools": [
+            "queryReferences",
+            "planAlignment",
+            "transform",
+            "measureRelation"
+          ]
+        },
+        {
+          "id": "join",
+          "tools": [
+            "union",
+            "inspectFit",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.finishing",
+      "title": "圆角与倒角",
+      "keywords": [
+        "倒角",
+        "圆角",
+        "R角",
+        "fillet",
+        "chamfer"
+      ],
+      "readFirst": "api.modeling.workflows.finishing",
+      "docs": [
+        "api.modeling.workflows.finishing",
+        "api.modeling.methods.construction-choice",
+        "api.modeling.methods.selection-and-placement"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "fillet",
+          "tools": [
+            "queryGeometry",
+            "fillet",
+            "probeBlendRadius",
+            "measure"
+          ]
+        },
+        {
+          "id": "chamfer",
+          "tools": [
+            "queryGeometry",
+            "chamfer",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.logo",
+      "title": "字母LOGO与图案加工",
+      "keywords": [
+        "LOGO",
+        "刻字",
+        "字形",
+        "标志",
+        "engrave"
+      ],
+      "readFirst": "api.modeling.workflows.logo",
+      "docs": [
+        "api.modeling.workflows.logo",
+        "api.modeling.methods.construction-choice",
+        "api.modeling.methods.selection-and-placement"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "contours",
+          "tools": [
+            "readLogo",
+            "reviewLogo",
+            "queryGeometry",
+            "logo",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.editing",
+      "title": "修改已有模型与恢复",
+      "keywords": [
+        "修改",
+        "加厚",
+        "变薄",
+        "改成",
+        "撤销",
+        "恢复",
+        "edit"
+      ],
+      "readFirst": "api.modeling.workflows.editing",
+      "docs": [
+        "api.modeling.workflows.editing",
+        "api.modeling.methods.construction-choice",
+        "api.modeling.methods.feature-order",
+        "api.modeling.methods.artifacts-and-dependencies"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "edit",
+          "tools": [
+            "feature.edit",
+            "getHistory",
+            "getState",
+            "measure"
+          ]
+        },
+        {
+          "id": "unknown",
+          "tools": [
+            "getBatchReceipt",
+            "getState"
+          ]
+        },
+        {
+          "id": "undo",
+          "tools": [
+            "history.undo",
+            "getHistory",
+            "getState"
+          ]
+        },
+        {
+          "id": "import",
+          "tools": [
+            "files.import",
+            "getState",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.inspection",
+      "title": "检查、保存与导出",
+      "keywords": [
+        "测量",
+        "孔距",
+        "验收",
+        "导出",
+        "保存",
+        "STEP",
+        "STL",
+        "export"
+      ],
+      "readFirst": "api.modeling.workflows.inspection",
+      "docs": [
+        "api.modeling.workflows.inspection",
+        "api.modeling.methods.construction-choice",
+        "api.modeling.methods.feature-order",
+        "api.modeling.methods.visual-review",
+        "api.modeling.methods.output-quality-and-process"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "measure",
+          "tools": [
+            "measure",
+            "measureRelation",
+            "inspectDesign"
+          ]
+        },
+        {
+          "id": "step",
+          "tools": [
+            "measure",
+            "files.export",
+            "files.read"
+          ]
+        },
+        {
+          "id": "stl",
+          "tools": [
+            "files.export",
+            "files.read"
+          ]
+        },
+        {
+          "id": "save",
+          "tools": [
+            "files.save",
+            "files.read"
+          ]
+        },
+        {
+          "id": "visual",
+          "tools": [
+            "setView",
+            "capture",
+            "setRenderQuality"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.source-reconstruction",
+      "title": "源图/实物复刻",
+      "keywords": [
+        "源图",
+        "图纸重建",
+        "实物重建",
+        "复刻",
+        "DWG",
+        "reconstruction"
+      ],
+      "readFirst": "api.modeling.workflows.source-reconstruction",
+      "docs": [
+        "api.modeling.workflows.source-reconstruction",
+        "api.modeling.methods.source-reconstruction"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "source",
+          "tools": [
+            "readVector",
+            "inspectProfile",
+            "sketchProfile",
+            "queryGeometry",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.profiles-2d",
+      "title": "解析轮廓与二维建模",
+      "keywords": [
+        "二维轮廓",
+        "解析轮廓",
+        "DXF",
+        "轮廓修复",
+        "断点修复",
+        "轮廓偏移",
+        "等距偏移"
+      ],
+      "readFirst": "api.modeling.workflows.profiles-2d",
+      "docs": [
+        "api.modeling.workflows.profiles-2d",
+        "api.modeling.methods.profiles-and-drawings"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "read",
+          "tools": [
+            "readVector",
+            "sketchProfile",
+            "inspectProfile"
+          ]
+        },
+        {
+          "id": "repair",
+          "tools": [
+            "inspectProfile",
+            "profileRepair"
+          ]
+        },
+        {
+          "id": "offset",
+          "tools": [
+            "profileOffset",
+            "inspectProfile"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.drawings",
+      "title": "工程图与三视图",
+      "keywords": [
+        "工程图",
+        "三视图",
+        "标注图",
+        "投影图",
+        "drawing"
+      ],
+      "readFirst": "api.modeling.workflows.drawings",
+      "docs": [
+        "api.modeling.workflows.drawings",
+        "api.modeling.methods.profiles-and-drawings"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "drawing",
+          "tools": [
+            "createDrawing",
+            "exportDrawing",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.manufacturing",
+      "title": "工艺条件下的几何检查",
+      "keywords": [
+        "CNC",
+        "型腔",
+        "刀具",
+        "机加工",
+        "注塑",
+        "压铸",
+        "拔模",
+        "倒扣",
+        "钣金",
+        "折弯",
+        "冲压",
+        "展开料"
+      ],
+      "readFirst": "api.modeling.workflows.manufacturing",
+      "docs": [
+        "api.modeling.workflows.manufacturing",
+        "api.modeling.methods.process-aware-modeling"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "cnc",
+          "tools": [
+            "queryGeometry",
+            "measure",
+            "inspectThickness",
+            "inspectFit"
+          ]
+        },
+        {
+          "id": "molding",
+          "tools": [
+            "inspectDraft",
+            "queryGeometry",
+            "inspectThickness"
+          ]
+        },
+        {
+          "id": "sheet",
+          "tools": [
+            "inspectThickness",
+            "inspectProfile",
+            "measureRelation"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.printability",
+      "title": "网格打印检查",
+      "keywords": [
+        "打印检查",
+        "可打印",
+        "支撑检查",
+        "悬垂",
+        "printability"
+      ],
+      "readFirst": "api.modeling.workflows.printability",
+      "docs": [
+        "api.modeling.workflows.printability",
+        "api.modeling.methods.process-aware-modeling"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "inspect",
+          "tools": [
+            "inspectPrintability",
+            "inspectThickness",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.part-reuse",
+      "title": "标准件、模板与重复结构",
+      "keywords": [
+        "标准件",
+        "轴承",
+        "供应商模型",
+        "圆周阵列",
+        "周向阵列",
+        "分度",
+        "线性阵列",
+        "等距复制",
+        "重复件"
+      ],
+      "readFirst": "api.modeling.workflows.part-reuse",
+      "docs": [
+        "api.modeling.workflows.part-reuse",
+        "api.modeling.methods.parts-and-repetition"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "import",
+          "tools": [
+            "files.import",
+            "measure"
+          ]
+        },
+        {
+          "id": "linear",
+          "tools": [
+            "linearPattern",
+            "copy",
+            "measureRelation"
+          ]
+        },
+        {
+          "id": "circular",
+          "tools": [
+            "circularPattern",
+            "copy",
+            "measureRelation"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.material-properties",
+      "title": "物理材料与估重",
+      "keywords": [
+        "估重",
+        "克重",
+        "密度",
+        "计算重量",
+        "mass"
+      ],
+      "readFirst": "api.modeling.workflows.material-properties",
+      "docs": [
+        "api.modeling.workflows.material-properties",
+        "api.modeling.methods.representations-units-and-mass"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "mass",
+          "tools": [
+            "getMaterials",
+            "measureMass",
+            "measure"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.handoff",
+      "title": "切片制造等外部交接",
+      "keywords": [
+        "切片",
+        "打印机",
+        "制造交接",
+        "供应商下单",
+        "机器人仿真",
+        "slicer"
+      ],
+      "readFirst": "api.modeling.workflows.handoff",
+      "docs": [
+        "api.modeling.workflows.handoff",
+        "api.modeling.methods.external-handoff"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "artifacts",
+          "tools": [
+            "files.export",
+            "files.read"
+          ]
+        }
+      ],
+      "readPlan": "Read readFirst only; load a relevant method if needed. Choose a geometry branch before fetching its complete live tool cards; never load every branch."
+    },
+    {
+      "id": "modeling.plan",
+      "title": "从需求建立三维建模计划",
+      "keywords": [
+        "怎么建模",
+        "如何建模",
+        "建立模型",
+        "三维模型",
+        "3D模型",
+        "建模指导",
+        "modeling plan"
+      ],
+      "readFirst": "api.modeling.guide",
+      "docs": [
+        "api.modeling.guide",
+        "api.modeling.methods.brief-and-datums",
+        "api.modeling.methods.construction-choice"
+      ],
+      "tools": [],
+      "readPlan": "Read the modeling guide, then choose one workflow. Resolve structure and datums before tools."
     }
   ],
   "productFamilies": [

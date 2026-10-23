@@ -1,6 +1,6 @@
 # Agent 首次知识下载与任务路由
 
-首次握手返回 `connect().onboarding.knowledge`。Agent 下载网页 base URL 下的 `automation/agent-knowledge.json` 清单，再取 `index.json`（完整静态文档/工具卡）、`agent-routing.json`（任务路由）、`routes.json`（真实 UI/API 操作路由）。核对每份文件 SHA-256 与字节数后存到宿主本地。当前包约 1.8 MB，体积写在清单 `totalBytes`；它不进入模型上下文。
+首次握手返回 `connect().onboarding.knowledge`。Agent 下载网页 base URL 下的 `automation/agent-knowledge.json` 清单，再取 `index.json`（完整静态文档/工具卡）、`agent-routing.json`（任务路由）、`routes.json`（真实 UI/API 操作路由）。核对每份文件 SHA-256 与字节数后存到宿主本地。当前体积以清单 `totalBytes` 为准；其中包含建模方法，但全包不进入模型上下文。
 
 缓存按“页面来源和子路径＋catalogHash＋docsHash”隔离。同一来源重连时校验本地文件，哈希一致就复用。缺文件、文件损坏或版本漂移时刷新；下载中断不能标为 ready。静态库不保存当前工程、会话身份、实体/面边编号；示例 ID 也不能当当前 ID 使用。
 
@@ -48,3 +48,18 @@ const selected = await client.readLocal({
 `planSource(brief,{includeKnowledge:true,maxChars:32000})` 在同一次验证的快照中返回所需完整知识，避免先路由再读卡重复校验/解析磁盘包。省略、未知卡仍逐项明示，不能当作已读契约。闭合原路径与已定位截面可以使用 `profileSweep`；杂类和尺寸冲突不会因此自动变成可生成的合格产品。
 
 source.units 缺失/未定时返回 SOURCE_UNITS_UNRESOLVED；cm/m/in返回 SOURCE_UNIT_CONVERSION_REQUIRED。几何与尺寸实际换算至毫米并记录原单位/转换依据后，才提交units:mm；字段声明不是转换或证据校验。
+
+## 建模方法与故障诊断
+
+握手的 `onboarding.knowledge.modeling` 和下载清单提供轻量文档ID入口，正文与工具卡共存于 `index.json`；方法变更会改变 docsHash，使旧缓存失效。无需额外安装独立技能库或外部CAD引擎。
+
+新建、复刻或修改模型：先读 `api.modeling.start`、首次读 `api.modeling.guide`；再用 `client.route(任务,{scope:"modeling"})` 或检查 `agent-routing.json` 的 `modeling.*` 路线，选择一个 `readFirst`。按来源/截面/基准判断构造分支后，只读该分支 `branches[].tools` 的完整卡。`docs` 是按需参考，不能全部自动加载。失败时先读 `api.modeling.problems.diagnosis`，按现象选诊断工具，未知结果先对账。
+
+```js
+const candidates = await client.route("在安装板上开两个通孔", {scope:"modeling"});
+const selected = candidates.find(r => r.id === "modeling.cut-features");
+const workflow = await client.readLocal({docIds:[selected.readFirst],maxChars:8000});
+// 根据来源/结构选定单一分支后，读取该分支完整toolIds；不加载所有分支。
+```
+
+运行知识不携带旧版工具卡、历史测试回执、来源审计大表或项目状态。工作流/方法/例题用于推理，不代表当前模型已验收；制造、切片、打印和仿真按实际能力交接。

@@ -1,7 +1,9 @@
+import {MODELING_ROUTES} from './modeling-guidance.js';
 // Static task routes complement the generated exact UI-action routes.
 // No current document, selection or topology belongs in this library.
 export const AGENT_KNOWLEDGE = Object.freeze({
   version:1,manifestUrl:'automation/agent-knowledge.json',routingUrl:'automation/agent-routing.json',
+  modeling:{entryDocId:'api.modeling.start',guideDocId:'api.modeling.guide',diagnosisDocId:'api.modeling.problems.diagnosis',routePrefix:'modeling.',loading:'route -> one workflow/method -> selected branch complete cards; never bulk context'},
   policy:'required-on-first-handshake',cache:'source-base-url + catalogHash + docsHash',
   contextPolicy:'download-to-host-storage; load only selected routes, docs and complete cards',
   unavailableHostAction:'report-storage-or-download-limitation; never claim a local cache was created',
@@ -38,19 +40,20 @@ export const KNOWLEDGE_ROUTES = [
   {id:'inspection',title:'尺寸、材料与配合',keywords:['核对','验收','材料','漏接','镂空','干涉','壁厚','间隙','测量','inspect','verify','measure'],docs:['api.design-checks','api.reconstruction'],tools:['inspectDesign','measure','inspectThickness','inspectFit','measureRelation','planeSection']},
   {id:'editing',title:'定位与历史编辑',keywords:['移动','旋转','位置','定位','历史','撤销','对齐','move','rotate','history','align'],docs:['api.editor','api.references'],tools:['transform','body.align','getHistory','feature.edit','history.undo']},
   {id:'files',title:'工程和文件交付',keywords:['保存','导出','打开','STP','STEP','STL','文件','save','export','open'],docs:['recipe.file-workflow','api.file-errors'],tools:['files.capabilities','files.register','files.open','files.save','files.export','files.read','files.write']},
+...MODELING_ROUTES,
 ].map(route=>{
   const overview={profiles:'api.guide.sweep-loft',rounding:'api.guide.rounding',booleans:'api.guide.boolean',
     'source-reconstruction':'api.guide.source','product-understanding':'api.guide.source',
     'logo-relief':'api.guide.pattern','relief-taxonomy':'api.guide.pattern','mesh-relief-editing':'api.guide.pattern',
     files:'api.guide.files','error-recovery':'api.guide.errors'}[route.id];
   return {...route,docs:[...new Set([...(overview?[overview]:[]),...route.docs])],
-    readFirst:overview||route.docs[0],
-    readPlan:'Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list.'};
+    readFirst:route.readFirst||overview||route.docs[0],
+    readPlan:route.readPlan||'Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list.'};
 });
 
 export const KNOWLEDGE_GUIDANCE = `工具辨识与纠错：同一个叫法或近似名称可能对应多个工具；先比较候选工具的用途、结构、截面、参数含义和不适用情况，不能凭第一个名称相似的结果直接选用。全目录的结构、输入、结果及操作阶段区别见 api.tool-selection 和每张工具卡的 selectionGuide。用户指出选错时重新核对候选卡；只删除或撤销本次误建项，保留原有工程。删除、撤销和添加都使用公开 API 与真实回执，不能因担心选错而拒绝普通建模。具体程序错误应报告并保留当前工程，不凭空解释为权限限制。
 首次握手本地知识库与路由
-connect().onboarding.knowledge.policy=required-on-first-handshake。Agent首次连接当前WebCAD来源后，下载automation/agent-knowledge.json，再下载清单内index.json、agent-routing.json、routes.json到宿主存储；逐文件验证SHA-256和字节数。只把轻量路由及命中的完整文档/工具卡送进模型上下文，不打印1–2MiB全库。没有宿主下载或存储能力时报告具体限制，不假称已下载，也不为此安装后台服务。
+connect().onboarding.knowledge.policy=required-on-first-handshake。Agent首次连接当前WebCAD来源后，下载automation/agent-knowledge.json，再下载清单内index.json、agent-routing.json、routes.json到宿主存储；逐文件验证SHA-256和字节数。只把命中的路由及完整文档/工具卡送进模型上下文，不打印全库。建模先读api.modeling.start：新建/复刻/修改先读api.modeling.guide，再选modeling.*工作流和构造分支，最后只取所选工具卡；失败先读api.modeling.problems.diagnosis选择诊断工具。没有宿主下载或存储能力时报告具体限制，不假称已下载，也不为此安装后台服务。
 缓存按当前页面base URL、catalogHash、docsHash隔离。重连时哈希匹配且本地文件验证成功就复用；变更、缺文件或损坏时更新完整包。调用仍读新鲜context，静态库不包含活文档、当前实体编号或拓扑快照。静态库里的示例编号不是当前ID。
 分层阅读入口 api.reading-map：先 route，再只读 readFirst，比较候选 selectionGuide，最后取所选工具完整卡。docs/tools 是候选清单，不是要求一次全部读取。压缩后从本地已校验知识库重新取卡；仅记得 hash 不代表全文仍在上下文，不能发送 knownHashes 跳过重读。两级路由：agent-routing.json按任务命中源图重建、模板、轮廓、加工、布尔、参考基准、圆角、Logo/浮雕、检查、编辑、文件；routes.json按精确UI动作找公共接口。任务先读工作流→选工具→取完整卡→按需专题。template.*单模板优先，避免读取quickModel总目录。未命中用实时searchTools；当前页面哈希与工具契约优先。
 可选Node宿主helper（不是网页运行依赖）：createPageClient({send:宿主授权CDP适配器,knowledge:{baseUrl:目标页URL,directory:宿主缓存目录}})。connect自动下载/验证，返回knowledgeStatus:{status:ready,cacheHit,directory,downloadedFiles}；已有匹配缓存不发下载请求。未配置knowledge时返回download_required，helper.run在知识包准备前拒绝执行。其他宿主按相同清单实现存储适配。页面不能证明远端Agent已经写盘，不能把handshake描述符当成下载回执。

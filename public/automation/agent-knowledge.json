@@ -1,31 +1,31 @@
 {
   "schemaVersion": 1,
   "pageApiVersion": "1.57.4",
-  "catalogHash": "sha256:47db54ad710eabcdbd9a3bca80c18645919540798362bd4d2e47a5dc484d2cd1",
-  "docsHash": "sha256:7cd5ae6b6f0e8cda2a8f651e3c6e79c63d23108aed997c63cec263c43309b0d7",
+  "catalogHash": "sha256:fcbe6dfe0162c76fb0c223448f989b0edbc96074a7612c4046c6ac70f9849f98",
+  "docsHash": "sha256:1d1a3f118dd34ef659fc7a7cd8ced1624fab41f084d3bae9575eaefe207ccf55",
   "policy": "required-on-first-handshake",
   "scope": "static-docs-and-contracts-only",
   "files": [
     {
       "name": "index.json",
       "url": "index.json",
-      "sizeBytes": 3867232,
-      "sha256": "sha256:439448596bf4c558ce055bc9f3c8dcf745992ff31b15d78038f726b39d83da40"
+      "sizeBytes": 3945180,
+      "sha256": "sha256:0d295e9365ceab306a9e8a8c34c1285ab3f0c0203d424da228f11aa2855e6c89"
     },
     {
       "name": "agent-routing.json",
       "url": "agent-routing.json",
-      "sizeBytes": 34705,
-      "sha256": "sha256:9fc224abd4f099ed00da9cdca3fd9a57082c5addf5f2d7d01cb0eb1dbe6d5d7c"
+      "sizeBytes": 55220,
+      "sha256": "sha256:53dbc5c3c9140f8b2422f00e93dfdefb184caddefd4f9a986da365cc5237f3fb"
     },
     {
       "name": "routes.json",
       "url": "routes.json",
       "sizeBytes": 67635,
-      "sha256": "sha256:2a74cc8c870236c01dbb9f0d3737b4a1f64a464e37c9c4d918d6a95667d5ebd1"
+      "sha256": "sha256:94c549460caba75f4b8193201561e217e799a49c1b4b4460c366d10748778cbc"
     }
   ],
-  "totalBytes": 3969572,
+  "totalBytes": 4068035,
   "routing": "agent-routing.json",
   "index": "index.json",
   "uiRoutes": "routes.json",
@@ -34,6 +34,13 @@
     "api.knowledge-cache",
     "api.connection"
   ],
+  "modeling": {
+    "entryDocId": "api.modeling.start",
+    "guideDocId": "api.modeling.guide",
+    "diagnosisDocId": "api.modeling.problems.diagnosis",
+    "routePrefix": "modeling.",
+    "loading": "route -> one workflow/method -> selected branch complete cards; never bulk context"
+  },
   "contextPolicy": "download-to-host-storage; load only selected routes, docs and complete cards",
   "cache": "source-base-url + catalogHash + docsHash"
 }
