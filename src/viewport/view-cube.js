@@ -2,12 +2,12 @@ import * as THREE from 'three';
 
 const NS='http://www.w3.org/2000/svg';
 const CENTER=60;
-const CUBE_SCALE=27;
-const AXIS_SCALE=42;
+const CUBE_SCALE=25;
+const AXIS_HIT_WIDTH=15;
 const AXES=[
-  {name:'X',index:0,color:'#df4a4a',direction:'right'},
-  {name:'Y',index:1,color:'#249b67',direction:'back'},
-  {name:'Z',index:2,color:'#3973d4',direction:'top'},
+  {name:'X',index:0,color:'#df4a4a',positive:'right',negative:'left'},
+  {name:'Y',index:1,color:'#249b67',positive:'back',negative:'front'},
+  {name:'Z',index:2,color:'#3973d4',positive:'top',negative:'bottom'},
 ];
 const FACES=[
   {axis:0,sign:1,direction:'right',label:'右'},
@@ -17,6 +17,14 @@ const FACES=[
   {axis:2,sign:1,direction:'top',label:'顶'},
   {axis:2,sign:-1,direction:'bottom',label:'底'},
 ];
+const CORNERS=['bottom-left','top-left','bottom-right','top-right'];
+const OVERLAY_SELECTOR=[
+  'dialog[open]','[role="dialog"]:not([hidden])',
+  '.webcad-app.right-open .right-panel',
+  '.right-panel:has(.frame-task)',
+  '.right-panel:has(.cad-dialog[data-task-panel="true"])',
+  '.viewport-task','.viewport-topbar',
+].join(',');
 
 function svgElement(name,attributes={}){
   const node=document.createElementNS(NS,name);
@@ -36,8 +44,21 @@ function viewPoint(point,inverse){
   return {x:CENTER+local.x*CUBE_SCALE,y:CENTER-local.y*CUBE_SCALE,depth:local.z};
 }
 
+function isVisible(element){
+  if(!element?.isConnected||element.hidden)return false;
+  const style=getComputedStyle(element);
+  if(style.display==='none'||style.visibility==='hidden'||Number(style.opacity)===0)return false;
+  const rect=element.getBoundingClientRect();
+  return rect.width>0&&rect.height>0;
+}
+
+function isModalDialog(element){
+  if(!element.matches('dialog[open]'))return false;
+  try{return element.matches(':modal');}catch{return false;}
+}
+
 export function createViewCube(host,{getCamera,onSelect}){
-  const root=document.createElement('div');root.className='view-cube-control';root.setAttribute('role','group');root.setAttribute('aria-label','坐标视角选择');
+  const root=document.createElement('div');root.className='view-cube-control';root.dataset.corner='bottom-left';root.setAttribute('role','group');root.setAttribute('aria-label','坐标视角选择');
   const svg=svgElement('svg',{class:'view-cube-svg',viewBox:'0 0 120 120',role:'group','aria-label':'可随相机转动的坐标视角方块'});
   const defs=svgElement('defs');
   for(const axis of AXES){
@@ -59,23 +80,74 @@ export function createViewCube(host,{getCamera,onSelect}){
   svg.append(faceLayer);
   const axisLayer=svgElement('g',{class:'view-cube-axes'}),axes=[];
   for(const axis of AXES){
-    const group=svgElement('g',{class:'view-cube-axis',tabindex:0,role:'button','aria-label':`${axis.name} 轴正方向视图`});
-    const hit=svgElement('line',{class:'view-cube-axis-hit'});
+    const group=svgElement('g',{class:'view-cube-axis',tabindex:0,role:'button','aria-label':`${axis.name} 轴方向视图`,'aria-pressed':'false','data-axis':axis.name});
+    const hit=svgElement('line',{class:'view-cube-axis-hit','stroke-width':AXIS_HIT_WIDTH});
+    const target=svgElement('circle',{class:'view-cube-axis-target',r:7});
     const line=svgElement('line',{class:'view-cube-axis-line',stroke:axis.color,markerEnd:`url(#webcad-view-arrow-${axis.name})`});
     const label=svgElement('text',{class:'view-cube-axis-label',fill:axis.color,'text-anchor':'middle','dominant-baseline':'central','aria-hidden':'true'});
-    group.append(hit,line,label);
-    const activate=event=>{if(event){event.preventDefault();event.stopPropagation();}onSelect(axis.direction);};
+    group.append(hit,target,line,label);
+    const item={definition:axis,group,hit,target,line,label,direction:axis.positive};
+    const activate=event=>{if(event){event.preventDefault();event.stopPropagation();}onSelect(item.direction);};
     group.addEventListener('click',activate);
     group.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '||event.key==='Spacebar')activate(event);});
-    axes.push({definition:axis,group,hit,line,label});axisLayer.append(group);
+    axes.push(item);axisLayer.append(group);
   }
   svg.append(axisLayer);root.append(svg);host.append(root);
+
+  let placementFrame=0;
+  function updatePlacement(){
+    placementFrame=0;
+    if(!root.isConnected)return;
+    if(getComputedStyle(root).display==='none'){
+      root.style.visibility='';root.inert=false;root.setAttribute('aria-hidden','false');return;
+    }
+    const overlays=[...document.querySelectorAll(OVERLAY_SELECTOR)].filter(isVisible);
+    if(overlays.some(isModalDialog)){
+      root.style.visibility='hidden';root.inert=true;root.setAttribute('aria-hidden','true');root.dataset.occluded='modal';return;
+    }
+    const hostRect=host.getBoundingClientRect(),width=root.getBoundingClientRect().width,height=root.getBoundingClientRect().height;
+    if(!hostRect.width||!hostRect.height||!width||!height)return;
+    const gap=8,margin=8;
+    const blocked=overlays.map(element=>{
+      const rect=element.getBoundingClientRect();
+      return {left:rect.left-gap,top:rect.top-gap,right:rect.right+gap,bottom:rect.bottom+gap};
+    });
+    const rectFor=corner=>{
+      const left=corner.endsWith('left'),top=corner.startsWith('top');
+      const x=left?hostRect.left+margin:hostRect.right-margin-width;
+      const y=top?hostRect.top+margin:hostRect.bottom-margin-height;
+      return {left:x,top:y,right:x+width,bottom:y+height};
+    };
+    const corner=CORNERS.find(name=>{
+      const rect=rectFor(name);
+      return !blocked.some(other=>rect.left<other.right&&rect.right>other.left&&rect.top<other.bottom&&rect.bottom>other.top);
+    });
+    if(!corner){
+      root.style.visibility='hidden';root.inert=true;root.setAttribute('aria-hidden','true');root.dataset.occluded='layout';return;
+    }
+    root.dataset.corner=corner;root.style.visibility='visible';root.inert=false;root.setAttribute('aria-hidden','false');delete root.dataset.occluded;
+  }
+  const schedulePlacement=()=>{if(!placementFrame)placementFrame=requestAnimationFrame(updatePlacement);};
+  const resizeObserver=new ResizeObserver(schedulePlacement);resizeObserver.observe(host);
+  window.addEventListener('resize',schedulePlacement,{passive:true});
+  const relevantSelector='dialog,[role="dialog"],.webcad-app,.right-panel,.frame-task,.viewport-task,.viewport-topbar';
+  const mutationObserver=new MutationObserver(records=>{
+    if(records.some(record=>{
+      const target=record.target.nodeType===Node.ELEMENT_NODE?record.target:record.target.parentElement;
+      if(!target||target===root||root.contains(target))return false;
+      if(target.matches?.(relevantSelector)||target.closest?.(relevantSelector))return true;
+      return [...record.addedNodes,...record.removedNodes].some(node=>node.nodeType===Node.ELEMENT_NODE&&(node.matches?.(relevantSelector)||node.querySelector?.(relevantSelector)));
+    }))schedulePlacement();
+  });
+  mutationObserver.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden','open','style','role']});
+  updatePlacement();
 
   function update(){
     const camera=getCamera();if(!camera)return;
     camera.updateMatrixWorld();
     const inverse=camera.quaternion.clone().invert();
     const towardCamera=new THREE.Vector3(0,0,1).applyQuaternion(camera.quaternion).normalize();
+    const visibleSigns=[0,1,2].map(index=>Math.abs(towardCamera.getComponent(index))<0.025?1:Math.sign(towardCamera.getComponent(index)));
     const visible=[];
     for(const item of faces){
       const {definition,group,polygon,label}=item;
@@ -96,18 +168,31 @@ export function createViewCube(host,{getCamera,onSelect}){
     visible.sort((a,b)=>a.depth-b.depth);
     for(const item of visible)faceLayer.append(item.group);
     for(const item of axes){
-      const direction=[0,0,0];direction[item.definition.index]=1;
-      const local=new THREE.Vector3(...direction).applyQuaternion(inverse);
-      const length=Math.hypot(local.x,local.y);
-      if(length<0.08){item.group.style.display='none';continue;}
-      item.group.style.display='';
-      const unit={x:local.x/length,y:-local.y/length};
-      const tip={x:CENTER+unit.x*AXIS_SCALE,y:CENTER+unit.y*AXIS_SCALE};
-      item.hit.setAttribute('x1',String(CENTER));item.hit.setAttribute('y1',String(CENTER));item.hit.setAttribute('x2',String(tip.x));item.hit.setAttribute('y2',String(tip.y));
-      item.line.setAttribute('x1',String(CENTER));item.line.setAttribute('y1',String(CENTER));item.line.setAttribute('x2',String(tip.x));item.line.setAttribute('y2',String(tip.y));
-      item.label.setAttribute('x',String(tip.x+unit.x*6));item.label.setAttribute('y',String(tip.y+unit.y*6));item.label.textContent=item.definition.name;
+      const {definition,group,hit,target,line,label}=item;
+      const sign=visibleSigns[definition.index];
+      item.direction=sign>0?definition.positive:definition.negative;
+      group.setAttribute('aria-label',`${definition.name}${sign>0?'+':'−'} 轴方向视图`);
+      group.setAttribute('aria-pressed',String(towardCamera.getComponent(definition.index)*sign>0.995));
+      const start=[...visibleSigns],end=[...visibleSigns];
+      const sideAxes=[0,1,2].filter(index=>index!==definition.index);
+      start[sideAxes[0]]=-visibleSigns[sideAxes[0]];end[sideAxes[0]]=-visibleSigns[sideAxes[0]];
+      start[definition.index]=-sign;
+      const from=viewPoint(start,inverse),to=viewPoint(end,inverse);
+      const dx=to.x-from.x,dy=to.y-from.y,length=Math.hypot(dx,dy);
+      if(length<2){group.style.display='none';continue;}
+      group.style.display='';
+      const unit={x:dx/length,y:dy/length},middle={x:(from.x+to.x)/2,y:(from.y+to.y)/2};
+      const radial=Math.hypot(middle.x-CENTER,middle.y-CENTER)||1;
+      const labelPoint={x:middle.x+(middle.x-CENTER)/radial*5,y:middle.y+(middle.y-CENTER)/radial*5};
+      hit.setAttribute('x1',String(from.x));hit.setAttribute('y1',String(from.y));hit.setAttribute('x2',String(to.x));hit.setAttribute('y2',String(to.y));
+      target.setAttribute('cx',String(middle.x));target.setAttribute('cy',String(middle.y));
+      line.setAttribute('x1',String(from.x));line.setAttribute('y1',String(from.y));line.setAttribute('x2',String(to.x));line.setAttribute('y2',String(to.y));
+      label.setAttribute('x',String(labelPoint.x));label.setAttribute('y',String(labelPoint.y));label.textContent=definition.name;
     }
   }
   update();
-  return {element:root,update,destroy(){root.remove();}};
+  return {element:root,update,destroy(){
+    if(placementFrame)cancelAnimationFrame(placementFrame);
+    resizeObserver.disconnect();mutationObserver.disconnect();window.removeEventListener('resize',schedulePlacement);root.remove();
+  }};
 }
