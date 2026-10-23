@@ -1,5 +1,5 @@
 /* Workspace shell. Sizing tokens come from UI_LAYOUT.panels. */
-.webcad-app{--accent:#17386a;--accent-soft:#e8ecf3;background:#f5f7f7}
+.webcad-app{--accent:#17386a;--accent-soft:#e8ecf3;background:#f5f7f7;min-height:0}
 .webcad-app .app-header{height:52px;min-height:52px;gap:16px;padding:0 16px;border-bottom:1px solid #dcdfe3;background:#fff;color:#303a4a;flex-wrap:nowrap}
 .app-header .brand-mark{color:#fff}.app-header .document-title{color:#303a4a}.app-header button:hover:not(:disabled){background:#e8ecf3}
 .app-header .header-actions .primary{color:#fff}.app-header .language-select{background:#f4f6f8;color:#303a4a;border-color:#dcdfe4}
@@ -223,6 +223,7 @@
 .view-cube-face:hover polygon,.view-cube-face:focus-visible polygon{fill:#cfe0fb;stroke:#235dcc;stroke-width:2.2}
 .view-cube-face:active polygon{fill:#aac7f3}
 .view-cube-face[aria-pressed="true"] polygon{fill:#dbe8fb;stroke:#285faa;stroke-width:2}
+.view-cube-face[aria-pressed="true"]:hover polygon,.view-cube-face[aria-pressed="true"]:focus-visible polygon{fill:#aac7f3;stroke:#235dcc;stroke-width:2.2}
 .view-cube-axis-hit{stroke:transparent;stroke-width:16;pointer-events:stroke;cursor:pointer}
 .view-cube-axis-target{fill:transparent;pointer-events:all;cursor:pointer}
 .view-cube-axis-line{stroke-width:2.5;stroke-linecap:round;pointer-events:none;vector-effect:non-scaling-stroke;transition:stroke-width .12s ease}
