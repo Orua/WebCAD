@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "id": "webcad-page-api",
-  "version": "1.57.4",
-  "buildId": "0cb1f37e0b921c8254597ee10822091406ab9410-src-e32b2ae268349815-working",
-  "catalogHash": "sha256:fcbe6dfe0162c76fb0c223448f989b0edbc96074a7612c4046c6ac70f9849f98",
-  "docsHash": "sha256:a9092fa84463626f30a96ebc82543b05af08fdf462c8ccf4fc4d591405cc6026",
+  "version": "1.57.5",
+  "buildId": "4a596991a697b0a46721ed0cd1a94950e1e7d712-src-961e0e128512f225-working",
+  "catalogHash": "sha256:caecf69707b42cf850ed773f4b1452a4238061864bccbc55792aa39cc69afe0f",
+  "docsHash": "sha256:187d8c5f82688cc512239efb20c370569cefeec3a6be1f509482e558987c09ab",
   "entrypoints": {
     "browser": "agent-start.html",
     "machine": "agent-start.json",
@@ -35,21 +35,27 @@
     {
       "relativePath": "scripts/knowledge-cache.mjs",
       "url": "webcad-page-api/scripts/knowledge-cache.mjs",
-      "sizeBytes": 12545,
-      "sha256": "sha256:a827c361ff093dc2ead25474bf303e14dd9f56f5648678dff93b17dedd6a7d2f"
+      "sizeBytes": 14140,
+      "sha256": "sha256:587f8b08e1daa620a106b77f11f7e67726bda2c3496f8f948b78520561853d9e"
+    },
+    {
+      "relativePath": "scripts/static-archive.mjs",
+      "url": "webcad-page-api/scripts/static-archive.mjs",
+      "sizeBytes": 2217,
+      "sha256": "sha256:bd64172cff34b1eca2a86a9d583a820442e8b3a5051d304759ce3ee9ae52ed53"
     },
     {
       "relativePath": "routes.json",
       "url": "routes.json",
       "sizeBytes": 67635,
-      "sha256": "sha256:f66d5ac1fbe90a4e452ba326d06f98b3ef296a4c6708cc096dc964a2d019e361"
+      "sha256": "sha256:f185ae75c37f496a820cc7aaf93b2e8c99701b2a5cc127ac61667df7425931c0"
     }
   ],
   "installer": {
     "relativePath": "install-agent.ps1",
     "url": "install-agent.ps1",
-    "sizeBytes": 7648,
-    "sha256": "sha256:9783a16a819026b9b3a6292ca835bdfb4f1638019ce1d5eb6e51d8a22044c247"
+    "sizeBytes": 7723,
+    "sha256": "sha256:9d163d0c73b5193c88f07903c8028dff8795729e4fc824a01b9ab624465a3141"
   },
   "installation": {
     "defaultDestination": "%USERPROFILE%/.codex/skills/webcad-page-api",

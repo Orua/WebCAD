@@ -15,13 +15,13 @@ async function fixture(){
 }
 test('first handshake verifies and downloads once; cached reconnect stays local and corruption refreshes',async()=>{
   const f=await fixture(),options={baseUrl:'http://localhost:667/sub/?document=live-id',directory:f.directory,fetchImpl:f.fetchImpl};
-  let cache=await syncKnowledge(connection(),options);assert.equal(cache.cacheHit,false);assert.equal(f.downloads,4);
+  let cache=await syncKnowledge(connection(),options);assert.equal(cache.cacheHit,false);assert.equal(f.downloads,2);
   assert.equal(cache.sourceBaseUrl,'http://localhost:667/sub/');
-  cache=await syncKnowledge(connection(),options);assert.equal(cache.cacheHit,true);assert.equal(f.downloads,4);
+  cache=await syncKnowledge(connection(),options);assert.equal(cache.cacheHit,true);assert.equal(f.downloads,2);
   assert.equal((await syncKnowledge(connection(),{...options,fetchImpl:null})).cacheHit,true,'verified static cache requires no network capability');
   const manifest=JSON.parse(await readFile(cache.manifestPath,'utf8'));assert(!('requestContext' in manifest));assert(!('sessionId' in manifest));
   await writeFile(join(cache.directory,'index.json'),'corrupted');cache=await syncKnowledge(connection(),options);
-  assert.equal(cache.cacheHit,false);assert.equal(f.downloads,8);
+  assert.equal(cache.cacheHit,false);assert.equal(f.downloads,4);
   await assert.rejects(syncKnowledge({...connection(),docsHash:'sha256:'+'0'.repeat(64)},options),{code:'KNOWLEDGE_STALE'});
   await assert.rejects(syncKnowledge(connection(),{...options,baseUrl:'http://localhost:16666/',fetchImpl:null}),{code:'KNOWLEDGE_DOWNLOAD_UNAVAILABLE'});
 });
@@ -38,8 +38,8 @@ test('host helper downloads on connect and blocks run if required host cache is 
   const bare=createPageClient({send,keyFactory:()=> 'key'}),c=await bare.connect();assert.equal(c.knowledgeStatus.status,'download_required');
   await assert.rejects(bare.run([{id:'part',method:'add',args:{}}],{context:c.requestContext}),{code:'KNOWLEDGE_CACHE_REQUIRED'});assert.equal(writes,0);
   const client=createPageClient({send,keyFactory:()=> 'key',knowledge:{baseUrl:'http://localhost:667',directory:f.directory,fetchImpl:f.fetchImpl}});
-  const ready=await client.connect();assert.equal(ready.knowledgeStatus.status,'ready');assert.equal(f.downloads,4);
-  assert.equal((await client.run([{id:'part',method:'add',args:{}}],{context:ready.requestContext})).status,'completed');assert.equal(f.downloads,4);assert.equal(writes,1);
+  const ready=await client.connect();assert.equal(ready.knowledgeStatus.status,'ready');assert.equal(f.downloads,2);
+  assert.equal((await client.run([{id:'part',method:'add',args:{}}],{context:ready.requestContext})).status,'completed');assert.equal(f.downloads,2);assert.equal(writes,1);
   assert.equal((await client.route('三视图DWG重建'))[0].id,'source-reconstruction');
 });
 test('portable host helper covers every current public method and file call',()=>{

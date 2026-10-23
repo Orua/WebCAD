@@ -2,7 +2,7 @@
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.57.4",
+  "version": "1.57.5",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -115,5 +115,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:a262cc813ed15350685746acac8f8298f043ecd62598676a5ea34acfe86c33f2"
+  "docsHash": "sha256:a312568cf7fa199b53e6ac0c76a3b7f1a76198415346d639bda14abe7d31f6c8"
 }

@@ -1,17 +1,26 @@
 // Host-side static documentation cache. Never stores the connection object or
 // live document state. The frontend has no filesystem dependency on this file.
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
-import {resolve,join} from 'node:path';
+import {resolve,join,dirname} from 'node:path';
 import {homedir} from 'node:os';
 import {createHash} from 'node:crypto';
+import {unpackKnowledgeZip} from './static-archive.mjs';
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
 const hash=bytes=>'sha256:'+createHash('sha256').update(bytes).digest('hex');
 const names=['index.json','agent-routing.json','routes.json'];
 const matches=(manifest,c)=>manifest?.schemaVersion===1&&manifest.catalogHash===c.catalogHash&&manifest.docsHash===c.docsHash;
 function validateManifest(m,c){
   if(!matches(m,c))fail('KNOWLEDGE_STALE','Knowledge package and live page hashes differ; reconnect before downloading.');
+  if(c.buildId&&m.buildId!==c.buildId)fail('KNOWLEDGE_STALE','Unified package build differs from the live page.');
+  if(c.onboarding?.knowledge?.bundleRequired&&!m.archive)fail('KNOWLEDGE_STALE','Unified ZIP is required by this page.');
   if(!Array.isArray(m.files)||m.files.length!==names.length||new Set(m.files.map(f=>f.name)).size!==names.length)fail('KNOWLEDGE_INVALID','Incomplete knowledge package.');
   for(const f of m.files)if(!names.includes(f.name)||f.url!==f.name||!Number.isSafeInteger(f.sizeBytes)||f.sizeBytes<1||!/^sha256:[a-f0-9]{64}$/.test(f.sha256))fail('KNOWLEDGE_INVALID','Invalid finite package file.');
+  if(m.archive){
+    const allowed=[...names,'agent-kit.json','webcad-page-api/SKILL.md','webcad-page-api/references/connection.md','webcad-page-api/scripts/page-client.mjs','webcad-page-api/scripts/knowledge-cache.mjs','webcad-page-api/scripts/static-archive.mjs','remote-agent.json','remote-agent/host-adapter.js','remote-agent/runtime-contract.json','remote-agent/layout-planner.py.txt'];
+    const a=m.archive;
+    if(a.url!=='agent-bundle.zip'||a.format!=='zip'||!Array.isArray(a.files)||a.files.length!==allowed.length||new Set(a.files.map(f=>f.name)).size!==allowed.length||a.files.some(f=>!allowed.includes(f.name)))fail('KNOWLEDGE_INVALID','Invalid unified ZIP descriptor.');
+    for(const f of [a,...a.files])if(!Number.isSafeInteger(f.sizeBytes)||f.sizeBytes<1||f.sizeBytes>16*1024*1024||!/^sha256:[a-f0-9]{64}$/.test(f.sha256))fail('KNOWLEDGE_INVALID','Invalid unified ZIP file.');
+  }
 }
 function validatePayloads(payloads,c){
   const index=JSON.parse(payloads.get('index.json').toString('utf8'));
@@ -25,16 +34,16 @@ export async function syncKnowledge(connection,{baseUrl,directory=join((typeof p
   if(!/^sha256:[a-f0-9]{64}$/.test(connection?.catalogHash)||!/^sha256:[a-f0-9]{64}$/.test(connection?.docsHash))fail('KNOWLEDGE_INVALID','Fresh live catalog/docs hashes are required.');
   let base;try{base=new URL('./',baseUrl);}catch{fail('KNOWLEDGE_SOURCE_REQUIRED','Supply the bound page base URL.');}
   if(!['http:','https:'].includes(base.protocol)||base.username||base.password)fail('KNOWLEDGE_SOURCE_REQUIRED','Use the authorized HTTP(S) page base without credentials.');
-  const sourceKey=hash(base.href).slice(7,23),versionKey=connection.catalogHash.slice(7,23)+'-'+connection.docsHash.slice(7,23);
+  const sourceKey=hash(base.href).slice(7,23),versionKey=connection.catalogHash.slice(7,23)+'-'+connection.docsHash.slice(7,23)+(connection.buildId?'-'+hash(connection.buildId).slice(7,23):'');
   const cacheDir=resolve(directory,sourceKey,versionKey),manifestPath=join(cacheDir,'agent-knowledge.json');
-  const descriptor=cacheHit=>({status:'ready',cacheHit,directory:cacheDir,manifestPath,sourceBaseUrl:base.href,catalogHash:connection.catalogHash,docsHash:connection.docsHash,downloadedFiles:cacheHit?0:4});
+  const descriptor=(cacheHit,m)=>({status:'ready',cacheHit,directory:cacheDir,manifestPath,sourceBaseUrl:base.href,catalogHash:connection.catalogHash,docsHash:connection.docsHash,knowledgeVersion:m.knowledgeVersion,completeLibrary:true,installedFiles:m.archive?.files.length||m.files.length,downloadedFiles:cacheHit?0:m.archive?2:4});
   try{
     const cached=JSON.parse(await readFile(manifestPath,'utf8'));validateManifest(cached,connection);
     if(cached.sourceBaseUrl!==base.href)throw new Error('Different source');
-    const payloads=new Map(await Promise.all(cached.files.map(async f=>{
+    const payloads=new Map(await Promise.all((cached.archive?.files||cached.files).map(async f=>{
       const bytes=await readFile(join(cacheDir,f.name));if(bytes.length!==f.sizeBytes||hash(bytes)!==f.sha256)throw new Error('Cache corrupted');return [f.name,bytes];
     })));
-    validatePayloads(payloads,connection);return descriptor(true);
+    validatePayloads(payloads,connection);return descriptor(true,cached);
   }catch{/* Missing or corrupted static cache: download one complete package. */}
   if(typeof fetchImpl!=='function')fail('KNOWLEDGE_DOWNLOAD_UNAVAILABLE','This host has no fetch; supply an authorized static-file download adapter.');
   const download=async name=>{
@@ -43,15 +52,15 @@ export async function syncKnowledge(connection,{baseUrl,directory=join((typeof p
     return Buffer.from(await response.arrayBuffer());
   };
   const manifest=JSON.parse((await download('agent-knowledge.json')).toString('utf8'));validateManifest(manifest,connection);
-  const payloads=new Map(await Promise.all(manifest.files.map(async f=>{
+  const payloads=manifest.archive?unpackKnowledgeZip(await download(manifest.archive.url),manifest.archive):new Map(await Promise.all(manifest.files.map(async f=>{
     const bytes=await download(f.url);if(bytes.length!==f.sizeBytes||hash(bytes)!==f.sha256)fail('KNOWLEDGE_HASH_MISMATCH',`Knowledge file ${f.name} hash/size mismatch.`);return [f.name,bytes];
   })));
   validatePayloads(payloads,connection);
   await mkdir(cacheDir,{recursive:true});
-  for(const [name,bytes]of payloads)await writeFile(join(cacheDir,name),bytes);
+  for(const [name,bytes]of payloads){await mkdir(dirname(join(cacheDir,name)),{recursive:true});await writeFile(join(cacheDir,name),bytes);}
   // Commit marker last; an interrupted download is never treated as ready.
   await writeFile(manifestPath,JSON.stringify({...manifest,sourceBaseUrl:base.href},null,2)+'\n');
-  return descriptor(false);
+  return descriptor(false,manifest);
 }
 async function openCache(cache){
   if(cache?.status!=='ready')fail('KNOWLEDGE_CACHE_REQUIRED','Download and verify knowledge before local routing.');

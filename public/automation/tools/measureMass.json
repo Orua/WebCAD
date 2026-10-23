@@ -2,7 +2,7 @@
   "id": "measureMass",
   "title": "measureMass",
   "category": "page-method",
-  "version": "1.57.4",
+  "version": "1.57.5",
   "contextPolicy": "identity",
   "description": "measureMass({context,bodyId,materialId?})；测量当前对象体积，再按显式材料/对象材料/工程默认材料优先级计算。",
   "synonyms": [
@@ -71,5 +71,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dd54b7c16384b1b16606e39a0a3b350ad74d7a107f2ed509bb58246da2a6ea4b"
+  "docsHash": "sha256:65bc3e1e892d785f5e42b569168d82d04439de7e5900795db6065dfedbe041ab"
 }

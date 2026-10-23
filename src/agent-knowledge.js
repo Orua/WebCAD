@@ -2,7 +2,7 @@ import {MODELING_ROUTES} from './modeling-guidance.js';
 // Static task routes complement the generated exact UI-action routes.
 // No current document, selection or topology belongs in this library.
 export const AGENT_KNOWLEDGE = Object.freeze({
-  version:1,manifestUrl:'automation/agent-knowledge.json',routingUrl:'automation/agent-routing.json',
+  version:2,manifestUrl:'automation/agent-knowledge.json',archiveUrl:'automation/agent-bundle.zip',packageFormat:'zip',bundleRequired:true,routingUrl:'automation/agent-routing.json',
   modeling:{entryDocId:'api.modeling.start',guideDocId:'api.modeling.guide',diagnosisDocId:'api.modeling.problems.diagnosis',routePrefix:'modeling.',loading:'route -> one workflow/method -> selected branch complete cards; never bulk context'},
   policy:'required-on-first-handshake',cache:'source-base-url + catalogHash + docsHash',
   contextPolicy:'download-to-host-storage; load only selected routes, docs and complete cards',
