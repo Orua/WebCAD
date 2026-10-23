@@ -31,6 +31,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   }
   function syncPanelToggle(){
     if(!panelToggle)return;
+    surface.style.setProperty('--cad-toolbar-height',(surface.querySelector?.('.app-header')?.getBoundingClientRect().bottom||52)+'px');
     surface.append(panelToggle);
     const label=collapsed?'展开 Agent 对话框':'隐藏 Agent 对话框';
     panelToggle.title=label;panelToggle.setAttribute('aria-label',label);panelToggle.setAttribute('aria-expanded',String(!collapsed));
