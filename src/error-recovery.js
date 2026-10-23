@@ -107,7 +107,7 @@ export function errorRecovery(error={},receipt={}){
   const classification=uncertain?'reconcile':base.id;
   const next=uncertain?'先按原任务或请求标识查询回执并与当前工程对账，确认前不要重放、换键或另起计算。':logoNext??base.next;
   const candidate=base.candidate===true&&!uncertain&&notCommitted&&error.budgetExhausted!==true;
-  return {version:ERROR_RECOVERY_VERSION,code,classification,reason,preservation,next,
+  return {version:ERROR_RECOVERY_VERSION,code,classification,reason,preservation,next,scope:'failed-operation',agentMayContinue:true,
     userMessage:logoReason?`${reason}${next}`:`${reason}${preservation}${next}`,automaticRetry:false,
     retry:{allowed:false,condition:base.readRetry&&!uncertain?'仅重试只读画面/截图一次；不重做建模。':'原错误条件已明确修正、状态已对账且共享预算允许；不得自动重放。'},
     candidate:{eligible:candidate,allowed:false,mode:candidate?'evaluate-existing-preview-conditions':'blocked',requires:['known-not-committed','new-mechanism-evidence','shared-budget-available','supported-tool-contract','unchanged-design-intent'],commit:'only-after-valid-preview-and-explicit-task-authorization'},
@@ -124,7 +124,15 @@ export function humanError(error,receipt={}){
   const source=typeof error==='string'?{message:error}:error||{};
   uiAudit.push({at:Date.now(),code:source.code??'UNCLASSIFIED_ERROR',message:auditText(source.message),...(source.path?{path:auditText(source.path)}:{}),...(source.requestId?{requestId:source.requestId}:{}),...(source.jobId?{jobId:source.jobId}:{})});
   if(uiAudit.length>100)uiAudit.shift();
-  return errorRecovery(source,receipt).userMessage;
+  const recovery=errorRecovery(source,receipt);
+  // A UI validation message is not evidence of an unknown geometry commit.
+  // Keep full recovery/receipt guidance on the API, without repeating it in
+  // every field correction notice.
+  if(!Object.keys(receipt).length&&!source.commitState&&!source.serviceCommitState){
+    const specific=businessReason(source.message);
+    return specific||recovery.reason;
+  }
+  return recovery.userMessage;
 }
 
 // Preserve legacy code/message/path and receipt status for audit/backwards compatibility.
@@ -145,7 +153,7 @@ export function withErrorRecovery(receipt){
   return result;
 }
 
-export const ERROR_RECOVERY_GUIDE=`# 错误解释与恢复\n\n失败先读 error.recovery 与 userMessage，保留 code/message/path/requestId/jobId/原幂等键供审计；向用户只说明中文原因、已保留状态和可执行下一步，不倾倒原始异常、堆栈、磁盘路径或凭证。恢复分类是建议契约，不执行重试、撤销或取消，不改变原始status/commitState。\n\n1. 权限、非法参数、工程/来源/版本冲突、含混拓扑、完整性、保护区和预算阻断必须先停。不能为友好而吞错、伪成功或解除限制。\n2. unknown/断线/超时/找不到原作业先对账：页面getJob、getBatchReceipt或Services getServicesJob/getServicesRequest按原ID查询，结合当前getState。只读取相关原任务；不得新key重放。cancel只是请求，最终停止状态才证明停止；本地超时提醒继续原任务。\n3. partial批次不是原子事务。检查每步回执，前面已提交内容保留；必要撤销用history.undo且先核对本次提交与当前revision，不撤销其他用户操作。\n4. 几何可逆试算只用已有preview.start/update/cancel：确认not_committed、有具体新机制证据和剩余共享预算、当前卡支持才可评估一个候选。预览有效才申请既有任务授权范围内的commit；失败cancel，读回工程版本，不能宣称未经验证的回滚。换参数/工具/内核/Agent不重置预算。不得擅改尺寸、图案、孔、深度、R或降低精度。\n5. 替代路线先getTool/readDocs：输入几何/范围、毫米单位、截面/路径、输出网格或BRep、孔和来源保持均须相容。网格不冒充STEP，平面贯穿切不冒充曲面等深字，显示光滑不冒充固定R。未实现的复杂Services操作不得本地兜底。\n6. 显示失败先核对committed和display.rendered；可仅重试redraw/capture一次，不能重做建模。文件区分generated/download_initiated/write_verified：只恢复原工件传输，不重算；哈希或写盘确认失败不得说已保存。\n7. 复述结论例：选边有多个匹配，本次失败步骤未提交；请重新查询当前边并明确目标。或：连接中断，结果未确认；先查询原任务，当前工程和回执继续保留。\n\n字段：classification是原因族；automaticRetry始终false；retry.condition是重新评估条件；candidate.eligible仅标记可评估预览条件，candidate.allowed始终false且不授予执行权限；alternatives.readTools只给相关可读发现入口，不保证当前宿主/权限/能力支持；stop表示停止当前失败路线。即使stop=false也必须满足候选条件。动态第三方/无code异常归unclassified并保守停止，不声称静态扫描穷尽所有未来错误。`;
+export const ERROR_RECOVERY_GUIDE=`# 错误解释与恢复\n\nAgent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约束当前失败操作，agentMayContinue=true；不表示停止对话、诊断、其他只读查询或整个任务。已有用户授权继续有效，修正合法参数、读取日志和恢复工具连接不需要再次请用户确认。\n\n失败先读 code、message、path 和提交状态，向用户简短说明具体问题与下一步。保留原始诊断供查询，不倾倒堆栈或凭证；不吞错或伪报成功。\n\n1. 参数或选取无效：按当前工具卡修正相关字段；不因一次格式错误结束任务。权限、来源、工程身份及完整性检查仅阻止不符合条件的操作。\n2. unknown/断线/超时：用原 getJob、getBatchReceipt、getServicesJob/getServicesRequest 查询回执。不新建 key 重放结果未知的写入；其他独立工作可继续。cancel 只是停止请求，本地超时提醒仍继续原任务。\n3. partial：前面成功的提交保留，只处理失败或未执行部分，不重建已成功部分。\n4. 几何候选沿已有 preview.start/update/cancel，在确认 not_committed、有明确修正依据、支持的工具与剩余共享预算时继续；preview.commit 沿用当前任务已获授权，不另加确认。不得擅改尺寸、孔、深度、R或精度。候选不重置共享预算。\n5. 工具不支持时可继续查询等价能力和诊断；来源、单位、孔和输出语义仍须保持。不得把网格当作精确 BRep，也不以另一个内核掩盖尚未实现的操作。\n6. 显示或文件传输失败不等于建模失败。核对 committed、display.rendered、generated/download_initiated/write_verified，只恢复相应显示或传输，不重新计算模型。\n\n恢复字段是建议，不自动重试、撤销或取消，不改变原 status/commitState。candidate.eligible 只说明可评估，candidate.allowed 不新增执行授权。未知错误先查真实原因，不声称静态清单穷举了动态第三方错误。`;
 
 export function errorRecoveryCatalogDoc(){
   const groups=new Map();

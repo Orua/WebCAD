@@ -207,6 +207,8 @@ function errorRecovery(error = {}, receipt = {}) {
     reason,
     preservation,
     next,
+    scope: "failed-operation",
+    agentMayContinue: true,
     userMessage: logoReason ? `${reason}${next}` : `${reason}${preservation}${next}`,
     automaticRetry: false,
     retry: { allowed: false, condition: base.readRetry && !uncertain ? "\u4EC5\u91CD\u8BD5\u53EA\u8BFB\u753B\u9762/\u622A\u56FE\u4E00\u6B21\uFF1B\u4E0D\u91CD\u505A\u5EFA\u6A21\u3002" : "\u539F\u9519\u8BEF\u6761\u4EF6\u5DF2\u660E\u786E\u4FEE\u6B63\u3001\u72B6\u6001\u5DF2\u5BF9\u8D26\u4E14\u5171\u4EAB\u9884\u7B97\u5141\u8BB8\uFF1B\u4E0D\u5F97\u81EA\u52A8\u91CD\u653E\u3002" },
