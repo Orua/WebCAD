@@ -1,4 +1,5 @@
 import {LOGO_MACHINING_SCHEMA} from './logo-machining-optimization.js';
+import {MODELING_DOCS} from './modeling-guidance.js';
 import {MODELING_PITFALLS} from './modeling-pitfalls.js';
 import {meshReliefSampleSchema} from './mesh/relief-sample.js';
 import {BLEND_SELECTOR_SCHEMA} from './modeling/blend-selector-contract.js';
@@ -69,6 +70,7 @@ const PAGE_METHODS = Object.freeze(['getMaterials','measureMass','reliefDesignFi
 const FILE_METHODS = Object.freeze(Object.keys(FILE_ARGUMENT_KEYS));
 const RELIEF_TAXONOMY = `浮雕 Agent 决策表\n输入/目标 | 工具 | 输出 | 限制\n作者制作的灰度高度图，毛发/纹理、打印 | meshHeightfieldRelief | 封闭网格/STL | 2049/边，1900000采样\n高度图局部抬高/压低/平滑/压平 | heightfieldSculpt，feature.edit追加params.sculpt | 网格/STL | 512笔，20000点\n网格与实体合并/挖出 | transform定位，再meshBoolean | 网格/STL | 2–16封闭实体\n恒深矢量LOGO | logo | BRep/STEP | 单精确面\n小图案或分层矢量、精确STEP | readRelief→relief | BRep/STEP | 4–65采样，32层\n精确浮雕局部修整 | reliefSculpt，prepareReliefSculpt→feature.edit | BRep | 7–65局部网格，128笔\n外凸圆柱浮雕 | relief | BRep | 外凸、角宽≤90°、总高≤R×20%、无旋转\n层间肩部过渡 | reliefShoulder | BRep | 需要Services\n已有STL局部修高 | sampleMeshRelief→meshReliefEdit | 网格 | 200000三角面\n圆形起伏底板 | meshReliefPlate | 网格 | 200000三角面\n照片/光影参考 | 先人工制作高度图，再meshHeightfieldRelief | 不直接加工 | 禁止把照片亮度当几何深度\nheightfieldSculpt和reliefSculpt是发现入口，执行真实feature.edit/prepareReliefSculpt，并非独立建模op。`;
 const PAGE_DOCS = Object.freeze({
+  ...MODELING_DOCS,
   'api.reading-map':READING_MAP,
   ...COMPLEX_GUIDES,
   'api.error-recovery':errorRecoveryCatalogDoc(),
@@ -663,6 +665,9 @@ export function readDocs(input) {
       text: body.slice(offset, offset + limit), nextCursor: offset + limit < body.length ? String(offset + limit) : null };
   };
   if (Object.hasOwn(PAGE_DOCS, id)) {
+    // Modeling prose points to exact cards for execution policy; do not append
+    // the full method context table to each small on-demand chapter.
+    if (Object.hasOwn(MODELING_DOCS, id)) return page(PAGE_DOCS[id], PAGE_DOC_VERSION);
     const policies=[...PAGE_METHODS,...FILE_METHODS.map(name=>'files.'+name)].map(name=>`${name}: contextPolicy=${contextPolicy(name)}`).join('\n');
     return page(PAGE_DOCS[id]+'\n\nContext policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.\n'+policies, PAGE_DOC_VERSION);
   }

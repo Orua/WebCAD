@@ -61,15 +61,15 @@ async function openCache(cache){
   })));
   return validatePayloads(payloads,cache);
 }
-export async function routeKnowledge(cache,query,{limit=3}={}){
-  if(typeof query!=='string'||query.length>500||!Number.isInteger(limit)||limit<1||limit>10)fail('KNOWLEDGE_QUERY_INVALID','Use a short query and limit 1..10.');
+export async function routeKnowledge(cache,query,{limit=3,scope='all'}={}){
+  if(typeof query!=='string'||query.length>500||!Number.isInteger(limit)||limit<1||limit>10||!['all','modeling'].includes(scope))fail('KNOWLEDGE_QUERY_INVALID','Use a short query, limit 1..10 and scope all/modeling.');
   const {routing}=await openCache(cache),text=query.toLocaleLowerCase();
   const matches=word=>{
     const term=word.toLocaleLowerCase();
     if(!/^[a-z0-9 ._-]+$/.test(term))return text.includes(term);
     return new RegExp('(?<![a-z0-9._-])'+term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![a-z0-9._-])').test(text);
   };
-  return routing.routes.map(route=>{const matchedTerms=route.keywords.filter(matches);
+  return routing.routes.filter(route=>scope==='all'||route.id.startsWith('modeling.')).map(route=>{const matchedTerms=route.keywords.filter(matches);
     return {...route,matchedTerms,score:matchedTerms.reduce((sum,word)=>sum+word.length,0)};
   }).filter(route=>route.score>0).sort((a,b)=>b.score-a.score).slice(0,limit);
 }

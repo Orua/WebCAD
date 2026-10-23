@@ -5,16 +5,15 @@
 
 Follow the existing LogoVector deployment pattern: ASHX references compiled DLLs and the DLL invokes controlled Logo/OCCT workers. Do not require or reinstall the independent Windows Host service, named-pipe transport or Host installer. Older Host-only rules below are superseded for the current deployment. The canonical IIS entry is Gateway.IisHandler; package with scripts/package-iis-dll.ps1. Preserve authorization, persistent jobs, cancellation, artifact identity, timeouts and source geometry; no server deployment to 10.121.11.8 is authorized in the current scope.
 
-## 部署端点一致性（用户要求，2026-10-13）
+## 部署端点一致性（用户更新，2026-10-23）
 
-无论修改 UI、工具、页面 API、文档、Services、Logo 或 Native，部署完成必须保证所有正式使用端点运行同一发布版本。不得只更新生产站或文件镜像而遗漏本机独立站点。
+无论修改 UI、工具、页面 API、文档、Services、Logo 或 Native，本机只维护 `http://localhost/webcad/`，生产前端为 `https://goldenfu.cn/webcad/`。不再维护单独端口的本机前端。工作台是生产前端的宿主入口，不是另一套部署目录。
 
 每次发布必须覆盖并核对：
 
 - 生产静态页面：`https://goldenfu.cn/webcad/`。
 - 生产工作台入口：`https://goldenfu.cn/AI/WebCAD/WebCADWorkspace.aspx`；确认它加载本次发布的 WebCAD，保留宿主工作台功能。
-- 本机独立入口：`http://127.0.0.1:17674/`（包括 `?document=...` 工程链接）；当前 IIS 物理路径为 `F:/WebCADServices-local/frontend-usable-20261010-final`，部署时必须重新读取实际映射，不能只凭历史路径推断。
-- 本机 IIS 镜像入口：`http://localhost/webcad/`；当前物理路径为 `F:/Project/Goldenluck/Web/webcad`，同样核对实际映射。
+- 唯一本机入口：`http://localhost/webcad/`（包括 `?document=...` 工程链接）；当前物理路径为 `F:/Project/Goldenluck/Web/webcad`，发布时重新读取实际 IIS 映射。
 
 前端使用同一个已验证构建包同步各端点；从端点实际 HTTP 响应核对 `buildId`、`pageApiVersion`、`catalogHash`、`docsHash` 和入口资源哈希一致，不能以磁盘复制成功代替部署验证。工作台只要求其嵌入的 WebCAD 版本一致，不要求不同宿主页面 HTML 相同。
 
@@ -22,32 +21,31 @@ Follow the existing LogoVector deployment pattern: ASHX references compiled DLLs
 
 不可达、缺少授权或版本不一致的端点必须明确报告，不能宣称部署完整完成；遵守现有授权边界。将实际端点、物理映射、发布标识与核对结果记录在 G 盘部署报告。不同版本并行发布前须重新核对当前线上版本，保留其他已授权发布的改动，防止旧包覆盖新功能。
 
-## 唯一本机测试入口（用户要求，2026-10-13）
+## 唯一本机使用与验收入口（用户更新，2026-10-23）
 
-- 不再新增 WebCAD 测试站点、临时验收站点或其他测试端口。所有前端、工具和 Agent 接口修改完成后，直接在现有 `http://127.0.0.1:17674/` 验证。
-- `17685`（WebCADUpgrade20261011）和 `17686`（WebCADShoulder20261011）已取消；不得重新创建或启用。历史文件与配置备份仅用于回滚，不作为运行入口。
-- 本机验证前读取 17674 的实际 IIS 映射，备份被替换的程序文件；保留工程、Cookie、自定义配置和后端任务数据。不得通过另起站点规避当前入口的问题。
-- 生产及 localhost 镜像仍按上面的部署端点一致性规则同步。17674 是唯一日常本机测试入口，其他正式入口只进行发布后必要的一致性确认。
+- 所有前端、工具和 Agent 接口修改完成后，构建并增量发布到现有 `http://localhost/webcad/`，在此日常使用和做一轮针对性验收。
+- 旧17674独立前端不再更新或作为验收入口；17685、17686同样不得恢复。历史文件与备份仅用于恢复，不复制成另一套维护版本。
+- 本机发布前读取 localhost/webcad 的实际 IIS 映射，备份被替换的程序文件，保留工程、Cookie、自定义配置和后端任务数据。
+- 本机就绪不以生产登录、FTP或GitHub可用为前提。`scripts/deploy.ps1 -Apply -LocalOnly` 只发布本机，不上传、不推送；生产发布另按已有授权执行。
 
 ### 今后固定布置与工作顺序
 
 | 位置或入口 | 固定用途 |
 |---|---|
 | `F:/Project/WebCAD` | 唯一维护源码；所有新修改在此接续，保留其他已授权修改，不复制成另一套长期维护版本 |
-| `http://127.0.0.1:17674/` | 唯一本机日常使用及修改验收入口，包括 Agent/API、工程链接与受影响 Services 联调 |
-| `http://localhost/webcad/` | 正式本机镜像；发布时同步同一构建包，不作为第二套测试台 |
-| `https://goldenfu.cn/webcad/` | 生产静态页面；发布已在17674验证的同一包 |
+| `http://localhost/webcad/` | 唯一本机日常使用及修改验收入口，包括 Agent/API、工程链接与受影响 Services 联调 |
+| `https://goldenfu.cn/webcad/` | 生产静态页面；增量上传已在localhost/webcad验证的同一包 |
 | `https://goldenfu.cn/AI/WebCAD/WebCADWorkspace.aspx` | 生产宿主工作台；嵌入同一发布版本，保留宿主功能 |
 | `G:/CAD-Workspace/WebCAD/` | 构建交付包、报告、缓存及回滚备份；这些目录不是运行站点 |
 
-1. 修改前核对主维护目录和17674当前版本、IIS实际物理映射；保留最新已授权成果，禁止用历史发布分支或旧包覆盖新功能。
+1. 修改前核对主维护目录和localhost/webcad当前版本、IIS实际物理映射；保留最新已授权成果，禁止用历史发布分支或旧包覆盖新功能。
 2. 备份受影响文件，再修改源码并运行直接相关的必要检查。命令行单元测试可以执行，但不得为其另起HTTP测试服务。
-3. 构建一个候选包，备份17674受影响的程序文件后更新其现有物理目录，在17674完成一轮针对性验证。发现问题就在此修复；需要回滚时恢复17674的上一有效包，不另建隔离站点。
-4. 验证通过并具有发布授权后，用这个相同构建包同步生产和localhost镜像，核对生产工作台嵌入的WebCAD版本；不为每个入口单独构建不同版本。
+3. 构建一个候选包，备份localhost/webcad受影响的程序文件后只同步变化文件，在此完成一轮针对性验证；本机发布完成即可使用。需要回滚时恢复上一有效程序文件，不另建站点。
+4. 具有生产发布授权后，用这个相同构建包只上传变化文件到服务器webcad目录，并按既有规则推送对应源码。工作台只核对嵌入地址及版本，不重复上传前端或另行构建。
 5. 从各正式入口实际HTTP响应核对buildId、pageApiVersion、catalogHash、docsHash及入口脚本哈希，记录结果后收尾。未能核实的入口明确报告，不宣称全部同步完成。
 6. 保留用户工程、Cookie、自定义颜色、环境配置和后端任务数据；未保存的页面工程不得被强制刷新或替换。部署仅更新发布清单中的程序文件。
 
-禁止创建新的IIS站点、Vite/preview静态站、临时HTTP服务器或更换端口作为测试台；旧17685/17686不得恢复。历史文件、构建目录或Git工作目录不是新运行入口，也不能作为另一套正式维护版本。
+必要核对通过就收尾，不扩大为全站审计或重复刷新、截图、下载。禁止创建新的IIS站点、Vite/preview静态站、临时HTTP服务器或更换端口作为测试台；旧17674/17685/17686不再作为维护入口。历史文件、构建目录或Git工作目录不是新运行入口。
 
 唯一正式维护分支为 `main`，唯一维护目录为 `F:/Project/WebCAD`。2026-10-13已要求将上午浮雕/UI、下午Agent保存恢复和原Native肩线成果统一归并；后续修改直接在该目录的main接续，不再新增长期维护分支或Git工作目录。历史提交和回滚备份只用于恢复，不是并行版本。不得通过reset/checkout/pull覆盖已有未提交修改。
 

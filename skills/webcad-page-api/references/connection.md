@@ -1,17 +1,17 @@
 # 本地 Agent 包与页面连接
 
-页面部署根地址记为 `BaseUrl`，例如 `http://localhost:17674/`；子路径部署需保留完整根路径。网页上的 `automation/agent-start.html` 是给人的入口，`automation/agent-start.json` 是给 Agent 的机器入口，`automation/routes.json` 来自实际 UI/API 映射。安装包仅帮助宿主发现和使用工具，不会给没有脚本权限的宿主增加权限。
+页面部署根地址记为 `BaseUrl`，本机使用 `http://localhost/webcad/`；子路径部署需保留完整根路径。网页上的 `automation/agent-start.html` 是给人的入口，`automation/agent-start.json` 是给 Agent 的机器入口，`automation/routes.json` 来自实际 UI/API 映射。安装包仅帮助宿主发现和使用工具，不会给没有脚本权限的宿主增加权限。
 
 ## 安装和更新
 
 下载页面的 `automation/install-agent.ps1`，用自己的工具查看脚本后显式执行。Windows PowerShell 5.1 与 PowerShell 7 均可：
 
 ```powershell
-& .\install-agent.ps1 -BaseUrl 'http://localhost:17674/'
+& .\install-agent.ps1 -BaseUrl 'http://localhost/webcad/'
 # 或安装到明确指定的隔离目录
-& .\install-agent.ps1 -BaseUrl 'http://localhost:17674/' -Destination 'D:\AgentPackages\webcad-page-api'
+& .\install-agent.ps1 -BaseUrl 'http://localhost/webcad/' -Destination 'D:\AgentPackages\webcad-page-api'
 # 若当前 Windows 执行策略阻止脚本，用一次性子进程运行；不会修改系统或用户策略
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install-agent.ps1 -BaseUrl 'http://localhost:17674/'
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\install-agent.ps1 -BaseUrl 'http://localhost/webcad/'
 ```
 
 默认目录为 `$env:USERPROFILE/.codex/skills/webcad-page-api`。安装器只下载有限清单中的五个文件（skill、连接说明、客户端脚本、知识缓存脚本、实际操作路由），逐个验证 SHA-256 后才更换目录。既有包先保存到父目录的 `.agent-backups/webcad-page-api-时间戳-唯一编号` 容器内，不在 skills 根目录直接创建另一份同名技能；重复安装安全，下载或哈希失败不改变既有包。`.agent-kit.json` 记录安装来源、版本和哈希。安装器不修改执行策略、不自动安装浏览器扩展、不启动后台进程；网页不会自动运行它。新安装的技能在宿主重新发现本地技能后可用。

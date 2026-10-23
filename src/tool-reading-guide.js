@@ -2,6 +2,7 @@
 export const READING_MAP = `# 分层取得工具
 1. 恢复入口：首次握手下载并校验知识包。压缩后保留本机工具、路由、项目文件；宿主支持时用 webcad_docs recovery 找回索引。已读记录不代表完整说明仍在模型上下文中，忘记参数就重读所需卡。
 2. 找方向：按任务查询 agent-routing.json；返回的是候选路线，不是执行计划。先看 readFirst 和 readPlan。精确 UI 动作用 routes.json；已知工具 ID 直接 getTools，不必重新搜索。
+建模方法：首次建模读 api.modeling.start 和 api.modeling.guide，按 modeling.* 路线只读相应工作流；明确构造分支后才取完整卡。失败先读 api.modeling.problems.diagnosis 再选诊断工具，整库只存宿主磁盘。
 3. 做选择：看搜索摘要、selectionGuide.chooseWhen 与相似工具区别；只读一个命中专题，不加载所有候选专题。来源、截面、路径、支撑面、精确实体/网格结果不清时，先补对应证据。
 4. 取契约：getTools({ids:[所需ID]}) 一次取得少量完整卡。readingGuide 指向阅读说明；按 selectionGuide、preconditions、inputSchema、refsSchema、units、limits、minimalExample、sideEffects、verification、errors 的顺序核对。调用入口以卡内 usage 和示例为准，discovery-only 不代表可直接执行。inputSchema/refsSchema/units/limits/minimalExample 才是参数依据，摘要不能代替契约。需要时按 nextCursor 读完专题，不能截断 schema。
 5. 执行：取得当前文档引用和 revision，按 run 或专用接口提交；逐项核对回执。minimalExample 只解释请求结构，不证明当前来源适用或几何必然成功。
