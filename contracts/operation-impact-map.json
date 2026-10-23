@@ -1,5 +1,14 @@
 {
   "version": 1,
+  "mobileCubeLayout20261023": {
+    "localImpact": "Canvas fits available height with chat open; mobile collapse handle is 48x20 at canvas bottom; perspective cube and protruding XYZ guides share a fixed negative corner",
+    "servicesImpact": "None: workspace CSS/JS only; no Services runtime or geometry changes",
+    "logoImpact": "None: no Logo or Native changes",
+    "contractImpact": "Existing view and assistant layout operations unchanged; positive axis targets stable through camera rotations",
+    "documentImpact": "None: view state only; geometry, saved projects and history unchanged",
+    "cacheImpact": "Rebuild frontend and knowledge identity; version workspace CSS/JS URLs",
+    "requiredTests": ["Focused assistant layout tests", "Mobile chat expanded/collapsed cube visibility and face interaction; desktop handle dimensions"]
+  },
   "modelingKnowledge20261023": {
   "localImpact": "Read-only modeling guidance in shared page docs and host knowledge routes; no geometry/UI changes",
   "servicesImpact": "None: Services runtime and geometry contracts unchanged",

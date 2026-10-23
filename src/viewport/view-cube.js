@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 const NS='http://www.w3.org/2000/svg';
 const CENTER=60;
-const CUBE_SCALE=25;
+const CUBE_SCALE=16;
 const AXIS_HIT_WIDTH=15;
 const AXES=[
   {name:'X',index:0,color:'#df4a4a',positive:'right',negative:'left'},
@@ -41,7 +41,8 @@ function faceCorners({axis,sign}){
 
 function viewPoint(point,inverse){
   const local=new THREE.Vector3(...point).applyQuaternion(inverse);
-  return {x:CENTER+local.x*CUBE_SCALE,y:CENTER-local.y*CUBE_SCALE,depth:local.z};
+  const perspective=12/(12-local.z);
+  return {x:CENTER+local.x*CUBE_SCALE*perspective,y:CENTER-local.y*CUBE_SCALE*perspective,depth:local.z};
 }
 
 function isVisible(element){
@@ -71,6 +72,7 @@ export function createViewCube(host,{getCamera,onSelect}){
     const group=svgElement('g',{class:'view-cube-face',tabindex:0,role:'button','aria-label':`${face.label}视图`,'aria-pressed':'false','data-direction':face.direction,'data-axis':AXES[face.axis].name});
     const polygon=svgElement('polygon');
     const label=svgElement('text',{x:0,y:0,'text-anchor':'middle','dominant-baseline':'central','aria-hidden':'true'});
+    label.textContent=face.label;
     group.append(polygon,label);
     const activate=event=>{if(event){event.preventDefault();event.stopPropagation();}onSelect(face.direction);};
     group.addEventListener('click',activate);
@@ -92,6 +94,8 @@ export function createViewCube(host,{getCamera,onSelect}){
     group.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '||event.key==='Spacebar')activate(event);});
     axes.push(item);axisLayer.append(group);
   }
+  // Fixed world-space guides start at the same negative corner as the reference cube.
+  // Like the reference triad, rear guides stay legible at reduced opacity.
   svg.append(axisLayer);root.append(svg);host.append(root);
 
   let placementFrame=0;
@@ -147,7 +151,6 @@ export function createViewCube(host,{getCamera,onSelect}){
     camera.updateMatrixWorld();
     const inverse=camera.quaternion.clone().invert();
     const towardCamera=new THREE.Vector3(0,0,1).applyQuaternion(camera.quaternion).normalize();
-    const visibleSigns=[0,1,2].map(index=>Math.abs(towardCamera.getComponent(index))<0.025?1:Math.sign(towardCamera.getComponent(index)));
     const visible=[];
     for(const item of faces){
       const {definition,group,polygon,label}=item;
@@ -169,23 +172,20 @@ export function createViewCube(host,{getCamera,onSelect}){
     for(const item of visible)faceLayer.append(item.group);
     for(const item of axes){
       const {definition,group,hit,target,line,label}=item;
-      const sign=visibleSigns[definition.index];
-      item.direction=sign>0?definition.positive:definition.negative;
-      group.setAttribute('aria-label',`${definition.name}${sign>0?'+':'−'} 轴方向视图`);
-      group.setAttribute('aria-pressed',String(towardCamera.getComponent(definition.index)*sign>0.995));
-      const start=[...visibleSigns],end=[...visibleSigns];
-      const sideAxes=[0,1,2].filter(index=>index!==definition.index);
-      start[sideAxes[0]]=-visibleSigns[sideAxes[0]];end[sideAxes[0]]=-visibleSigns[sideAxes[0]];
-      start[definition.index]=-sign;
+      item.direction=definition.positive;
+      group.setAttribute('aria-label',`${definition.name}+ 轴方向视图`);
+      group.setAttribute('aria-pressed',String(towardCamera.getComponent(definition.index)>0.995));
+      const start=[-1,-1,-1],end=[-1,-1,-1];
+      end[definition.index]=3.2;
+      group.style.opacity=[0,1,2].some(index=>index!==definition.index&&towardCamera.getComponent(index)<0)?'1':'0.45';
       const from=viewPoint(start,inverse),to=viewPoint(end,inverse);
       const dx=to.x-from.x,dy=to.y-from.y,length=Math.hypot(dx,dy);
       if(length<2){group.style.display='none';continue;}
       group.style.display='';
       const unit={x:dx/length,y:dy/length},middle={x:(from.x+to.x)/2,y:(from.y+to.y)/2};
-      const radial=Math.hypot(middle.x-CENTER,middle.y-CENTER)||1;
-      const labelPoint={x:middle.x+(middle.x-CENTER)/radial*5,y:middle.y+(middle.y-CENTER)/radial*5};
-      hit.setAttribute('x1',String(from.x));hit.setAttribute('y1',String(from.y));hit.setAttribute('x2',String(to.x));hit.setAttribute('y2',String(to.y));
-      target.setAttribute('cx',String(middle.x));target.setAttribute('cy',String(middle.y));
+      const labelPoint={x:Math.max(7,Math.min(113,to.x+unit.x*9)),y:Math.max(7,Math.min(113,to.y+unit.y*9))};
+      hit.setAttribute('x1',String(to.x-unit.x*6));hit.setAttribute('y1',String(to.y-unit.y*6));hit.setAttribute('x2',String(to.x));hit.setAttribute('y2',String(to.y));
+      target.setAttribute('cx',String(to.x));target.setAttribute('cy',String(to.y));
       line.setAttribute('x1',String(from.x));line.setAttribute('y1',String(from.y));line.setAttribute('x2',String(to.x));line.setAttribute('y2',String(to.y));
       label.setAttribute('x',String(labelPoint.x));label.setAttribute('y',String(labelPoint.y));label.textContent=definition.name;
     }
