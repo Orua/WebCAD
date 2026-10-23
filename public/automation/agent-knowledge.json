@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "buildId": "4c965626ca0c9ae8abb03116529729cc934af86a-src-62599a342f944664-working",
-  "knowledgeVersion": "sha256:3cd54197f8defd2c33af3afef3edef9d969ec9ab7b525bb779f58c91901edba9",
+  "buildId": "5b6f212a21b9ec16b686c0578085a78e23da6bf0-src-071e2fcb4d3a99ac-working",
+  "knowledgeVersion": "sha256:38aeeabf81e004760035c53c484a713ace4ff315d2dfd7c95252283464f80380",
   "pageApiVersion": "1.57.5",
   "catalogHash": "sha256:caecf69707b42cf850ed773f4b1452a4238061864bccbc55792aa39cc69afe0f",
   "docsHash": "sha256:187d8c5f82688cc512239efb20c370569cefeec3a6be1f509482e558987c09ab",
@@ -9,12 +9,12 @@
     "url": "agent-bundle.zip",
     "format": "zip",
     "sizeBytes": 572361,
-    "sha256": "sha256:f31d253bb7be8d53e70bc25a3e8f33ee7c362413b87e4b162f8c5b0f90ab323c",
+    "sha256": "sha256:2def49aa80fd77f71db0554674b730a5ae95890bdbcaa6e6822ae93ed0a25066",
     "files": [
       {
         "name": "index.json",
         "sizeBytes": 3948005,
-        "sha256": "sha256:2586537cd94b5ce258f4951aaead0b803d4c39a8531f276752c38daa403f63f8"
+        "sha256": "sha256:62a4bd1f58a99b2e0dff9175d48165857a71f563cd73982efb694059ea862804"
       },
       {
         "name": "agent-routing.json",
@@ -24,12 +24,12 @@
       {
         "name": "routes.json",
         "sizeBytes": 67635,
-        "sha256": "sha256:fb3a20d9a21af3108898f35d669b0c19f5cf3ebe78c9d9fd993aac062256a03e"
+        "sha256": "sha256:e82516c19d7dd22045e5d1b6e4162a3b3a1c62705a233b3eba3df043261464c8"
       },
       {
         "name": "agent-kit.json",
         "sizeBytes": 2600,
-        "sha256": "sha256:31a7e690bbd47d75263b2bec661bedeff603bd931ae5915b001c1a4157c7a991"
+        "sha256": "sha256:120ba5360692af06b1e8e76cfa373b0d3432fc7a4c34f5b16095d869401968dd"
       },
       {
         "name": "webcad-page-api/SKILL.md",
@@ -59,7 +59,7 @@
       {
         "name": "remote-agent.json",
         "sizeBytes": 1102,
-        "sha256": "sha256:e586a52673d1faec863d03ab39059eb51be5697a0b062a825e875369e964520b"
+        "sha256": "sha256:24c1afa544ba2ceaf0072abac5ecf111ced39ff73a4f0c0559575f3b3e1b0dd6"
       },
       {
         "name": "remote-agent/host-adapter.js",
@@ -85,7 +85,7 @@
       "name": "index.json",
       "url": "index.json",
       "sizeBytes": 3948005,
-      "sha256": "sha256:2586537cd94b5ce258f4951aaead0b803d4c39a8531f276752c38daa403f63f8"
+      "sha256": "sha256:62a4bd1f58a99b2e0dff9175d48165857a71f563cd73982efb694059ea862804"
     },
     {
       "name": "agent-routing.json",
@@ -97,7 +97,7 @@
       "name": "routes.json",
       "url": "routes.json",
       "sizeBytes": 67635,
-      "sha256": "sha256:fb3a20d9a21af3108898f35d669b0c19f5cf3ebe78c9d9fd993aac062256a03e"
+      "sha256": "sha256:e82516c19d7dd22045e5d1b6e4162a3b3a1c62705a233b3eba3df043261464c8"
     }
   ],
   "totalBytes": 4070860,

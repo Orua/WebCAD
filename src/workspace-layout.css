@@ -226,11 +226,10 @@
 .view-cube-axis-hit{stroke:transparent;stroke-width:16;pointer-events:stroke;cursor:pointer}
 .view-cube-axis-target{fill:transparent;pointer-events:all;cursor:pointer}
 .view-cube-axis-line{stroke-width:2.5;stroke-linecap:round;pointer-events:none;vector-effect:non-scaling-stroke;transition:stroke-width .12s ease}
-.view-cube-axis-label{font:700 10.5px system-ui,sans-serif;stroke:#fff;stroke-width:2.2;paint-order:stroke;pointer-events:none}
+.view-cube-axis-label{font:700 12.5px system-ui,sans-serif;stroke:#fff;stroke-width:2.2;paint-order:stroke;pointer-events:none}
 .view-cube-axis:hover .view-cube-axis-line,.view-cube-axis:focus-visible .view-cube-axis-line,.view-cube-axis[aria-pressed="true"] .view-cube-axis-line{stroke-width:4;filter:brightness(1.2)}
 .view-cube-axis:active .view-cube-axis-line{stroke-width:4.5;filter:brightness(1.35)}
 @media(max-width:680px){
   .viewport-entity-status{display:none!important}
   .view-cube-control{display:block;width:88px;height:88px}
-  .webcad-app .viewport-topbar .right-toggle[data-expanded="false"]{position:fixed!important;top:auto!important;left:50vw!important;right:auto!important;bottom:calc(env(safe-area-inset-bottom,0px) + 38px)!important;transform:translateX(-50%)!important;z-index:50!important;display:inline-flex!important;flex:0 0 54px!important;width:54px!important;height:34px!important;min-height:34px!important;writing-mode:horizontal-tb!important;align-items:center;justify-content:center;border-radius:9px;box-shadow:0 2px 8px #17273e30}
 }
