@@ -83,6 +83,7 @@
 .cad-dialog .dialog-footer button{min-height:36px;padding:8px 16px;border-radius:8px}
 .message-dialog{position:fixed;width:340px;max-width:calc(100vw - 32px);padding:20px 22px 18px;overflow:auto;text-align:left;border-radius:12px}
 .message-dialog::backdrop{background:rgba(15,32,45,.18);backdrop-filter:none}
+.message-notice{inset:auto 16px 46px auto;margin:0;z-index:1000;max-height:50vh;background:var(--panel,#fff);border:1px solid var(--border,#d5dfe5);box-shadow:0 6px 20px rgba(15,32,45,.16);pointer-events:auto}
 .message-close{position:absolute;right:10px;top:8px;width:28px;height:28px;padding:0;border-radius:50%;font-size:21px;line-height:1;color:#91a0aa}
 .message-title{margin:0 24px 8px 0;font-size:15px;font-weight:650;color:#233c49;line-height:1.4}
 .message-body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.6;color:#526875;max-height:35dvh;overflow:auto;user-select:text}

@@ -11,22 +11,25 @@ export function createMessagePresenter(root){
   const make=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};
   function next(){
     if(active||!queue.length)return;
-    const item=queue.shift(),previous=document.activeElement,d=make('dialog',`cad-dialog message-dialog message-${item.kind}`);
+    const item=queue.shift(),d=make('section',`cad-dialog message-dialog message-notice message-${item.kind}`);
     const id=`message-${crypto.randomUUID()}`;
-    d.dataset.hostControlAllowed='true';d.setAttribute('role','alertdialog');d.setAttribute('aria-labelledby',id);d.setAttribute('aria-describedby',`${id}-body`);
+    d.dataset.hostControlAllowed='true';d.setAttribute('role',item.kind==='error'?'alert':'status');d.setAttribute('aria-labelledby',id);d.setAttribute('aria-describedby',`${id}-body`);
     const title=make('h2','message-title',item.title);title.id=id;
     const body=make('div','message-body',item.message);body.id=`${id}-body`;
     const repeat=make('p','message-repeat'),footer=make('div','message-footer'),confirm=make('button','primary','关闭'),close=make('button','message-close','×');
-    close.setAttribute('aria-label','关闭提示');close.dataset.hostControlAllowed='true';confirm.dataset.hostControlAllowed='true';confirm.type=close.type='button';confirm.autofocus=true;
-    const dismiss=()=>{if(active?.dialog!==d)return;active=null;d.close();d.remove();if(previous?.isConnected)previous.focus({preventScroll:true});next();};
-    close.addEventListener('click',dismiss);confirm.addEventListener('click',dismiss);d.addEventListener('cancel',e=>{e.preventDefault();dismiss();});
-    footer.append(confirm);d.append(close,title,body,repeat,footer);root.append(d);
-    active={...item,dialog:d,repeat,dismiss};d.showModal();confirm.focus();
+    close.setAttribute('aria-label','关闭提示');close.dataset.hostControlAllowed='true';confirm.dataset.hostControlAllowed='true';confirm.type=close.type='button';
+    const dismiss=()=>{if(active?.dialog!==d)return;active=null;d.remove();next();};
+    close.addEventListener('click',dismiss);confirm.addEventListener('click',dismiss);
+    footer.append(confirm);d.append(close,title,body,repeat,footer);
+    // Remain visible inside an open tool dialog, without creating a second
+    // modal, stealing keyboard focus or preventing parameter correction.
+    (root.querySelector('dialog[open]')||root).append(d);
+    active={...item,dialog:d,repeat,dismiss};
   }
   function show(kind,title,message){
     const text=displayMessage(message),key=`${kind}:${title}:${text}`;
     if(active?.key===key){active.count++;active.repeat.textContent=`相同提示出现 ${active.count} 次`;return;}
-    if(queue.some(item=>item.key===key))return;
+    queue.length=0;if(active)active.dismiss();
     queue.push({kind,title,message:text,key,count:1});next();
   }
   return {error:message=>show('error','操作未完成',message),warning:(message,title='请注意')=>show('warning',title,message),
