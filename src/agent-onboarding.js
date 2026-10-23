@@ -19,6 +19,8 @@ export const AGENT_ONBOARDING = freeze({
   errorRecoveryDoc:'api.error-recovery',
   knowledge:AGENT_KNOWLEDGE,
   localKit: {
+    archiveUrl: 'automation/agent-bundle.zip',
+    knowledgeManifestUrl: 'automation/agent-knowledge.json',
     manifestUrl: 'automation/agent-kit.json',
     installerUrl: 'automation/install-agent.ps1',
     skillUrl: 'automation/webcad-page-api/SKILL.md',
@@ -36,7 +38,7 @@ export const AGENT_ONBOARDING = freeze({
     {id:'list-capabilities',action:'Read tab.capabilities.list() when the current host provides it.',check:'DOM read access alone neither proves nor rules out an authorized page-script channel.'},
     {id:'read-cdp-docs',action:'If cdp is listed and authorized, read (await tab.capabilities.get("cdp")).documentation().',check:'Follow the current host API and permission limits; other hosts use their documented equivalent.'},
     {id:'runtime-evaluate',action:'Use documented Runtime.evaluate to call window.webcad.api.connect({queries:["task capability"],limit:2,includeContracts:true}) with awaitPromise:true and returnByValue:true where supported.',check:'Inspect exceptionDetails/result, then canExecute/blockers/requestContext. ready alone is insufficient; wait or request the required preview decision without changing the document.'},
-    {id:'knowledge-cache',action:'On the first handshake, download automation/agent-knowledge.json and its finite static files to host storage; verify hashes and route with agent-routing.json. Reuse only a verified cache matching source base URL, catalogHash and docsHash.',check:'Load bootstrap docs once. For modeling, read api.modeling.start, then the guide and one matching modeling.* workflow; choose a branch before full cards. On failure read api.modeling.problems.diagnosis. Report unavailable host storage/download; never put the full library in model context or cache live identity/IDs.'},
+    {id:'knowledge-cache',action:'Install the unified package: fetch automation/agent-knowledge.json, then its single agent-bundle.zip containing the complete manual, modeling guidance, host skill, routing and adapter. Verify ZIP and every extracted file on host storage. Compare the live build/catalog/docs versions at each connection; refresh mismatched or corrupt caches, reuse a matching verified cache without another download.',check:'Report the complete-library installation receipt, not a claim that every chapter was read. For modeling read api.modeling.start, then one modeling.* workflow and selected complete cards. Only route to company knowledge for business/source facts. Keep full contents on disk, never bulk context. Report missing storage/download capability.'},
     {id:'contracts',action:'Read returned contracts; use getTools({ids,expectedCatalogHash}) only for missing relevant cards.',check:'Use the live page version and hashes. Cache complete static cards only, never state or topology IDs.'},
     {id:'run',action:'Submit the authorized task with api.run({context:requestContext,idempotencyKey,steps}).',check:'Use explicit params/refs and prior-result $ref links; retain the existing bounded, non-atomic batch protocol.'},
     {id:'readback',action:'Read per-step receipts, current getState(), exact measurements and the matching rendered frame.',check:'Distinguish committed geometry from rendered display; unknown results require inspection before any retry.'},

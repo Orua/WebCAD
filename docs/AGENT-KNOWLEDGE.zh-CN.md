@@ -1,6 +1,8 @@
 # Agent 首次知识下载与任务路由
 
-首次握手返回 `connect().onboarding.knowledge`。Agent 下载网页 base URL 下的 `automation/agent-knowledge.json` 清单，再取 `index.json`（完整静态文档/工具卡）、`agent-routing.json`（任务路由）、`routes.json`（真实 UI/API 操作路由）。核对每份文件 SHA-256 与字节数后存到宿主本地。当前体积以清单 `totalBytes` 为准；其中包含建模方法，但全包不进入模型上下文。
+首次握手返回 `connect().onboarding.knowledge`，主动要求准备统一知识包。宿主读取 `automation/agent-knowledge.json`，只下载一次 `agent-bundle.zip`；同包包含完整说明书/工具卡、建模技能正文、任务/UI路由、宿主技能与必要适配文件。先核对ZIP字节数和SHA-256，再逐文件校验后解压到宿主缓存，最后写入ready回执。无需再下载独立技能ZIP。压缩大小见 `archive.sizeBytes`，说明书未压缩大小仍见 `totalBytes`。
+
+每次接入比较实际页面buildId、catalogHash、docsHash及本地knowledgeVersion与逐文件哈希。同版完好缓存复用；版本不符、缺文件或损坏时重新下载整个统一包。下载和解压不代表把全本读进上下文。回执明确completeLibrary、knowledgeVersion、installedDirectory/目录、installedFiles、cacheHit；询问是否下载时直接报告回执，不调用无关CAD工具。
 
 缓存按“页面来源和子路径＋catalogHash＋docsHash”隔离。同一来源重连时校验本地文件，哈希一致就复用。缺文件、文件损坏或版本漂移时刷新；下载中断不能标为 ready。静态库不保存当前工程、会话身份、实体/面边编号；示例 ID 也不能当当前 ID 使用。
 
