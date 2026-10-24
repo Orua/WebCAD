@@ -2,7 +2,7 @@
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.57.5",
+  "version": "1.57.6",
   "contextPolicy": "revision",
   "description": "setAgentPanel({context,visible:true|false})；true接入，false退出释放。或setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false,floatingPosition?:{xPx:80,yPx:80}}})；layout与visible分开调用。宽高1–4096像素，浮标坐标0–100000像素并夹限到画布内。",
   "synonyms": [
@@ -44,5 +44,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a28ff6d543e6f828f830ce11be68de51f67d04a2f2a7e2d205d2bb528abcc36d"
+  "docsHash": "sha256:c6d254ade8937827b0ec19fe26c86d24c7a1062019213e25508553ecf5f9caeb"
 }

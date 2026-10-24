@@ -25,7 +25,11 @@ test('fit public API reads current source and rejects option injection and stale
   assert.equal(fitted.sourceBinding.documentInstanceId,'i');assert.equal(fitted.sourceBinding.baselineMm,.35);assert.equal(context.revision,1);assert.equal(entry.revision,1);
   assert.ok(fitted.fit.controlDeltasMm.some(x=>x>0));assert.equal(fitted.fit.report.deviationKind,'sampled-not-global');
   assert.equal((await api.reliefDesignFit({...args(),action:'get'})).status,'fitted');
+  // Whole-document revision must NOT invalidate retained fit (261024 restore key).
   context.revision++;
+  assert.equal((await api.reliefDesignFit({...args(),action:'get'})).status,'fitted');
+  // Draft revision change still marks STALE.
+  entry.revision++;
   assert.equal((await api.reliefDesignFit({...args(),action:'get'})).error.code,'RELIEF_DESIGN_STALE');
  }finally{globalThis.Worker=old;}
 });

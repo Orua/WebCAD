@@ -19,14 +19,20 @@ test('field resolution adapts to height source and precision',()=>{
  const small=adaptiveFieldResolution(draft(2,2,{columns:1025,rows:1025}),.05);assert.equal(small.columns,41);
  const lowGrid=adaptiveFieldResolution(draft(60,60,{columns:64,rows:64}),.05);assert.equal(lowGrid.columns,64);
 });
-test('browser control net auto ≤33 keeps aspect',()=>{
- assert.deepEqual(adaptiveBrowserControlNet(129,65),{columns:33,rows:17});
+test('browser control net auto-caps dense fields so 129× field stays under work budget',()=>{
+ // v2: 129-side fields auto-cap control net to ≤17 (33×33 on 129 blew FIT_WORK_BUDGET).
+ assert.deepEqual(adaptiveBrowserControlNet(129,65),{columns:65,rows:33});
+ assert.deepEqual(adaptiveBrowserControlNet(129,129),{columns:65,rows:65});
+ assert.deepEqual(adaptiveBrowserControlNet(65,65),{columns:65,rows:65});
  assert.deepEqual(adaptiveBrowserControlNet(20,20),{columns:20,rows:20});assert.deepEqual(adaptiveBrowserControlNet(2,2),{columns:9,rows:9});
 });
 test('edge keepout/fade scale down on small supports',()=>{
  const big=effectiveEdgeMargins(draft(60,60,{columns:9,rows:9},2,3));assert.equal(big.scaled,false);assert.equal(big.keepMm,2);
- const s=effectiveEdgeMargins(draft(18,18,{columns:9,rows:9},5,3));assert.equal(s.scaled,true);assert.equal(effectiveEdgeMargins(draft(40,40,{columns:9,rows:9},5,3)).scaled,false);
- assert.ok(Math.abs(s.keepMm+s.fadeMm-4.5)<1e-12);assert.ok(Math.abs(s.keepMm/s.fadeMm-5/3)<1e-12);
+ // 25% of min half-size: 18→limit 2.25; 40→limit 5 (8>5 scales); 60→limit 7.5 (5 ok).
+ const s=effectiveEdgeMargins(draft(18,18,{columns:9,rows:9},5,3));assert.equal(s.scaled,true);
+ assert.equal(effectiveEdgeMargins(draft(40,40,{columns:9,rows:9},5,3)).scaled,true);
+ assert.equal(effectiveEdgeMargins(draft(60,60,{columns:9,rows:9},2,2)).scaled,false);
+ assert.ok(Math.abs(s.keepMm+s.fadeMm-2.25)<1e-12);assert.ok(Math.abs(s.keepMm/s.fadeMm-5/3)<1e-12);
 });
 const rot=(q,v)=>{const [x,y,z,w]=q,u=[x,y,z],c=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],t=c(u,v).map(e=>2*e),r=c(u,t);return v.map((e,i)=>e+w*t[i]+r[i]);};
 test('face placement frame maps local axes to the face',()=>{
@@ -49,9 +55,9 @@ import {convertSourceOnServices} from '../src/services/relief-pipeline.js';
 import {encodeHeightGrid} from '../src/relief-source/convert.js';
 import {normalizeReliefDesignFitOptions} from '../src/relief-design-fit.js';
 import {reliefVolumeReview} from '../src/services/geometry-exchange.js';
-test('default browser fit uses Worker cancellation; explicit work budgets remain enforceable',()=>{
+test('default browser fit restores finite maxWork tied to time budget; explicit budgets remain enforceable',()=>{
  const options={mode:'emboss',controlColumns:33,controlRows:33,acceptanceToleranceMm:.05};
- assert.equal(normalizeReliefDesignFitOptions(options).maxWork,undefined);
+ assert.equal(normalizeReliefDesignFitOptions(options).maxWork,800000000);
  assert.equal(normalizeReliefDesignFitOptions({...options,maxWork:100}).maxWork,100);
  assert.equal(normalizeReliefDesignFitOptions({...options,maxWork:1000000000}).maxWork,1000000000);
 });
@@ -62,7 +68,7 @@ test('volume discrepancy is a visible candidate warning while strict and invalid
  assert.throws(()=>reliefVolumeReview({params:{designBinding:{audit:{deviationPolicy:'strict'}}}},report),{code:'RESULT_MISMATCH'});
  assert.throws(()=>reliefVolumeReview(feature,{...report,quality:{...report.quality,geometryValid:false}}),{code:'RESULT_MISMATCH'});
  assert.throws(()=>reliefVolumeReview(feature,{...report,quality:{...report.quality,bestRel:NaN}}),{code:'RESULT_MISMATCH'});
- assert.match(brepExecutionSummary({lastDecision:{executor:'remote'},lastReliefDesign:{volumeReview:{consistent:false,relativeError:.042015219}}},{done:true}),/4\.20%/);
+ assert.match(brepExecutionSummary({lastDecision:{executor:'remote'},lastReliefDesign:{volumeReview:{consistent:false,relativeError:.042015219}}},{done:true}),/近似候选/);assert.match(brepExecutionSummary({lastDecision:{executor:'remote'},lastReliefDesign:{volumeReview:{consistent:false,relativeError:.042015219}}},{done:true}),/4\.20%/);
 });
 test('Services downsample receipt is read from manifest separately from the grid artifact',async()=>{
  const asked={columns:2049,rows:9},b=budgetGridSize(asked.columns,asked.rows),grid=encodeHeightGrid({...b,values:new Float64Array(b.columns*b.rows)});

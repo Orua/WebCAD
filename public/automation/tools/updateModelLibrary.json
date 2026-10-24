@@ -2,7 +2,7 @@
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.57.5",
+  "version": "1.57.6",
   "contextPolicy": "revision",
   "description": "updateModelLibrary({context,expectedLibraryRevision,operation:move|restore,id?,index?})。move传内置id和移动后零起始index；restore恢复默认顺序。工具定义只读，不接受entry、library、脚本、upsert、remove或import。",
   "synonyms": [
@@ -91,5 +91,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c4936b35d55af076ece3678ca9e2c2b82321c502b5188080a0cf4e9bd5f6fdfa"
+  "docsHash": "sha256:709fdbd567796cf68262e14a09c43ce50a338e9d0967ed6748009713cec21495"
 }

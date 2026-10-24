@@ -2,7 +2,7 @@
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.57.5",
+  "version": "1.57.6",
   "contextPolicy": "identity",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
@@ -81,5 +81,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2a4568c1906b68c2132ab1754de06f29ea3404c503d5fc672dd078b3abbe98bb"
+  "docsHash": "sha256:f24304f854ace4f1a41865bdaf3b08c338e3dd3d40b94f4821216b55d349b775"
 }

@@ -20,15 +20,16 @@ export function adaptiveFieldResolution(draft,precisionMm=MACHINING_PRECISION_DE
  return W>=H?{columns:L,rows:S,auto:true}:{columns:S,rows:L,auto:true};
 }
 // Pure: automatic browser control net for a solved field (aspect kept, 9..max per side; 9 = former default).
-export const RELIEF_BROWSER_FIT_AUTO_MAX=33;
+export const RELIEF_BROWSER_FIT_AUTO_MAX=65;
 export function adaptiveBrowserControlNet(columns,rows,max=RELIEF_BROWSER_FIT_AUTO_MAX){
+ // Preserve a useful control net; candidate fits publish their current iterate when the work budget is spent.
  const k=Math.min(1,(max-1)/(Math.max(columns,rows)-1)),side=n=>Math.max(9,Math.min(max,Math.round((n-1)*k)+1));
  return {columns:side(columns),rows:side(rows)};
 }
 // Edge keep-out/fade are authored in mm. When the support is resized smaller (e.g. 60→18 mm) fixed mm margins
 // would lock most of the domain. Their sum is capped at RELIEF_EDGE_MARGIN_MAX_FRACTION of the support's
-// smallest half-size, scaling both proportionally, so at least half of the half-size stays free.
-export const RELIEF_EDGE_MARGIN_MAX_FRACTION=.5;
+// smallest half-size, scaling both proportionally, so at least ~75% of the half-size stays free.
+export const RELIEF_EDGE_MARGIN_MAX_FRACTION=.25;
 export function effectiveEdgeMargins(draft){
  const h=draft?.heightSource,s=draft?.support,keep=h?.edgeKeepoutMm??0,fade=h?.edgeFadeMm??0;
  const half=s?(s.kind==='circle'?s.radiusMm:Math.min(s.widthMm,s.heightMm)/2):Infinity,limit=RELIEF_EDGE_MARGIN_MAX_FRACTION*half,sum=keep+fade;

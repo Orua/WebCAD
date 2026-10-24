@@ -1,5 +1,6 @@
 import * as cad from 'replicad';
 import {topologyDetails} from './smooth-transition.js';
+import {millComplementaryFillet} from './modeling/rounding/mill-fillet-fallback.js';
 
 const dispose=value=>{try{value?.delete();}catch{}};
 const fail=message=>{throw Object.assign(new Error(message),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});};
@@ -53,11 +54,36 @@ export function blendTargets(shape,{edgeIds,faceIds,allEdges=false,sharedFaces=f
 }
 
 export function buildEdgeBlend(shape,op,params,{suggestRadius=false}={}) {
+  // OCCT Boolean/fillet builders may update flags or pcurves of their operands.
+  // Work on an owned BRep so the committed source remains available for undo.
+  const source=cad.deserializeShape(shape.serialize()).asShape3D();
+  try{return buildOwnedEdgeBlend(source,op,params,{suggestRadius});}finally{dispose(source);}
+}
+
+function buildOwnedEdgeBlend(shape,op,params,{suggestRadius=false}={}) {
   const started=performance.now();let selected;
   try{selected=blendTargets(shape,params);}catch(error){error.report={version:1,operation:op,stage:'selection',strategy:'native',attemptCount:0,elapsedMs:performance.now()-started,cause:'selection-rejected',targetCount:0};throw error;}
   const amount=params[op==='fillet'?'radius':'distance'];
   const {targets,rows,skipped}=selected,oc=cad.getOC(),edges=shape.edges;
   const mode=params.mode||'equalDistance',faces=shape.faces,supportFaces=[];
+  // Hard/kinked: edges whose adjacent sharp edges meet at a small fold (0.05°–15°). Full kinked chains
+  // often make OCCT report success with poor joins; prefer mill+boolean for those sets.
+  const kinkedIds=new Set(rows.filter(row=>row.normalAngleDeg>.05&&row.normalAngleDeg<15&&targets.some(target=>
+    [row.startPoint,row.endPoint].some(a=>[target.startPoint,target.endPoint].some(b=>Math.hypot(...a.map((v,i)=>v-b[i]))<1e-5)))).flatMap(row=>{
+      const near=targets.filter(target=>[row.startPoint,row.endPoint].some(a=>[target.startPoint,target.endPoint].some(b=>Math.hypot(...a.map((v,i)=>v-b[i]))<1e-5)));
+      return near.map(t=>t.edgeId);
+    }));
+  // Hard/kinked chains often "succeed" natively with bad geometry; prefer mill+boolean when most edges are kinked.
+  const kinkedSelected=targets.filter(t=>kinkedIds.has(t.edgeId)).length;
+  const allKinked=op==='fillet'&&targets.length>=1&&kinkedSelected===targets.length;
+  const mostlyKinked=op==='fillet'&&targets.length>=2&&kinkedSelected>=Math.ceil(targets.length*0.5);
+  if(allKinked||mostlyKinked||(op==='fillet'&&params.preferMillFallback===true)){
+    try{
+      const mill=millComplementaryFillet(shape,{edgeIds:targets.map(r=>r.edgeId),radiusMm:amount});
+      mill.shape.blendReport={version:1,operation:'fillet',stage:'completed',strategy:'mill-complementary-r-fallback',attemptCount:1,elapsedMs:performance.now()-started,dimensionKind:'radius',requestedAmountMm:amount,amount,scope:params.allEdges?'body':params.faceIds?(params.sharedFaces?'shared-faces':'face-boundaries'):'edges',processedEdgeIds:targets.map(r=>r.edgeId),skippedTangentEdgeIds:skipped,millReports:mill.reports,nativeFailure:allKinked?'prefer-mill-on-kinked-chain':mostlyKinked?'prefer-mill-on-mostly-kinked':'preferMillFallback',kinkedEdgeIds:[...kinkedIds]};
+      return mill.shape;
+    }catch(millPrimary){/* fall through to native then mill-on-fail */}
+  }
   let builder,result,stage='construction';
   try {
     builder=op==='fillet'?new oc.BRepFilletAPI_MakeFillet(shape.wrapped,oc.ChFi3d_FilletShape.ChFi3d_Rational):new oc.BRepFilletAPI_MakeChamfer(shape.wrapped);
@@ -77,6 +103,8 @@ export function buildEdgeBlend(shape,op,params,{suggestRadius=false}={}) {
     const progress=new oc.Message_ProgressRange();
     try{builder.Build(progress);}finally{dispose(progress);}
     if(!builder.IsDone())throw new Error('内核未完成过渡面连接');
+    let faulty=0;try{faulty=builder.NbFaultyContours();}catch{faulty=0;}
+    if(faulty>0)throw new Error(`内核报告 ${faulty} 条失败过渡轮廓`);
     result=cad.cast(builder.Shape());
     stage='validation';
     const check=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);
@@ -92,7 +120,18 @@ export function buildEdgeBlend(shape,op,params,{suggestRadius=false}={}) {
       failedIds=targets.filter(row=>failed.has(builder.Contour(edges[row.edgeId].wrapped))).map(row=>row.edgeId);
     }catch{}
     const ids=failedIds.length?failedIds:targets.map(row=>row.edgeId);
-    const nearKinks=rows.filter(row=>row.normalAngleDeg>.05&&row.normalAngleDeg<5&&targets.some(target=>
+    // Prefer true OCCT fillet; if it cannot finish, mill complementary-R along each edge and boolean.
+    if(op==='fillet'){
+      try{
+        dispose(builder);builder=null;dispose(result);result=null;
+        const mill=millComplementaryFillet(shape,{edgeIds:ids,radiusMm:amount});
+        mill.shape.blendReport={version:1,operation:'fillet',stage:'completed',strategy:'mill-complementary-r-fallback',attemptCount:2,elapsedMs:performance.now()-started,dimensionKind:'radius',requestedAmountMm:amount,amount,scope:params.allEdges?'body':params.faceIds?(params.sharedFaces?'shared-faces':'face-boundaries'):'edges',processedEdgeIds:ids,skippedTangentEdgeIds:skipped,millReports:mill.reports,nativeFailure:error?.message||null};
+        const output=mill.shape;return output;
+      }catch(millError){
+        error.millFallbackMessage=millError?.message;
+      }
+    }
+    const nearKinks=rows.filter(row=>row.normalAngleDeg>.05&&row.normalAngleDeg<15&&targets.some(target=>
       [row.startPoint,row.endPoint].some(a=>[target.startPoint,target.endPoint].some(b=>Math.hypot(...a.map((v,i)=>v-b[i]))<1e-5))));
     const continuity=nearKinks.length?`相连边存在小折角：${nearKinks.slice(0,8).map(row=>`${row.edgeId} (${row.normalAngleDeg.toFixed(3)}°)`).join(', ')}；视觉接近平滑不等于精确相切。`:'';
     let probeAttempts=0;

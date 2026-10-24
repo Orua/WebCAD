@@ -350,7 +350,7 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
   const plan=feature.op==='reliefShoulder'?(await request('shoulderPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:designServices?reliefDesignServicesPlan(next,feature):feature.op==='relief'?(await request('prepareReliefPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:feature.op==='round'?(await request('faceRoundPlan',{sourceFeatureId:feature.refs[0],params:feature.params,prepare:true})).plan:null;
   const context={documentId:next.documentId,documentInstanceId,expectedRevision};
   const candidate=await compileRemoteFeature(next,feature.id,bytes,context,{allowUpload:true,plan,signal,waitTimeoutMs:config.serverWaitMs,onWaitTimeout:job=>waitForServicesDecision(job,{signal})});checkTransaction(signal,expectedRevision);
-  if(designServices){const rd=candidate.manifest?.reliefDesign??{},m=rd.fit?.report?.metrics?.training??{};lastReliefDesignReceipt={featureId:feature.id,documentInstanceId,executor:'remote',jobId:candidate.manifest?.jobId??null,controlNet:[rd.fit?.columns??null,rd.fit?.rows??null],maxErrorMm:m.maxMm??null,rmsErrorMm:m.rmsMm??null,qualityCapacityRetry:rd.qualityCapacityRetry??null,volumeReview:{consistent:rd.quality?.consistent===true,relativeError:rd.quality?.bestRel??null}};}
+  if(designServices){const rd=candidate.manifest?.reliefDesign??{},m=rd.fit?.report?.metrics?.training??{},p=rd.quality?.machiningPrecisionMm??rd.fit?.report?.machiningPrecisionMm??rd.fit?.precision?.machiningPrecisionMm??null;lastReliefDesignReceipt={featureId:feature.id,documentInstanceId,executor:'remote',jobId:candidate.manifest?.jobId??null,controlNet:[rd.fit?.columns??null,rd.fit?.rows??null],maxErrorMm:m.maxMm??null,rmsErrorMm:m.rmsMm??null,machiningPrecisionMm:p,qualityCapacityRetry:rd.qualityCapacityRetry??null,volumeReview:{consistent:rd.quality?.consistent===true,relativeError:rd.quality?.bestRel??null}};}
   return {next:installCompiledCandidate(next,{manifest:candidate.manifest,bytes:candidate.geometryBytes,context,recipeFingerprint:candidate.recipeFingerprint}),record:{executor:'remote',input,executionKey,measurements:candidate.executionMeasurements}};
  }catch(error){if(!(error.code==='CANCELLED'&&error.submitted===false))servicesExecutionHistory.failure(executionKey,error);
   // Fitted relief: a Services failure falls back to the browser (same modules) when the design is locally computable.
@@ -883,10 +883,35 @@ async function autosave(){
   const update=value=>{if(instance===documentInstanceId&&savedRevision===revision)persistenceCheckpoint=value;};
   const db=await dbPromise;if(!db){update('failed');return;}
   return new Promise(resolve=>{try{const tx=db.transaction('documents','readwrite');
-    tx.objectStore('documents').put({document:snapshot,savedAt:Date.now(),instanceId:instance,revision:savedRevision},`recovery:${instance}`);
+    const row={document:snapshot,savedAt:Date.now(),instanceId:instance,revision:savedRevision};
+    tx.objectStore('documents').put(row,`recovery:${instance}`);
+    tx.objectStore('documents').put(row,'recovery:latest');
+    try{sessionStorage.setItem('webcad.recovery.latest',JSON.stringify({instanceId:instance,revision:savedRevision,savedAt:row.savedAt,documentId:snapshot.documentId}));}catch{}
     tx.oncomplete=()=>{update('saved');resolve();};
     tx.onerror=tx.onabort=()=>{update('failed');resolve();};
   }catch{update('failed');resolve();}});
+}
+async function loadLatestRecovery(){
+  // Same-tab refresh only: sessionStorage survives reload; a new tab starts clean.
+  let hint=null;try{hint=JSON.parse(sessionStorage.getItem('webcad.recovery.latest')||'null');}catch{hint=null;}
+  if(!hint?.instanceId)return null;
+  const db=await dbPromise;if(!db||!db.objectStoreNames.contains('documents'))return null;
+  return new Promise(resolve=>{try{
+    const store=db.transaction('documents','readonly').objectStore('documents');
+    const tryKey=key=>{
+      const req=store.get(key);
+      req.onsuccess=()=>{const row=req.result;resolve(row?.document&&Number.isFinite(row.savedAt)?row:null);};
+      req.onerror=()=>resolve(null);
+    };
+    // Prefer the exact instance written this session, then the latest cross-instance snapshot.
+    const req=store.get(`recovery:${hint.instanceId}`);
+    req.onsuccess=()=>{
+      const row=req.result;
+      if(row?.document&&Number.isFinite(row.savedAt))return resolve(row);
+      tryKey('recovery:latest');
+    };
+    req.onerror=()=>tryKey('recovery:latest');
+  }catch{resolve(null);}});
 }
 async function pasteModelClipboard(){
   if(!modelClipboard)throw new Error('WebCAD 剪贴板为空。请先选择实体并按 Ctrl+C。');
@@ -937,7 +962,22 @@ const host=document.getElementById('viewport');host.addEventListener('dragover',
 
 refresh();
 const ready=(async()=>{
-  try{await withLoading(async()=>{await request('ready');kernelReady=true;await rebuild(clone(documentModel),{record:false,save:false});});dirty=false;refresh();setStatus('就绪 · 在工具栏创建实体，或打开 STEP / WebCAD 工程。');return true;}
+  try{await withLoading(async()=>{
+    await request('ready');kernelReady=true;
+    // Same-tab refresh: restore the latest autosaved project (incl. reliefDesigns) so E2 retained drafts survive reload.
+    const recovered=await loadLatestRecovery();
+    const recDoc=recovered?.document;
+    const hasContent=!!(recDoc&&((recDoc.features?.length||0)>0||(recDoc.reliefDesigns?.length||0)>0||recDoc.name));
+    if(hasContent){
+      documentInstanceId=recovered.instanceId||documentInstanceId;
+      await rebuild(clone(recDoc),{record:false,save:false,newInstance:false,restoring:true});
+      dirty=true;persistenceCheckpoint='saved';
+      setStatus('已从本机恢复刷新前的工程（含已保存到工程的浮雕草稿）；请核对后保存工程文件。');
+    }else{
+      await rebuild(clone(documentModel),{record:false,save:false});
+      dirty=false;setStatus('就绪 · 在工具栏创建实体，或打开 STEP / WebCAD 工程。');
+    }
+  });refresh();return true;}
   catch(error){reportError(error);return false;}
 })();
 // Public automation surface also used by reproducible acceptance checks; never runs arbitrary code.
@@ -1099,7 +1139,7 @@ async function executeAI(command,args={},options={}){
 }
 const commandService=createCommandService({
   allowAdvisory:true,
-  snapshot:()=>({...aiState(),busy:busy||!!recoveryPromise||!!viewport.anchorStart,documentId:documentModel.documentId,documentInstanceId,sessionId:pageSessionId,previewDraft:previewIdentity&&previewNext?clone(previewIdentity.featureId?previewNext.features.find(f=>f.id===previewIdentity.featureId):previewNext.features.at(-1)):null,previewComputing,warnings:clone(lastWarnings),persistence:{level:'memory',checkpoint:persistenceCheckpoint}}),
+  snapshot:()=>({...aiState(),busy:busy||!!recoveryPromise||!!viewport.anchorStart,documentId:documentModel.documentId,documentInstanceId,sessionId:pageSessionId,previewDraft:previewIdentity&&previewNext?clone(previewIdentity.featureId?previewNext.features.find(f=>f.id===previewIdentity.featureId):previewNext.features.at(-1)):null,previewComputing,warnings:clone(lastWarnings),persistence:{level:persistenceCheckpoint==='saved'?'indexeddb-recovery':'memory',checkpoint:persistenceCheckpoint}}),
   execute:executeAI,
   query:args=>request('queryGeometry',args),
 });

@@ -8,14 +8,14 @@
 // The product Worker owns elapsed-time cancellation. A caller may still supply
 // an explicit work budget; an arbitrary global operation count must not reject
 // otherwise supported adaptive fields before their time budget is used.
-const LIMIT={side:129,samples:16641,poles:4225,controlSide:65,iterations:50000,work:Number.MAX_SAFE_INTEGER,regions:64};
+const LIMIT={side:129,samples:16641,poles:4225,controlSide:65,iterations:50000,work:800000000,regions:64};
 const fail=(code,message,details={})=>{throw Object.assign(new Error(message),{code,details});};
 const finite=(v,label)=>{if(typeof v!=='number'||!Number.isFinite(v))fail('FIT_INPUT_INVALID',label+' must be finite');return v;};
 const integer=(v,label,min,max)=>{if(!Number.isInteger(v)||v<min||v>max)fail('FIT_INPUT_INVALID',label+' is outside its integer capacity');return v;};
 const array=v=>Array.isArray(v)||ArrayBuffer.isView(v)&&!(v instanceof DataView);
 function keys(value,allowed,label){if(!value||typeof value!=='object'||Array.isArray(value))fail('FIT_INPUT_INVALID',label+' must be an object');for(const k of Object.keys(value))if(!allowed.includes(k))fail('FIT_INPUT_INVALID',label+'.'+k+' is unsupported');}
 function positive(v,label,max){finite(v,label);if(v<=0||v>max)fail('FIT_INPUT_INVALID',label+' is outside its positive capacity');return v;}
-function budget(options){let work=0;const max=integer(options.maxWork??LIMIT.work,'maxWork',1,LIMIT.work);return {charge(n){if(options.shouldCancel?.())fail('FIT_CANCELLED','Numerical fit cancelled');if(work+n>max)fail('FIT_WORK_BUDGET','Numerical total work budget reached',{work,nextWork:n,maxWork:max,retry:'none'});work+=n;},get work(){return work;},max};}
+function budget(options){let work=0;const max=integer(options.maxWork??LIMIT.work,'maxWork',1,LIMIT.work);return {charge(n){if(options.shouldCancel?.())fail('FIT_CANCELLED','Numerical fit cancelled');if(work+n>max)fail('FIT_WORK_BUDGET','Numerical total work budget reached',{work,nextWork:n,maxWork:max,retry:'none'});work+=n;},get work(){return work;},get remaining(){return max-work;},max};}
 
 // Same degree, knot vector and linearly spaced XY poles as relief.js.
 function maskedSplineBasis(count,t){
@@ -150,8 +150,11 @@ export function fitMaskedReliefBSpline(options){
   for(const s of samples){let z=0;for(let t=0;t<s.ids.length;t++)z+=values[s.ids[t]]*s.weights[t];const r=z-s.target;for(let t=0;t<s.ids.length;t++)out[s.ids[t]]+=r*s.weights[t];}
   return out;
  };
- let c=new Float64Array(n),accelerated=c.slice(),momentum=1,residual=Infinity,iterations=0;
+ let c=new Float64Array(n),accelerated=c.slice(),momentum=1,residual=Infinity,iterations=0,budgetLimited=false;
  for(;iterations<maxIterations;iterations++){
+  // Keep the current geometry candidate instead of discarding it and collapsing the control net.
+  // Reserve work for the independent error/protection checks that follow the solver.
+  if(candidate&&iterations>0&&work.remaining<2*(samples.length*32+n)+n*8+rows*columns*640+1000000){budgetLimited=true;break;}
   const g=gradient(accelerated),next=Float64Array.from(accelerated,(v,k)=>project(v-g[k]/L,k)),check=gradient(next);
   work.charge(n*8);residual=0;for(let k=0;k<n;k++)residual=Math.max(residual,Math.abs(next[k]-project(next[k]-check[k]/L,k)));
   if(residual<=tolerance){c=next;iterations++;break;}
@@ -189,10 +192,11 @@ export function fitMaskedReliefBSpline(options){
  const metrics={training:finish(training),independent:finish(independent),protection:finish(protection)},protectionRoundoffMm=1e-10*Math.max(1,Math.abs(baselineMm));
  if(protection.maxMm>protectionRoundoffMm)fail('FIT_PROTECTION_FAILED','Independent protection samples do not retain baseline',{metrics,retry:'none'});
  const withinTolerance=Math.max(training.maxMm,independent.maxMm)<=acceptance,converged=residual<=tolerance;
+ if(budgetLimited)residual=Number.isFinite(residual)?residual:0;
  if(!candidate&&!withinTolerance)fail('FIT_DEVIATION','Fit exceeds explicitly accepted sampled deviation',{metrics,acceptanceToleranceMm:acceptance,deviationKind:'sampled-not-global',retry:'none'});
  return {kind:'webcad-masked-baseline-bspline-v1',columns:nx,rows:ny,widthMm,heightMm,baselineMm,mode:options.mode,controlHeightsMm:poles,controlDeltasMm:deltas,
   domain:{support,throughHoles,protectedZones},sourceMasks:{active,fixedMask:fixed},lockedControlMask:locked,
-  report:{status:withinTolerance&&converged?'numerically-accepted':'approximation-candidate',deviationPolicy,withinTolerance,converged,warnings:[...(!withinTolerance?['FIT_DEVIATION']:[]),...(!converged?['FIT_NOT_CONVERGED']:[])],method:'masked-bounded-accelerated-projected-gradient',iterations,projectedResidualMm:residual,solverToleranceMm:tolerance,estimatedWork:work.work,maxWork:work.max,
+  report:{status:withinTolerance&&converged?'numerically-accepted':'approximation-candidate',deviationPolicy,withinTolerance,converged,warnings:[...(!withinTolerance?['FIT_DEVIATION']:[]),...(!converged?['FIT_NOT_CONVERGED']:[]),...(budgetLimited?['FIT_BUDGET_CANDIDATE']:[])],method:'masked-bounded-accelerated-projected-gradient',iterations,projectedResidualMm:residual,solverToleranceMm:tolerance,estimatedWork:work.work,maxWork:work.max,
    controlPoints:n,freeControlPoints:free,lockedControlPoints:n-free,controlEnvelopeDeltaMm:options.mode==='emboss'?[0,envelope]:[-envelope,0],acceptanceToleranceMm:acceptance,metrics,
    protectionCertificate:{kind:'all-intersecting-basis-supports-locked-to-constant-baseline',continuousDomains:['declared-support-boundary','declared-hole-boundaries','declared-protected-zones','fully-fixed-authored-cells'],fixedCellCount,fixedNodeGuarantee:'baseline-at-active-fixed-nodes',roundoffCheckMm:protectionRoundoffMm},
    deviationKind:'sampled-not-global',reference:'bilinear-authored-field-on-fully-active-cells',automaticResize:false,brepComputed:false,commitState:'notCommitted',needsGeometryValidation:true,routePreflightRequired:true,

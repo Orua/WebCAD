@@ -3,7 +3,7 @@
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.57.5",
+  "version": "1.57.6",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -62,5 +62,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:54a311ffaa10c67fe5aa63ac8a43aced0c30a17d8ba4a4152bb5ea484b716460"
+  "docsHash": "sha256:ab667a99256ca501c792c7dc6dace014e8aa244f68b97a9e7066cca81e45e6a5"
 }

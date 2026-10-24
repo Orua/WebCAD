@@ -1,4 +1,5 @@
 import * as cad from 'replicad';
+import {millComplementaryFillet} from './mill-fillet-fallback.js';
 
 const EPS=1e-7;
 const dispose=value=>{try{value?.delete?.();}catch{}};
@@ -149,5 +150,7 @@ export function analyticConstantFillet(shape,params,plan){
   finally{edges.forEach(dispose);}
   if(type==='LINE')return analyticStraightPlanarFillet(shape,params,plan);
   if(type==='CIRCLE')return analyticPlanarCircularFillet(shape,params,plan);
-  fail('目标边不属于已验证的解析构造族');
+  // Arbitrary edge: complementary-R mill + boolean (general fallback, not model-specific).
+  const mill=millComplementaryFillet(shape,{edgeIds:[plan.targets[0].edgeId],radiusMm:params.radiusMm});
+  return {...mill,strategy:mill.strategy||'mill-complementary-r-fallback-v1'};
 }

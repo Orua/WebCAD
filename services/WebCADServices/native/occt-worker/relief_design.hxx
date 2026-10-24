@@ -24,6 +24,7 @@
 #include <ShapeFix_Edge.hxx>
 #include <ShapeFix_Face.hxx>
 #include <ShapeFix_Shape.hxx>
+#include <BRepCheck_Analyzer.hxx>
 #include <ShapeFix_Wire.hxx>
 #include <ShapeAnalysis_Surface.hxx>
 #include <GC_MakeCircle.hxx>
@@ -161,11 +162,14 @@ inline DesignResult build(const TopoDS_Shape& input,const json& params,double be
  stage("validate-result");
  json after;try{after=measure(result);}catch(const std::exception&){
   // Repairing an invalid dense face invokes OCCT's quadratic surface sampling
-  // (over 1 GiB at ~1000 controls). Enter the existing, reported capacity retry
-  // before repair; never raise the controlled process budget or accept invalid BRep.
-  if(params.at("fit").contains("quality")&&std::max(fit.nx,fit.ny)>513)
-   fail("RELIEF_QUALITY_CHECK_FAILED","Dense face needs repair beyond the controlled worker capacity");
-  ShapeFix_Shape fix(result);fix.Perform();result=fix.Shape();after=measure(result);
+  // (over 1 GiB at ~1000 controls). Prefer controlled mesh volume when the face is
+  // already valid; only then enter the reported capacity retry. Never accept invalid BRep.
+  if(params.at("fit").contains("quality")&&std::max(fit.nx,fit.ny)>513){
+   BRepCheck_Analyzer chk(result,true,false,false);const bool ok=chk.IsValid();
+   if(!ok)fail("RELIEF_QUALITY_CHECK_FAILED","Dense face needs repair beyond the controlled worker capacity");
+   const double mv=meshVolume(result,.05);if(!std::isfinite(mv))fail("RELIEF_QUALITY_CHECK_FAILED","Dense face needs repair beyond the controlled worker capacity");
+   after={{"volumeMm3",mv},{"volumeBasis","mesh-deflection-0.05"}};
+  }else{ShapeFix_Shape fix(result);fix.Perform();result=fix.Shape();after=measure(result);}
  }
  const double delta=(after.at("volumeMm3").get<double>()-beforeVolume)*fit.sign;
  stage("quality-check");

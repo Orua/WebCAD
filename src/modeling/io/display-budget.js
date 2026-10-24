@@ -45,8 +45,15 @@ export function meshDenseRectangle(face,oc){
   const ends=edges.flatMap(e=>{const p=e.startPoint,q=e.endPoint;try{return [p.toTuple(),q.toTuple()];}finally{dispose(p);dispose(q);}});
   if([[u0,v0],[u1,v0],[u0,v1],[u1,v1]].some(([u,v])=>{const p=point(u,v);return !ends.some(q=>Math.hypot(...p.map((x,k)=>x-q[k]))<1e-6);}))return null;
   const knots=(count,get,lo,hi)=>{const out=[lo];for(let k=1;k<count;k++){const x=get(k),y=get(k+1);if(x<lo||y>hi)continue;out.push((x+y)/2,y);}return out;};
-  const us=knots(s.NbUKnots(),k=>s.UKnot(k),u0,u1),vs=knots(s.NbVKnots(),k=>s.VKnot(k),v0,v1);
-  if(us.length*vs.length>300000)return null;
+  let us=knots(s.NbUKnots(),k=>s.UKnot(k),u0,u1),vs=knots(s.NbVKnots(),k=>s.VKnot(k),v0,v1);
+  // A 513-pole relief exceeds the old sampling cap and used to fall back to
+  // a handful of coarse triangles permanently. Keep a bounded grid spanning
+  // the complete exact surface instead; this changes display only.
+  if(us.length*vs.length>300000){
+   const scale=Math.sqrt(300000/(us.length*vs.length));
+   const reduce=(axis,n)=>Array.from({length:n},(_,i)=>axis[Math.round(i*(axis.length-1)/(n-1))]);
+   us=reduce(us,Math.max(2,Math.floor(us.length*scale)));vs=reduce(vs,Math.max(2,Math.floor(vs.length*scale)));
+  }
   const vertices=new Float64Array(us.length*vs.length*3),normals=new Float64Array(vertices.length),triangles=[];
   for(let j=0;j<vs.length;j++)for(let i=0;i<us.length;i++)vertices.set(point(us[i],vs[j]),3*(j*us.length+i));
   const triangle=(a,b,c)=>{if(face.orientation==='backward')[b,c]=[c,b];triangles.push(a,b,c);const p=a*3,q=b*3,r=c*3,x=vertices[q]-vertices[p],y=vertices[q+1]-vertices[p+1],z=vertices[q+2]-vertices[p+2],X=vertices[r]-vertices[p],Y=vertices[r+1]-vertices[p+1],Z=vertices[r+2]-vertices[p+2],n=[y*Z-z*Y,z*X-x*Z,x*Y-y*X];for(const k of [p,q,r])for(let d=0;d<3;d++)normals[k+d]+=n[d];};
