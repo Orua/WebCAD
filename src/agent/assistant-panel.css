@@ -38,10 +38,9 @@ body.has-agent-panel[data-cad-mobile=true] .app-header .agent-panel-toggle svg{w
 body.has-agent-panel.agent-panel-collapsed[data-cad-mobile=false]{grid-template-columns:minmax(0,1fr) 0}
 body.has-agent-panel.agent-panel-collapsed[data-cad-mobile=true]{grid-template-rows:minmax(0,1fr) 0}
 body.has-agent-panel.agent-panel-collapsed:has(.agent-floating-toggle:not([hidden])) .agent-panel-toggle{display:none}
-/* Chat covers the existing canvas; its dimensions never drive camera scaling. */
-body.has-agent-panel[data-cad-mobile]{display:block;height:100dvh}
-body.has-agent-panel[data-cad-mobile]>.agent-assistant-panel{position:fixed;z-index:10008;inset:0 0 0 auto;width:var(--agent-panel-width);height:100%}
-body.has-agent-panel[data-cad-mobile=false]>.agent-assistant-panel{top:var(--cad-toolbar-height,52px);height:calc(100% - var(--cad-toolbar-height,52px))}
+/* Desktop keeps separate canvas and chat columns; mobile retains its compact panel. */
+body.has-agent-panel[data-cad-mobile=true]{display:block;height:100dvh}
+body.has-agent-panel[data-cad-mobile=true]>.agent-assistant-panel{position:fixed;z-index:10008;inset:0 0 0 auto;width:var(--agent-panel-width);height:100%}
 body.has-agent-panel[data-cad-mobile=true]>.agent-assistant-panel{inset:auto 0 0;width:100%;height:var(--agent-panel-height)}
 body.has-agent-panel[data-cad-mobile=true]>.agent-panel-toggle{left:auto;right:4px;top:auto;bottom:calc(var(--agent-panel-height) - 32px);transform:none;width:28px;height:28px;border:0;box-shadow:none;background:transparent}
 body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed>.agent-panel-toggle{bottom:6px;left:auto;right:6px;transform:none}
@@ -50,12 +49,19 @@ body.has-agent-panel[data-cad-mobile=true]>.agent-assistant-panel{bottom:var(--c
 body.has-agent-panel[data-cad-mobile=true]>.agent-panel-toggle{bottom:calc(var(--cad-keyboard-inset) + var(--agent-panel-height) - 32px)}
 body.has-agent-panel[data-cad-mobile=true]>.cad-assistant-resizer{bottom:calc(var(--cad-keyboard-inset) + var(--agent-panel-height) - 4px)}
 body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed>.agent-panel-toggle{bottom:calc(var(--cad-keyboard-inset) + 6px)}
-.agent-floating-toggle{position:absolute;left:0;top:0;z-index:12;display:grid;place-items:center;width:56px;height:56px;padding:4px;border:0;border-radius:0;background:transparent;color:var(--accent);box-shadow:none;cursor:grab;touch-action:none;user-select:none}
+.agent-floating-toggle{position:absolute;left:0;top:0;z-index:12;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:148px;max-width:calc(100% - 16px);height:88px;padding:4px;border:0;border-radius:0;background:transparent;color:var(--accent);box-shadow:none;cursor:grab;touch-action:none;user-select:none}
 .agent-floating-toggle:hover{background:transparent}
 .agent-floating-toggle.is-dragging{cursor:grabbing}
 .agent-floating-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .agent-floating-mark{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--accent);flex:none}
 .agent-floating-mark svg{width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.agent-floating-timer{display:flex;align-items:center;gap:3px;font-size:9px;line-height:12px;font-variant-numeric:tabular-nums}
+.agent-floating-timer svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+.agent-floating-copy{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;line-height:14px;animation:agent-working 1.6s ease-in-out infinite}
+.agent-floating-complete{display:none;width:18px;height:18px;fill:none;stroke:#16934a;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.agent-floating-toggle[data-activity=completed] .agent-floating-complete{display:block}
+.agent-floating-toggle[data-activity=completed] .agent-floating-copy,.agent-floating-toggle .agent-floating-dots{display:none}
+.agent-floating-toggle:is([data-activity=failed],[data-activity=canceled]) .agent-floating-copy{animation:none;color:#b91c1c}
 .agent-robot-eyes,.agent-robot-antenna{fill:currentColor;stroke:none}
 .agent-floating-toggle[data-activity=thinking] .agent-robot-eyes{animation:agent-robot-look 3.2s ease-in-out infinite;transform-origin:20px 22px}
 .agent-floating-toggle[data-activity=thinking] .agent-robot-antenna{animation:agent-working 1.6s ease-in-out infinite}
@@ -69,4 +75,4 @@ body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed>.agent-panel-to
 @keyframes agent-thought{0%,70%,100%{transform:translateY(0);opacity:.4}35%{transform:translateY(-3px);opacity:1}}
 @keyframes agent-working{0%,100%{opacity:.5}50%{opacity:1}}
 @keyframes agent-robot-look{0%,25%,100%{transform:translateX(0) scaleY(1)}35%,50%{transform:translateX(1.5px) scaleY(1)}60%,75%{transform:translateX(-1.5px) scaleY(1)}82%{transform:translateX(0) scaleY(.15)}88%{transform:translateX(0) scaleY(1)}}
-@media(prefers-reduced-motion:reduce){.agent-floating-toggle .agent-floating-dots i,.agent-floating-toggle .agent-floating-mark svg,.agent-floating-toggle .agent-robot-eyes,.agent-floating-toggle .agent-robot-antenna{animation:none!important;opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.agent-floating-toggle .agent-floating-dots i,.agent-floating-toggle .agent-floating-mark svg,.agent-floating-toggle .agent-robot-eyes,.agent-floating-toggle .agent-robot-antenna,.agent-floating-copy{animation:none!important;opacity:1;transform:none}}

@@ -1,5 +1,14 @@
 {
   "version": 1,
+  "assistantRobotLayout20261024": {
+    "localImpact": "Remove viewport object/solid count HUD; restore desktop canvas/chat split columns; collapsed robot shows elapsed seconds, rotating public progress, waiting dots and confirmed terminal state.",
+    "servicesImpact": "None: display and host progress forwarding only, no compute or backend package change.",
+    "logoImpact": "None: no LOGO geometry or worker changes.",
+    "contractImpact": "Page docs1.57.7; getAgentPanel floating adds elapsedSeconds/phase/text and confirmed completed/failed/canceled activity. Existing layout API and authorization channel retained.",
+    "documentImpact": "None: no document writes, geometry, revision or history changes.",
+    "cacheImpact": "Regenerate static knowledge and frontend build; refresh linked workspace script/style versions; preserve cookies and user data.",
+    "requiredTests": ["Floating drag/click and activity lifecycle", "Desktop split layout and robot waiting/progress/completion in localhost browser", "Build release contracts and endpoint identity"]
+  },
   "reliefRoundProduction20261024": {
     "localImpact": "Image auto-conversion and collapsed technical settings; preserve up to65 browser controls and publish the current candidate at the existing work budget; remove obsolete pre-routing dense-design rejection; multi-edge mill cutters bind to one original shape.",
     "servicesImpact": "Matched net48 Runtime/Gateway build plus OCCT worker with retained maximum-residual refinement. Image quality defaults to513 controls, advanced1025 remains available; valid results above precision/volume targets stay usable candidates.",

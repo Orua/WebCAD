@@ -10,7 +10,6 @@ import { MetalMaterials, METAL_FINISHES } from './metal-materials.js';
 import { getLanguage } from './i18n.js';
 import { loadDisplayPreferences } from './display-preferences.js';
 import {chooseDisplayLevel} from './mesh/display-lod.js';
-import {formatBodyCount} from './count-summary.js';
 import {floorGridZ} from './floor-grid.js';
 import {ExactDisplayDetail} from './viewport/exact-detail.js';
 import {MetalOcclusionPass,metalEdgeOpacity} from './viewport/metal-occlusion.js';
@@ -328,7 +327,7 @@ export class CADViewport {
   }
   view(direction='iso'){const vectors={iso:[1,-1,.85],front:[0,-1,0],back:[0,1,0],top:[0,0,1],bottom:[0,0,-1],left:[-1,0,0],right:[1,0,0]};const distance=this.camera.position.distanceTo(this.controls.target);this.camera.up.set(0,0,1);if(direction==='top'||direction==='bottom')this.camera.up.set(0,1,0);const target=this.bounds().getCenter(new THREE.Vector3());this.setCamera({position:target.clone().addScaledVector(new THREE.Vector3(...(vectors[direction]||vectors.iso)).normalize(),distance).toArray(),target:target.toArray()});this.fit();}
   updateLanguage(){this.updateHud();this.renderer.domElement.setAttribute('aria-label',say('三维建模视口','3D modeling viewport'));if(this.measuring)this.startMeasure();if(this.sketch)this.startSketch({...this.sketch});}
-  updateHud(){if(!this.sketch)this.hud.textContent=`${formatBodyCount([...this.objects.values()].map(entry=>entry.body))} · ${this.selectionMode==='view'?say('查看','View'):this.selectionMode==='edge'?say('选边','Edge'):this.selectionMode==='face'?say('选面','Face'):say('选实体','Body')}`;}
+  updateHud(){if(!this.sketch)this.hud.textContent=this.selectionMode==='view'?say('查看','View'):this.selectionMode==='edge'?say('选边','Edge'):this.selectionMode==='face'?say('选面','Face'):say('选实体','Body');}
   startMeasure(){this.cancelTask();this.measuring=[];this.callbacks.onInteraction?.('measure');this.overlay.style.display='block';this.overlay.innerHTML=`<strong>${say('两点测距','Point distance')}</strong><p>${say('点击两个位置，靠近端点/中点/圆心时吸附。选边或面后点测量可测精确几何。','Click two points. Snap to endpoints, midpoints and circle centers. Select an edge or face for exact geometry measures.')}</p><div data-measure>${say('请选择第一个点','Select first point')}</div><button type="button" data-cancel>${say('结束测量','Finish')}</button>`;this.overlay.querySelector('[data-cancel]').onclick=()=>this.cancelTask();}
   addMeasure(point){if(this.measuring.length===2){this.clearGuides();this.measuring=[];}this.measuring.push(point.clone());const dot=new THREE.Mesh(new THREE.SphereGeometry(this.span*.009,12,8),new THREE.MeshBasicMaterial({color:0xe88423,depthTest:false}));dot.position.copy(point);this.guideRoot.add(dot);if(this.measuring.length===2){const [a,b]=this.measuring,delta=b.clone().sub(a),d=a.distanceTo(b);this.guideRoot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),new THREE.LineBasicMaterial({color:0xe88423,depthTest:false})));this.overlay.querySelector('[data-measure]').textContent=`${d.toFixed(3)} mm · ΔX ${delta.x.toFixed(3)} ΔY ${delta.y.toFixed(3)} ΔZ ${delta.z.toFixed(3)}`;this.callbacks.onMeasure?.(d,delta.toArray());}else this.overlay.querySelector('[data-measure]').textContent='请选择第二个点';}
   startSketch(options={}){
