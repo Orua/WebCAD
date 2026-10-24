@@ -2,7 +2,7 @@
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.57.7",
+  "version": "1.57.8",
   "contextPolicy": "none",
   "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
   "synonyms": [
@@ -88,5 +88,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ff8152f15d6cba25d4e8cad9ac925f3e20aaf3fb93038693b24e1d11e24a992"
+  "docsHash": "sha256:2c1f845246201048cebc2801bb2665d862ddaaeb85aabeaf215102921e4236d8"
 }

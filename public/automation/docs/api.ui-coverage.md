@@ -1100,6 +1100,14 @@
     "method": "execute",
     "usage": "原特征属性→Services 精确计算为每次显式远程；普通新建/编辑在 setServices 设 allowGeometryUploads:true 后按同一 ExecutionRouter 选择。getServicesRouting 读取原因。失败保留工程，未知任务先核对，不自动重算。"
   },
+  "metalMaterials": {
+    "tools": [
+      "getMetalMaterials",
+      "setMetalMaterials"
+    ],
+    "method": "setMetalMaterials",
+    "usage": "渲染设置→金属材质参数列表。getMetalMaterials返回当前configuration与defaults；setMetalMaterials整份配置应用/新增/删除/恢复。导出读取configuration，导入传相同JSON；不接受脚本。"
+  },
   "displayPreferences": {
     "tools": [
       "setDisplayPreferences"
@@ -1490,6 +1498,8 @@
 }
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision

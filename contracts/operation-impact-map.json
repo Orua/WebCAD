@@ -1,5 +1,23 @@
 {
   "version": 1,
+  "configurableMetalMaterials20261024": {
+    "localImpact": "User-selected A1 light gold and B2 24K; nickel/gunmetal retain base RGB, share mirror studio style. Safe editable style/material registry, settings list, clone/delete/import/export and browser persistence.",
+    "servicesImpact": "None: browser display only, no compute binary or gateway changes.",
+    "logoImpact": "None: source geometry/contours unchanged.",
+    "contractImpact": "Page API1.57.8 getMetalMaterials/setMetalMaterials and docs/routes; source registry drives finish validation/UI. Reject unknown parameters and deletion of in-use/custom-protected entries.",
+    "documentImpact": "Saved project embeds renderMaterials definitions so custom finish keys are portable; legacy projects use browser defaults. Geometry/history preserved.",
+    "cacheImpact": "Regenerate knowledge, build one package and publish the same localhost-validated bytes to production; preserve user cookies/data and old hashed assets.",
+    "requiredTests": ["Registry schema and atomic invalid update", "Material mirror/color and selection checks", "Local browser list clone/apply/custom finish/save/open", "Local/production/workspace HTTP identities and main push"]
+  },
+  "mirrorGoldPreview20261024": {
+    "localImpact": "Unpublished browser render candidate: polished light-gold tint/roughness, finite studio card sharpness and readable warm depth-tested BRep edges; existing studio/HDR settings remain selectable.",
+    "servicesImpact": "None: display-only shader and edge appearance; no Services snapshot or native compute changes.",
+    "logoImpact": "None: source logo/geometry and worker paths unchanged.",
+    "contractImpact": "Existing finish, display and display-preferences API arguments retained; behavior documented, no new user operation.",
+    "documentImpact": "No topology, import, saved geometry, history or appearance-key changes; only rendering for the existing light-gold finish changes.",
+    "cacheImpact": "Shader cache key v11; no deployment or knowledge regeneration in this review-only task.",
+    "requiredTests": ["Focused material and edge-selection checks", "Same source WebCAD render baseline/candidate on nine supplied STEP files", "L125 import validity failure retained separately"]
+  },
   "assistantRobotLayout20261024": {
     "localImpact": "Remove viewport object/solid count HUD; restore desktop canvas/chat split columns; collapsed robot shows elapsed seconds, rotating public progress, waiting dots and confirmed terminal state.",
     "servicesImpact": "None: display and host progress forwarding only, no compute or backend package change.",

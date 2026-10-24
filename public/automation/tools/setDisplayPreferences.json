@@ -2,7 +2,7 @@
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.57.7",
+  "version": "1.57.8",
   "contextPolicy": "identity",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
@@ -58,6 +58,14 @@
         "chooseWhen": "拾取可见模型表面的近似世界坐标，插入AI对话草稿；只用于指出位置，不自动发送、不修改几何。"
       },
       {
+        "id": "getMetalMaterials",
+        "chooseWhen": "读取金属材质及渲染方式参数列表和默认配置，不修改外观。"
+      },
+      {
+        "id": "setMetalMaterials",
+        "chooseWhen": "配置镜面、哑光、HDR及自定义材质的安全参数，新增/修改/删除自定义材质；不重建几何。"
+      },
+      {
         "id": "setView",
         "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
       },
@@ -85,5 +93,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:837baa66e7047ec8e96e344251fbeb5f22c9345eddd2b9ece0cf88c080dfa287"
+  "docsHash": "sha256:543c01749ebd4cbcc30b2a21d2878d8cc1a15bc047702beb33406a1ea2d9e9ec"
 }

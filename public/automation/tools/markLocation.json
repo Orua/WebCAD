@@ -2,7 +2,7 @@
   "id": "markLocation",
   "title": "markLocation",
   "category": "page-method",
-  "version": "1.57.7",
+  "version": "1.57.8",
   "contextPolicy": "revision",
   "docs": "api.location-marker",
   "inputSchema": {
@@ -88,6 +88,14 @@
         "chooseWhen": "工程材质默认覆盖，仅作用于无单独覆盖的实体。"
       },
       {
+        "id": "getMetalMaterials",
+        "chooseWhen": "读取金属材质及渲染方式参数列表和默认配置，不修改外观。"
+      },
+      {
+        "id": "setMetalMaterials",
+        "chooseWhen": "配置镜面、哑光、HDR及自定义材质的安全参数，新增/修改/删除自定义材质；不重建几何。"
+      },
+      {
         "id": "setDisplayPreferences",
         "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
       },
@@ -119,5 +127,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8d691dca1a4319ba3fb9aa0dd12089a7c7c3956585feb5d11e5f64e774e36c78"
+  "docsHash": "sha256:418bf2fde8ec07db7b310fe2a619a1af3ff8df0cac3f0e183da89e46867852b4"
 }

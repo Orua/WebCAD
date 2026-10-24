@@ -261,6 +261,8 @@
 - body.appearance：指定实体颜色/材质覆盖，保存于工程且可撤销。
 - document.appearance：工程材质默认覆盖，仅作用于无单独覆盖的实体。
 - markLocation：拾取可见模型表面的近似世界坐标，插入AI对话草稿；只用于指出位置，不自动发送、不修改几何。
+- getMetalMaterials：读取金属材质及渲染方式参数列表和默认配置，不修改外观。
+- setMetalMaterials：配置镜面、哑光、HDR及自定义材质的安全参数，新增/修改/删除自定义材质；不重建几何。
 - setDisplayPreferences：浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。
 - setView：相机、投影、显示、选择及剖切视图；不移动几何或执行切割。
 - setRenderQuality：调整显示网格质量，不改变精确几何精度。
@@ -342,6 +344,8 @@
 - exportDrawing：导出已有drawingId工程图，或readLogo返回的logoId原轮廓DXF/JSON；不必创建三维实体或写脚本。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision

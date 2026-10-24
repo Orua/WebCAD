@@ -363,6 +363,14 @@ PDF页面渲染或渲染底图校验未通过。
 
 代码：`LOGO_REVIEW_REQUIRED`、`LOGO_SOURCE_REQUIRED`、`MACHINING_SOURCE_REQUIRED`
 
+### unclassified
+
+操作未能完成，目前没有足够证据确定安全恢复方式。
+
+保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
+
+代码：`MATERIAL_IN_USE`、`PROJECT_ENCODING`
+
 ### parameters
 
 命名参数存在循环、无效表达式或绑定冲突。
@@ -386,14 +394,6 @@ PDF页面渲染或渲染底图校验未通过。
 读取实际约束与保护区，明确修改哪一项条件；不能自动解除锁定、删除孔或覆盖保护区域。
 
 代码：`PROFILE_CONSTRAINT_CONFLICT`、`PROFILE_CONSTRAINT_GEOMETRY_INVALID`、`PROFILE_CONSTRAINT_INVALID`、`PROFILE_CONSTRAINT_NUMERICAL`、`PROFILE_CONSTRAINT_UNSATISFIED`、`REFERENCE_LOCKED`、`RELIEF_BOUNDARY_CONFLICT`、`RELIEF_CONSTRAINT_CONFLICT`、`RELIEF_CONSTRAINT_INVALID`、`RELIEF_DESIGN_PROTECTED`、`RELIEF_PATCH_PROTECTION`
-
-### unclassified
-
-操作未能完成，目前没有足够证据确定安全恢复方式。
-
-保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
-
-代码：`PROJECT_ENCODING`
 
 ### project-store
 
@@ -501,6 +501,8 @@ Services 浮雕响应与请求、哈希或误差不一致。
 
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision

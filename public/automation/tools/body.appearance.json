@@ -3,7 +3,7 @@
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.57.7",
+  "version": "1.57.8",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -43,14 +43,14 @@
     "24k-gold",
     "gunmetal",
     "matt-nickel",
+    "rose-gold",
+    "silver-925",
+    "white-gold-18k",
     "matt-light-gold",
     "matt-24k-gold",
     "matt-gunmetal",
     "antique-brass",
-    "antique-silver",
-    "rose-gold",
-    "silver-925",
-    "white-gold-18k"
+    "antique-silver"
   ],
   "minimalExample": {
     "action": "body.appearance",
@@ -90,6 +90,14 @@
         "chooseWhen": "拾取可见模型表面的近似世界坐标，插入AI对话草稿；只用于指出位置，不自动发送、不修改几何。"
       },
       {
+        "id": "getMetalMaterials",
+        "chooseWhen": "读取金属材质及渲染方式参数列表和默认配置，不修改外观。"
+      },
+      {
+        "id": "setMetalMaterials",
+        "chooseWhen": "配置镜面、哑光、HDR及自定义材质的安全参数，新增/修改/删除自定义材质；不重建几何。"
+      },
+      {
         "id": "setDisplayPreferences",
         "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
       },
@@ -121,5 +129,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7ec9f68ea0fd39ce3780df88041db7738f01f7475503558d4910a4b4c169f8f9"
+  "docsHash": "sha256:1ad9c28ce8a07a1cbcbd24b298e8170eba7134c7b8e93162fef8d2ac713dc9b1"
 }

@@ -9,6 +9,8 @@
 失败：区分来源没取得、轮廓不闭合、孔解释错误、支撑面不兼容、服务请求失败和未知提交。保留来源与诊断；不删细节/孔洞、不用粗网格、不改变深度来掩盖失败。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision

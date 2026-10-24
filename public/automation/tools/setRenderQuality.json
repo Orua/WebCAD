@@ -2,7 +2,7 @@
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.57.7",
+  "version": "1.57.8",
   "contextPolicy": "identity",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
@@ -57,6 +57,14 @@
         "chooseWhen": "拾取可见模型表面的近似世界坐标，插入AI对话草稿；只用于指出位置，不自动发送、不修改几何。"
       },
       {
+        "id": "getMetalMaterials",
+        "chooseWhen": "读取金属材质及渲染方式参数列表和默认配置，不修改外观。"
+      },
+      {
+        "id": "setMetalMaterials",
+        "chooseWhen": "配置镜面、哑光、HDR及自定义材质的安全参数，新增/修改/删除自定义材质；不重建几何。"
+      },
+      {
         "id": "setDisplayPreferences",
         "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
       },
@@ -84,5 +92,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0587c7c6db11c9b591db8e7369f44aff7effc38c14ed352cb4ab9541804d36c9"
+  "docsHash": "sha256:8feee802ba01a9f0941a094197cdf834710ba8dfd895a4503344e44929a99fe8"
 }

@@ -2,7 +2,7 @@
   "id": "reliefDesignReference",
   "title": "reliefDesignReference",
   "category": "page-method",
-  "version": "1.57.7",
+  "version": "1.57.8",
   "contextPolicy": "revision",
   "description": "reliefDesignReference({context,action:\"get\"|\"attach\"|\"detach\"|\"resource\",designId,expectedDraftRevision,resourceId?,expectedSha256?,expectedSize?,idempotencyKey?})。attach仅接受当前files.register的PNG/JPEG/WebP原图资源（20MiB、16M像素、64:1）；以实际签名/尺寸预检及浏览器完整解码校验，再同CommandService事务绑定/替换。get只读metadata不生成资源；resource把当前草稿实际绑定的持久原件登记成合法resourceId，可files.read/download并在用完后files.release。不能直接提供source.bytes、imports、importKey或猜填SHA代替原件。",
   "synonyms": [
@@ -182,5 +182,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:ce822039ed1226d8cce7cc63d1865e6a0a060e8d29cb310f9d1605853e651f04"
+  "docsHash": "sha256:0a0a14b73cbb18b9c6f9896afda2c95fb8daae93ff16eb38706720952fb43ca7"
 }

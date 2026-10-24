@@ -2,7 +2,8 @@ import {updateReliefDesigns} from './relief-design-drafts.js';
 import {validateMaterialSettings} from './material-density.js';
 import {validateReliefReference} from './relief-design-reference-contract.js';
 // Public editor actions: one contract for the UI, AI, and generated documentation.
-export const FINISH_KEYS = Object.freeze(['design','light-gold','nickel','24k-gold','gunmetal','matt-nickel','matt-light-gold','matt-24k-gold','matt-gunmetal','antique-brass','antique-silver','rose-gold','silver-925','white-gold-18k']);
+import {FINISH_KEYS} from './metal-presets.js';
+export {FINISH_KEYS} from './metal-presets.js';
 // This action is never published as a JSON editor tool. Only the resource-backed
 // page method may dispatch it with the private CommandService validation option.
 export const INTERNAL_EDITOR_ACTIONS=Object.freeze({'document.reliefDesignReference':{title:'浮雕原参考图绑定',fields:['designId','expectedDraftRevision','action','source']}});

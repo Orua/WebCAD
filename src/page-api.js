@@ -1,3 +1,4 @@
+import {getMetalMaterials,DEFAULT_METAL_CONFIG,validateMetalMaterials} from './metal-presets.js';
 import {meshReliefSampleSchema} from './mesh/relief-sample.js';
 import {METAL_DENSITIES,materialWeight} from './material-density.js';
 import {validateSchema} from './contracts/operation-schema.js';
@@ -654,6 +655,8 @@ export function createPageAPI(host){
       }
       await host.view(input);check(input,viewKeys);return {status:'read',context:current().context,display:host.display(),view:current().view};
     }),
+    getMetalMaterials:guarded((input={})=>{if(Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getMetalMaterials takes no fields');return {status:'read',configuration:getMetalMaterials(),defaults:structuredClone(DEFAULT_METAL_CONFIG),colorSpace:'linear-srgb',context:current().context};}),
+    setMetalMaterials:guarded(async input=>{check(input,['context','configuration']);const configuration=validateMetalMaterials(input.configuration);if(!host.metalMaterials)fail('CAPABILITY_UNAVAILABLE','Material configuration is unavailable');const result=await host.metalMaterials(configuration);return {status:'applied',context:current().context,...result};}),
     setDisplayPreferences:guarded(async input=>{check(input,['context','values']);const values=validateDisplayPreferences(input.values);const result=await host.preferences(values);return {status:'applied',context:current().context,...result};}),
     getLogoConverter:async()=>getLogoConverterConfig(),
     getServices:async()=>getServicesConfig(),

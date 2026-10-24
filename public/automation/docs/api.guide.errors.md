@@ -10,6 +10,8 @@ partial：逐步列出成功和未完成项，只规划剩余工作，不能声�
 向用户说清“什么失败、已确认保留什么、下一步查什么”。缺少提交证据时说尚未确认，不说已保存/未改变。具体 error.recovery 优先于此分类概览。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision

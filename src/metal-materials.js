@@ -16,23 +16,8 @@ export function prepareReferenceHdr(texture){
   return texture;
 }
 
-// Finish values and reference atlas are carried over from the original CadViewer.
-export const METAL_FINISHES = Object.freeze({
-  design: { label: '设计原色', metalness: 0.15, roughness: 0.42, reflectionStrength: 0 },
-  'light-gold': { label: '浅金', color: [1.00, 0.69, 0.25], roughness: 0.14, reflectionStrength: 1.08, metalBodyTint: 0.13, studioReflection: 'environment', coat: 0 },
-  nickel: { label: '亮镍', color: [0.76, 0.76, 0.76], roughness: 0.12, reflectionStrength: 1.22, coat: 0.15 },
-  '24k-gold': { label: '24K 金', color: [0.90, 0.58, 0.16], roughness: 0.14, reflectionStrength: 1.0, metalBodyTint: 0.08, coat: 0.12, hueKeep: 0.85, depth: 0.95 },
-  gunmetal: { label: '枪色', color: [0.18, 0.21, 0.24], roughness: 0.15, reflectionStrength: 0.86, coat: 0.35 },
-  'matt-nickel': { label: '哑镍', color: [0.70, 0.72, 0.74], roughness: 0.54, reflectionStrength: 0.74, anisotropy: 0.35 },
-  'rose-gold': { label: '玫瑰金', color: [0.474, 0.156, 0.191], roughness: 0.2, reflectionStrength: 0.98, metalBodyTint: 0.1, coat: 0.28 },
-  'silver-925': { label: '925 银', color: [0.82, 0.83, 0.84], roughness: 0.2, reflectionStrength: 1.08, coat: 0.12 },
-  'white-gold-18k': { label: '18K 白金', color: [0.88, 0.86, 0.79], roughness: 0.19, reflectionStrength: 1.04, coat: 0.2 },
-  'matt-light-gold': { label: '哑浅金', color: [0.70, 0.48, 0.21], roughness: 0.59, reflectionStrength: 0.50, anisotropy: 0.35 },
-  'matt-24k-gold': { label: '哑 24K 金', color: [1.00, 0.72, 0.27], roughness: 0.58, reflectionStrength: 0.78, anisotropy: 0.35, hueKeep: 0.6, depth: 0.5 },
-  'matt-gunmetal': { label: '哑枪色', color: [0.15, 0.17, 0.19], roughness: 0.62, reflectionStrength: 0.46, anisotropy: 0.35 },
-  'antique-brass': { label: '仿古黄铜', color: [0.50, 0.32, 0.09], roughness: 0.60, reflectionStrength: 0.36, antiqueStrength: 0.97, patinaColor: [0.055, 0.035, 0.015], antiqueAtlasOffset: 0, antiqueTextureScale: 1.35, antiquePitStrength: 0.82 },
-  'antique-silver': { label: '仿古银', color: [0.88, 0.86, 0.83], roughness: 0.46, reflectionStrength: 0.72, antiqueStrength: 0.55, patinaColor: [0.014, 0.012, 0.011], antiqueAtlasOffset: 0.5, antiqueTextureScale: 2.1, antiquePitStrength: 0.72 },
-});
+import {METAL_FINISHES} from './metal-presets.js';
+export {METAL_FINISHES} from './metal-presets.js';
 
 const declarations = /* glsl */`
 varying vec3 webcadObjectPosition;
@@ -179,16 +164,16 @@ export class MetalMaterials {
           .replace('#include <tonemapping_fragment>','if(webcadFinishMetal>0.5){vec3 webcadHdr=gl_FragColor.rgb*webcadExposure;float webcadPeak=max(max(webcadHdr.r,webcadHdr.g),max(webcadHdr.b,1e-4));vec3 webcadHueTone=webcadHdr*(webcadReferenceToneMap(vec3(webcadPeak)).r/webcadPeak);gl_FragColor.rgb=webcadReferenceToneMap(gl_FragColor.rgb*webcadExposure);gl_FragColor.rgb=mix(gl_FragColor.rgb,webcadHueTone,webcadHueKeep);gl_FragColor.rgb*=mix(1.0,webcadCavityFactor,0.65);}else{\n#include <tonemapping_fragment>\n}')
           .replace('#include <colorspace_fragment>','if(webcadFinishMetal>0.5){gl_FragColor=sRGBTransferOETF(gl_FragColor);}else{\n#include <colorspace_fragment>\n}\ngl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(0.12,0.48,0.95),webcadSelection*0.7);');
       };
-      material.customProgramCacheKey=()=> 'webcad-metal-product-studio-v10-light-tent-gold-depth';
+      material.customProgramCacheKey=()=> 'webcad-metal-product-studio-v11-mirror-plating';
       material.needsUpdate=true;
     }
     state.key=key;state.options={bounds,baseColor,displayPreferences};
     const u=state.uniforms;
     const preferences={...CADVIEWER_METAL_REFERENCE,...displayPreferences};
+    if(finish.environmentMode&&finish.environmentMode!=='inherit')preferences.environmentMode=finish.environmentMode;
     u.webcadFinishMetal.value=key==='design'?0:1;
-    // Polished plating uses Three's roughness-filtered PMREM/metal BRDF.
-    // The analytic light tent has a fixed blur floor and cannot represent its
-    // sharp reflections; an extra dielectric coat also washes out bare plating.
+    // HDR keeps its physical PMREM/metal BRDF. The selectable product studio
+    // uses finite reflection cards, now with a mirror-capable blur floor.
     const studio=key!=='design'&&preferences.environmentMode==='studio';
     const productStudio=studio&&finish.studioReflection!=='environment';
     u.webcadProductStudio.value=productStudio?1:0;

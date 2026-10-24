@@ -3,7 +3,7 @@
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.57.7",
+  "version": "1.57.8",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -41,14 +41,14 @@
     "24k-gold",
     "gunmetal",
     "matt-nickel",
+    "rose-gold",
+    "silver-925",
+    "white-gold-18k",
     "matt-light-gold",
     "matt-24k-gold",
     "matt-gunmetal",
     "antique-brass",
-    "antique-silver",
-    "rose-gold",
-    "silver-925",
-    "white-gold-18k"
+    "antique-silver"
   ],
   "minimalExample": {
     "action": "document.appearance",
@@ -84,6 +84,14 @@
         "chooseWhen": "拾取可见模型表面的近似世界坐标，插入AI对话草稿；只用于指出位置，不自动发送、不修改几何。"
       },
       {
+        "id": "getMetalMaterials",
+        "chooseWhen": "读取金属材质及渲染方式参数列表和默认配置，不修改外观。"
+      },
+      {
+        "id": "setMetalMaterials",
+        "chooseWhen": "配置镜面、哑光、HDR及自定义材质的安全参数，新增/修改/删除自定义材质；不重建几何。"
+      },
+      {
         "id": "setDisplayPreferences",
         "chooseWhen": "浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。"
       },
@@ -115,5 +123,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6edb6666dd50ba663bab446c4aec26a9878434687079d5e3cb31931747db283b"
+  "docsHash": "sha256:04526de7d3fd39eddf036031963d5dce948d6822e7efe9e110673fde54127815"
 }

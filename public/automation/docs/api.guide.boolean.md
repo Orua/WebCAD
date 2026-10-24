@@ -7,6 +7,8 @@
 没有相交、相切退化、无效实体和结果未知是不同问题。若未提交，可针对明确原因修正来源；partial 保留成功部分；unknown 查原回执，不重复切削，不重建全部。相关 api.run。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
