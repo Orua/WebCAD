@@ -1,6 +1,7 @@
 import {contractHash} from '../contracts/operation-schema.js';
 import {LIMITS} from '../limits.js';
 import {contextPolicy} from '../page-context-policy.js';
+import {PAGE_METHOD_SCHEMAS,METHOD_TOOL} from '../page-input-contracts.js';
 import {errorRecovery} from '../error-recovery.js';
 export const PROTOCOL = 'goldenluck.webcad/1';
 export const IDENTITY_KEYS = Object.freeze(['sessionId','documentId','documentInstanceId']);
@@ -37,7 +38,9 @@ const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,
   discoveryMethods:[...DISCOVERY_METHODS].sort(),editActions:[...EDIT_ACTIONS].sort(),
   editMethods:[...EDIT_METHODS].sort(),exportMethods:[...EXPORT_METHODS].sort(),
   // Hosts read timeouts and byte limits from here; WebCAD is their single source.
-  limits:{transport:{...LIMITS.transport},batch:{...LIMITS.batch}}};
+  limits:{transport:{...LIMITS.transport},batch:{...LIMITS.batch}},
+  methodSchemas:PAGE_METHOD_SCHEMAS,contextPolicies:Object.fromEntries([...READ_METHODS,...VIEW_METHODS,...EDIT_METHODS,...EXPORT_METHODS,'run','add','addMany'].map(name=>[name,contextPolicy(name)])),
+  methodTools:Object.fromEntries([...READ_METHODS,...VIEW_METHODS,...EXPORT_METHODS,...JOB_METHODS].map(name=>[name,VIEW_METHODS.has(name)?'webcad_view':EXPORT_METHODS.has(name)?'webcad_artifact':READ_METHODS.has(name)?'webcad_read':'webcad_submit']))};
 export const AGENT_CONTRACT=Object.freeze({...contract,contractHash:contractHash(contract)});
 // A task may think/read for minutes; only a command that changes the document
 // needs exclusive manual editing control. Page revision guards remain active.

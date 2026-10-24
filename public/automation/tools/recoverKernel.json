@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "revision",
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "recoverKernel",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
   "synonyms": [
     "recoverKernel",
@@ -72,5 +77,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ef917969cf23fa11005d3e9f8d2915e6da6382f12f59af9961e69f506af837e8"
+  "docsHash": "sha256:fb0e08b8cfa256221b1ebae56dc87dd84464f72fbd4b92743c5468ad6cb4f785"
 }

@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "connectVector",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
   "synonyms": [
     "connectVector",
@@ -88,5 +93,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2c1f845246201048cebc2801bb2665d862ddaaeb85aabeaf215102921e4236d8"
+  "docsHash": "sha256:075155b63533a1ddfdc372a8a35e3c65a8b08765da8a4ecfe97dfd6fb17aa4e2"
 }

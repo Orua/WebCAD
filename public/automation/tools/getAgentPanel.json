@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "getAgentPanel",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "getAgentPanel()",
   "synonyms": [
     "getAgentPanel",
@@ -38,5 +43,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d78177991934f358f20a0226613572416ddf5ee8689864f84b9e26ba5d58ff58"
+  "docsHash": "sha256:b8a05254436ccd6b9387ccf56b86dd9959b2e2827523412be398afd43104f7cf"
 }

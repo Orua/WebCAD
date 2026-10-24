@@ -1,10 +1,12 @@
 import {validateOperationRefs,normalizeOperationParams,assertOperationContract} from './operation-registry.js';
 import {resolvePlacement,newFeaturePlacement} from './work-frame.js';
 import {markTopologySemantics} from './legacy-topology-policy.js';
+import {PLACEMENT_SCHEMA} from './placement-schema.js';
 
 // Only whole-body operations; intermediate face/edge numbers have no live revision.
 export const FEATURE_PLAN_OPERATIONS=['box','cylinder','sphere','cone','torus','extrude','revolve','sweep','loft','quickModel','vectorProfile','arcProfile','sketchProfile','curveSweep','advancedLoft','transform','copy','mirror','linearPattern','circularPattern','union','cut','intersect','group','fillet','chamfer','hole','multiHole','multiPocket','multiBoss'];
 export const FEATURE_PLAN_SCHEMA={type:'object',additionalProperties:false,required:['features'],properties:{features:{type:'array',minItems:1,maxItems:64,items:{type:'object',additionalProperties:false,required:['key','op','opVersion','schemaHash','params','refs'],properties:{key:{type:'string',pattern:'^[a-zA-Z][a-zA-Z0-9_-]{0,39}$'},op:{enum:FEATURE_PLAN_OPERATIONS},opVersion:{type:'string'},schemaHash:{type:'string'},params:{type:'object',description:'Complete current selected operation schema applies; no intermediate topology IDs'},refs:{type:'array',items:{oneOf:[{type:'string',minLength:1},{type:'object',additionalProperties:false,required:['feature'],properties:{feature:{type:'string',minLength:1}}}]}},name:{type:'string',minLength:1,maxLength:120},placement:{type:'object',description:'Same placement contract as feature.add; frozen against transaction-start state'}}}}}};
+FEATURE_PLAN_SCHEMA.properties.features.items.properties.placement=PLACEMENT_SCHEMA;
 const fail=(code,path,message)=>{throw Object.assign(new Error(message),{code,path});};
 const object=(v,allowed,path)=>{if(!v||typeof v!=='object'||Array.isArray(v)||Object.keys(v).some(k=>!allowed.includes(k)))fail('PARAM_SCHEMA_INVALID',path,'Unexpected feature plan fields');};
 function topologyFree(value,path){

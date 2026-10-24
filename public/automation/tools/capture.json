@@ -4,6 +4,67 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "maxWidth": {
+        "type": "integer",
+        "minimum": 64,
+        "maximum": 4096
+      },
+      "format": {
+        "enum": [
+          "png",
+          "webp"
+        ]
+      },
+      "quality": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 1
+      }
+    },
+    "required": [
+      "context"
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_view",
+    "method": "capture",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "capture({context,maxWidth?:64..4096,format?:\"png\"|\"webp\",quality?:0<q<=1}); 建议 maxWidth:800,format:\"webp\"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:\"capture\",args:{context,maxWidth:800,format:\"webp\"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。",
   "synonyms": [
     "capture",
@@ -100,5 +161,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8659243472ce8a54dee758994ee1ca6cb932ebec9bb6d20dcff9292cae9b4d10"
+  "docsHash": "sha256:d7b0ac4f71a44ceea09472b2dcadc8ab739bb1c81b468d8b18643485e594ecaa"
 }

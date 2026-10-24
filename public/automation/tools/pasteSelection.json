@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "revision",
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "pasteSelection",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
   "synonyms": [
     "pasteSelection",
@@ -78,5 +83,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5c665df14ad7a5b93e9eefbc092f3a24f5a8e0e5cef8a967f8a31fd4f2b017b3"
+  "docsHash": "sha256:c9d8be1b2e0724358afbdee272bfe718a34b885985dcb7132d5c83002148bfd9"
 }

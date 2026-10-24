@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "getHistory",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "getHistory()。会话最多20状态/512KiB，磁盘新保存文件不保留timeline。",
   "synonyms": [
     "getHistory",
@@ -64,5 +69,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d42e6a7c650ebf432b593c721ba90ba1a67380188db1c5c90a41730724897f56"
+  "docsHash": "sha256:e2d94071392ec2f92e9bfdf8a30c84cc15dbe4f40ce60880685dfe707d18461b"
 }

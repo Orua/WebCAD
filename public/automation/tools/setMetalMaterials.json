@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "setMetalMaterials",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "setMetalMaterials({context,configuration})",
   "synonyms": [
     "setMetalMaterials",
@@ -95,5 +100,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b2788d6bf8610fecbcb844d503b7c31b772d052fb2543a82ae3d1814ef13e218"
+  "docsHash": "sha256:714b87f7bb9a425947cc91e351fe1e0d2896a9ffa9d53e01c59947b46523ecb6"
 }

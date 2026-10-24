@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_view",
+    "method": "selectRectangle",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
   "synonyms": [
     "selectRectangle",
@@ -88,5 +93,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4ee9314fe7e9407159c88c31986af5f95e7838f91384efb505d7d96d4040bb1a"
+  "docsHash": "sha256:0e4799d115d7c921e248c93315aea2e180d98fd3abdc582514895586e7956b7e"
 }

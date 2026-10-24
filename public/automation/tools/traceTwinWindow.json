@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "traceTwinWindow",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
   "synonyms": [
     "traceTwinWindow",
@@ -86,5 +91,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7e0d75c621da29058559099b52b1bf95b3df16c7f3a502cddc241c881dd3428b"
+  "docsHash": "sha256:b3cf46e719449a7ad99c8ef787bcdf8694c5f1f34895bba9c7a971fe16dff366"
 }

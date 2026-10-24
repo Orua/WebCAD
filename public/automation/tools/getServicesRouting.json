@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "getServicesRouting",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
   "synonyms": [
     "getServicesRouting",
@@ -93,5 +98,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8d717e4471416f8877f951f1193000c1f2a87c4cb97cf5da5e03275c4ccc4eb0"
+  "docsHash": "sha256:de1ec92eaeca5cf5cbfe218ac74af465fdf45e4122fb03bc84b91f06ab4931cd"
 }

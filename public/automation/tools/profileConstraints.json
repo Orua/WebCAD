@@ -1364,10 +1364,1181 @@
     "historyBinding": "legacy",
     "previewSupported": true
   },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "profileConstraints"
+      },
+      "params": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "constraints"
+        ],
+        "properties": {
+          "constraints": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 128,
+            "description": "Line/circle constraints in saved local 2D mm coordinates. IDs refer to existing entities, never topology indices. An empty array only diagnoses remaining degrees of freedom.",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "point",
+                    "positionMm"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "fixPoint"
+                    },
+                    "point": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "entityId",
+                        "point"
+                      ],
+                      "properties": {
+                        "entityId": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "point": {
+                          "type": "string",
+                          "enum": [
+                            "start",
+                            "end",
+                            "center"
+                          ],
+                          "unit": "mm",
+                          "quantityKind": "length",
+                          "quantizationPolicy": "none"
+                        }
+                      },
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "positionMm": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number",
+                        "minimum": -1000000,
+                        "maximum": 1000000
+                      }
+                    }
+                  },
+                  "description": "Fix one endpoint or circle center to explicit local coordinates."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "entityId"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "fixEntity"
+                    },
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  },
+                  "description": "Freeze the complete line or circle at its source coordinates and source radius."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "first",
+                    "second"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "coincident"
+                    },
+                    "first": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "entityId",
+                        "point"
+                      ],
+                      "properties": {
+                        "entityId": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "point": {
+                          "type": "string",
+                          "enum": [
+                            "start",
+                            "end",
+                            "center"
+                          ],
+                          "unit": "mm",
+                          "quantityKind": "length",
+                          "quantizationPolicy": "none"
+                        }
+                      }
+                    },
+                    "second": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "entityId",
+                        "point"
+                      ],
+                      "properties": {
+                        "entityId": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "point": {
+                          "type": "string",
+                          "enum": [
+                            "start",
+                            "end",
+                            "center"
+                          ],
+                          "unit": "mm",
+                          "quantityKind": "length",
+                          "quantizationPolicy": "none"
+                        }
+                      }
+                    }
+                  },
+                  "description": "Coincide two line endpoints or circle centers."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "point",
+                    "entityId"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "pointOnLine"
+                    },
+                    "point": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "entityId",
+                        "point"
+                      ],
+                      "properties": {
+                        "entityId": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "point": {
+                          "type": "string",
+                          "enum": [
+                            "start",
+                            "end",
+                            "center"
+                          ],
+                          "unit": "mm",
+                          "quantityKind": "length",
+                          "quantizationPolicy": "none"
+                        }
+                      },
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  },
+                  "description": "Place an endpoint or circle center on the supporting infinite line, including its extension."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "point",
+                    "entityId"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "pointOnCircle"
+                    },
+                    "point": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "entityId",
+                        "point"
+                      ],
+                      "properties": {
+                        "entityId": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "point": {
+                          "type": "string",
+                          "enum": [
+                            "start",
+                            "end",
+                            "center"
+                          ],
+                          "unit": "mm",
+                          "quantityKind": "length",
+                          "quantizationPolicy": "none"
+                        }
+                      },
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  },
+                  "description": "Place an endpoint or another circle center on a circle circumference."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "entityId"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "horizontal"
+                    },
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  },
+                  "description": "Set a line parallel to the local X axis; never collapse its endpoints."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "entityId"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "vertical"
+                    },
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  },
+                  "description": "Set a line parallel to the local Y axis; never collapse its endpoints."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "firstId",
+                    "secondId"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "parallel"
+                    },
+                    "firstId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "secondId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  },
+                  "description": "Two nonzero lines parallel in either direction."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "firstId",
+                    "secondId"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "perpendicular"
+                    },
+                    "firstId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "secondId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  },
+                  "description": "Two nonzero lines perpendicular."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "firstId",
+                    "secondId"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "equalLength"
+                    },
+                    "firstId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "secondId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  },
+                  "description": "Two lines have equal endpoint-to-endpoint lengths."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "entityId",
+                    "lengthMm"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "length"
+                    },
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "lengthMm": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "maximum": 2000000,
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    }
+                  },
+                  "description": "Positive line length in mm."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "first",
+                    "second",
+                    "distanceMm"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "distance"
+                    },
+                    "first": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "entityId",
+                        "point"
+                      ],
+                      "properties": {
+                        "entityId": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "point": {
+                          "type": "string",
+                          "enum": [
+                            "start",
+                            "end",
+                            "center"
+                          ],
+                          "unit": "mm",
+                          "quantityKind": "length",
+                          "quantizationPolicy": "none"
+                        }
+                      }
+                    },
+                    "second": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "entityId",
+                        "point"
+                      ],
+                      "properties": {
+                        "entityId": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                          "minLength": 1,
+                          "maxLength": 64
+                        },
+                        "point": {
+                          "type": "string",
+                          "enum": [
+                            "start",
+                            "end",
+                            "center"
+                          ],
+                          "unit": "mm",
+                          "quantityKind": "length",
+                          "quantizationPolicy": "none"
+                        }
+                      }
+                    },
+                    "distanceMm": {
+                      "type": "number",
+                      "minimum": -2000000,
+                      "maximum": 2000000,
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "axis": {
+                      "type": "string",
+                      "enum": [
+                        "euclidean",
+                        "x",
+                        "y"
+                      ],
+                      "default": "euclidean"
+                    }
+                  },
+                  "description": "Euclidean point distance must be nonnegative; x/y are signed second-minus-first coordinate differences, not absolute distances. Zero Euclidean distance coincides the points."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "entityId",
+                    "radiusMm"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "radius"
+                    },
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "radiusMm": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "maximum": 1000000,
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    }
+                  },
+                  "description": "Positive circle radius."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "entityId",
+                    "diameterMm"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "diameter"
+                    },
+                    "entityId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "diameterMm": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "maximum": 2000000,
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    }
+                  },
+                  "description": "Positive circle diameter."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "firstId",
+                    "secondId"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "equalRadius"
+                    },
+                    "firstId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "secondId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  },
+                  "description": "Two circles have equal radii."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "firstId",
+                    "secondId"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "concentric"
+                    },
+                    "firstId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "secondId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  },
+                  "description": "Two distinct circles share a center; radii remain independent."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "firstId",
+                    "secondId",
+                    "angleDeg"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "angle"
+                    },
+                    "firstId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "secondId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "angleDeg": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 180,
+                      "unit": "deg",
+                      "quantityKind": "angle",
+                      "quantizationPolicy": "none"
+                    },
+                    "direction": {
+                      "type": "string",
+                      "enum": [
+                        "ccw",
+                        "cw"
+                      ],
+                      "default": "ccw",
+                      "unit": "1",
+                      "quantityKind": "direction",
+                      "quantizationPolicy": "none"
+                    }
+                  },
+                  "description": "Directed angle between line start-to-end vectors. ccw is positive, cw negative; 0–180 degrees. Endpoints define direction."
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "lineId",
+                    "circleId"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "tangent"
+                    },
+                    "lineId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "circleId": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "side": {
+                      "type": "string",
+                      "enum": [
+                        "left",
+                        "right"
+                      ],
+                      "default": "left"
+                    }
+                  },
+                  "description": "Circle tangent to the supporting infinite line. Side is relative to line start-to-end; contact may lie outside the finite segment."
+                }
+              ]
+            }
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": 1
+          },
+          "frame": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "world"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "snapshot"
+                  },
+                  "origin": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "quaternion": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "origin",
+                  "quaternion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "work"
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expectedFrameVersion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "saved"
+                  },
+                  "frameId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "frameId",
+                  "expectedFrameVersion"
+                ]
+              }
+            ]
+          },
+          "sourceAnchor": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "model-origin",
+                      "bottom-center",
+                      "bounds-center"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "point"
+                  },
+                  "point": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "point"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "named"
+                  },
+                  "anchorId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "anchorId"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "version",
+          "frame"
+        ]
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "additionalDocs": [
-    "api.modeling-pitfalls"
+    "api.modeling-pitfalls",
+    "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
   "selectionGuide": {
@@ -1439,5 +2610,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b5f3d19a0d9919600c43850944deb2581ffe358516147a6eb0f02b9601ce9ab5"
+  "docsHash": "sha256:d62b373bcfc0859ce5bd71308a55f475b0a002a1f2b8853df78313d8caf04b8e"
 }

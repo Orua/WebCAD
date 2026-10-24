@@ -2,6 +2,7 @@
 // Every mutation still goes through the existing page API / CommandService.
 import {contractHash} from './contracts/operation-schema.js';
 import {LIMITS} from './limits.js';
+import {validatePageInput} from './page-input-contracts.js';
 import {archiveReceiptResult} from './receipt-archive.js';
 import {withErrorRecovery} from './error-recovery.js';
 const methods = new Set(['add','execute','connect','info','getState','searchTools','getTools','getTool','readDocs',
@@ -148,6 +149,7 @@ export function createPageBatch(api,{display}={}){
         attempted.add(step.id);
         control.progress?.({phase:'stage',stepId:step.id,stage:step.stage||step.id,completedSteps:results.length,totalSteps:input.steps.length,inputFingerprint});
         if(step.method==='addMany'){
+          validatePageInput('addMany',args,'steps.'+step.id+'.args');
           keys(args,['features']);
           if(!Array.isArray(args.features))bad('PARAM_SCHEMA_INVALID','features must be an array');
           const features=args.features.map(feature=>{
@@ -157,6 +159,7 @@ export function createPageBatch(api,{display}={}){
           });
           result=await api.execute({context:expected,idempotencyKey:`${key}:${step.id}`,action:'feature.addMany',args:{features}});
         }else if(step.method==='add'){
+          validatePageInput('add',args,'steps.'+step.id+'.args');
           keys(args,['op','params','refs','name','placement']);
           const card=api.getTool({id:args.op});
           result=await api.execute({context:expected,idempotencyKey:`${key}:${step.id}`,action:'feature.add',

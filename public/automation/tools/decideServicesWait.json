@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "decideServicesWait",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
   "synonyms": [
     "decideServicesWait",
@@ -95,5 +100,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:04d28a63277161c1138b4668a903ccfe4c6d720421d2fed78a156df3ee7bda01"
+  "docsHash": "sha256:2d86a3db2830782e0f324766f9094ab012404d5da3f0871709ef2a1dd5eb31ea"
 }

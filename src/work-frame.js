@@ -1,5 +1,7 @@
 import {placementPolicy} from './placement-policy.js';
 import {resolveAlignPose} from './align-mode.js';
+import {PLACEMENT_SCHEMA} from './placement-schema.js';
+import {validateSchema} from './contracts/operation-schema.js';
 
 const fail=(code,path,message)=>{throw Object.assign(new Error(message),{code,path,recoveryAction:'READ_STATE_AND_REPLAN'});};
 const plain=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
@@ -62,7 +64,7 @@ export function resolvePlacement(placement,system,op,params={}){
   if(placement.version!==1)fail('FRAME_INVALID','args.placement.version','Unsupported placement version');
   const f=placement.frame;fields(f,['kind','origin','quaternion','expectedFrameVersion','frameId'],'args.placement.frame');
   let frame,sourceFrameRef;
-  if(f.kind==='world'){if(Object.keys(f).length!==1)fail('FRAME_INVALID','args.placement.frame','World frame has no coordinates');frame=identityFrame();sourceFrameRef={kind:'world'};}
+  if(f.kind==='world'){if(Object.keys(f).length!==1)fail('FRAME_INVALID','args.placement.frame','world accepts only {kind:"world"}. For explicit position/orientation use {kind:"snapshot",origin:[x,y,z],quaternion:[x,y,z,w]}; see api.placement and placementSchema.');frame=identityFrame();sourceFrameRef={kind:'world'};}
   else if(f.kind==='snapshot'){if(Object.keys(f).length!==3)fail('FRAME_INVALID','args.placement.frame','Snapshot requires origin and quaternion');frame=validateFrame({origin:f.origin,quaternion:f.quaternion},'args.placement.frame');sourceFrameRef={kind:'snapshot'};}
   else if(f.kind==='work'){
     if(Object.keys(f).length!==2||f.expectedFrameVersion!==system.workFrame.frameVersion)fail('STALE_REFERENCE','args.placement.frame.expectedFrameVersion','Work frame changed');
@@ -95,6 +97,7 @@ export function resolvePlacement(placement,system,op,params={}){
   if(a.kind==='named'&&!named)fail('STALE_REFERENCE','args.placement.sourceAnchor.anchorId','Named source anchor is missing or stale');
   const sourcePoint=a.kind==='named'?[...named.worldPoint]:a.kind==='point'?a.point:a.kind==='model-origin'?[0,0,0]:op==='box'?[params.width/2,params.depth/2,a.kind==='bounds-center'?params.height/2:0]:null;
   if(sourcePoint?.some(n=>!Number.isFinite(n)))fail('FRAME_INVALID','args.params','Source dimensions must be finite');
+  validateSchema(PLACEMENT_SCHEMA,placement,'args.placement');
   return {version:1,resolverVersion:1,frameSnapshot:frame,sourceAnchor:structuredClone(a),sourceFrameRef,sourcePoint};
 }
 export function validateResolvedPlacement(placement,op){

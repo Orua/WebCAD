@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "getServicesJob",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "getServicesJob({jobId})",
   "synonyms": [
     "getServicesJob",
@@ -102,5 +107,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ca0632f7c37403df7dc0de3008777d5e94e9d56b73ef2a3877d0553b6753e57e"
+  "docsHash": "sha256:61b47ba6a41fd3d30e9440903fd62e0ce4f444987fe1c734468bc98f5f883be3"
 }

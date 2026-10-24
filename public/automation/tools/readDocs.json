@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "readDocs",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
     "readDocs",
@@ -76,5 +81,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:16cd9c8ddc1af186d26850b4f8d503b9bfd44476ccdb83bfd78e4d9bf0134d82"
+  "docsHash": "sha256:cf5df0842e16293e6f6960ae159a200e288fba87554ba14547089d52301a3624"
 }

@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "revision",
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "setAgentPanel",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "setAgentPanel({context,visible:true|false})；true接入，false退出释放。或setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false,floatingPosition?:{xPx:80,yPx:80}}})；layout与visible分开调用。宽高1–4096像素，浮标坐标0–100000像素并夹限到画布内。",
   "synonyms": [
     "setAgentPanel",
@@ -44,5 +49,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d8ec39a7eacb94841483630c92c60486ae1deb89436f6ae5308feb21107665cd"
+  "docsHash": "sha256:868dd1c9c91abca2637b3dabd72c3d6e51aeaacf8d47638ee06dba7171b01e6f"
 }

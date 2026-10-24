@@ -830,9 +830,645 @@
     "historyBinding": "legacy",
     "previewSupported": true
   },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "fillet"
+      },
+      "params": {
+        "type": "object",
+        "properties": {
+          "radius": {
+            "oneOf": [
+              {
+                "type": "number",
+                "description": "Exact radius in mm (mm)",
+                "exclusiveMinimum": 0,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "maxMm",
+                  "minMm"
+                ],
+                "properties": {
+                  "maxMm": {
+                    "type": "number",
+                    "description": "Maximum sampled radius (mm)",
+                    "exclusiveMinimum": 0
+                  },
+                  "minMm": {
+                    "type": "number",
+                    "description": "Minimum radius (mm)",
+                    "exclusiveMinimum": 0
+                  },
+                  "stepRatio": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "exclusiveMaximum": 1
+                  },
+                  "maxAttempts": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6
+                  }
+                },
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              }
+            ],
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "edgeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "description": "Zero-based topology index",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "description": "Zero-based topology index",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "sharedFaces": {
+            "type": "boolean",
+            "description": "With at least two faceIds, process only their common sharp edges; omitted/false preserves historical face-boundary scope"
+          },
+          "allEdges": {
+            "type": "boolean",
+            "description": "Explicitly process every sharp edge of the body"
+          },
+          "blendLaw": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "startRadiusMm",
+              "endRadiusMm"
+            ],
+            "properties": {
+              "startRadiusMm": {
+                "type": "number",
+                "description": "Edge start radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "endRadiusMm": {
+                "type": "number",
+                "description": "Edge end radius (mm)",
+                "exclusiveMinimum": 0
+              }
+            }
+          },
+          "selector": {
+            "type": "object",
+            "additionalProperties": false,
+            "oneOf": [
+              {
+                "required": [
+                  "faceIds"
+                ]
+              },
+              {
+                "required": [
+                  "edgeIds"
+                ]
+              },
+              {
+                "required": [
+                  "allEdges"
+                ]
+              },
+              {
+                "required": [
+                  "seamBetween"
+                ]
+              },
+              {
+                "required": [
+                  "edgesNear"
+                ]
+              },
+              {
+                "required": [
+                  "facesFromFeature"
+                ]
+              }
+            ],
+            "properties": {
+              "faceIds": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "unit": "1",
+                  "quantityKind": "index",
+                  "quantizationPolicy": "none"
+                },
+                "minItems": 1,
+                "maxItems": 128,
+                "uniqueItems": true,
+                "unit": "1",
+                "quantityKind": "index",
+                "quantizationPolicy": "none"
+              },
+              "edgeIds": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "unit": "1",
+                  "quantityKind": "index",
+                  "quantizationPolicy": "none"
+                },
+                "minItems": 1,
+                "maxItems": 128,
+                "uniqueItems": true,
+                "unit": "1",
+                "quantityKind": "index",
+                "quantizationPolicy": "none"
+              },
+              "allEdges": {
+                "const": true
+              },
+              "seamBetween": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "a",
+                  "b"
+                ],
+                "properties": {
+                  "a": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 150
+                  },
+                  "b": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 150
+                  }
+                }
+              },
+              "edgesNear": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "pointMm",
+                  "radiusMm"
+                ],
+                "properties": {
+                  "pointMm": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  },
+                  "radiusMm": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  },
+                  "sharpOnly": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "facesFromFeature": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "featureId"
+                ],
+                "properties": {
+                  "featureId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 150
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "side",
+                      "cap"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "radius"
+        ],
+        "additionalProperties": false,
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "anyOf": [
+          {
+            "required": [
+              "edgeIds"
+            ]
+          },
+          {
+            "required": [
+              "faceIds"
+            ]
+          },
+          {
+            "required": [
+              "allEdges"
+            ],
+            "properties": {
+              "allEdges": {
+                "const": true
+              }
+            }
+          },
+          {
+            "required": [
+              "selector"
+            ]
+          }
+        ]
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": 1
+          },
+          "frame": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "world"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "snapshot"
+                  },
+                  "origin": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "quaternion": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "origin",
+                  "quaternion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "work"
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expectedFrameVersion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "saved"
+                  },
+                  "frameId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "frameId",
+                  "expectedFrameVersion"
+                ]
+              }
+            ]
+          },
+          "sourceAnchor": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "model-origin",
+                      "bottom-center",
+                      "bounds-center"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "point"
+                  },
+                  "point": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "point"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "named"
+                  },
+                  "anchorId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "anchorId"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "version",
+          "frame"
+        ]
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
   "runtimeAvailability": "requires_ready_page",
   "additionalDocs": [
-    "api.modeling-pitfalls"
+    "api.modeling-pitfalls",
+    "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
   "selectionGuide": {
@@ -888,5 +1524,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:45045ddc85daf71ca056bd1812cb3332d52af5a5c96546c07ca29f5e8c405377"
+  "docsHash": "sha256:37b32b1e2df4216bdeeb101d8e6ee4ff8b1ca79b6572ac5fa4d01e2cabc3b2e1"
 }

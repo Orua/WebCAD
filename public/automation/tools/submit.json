@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "submit",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
     "submit",
@@ -70,5 +75,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fb78ef404885da04dc70ff6a0d051e597db22ec21bb3504cc26199e99393ebf7"
+  "docsHash": "sha256:25aefbfdc3d8b62224b4892a262b360b02263dfec6bb9a7b5afc9e59e3e87882"
 }

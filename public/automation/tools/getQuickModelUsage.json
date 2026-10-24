@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "getQuickModelUsage",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
   "synonyms": [
     "getQuickModelUsage",
@@ -78,5 +83,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ea34bbc212c40b6db57800c6efefe389631677b813854cbdd5a8222af601ef06"
+  "docsHash": "sha256:39dde4f4795b35649c37233ebf8c67484abfa8fb6742939192d4e781f7fa2f14"
 }

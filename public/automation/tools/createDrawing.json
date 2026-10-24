@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "revision",
+  "mcpCall": {
+    "tool": "webcad_artifact",
+    "method": "createDrawing",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
   "synonyms": [
     "createDrawing",
@@ -70,5 +75,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a9c7c5a4cf1defde229b2837e63e62a4178c6cdc37deb89787f6e164d3e3a38d"
+  "docsHash": "sha256:5119c7b1ef2fbffea2a21cc1e4ae4df1824eb9401cad212571b97688953761a1"
 }

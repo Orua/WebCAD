@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "planPatternMachining",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "planPatternMachining({context,intent})，intent 为 version:1 加工意图；只读规划，不推断图片深度。",
   "synonyms": [
     "planPatternMachining",
@@ -272,5 +277,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:3f19bbda83e1ebcb07da79e0b868485e55fb36ed5195c3ad543897c884f5c05f"
+  "docsHash": "sha256:efa7315085810cdd8a573e9603924bb0673fb39194ce70dc38b43b945fe07841"
 }

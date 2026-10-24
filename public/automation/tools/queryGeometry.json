@@ -4,6 +4,84 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "bodyId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "kind": {
+        "enum": [
+          "face",
+          "edge"
+        ]
+      },
+      "filter": {
+        "type": "object"
+      },
+      "requireUnique": {
+        "type": "boolean"
+      },
+      "expectedCount": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100000
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100
+      },
+      "cursor": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2048
+      }
+    },
+    "required": [
+      "context",
+      "bodyId",
+      "kind"
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "queryGeometry",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
   "synonyms": [
     "queryGeometry",
@@ -76,5 +154,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7168100702751b43a74aba41896741d7c0eeb9020e50d754e2fb375109ebd175"
+  "docsHash": "sha256:67aba39af7c80218da59d83f15b554d8e52594b95ec84f04217362ee601d99ab"
 }
