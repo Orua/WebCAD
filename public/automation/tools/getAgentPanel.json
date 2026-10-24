@@ -2,7 +2,7 @@
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getAgentPanel()",
   "synonyms": [
@@ -12,10 +12,11 @@
     "模式",
     "状态",
     "浮标",
-    "思考"
+    "思考",
+    "计时"
   ],
   "inputContract": "getAgentPanel()",
-  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；floating返回visible/activity及画布CSS像素position:{xPx,yPx}，activity为thinking/working/idle/offline/connecting。channelState返回已验证的transport=direct|bridge|unavailable、actualOrigin、syncStatus和原因。phase=agent_offline表示助手断开；release_pending表示本地解锁但服务端释放待核对。断线保留工程与原命令回执，不自动重放。",
+  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；floating返回visible/activity、elapsedSeconds、phase、text及画布CSS像素position:{xPx,yPx}，activity为thinking/working/completed/failed/canceled/idle/offline/connecting。text只含公开思考摘要或工具状态，等待时为..；completed显示绿勾，失败或取消不显示成功。channelState返回已验证的transport=direct|bridge|unavailable、actualOrigin、syncStatus和原因。phase=agent_offline表示助手断开；release_pending表示本地解锁但服务端释放待核对。断线保留工程与原命令回执，不自动重放。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -37,5 +38,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:22a1ea71b70a0c23aabdfdb6c9130aa0daa5a9bcadaf5f23852e0b3dd7242847"
+  "docsHash": "sha256:353b4fd930e00e4bb7a50d2c10827fc9b5966aba0e122515404037d12dfe936b"
 }

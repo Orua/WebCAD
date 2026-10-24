@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.57.6 · sha256:91681b5720669e808faa1c1f6ff817749c2f43575fbca8f1c9c68150e663468f
+API 1.57.7 · sha256:e9b54e31240f78f2cbb7a3cc98da519ebffab88a364ad0fafffd7bda86f55a90
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -90555,7 +90555,7 @@ files.release: contextPolicy=none
   "title": "高度图浮雕精修",
   "label": "高度图浮雕精修",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -90653,7 +90653,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:5574783362b7f37ae063aec26ec8064eb5c20cb2550edf3ad61f4ee759747ba3"
+  "docsHash": "sha256:1e611b8aa6f8ed799002b0d0781b88c9b184840519dbf8683b5b1426bd99fa6d"
 }
 ```
 
@@ -90665,7 +90665,7 @@ files.release: contextPolicy=none
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -90763,7 +90763,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f6f35dbc34ea8e8c99c3b4e0314b847eb09003ec883319cae56c11b77574cfa6"
+  "docsHash": "sha256:6db664a471721b827c40b38e0589b5667fd220c60d5c716074658497f45b3f3f"
 }
 ```
 
@@ -122544,7 +122544,7 @@ files.release: contextPolicy=none
   "id": "getMaterials",
   "title": "getMaterials",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getMaterials()读取version1配置、常用金属参考密度及默认/对象材料映射。execute({context,idempotencyKey,action:\"document.materials\",args:{settings}})完整更新；settings={version:1,defaultMaterial,densities,bodyMaterials}。密度g/cm³须0<值≤30，材料编号和默认值从返回materials读取。",
   "synonyms": [
@@ -122587,7 +122587,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:62fdd5f9ac153cb55ac1a67cd09e663ce737ceced976731fe8639be0c9cc64f3"
+  "docsHash": "sha256:bb1fbbff08eddeb960bee6b136b6ae7bc3fee2bdc3118d2db3ea9398906125c1"
 }
 ```
 
@@ -122598,7 +122598,7 @@ files.release: contextPolicy=none
   "id": "measureMass",
   "title": "measureMass",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "measureMass({context,bodyId,materialId?})；测量当前对象体积，再按显式材料/对象材料/工程默认材料优先级计算。",
   "synonyms": [
@@ -122667,7 +122667,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7c207bd4ba4515c8317943be9cab2f127f5cd81265f405d2618d03853094236b"
+  "docsHash": "sha256:1638cae34679edadcdf70d9e744251644b8922b2facd525f0aa0bbe3de7f1515"
 }
 ```
 
@@ -122678,7 +122678,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignFit",
   "title": "reliefDesignFit",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\"|\"servicesFirst\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；servicesFirst（需 Services 提供 relief.design-fit-brep-1）不在浏览器拟合，只保存临时控制网用于准备，首次完整拟合在 Services 预览时完成，Services 不可用时须改用 fit；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave（可选heightInterpretation:signed默认/engraveDepth，engraveDepth仅限engrave，把高于最低基线的作者高度当作下刻深度，边界与保护区仍为基线）、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)作为参考误差；deviationPolicy默认candidate，超差或达到迭代上限返回approximation-candidate并带warnings/withinTolerance/converged，可继续预览保存；strict保留严格拒绝。保护与实体有效性不放宽；候选体积复核不一致时quality.status=candidate-volume-unverified、warnings含RELIEF_VOLUME_UNVERIFIED，不启动耗时网格复核，不宣称加工合格；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认不设固定运算次数上限，显式指定时为正安全整数（最大9007199254740991），保留30秒Worker超时和停止按钮。一次30秒可取消数值Worker，最多4225控制极点。",
   "synonyms": [
@@ -122919,7 +122919,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:d39739701ae087f2b4e45ecfd5b533839eeb3da28409dbef6936d92429209e36"
+  "docsHash": "sha256:fbd70a50542e004da6726fe0f89469dfeca7af308843f9e8300baf58fe4cfc55"
 }
 ```
 
@@ -122930,7 +122930,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefDesignRelief",
   "title": "prepareReliefDesignRelief",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "prepareReliefDesignRelief({context,designId,expectedDraftRevision,target:{bodyId,faceId,expectedSourceSha256?},placement:{originMm:[x,y,z]|alignTo:{kind:\"circularEdge\",edgeIndex},xDirection:[x,y,z]},datum:{kind:\"authoredBaselineOnSelectedFace\",baselineMm},machiningIntent:{version:1,requestedGeometry:\"continuousRelief\",sourceInterpretation:\"authoredHeightMap\",userIntentEvidence}})。只读规划：使用当前修订已拟合结果（reliefDesignFit get=fitted）和用户当前选中的真实平面（单一有效实体）；内核读取冻结源快照SHA、面心与法向。originMm为世界图案中心且须位于该平面，xDirection为面内单位切向；datum.baselineMm必须等于拟合baseline；不能填targetPeakMm。带孔面面心会偏离孔/圆心：先只传target读取support.circularEdges（真实圆形边精确圆心），再用placement.alignTo对齐，与originMm二选一。",
   "synonyms": [
@@ -123318,7 +123318,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:c4af15f79e0e9d16f200e97e2f7b9c94a7e2c2a19fe84882b5aae60da36209d1"
+  "docsHash": "sha256:c4aee12494b9c6c8675fc8e73e246ce1823f208f6a9296193135105a8e446338"
 }
 ```
 
@@ -123329,7 +123329,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignReference",
   "title": "reliefDesignReference",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "reliefDesignReference({context,action:\"get\"|\"attach\"|\"detach\"|\"resource\",designId,expectedDraftRevision,resourceId?,expectedSha256?,expectedSize?,idempotencyKey?})。attach仅接受当前files.register的PNG/JPEG/WebP原图资源（20MiB、16M像素、64:1）；以实际签名/尺寸预检及浏览器完整解码校验，再同CommandService事务绑定/替换。get只读metadata不生成资源；resource把当前草稿实际绑定的持久原件登记成合法resourceId，可files.read/download并在用完后files.release。不能直接提供source.bytes、imports、importKey或猜填SHA代替原件。",
   "synonyms": [
@@ -123509,7 +123509,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:71d48f5f9c2d03f813bab98143479a2b7a692db4e734608b8b3198a354e174f0"
+  "docsHash": "sha256:ce822039ed1226d8cce7cc63d1865e6a0a060e8d29cb310f9d1605853e651f04"
 }
 ```
 
@@ -123520,7 +123520,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignField",
   "title": "reliefDesignField",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "reliefDesignField({context,action:\"solve\"|\"get\"|\"cancel\"|\"candidate\",designId,expectedDraftRevision,options?,baseMm?,placement?})。先document.reliefDesign保存草稿；solve在30秒可取消Worker中运行Pro求解器。options可用columns/rows 9–129（省略时有高度来源按尺寸与加工精度自动取值，最高129；无高度来源33）、smoothWeight默认1、maxIterations 1–20000（默认10000）、toleranceMm默认0.0001、edits。圆形/矩形支撑、孔和保护域均进入保守掩码，最低设计高度为保护基线；高度点是weight=100软毫米约束，不是控制极点。",
   "synonyms": [
@@ -123754,7 +123754,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:e33a0c0b7aa9c5f3e80c91ceadb1aa39ceca6a64f842a389818c20943cf8c045"
+  "docsHash": "sha256:efe0772654cbfc43a26fd61ed7847dee0732f8537df3e908d07b6a037060e261"
 }
 ```
 
@@ -123765,7 +123765,7 @@ files.release: contextPolicy=none
   "id": "readLogo",
   "title": "readLogo",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "readLogo({context,resourceId,name,targetWidthMm?,page?,pdfJoinToleranceMm?,sizeConfirmed?,allowUpload?,machining?:{enabled,toleranceMm,minDetailMm},raster?:{threshold,invert,alphaThreshold,smoothingPx}})。选定文件先登记资源；SVG/LOGO JSON及受支持闭合直线DXF在本机读取；本地不支持时明确授权后交已配置后台。位图必须提供实际宽度、sizeConfirmed:true、allowUpload:true。raster可省略；threshold/alphaThreshold为0–255整数，默认128/1；invert为布尔值，默认false。LOGO不接受浮雕的0–1阈值，0.5在上传前返回PARAM_SCHEMA_INVALID。默认以亮度<128的深色像素为前景；不得无依据反转或扫描参数重试。",
   "synonyms": [
@@ -123989,7 +123989,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:ff6b8ad592d07fb670ded9eec209cdb1e7b93bdd7c8476efcc927184c1515479"
+  "docsHash": "sha256:b83d2cf975542aa0e1e3b4c33aa94c766b4c174891fb4f4302197dfd411d2c63"
 }
 ```
 
@@ -124000,7 +124000,7 @@ files.release: contextPolicy=none
   "id": "reviewLogo",
   "title": "reviewLogo",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "reviewLogo({context,logoId,action?:get|artifacts|select|setPoint|deletePoint|deleteContour|undo|confirm,expectedRevision?,regionIndex?,holeIndex?:null|integer,pointIndex?,pointMm?:[x,y],confirmed?})。除get外必须对应review.revision；select选环/节点，setPoint按毫米，confirm必须confirmed:true。artifacts生成中间文件；不提交CAD几何。",
   "synonyms": [
@@ -124183,7 +124183,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:53a8daefe15ec5472e2c4f95f1ae72ad83a16cfe39d1726897eb785735ccd6a1"
+  "docsHash": "sha256:3481c82c44fa11daab49af6100ba052d20f2fe07f213bb9aea60be090b932e4c"
 }
 ```
 
@@ -124194,7 +124194,7 @@ files.release: contextPolicy=none
   "id": "logoWizard",
   "title": "logoWizard",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "logoWizard({context,action?:get|attach|artifacts|parameters|read|back|load|select|setPoint|deletePoint|deleteContour|undo|confirm,expectedRevision?,parameters?:{targetWidthMm,page,pdfJoinToleranceMm,raster},allowUpload?:false,logoId?,regionIndex?,holeIndex?,pointIndex?,pointMm?,confirmed?})。get读取已打开向导且不分配资源；其他动作须wizard.revision。attach登记UI原件和共享草稿，artifacts绑定并导出当前稿；前者需cad.read，后者需cad.export。load从readLogo的logoId读取同源轮廓/原图；read处理UI已选择的文件，默认不上传，需allowUpload:true才可调用已配置后台。没有活动向导不自动开窗，独立流程用reviewLogo。",
   "synonyms": [
@@ -124457,7 +124457,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:fa453c29ee8e9181a55103df3b004d0d987cbf3eb289f435202ba94d33e72a75"
+  "docsHash": "sha256:e1497e7a101a714e1428ab0f7455e862a82d3c42f42e5fa8350d91c9c34a96fe"
 }
 ```
 
@@ -124468,7 +124468,7 @@ files.release: contextPolicy=none
   "id": "getBatchReceipt",
   "title": "getBatchReceipt",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.",
   "synonyms": [
@@ -124558,7 +124558,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:016ad8ba4ebccc1d72489ca71297a85db7b03a1e848b506f1b1373aa778857ad"
+  "docsHash": "sha256:2a72a4d95e1be770d4de128854c69de373e96cc2d93b00942d67241606d21e60"
 }
 ```
 
@@ -124569,7 +124569,7 @@ files.release: contextPolicy=none
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。",
   "synonyms": [
@@ -124820,7 +124820,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:c271b18fa75c7d8ed0cf0ce18e374cb62481e2163c3ce9485ba57f25cf9b265a"
+  "docsHash": "sha256:a4b04ed8c3673f2ac416da8ff031848096957d1a71ee0f50ea7a6d963588a3e9"
 }
 ```
 
@@ -124831,7 +124831,7 @@ files.release: contextPolicy=none
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
   "synonyms": [
@@ -124901,7 +124901,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d4f3f0cc0e423c9c30ad9663a5249f628df42e93d1a687a12198a93f99f74dc9"
+  "docsHash": "sha256:296afb3a1eeae51c9f0f096ce5059f4a377f86fd885743ecbd57a981e26a5e28"
 }
 ```
 
@@ -124912,7 +124912,7 @@ files.release: contextPolicy=none
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。",
   "synonyms": [
@@ -125104,7 +125104,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:5721b8f9ffb97c150ca6013692a5a35012716e2659ecfc931905dcde077515ac"
+  "docsHash": "sha256:be3ec72bb77adf9127cab9b7294ffcf9ddf75c1d7fdedc719b7d31e2ee46b9f5"
 }
 ```
 
@@ -125115,7 +125115,7 @@ files.release: contextPolicy=none
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getModelLibrary()",
   "synonyms": [
@@ -125197,7 +125197,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cc51fc3eb522d99f3a458efda6977a31f629a073a2756a941fc773ca1d28a6e6"
+  "docsHash": "sha256:206f46e0eee3c64c74cb4667e645959463c00649f553e20c6d9c42ac74457dd4"
 }
 ```
 
@@ -125208,7 +125208,7 @@ files.release: contextPolicy=none
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "updateModelLibrary({context,expectedLibraryRevision,operation:move|restore,id?,index?})。move传内置id和移动后零起始index；restore恢复默认顺序。工具定义只读，不接受entry、library、脚本、upsert、remove或import。",
   "synonyms": [
@@ -125297,7 +125297,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:709fdbd567796cf68262e14a09c43ce50a338e9d0967ed6748009713cec21495"
+  "docsHash": "sha256:8068a6da94178de25581a30c687a22903964ac222dc095c33eb088d3f926f7e7"
 }
 ```
 
@@ -125308,7 +125308,7 @@ files.release: contextPolicy=none
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})",
   "synonyms": [
@@ -125394,7 +125394,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:35b21509543d12c56dd78926bac73c68b0f121ff52992fa825620dd8cb4deac6"
+  "docsHash": "sha256:0329570087e35de6b996561a62df1a5e970ab4256a08445bd29c488a50cf1c24"
 }
 ```
 
@@ -125405,7 +125405,7 @@ files.release: contextPolicy=none
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "planPatternMachining({context,intent})，intent 为 version:1 加工意图；只读规划，不推断图片深度。",
   "synonyms": [
@@ -125675,7 +125675,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:16e47413a451472d7ee2b893732aa5043f8687673162d672b5110a5203d437a2"
+  "docsHash": "sha256:c04959f1731de2bfd9dc5a37b4d7df2009f4126059d6072a38c89f4b1c0e744f"
 }
 ```
 
@@ -125686,7 +125686,7 @@ files.release: contextPolicy=none
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
   "synonyms": [
@@ -125779,7 +125779,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d7ae74c80d886a5b8cbf3a794415fbf651d95eb056dff591cf2fefcebfc3b118"
+  "docsHash": "sha256:7f0aa5caaa7bc0fe5446018db38db7bf9a1a98ee3cf048675d2853013c21f540"
 }
 ```
 
@@ -125790,7 +125790,7 @@ files.release: contextPolicy=none
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "recoverServicesJob({jobId,reason,approved:true,acknowledgedState:\"interrupted\",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。",
   "synonyms": [
@@ -125888,7 +125888,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6d56ed1d9e6a49529bc8e47c2a6f171fdf33c2b7d6318c210f819a11158f8346"
+  "docsHash": "sha256:f13b6ef54292740973ee54f7a02cb172b0620f16e7bc3d185002bec728f55c39"
 }
 ```
 
@@ -125899,7 +125899,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
   "synonyms": [
@@ -126007,7 +126007,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f98818e9cbfe2fafe4b9e067ef2074ce1764cd2a4b9fb60077f60135b00d3037"
+  "docsHash": "sha256:64e19f37702b05ac7c5687e400d3d5a45aa326b9ead0671551276e870f3e6517"
 }
 ```
 
@@ -126018,7 +126018,7 @@ files.release: contextPolicy=none
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。",
   "synonyms": [
@@ -126129,7 +126129,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:8868464028285bc6e1e2c861d8d85b4a147617d78ec651e4118dd553d9f9cf25"
+  "docsHash": "sha256:4e9a1c92f9ae0b5ec90435982eaaff6d7ab63fd2a0beb608f02f5f21c877080f"
 }
 ```
 
@@ -126140,7 +126140,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:\"raise\"|\"lower\"|\"smooth\"|\"flatten\"|\"restore\"|\"mask\"|\"unmask\"|\"fill\"|\"scrape\"|\"sharpen\",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:\"none\"|\"x\"|\"y\"|\"xy\",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。",
   "synonyms": [
@@ -126260,7 +126260,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:89bcec55147ed523a0f5d74a9208b46493c10d826163523752c6210aeba3c354"
+  "docsHash": "sha256:af24ade0d64d4e439fa62dc83cf7eff3786d5c5ce20318cb126156024de46004"
 }
 ```
 
@@ -126271,7 +126271,7 @@ files.release: contextPolicy=none
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
   "synonyms": [
@@ -126390,7 +126390,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:bb05c0667288fe24d56b55f0c1e42f9fd3b33c4cca83b39ae8df454366c64733"
+  "docsHash": "sha256:dd2ae2c9d5addc6dc9a1dd35971ebedfd4a119a51d6ddacb30c016e60f3a3b02"
 }
 ```
 
@@ -126401,7 +126401,7 @@ files.release: contextPolicy=none
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getHistory()。会话最多20状态/512KiB，磁盘新保存文件不保留timeline。",
   "synonyms": [
@@ -126463,7 +126463,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1eabaeae9060a1d06dd5f6fa65a646698f0bbfbf96ae01f101716f08b413547f"
+  "docsHash": "sha256:389ae72df5c979b746a5aab195586f93f1423af45f1eea00d2f76a92087741e1"
 }
 ```
 
@@ -126474,7 +126474,7 @@ files.release: contextPolicy=none
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true：true=整体按联合包围盒移动并保持相对位置，false=每个实体各自对齐。",
   "synonyms": [
@@ -126540,7 +126540,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:286be56064492da4cab3fc629aa2416ece2b570910235509670fb497e7cadc28"
+  "docsHash": "sha256:4fd6c24594959a435ea8b56e9f10f8e92f3f84a64314cbb7f8c870aa1a3050b1"
 }
 ```
 
@@ -126551,7 +126551,7 @@ files.release: contextPolicy=none
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。",
   "synonyms": [
@@ -126629,7 +126629,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fe1951f093614fc26588ce078f603aaa536bfeedaebc7cabb067c2cea671e754"
+  "docsHash": "sha256:ae0fb691cec249757df990974da42c5491ce5c3ada85600a7fe7a278a689bf22"
 }
 ```
 
@@ -126640,7 +126640,7 @@ files.release: contextPolicy=none
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
   "synonyms": [
@@ -126708,7 +126708,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a19f13fc9026f0cc5530adcd8f9560284c148f2a342555751da368bfdc5bbc75"
+  "docsHash": "sha256:96cf1fe2fea67f6cb305264e0f9d3295163c48665e664841358e0030019e297a"
 }
 ```
 
@@ -126719,7 +126719,7 @@ files.release: contextPolicy=none
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "工程图：exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})，drawingId必须匹配当前revision。LOGO原轮廓：exportDrawing({context,logoId,format:\"dxf\"|\"json\",name?})，logoId来自本页readLogo或logoWizard.attach/artifacts，最近4份有效；无需创建实体或写脚本。drawingId与logoId二选一，LOGO不接收纸张/标注选项，name以.dxf或.logo.json结尾。需要cad.export；DWG不可用。",
   "synonyms": [
@@ -126901,7 +126901,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:091907709bb0c3f3f1ac731c54e0006a97ef7aef4ebe340c59dbb0ed5acd1874"
+  "docsHash": "sha256:1097abd1c412c6ee2dee70529fbff74512f9ea3d5284a186ca0badbb98cbc3f3"
 }
 ```
 
@@ -126912,7 +126912,7 @@ files.release: contextPolicy=none
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。",
   "synonyms": [
@@ -126988,7 +126988,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7adfaaffb0fc0fea5520af1d7d044ed82dd130f19fb3b371b796bbd7f00ed615"
+  "docsHash": "sha256:6119307422f4cb26cfd6b67b5f4b60e3d4f1e4c145c435974652f956d1895c1f"
 }
 ```
 
@@ -126999,7 +126999,7 @@ files.release: contextPolicy=none
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
   "synonyms": [
@@ -127079,7 +127079,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c145fbc0cca60ce35f715bc5792eb6db2de4c7d7a37f1a7a963a41a0013c4ce8"
+  "docsHash": "sha256:c40f227ab12ffd5a2edc2d90e0eb32dfc6e32728393fb99b7ab670ba8c5bc030"
 }
 ```
 
@@ -127090,7 +127090,7 @@ files.release: contextPolicy=none
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "pasteSelection({context,idempotencyKey}); 先 copySelection。",
   "synonyms": [
@@ -127166,7 +127166,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ab5161bb413cb3d16ead7078f9f76afd2099c0de5212498ff29cd663c10fc5b"
+  "docsHash": "sha256:f7df8ed303c9d52476cabad2d0f06c025494194c4169678dac476be76af06b4d"
 }
 ```
 
@@ -127177,7 +127177,7 @@ files.release: contextPolicy=none
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
@@ -127250,7 +127250,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:73f390c511d0c13114da636b3347089d98a670a38b526f7b6cb6d974590e082a"
+  "docsHash": "sha256:aad56ce59b20bc4447137d1bd466f5d2e6ad9bad1e987950d9f17e290c0485c7"
 }
 ```
 
@@ -127261,7 +127261,7 @@ files.release: contextPolicy=none
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getUILayout({includeModelLibrary?:boolean})",
   "synonyms": [
@@ -127341,7 +127341,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4384a2dec60b4e20ca181cbe571ced465269386d12868db330caf5475eb38ab3"
+  "docsHash": "sha256:80a163fe146ec3a2c677e333ad72d9da7b294a4ddb982aaf84486836382d02f9"
 }
 ```
 
@@ -127352,7 +127352,7 @@ files.release: contextPolicy=none
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
@@ -127434,7 +127434,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ed9fdf5746c4a77878cdd70c8a510d2b3866361300c1dacc4f7e533d0d946cf0"
+  "docsHash": "sha256:0587c7c6db11c9b591db8e7369f44aff7effc38c14ed352cb4ab9541804d36c9"
 }
 ```
 
@@ -127445,7 +127445,7 @@ files.release: contextPolicy=none
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
@@ -127509,7 +127509,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5fda7295c44d390505a1d48a12754fb39846bc5318d3cedbc111cf21b266a551"
+  "docsHash": "sha256:45ea03203aff127242c653a6f8a3e76f9ecd9dae15d3645628b4fea5e860cfd6"
 }
 ```
 
@@ -127520,7 +127520,7 @@ files.release: contextPolicy=none
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
@@ -127588,7 +127588,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:04655cb3b2c7f090ef0fd6896a1732922b282fd20c21bac99f6c2f1bf1b7db93"
+  "docsHash": "sha256:5acdc3e13b324c022b1b4e7a5f75e1518598c27baedbc307f75394c036ef24cb"
 }
 ```
 
@@ -127599,7 +127599,7 @@ files.release: contextPolicy=none
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getJob({jobId})",
   "synonyms": [
@@ -127672,7 +127672,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f013b64ecbf11e85876b561c9f53796dba379f539c2b504d1f537162fd5feeb5"
+  "docsHash": "sha256:ba560c78b81bb79b926f275ecc72cc558906cd8d08084301fb2e49f19d60d557"
 }
 ```
 
@@ -127683,7 +127683,7 @@ files.release: contextPolicy=none
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "cancelJob({jobId})",
   "synonyms": [
@@ -127754,7 +127754,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fca7317fcd274e8843f880ead1ee67831bcaf1199f40375f174d9de231fda4ca"
+  "docsHash": "sha256:45a55f9b8170787c544136bec47446f1fc9b9c8c179e5e4ad25bb87f57d7a7a9"
 }
 ```
 
@@ -127765,7 +127765,7 @@ files.release: contextPolicy=none
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。",
   "synonyms": [
@@ -127835,7 +127835,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f8f08604da7a41dec346fc66d621a77a44bce6fb6632f867688dcf2cf622bb18"
+  "docsHash": "sha256:e6f5ba98d35fea1064abe5a0a47ca668f78750e9473174c23186c8426c9b8f59"
 }
 ```
 
@@ -127846,7 +127846,7 @@ files.release: contextPolicy=none
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。",
   "synonyms": [
@@ -127911,7 +127911,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9cc035f4746e112ea95e4ba043a6689c84e818b1b5edcc9384e5ce5410d96f50"
+  "docsHash": "sha256:99ef7cabfbe747ba041cfb649d30470570ed7864c830bd3357374e34ad984ce1"
 }
 ```
 
@@ -127922,7 +127922,7 @@ files.release: contextPolicy=none
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
   "synonyms": [
@@ -127996,7 +127996,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b65285fcbdcea9d5e61bc60fce10525e773999d16a7a26cf5b08fa846dca5627"
+  "docsHash": "sha256:3487b9f431a783cf0cd641c24b44f60a0f7395ed848102642d57791fdccab6b8"
 }
 ```
 
@@ -128007,7 +128007,7 @@ files.release: contextPolicy=none
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "info() 无参数。",
   "synonyms": [
@@ -128076,7 +128076,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:57f4eb63c6a3ee73ec845e9ec7ec18675c53a78a46db05e034507c47c8247fb9"
+  "docsHash": "sha256:3541df8dedb51d140ef93c96e5f301b12903b628f30ee25cb0af1e2073e681fb"
 }
 ```
 
@@ -128087,7 +128087,7 @@ files.release: contextPolicy=none
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getState({include?,compact?,fields?,sinceRevision?}={}); 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
   "synonyms": [
@@ -128208,7 +128208,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1db21fb5594e62372b62501fbe3e98db8e3c230be8e00716b8c9b4c966337598"
+  "docsHash": "sha256:c4dda44fac79755fcbeb2153b66287b254e6ed0d590dc092d6f4e57ae2c3167e"
 }
 ```
 
@@ -128219,7 +128219,7 @@ files.release: contextPolicy=none
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。",
   "synonyms": [
@@ -128293,7 +128293,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:47e6440c5c9d4303b8fc9aab96ab3bf6de6ccbcf475b54ba353921f683d80d3c"
+  "docsHash": "sha256:31369df73ef10645f4a2d976343b2e0501476c45a997823d97579e9956dea246"
 }
 ```
 
@@ -128304,7 +128304,7 @@ files.release: contextPolicy=none
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.",
   "synonyms": [
@@ -128379,7 +128379,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2a45d1e621b02517a937f5b244a4779ed79933ff8b1b9fd46f72b462442b3f0e"
+  "docsHash": "sha256:f4c207d348f940072ea3717af6619050c8f2b78d9ee5f024cec6444364e59bc9"
 }
 ```
 
@@ -128390,7 +128390,7 @@ files.release: contextPolicy=none
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。",
   "synonyms": [
@@ -128464,7 +128464,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0fe902f8e4be138482247ea4f26589ed18f518e30dc7d9a9a13dbf9520b29db8"
+  "docsHash": "sha256:19b1d68088f1102846c023ab967e3c2cf040234d429dd18864a7c11a027e6f5c"
 }
 ```
 
@@ -128475,7 +128475,7 @@ files.release: contextPolicy=none
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。",
   "synonyms": [
@@ -128549,7 +128549,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:51f7f899bd15671dbc5b3ab326097a8513625393b94b3c6c41dd596a3f4c65a8"
+  "docsHash": "sha256:b53bef5f4225da793a7eb6f824dcc098c06a653311824b79a494d7d2678d4cea"
 }
 ```
 
@@ -128560,7 +128560,7 @@ files.release: contextPolicy=none
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
   "synonyms": [
@@ -128634,7 +128634,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ff5d6cd72bbd872bb5d19083f3d585d56ba4349e8961e953a2765e115816deae"
+  "docsHash": "sha256:4de02462d574fcee68f3af11bc4636dbb38b4ee8a5cf1064cd1332b18e3c69b5"
 }
 ```
 
@@ -128645,7 +128645,7 @@ files.release: contextPolicy=none
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "queryReferences({context,bodyIds:[],kind:\"point\"|\"axis\"|\"frame\",filter?:{types?:[\"cad-vertex\",\"edge-midpoint\",\"circle-center\",\"edge-nearest\",\"trimmed-face-point\",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。",
   "synonyms": [
@@ -128714,7 +128714,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7d4b33d514198d471808ef2be818ebce78df27889a09fe4c818b1273fe7bfc01"
+  "docsHash": "sha256:92da41af82d691d5ae7708e6f548166cdead8110b5bd88fe9b70c49af5e4b6f8"
 }
 ```
 
@@ -128725,7 +128725,7 @@ files.release: contextPolicy=none
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。",
   "synonyms": [
@@ -128798,7 +128798,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:48c54712de3123c3fcc3bf66322a70908919a1e0257f580f56f089f934495264"
+  "docsHash": "sha256:784d3da5956f09de99c799bd6a92695b52b4878a2b1aef0008b71ba6307c18ff"
 }
 ```
 
@@ -128809,7 +128809,7 @@ files.release: contextPolicy=none
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "execute({context,idempotencyKey,action,args}); action 来自当前命令合同。",
   "synonyms": [
@@ -128883,7 +128883,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2e119915c86a7f66aac84fe00caf7fabd690b807a42a6c9c8c3bbfce9538e8c2"
+  "docsHash": "sha256:f48d08952fcd90de7ec47b7bea612a193e6bc86a0fc62eac2c5860f9abf4aca5"
 }
 ```
 
@@ -128894,7 +128894,7 @@ files.release: contextPolicy=none
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
   "synonyms": [
@@ -128973,7 +128973,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d7741f2910b5c25eb741103d25e09a9b55b686dc28406b6e2d2092e0b9a77438"
+  "docsHash": "sha256:c5adc975b299cdc1616e0bca3fb537f4d615bd2312046ba6ee6c3d5d720145af"
 }
 ```
 
@@ -128984,7 +128984,7 @@ files.release: contextPolicy=none
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
   "synonyms": [
@@ -129057,7 +129057,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:665ecfab6f1a3c9eb20130f190ee6b69f42a93d2041e7f1a27ca07f4a93b8dc0"
+  "docsHash": "sha256:23f92065fd119bdd7d9e43832dcdbe3dacf0c8b42b8bd247310aeeb1b40b20e7"
 }
 ```
 
@@ -129068,7 +129068,7 @@ files.release: contextPolicy=none
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。",
   "synonyms": [
@@ -129406,7 +129406,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2cf3cee2807bf3270d1d8285d2665edc86495777e2fcec983ca196d8eee9df51"
+  "docsHash": "sha256:991d28041ad68f67205bbad3dbf3219745047c1f5dd3366db35a3f8dbde1d80e"
 }
 ```
 
@@ -129417,7 +129417,7 @@ files.release: contextPolicy=none
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。",
   "synonyms": [
@@ -129490,7 +129490,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:534752a97ce82b83aa6a68977e36f6a7d5d39f8a07dcd28894002f6bce30d888"
+  "docsHash": "sha256:cfcc9938e49bf4234bd1846ebbfb5ac8c314012ab03aaab3550e10c055615817"
 }
 ```
 
@@ -129501,7 +129501,7 @@ files.release: contextPolicy=none
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "inspectProfile({context,bodyId})；bodyId 指向当前 sketchProfile 解析来源，不接收过期 ID。界面检查选项按需展开；API 不依赖界面展开状态。",
   "synonyms": [
@@ -129582,7 +129582,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ed621653345067c9e2da5e106390cd9ab5915939e0ea01c1a90f511f7753659"
+  "docsHash": "sha256:ae163612b6a6850660df6987b0bab1d177ccbc5910ed27a5d39643e6037a3d7a"
 }
 ```
 
@@ -129593,7 +129593,7 @@ files.release: contextPolicy=none
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "prepareProfileEdit({context,bodyId,mode:\"intersections\"|\"trim\"|\"extend\"|\"trimCircle\"|\"fillet\",entityId?,targetId?,edgeIds?,endpoint?,candidateId?,startCandidateId?,endCandidateId?,keepSide?,radiusMm?,arcId?,output?})。二维圆角可用 edgeIds:[两条当前边索引] 替代 entityId/targetId，支持解析轮廓及其未缩放的移动/旋转副本，选择先后不限；须显式 radiusMm 与新 arcId。",
   "synonyms": [
@@ -129684,7 +129684,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7d16fc1fdb3716bf5f8ed33adc883f6b77bb195528b37f82688e9d57ebf06cdb"
+  "docsHash": "sha256:ab1dfabcdb08711959c41df9682264bb421afc027f5465985e0a2c75debb8d5f"
 }
 ```
 
@@ -129695,7 +129695,7 @@ files.release: contextPolicy=none
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。",
   "synonyms": [
@@ -129786,7 +129786,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dcde39edfeb36330cda5f448b2c0753add68fe70115315c5be7f0742f1341ca9"
+  "docsHash": "sha256:351cfbfae3edc5faac1cc40783ca87261eebe4e1c9328ccdadc183ece0192d85"
 }
 ```
 
@@ -129797,7 +129797,7 @@ files.release: contextPolicy=none
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
   "synonyms": [
@@ -129881,7 +129881,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:99754b7eb9accede62de46b8ead470266ef47b353d62bad2c500a443dd7b71e1"
+  "docsHash": "sha256:edeba043af1bea369c064a1fe9df431b7feca2b0712a9e4c1ed7d6a1cd9d0893"
 }
 ```
 
@@ -129892,7 +129892,7 @@ files.release: contextPolicy=none
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
   "synonyms": [
@@ -129965,7 +129965,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fd09417e008e0f99909697c6518d4ed4877d9166a83eabb28e7e03e63a650ffb"
+  "docsHash": "sha256:655d4c736fbc032b4d4d16741571fba1817fb4176eb81b7283bbf23b4e642caa"
 }
 ```
 
@@ -129976,7 +129976,7 @@ files.release: contextPolicy=none
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
   "synonyms": [
@@ -130047,7 +130047,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9e4c2386a9048233c7d497cf07c416d3b90f138da5e89e9658c9065b915fd6fb"
+  "docsHash": "sha256:01228e9e391a735b2aa686351f4a6d9fcaa7b40a6e69151c1209518cc19cd48f"
 }
 ```
 
@@ -130058,7 +130058,7 @@ files.release: contextPolicy=none
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。",
   "synonyms": [
@@ -130137,7 +130137,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cef10b606b0615d1eec80e4496186dced44428f14fb0edf8de32cd66b55dfb16"
+  "docsHash": "sha256:b6d035537b1bee7e460915978eb43a6dbc34e2e21fca695e8c02fdcd11190b55"
 }
 ```
 
@@ -130148,7 +130148,7 @@ files.release: contextPolicy=none
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "inspectRound({context,bodyId,params:{edgeIds:[0],mode:\"edge\",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。",
   "synonyms": [
@@ -130234,7 +130234,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:8073c42ce2ddde8eee71037ef57aebb8ebb7f687350abd4bb5b9e3c237488468"
+  "docsHash": "sha256:c8f1106bef3095839e88c2f27cd6048e98bfa52329a25d36ae15cb43bf4a2cf7"
 }
 ```
 
@@ -130245,7 +130245,7 @@ files.release: contextPolicy=none
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
   "synonyms": [
@@ -130337,7 +130337,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0be8b6cd5a78d8b168a0f6fd56547225b231a1ecf7f5faf05cbf84a2712d8131"
+  "docsHash": "sha256:0d9f40273b7f846db540f62260809ffaa75f5ac842508ecced1a253d4adb0951"
 }
 ```
 
@@ -130348,7 +130348,7 @@ files.release: contextPolicy=none
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "connectVector({context,entities,toleranceMm?:0.000001,origin?:[0,0],flipY?:false}); 1..500 条解析线。",
   "synonyms": [
@@ -130434,7 +130434,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b4c4878f04e8cbf98fdda90cc70ff6f4fc52a9145c2cac0457908d4b4f835e0a"
+  "docsHash": "sha256:1ff8152f15d6cba25d4e8cad9ac925f3e20aaf3fb93038693b24e1d11e24a992"
 }
 ```
 
@@ -130445,7 +130445,7 @@ files.release: contextPolicy=none
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
   "synonyms": [
@@ -130531,7 +130531,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:82bf024a7280e22dca0daee72a09fc68a0e5abc7b46bd63ee0d61cf1c0b848d0"
+  "docsHash": "sha256:b17d8e131d7a1c972c5e5b29af1473dfdb495757cd9e9b149def4ac7a832f05f"
 }
 ```
 
@@ -130542,7 +130542,7 @@ files.release: contextPolicy=none
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?:0..0.2}); 四条上到下 XY 采样曲线，每条3–2000点。",
   "synonyms": [
@@ -130626,7 +130626,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:24f258514340262885ff9fe807ea6e01f8bf34595d4cfb39c1364508ae507cce"
+  "docsHash": "sha256:6c56e9c98cfb9f4beb3ce004793b76b63bea1347eda546eddea33bb36ab61ed5"
 }
 ```
 
@@ -130637,7 +130637,7 @@ files.release: contextPolicy=none
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
@@ -130706,7 +130706,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1af8ce66ab475a5458e4855e5c3e7581a54f4faacb23868895633ada1427779d"
+  "docsHash": "sha256:f7ccb35687b696281ff813ea6188e7b77ad388e3268abaeaafdb9a6c598575c4"
 }
 ```
 
@@ -130717,7 +130717,7 @@ files.release: contextPolicy=none
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
@@ -130800,7 +130800,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9bfb60abb92636f8c8a8dd9272c8ce16bb383d9ec9f9e08efcaa9581896d6d69"
+  "docsHash": "sha256:837baa66e7047ec8e96e344251fbeb5f22c9345eddd2b9ece0cf88c080dfa287"
 }
 ```
 
@@ -130811,7 +130811,7 @@ files.release: contextPolicy=none
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getAgentPanel()",
   "synonyms": [
@@ -130821,10 +130821,11 @@ files.release: contextPolicy=none
     "模式",
     "状态",
     "浮标",
-    "思考"
+    "思考",
+    "计时"
   ],
   "inputContract": "getAgentPanel()",
-  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；floating返回visible/activity及画布CSS像素position:{xPx,yPx}，activity为thinking/working/idle/offline/connecting。channelState返回已验证的transport=direct|bridge|unavailable、actualOrigin、syncStatus和原因。phase=agent_offline表示助手断开；release_pending表示本地解锁但服务端释放待核对。断线保留工程与原命令回执，不自动重放。",
+  "outputContract": "version/url/configured/visible/phase/connected/locked/externalHost/error；floating返回visible/activity、elapsedSeconds、phase、text及画布CSS像素position:{xPx,yPx}，activity为thinking/working/completed/failed/canceled/idle/offline/connecting。text只含公开思考摘要或工具状态，等待时为..；completed显示绿勾，失败或取消不显示成功。channelState返回已验证的transport=direct|bridge|unavailable、actualOrigin、syncStatus和原因。phase=agent_offline表示助手断开；release_pending表示本地解锁但服务端释放待核对。断线保留工程与原命令回执，不自动重放。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -130846,7 +130847,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:22a1ea71b70a0c23aabdfdb6c9130aa0daa5a9bcadaf5f23852e0b3dd7242847"
+  "docsHash": "sha256:353b4fd930e00e4bb7a50d2c10827fc9b5966aba0e122515404037d12dfe936b"
 }
 ```
 
@@ -130857,7 +130858,7 @@ files.release: contextPolicy=none
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
   "synonyms": [
@@ -130890,7 +130891,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:390e91ffd6171501ead50280bdc1c06210260ae42405a0d21a6bf91fa87f5aa3"
+  "docsHash": "sha256:a8ec6faaa0fb8d76a3310869d5f62013ee2a4f475b52268bd34298f0e54367d1"
 }
 ```
 
@@ -130901,7 +130902,7 @@ files.release: contextPolicy=none
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "setAgentPanel({context,visible:true|false})；true接入，false退出释放。或setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false,floatingPosition?:{xPx:80,yPx:80}}})；layout与visible分开调用。宽高1–4096像素，浮标坐标0–100000像素并夹限到画布内。",
   "synonyms": [
@@ -130921,7 +130922,7 @@ files.release: contextPolicy=none
     "思考"
   ],
   "inputContract": "setAgentPanel({context,visible:true|false})；true接入，false退出释放。或setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false,floatingPosition?:{xPx:80,yPx:80}}})；layout与visible分开调用。宽高1–4096像素，浮标坐标0–100000像素并夹限到画布内。",
-  "outputContract": "status=applied；getAgentPanel().layout返回version/mobile/axis/widthPx/heightPx/effectiveSizePx/collapsed/visible，floating返回visible/activity/position。collapsed:true仅折叠，保留任务和连接，腾出全部面板空间；只有activity=thinking时显示透明背景、无可见文字及阴影的机器人思考动画，其余状态隐藏；空闲用普通展开按钮恢复面板。单击或Enter/Space展开，拖动或方向键移位，松手不展开。眼睛、天线及三点动画遵循减少动态设置，保留无障碍名称。PC调宽、手机调高，至少保留画布280/160px、助手240/156px。不改revision/dirty/相机/历史，不写工程。字段错误PARAM_SCHEMA_INVALID。网络失败releasePending=true；旧会话须核对释放，不重跑。仅匹配配置origin、实际iframe、一次性channel消息可用。",
+  "outputContract": "status=applied；getAgentPanel().layout返回version/mobile/axis/widthPx/heightPx/effectiveSizePx/collapsed/visible，floating返回visible/activity/position/elapsedSeconds/phase/text。collapsed:true仅折叠，保留任务和连接，腾出全部面板空间；任务期间显示透明机器人，头顶小号计时图标与秒数，下方单行小字轮换公开摘要及工具状态；等待响应显示..，成功结束显示绿色打钩并冻结计时，失败或取消显示相应状态；空闲用普通展开按钮恢复面板。单击或Enter/Space展开，拖动或方向键移位，松手不展开。动画遵循减少动态设置，保留无障碍名称。PC画布与助手左右并排、分隔线调宽，手机调高，至少保留画布280/160px、助手240/156px。不改revision/dirty/历史，不写工程。字段错误PARAM_SCHEMA_INVALID。网络失败releasePending=true；旧会话须核对释放，不重跑。仅匹配配置origin、实际iframe、一次性channel消息可用。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -130943,7 +130944,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c6d254ade8937827b0ec19fe26c86d24c7a1062019213e25508553ecf5f9caeb"
+  "docsHash": "sha256:2671b16e3901bf19cd54180e357704570084f0ad969399aec9bc14ab861ab449"
 }
 ```
 
@@ -130954,7 +130955,7 @@ files.release: contextPolicy=none
   "id": "markLocation",
   "title": "markLocation",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "docs": "api.location-marker",
   "inputSchema": {
@@ -131071,7 +131072,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:248c7002612363abf20d59e592041a66667580cbb208055cb1aaef607ac5f03b"
+  "docsHash": "sha256:8d691dca1a4319ba3fb9aa0dd12089a7c7c3956585feb5d11e5f64e774e36c78"
 }
 ```
 
@@ -131082,7 +131083,7 @@ files.release: contextPolicy=none
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getServices()；正式入口默认跟随本站应用路径并使用网站登录；自定义地址支持本站相对路径或完整URL。配置存本地，专用授权仅存本标签会话。不会返回凭据。",
   "synonyms": [
@@ -131174,7 +131175,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:42410ea68abc788fd82d275bf4995d9d960629efca2f7fe3e53f49a0e0bb1d39"
+  "docsHash": "sha256:93083060a6b01a2d5d5c8b024742dd26bd17d7ab2d4d50ba75b06d9468c3de94"
 }
 ```
 
@@ -131185,7 +131186,7 @@ files.release: contextPolicy=none
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "setServices({context,url,authMode?:\"siteSession\"|\"bearer\",credential?,enabled?,computeMode?:\"local\"|\"auto\"|\"serverPreferred\",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。",
   "synonyms": [
@@ -131283,7 +131284,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7bcc23f627655341b9c00f1c9f433105caf6f7cf998849a33ba1f96d949cfb8e"
+  "docsHash": "sha256:6ee0a692cb7d551c00b1b380d9e2171277f5cd34d951e50fd2d5575b67e815d3"
 }
 ```
 
@@ -131294,7 +131295,7 @@ files.release: contextPolicy=none
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getServicesCapabilities()；读取已配置服务。",
   "synonyms": [
@@ -131391,7 +131392,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:42a971dbaa9189e417d5595760076c5224d6b476d327955daaaa380e9d79b163"
+  "docsHash": "sha256:99d33c00c2bc5368815b1ef000ffc36374ed3f8b13317060e53ef15d6efa3925"
 }
 ```
 
@@ -131402,7 +131403,7 @@ files.release: contextPolicy=none
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getServicesRouting()；读取同一 ExecutionRouter 的最近决策。",
   "synonyms": [
@@ -131493,7 +131494,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4de87f0518c16d4b45ad2a88717bafa048d4e36bb5bb9eaa688b74c68ab897f5"
+  "docsHash": "sha256:d0123c1b0710fc866b1ac04f13b40fe82048ca18de58fbd9c7589db1fd12b7b0"
 }
 ```
 
@@ -131504,7 +131505,7 @@ files.release: contextPolicy=none
   "id": "clearServicesCredential",
   "title": "clearServicesCredential",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "clearServicesCredential({context})",
   "synonyms": [
@@ -131597,7 +131598,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e62bf2c9ece324367bf1216dd9a54cb880d9d51ed74e3621cde406e377fd15aa"
+  "docsHash": "sha256:f2ab7cf7aa3aa3bb43ad83008ae5ac95158ee795c5498cab6b72b5df838b7808"
 }
 ```
 
@@ -131608,7 +131609,7 @@ files.release: contextPolicy=none
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getServicesJob({jobId})",
   "synonyms": [
@@ -131708,7 +131709,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5ed17764990d22d022b8ed41d86a9ee57e064c3bac88c8021421be5b2bee699c"
+  "docsHash": "sha256:d06e42c4ec4875723d90a5ff691dbb069476e62fba8975074468256f57345a5d"
 }
 ```
 
@@ -131719,7 +131720,7 @@ files.release: contextPolicy=none
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
   "synonyms": [
@@ -131820,7 +131821,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4f6fa40383f895ab027de3cf6b2702edfd330008ce832cbb1fc17b8dcbb5652c"
+  "docsHash": "sha256:52d4a42d42d6d1136308279bcc35c051302bdf0d4fba78ac25d0729c1066103e"
 }
 ```
 
@@ -131831,7 +131832,7 @@ files.release: contextPolicy=none
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "cancelServicesJob({context,jobId})",
   "synonyms": [
@@ -131936,7 +131937,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fb39cb8cd1b564b8a9e1415eb198464544a7ab991f557c19e556efa83b85d960"
+  "docsHash": "sha256:7a6ac7e0c4ab5120b8481fdb99b3948452d2f685e9f51b5e6f8539f544a89417"
 }
 ```
 
@@ -131947,7 +131948,7 @@ files.release: contextPolicy=none
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "description": "getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。",
   "synonyms": [
@@ -132036,7 +132037,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:0e16282b2c2ca0b7b7d08e1b2e074b570f003f5f07a402030bd1eb81de222747"
+  "docsHash": "sha256:0601185fe885f53254fd623d81ef86b547bf6dae54ceee61c22d3f87aa547f89"
 }
 ```
 
@@ -132047,7 +132048,7 @@ files.release: contextPolicy=none
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "改用 setServices，旧 setter 拒绝存影子配置。",
   "synonyms": [
@@ -132141,7 +132142,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:4538caebc32889a37fca49491804b789d2a12b5b769fcdeeb2abcdb443cc5430"
+  "docsHash": "sha256:cbf9344d68dd82c1541c2a2515c865d33973768fbd2530df63b59f2142657913"
 }
 ```
 
@@ -132152,7 +132153,7 @@ files.release: contextPolicy=none
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "convertLogoPdf({context,name,data,targetWidthMm?,page?,pdfJoinToleranceMm?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
   "synonyms": [
@@ -132248,7 +132249,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:677609c45014b488616f93c2bf0806fd229ab12134419341dd15973432315bfb"
+  "docsHash": "sha256:b513af6af66c9035b1398119d813cece2c747243ea0df900606d374527c6aeba"
 }
 ```
 
@@ -132259,7 +132260,7 @@ files.release: contextPolicy=none
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:\"X\"|\"Y\"|\"Z\",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。",
   "synonyms": [
@@ -132372,7 +132373,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5c08855b1a018b80af0f8e78a9276e8790ed0836ec7e8a45a2474b9dfaf617e6"
+  "docsHash": "sha256:6ffc893b3c80a4e00b8cca0f04d4fbbd6acdad2df9e50414d8d83f44b92f1ca1"
 }
 ```
 
@@ -132383,7 +132384,7 @@ files.release: contextPolicy=none
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
@@ -132462,7 +132463,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f24304f854ace4f1a41865bdaf3b08c338e3dd3d40b94f4821216b55d349b775"
+  "docsHash": "sha256:978bfa740c2beb8d85b855f29233dc13969ffb57fca7874389f65d0a38d0b8ec"
 }
 ```
 
@@ -132473,7 +132474,7 @@ files.release: contextPolicy=none
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "identity",
   "description": "capture({context,maxWidth?:64..4096,format?:\"png\"|\"webp\",quality?:0<q<=1}); 建议 maxWidth:800,format:\"webp\"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:\"capture\",args:{context,maxWidth:800,format:\"webp\"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。",
   "synonyms": [
@@ -132563,7 +132564,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c6fd994d4f11c80e27d2c9531afee543911e4ff5637a31e67962a4b07771b60e"
+  "docsHash": "sha256:46bd5ecb1172d1b1a240b78163d4964708a1f7d5922951c0e56dae053ef3e289"
 }
 ```
 
@@ -132574,7 +132575,7 @@ files.release: contextPolicy=none
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "docs": "api.run",
   "minimalExample": {
@@ -132693,7 +132694,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ac9f3a8055e9776fcdd683b0206de93c8f49a63af1e2e01db96f88e8c92eb277"
+  "docsHash": "sha256:e87cf71d27a04b2c5dbc3fa1f6f57b5c11acbfc1d2de430b754fb89d329a2a7a"
 }
 ```
 
@@ -132705,7 +132706,7 @@ files.release: contextPolicy=none
   "title": "材料密度与重量",
   "description": "设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -132774,7 +132775,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8f228d7f833194695b68300dc9334ac4b0241cac6d8e3698515d5f5868a02951"
+  "docsHash": "sha256:7c513fc764091a711d063a0c74a3e11c5a068ef67be0a920dc4127324f09426d"
 }
 ```
 
@@ -132786,7 +132787,7 @@ files.release: contextPolicy=none
   "title": "Services 原特征编译",
   "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -132900,7 +132901,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b53b848477c465c0dcc458a8cac9e98b4c53628f57b1945e640fd03fca6eac9c"
+  "docsHash": "sha256:0fa67357aa8b81950871af617b6a52f22b72dda4f6fe4a505e5a83ea4fb1b8f6"
 }
 ```
 
@@ -132912,7 +132913,7 @@ files.release: contextPolicy=none
   "title": "快速对齐",
   "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -133015,7 +133016,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:768064a4945050f9a3ae16048c5f8d536b642a26aa75b2c444fc867e71a04e12"
+  "docsHash": "sha256:9d3d749b302ac1eca14adf3e70e2a3a3b87b81ca5e2c6a4536fbaa5c7e28ddac"
 }
 ```
 
@@ -133027,7 +133028,7 @@ files.release: contextPolicy=none
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -133116,7 +133117,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:000c9d88ca9e0bf845e421e44a768b8d07fb2aca0cf17281345df8b2b4c8fbea"
+  "docsHash": "sha256:3ba63cc8341fb0854b2a78e3c350540c279f8878eadb757a4e03e795e75f0798"
 }
 ```
 
@@ -133128,7 +133129,7 @@ files.release: contextPolicy=none
   "title": "浮雕设计约束草稿",
   "description": "保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。heightSource可选{source,depthMm,edgeKeepoutMm?,edgeFadeMm?,weight?}：source为浏览器转换生成的高度来源记录（原图sha256、转换设置及哈希、u16le网格≤1025²）；照片须带derivedFrom及用户确认“我确认此结果为我制作的高度图”，否则MACHINING_SOURCE_CONFLICT；高度图覆盖支撑外接矩形，亮=高，按depthMm映射到最低高度之上，作为求解观测。fieldSettings可选servicesQuality:{mode:adaptive/off,maxControlSide:16–1025}（纯图像无人工点/局部编辑时默认adaptive/1025，Services自动选控制网，结果报告实际ladder和误差；off保留旧拟合），以及machiningPrecisionMm(0.01–0.5 mm，默认0.05，可调：小于该值的起伏/噪声/台阶以C1平滑方式去除，边缘与基线平齐，记入草稿指纹)、columns/rows(9–129)、smoothWeight、maxIterations(1–20000)、toleranceMm及edits笔刷数组(最多256笔，按顺序执行)。每笔显式mode:raise/lower/flatten/smooth、centerMm:[x,y]、radiusMm:0.001..10000；strength可选0..1默认1；raise/lower必填amountMm:0..100，flatten必填targetMm:-100..100，smooth为一次邻域平滑。坐标与草稿支撑同一毫米坐标系；孔、边缘固定节点及保护区保持基线，高度不超heightRangeMm。UI新增/更新/移除笔画会连同当前其他有效表单字段一次保存，Agent等价传整份draft并携带expectedDraftRevision；原图reference及其他既有设置必须保留。随工程保留可重算设计。使用reliefDesignField求解/残差回读和保留圆/矩形支撑、孔与作者保护基线的采样闭网格候选（边界近似，不是精确圆）；不从原图亮度推断设计高度。getState({include:[\"reliefDesigns\"]})读取。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -133247,7 +133248,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:568875b242701b6d3057f3852c18acc2b982daead0019d7d5fd606bffad6d5d9"
+  "docsHash": "sha256:dda4970072d6dba0335fedaee175c4903164111308f2e520c6ecf46e2c549553"
 }
 ```
 
@@ -133259,7 +133260,7 @@ files.release: contextPolicy=none
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -133355,7 +133356,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f01b610c2aefc9510089ffd45082c6a80bf78af90654e761c9a3d611905162e3"
+  "docsHash": "sha256:2f3d59d6f462e82cf621c0c7f5a2dae9648a26b63fb9263941689aae32de9e73"
 }
 ```
 
@@ -133367,7 +133368,7 @@ files.release: contextPolicy=none
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -133465,7 +133466,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0f4edc946beb9b8c2d76c98d98720980ec215abc41d1166860c7fb4fb6bf4e4e"
+  "docsHash": "sha256:925b32af9fb8faf6068ae604fef6b1dbe55afc5be00e0467852f831e2e74b79d"
 }
 ```
 
@@ -133477,7 +133478,7 @@ files.release: contextPolicy=none
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -133573,7 +133574,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:8f5ee7c460551dea5295a82393e913045fcceeaa76fec17699748c9b119bedc6"
+  "docsHash": "sha256:6888361c641253cfe8e419304d4466906acf7c8ee3c513181ca416214a0f0359"
 }
 ```
 
@@ -133585,7 +133586,7 @@ files.release: contextPolicy=none
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -133703,7 +133704,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9516fb75c871932f7d16ea00d64b5a872bef5cbe3368b7fffbb3f7243539ecf7"
+  "docsHash": "sha256:7ec9f68ea0fd39ce3780df88041db7738f01f7475503558d4910a4b4c169f8f9"
 }
 ```
 
@@ -133715,7 +133716,7 @@ files.release: contextPolicy=none
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -133827,7 +133828,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b2a264202674a780cff3feb24573966e50551eeae64f0d21df8a934b1729d295"
+  "docsHash": "sha256:6edb6666dd50ba663bab446c4aec26a9878434687079d5e3cb31931747db283b"
 }
 ```
 
@@ -133839,7 +133840,7 @@ files.release: contextPolicy=none
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -133935,7 +133936,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:94866d8139bebb18ed11c98b5dc9fde85a793f1ce600259a3f0f7cb2bb7f3d8d"
+  "docsHash": "sha256:556ed383c2dfcce0ada85438af4796022ec8ff0b3407019e4521b7272ec230a0"
 }
 ```
 
@@ -133947,7 +133948,7 @@ files.release: contextPolicy=none
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -134038,7 +134039,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5f453eca469b6304902e6f32b878891f38bfdd4d14c39dac1510aa0b919dbdc3"
+  "docsHash": "sha256:c5121fe504017517e21b61d546e2c6594b7dec62ec9d7c100a444a18b1f82327"
 }
 ```
 
@@ -134050,7 +134051,7 @@ files.release: contextPolicy=none
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -134121,7 +134122,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:109a48a25f5a61ee8e39fdaae7da43e68bf9f8b4f50196afcff4ac23c0cfc811"
+  "docsHash": "sha256:c8f10c5d90d9f874524d5a804b7b66fa72a9324c49df336785adb292538596e9"
 }
 ```
 
@@ -134133,7 +134134,7 @@ files.release: contextPolicy=none
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -134204,7 +134205,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:18965686c7daaf52df99e04c01ee1cfe040ef65a8d8fa587823a1066d4882918"
+  "docsHash": "sha256:9eea399cb3f0bb9701f1586b8d05cdf9a93c0a5e27f00caa835b22457e6849d1"
 }
 ```
 
@@ -134216,7 +134217,7 @@ files.release: contextPolicy=none
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -134287,7 +134288,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:90924c0de61f57b490fce0242f6f12216f1d730f69d87e4e730507448edd0f8b"
+  "docsHash": "sha256:fbc1e4d5fdeb15da385fa9d78def54c3943a2be2be89296110730e86a198612d"
 }
 ```
 
@@ -134299,7 +134300,7 @@ files.release: contextPolicy=none
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -134370,7 +134371,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c9715ae5d35c7b5794d3b6525edd6ba02380591fcae59fe9f74e968156c61d75"
+  "docsHash": "sha256:c25018f1a888ad83170dbb60d7c49f3c4e5b9afc4011b1b2f795b84cfe29367a"
 }
 ```
 
@@ -134382,7 +134383,7 @@ files.release: contextPolicy=none
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -134453,7 +134454,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4b671a6f00b8be9fa17f8a2f6a78bff62a42c5e4624279a3a27db35e15839eae"
+  "docsHash": "sha256:a2e797eff8a80ffa0ef92851e3af6ccb9860df7cc6c5ae8a3d39d61285336b19"
 }
 ```
 
@@ -134465,7 +134466,7 @@ files.release: contextPolicy=none
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -134536,7 +134537,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6161562db544906ab26f0b2e547f78c5b50b94a63086370b3d084cc064ba15f4"
+  "docsHash": "sha256:d28b6c7d22e5b93fae9cf06b74d1b75b43d7750c46095ff18b625f871325a32e"
 }
 ```
 
@@ -134548,7 +134549,7 @@ files.release: contextPolicy=none
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -134623,7 +134624,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d7c2e7eab8d0272c0e22716ccdb04e264850207363533cd63c2cca1dd0fdc011"
+  "docsHash": "sha256:8010d50b66fc3532d42d3b4a38bad631fcd80246efd784c59d0602d202799523"
 }
 ```
 
@@ -134635,7 +134636,7 @@ files.release: contextPolicy=none
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -134706,7 +134707,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a83f95b2ca30b00d1cbfe1ef7928a137a1c2e0f7a7d17707bb3fabfd446e9576"
+  "docsHash": "sha256:401520e2d3fa7ba9f4a2eff0eae8d4986c9cea7ae2742be62621aae20866456d"
 }
 ```
 
@@ -134718,7 +134719,7 @@ files.release: contextPolicy=none
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -134793,7 +134794,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:61c7b5aaa13c9d9d1d9dad5e2470e9879595f815ba119f41b73b8b1051abb0e1"
+  "docsHash": "sha256:70c03c58c110055169f935531589e6bae23464d5370c4955527f9714d5142130"
 }
 ```
 
@@ -134921,7 +134922,7 @@ files.release: contextPolicy=none
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -134995,7 +134996,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e3f757ff220f0d644894726e98f8154c71310ab486443a072350335fc83fe031"
+  "docsHash": "sha256:3bcfd6692304c1fa98f726e8e021787af10fe37088afdcdb75a0577e270fae62"
 }
 ```
 
@@ -135007,7 +135008,7 @@ files.release: contextPolicy=none
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -135082,7 +135083,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:587e2c62181d8d0a138622f259463b932e4b1f5961879ea3d724dc51956bf8a5"
+  "docsHash": "sha256:b8ef5888a2955ee3c40532f42b19ec89c21c64d78253b341fb5faebd74d30f9e"
 }
 ```
 
@@ -135094,7 +135095,7 @@ files.release: contextPolicy=none
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -135177,7 +135178,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:d0fec57e37c331727f93929cc2d6fa46db938128b113d5fb50f2a57a698b5b2d"
+  "docsHash": "sha256:ae478b178842b7204afedc65e141a2d1228612240934ad798417305fe7711a27"
 }
 ```
 
@@ -135189,7 +135190,7 @@ files.release: contextPolicy=none
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -135264,7 +135265,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3a7d3d13f25beb74aa6b744d273de251d578dddc73bc84f101da0ec192b5de62"
+  "docsHash": "sha256:a6bb642b1dd29a7f7180886eafe53fd447768bca50f871db57e739815ea14c76"
 }
 ```
 
@@ -135276,7 +135277,7 @@ files.release: contextPolicy=none
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -135351,7 +135352,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9b1f96f15257c802bf083daf5ec2e67738a96823aa062d17e53e79e2196f1240"
+  "docsHash": "sha256:5f4b927798e2ecf057890d7a0fd2182cd944c895be9fb8c3c895c0e49fcef4bd"
 }
 ```
 
@@ -135363,7 +135364,7 @@ files.release: contextPolicy=none
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -135446,7 +135447,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ce929458a8f2ee91820759887f786095f5e63171f7c3694e0dc7b4a03f50519"
+  "docsHash": "sha256:cd5b1923408f673f387a915f8e6398cc4ec88eab881d993c4ee0cd20c4ca89a1"
 }
 ```
 
@@ -135458,7 +135459,7 @@ files.release: contextPolicy=none
   "title": "预览模型、原特征编辑或文件插入",
   "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -135509,7 +135510,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9c58d49d5d44d3cab3100c235dbf2ca55a52b8ab24a92f5aeeb5426499ebae66"
+  "docsHash": "sha256:287fe2b3d5616128cfa17a94aaa3eb7fe35b5938bd8af1a7d0581c3876ebcb04"
 }
 ```
 
@@ -135521,7 +135522,7 @@ files.release: contextPolicy=none
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -135572,7 +135573,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:82cd4f0a5a63d7ad426f3a9878f1bce5d993a73f9cc21b01f0611708af2efd0f"
+  "docsHash": "sha256:38c5c3490cd8e4157b3daf7b462ebb11efd9edc9fafa909026bc6bc5c56f53e2"
 }
 ```
 
@@ -135584,7 +135585,7 @@ files.release: contextPolicy=none
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -135635,7 +135636,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:eb84768fd890c42b7386016a2e4a1697bd97b7a25bbf8a44ef72ec58b537fd29"
+  "docsHash": "sha256:2d46be63e01e48053244e7e6550fb7b4c8d794a0068caf5337b8e61c847318e1"
 }
 ```
 
@@ -135647,7 +135648,7 @@ files.release: contextPolicy=none
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -135706,7 +135707,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ab667a99256ca501c792c7dc6dace014e8aa244f68b97a9e7066cca81e45e6a5"
+  "docsHash": "sha256:4ac75d6d0cd84736c4a18a4abf6d3406e5a7c71ee3675d9918d2410f4d69a8fc"
 }
 ```
 
@@ -135717,7 +135718,7 @@ files.release: contextPolicy=none
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -135850,7 +135851,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:630c8f8bfb9102f355c4b0aa35ed23ff49d1d629236abab8a1749d5be54b6c76"
+  "docsHash": "sha256:29baa62b67ee62eb81107799a96a1aab63adc1d6f7bb541d3129e6c32a168915"
 }
 ```
 
@@ -135861,7 +135862,7 @@ files.release: contextPolicy=none
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "label": "文件能力",
   "synonyms": [
@@ -135946,7 +135947,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:0ab2635e2ac65c5e9669f6baf4d7b79f5708dd56369504c025a31fcdb0dbf916"
+  "docsHash": "sha256:ffdec31417f8e036c465b411c7ce7d3dfa04a71668af2f93fe4389a200c05e60"
 }
 ```
 
@@ -135957,7 +135958,7 @@ files.release: contextPolicy=none
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "label": "登记文件资源",
   "synonyms": [
@@ -136050,7 +136051,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:055316aef5dfd01551b7f700f9e2b4a7c18780cfcb1ba4049de4327057a4fad9"
+  "docsHash": "sha256:a788db8761881fd575d2a015d67494167cd1b72c6768848195db15892f9334c4"
 }
 ```
 
@@ -136061,7 +136062,7 @@ files.release: contextPolicy=none
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "label": "新建工程",
   "synonyms": [
@@ -136155,7 +136156,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:c2a6a084bbe4c2f365a2dad3c53265d299732b85aeed67cb70d08eb5d70860a4"
+  "docsHash": "sha256:07ff6308d9cb02b8037185f950c152c9d278fd98744160419e96b8bdfef8ebea"
 }
 ```
 
@@ -136166,7 +136167,7 @@ files.release: contextPolicy=none
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -136279,7 +136280,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:2f69c7189d6e29147bcf13b0ed9019b1904ec6c641fee3fb11d7998c15301ad1"
+  "docsHash": "sha256:48b801f2bba7b6626b422cbaafe1aa99288069cff691b066f3adf84fb799394d"
 }
 ```
 
@@ -136290,7 +136291,7 @@ files.release: contextPolicy=none
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -136423,7 +136424,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:d2959292d8851faa192c458ee94f0c3463252e327841e4804cc6f5e7dc207938"
+  "docsHash": "sha256:189c2ff177afa7fa1914ea36e1b10debbc7e192c9491651fe1e59422900b0f20"
 }
 ```
 
@@ -136434,7 +136435,7 @@ files.release: contextPolicy=none
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -136545,7 +136546,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:87d40ffb13b6a2c61dcf6a1110881dc391cd1d0d25d0847b229d2c50143799fa"
+  "docsHash": "sha256:c1649d59e8d00185dc8dd1078e3e701301f6e70dc5c933218e430e11ce923b26"
 }
 ```
 
@@ -136556,7 +136557,7 @@ files.release: contextPolicy=none
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -136669,7 +136670,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:3f9d82c23d1079c9663b3fbdcbd8136a01d0ea99683a452e61a09403db660f8d"
+  "docsHash": "sha256:b3ed3ece857ddfffba91b24ced9e8cd7309df5e665f68b7f470dc7f825732e80"
 }
 ```
 
@@ -136680,7 +136681,7 @@ files.release: contextPolicy=none
   "id": "files.reattach",
   "title": "files.reattach",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "label": "reattach",
   "synonyms": [
@@ -136778,7 +136779,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:73e57cf476c704f73a31bc99059117dae340b11bf248d2c57be2838bff242d98"
+  "docsHash": "sha256:4586469b54c0f6c77efe378d8abb15725341b2bb8a49d2a8e123be20be176465"
 }
 ```
 
@@ -136789,7 +136790,7 @@ files.release: contextPolicy=none
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
@@ -136886,7 +136887,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:89170fca30f07e708d63952dce4c1bcaf3429e0fe9fb1d4c6448f1dea1b9b4e2"
+  "docsHash": "sha256:3d8603a2340f50589ef2d050de0aa24a85baa55eb3c4aff6d9b4f899235f326d"
 }
 ```
 
@@ -136897,7 +136898,7 @@ files.release: contextPolicy=none
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "label": "下载文件",
   "synonyms": [
@@ -136995,7 +136996,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:01dff8a63b7ab61883b124882ca31f38ec33ef0d88991c597dcc7aa1995c5be0"
+  "docsHash": "sha256:5cf8dc8d42e10474052a72ed8dca97b0d7554080f1e1114b2c8eb2583745e6a7"
 }
 ```
 
@@ -137006,7 +137007,7 @@ files.release: contextPolicy=none
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -137109,7 +137110,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:18075ea7adfa89ef35b6e1f66548d8390f2fc472a1a8367bad8dc9b947ffc8bc"
+  "docsHash": "sha256:fbdd09ece56f15edb49c6247982547d34085c372053f4cc62ee61121f0bbacac"
 }
 ```
 
@@ -137120,7 +137121,7 @@ files.release: contextPolicy=none
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -137223,7 +137224,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:7484b989509f5816e936cda4aed498b5db594f9f362c5d3100cfbb7cc20003ca"
+  "docsHash": "sha256:8d707a4409da46d3b716fbb382fe49d179474ccab72a886676f764183be40981"
 }
 ```
 
@@ -137234,7 +137235,7 @@ files.release: contextPolicy=none
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -137331,7 +137332,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:7789d33071bfdc364352b48781fffdf015ae730c74e3028baaae210581a0f7a3"
+  "docsHash": "sha256:7a93c14bcce2a7b32ce4afc09caf35d272b5dc8f7382e26bb2f84c538345b36f"
 }
 ```
 
@@ -137343,7 +137344,7 @@ files.release: contextPolicy=none
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -137387,7 +137388,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:210a324f7265d0f8a5d57ac7a6ecebca27374678e69e3aceef3d58915c325ccb"
+  "docsHash": "sha256:49218c5d7d037dc4257b55e3f6a0ba55f7ed4478f5e1dcce0a693eab8b84f6b0"
 }
 ```
 
@@ -137399,7 +137400,7 @@ files.release: contextPolicy=none
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -137443,6 +137444,6 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:26254c9925187b06a6101de65313976e68d6461732a98002e1846629a6ef3c33"
+  "docsHash": "sha256:8eb521b3935cbef25ba3c86aa0f2b2368e13fbd39d86340a1c52e042d6854259"
 }
 ```
