@@ -30,20 +30,28 @@ export function displayComplexity(shape,faces,oc,{sourceBytes=0,coarsen=1,faceTh
 const concat=(parts,key,Type,offsetKey)=>{const out=new Type(parts.reduce((n,m)=>n+m[key].length,0));let k=0,base=0;
   for(const m of parts){if(offsetKey){for(let i=0;i<m[key].length;i++)out[k+i]=m[key][i]+base;base+=m[offsetKey].length/3;}else out.set(m[key],k);k+=m[key].length;}return out;};
 
-// Complete rectangular dense spline faces: seed every knot interval so a mesher
-// cannot miss a narrow relief between otherwise flat boundary/midpoint samples.
-// Four straight edges and matching full-surface corners exclude trimmed holes.
+// Dense spline display: sample the exact surface across its knot domain. For
+// trimmed faces, scan-convert their real parameter-space edge curves (including
+// holes) instead of reverting to the old nearly flat coarse mesh.
 export function meshDenseRectangle(face,oc){
  if(!oc||face.geomType!=='BSPLINE_SURFACE')return null;
  const edges=face.edges;let a,s;
  try{
-  if(edges.length!==4||edges.some(e=>e.geomType!=='LINE'))return null;
   a=new oc.BRepAdaptor_Surface(face.wrapped,false);s=a.BSpline();
   const nu=s.NbUPoles(),nv=s.NbVPoles();if(nu*nv<4096)return null;
   const u0=a.FirstUParameter(),u1=a.LastUParameter(),v0=a.FirstVParameter(),v1=a.LastVParameter();
   const point=(u,v)=>{const p=a.Value(u,v);try{return [p.X(),p.Y(),p.Z()];}finally{dispose(p);}};
   const ends=edges.flatMap(e=>{const p=e.startPoint,q=e.endPoint;try{return [p.toTuple(),q.toTuple()];}finally{dispose(p);dispose(q);}});
-  if([[u0,v0],[u1,v0],[u0,v1],[u1,v1]].some(([u,v])=>{const p=point(u,v);return !ends.some(q=>Math.hypot(...p.map((x,k)=>x-q[k]))<1e-6);}))return null;
+  const rectangle=edges.length===4&&edges.every(e=>e.geomType==='LINE')&&![[u0,v0],[u1,v0],[u0,v1],[u1,v1]].some(([u,v])=>{const p=point(u,v);return !ends.some(q=>Math.hypot(...p.map((x,k)=>x-q[k]))<1e-6);});
+  const segments=[];
+  if(!rectangle){
+   if(!oc.BRepAdaptor_Curve2d)return null;
+   try{for(const edge of edges){const curve=new oc.BRepAdaptor_Curve2d(edge.wrapped,face.wrapped);try{
+    const first=curve.FirstParameter(),last=curve.LastParameter();let previous;
+    for(let i=0;i<=64;i++){const p=curve.Value(first+(last-first)*i/64),q=[p.X(),p.Y()];dispose(p);if(previous)segments.push([previous,q]);previous=q;}
+   }finally{dispose(curve);}}}catch{return null;}
+   if(!segments.length)return null;
+  }
   const knots=(count,get,lo,hi)=>{const out=[lo];for(let k=1;k<count;k++){const x=get(k),y=get(k+1);if(x<lo||y>hi)continue;out.push((x+y)/2,y);}return out;};
   let us=knots(s.NbUKnots(),k=>s.UKnot(k),u0,u1),vs=knots(s.NbVKnots(),k=>s.VKnot(k),v0,v1);
   // A 513-pole relief exceeds the old sampling cap and used to fall back to
@@ -57,7 +65,13 @@ export function meshDenseRectangle(face,oc){
   const vertices=new Float64Array(us.length*vs.length*3),normals=new Float64Array(vertices.length),triangles=[];
   for(let j=0;j<vs.length;j++)for(let i=0;i<us.length;i++)vertices.set(point(us[i],vs[j]),3*(j*us.length+i));
   const triangle=(a,b,c)=>{if(face.orientation==='backward')[b,c]=[c,b];triangles.push(a,b,c);const p=a*3,q=b*3,r=c*3,x=vertices[q]-vertices[p],y=vertices[q+1]-vertices[p+1],z=vertices[q+2]-vertices[p+2],X=vertices[r]-vertices[p],Y=vertices[r+1]-vertices[p+1],Z=vertices[r+2]-vertices[p+2],n=[y*Z-z*Y,z*X-x*Z,x*Y-y*X];for(const k of [p,q,r])for(let d=0;d<3;d++)normals[k+d]+=n[d];};
-  for(let j=0;j<vs.length-1;j++)for(let i=0;i<us.length-1;i++){const k=j*us.length+i;triangle(k,k+1,k+us.length+1);triangle(k,k+us.length+1,k+us.length);}
+  for(let j=0;j<vs.length-1;j++){
+   const v=(vs[j]+vs[j+1])/2,crossings=rectangle?[]:segments.flatMap(([p,q])=>(p[1]>v)!==(q[1]>v)?[p[0]+(v-p[1])*(q[0]-p[0])/(q[1]-p[1])]:[]).sort((a,b)=>a-b);let cross=0;
+   for(let i=0;i<us.length-1;i++){
+    if(!rectangle){const u=(us[i]+us[i+1])/2;while(cross<crossings.length&&crossings[cross]<u)cross++;if(cross%2===0)continue;}
+    const k=j*us.length+i;triangle(k,k+1,k+us.length+1);triangle(k,k+us.length+1,k+us.length);
+   }
+  }
   for(let k=0;k<normals.length;k+=3){const length=Math.hypot(normals[k],normals[k+1],normals[k+2])||1;for(let d=0;d<3;d++)normals[k+d]/=length;}
   return {vertices,normals,triangles};
  }finally{edges.forEach(dispose);dispose(s);dispose(a);}
