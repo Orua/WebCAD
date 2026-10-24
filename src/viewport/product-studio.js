@@ -1,11 +1,12 @@
-// Keep this portable lighting source identical in CadViewer and WebCAD.
+// Browser product-studio lighting. CAD geometry is never changed by this shader.
 // Camera-space product lighting: side softbox, opposite rim, overhead strip,
 // dark lower flag and a studio sweep with a dark horizon band.
-// v3 (2026-10-15, second pass): white light tent with dark seams/horizon, see productStudioRadiance.
+// v4: mirror-capable diffuser boundaries and a narrower vertical key card.
+// v3 (2026-10-15): white light tent with dark seams/horizon.
 // v2 (2026-10-15): soft-edged diffusers with a brighter core (no flat clipped
 // cards, no stair-stepped highlight edges on tessellated bends), lower key peak,
 // overhead strip, sweep/horizon room gradient, optional screen-space anisotropy.
-export const PRODUCT_STUDIO = Object.freeze({azimuth:-65,elevation:25,key:1.3,fill:0.45,ambient:0.4,version:3,minBlur:0.18,keyPeak:2.4,topPeak:1.2,model:'light-tent'});
+export const PRODUCT_STUDIO = Object.freeze({azimuth:-65,elevation:25,key:1.3,fill:0.45,ambient:0.4,version:4,minBlur:0.018,keyPeak:2.4,topPeak:1.2,model:'light-tent'});
 export const PRODUCT_STUDIO_SHADER = /* glsl */`
 float productSoftbox(vec3 ray,vec3 center,vec2 size,vec2 blur){
   center=normalize(center);
@@ -22,7 +23,9 @@ float productSoftbox(vec3 ray,vec3 center,vec2 size,vec2 blur){
   return edge.x*edge.y*core*smoothstep(0.05,0.2,facing);
 }
 vec3 productStudioRadiance(vec3 ray,float roughness,float anisotropy,vec3 keyDirection,vec3 levels){
-  float blur=0.18+roughness*roughness*1.8;
+  // Polished plating needs crisp reflection-card boundaries. Rough finishes
+  // still broaden the source according to their own material roughness.
+  float blur=0.018+roughness*roughness*1.8;
   // Brushed finishes stretch reflections across the brushing direction.
   vec2 blur2=vec2(blur*(1.0+anisotropy*2.2),blur*(1.0-anisotropy*0.35));
   // v3 light tent: catalogue photos of plated hardware reflect a mostly white
@@ -36,7 +39,7 @@ vec3 productStudioRadiance(vec3 ray,float roughness,float anisotropy,vec3 keyDir
   float cameraOpening=smoothstep(0.55,0.95,ray.z);
   float dark=clamp(0.96*horizon+0.7*seamTop+0.65*seamSide,0.0,0.97);
   float room=tent*(1.0-dark)*(1.0-0.55*cameraOpening);
-  float key=productSoftbox(ray,keyDirection,vec2(0.50,0.80),blur2);
+  float key=productSoftbox(ray,keyDirection,vec2(0.24,0.80),blur2);
   float rim=productSoftbox(ray,vec3(0.88,0.14,-0.30),vec2(0.12,0.95),blur2);
   float top=productSoftbox(ray,vec3(0.0,0.97,0.24),vec2(0.85,0.20),blur2);
   float flag=productSoftbox(ray,vec3(0.15,-0.62,0.77),vec2(0.38,0.10),blur2+0.06);

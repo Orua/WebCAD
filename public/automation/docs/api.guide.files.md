@@ -8,6 +8,8 @@ generated 仅证明字节已生成；download_initiated 仅证明下载开始；
 压缩/重连后，用宿主的项目索引找到原始路径、哈希和最后保存点，再按 fileId 解析；没有保存点的旧对话不能凭文字恢复历史画布。浏览器资源过期时从持久化原件重新登记，不重复计算源几何。详见 recipe.file-workflow、api.file-errors。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision

@@ -53,7 +53,7 @@ test('tight depth projection preserves projected XY and view positions for persp
   }
 });
 test('metal soft edges retain strong selection and technical views',()=>{
-  assert.equal(metalEdgeOpacity({finish:'nickel'}),.08);assert.equal(metalEdgeOpacity({finish:'design'}),.72);
+  assert.equal(metalEdgeOpacity({finish:'nickel'}),.38);assert.equal(metalEdgeOpacity({finish:'design'}),.72);
   assert.equal(metalEdgeOpacity({finish:'nickel',selected:true}),.72);assert.equal(metalEdgeOpacity({finish:'nickel',selectedEdge:true}),1);
   for(const mode of ['wire','transparentEdges'])assert.equal(metalEdgeOpacity({finish:'nickel',mode}),.72);
   const mesh=surface('display-only');assert.equal(isOcclusionSurface(mesh),true);mesh.material.wireframe=true;assert.equal(isOcclusionSurface(mesh),false);

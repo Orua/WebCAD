@@ -1,3 +1,4 @@
+import {getMetalMaterials,loadMetalMaterials,setMetalMaterialRegistry,rememberMetalMaterials,validateMetalMaterials} from './metal-presets.js';
 import {createLocationMarker} from './location-marker.js';
 import {validateReliefDesigns,updateReliefDesigns} from './relief-design-drafts.js';
 import {applyReliefDesignReference,readReliefDesignReference} from './relief-design-reference.js';
@@ -283,9 +284,12 @@ async function runEditorAction(action,args,{fromUI=false}={}){
   return result;
 }
 function clearSelection(){selectedIds=[];selectedTopology=null;viewport.setSelection([]);}
+let activeMaterialDocument;
 function applyAppearance(){
+  const materialDocument=documentInstanceId+':'+documentModel.documentId;
+  if(materialDocument!==activeMaterialDocument){setMetalMaterialRegistry(documentModel.renderMaterials||loadMetalMaterials());activeMaterialDocument=materialDocument;}
   viewport.partFinishes={...documentModel.appearance};viewport.partColors={...documentModel.colors};
-  viewport.setMetalFinish(FINISH_KEYS.includes(documentModel.renderFinish)?documentModel.renderFinish:viewport.displayPreferences.defaultFinish);
+  viewport.setMetalFinish(FINISH_KEYS.includes(documentModel.renderFinish)?documentModel.renderFinish:FINISH_KEYS.includes(viewport.displayPreferences.defaultFinish)?viewport.displayPreferences.defaultFinish:'design');
 }
 
 async function routeChangedFeature(next,{signal,expectedRevision,featureId,explicitRemote=false,allowUpload}={}){
@@ -637,7 +641,7 @@ function validateDocument(doc){
   const ids=new Set();for(const f of doc.features){if(!f.id||ids.has(f.id)||typeof f.op!=='string'||!f.params||!Array.isArray(f.refs))throw new Error('工程特征结构无效。');for(const ref of f.refs)if(!ids.has(ref))throw new Error('工程包含无效的操作引用。');if(f.placement!==undefined){if(![2,3,4].includes(doc.version)||f.semanticsVersion!==2)throw Object.assign(new Error('定位特征需要工程版本 2 和语义版本 2。'),{code:'DOCUMENT_VERSION_UNSUPPORTED'});validateResolvedPlacement(f.placement,f.op);}ids.add(f.id);}
   validateReliefDesigns(doc.reliefDesigns);
   if(doc.timeline)validateTimeline(doc);
-  const normalized={materialSettings:validateMaterialSettings(doc.materialSettings??loadMaterialSettings()),...(doc.timeline?clone(doc):{}),...(doc.reliefDesigns!==undefined?{reliefDesigns:validateReliefDesigns(doc.reliefDesigns)}:{}),version:doc.version>=3?doc.version:2,...(doc.version===4?{binaryAssets:doc.binaryAssets||{}}:{}),...(doc.version>=3?{compiledArtifacts:doc.compiledArtifacts||{}}:{}),referenceSystem:doc.referenceSystem!==undefined?validateReferenceSystem(doc.referenceSystem):createReferenceSystem(),...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{},colors:doc.colors&&typeof doc.colors==='object'?Object.fromEntries(Object.entries(doc.colors).filter(([,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))):{},renderFinish:doc.renderFinish??null};
+  const normalized={...(doc.renderMaterials?{renderMaterials:validateMetalMaterials(doc.renderMaterials)}:{}),materialSettings:validateMaterialSettings(doc.materialSettings??loadMaterialSettings()),...(doc.timeline?clone(doc):{}),...(doc.reliefDesigns!==undefined?{reliefDesigns:validateReliefDesigns(doc.reliefDesigns)}:{}),version:doc.version>=3?doc.version:2,...(doc.version===4?{binaryAssets:doc.binaryAssets||{}}:{}),...(doc.version>=3?{compiledArtifacts:doc.compiledArtifacts||{}}:{}),referenceSystem:doc.referenceSystem!==undefined?validateReferenceSystem(doc.referenceSystem):createReferenceSystem(),...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{},colors:doc.colors&&typeof doc.colors==='object'?Object.fromEntries(Object.entries(doc.colors).filter(([,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))):{},renderFinish:doc.renderFinish??null};
   // Add missing legacy defaults as a new transition; never rewrite old states
   // or drop their source bytes. Explicit invalid reference data still fails.
   if(doc.timeline){recordTimeline(doc,normalized,{label:'兼容旧版工程元数据'});validateTimeline(normalized);}
@@ -789,6 +793,7 @@ async function performAction(action,params={}){
   if(action==='section'){viewport.setSection(params);return;}
   if(action==='perPartMetal')return runEditorAction('body.appearance',{bodyIds:[...selectedIds],finish:params.key});
   if(action==='bodyColor')return runEditorAction('body.appearance',{bodyIds:[...selectedIds],color:params.color,finish:'design'});
+  if(action==='metalMaterials'){const result=await pageAPI.setMetalMaterials({context:pageAPI.getState().context,configuration:params.configuration});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
   if(action==='displayPreferences'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.setDisplayPreferences({context:{...identity,expectedRevision:r},values:params});if(result.status==='failed')throw new Error(result.error.message);return result;}
   if(action==='inspectPrintability'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.inspectPrintability({context:{...identity,expectedRevision:r},bodyId:params.bodyId,angleLimitDeg:params.angleLimitDeg});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
   if(action==='inspectFit'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.inspectFit({context:{...identity,expectedRevision:r},bodyAId:params.bodyAId,bodyBId:params.bodyBId,toleranceMm:params.toleranceMm});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
@@ -986,7 +991,9 @@ function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:doc
 async function executeAI(command,args={},options={}){
   const origin=options.origin==='agent'?'agent':'user';
   if(command==='file_save'){
-    const retained=clone(documentModel),savedRevision=revision,instance=documentInstanceId,docId=retained.documentId;
+    const retained={...clone(documentModel),renderMaterials:getMetalMaterials()},savedRevision=revision,instance=documentInstanceId,docId=retained.documentId;
+    // Render snapshots are file metadata, outside the live modelling timeline.
+    delete retained.timeline;
     const {snapshot,bytes,report}=await saveCommittedProject(retained,committedFinalSources);
     if(options.signal?.aborted)throw Object.assign(new Error('保存已取消；原工程保留'),{code:'JOB_CANCELED'});
     return {revision:savedRevision,documentId:docId,documentInstanceId:instance,encoding:'bytes',data:bytes,extension:'webcad',mime:snapshot.version>=3?'application/zip':'application/json',...(report?{report}:{})};
@@ -1171,6 +1178,14 @@ const pageAPI=createPageAPI({
   subscribeState:listener=>{agentStateListeners.add(listener);return ()=>agentStateListeners.delete(listener);},
   state:(input={})=>({hostControl:hostControl.get(),kernelProgress:clone(kernelProgress),kernelPerformance:clone(kernelPerformance),...commandService.getState({sessionId:pageSessionId,include:['summary','features','bodies','selection','capabilities','references'],...input}),referenceSystem:clone(documentModel.referenceSystem),previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null,renderQuality:qualityState(),parameters:clone(documentModel.parameters||{}),parameterValues:evaluateNamedParameters(documentModel.parameters||{}),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),colors:clone(documentModel.colors||{}),renderFinish:documentModel.renderFinish??null,displayPreferences:clone(viewport.displayPreferences),view:{errorPoints:clone(viewport.errorPoints),workspaceLayout:ui.getWorkspaceLayout(),anchorVisible:viewport.anchorVisible,panels:ui.getPanels(),clipboard:{available:modelClipboard?.documentInstanceId===documentInstanceId,bodyIds:modelClipboard?.documentInstanceId===documentInstanceId?[...modelClipboard.ids]:[]},display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selectionMode:viewport.selectionMode,language:getLanguage(),camera:{position:viewport.camera.position.toArray(),target:viewport.controls.target.toArray()},section:clone(viewport.sectionState||{axis:'Z',position:0,enabled:false}),temporaryDisplay:viewport.temporaryDisplay}}),
   quality:async quality=>{flushDisplayBatch();setBusy(true,'更新显示网格…');try{const result=await request('remesh',{quality}),features=new Map(documentModel.features.map(f=>[f.id,f]));bodies=result.bodies.map(body=>({...body,name:features.get(body.id)?.name||body.id}));qualityKey=quality;clearSelection();viewport.setBodies(bodies,documentModel.hidden);applyAppearance();viewport.setSelection(selectedIds,selectedTopology);flushDisplayBatch();viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();setStatus('显示网格已更新 · '+RENDER_QUALITIES[quality].label+' · '+qualityState().triangleCount.toLocaleString()+' 三角面');}finally{setBusy(false);}},
+  metalMaterials:configuration=>{
+    const next=validateMetalMaterials(configuration),ids=new Set(next.materials.map(m=>m.id));
+    const used=[documentModel.renderFinish,viewport.displayPreferences.defaultFinish,...Object.values(documentModel.appearance||{})].filter(Boolean);
+    if(used.some(id=>!ids.has(id)))throw Object.assign(new Error('当前工程仍在使用待删除的材质，请先替换实体/工程材质'),{code:'MATERIAL_IN_USE'});
+    setMetalMaterialRegistry(next);activeMaterialDocument=documentInstanceId+':'+documentModel.documentId;
+    const persisted=rememberMetalMaterials(next);clearSelection();applyAppearance();dirty=true;refresh();
+    return {configuration:getMetalMaterials(),persisted,storage:'localStorage',documentSnapshot:true};
+  },
   preferences:values=>{viewport.displayPreferences={...viewport.displayPreferences,...validateDisplayPreferences(values)};viewport.setModelingPrecision();if(Object.keys(values).some(key=>!['dimensionPrecisionMm','anglePrecisionDeg','themeColor','snapThresholdMm'].includes(key)))clearSelection();applyAppearance();const persisted=saveDisplayPreferences(viewport.displayPreferences);assistantPanel.sync();refresh();return {persisted,storage:'cookie',values:clone(viewport.displayPreferences)};},
   execute:input=>commandService.execute(input),query:input=>commandService.queryGeometry(input),files:input=>commandService.fileCommand(input),
   references:async input=>{const context=pageAPI.getState().context,referenceSystem=clone(documentModel.referenceSystem),currentBodies=bodies.filter(body=>!documentModel.hidden.includes(body.id));const assertFresh=()=>{if(documentInstanceId!==context.documentInstanceId||revision!==context.revision)throw Object.assign(new Error('参考查询期间工程已变化，请重新查询'),{code:'STALE_REFERENCE'});};const result=await collectReferences(input,{context,referenceSystem,bodies:currentBodies,queryGeometry:(bodyId,kind)=>request('queryGeometry',{bodyId,kind,filter:{}}),queryNearest:(bodyId,kind,near)=>request('nearestGeometry',{bodyId,kind,point:near.point,options:{radiusMm:near.radiusMm}}),assertFresh});commandService.registerReferenceCandidates(pageAPI.createRequestContext(context),result.items);return result;},

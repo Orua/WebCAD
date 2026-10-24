@@ -8,6 +8,8 @@
 用 inspectDesign/measure 等按来源尺寸核对。假设、猜测轮廓或通过一个小样，不构成完整实件验收。来源不足时说明缺哪项，保留已完成工程。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
 measureMass: contextPolicy=identity
 reliefDesignFit: contextPolicy=revision
