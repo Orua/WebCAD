@@ -798,100 +798,7 @@
       },
       "params": {
         "type": "object",
-        "properties": {
-          "profile": {
-            "type": "string",
-            "description": "Cross-section",
-            "enum": [
-              "circle",
-              "rectangle",
-              "roundedRectangle",
-              "arc"
-            ]
-          },
-          "width": {
-            "type": "number",
-            "description": "Width (mm)",
-            "exclusiveMinimum": 0,
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          },
-          "depth": {
-            "type": "number",
-            "description": "Depth (mm)",
-            "exclusiveMinimum": 0,
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          },
-          "radius": {
-            "type": "number",
-            "description": "Circle/arc radius (mm)",
-            "exclusiveMinimum": 0,
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          },
-          "cornerRadius": {
-            "type": "number",
-            "description": "Rounded rectangle corner radius; less than half shorter side (mm)",
-            "exclusiveMinimum": 0,
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          },
-          "points": {
-            "type": "array",
-            "minItems": 2,
-            "maxItems": 100,
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "number",
-                "unit": "mm",
-                "quantityKind": "length",
-                "quantizationPolicy": "none"
-              },
-              "minItems": 3,
-              "maxItems": 3,
-              "description": "World coordinate [x,y,z] in mm",
-              "unit": "mm",
-              "quantityKind": "length",
-              "quantizationPolicy": "none"
-            },
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          },
-          "startAngle": {
-            "type": "number",
-            "description": "Arc start (degrees)",
-            "unit": "deg",
-            "quantityKind": "angle",
-            "quantizationPolicy": "none"
-          },
-          "endAngle": {
-            "type": "number",
-            "description": "Arc end (degrees); absolute span > 0 and < 360",
-            "unit": "deg",
-            "quantityKind": "angle",
-            "quantizationPolicy": "none"
-          },
-          "closure": {
-            "type": "string",
-            "description": "Arc closure",
-            "enum": [
-              "sector",
-              "segment"
-            ]
-          }
-        },
-        "required": [
-          "points"
-        ],
-        "additionalProperties": false,
-        "$schema": "https://json-schema.org/draft/2020-12/schema"
+        "description": "Use this card inputSchema"
       },
       "refs": {
         "type": "array",
@@ -907,166 +814,17 @@
       },
       "placement": {
         "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "version": {
-            "const": 1
-          },
-          "frame": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "world"
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "snapshot"
-                  },
-                  "origin": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  },
-                  "quaternion": {
-                    "type": "array",
-                    "minItems": 4,
-                    "maxItems": 4,
-                    "items": {
-                      "type": "number"
-                    },
-                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
-                  }
-                },
-                "required": [
-                  "kind",
-                  "origin",
-                  "quaternion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "work"
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "expectedFrameVersion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "saved"
-                  },
-                  "frameId": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "frameId",
-                  "expectedFrameVersion"
-                ]
-              }
-            ]
-          },
-          "sourceAnchor": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "enum": [
-                      "model-origin",
-                      "bottom-center",
-                      "bounds-center"
-                    ]
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "point"
-                  },
-                  "point": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  }
-                },
-                "required": [
-                  "kind",
-                  "point"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "named"
-                  },
-                  "anchorId": {
-                    "type": "string",
-                    "minLength": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "anchorId"
-                ]
-              }
-            ]
-          }
-        },
-        "required": [
-          "version",
-          "frame"
-        ]
+        "description": "Use this card placementSchema"
       }
     },
     "required": [
       "op",
       "params"
     ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -1119,5 +877,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:cd4841d0ed5d39e783d60fb25bcefe4263179f13373d15222837d1d64db0acd0"
+  "docsHash": "sha256:b88c814d67ec5be4f32d0447f0cbe360e499d015d27dbd74e9d55579db62e2fe"
 }

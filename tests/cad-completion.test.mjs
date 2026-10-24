@@ -21,6 +21,14 @@ test('runtime, cards and published protocol use the same high-frequency schemas'
  assert.equal(AGENT_CONTRACT.methodTools.resolvePlacement,'webcad_read');
  assert(readDocs({docId:'api.placement',limitChars:16000}).text.includes("kind:'snapshot'"));
 });
+test('every template card is independently executable without the sibling catalog',()=>{
+ const card=getTool({id:'template.washer'});
+ assert.equal(card.callSchema.properties.op.const,'quickModel');
+ assert.equal(card.schemaRefs.params,'inputSchema');
+ assert(card.placementSchema);assert(card.parentContract.schemaHash);
+ assert.equal(card.mcpCall.tool,'webcad_submit');
+ assert(!card.templates);
+});
 test('explicit snapshot preflight preserves requested position and quaternion',()=>{
  const input={context,op:'cylinder',params:{radius:2,height:10},refs:[],placement};
  assert.doesNotThrow(()=>validatePageInput('resolvePlacement',input));

@@ -925,120 +925,7 @@
       },
       "params": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "outer",
-          "height"
-        ],
-        "properties": {
-          "outer": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "type",
-                "points"
-              ],
-              "properties": {
-                "type": {
-                  "type": "string",
-                  "description": "Exact edge type",
-                  "enum": [
-                    "line",
-                    "arc"
-                  ]
-                },
-                "points": {
-                  "type": "array",
-                  "items": {
-                    "type": "array",
-                    "items": {
-                      "type": "number",
-                      "unit": "mm",
-                      "quantityKind": "length",
-                      "quantizationPolicy": "none"
-                    },
-                    "minItems": 2,
-                    "maxItems": 2,
-                    "description": "XY coordinate in mm",
-                    "unit": "mm",
-                    "quantityKind": "length",
-                    "quantizationPolicy": "none"
-                  },
-                  "minItems": 2,
-                  "maxItems": 3,
-                  "unit": "mm",
-                  "quantityKind": "length",
-                  "quantizationPolicy": "none"
-                }
-              }
-            },
-            "minItems": 2,
-            "maxItems": 256
-          },
-          "holes": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "points"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "description": "Exact edge type",
-                    "enum": [
-                      "line",
-                      "arc"
-                    ]
-                  },
-                  "points": {
-                    "type": "array",
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "number",
-                        "unit": "mm",
-                        "quantityKind": "length",
-                        "quantizationPolicy": "none"
-                      },
-                      "minItems": 2,
-                      "maxItems": 2,
-                      "description": "XY coordinate in mm",
-                      "unit": "mm",
-                      "quantityKind": "length",
-                      "quantizationPolicy": "none"
-                    },
-                    "minItems": 2,
-                    "maxItems": 3,
-                    "unit": "mm",
-                    "quantityKind": "length",
-                    "quantizationPolicy": "none"
-                  }
-                }
-              },
-              "minItems": 2,
-              "maxItems": 256
-            },
-            "maxItems": 16
-          },
-          "height": {
-            "type": "number",
-            "description": "Signed nonzero Z extrusion (mm)",
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          },
-          "source": {
-            "type": "object"
-          }
-        },
-        "$schema": "https://json-schema.org/draft/2020-12/schema"
+        "description": "Use this card inputSchema"
       },
       "refs": {
         "type": "array",
@@ -1054,166 +941,17 @@
       },
       "placement": {
         "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "version": {
-            "const": 1
-          },
-          "frame": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "world"
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "snapshot"
-                  },
-                  "origin": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  },
-                  "quaternion": {
-                    "type": "array",
-                    "minItems": 4,
-                    "maxItems": 4,
-                    "items": {
-                      "type": "number"
-                    },
-                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
-                  }
-                },
-                "required": [
-                  "kind",
-                  "origin",
-                  "quaternion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "work"
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "expectedFrameVersion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "saved"
-                  },
-                  "frameId": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "frameId",
-                  "expectedFrameVersion"
-                ]
-              }
-            ]
-          },
-          "sourceAnchor": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "enum": [
-                      "model-origin",
-                      "bottom-center",
-                      "bounds-center"
-                    ]
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "point"
-                  },
-                  "point": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  }
-                },
-                "required": [
-                  "kind",
-                  "point"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "named"
-                  },
-                  "anchorId": {
-                    "type": "string",
-                    "minLength": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "anchorId"
-                ]
-              }
-            ]
-          }
-        },
-        "required": [
-          "version",
-          "frame"
-        ]
+        "description": "Use this card placementSchema"
       }
     },
     "required": [
       "op",
       "params"
     ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -1298,5 +1036,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4dd2232a3726dc9af3035cdc894e988d651d7f952951ca674c91147bef6d7a93"
+  "docsHash": "sha256:ebb3fd7daf01e779c128b1153a83bdc05a6d375d926e246fd60a7b3587fa3c16"
 }

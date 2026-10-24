@@ -654,39 +654,7 @@
       },
       "params": {
         "type": "object",
-        "properties": {
-          "radius1": {
-            "type": "number",
-            "description": "Bottom radius (mm)",
-            "minimum": 0,
-            "default": 10,
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          },
-          "radius2": {
-            "type": "number",
-            "description": "Top radius (mm)",
-            "minimum": 0,
-            "default": 0,
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          },
-          "height": {
-            "type": "number",
-            "description": "Height (mm)",
-            "exclusiveMinimum": 0,
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          }
-        },
-        "required": [
-          "height"
-        ],
-        "additionalProperties": false,
-        "$schema": "https://json-schema.org/draft/2020-12/schema"
+        "description": "Use this card inputSchema"
       },
       "refs": {
         "type": "array",
@@ -702,166 +670,17 @@
       },
       "placement": {
         "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "version": {
-            "const": 1
-          },
-          "frame": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "world"
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "snapshot"
-                  },
-                  "origin": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  },
-                  "quaternion": {
-                    "type": "array",
-                    "minItems": 4,
-                    "maxItems": 4,
-                    "items": {
-                      "type": "number"
-                    },
-                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
-                  }
-                },
-                "required": [
-                  "kind",
-                  "origin",
-                  "quaternion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "work"
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "expectedFrameVersion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "saved"
-                  },
-                  "frameId": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "frameId",
-                  "expectedFrameVersion"
-                ]
-              }
-            ]
-          },
-          "sourceAnchor": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "enum": [
-                      "model-origin",
-                      "bottom-center",
-                      "bounds-center"
-                    ]
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "point"
-                  },
-                  "point": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  }
-                },
-                "required": [
-                  "kind",
-                  "point"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "named"
-                  },
-                  "anchorId": {
-                    "type": "string",
-                    "minLength": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "anchorId"
-                ]
-              }
-            ]
-          }
-        },
-        "required": [
-          "version",
-          "frame"
-        ]
+        "description": "Use this card placementSchema"
       }
     },
     "required": [
       "op",
       "params"
     ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -910,5 +729,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:46faa694f182f5149412baf8057fe09515b9d87588faab8a46135c4d8411d500"
+  "docsHash": "sha256:c71725f82dd1c74b9e90c14da15e3b52afddb4f6cd7c5d5d3952d2af7a24511b"
 }

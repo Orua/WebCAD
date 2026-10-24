@@ -852,75 +852,7 @@
       },
       "params": {
         "type": "object",
-        "properties": {
-          "radius": {
-            "type": "number",
-            "description": "Shared hole radius (mm)",
-            "exclusiveMinimum": 0,
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          },
-          "depth": {
-            "type": "number",
-            "description": "Shared hole depth (mm)",
-            "exclusiveMinimum": 0,
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          },
-          "axis": {
-            "type": "string",
-            "description": "Global axis",
-            "enum": [
-              "X",
-              "Y",
-              "Z"
-            ],
-            "default": "Z"
-          },
-          "direction": {
-            "type": "number",
-            "enum": [
-              1,
-              -1
-            ],
-            "default": 1,
-            "unit": "1",
-            "quantityKind": "direction",
-            "quantizationPolicy": "none"
-          },
-          "points": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 100,
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "number",
-                "unit": "mm",
-                "quantityKind": "length",
-                "quantizationPolicy": "none"
-              },
-              "minItems": 3,
-              "maxItems": 3,
-              "description": "World coordinate [x,y,z] in mm",
-              "unit": "mm",
-              "quantityKind": "length",
-              "quantizationPolicy": "none"
-            },
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          }
-        },
-        "required": [
-          "radius",
-          "depth",
-          "points"
-        ],
-        "additionalProperties": false,
-        "$schema": "https://json-schema.org/draft/2020-12/schema"
+        "description": "Use this card inputSchema"
       },
       "refs": {
         "type": "array",
@@ -936,166 +868,17 @@
       },
       "placement": {
         "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "version": {
-            "const": 1
-          },
-          "frame": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "world"
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "snapshot"
-                  },
-                  "origin": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  },
-                  "quaternion": {
-                    "type": "array",
-                    "minItems": 4,
-                    "maxItems": 4,
-                    "items": {
-                      "type": "number"
-                    },
-                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
-                  }
-                },
-                "required": [
-                  "kind",
-                  "origin",
-                  "quaternion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "work"
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "expectedFrameVersion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "saved"
-                  },
-                  "frameId": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "frameId",
-                  "expectedFrameVersion"
-                ]
-              }
-            ]
-          },
-          "sourceAnchor": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "enum": [
-                      "model-origin",
-                      "bottom-center",
-                      "bounds-center"
-                    ]
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "point"
-                  },
-                  "point": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  }
-                },
-                "required": [
-                  "kind",
-                  "point"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "named"
-                  },
-                  "anchorId": {
-                    "type": "string",
-                    "minLength": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "anchorId"
-                ]
-              }
-            ]
-          }
-        },
-        "required": [
-          "version",
-          "frame"
-        ]
+        "description": "Use this card placementSchema"
       }
     },
     "required": [
       "op",
       "params"
     ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -1180,5 +963,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:927853462462d029749ace8688a4b5c7d2c88caefb9f209fa065ebcb5d163400"
+  "docsHash": "sha256:913c153ce3e905599d585f62bd1a7d4f805bd1bea66c501523b79e87fda65618"
 }

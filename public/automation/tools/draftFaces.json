@@ -728,62 +728,7 @@
       },
       "params": {
         "type": "object",
-        "properties": {
-          "faceIds": {
-            "type": "array",
-            "minItems": 4,
-            "maxItems": 4,
-            "uniqueItems": true,
-            "items": {
-              "type": "integer",
-              "minimum": 0,
-              "unit": "1",
-              "quantityKind": "index",
-              "quantizationPolicy": "none"
-            },
-            "unit": "1",
-            "quantityKind": "index",
-            "quantizationPolicy": "none"
-          },
-          "neutralFaceId": {
-            "type": "integer",
-            "minimum": 0,
-            "unit": "1",
-            "quantityKind": "index",
-            "quantizationPolicy": "none"
-          },
-          "pullDirection": {
-            "type": "array",
-            "minItems": 3,
-            "maxItems": 3,
-            "items": {
-              "type": "number",
-              "unit": "1",
-              "quantityKind": "direction",
-              "quantizationPolicy": "none"
-            },
-            "unit": "1",
-            "quantityKind": "direction",
-            "quantizationPolicy": "none"
-          },
-          "angleDeg": {
-            "type": "number",
-            "description": "Draft angle degrees",
-            "exclusiveMinimum": 0,
-            "exclusiveMaximum": 45,
-            "unit": "deg",
-            "quantityKind": "angle",
-            "quantizationPolicy": "none"
-          }
-        },
-        "required": [
-          "faceIds",
-          "neutralFaceId",
-          "pullDirection",
-          "angleDeg"
-        ],
-        "additionalProperties": false,
-        "$schema": "https://json-schema.org/draft/2020-12/schema"
+        "description": "Use this card inputSchema"
       },
       "refs": {
         "type": "array",
@@ -799,166 +744,17 @@
       },
       "placement": {
         "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "version": {
-            "const": 1
-          },
-          "frame": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "world"
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "snapshot"
-                  },
-                  "origin": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  },
-                  "quaternion": {
-                    "type": "array",
-                    "minItems": 4,
-                    "maxItems": 4,
-                    "items": {
-                      "type": "number"
-                    },
-                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
-                  }
-                },
-                "required": [
-                  "kind",
-                  "origin",
-                  "quaternion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "work"
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "expectedFrameVersion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "saved"
-                  },
-                  "frameId": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "frameId",
-                  "expectedFrameVersion"
-                ]
-              }
-            ]
-          },
-          "sourceAnchor": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "enum": [
-                      "model-origin",
-                      "bottom-center",
-                      "bounds-center"
-                    ]
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "point"
-                  },
-                  "point": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  }
-                },
-                "required": [
-                  "kind",
-                  "point"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "named"
-                  },
-                  "anchorId": {
-                    "type": "string",
-                    "minLength": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "anchorId"
-                ]
-              }
-            ]
-          }
-        },
-        "required": [
-          "version",
-          "frame"
-        ]
+        "description": "Use this card placementSchema"
       }
     },
     "required": [
       "op",
       "params"
     ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -1047,5 +843,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9c3d5add2e61b017fbb4b910bf51cd1711efa654329892e61ff6f4e4548c711a"
+  "docsHash": "sha256:5acf317e747e22d8dc2670d08d23f1dd93c0eb67daaced2408db85d1096374f8"
 }

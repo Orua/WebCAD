@@ -708,90 +708,7 @@
       },
       "params": {
         "type": "object",
-        "properties": {
-          "plane": {
-            "type": "string",
-            "description": "Global plane",
-            "enum": [
-              "XY",
-              "XZ",
-              "YZ"
-            ],
-            "default": "XY"
-          },
-          "offsetMm": {
-            "type": "number",
-            "description": "Signed plane coordinate; XY=Z, XZ=Y, YZ=X (mm)",
-            "default": 0,
-            "unit": "mm",
-            "quantityKind": "length",
-            "quantizationPolicy": "none"
-          },
-          "keepOriginal": {
-            "type": "boolean",
-            "description": "Preserve original as a mirror copy; default false",
-            "default": false
-          },
-          "variation": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "seed"
-            ],
-            "properties": {
-              "seed": {
-                "type": "string",
-                "minLength": 1,
-                "maxLength": 200
-              },
-              "translateMm": {
-                "type": "array",
-                "items": {
-                  "type": "number",
-                  "minimum": 0
-                },
-                "minItems": 3,
-                "maxItems": 3,
-                "description": "World coordinate [x,y,z] in mm"
-              },
-              "rotateDeg": {
-                "type": "array",
-                "items": {
-                  "type": "number",
-                  "minimum": 0
-                },
-                "minItems": 3,
-                "maxItems": 3,
-                "description": "World coordinate [x,y,z] in mm"
-              },
-              "scale": {
-                "type": "array",
-                "items": {
-                  "type": "number",
-                  "exclusiveMinimum": 0,
-                  "unit": "1",
-                  "quantityKind": "scalar",
-                  "quantizationPolicy": "none"
-                },
-                "minItems": 2,
-                "maxItems": 2,
-                "unit": "1",
-                "quantityKind": "scalar",
-                "quantizationPolicy": "none"
-              }
-            }
-          },
-          "linkedOverrides": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "number"
-            },
-            "description": "At most 100 numeric source-recipe overrides by existing parameter path; source dependencies remain linked."
-          }
-        },
-        "required": [],
-        "additionalProperties": false,
-        "$schema": "https://json-schema.org/draft/2020-12/schema"
+        "description": "Use this card inputSchema"
       },
       "refs": {
         "type": "array",
@@ -807,166 +724,17 @@
       },
       "placement": {
         "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "version": {
-            "const": 1
-          },
-          "frame": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "world"
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "snapshot"
-                  },
-                  "origin": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  },
-                  "quaternion": {
-                    "type": "array",
-                    "minItems": 4,
-                    "maxItems": 4,
-                    "items": {
-                      "type": "number"
-                    },
-                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
-                  }
-                },
-                "required": [
-                  "kind",
-                  "origin",
-                  "quaternion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "work"
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "expectedFrameVersion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "saved"
-                  },
-                  "frameId": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "frameId",
-                  "expectedFrameVersion"
-                ]
-              }
-            ]
-          },
-          "sourceAnchor": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "enum": [
-                      "model-origin",
-                      "bottom-center",
-                      "bounds-center"
-                    ]
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "point"
-                  },
-                  "point": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  }
-                },
-                "required": [
-                  "kind",
-                  "point"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "named"
-                  },
-                  "anchorId": {
-                    "type": "string",
-                    "minLength": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "anchorId"
-                ]
-              }
-            ]
-          }
-        },
-        "required": [
-          "version",
-          "frame"
-        ]
+        "description": "Use this card placementSchema"
       }
     },
     "required": [
       "op",
       "params"
     ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -1027,5 +795,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3426362e37283ee7d8bcb202fef2febeefdc32a25fd7893e40fc8057ae446858"
+  "docsHash": "sha256:d1e47dcbcbb493c27dfa55c3fbaec338c363dccca3ef59fb1a3e36bbd83c28ba"
 }
