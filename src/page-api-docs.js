@@ -614,8 +614,9 @@ export function searchTools(input = {}, runtime = {}) {
     version: card.version, schemaHash: card.schemaHash || null, description: card.description.slice(0,240), descriptionTruncated:card.description.length>240,
     selectionGuide:structuredClone(card.selectionGuide), readFirst:card.readingGuide,
     category: card.category, contractStatus: card.contractStatus, strictContract: card.strictContract === true,
+    availabilityScope:'page', executionAvailability:'unknown', executionCheck:{methods:['getServicesCapabilities','getServicesRouting'],requires:'current operation input and routing policy'},
     runtimeAvailability: card.runtimeAvailability === 'unavailable' ? 'unavailable'
-      : runtime.browserReady === false ? 'not_ready' : runtime.browserReady === true ? 'available' : 'unknown' }); }),
+      : runtime.browserReady === false ? 'not_ready' : runtime.browserReady === true ? 'page_ready' : 'unknown' }); }),
     total: matches.length, nextCursor: offset + limit < matches.length ? `${scope}:${offset + limit}` : null, catalogHash: pageCatalogHash };
 }
 

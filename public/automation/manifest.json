@@ -1,9 +1,9 @@
 {
   "version": "1.57.8",
-  "buildId": "9d8195a57a78c3d44962e9924d67daf4cce0f281-src-e236394f5fc0a4db-working",
+  "buildId": "72086050e0dc8628b7f4dfe43258f854dde38b0a-src-65cbbccbbd9b98c7-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:8eceef8c390f72bd9b149ebba69f474c90151a5552f45def42b65f6348924425",
-  "docsHash": "sha256:40f5facaaa2d7368e89d95267d23444dd380d6655857508e0df3af599e5cb0a0",
+  "catalogHash": "sha256:5347143fd990a6a9b7e4e6555d169e0286068b3efcbd4891723c703a5c651699",
+  "docsHash": "sha256:bbcb53689be5ee491e46b47647fbaa00d3c0adc76d16ed9edcd7e391a7115d06",
   "apiMethods": [
     "getMetalMaterials",
     "setMetalMaterials",
@@ -2488,7 +2488,7 @@
   "docs": [
     {
       "id": "api.agent-runtime",
-      "docsHash": "sha256:b0be4dd065b5a06b72db0accf9896a408ec5b2c62a48cb65b619b9b10ee1ac46",
+      "docsHash": "sha256:88c28ff2b4ca8f25fd28a28bf770fe87c01efbc1014593e72b6a5f039962fdbe",
       "url": "docs/api.agent-runtime.md"
     },
     {
@@ -2658,7 +2658,7 @@
     },
     {
       "id": "api.modeling.guide",
-      "docsHash": "sha256:a0af2158fb380c292aa2adfe288cb2892b172a777c4d6c61c3c311c83939f4d0",
+      "docsHash": "sha256:e1dd01a55c621be117c3c8058792a3538539e21c2587e7266d43aa75fb3ff40f",
       "url": "docs/api.modeling.guide.md"
     },
     {
@@ -2720,6 +2720,11 @@
       "id": "api.modeling.methods.source-reconstruction",
       "docsHash": "sha256:7070ff1a899f6e8ec0dffc3e51724d3af59d1f7db07611b2d3fa7d9f62bfb22f",
       "url": "docs/api.modeling.methods.source-reconstruction.md"
+    },
+    {
+      "id": "api.modeling.methods.staged-assembly",
+      "docsHash": "sha256:94141960331108565412e2eb665674f785d62fd2895410cb5c934d97968092f8",
+      "url": "docs/api.modeling.methods.staged-assembly.md"
     },
     {
       "id": "api.modeling.methods.verification",
@@ -2803,7 +2808,7 @@
     },
     {
       "id": "api.modeling.workflows.part-reuse",
-      "docsHash": "sha256:b826968127048c3361eb056361b279bf62b89e2cef3aae8297367dd23a6bd6ff",
+      "docsHash": "sha256:afe91273f0ddf33c785e86c4993382ff17247615e205b725ea288e882c583be6",
       "url": "docs/api.modeling.workflows.part-reuse.md"
     },
     {
@@ -2833,7 +2838,7 @@
     },
     {
       "id": "api.modeling.workflows.source-reconstruction",
-      "docsHash": "sha256:61d30e0f608cb042e864a41e6e07201b4549f76bf0ff4b23495270f5c187c8c2",
+      "docsHash": "sha256:4c548d8bdada716c0791e6bcf7e0a1bb8e9175f3a4260e9f8c3dde14c848fbea",
       "url": "docs/api.modeling.workflows.source-reconstruction.md"
     },
     {
@@ -2973,7 +2978,7 @@
     },
     {
       "id": "api.workflow",
-      "docsHash": "sha256:9b8830ab36496e39a2088fecd97b083f3fc123bb6c4f6cc3a688885346ed735e",
+      "docsHash": "sha256:8ff1fd357b002c99abd1d74060e249d4664581ef9c08ca2ba9e3c52ea3774a39",
       "url": "docs/api.workflow.md"
     },
     {

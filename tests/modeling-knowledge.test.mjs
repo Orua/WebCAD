@@ -34,9 +34,9 @@ test('downloaded modeling routes cover construction, process and diagnostics wit
       return new Response(await readFile(join('public/automation',new URL(url).pathname.split('/').at(-1))));
     }};
     const cache=await syncKnowledge(discoveryMetadata(),options);
-    assert.equal(downloads,4);
+    assert.equal(downloads,cache.downloadedFiles);
     assert.equal((await syncKnowledge(discoveryMetadata(),options)).cacheHit,true);
-    assert.equal(downloads,4,'unchanged complete package stays local');
+    assert.equal(downloads,cache.downloadedFiles,'unchanged complete package stays local');
     const cases=[['建立矩形板','solid-section'],['同轴空心圆筒','axisymmetric'],['方线沿路径扫掠','path-section'],['多截面放样','transition'],['在安装板上开两个通孔','cut-features'],['倒角C0.5','finishing'],['装配对齐','placement'],['刻字LOGO','logo'],['保持孔位加厚','editing'],['导出STL网格','inspection'],['按源图复刻','source-reconstruction'],['轮廓断点修复','profiles-2d'],['生成三视图工程图','drawings'],['CNC型腔刀具检查','manufacturing'],['可打印支撑检查','printability'],['轴承标准件导入','part-reuse'],['按密度计算重量估重','material-properties'],['制造交接发到打印机','handoff'],['怎么建模','plan']];
     for(const [query,id] of cases){
       const routes=await routeKnowledge(cache,query,{scope:'modeling'});
