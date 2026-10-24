@@ -2,7 +2,7 @@
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.57.6",
+  "version": "1.57.7",
   "contextPolicy": "revision",
   "description": "setAgentPanel({context,visible:true|false})；true接入，false退出释放。或setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false,floatingPosition?:{xPx:80,yPx:80}}})；layout与visible分开调用。宽高1–4096像素，浮标坐标0–100000像素并夹限到画布内。",
   "synonyms": [
@@ -22,7 +22,7 @@
     "思考"
   ],
   "inputContract": "setAgentPanel({context,visible:true|false})；true接入，false退出释放。或setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false,floatingPosition?:{xPx:80,yPx:80}}})；layout与visible分开调用。宽高1–4096像素，浮标坐标0–100000像素并夹限到画布内。",
-  "outputContract": "status=applied；getAgentPanel().layout返回version/mobile/axis/widthPx/heightPx/effectiveSizePx/collapsed/visible，floating返回visible/activity/position。collapsed:true仅折叠，保留任务和连接，腾出全部面板空间；只有activity=thinking时显示透明背景、无可见文字及阴影的机器人思考动画，其余状态隐藏；空闲用普通展开按钮恢复面板。单击或Enter/Space展开，拖动或方向键移位，松手不展开。眼睛、天线及三点动画遵循减少动态设置，保留无障碍名称。PC调宽、手机调高，至少保留画布280/160px、助手240/156px。不改revision/dirty/相机/历史，不写工程。字段错误PARAM_SCHEMA_INVALID。网络失败releasePending=true；旧会话须核对释放，不重跑。仅匹配配置origin、实际iframe、一次性channel消息可用。",
+  "outputContract": "status=applied；getAgentPanel().layout返回version/mobile/axis/widthPx/heightPx/effectiveSizePx/collapsed/visible，floating返回visible/activity/position/elapsedSeconds/phase/text。collapsed:true仅折叠，保留任务和连接，腾出全部面板空间；任务期间显示透明机器人，头顶小号计时图标与秒数，下方单行小字轮换公开摘要及工具状态；等待响应显示..，成功结束显示绿色打钩并冻结计时，失败或取消显示相应状态；空闲用普通展开按钮恢复面板。单击或Enter/Space展开，拖动或方向键移位，松手不展开。动画遵循减少动态设置，保留无障碍名称。PC画布与助手左右并排、分隔线调宽，手机调高，至少保留画布280/160px、助手240/156px。不改revision/dirty/历史，不写工程。字段错误PARAM_SCHEMA_INVALID。网络失败releasePending=true；旧会话须核对释放，不重跑。仅匹配配置origin、实际iframe、一次性channel消息可用。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -44,5 +44,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c6d254ade8937827b0ec19fe26c86d24c7a1062019213e25508553ecf5f9caeb"
+  "docsHash": "sha256:2671b16e3901bf19cd54180e357704570084f0ad969399aec9bc14ab861ab449"
 }
