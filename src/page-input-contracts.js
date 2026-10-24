@@ -1,6 +1,18 @@
 import {LIMITS} from './limits.js';
 import {PLACEMENT_SCHEMA,vectorSchema} from './placement-schema.js';
-import {validateSchema} from './contracts/operation-schema.js';
+import {validateSchema,contractError} from './contracts/operation-schema.js';
+// Allocate plain JSON in this page's JavaScript realm. Browser structuredClone
+// can retain the embedding realm; identity checks must not reject host requests.
+export function pageInput(value,path='args',seen=new Set()){
+ if(value===null||['string','boolean'].includes(typeof value))return value;
+ if(typeof value==='number'&&Number.isFinite(value))return value;
+ if(!value||typeof value!=='object'||seen.has(value)||seen.size>32)contractError('PARAM_SCHEMA_INVALID',path,'Expected finite plain JSON.');
+ const proto=Object.getPrototypeOf(value);
+ if(!Array.isArray(value)&&proto!==null&&Object.getPrototypeOf(proto)!==null)contractError('PARAM_SCHEMA_INVALID',path,'Expected a plain JSON object.');
+ seen.add(value);const result=Array.isArray(value)?[]:{};
+ for(const key of Object.keys(value)){if(['__proto__','constructor','prototype'].includes(key))contractError('PARAM_SCHEMA_INVALID',path+'.'+key,'Unsafe JSON key.');result[key]=pageInput(value[key],path+'.'+key,seen);}
+ seen.delete(value);return result;
+}
 const str={type:'string',minLength:1};
 const object=(properties,required=[])=>({type:'object',additionalProperties:false,properties,required});
 export const IDENTITY_CONTEXT_SCHEMA=object({sessionId:str,documentId:str,documentInstanceId:str,revision:{type:'integer',minimum:0},expectedRevision:{type:'integer',minimum:0}},['sessionId','documentId','documentInstanceId']);
