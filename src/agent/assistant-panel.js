@@ -14,7 +14,7 @@ export function validateAssistantUrl(value,base=location.href){
 export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface=document.body}){
   const defaultUrl=new URL('/AI/WebCAD/WebCADWorkspace.aspx',location.hostname==='127.0.0.1'&&location.port==='17674'?'http://127.0.0.1/':location.href).href;
   let url=defaultUrl,frame=null,channel=null,origin=null,adapter=null,visible=false,collapsed=false,panelToggle=null,phase='closed',error=null,external=null,exitOperation=null;
-  let requestSeq=0,handshakeTimer=null,hostResponded=false,activity='idle',floating=null,channelState={transport:'unavailable',syncStatus:'pending'};const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
+  let requestSeq=0,handshakeTimer=null,hostResponded=false,activity='idle',activityDetail={},floating=null,channelState={transport:'unavailable',syncStatus:'pending'};const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
   try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)url=validateAssistantUrl(saved);}catch{}
   const state=()=>{const size=external?.getLayout?.()||layout.get();return {version:1,url,configured:Boolean(url),visible,collapsed:visible&&size.collapsed,expanded:visible&&!size.collapsed,layout:size,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external),channelState:{...channelState,configuredOrigin:new URL(url,location.href).origin}};};
   const notify=()=>{syncFloating();onChange({...state(),floating:floating?.get()||{visible:false,activity:'idle',position:null}});};
@@ -27,7 +27,8 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     const size=external?.getLayout?.()||{collapsed};
     if(visible&&size.collapsed)ensureFloating();
     const current=external?.getActivity?.()||activity;
-    floating?.sync({visible:visible&&size.collapsed,activity:phase==='agent_offline'||external?.agentState?.()==='offline'?'offline':hostControl.get().locked?'working':current==='thinking'?'thinking':phase==='connecting'&&!hostControl.get().connected?'connecting':'idle'});
+    const offline=phase==='agent_offline'||external?.agentState?.()==='offline';
+    floating?.sync({visible:visible&&size.collapsed,activity:offline?'offline':hostControl.get().locked?'working':current==='thinking'?'thinking':phase==='connecting'&&!hostControl.get().connected?'connecting':'idle',detail:offline?{}:external?.getActivityDetail?.()||activityDetail});
   }
   function syncPanelToggle(){
     if(!panelToggle)return;
@@ -88,7 +89,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
       return adapter.state();
     }
     if(method.startsWith('adapter.')){const name=method.slice(8),bound=adapters.get(args?.adapterId);if(!bound||!['receive','endTask','release','retryReports','state'].includes(name))fail('AGENT_METHOD_DENIED','助手适配器尚未就绪。');const result=await bound[name](args.payload);if(name==='retryReports'&&bound!==adapter&&!bound.state().pending.length)adapters.delete(args.adapterId);return result;}
-    if(method==='host.state'){if(!visible){setHostState({locked:false,connected:false});return state();}const {agent,conversation,activity:nextActivity,channelState:diagnostics,...control}=args;activity=nextActivity==='thinking'?'thinking':'idle';if(diagnostics&&['direct','bridge'].includes(diagnostics.transport)&&diagnostics.actualOrigin===origin)channelState={...diagnostics,conversation:Boolean(conversation),cad:Boolean(args.connected)};phase=agent==='offline'?'agent_offline':args.connected?'connected':'connecting';setHostState(control);return state();}
+    if(method==='host.state'){if(!visible){setHostState({locked:false,connected:false});return state();}const {agent,conversation,activity:nextActivity,activityDetail:nextDetail,channelState:diagnostics,...control}=args;activity=nextActivity==='thinking'?'thinking':'idle';activityDetail=nextDetail&&typeof nextDetail==='object'?nextDetail:{};if(diagnostics&&['direct','bridge'].includes(diagnostics.transport)&&diagnostics.actualOrigin===origin)channelState={...diagnostics,conversation:Boolean(conversation),cad:Boolean(args.connected)};phase=agent==='offline'?'agent_offline':args.connected?'connected':'connecting';setHostState(control);return state();}
     if(method==='panel.userExit')return exit();
     if(method==='panel.close'){closeLocal();return state();}
     fail('AGENT_METHOD_DENIED','未知助手接入请求。');
