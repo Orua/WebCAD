@@ -4,7 +4,24 @@ import {prepareReliefDesignFit,provisionalServicesFit} from './relief-design-fit
 import {prepareReliefDesignRelief} from './relief-design-brep.js';
 let task=null,retained=null,retainedFit=null;
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
-const key=(context,entry)=>JSON.stringify([context.sessionId,context.documentId,context.documentInstanceId,context.revision??context.expectedRevision,entry.id,entry.revision,entry.draft]);
+// Persist solve/fit retention across same-tab reload when the draft was saved to the project.
+// Keyed by documentId+designId+draftRevision (not session/instance): IndexedDB recovery restores the
+// document; this restores the fact that a field/fit existed so restoreRetained can auto re-solve.
+const persistKey=(documentId,entry)=>`webcad.relief.retained.v1:${documentId}:${entry.id}:${entry.revision}`;
+function writeRetainedHint(context,entry,kind,extra={}){
+ try{
+  const k=persistKey(context.documentId,entry);
+  const prev=JSON.parse(sessionStorage.getItem(k)||'null')||{};
+  sessionStorage.setItem(k,JSON.stringify({...prev,kind,documentId:context.documentId,designId:entry.id,draftRevision:entry.revision,savedAt:Date.now(),hasHeightSource:!!entry.draft?.heightSource,...extra}));
+ }catch{/* sessionStorage may be unavailable */}
+}
+function readRetainedHint(context,entry){
+ try{const v=JSON.parse(sessionStorage.getItem(persistKey(context.documentId,entry))||'null');return v&&v.designId===entry.id&&v.draftRevision===entry.revision?v:null;}catch{return null;}
+}
+export function reliefRetainedHint(context,entry){return entry?readRetainedHint(context,entry):null;}
+// Bind retained field/fit to session + document instance + draft id/fingerprint (NOT whole-doc revision):
+// reopening the dialog after unrelated edits must restore solve/fit for the same draft.
+const key=(context,entry)=>JSON.stringify([context.sessionId,context.documentId,context.documentInstanceId,entry.id,entry.revision,entry.draft]);
 function cancelTask(kind){
  if(!task||kind&&task.kind!==kind)return {status:'idle'};
  const old=task;task=null;old.worker.terminate();clearTimeout(old.timer);
@@ -40,7 +57,7 @@ export async function runReliefDesignField(context,entry,options={},current){
  cancelTask();retained=null;retainedFit=null;
  const frozenOptions=structuredClone(options);
  return runTask('field',context,entry,{options:frozenOptions},current,(result,binding,now)=>{
-  retained={binding,result,options:frozenOptions};return readReliefDesignField(now.context,now.entry);
+  retained={binding,result,options:frozenOptions};writeRetainedHint(now.context,now.entry,'field',{field:[result.field?.columns,result.field?.rows],options:frozenOptions});return readReliefDesignField(now.context,now.entry);
  });
 }
 export function readReliefDesignField(context,entry){
@@ -55,14 +72,27 @@ export function candidateReliefDesignField(context,entry,baseMm,placement){const
 export async function runReliefDesignFit(context,entry,options,current){
  const solved=readReliefDesignField(context,entry);
  if(solved.status!=='solved')fail('RELIEF_DESIGN_UNSOLVED','Solve the current design field before numerical fitting');
- const sourceField=retained,prepared=prepareReliefDesignFit(entry.draft,solved,options);
- cancelTask();retainedFit=null;
- const revision=context.revision??context.expectedRevision;
- const sourceBinding={sessionId:context.sessionId,documentId:context.documentId,documentInstanceId:context.documentInstanceId,revision,designId:entry.id,draftRevision:entry.revision,...prepared.source};
- return runTask('fit',context,entry,{solved:sourceField.result,options:prepared.options},current,(result,binding,now)=>{
-  if(retained!==sourceField||result.source?.fieldFingerprint!==prepared.source.fieldFingerprint||result.source?.draftFingerprint!==prepared.source.draftFingerprint||result.source?.optionsFingerprint!==prepared.source.optionsFingerprint)fail('RELIEF_DESIGN_STALE','The original solved field or fit options changed');
-  retainedFit={binding,sourceField,result,sourceBinding};return readReliefDesignFit(now.context,now.entry);
- });
+ let attempt={...options},lastBudget=null;
+ for(let step=0;step<4;step++){
+  const sourceField=retained,prepared=prepareReliefDesignFit(entry.draft,solved,attempt);
+  cancelTask();retainedFit=null;
+  const revision=context.revision??context.expectedRevision;
+  const sourceBinding={sessionId:context.sessionId,documentId:context.documentId,documentInstanceId:context.documentInstanceId,revision,designId:entry.id,draftRevision:entry.revision,...prepared.source};
+  try{
+   return await runTask('fit',context,entry,{solved:sourceField.result,options:prepared.options},current,(result,binding,now)=>{
+    if(retained!==sourceField||result.source?.fieldFingerprint!==prepared.source.fieldFingerprint||result.source?.draftFingerprint!==prepared.source.draftFingerprint||result.source?.optionsFingerprint!==prepared.source.optionsFingerprint)fail('RELIEF_DESIGN_STALE','The original solved field or fit options changed');
+    retainedFit={binding,sourceField,result,sourceBinding};writeRetainedHint(now.context,now.entry,'fit',{fit:[result.fit?.columns,result.fit?.rows],baselineMm:result.fit?.baselineMm,workBudgetRetry:lastBudget});return readReliefDesignFit(now.context,now.entry);
+   });
+  }catch(error){
+   if(error?.code!=='FIT_WORK_BUDGET')throw error;
+   const cols=prepared.options.controlColumns,rows=prepared.options.controlRows;
+   const nextCols=Math.max(9,Math.floor((cols-1)/2)+1),nextRows=Math.max(9,Math.floor((rows-1)/2)+1);
+   if(nextCols>=cols&&nextRows>=rows)throw error;
+   lastBudget={from:[cols,rows],to:[nextCols,nextRows],reason:'FIT_WORK_BUDGET'};
+   attempt={...attempt,controlColumns:nextCols,controlRows:nextRows};
+  }
+ }
+ fail('FIT_WORK_BUDGET','Numerical total work budget reached after control-net reductions');
 }
 // Services-first: install a provisional (non-geometry) net as the retained fit so 准备 needs no browser fit.
 export function provisionalReliefDesignFit(context,entry,options){
@@ -71,7 +101,7 @@ export function provisionalReliefDesignFit(context,entry,options){
  const sourceField=retained,result=provisionalServicesFit(entry.draft,solved,options);
  cancelTask();const revision=context.revision??context.expectedRevision;
  retainedFit={binding:key(context,entry),sourceField,result,sourceBinding:{sessionId:context.sessionId,documentId:context.documentId,documentInstanceId:context.documentInstanceId,revision,designId:entry.id,draftRevision:entry.revision,...result.source}};
- return readReliefDesignFit(context,entry);
+ writeRetainedHint(context,entry,'fit',{provisional:true,baselineMm:result.fit?.baselineMm});return readReliefDesignFit(context,entry);
 }
 export function readReliefDesignFit(context,entry){
  if(!entry)fail('STALE_REFERENCE','Design draft not found');

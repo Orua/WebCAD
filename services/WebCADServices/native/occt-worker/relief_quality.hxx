@@ -153,10 +153,24 @@ inline Solved solve(const Target& t,const Domain& d,int nx,int ny,int sign,doubl
  for(;it<maxIter;it++){A(y,grad);for(size_t k=0;k<n;k++){grad[k]-=b[k];nxt[k]=project(y[k]-grad[k]/L,k);}
   residual=0;for(size_t k=0;k<n;k++)residual=std::max(residual,std::abs(nxt[k]-y[k]));if(residual<=tolerance){x=nxt;it++;break;}
   const double m=(1+std::sqrt(1+4*mom*mom))/2;for(size_t k=0;k<n;k++){const double nv=nxt[k];y[k]=nv+(mom-1)/m*(nv-x[k]);x[k]=nv;}mom=m;}
+ // Retain the peak-residual improvement: same authored target and pole/protection bounds.
+ // Precision guides the refinement; candidate output is still available when it cannot be reached.
+ int maxResidualIterations=0;double maximumResidual=0;
+ forward(x,ax,ay,z,tmp);for(size_t k=0;k<N;k++)if(t.active[k])maximumResidual=std::max(maximumResidual,std::abs(z[k]-tg[k]));
+ if(maximumResidual>pr){
+  y=x;mom=1;const double threshold=.8*pr,penalty=15.0,refineL=L*(1+penalty);
+  for(int step=0;step<std::min(maxIter,400);step++){
+   work.charge(double(N)*20+double(n)*8);forward(y,ax,ay,z,tmp);
+   for(size_t k=0;k<N;k++){const double e=z[k]-tg[k];z[k]=wt[k]*(e+penalty*std::copysign(std::max(0.0,std::abs(e)-threshold),e));}
+   adjoint(z,ax,ay,grad,tmp);for(size_t k=0;k<n;k++)nxt[k]=project(y[k]-grad[k]/refineL,k);
+   const double m=(1+std::sqrt(1+4*mom*mom))/2;for(size_t k=0;k<n;k++){const double nv=nxt[k];y[k]=nv+(mom-1)/m*(nv-x[k]);x[k]=nv;}mom=m;maxResidualIterations++;
+   if(step%8==7){forward(x,ax,ay,z,tmp);maximumResidual=0;for(size_t k=0;k<N;k++)if(t.active[k])maximumResidual=std::max(maximumResidual,std::abs(z[k]-tg[k]));if(maximumResidual<=.98*pr)break;}
+  }
+ }
  Solved s;s.fit=Fit{nx,ny,W,H,baseline,sign,{},{},locked,{}};s.fit.deltas.resize(n);s.fit.poles.resize(n);for(size_t k=0;k<n;k++){s.fit.deltas[k]=x[k]*sign;s.fit.poles[k]=baseline+s.fit.deltas[k];}
  forward(x,ax,ay,z,tmp);std::vector<double> e;e.reserve(N);double sq=0;for(size_t k=0;k<N;k++)if(t.active[k]){const double v=std::abs(z[k]-tg[k]);e.push_back(v);sq+=v*v;}
  std::sort(e.begin(),e.end());s.trainMax=e.empty()?0:e.back();s.trainP99=e.empty()?0:e[size_t(.99*(e.size()-1))];s.trainRms=e.empty()?0:std::sqrt(sq/e.size());
- s.fit.report={{"cgIterations",cg},{"projectedIterations",it},{"projectedResidualMm",residual},{"lipschitz",L}};
+ s.fit.report={{"cgIterations",cg},{"projectedIterations",it},{"projectedResidualMm",residual},{"lipschitz",L},{"maxResidualIterations",maxResidualIterations},{"objective","least-squares+precision-hinge"}};
  return s;
 }
 inline Domain domainOf(const json& domain){Domain d;d.support=shapeOf(domain.at("support"));for(auto& s:domain.value("throughHoles",json::array()))d.holes.push_back(shapeOf(s));for(auto& s:domain.value("protectedZones",json::array()))d.zones.push_back(shapeOf(s));return d;}
@@ -202,9 +216,10 @@ inline Fit fitQuality(const json& field,const json& domainJson,double baselineMm
    if(zone)for(double u:{.173,.431,.793})for(double v:{.219,.617,.887}){double px=s.cx+(u-.5)*(s.circle?s.r*2:s.w),py=s.cy+(v-.5)*(s.circle?s.r*2:s.h);if(contains(s,px,py))inspect(px,py);}}}
  json metrics={{"training",training.finish()},{"independent",independent.finish()},{"protection",protection.finish()}};
  if(protection.maxMm>1e-10*std::max(1.0,std::abs(baselineMm)))fail("FIT_PROTECTION_FAILED","Independent protection samples do not retain baseline",{{"metrics",metrics}});
- const double acceptance=o.value("acceptanceToleranceMm",std::max(.1,2*p));const bool within=std::max(training.maxMm,independent.maxMm)<=acceptance;
- const std::string policy=o.value("deviationPolicy",std::string("candidate"));
- if(policy=="strict"&&!within)fail("FIT_DEVIATION","Fit exceeds explicitly accepted sampled deviation",{{"metrics",metrics},{"acceptanceToleranceMm",acceptance}});
+ // Quality HARD rule: default acceptance = machining precision p (not legacy max(0.1,2p)).
+ const double acceptance=o.value("acceptanceToleranceMm",p);const bool within=std::max(training.maxMm,independent.maxMm)<=acceptance;
+ const std::string policy=o.value("deviationPolicy",std::string("strict"));
+ if(policy=="strict"&&!within)fail("FIT_DEVIATION","Fit exceeds machining precision / accepted sampled deviation",{{"metrics",metrics},{"acceptanceToleranceMm",acceptance},{"machiningPrecisionMm",p}});
  int lockedCount=0;for(auto v:fit.locked)lockedCount+=v;
  json warnings=json::array();if(!within)warnings.push_back("FIT_DEVIATION");if(best.trainP99>p)warnings.push_back("RELIEF_PRECISION_NOT_REACHED");
  fit.report={{"status",within?"numerically-accepted":"approximation-candidate"},{"method","quality-adaptive-cg+bounded-fista"},{"implementation","native-cpp relief_quality.hxx"},{"deviationPolicy",policy},{"withinTolerance",within},{"warnings",warnings},

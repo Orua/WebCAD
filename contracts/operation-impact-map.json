@@ -1,5 +1,48 @@
 {
   "version": 1,
+  "reliefRoundProduction20261024": {
+    "localImpact": "Image auto-conversion and collapsed technical settings; preserve up to65 browser controls and publish the current candidate at the existing work budget; remove obsolete pre-routing dense-design rejection; multi-edge mill cutters bind to one original shape.",
+    "servicesImpact": "Matched net48 Runtime/Gateway build plus OCCT worker with retained maximum-residual refinement. Image quality defaults to513 controls, advanced1025 remains available; valid results above precision/volume targets stay usable candidates.",
+    "logoImpact": "No LOGO/PDF algorithm or contour changes; existing Logo worker/dependencies are retained in the joint package.",
+    "contractImpact": "Page docs1.57.6; candidate is the default quality policy, explicit strict semantics retained; quality verification returns measured withinPrecision/warnings instead of unconditionally vetoing output. No auth/source-identity/rollback checks removed.",
+    "documentImpact": "Apply remains one undoable transaction with source unchanged on failure; final-state projects save exact result geometry. Same-tab saved draft recovery retained.",
+    "cacheImpact": "Regenerate public knowledge and ship a matching verified Native binary fingerprint; preserve cookies, project/custom settings and Services job storage.",
+    "requiredTests": ["Image dragon/medal/tiger BRep generation, actual browser import/apply/save and visual review", "0.05 vs0.1 dragon result comparison", "Budget-limited browser candidate keeps65 controls", "Actual native bridge and original-feature/offline-save roundtrip", "Three disk STP sources with plane round and fixedR operations, screenshots and preserved originals", "Matched localhost, production static/workspace and server compute identity/output readback"]
+  },
+  "reliefFilletV2Retest20261024": {
+    "localImpact": "Apply v2 incremental patch over existing uncommitted v1; localhost browser fit and same-tab IndexedDB draft recovery exercised. Browser fallback reaches 9x9 but remains an inaccurate candidate.",
+    "servicesImpact": "Rebuild OCCT worker candidate only; no IIS backend replacement because real dragon quality and new binary install/save acceptance gates did not pass. Existing CS0433 bridge fix preserved.",
+    "logoImpact": "None: no LOGO/PDF/LogoVector changes.",
+    "contractImpact": "Quality acceptance stays strict at machining precision; 769/641/513 capacity ladder; browser default work budget 800e6 with bounded control-net reduction; existing public UI/API routes retained.",
+    "documentImpact": "Same-tab recovery restores saved relief drafts and re-solves after reload; final-state exported project still contains final geometry only, not a draft backup.",
+    "cacheImpact": "Regenerate knowledge and publish changed frontend files to localhost only; rebuilt worker remains outside verified native allowlist pending actual install/save acceptance.",
+    "requiredTests": ["36 focused JS checks passed", "Native box/hole/spline BRep roundtrip passed", "Dragon quality baseline rejected at max 0.058615 mm", "One bounded maximum-residual alternative rejected at 0.055246 mm and reverted", "Browser dragon 129 field fit completed at 9x9 but max 0.799994 mm", "Same-tab actual reload retained draft and automatically re-solved", "Five-edge kink sample stayed native, mill route remains unaccepted"]
+  },
+  "workspaceComputeTypeOwner20261024": {
+    "localImpact": "Rebuild only the existing native Agent bridge handler against Web.dll; localhost Compute ASHX compiles again. No browser frontend change.",
+    "servicesImpact": "Services DLLs, native worker and protocol unchanged; authenticated website forwarding to health/capabilities verified.",
+    "logoImpact": "None: no Logo/PDF source, worker or geometry change.",
+    "contractImpact": "No public API argument, permission, route or semantic change. Web.dll is the single definition owner of WebCadHost and WebCadSettings.",
+    "documentImpact": "None: no document, numerical field, fit or refresh-recovery change.",
+    "cacheImpact": "Replacing only WebCAD.NativeBridge.dll triggers the existing local ASP.NET application reload; no frontend/knowledge rebuild or user data replacement.",
+    "requiredTests": ["PE metadata rejects shared host definitions in bridge DLL", "Unsigned Compute request remains 401", "Signed-in Compute health/capabilities return 200", "Workspace loads and bridge method guard remains 405"]
+  },
+  "reliefFilletCandidate20261024": {
+    "localImpact": "261024 candidate: phase HTTP timeouts, compressed raster upload, draft-result retention independent of document revision, 25 percent edge-margin cap, finite browser fit budget and mill fallback for fillet/round. Local IIS candidate only; acceptance failed.",
+    "servicesImpact": "Rebuilt and installed net48 Runtime/Gateway and matching managed dependencies on existing localhost IIS; JPEG/PNG are decoded to RGBA. Native worker unchanged.",
+    "logoImpact": "No Logo/PDF/LogoVector or native worker source change; five kernel regression checks passed.",
+    "contractImpact": "Existing operation arguments and page methods retained; fallback blendReport adds strategy/millReports. Arbitrary-edge exact-R and automatic fallback acceptance remain unproved; do not claim production readiness.",
+    "documentImpact": "Same-draft field survives unrelated document revision; refresh of an unsaved project did not restore its draft/results in E2. Browser default image fit rejected its finite work budget.",
+    "cacheImpact": "Generated knowledge/build identity changed; verified unified 13-file host cache on G. No document-state cache was installed.",
+    "requiredTests": [
+        "A1/A2 identity, health and 1050625-node budget",
+        "Dragon and medal: three Services conversions each; repeated inputs reuse cached job",
+        "C1/E1/F1 numerical field, draft revision recovery and size-18 margin hint",
+        "D1 real dragon BRep one job; fails 0.05mm tolerance and volume consistency",
+        "R1/R3/R4 public-page native fillet, excessive-radius refusal and three-edge scope",
+        "E2 refresh recovery; R2 hard-edge fallback and page LOGO regressions remain incomplete"
+    ]
+},
   "stableCanvasAndScripts20261024": {
     "localImpact": "Chat overlays unchanged canvas dimensions; mobile collapse icon in chat heading; navigation cube stays at visible bottom-left with twelve thin edges",
     "servicesImpact": "CAD Services unchanged; companion CodexAgent scoped script execution capability checked separately",

@@ -88,7 +88,7 @@ export function prepareReliefDesignRelief({fit,solved,entry,expectedDraftRevisio
  if(cross){block('RELIEF_OUTSIDE_FACE',`边 ${cross.edgeIndex}（R${+cross.radiusMm.toFixed(3)}，中心 [${cross.centerMm.map(v=>+v.toFixed(3)).join(', ')}]）距图案中心 ${+cross.distanceMm.toFixed(3)} mm`);return done();}
  const complexity=reliefDesignComplexity(params);
  // Services-first nets are computed on Services (never locally), so local complexity does not gate them.
- if(complexity.complex&&!F.report?.provisional){block('RELIEF_DESIGN_NATIVE_REQUIRED',complexity.reasons.join(','));return done({complexity:{reasons:complexity.reasons}});}
+ // Complexity selects an executor at preview time; it does not invalidate the authored candidate.
  return {status:'prepared',blockers:[],geometryReady:false,brepComputed:false,commitState:'notCommitted',
   fingerprints:{sourceSha256:support.sourceSha256,draftFingerprint:fit.source.draftFingerprint,fieldFingerprint:fit.source.fieldFingerprint,optionsFingerprint:fit.source.optionsFingerprint,controlsSha256:params.designBinding.controls.controlsSha256,regionsSha256:params.designBinding.mask.regionsSha256},
   maskReport:{...mask.report,simplifiedVertexCount:mask.vertexCount,boundary:'retained-grid-cell-boundary-not-new-exact-circle'},

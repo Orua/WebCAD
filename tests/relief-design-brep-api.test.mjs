@@ -54,8 +54,8 @@ test('page tool + UI helpers: real face read, blocked reasons, prepared args tha
   assert.equal((await api.prepareReliefDesignRelief({...base(),...fields,placement:{...fields.placement,frame:'x'}})).error.code,'PARAM_SCHEMA_INVALID');
   assert.equal((await api.prepareReliefDesignRelief({...base(),...fields,expectedDraftRevision:2})).error.code,'REVISION_CONFLICT');
   const side=await api.prepareReliefDesignRelief({...base(),...fields,target:{bodyId:'base',faceId:(faceId+1)%6}});assert.equal(side.status,'blocked');
-  // Document change invalidates the retained fit.
-  context.revision++;assert.equal((await api.prepareReliefDesignRelief({...base(),...fields})).error.code,'RELIEF_DESIGN_STALE');
+  // An unrelated document revision preserves a fit bound to the same draft/source.
+  context.revision++;assert.equal((await api.prepareReliefDesignRelief({...base(),...fields})).status,'prepared');
  }finally{globalThis.Worker=old;kernel.dispose();}
 });
 

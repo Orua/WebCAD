@@ -13,7 +13,7 @@ export function normalizeReliefDesignFitOptions(options,{maxControlSide=65}={}){
  const deviationPolicy=options.deviationPolicy??'candidate';if(!['candidate','strict'].includes(deviationPolicy))fail('PARAM_SCHEMA_INVALID','deviationPolicy must be candidate or strict');
  const result={deviationPolicy,mode:options.mode,controlColumns:integer('controlColumns',options.controlColumns,4,maxControlSide),controlRows:integer('controlRows',options.controlRows,4,maxControlSide),
   acceptanceToleranceMm:positive('acceptanceToleranceMm',options.acceptanceToleranceMm,20),maxIterations:integer('maxIterations',options.maxIterations??12000,1,50000),
-  toleranceMm:positive('toleranceMm',options.toleranceMm??1e-9,1),...(options.maxWork===undefined?{}:{maxWork:integer('maxWork',options.maxWork,1,Number.MAX_SAFE_INTEGER)})};
+  toleranceMm:positive('toleranceMm',options.toleranceMm??1e-9,1),maxWork:integer('maxWork',options.maxWork??800000000,1,9007199254740991)};
  // heightInterpretation 'engraveDepth': authored heights above the (lowest, boundary-pinned) baseline are cut depths.
  // Only emitted when explicit, so existing emboss/engrave fingerprints are unchanged.
  if(options.heightInterpretation!==undefined&&options.heightInterpretation!=='signed'){if(options.heightInterpretation!=='engraveDepth')fail('PARAM_SCHEMA_INVALID','heightInterpretation must be signed or engraveDepth');if(options.mode!=='engrave')fail('PARAM_SCHEMA_INVALID','engraveDepth requires mode engrave');result.heightInterpretation='engraveDepth';}

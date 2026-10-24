@@ -451,14 +451,6 @@ PDF页面渲染或渲染底图校验未通过。
 
 代码：`RELIEF_DESIGN_MASK_INVALID`
 
-### design-fit-brep-native
-
-该拟合浮雕的控制网格复杂度需要尚未开放的Native平面B样条能力。
-
-保留拟合与工程；减少显式控制网格后重新拟合，或等待Native验收；不降级本地执行。
-
-代码：`RELIEF_DESIGN_NATIVE_REQUIRED`
-
 ### outside
 
 操作点、深度或加工范围未落在允许的实际目标区域。

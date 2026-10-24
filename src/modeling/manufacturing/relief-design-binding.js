@@ -87,6 +87,6 @@ export function verifyReliefDesignBinding(p,{sourceSha256,support}){
  const derived=regionsFromActiveMask(f,active);
  if(regionsSha256(derived.regions)!==b.mask.regionsSha256||regionsSha256(p.regions)!==b.mask.regionsSha256)fail('保留域轮廓与原拟合掩码不一致','params.regions');
  const complexity=reliefDesignComplexity(p);
- if(complexity.complex)bindingError('RELIEF_DESIGN_NATIVE_REQUIRED',`该拟合浮雕复杂度（${complexity.reasons.join(',')}）需要尚未开放的 Native 平面 B 样条语义；本地不降级执行`,'params.values');
+ // Executor routing/capacity is checked by the shared operation path, after this source binding is verified.
  return {kind:'relief-design-binding-verified',version:b.version,sourceSha256,regionsSha256:b.mask.regionsSha256,controlsSha256:c.controlsSha256,lockedControlCount:locked.reduce((s,v)=>s+v,0)};
 }

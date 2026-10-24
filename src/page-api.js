@@ -10,7 +10,7 @@ import {validateDisplayPreferences} from './display-preferences.js';
 import {createPageBatch} from './page-batch.js';
 import {readBrowserLogo,getLogoWizardState,actLogoWizard,getLogoWizardReviewBinding,refreshLogoWizardReview} from './browser-logo-input.js';
 import {createLogoReviewSession,logoReviewArtifacts} from './logo-vector-review.js';
-import {runReliefDesignField,readReliefDesignField,cancelReliefDesignField,candidateReliefDesignField,runReliefDesignFit,provisionalReliefDesignFit,readReliefDesignFit,cancelReliefDesignFit,prepareReliefDesignReliefFromRetained} from './relief-design-runtime.js';
+import {runReliefDesignField,readReliefDesignField,cancelReliefDesignField,candidateReliefDesignField,runReliefDesignFit,provisionalReliefDesignFit,readReliefDesignFit,cancelReliefDesignFit,prepareReliefDesignReliefFromRetained,reliefRetainedHint} from './relief-design-runtime.js';
 import {prepareReliefReferenceSource} from './relief-design-reference.js';
 import {logoDXF} from './logo-dxf.js';
 import {inspectLogoMachiningCapacity} from './logo-model.js';
@@ -484,6 +484,7 @@ export function createPageAPI(host){
       const result=await host.reliefReferenceCommit({context:input.context,idempotencyKey:input.idempotencyKey??crypto.randomUUID(),action:'document.reliefDesignReference',args:{designId:input.designId,expectedDraftRevision:input.expectedDraftRevision,action,...(source?{source}:{})}});
       return {...result,...(['committed','no_change'].includes(result.status)?host.reliefReferenceRead(input.designId):{})};
     }),
+    reliefRetainedHint:(ctx,entry)=>reliefRetainedHint(ctx||{},entry),
     reliefDesignFit:guarded(async input=>{
       const s=check(input,['context','action','designId','expectedDraftRevision','options']);
       const action=input.action??'get',entry=host.state({include:['reliefDesigns']}).reliefDesigns?.find(d=>d.id===input.designId);

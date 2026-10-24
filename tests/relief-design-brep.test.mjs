@@ -58,11 +58,11 @@ test('a draft change, revision bump or changed solved field rejects the retained
  assert.throws(()=>prepareReliefDesignRelief(request({entry:{...base.entry,id:'other'}})),{code:'RELIEF_DESIGN_STALE'});
 });
 
-test('flat field is a no-change block and dense control grids require the unopened Native route',()=>{
+test('flat field is no-change and dense valid candidates proceed to executor routing',()=>{
  const flat=make(draft({fieldSettings:{columns:33,rows:33,toleranceMm:.0001}}));
  assert.ok(codes(prepareReliefDesignRelief(request({...flat}))).includes('RELIEF_DESIGN_NO_CHANGE'));
  const dense=make(draft(),{...opts,controlColumns:33,controlRows:33});
- const r=prepareReliefDesignRelief(request({...dense}));assert.equal(r.status,'blocked');assert.ok(codes(r).includes('RELIEF_DESIGN_NATIVE_REQUIRED'));assert.ok(r.complexity.reasons.includes('large-surface-grid'));
+ const r=prepareReliefDesignRelief(request({...dense}));assert.equal(r.status,'prepared');assert.deepEqual(r.blockers,[]);assert.ok(r.previewArgs);
 });
 
 test('retained-domain mask keeps through holes as region holes with row-order flip and exact collinear removal only',()=>{

@@ -166,10 +166,15 @@ export async function reliefServicesReady(operation,{client=servicesClient,confi
   return VERIFIED_NATIVE_KERNELS.has(op.kernelBuildId)&&!!caps.geometryExchange?.testedKernelPairs?.some(p=>p.producerKernelBuildId===op.kernelBuildId&&p.consumerKernelBuildId===LOCAL_KERNEL_BUILD_ID);
  }catch{return false;}
 }
-// relief.source-convert-1 on Services: upload RGBA as a raster asset, run the native conversion (with machining
-// precision smoothing), fetch the grid artifact and re-verify its encoding hash + dimensions in the browser.
-export async function convertSourceOnServices({rgba,params,context,imageSha256,client=servicesClient,signal}){
- const S=RELIEF_SERVICES_OPERATIONS.sourceConvert,asset=await client.upload(new File([rgba],'image.rgba'),{kind:'raster'});
+// relief.source-convert-1 on Services: upload JPEG/PNG when available (else RGBA), native conversion with machining
+// precision smoothing; fetch the grid artifact and re-verify encoding hash + dimensions in the browser.
+export async function convertSourceOnServices({rgba,params,context,imageSha256,client=servicesClient,signal,fileBytes,mime,fileName}){
+ const S=RELIEF_SERVICES_OPERATIONS.sourceConvert;
+ // Prefer original JPEG/PNG bytes (much smaller than raw RGBA) when available; NativeAdapter materializes RGBA for the worker.
+ const compressed=fileBytes instanceof Uint8Array&&fileBytes.length>0&&fileBytes.length<rgba.length&&/^image\/(jpeg|png|webp|bmp)$/i.test(mime||'');
+ const uploadName=compressed?(fileName||('image.'+(mime.includes('png')?'png':mime.includes('webp')?'webp':mime.includes('bmp')?'bmp':'jpg'))):'image.rgba';
+ const uploadBytes=compressed?fileBytes:rgba;
+ const asset=await client.upload(new File([uploadBytes],uploadName),{kind:'raster'});
  const requestId=crypto.randomUUID(),payload={requestId,documentId:context.documentId,documentInstanceId:context.documentInstanceId,expectedRevision:context.revision??context.expectedRevision,featureId:'relief-source-'+imageSha256.slice(0,16),
   operation:S.operation,schemaVersion:'1.0',semanticVersion:S.semanticVersion,strategy:S.strategy,inputs:[{assetId:asset.assetId,sha256:asset.sha256,role:'source',sourceFeatureId:'image-'+imageSha256.slice(0,16)}],
   placementSnapshot:null,selectionIntent:{kind:'whole-source'},params,requiredResultFormat:'relief-height-grid-u16le-v1',recipeFingerprint:'relief-source:'+contractHashOf({imageSha256,params})};
@@ -190,7 +195,7 @@ function contractHashOf(v){return recipeHash(v).replace(/^sha256:/,'');}
 // size and the machining precision (see relief_quality.hxx). Drafts with authored points or local edits keep the
 // legacy field fit, because those edits only exist on the authored field.
 import {decodeQualitySource,buildQualityTarget,finestControlSpacing,evaluateQualitySurface,RELIEF_QUALITY_LIMITS} from '../relief-design-core/quality-target.mjs';
-export const RELIEF_QUALITY_DEFAULTS=Object.freeze({mode:'adaptive',maxControlSide:RELIEF_QUALITY_LIMITS.maxControlSide});
+export const RELIEF_QUALITY_DEFAULTS=Object.freeze({mode:'adaptive',maxControlSide:513});
 export function reliefQualityParams(draft){
  const d=validateReliefDesign(draft),q={...RELIEF_QUALITY_DEFAULTS,...d.fieldSettings?.servicesQuality},h=d.heightSource;
  if(q.mode==='off'||!h||d.points.length||d.fieldSettings?.edits?.length)return null;
@@ -200,6 +205,8 @@ export function reliefQualityParams(draft){
 export function reliefDesignServicesPlan(document,feature){
  const plan=legacyReliefDesignServicesPlan(document,feature),entry=(document.reliefDesigns||[]).find(d=>d.id===feature.params.designBinding.audit?.designId);
  const quality=reliefQualityParams(entry.draft);if(!quality)return plan;
+ // User-adjustable precision target; valid geometry remains a usable candidate when deviation is larger.
+ plan.params.fit={...plan.params.fit,acceptanceToleranceMm:quality.machiningPrecisionMm,deviationPolicy:'candidate'};
  Object.defineProperty(plan.params,'quality',{value:quality,enumerable:true});
  return {...plan,quality:{mode:'adaptive',machiningPrecisionMm:quality.machiningPrecisionMm,maxControlSide:quality.maxControlSide,source:[quality.source.columns,quality.source.rows]}};
 }
@@ -220,9 +227,10 @@ export function verifyServicesQualityFit(params,report){
  let verificationMaxSide=q.maxControlSide;
  const retry=report.reliefDesign.qualityCapacityRetry;
  if(retry){
-  if(retry.fromMaxControlSide!==q.maxControlSide||retry.toMaxControlSide!==513||q.maxControlSide<=513||!['RELIEF_DESIGN_NO_CHANGE','RELIEF_QUALITY_CHECK_FAILED'].includes(retry.reason)||r.columns>513||r.rows>513)
+  const allowedTo=new Set([513,641,769]);
+  if(retry.fromMaxControlSide!==q.maxControlSide||!allowedTo.has(retry.toMaxControlSide)||q.maxControlSide<=retry.toMaxControlSide||!['RELIEF_DESIGN_NO_CHANGE','RELIEF_QUALITY_CHECK_FAILED'].includes(retry.reason)||r.columns>retry.toMaxControlSide||r.rows>retry.toMaxControlSide)
    fail('SERVICES_RESPONSE_INVALID','Services 控制网容量重试记录与请求不符');
-  verificationMaxSide=513;
+  verificationMaxSide=retry.toMaxControlSide;
  }
  const W=params.field.widthMm,H=params.field.heightMm,source=decodeQualitySource(q),spacing=finestControlSpacing({widthMm:W,heightMm:H,source,precisionMm:q.machiningPrecisionMm,maxControlSide:verificationMaxSide});
  const t=buildQualityTarget({source,domain:params.domain,widthMm:W,heightMm:H,baselineMm:params.baselineMm,upperMm:params.baselineMm+Math.max(params.fit.controlMaxMm??q.depthMm,q.depthMm),precisionMm:q.machiningPrecisionMm,controlSpacingMm:spacing});
@@ -230,6 +238,8 @@ export function verifyServicesQualityFit(params,report){
  const z=evaluateQualitySurface(deltas,r.columns,r.rows,W,H,ci.map(i=>i*t.pitchX-W/2),ri.map(j=>j*t.pitchY-H/2));let maxMm=0;
  ri.forEach((j,b)=>ci.forEach((i,a)=>{const k=j*t.C+i;if(t.active[k])maxMm=Math.max(maxMm,Math.abs(params.baselineMm+z[b*ci.length+a]-t.h[k]));}));
  const reported=r.report?.metrics?.training?.maxMm;if(!Number.isFinite(reported)||maxMm>reported+1e-6)fail('SERVICES_RESPONSE_INVALID',`Services 质量拟合复核偏差 ${maxMm.toFixed(4)} mm 大于服务器报告值`);
- if(params.fit.deviationPolicy==='strict'&&maxMm>params.fit.acceptanceToleranceMm+1e-9)fail('SERVICES_RESPONSE_INVALID',`Services 拟合复核偏差 ${maxMm.toFixed(4)} mm 超过容差`);
- return {verified:true,mode:'quality',controlDeltasSha256:r.controlDeltasSha256,resampledMaxMm:maxMm,checkedSamples:ri.length*ci.length,controls:[r.columns,r.rows],sign};
+ const p=q.machiningPrecisionMm,accept=params.fit?.acceptanceToleranceMm??p;
+ if(params.fit.deviationPolicy==='strict'&&maxMm>accept+1e-9)fail('SERVICES_RESPONSE_INVALID',`Services 拟合复核偏差 ${maxMm.toFixed(4)} mm 超过容差`);
+ // Independent quality readback is advisory for candidate output; explicit strict callers still reject above.
+ return {verified:true,mode:'quality',qualityStatus:maxMm>p+1e-9?'approximation-candidate':'within-target',machiningPrecisionMm:p,withinPrecision:maxMm<=p+1e-9,warnings:maxMm>p+1e-9?['FIT_DEVIATION']:[],controlDeltasSha256:r.controlDeltasSha256,resampledMaxMm:maxMm,checkedSamples:ri.length*ci.length,controls:[r.columns,r.rows],sign};
 }

@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Drawing;
+using System.Drawing.Imaging;
 using Newtonsoft.Json.Linq;
 using WebCADServices.Contracts;
 
@@ -96,7 +98,7 @@ namespace WebCADServices.Runtime
             var asset=store.Asset(owner,(string)source["assetId"]);if((string)asset["kind"]!=(sourceConvert?"raster":"brep")||(string)source["role"]!="source"||(string)asset["sha"]!=(string)source["sha256"])throw new ServiceError("SOURCE_HASH_MISMATCH","Source role/hash differs from accepted asset");
             if((long)asset["bytes"]>Protocol.MaxUpload)throw new ServiceError("GEOMETRY_SOURCE_LIMIT","Initial native bridge source exceeds its declared client-tested budget",413);
             if(relief)ValidateRelief(parameters,assets,(string)input["semanticVersion"]==ReliefStrokeSemanticVersion);
-            if(sourceConvert&&(long)asset["bytes"]!=(long)parameters["width"]*(long)parameters["height"]*4)throw new ServiceError("PARAM_SCHEMA_INVALID","RGBA asset length must equal width*height*4");
+            if(sourceConvert){long expect=(long)parameters["width"]*(long)parameters["height"]*4;long got=(long)asset["bytes"];if(got!=expect&&got>expect)throw new ServiceError("PARAM_SCHEMA_INVALID","Raster asset larger than RGBA budget for declared size");if(got!=expect&&got<16)throw new ServiceError("PARAM_SCHEMA_INVALID","Raster asset too small");}
             var semanticParams=(JObject)parameters.DeepClone();if(relief)foreach(JObject layer in (JArray)semanticParams["layers"]){string id=(string)layer["toolAssetId"];layer.Remove("toolAssetId");layer["toolSha256"]=assets[id]["sha256"];}
             // Every ordered source participates in the physical cache key.
             // keepTools belongs to document history, not native geometry.
@@ -156,7 +158,33 @@ namespace WebCADServices.Runtime
             Bounded(fit["acceptanceToleranceMm"],1e-6,20,"fit.acceptanceToleranceMm");if(fit["controlMaxMm"]!=null)Bounded(fit["controlMaxMm"],0,20,"fit.controlMaxMm");if(fit["maxIterations"]!=null)BoundedInt(fit["maxIterations"],1,200000,"fit.maxIterations");if(fit["toleranceMm"]!=null)Bounded(fit["toleranceMm"],1e-12,1,"fit.toleranceMm");
             if(parameters["placement"] is not JObject placement)throw new ServiceError("PARAM_SCHEMA_INVALID","Explicit placement is required");Protocol.Keys(placement,"originMm","xDirection");Point(placement["originMm"]);Point(placement["xDirection"],true);
         }
-        // relief.source-convert-1: raw RGBA8 raster asset + normalized convert settings (+ optional mm precision smoothing).
+
+        // Decode JPEG/PNG/BMP/WebP raster assets into raw RGBA8 for the OCCT worker (which only accepts RGBA).
+        // When the asset is already width*height*4 bytes it is passed through unchanged.
+        public static string MaterializeRgba(string assetPath,int width,int height,string dir,out string rgbaSha256){
+            var bytes=File.ReadAllBytes(assetPath);long expect=(long)width*height*4;
+            if(bytes.LongLength==expect){rgbaSha256=Protocol.Hash(bytes);return assetPath;}
+            byte[] rgba;
+            try{
+                using(var ms=new System.IO.MemoryStream(bytes))
+                using(var bmp=new Bitmap(ms)){
+                    if(bmp.Width!=width||bmp.Height!=height)throw new ServiceError("PARAM_SCHEMA_INVALID","Decoded raster size does not match declared width/height");
+                    rgba=new byte[expect];
+                    var data=bmp.LockBits(new Rectangle(0,0,width,height),ImageLockMode.ReadOnly,PixelFormat.Format32bppArgb);
+                    try{
+                        int stride=data.Stride;byte[] row=new byte[Math.Abs(stride)];
+                        for(int y=0;y<height;y++){
+                            System.Runtime.InteropServices.Marshal.Copy(System.IntPtr.Add(data.Scan0,y*stride),row,0,width*4);
+                            for(int x=0;x<width;x++){int i=x*4,o=(y*width+x)*4;rgba[o]=row[i+2];rgba[o+1]=row[i+1];rgba[o+2]=row[i];rgba[o+3]=row[i+3];}
+                        }
+                    }finally{bmp.UnlockBits(data);}
+                }
+            }catch(ServiceError){throw;}
+            catch(Exception ex){throw new ServiceError("PARAM_SCHEMA_INVALID","Unable to decode raster asset to RGBA ("+ex.GetType().Name+")");}
+            string outPath=Path.Combine(dir,"source.rgba");Store.Atomic(outPath,rgba);rgbaSha256=Protocol.Hash(rgba);return outPath;
+        }
+
+        // relief.source-convert-1: raw RGBA8 or compressed raster; MaterializeRgba feeds the worker RGBA (+ optional mm precision smoothing).
         public static void ValidateSourceConvertParameters(JObject parameters){
             Protocol.Keys(parameters,"width","height","settings","depthMm","machiningPrecisionMm");
             int width=BoundedInt(parameters["width"],1,16384,"width"),height=BoundedInt(parameters["height"],1,16384,"height");if((long)width*height>16777216)throw new ServiceError("SIZE_LIMIT","Raster exceeds 16M pixels");
@@ -191,7 +219,9 @@ namespace WebCADServices.Runtime
                 var toolPaths=new JArray();foreach(JObject part in ((JArray)input["inputs"]).Skip(1)){string assetId=(string)part["assetId"],path=Path.Combine(store.Root,"assets",assetId);if(Protocol.Hash(File.ReadAllBytes(path))!=(string)part["sha256"])throw new ServiceError("SOURCE_HASH_MISMATCH","Stored Boolean tool BRep changed");toolPaths.Add(path);}
                 privateParams=new JObject{["toolPaths"]=toolPaths};
             }else if((string)input["operation"]=="reliefSourceConvert"){
-                privateParams["sourceSha256"]=payload["sourceSha256"];output=Path.Combine(dir,"grid.json");
+                output=Path.Combine(dir,"grid.json");
+                string rgbaSha;source=MaterializeRgba(source,(int)privateParams["width"],(int)privateParams["height"],dir,out rgbaSha);
+                privateParams["sourceSha256"]=rgbaSha;
                 var ps=(JObject)privateParams["settings"];int pc=(int)ps["columns"],pr=(int)ps["rows"];var budget=BudgetGrid(pc,pr);if(budget.columns!=pc||budget.rows!=pr){ps["columns"]=budget.columns;ps["rows"]=budget.rows;privateParams["downsampledFrom"]=new JArray(pc,pr);}
             }else if(new[]{"round","reliefShoulder","reliefDesign"}.Contains((string)input["operation"])){
                 privateParams["faceIntent"]=input["selectionIntent"].DeepClone();

@@ -62,14 +62,14 @@ test('normals use BRep p-curves even when 3D surface projection is unavailable',
   }finally{prototype.normalAt=original;faces.forEach(face=>face.delete());s.delete();}
 });
 
-test('failed large fillet reports a sampled valid radius without changing the source',()=>{
+test('large requested radius may produce a valid mill candidate without a box-size veto',()=>{
   const s=cad.makeBox([0,0,0],[10,4,1]);
   try{
     const edge=topologyDetails(s).find(e=>Math.abs(e.startPoint[0]-e.endPoint[0])>9);
     assert(edge);
     const before=cad.measureVolume(s);
-    assert.throws(()=>buildEdgeBlend(s,'fillet',{radius:2,edgeIds:[edge.edgeId]}),error=>error.report.stage==='construction'&&error.report.attemptCount===1&&error.report.radiusProbe.requested===false);
-    assert.throws(()=>buildEdgeBlend(s,'fillet',{radius:2,edgeIds:[edge.edgeId]},{suggestRadius:true}),/较小半径 R[\d.]+ mm 已单独试算为有效单实体/);
+    const result=buildEdgeBlend(s,'fillet',{radius:2,edgeIds:[edge.edgeId]});
+    try{assert.equal(result.blendReport.requestedAmountMm,2);assert(cad.measureVolume(result)>0);const check=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);try{assert(check.IsValid());}finally{check.delete();}}finally{result.delete();}
     assert.equal(cad.measureVolume(s),before);
   }finally{s.delete();}
 });

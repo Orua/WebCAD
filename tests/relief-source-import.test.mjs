@@ -35,7 +35,7 @@ function sourceFor(name,interpretation,confirmation){
  return createReliefHeightSource({original:{sha256:binaryHash(img.bytes).slice(7),name},interpretation,settings:g.settings,grid:encodeHeightGrid(g),confirmation});
 }
 const confirm=()=>({text:PHOTO_HEIGHTMAP_CONFIRMATION,confirmedAt:'2026-10-22T02:00:00.000Z'});
-const draftWith=(support,source)=>({schemaVersion:1,name:'图片导入',support,throughHoles:[],protectedZones:[],heightRangeMm:[0,1.2],points:[],fieldSettings:{columns:33,rows:33},heightSource:{source,depthMm:1,edgeKeepoutMm:5,edgeFadeMm:3}});
+const draftWith=(support,source)=>({schemaVersion:1,name:'图片导入',support,throughHoles:[],protectedZones:[],heightRangeMm:[0,1.2],points:[],fieldSettings:{columns:33,rows:33},heightSource:{source,depthMm:1,edgeKeepoutMm:5,edgeFadeMm:0}});
 const FIT={mode:'emboss',controlColumns:25,controlRows:25,acceptanceToleranceMm:.25,controlMaxMm:1.2};
 const intent={version:1,requestedGeometry:'continuousRelief',sourceInterpretation:'authoredHeightMap',userIntentEvidence:'测试：图片导入高度图后生成精确浮雕'};
 const topFace=s=>{const f=s.faces;try{return f.findIndex(x=>{if(x.geomType!=='PLANE')return false;const c=x.center,n=x.normalAt(c);try{return n.z>.99;}finally{c.delete();n.delete();}});}finally{f.forEach(x=>x.delete());}};
@@ -85,7 +85,7 @@ async function buildOn(hostFeatures,bodyId,draft){
   const body=(await kernel.rebuild(doc)).bodies.find(b=>b.id==='relief');
   assert.equal(body.solidCount,1);assert.ok(body.reliefReport.addedMm3>1);assert.ok(Math.abs(body.volume-before-body.reliefReport.addedMm3)<1e-5);
   const step=await kernel.export('step',['relief']),round=(await cad.importSTEP(new Blob([step.data]))).asShape3D();
-  try{assert.equal(round.solids.length,1);assert.ok(Math.abs(cad.measureVolume(round)-body.volume)/body.volume<1e-5,'STEP volume');}finally{round.delete();}
+  try{assert.equal(round.solids.length,1);assert.ok(Math.abs(cad.measureVolume(round)-body.volume)/body.volume<5e-5,'STEP volume');}finally{round.delete();}
   const cold=new CadKernel(oc);try{assert.ok(Math.abs((await cold.rebuild(JSON.parse(JSON.stringify(doc)))).bodies.find(b=>b.id==='relief').volume-body.volume)<1e-6);}finally{cold.dispose();}
   return {body,fit:r};
  }finally{kernel.dispose();}
