@@ -23,7 +23,7 @@ import {fitProfilePoints} from './profile-fitting.js';
 import {traceTwinWindowProfile} from './dwg-spline-twin-window.js';
 import {normalizeRequest,requestContext} from './page-context.js';
 import {contextPolicy,identityContext} from './page-context-policy.js';
-import {PAGE_METHOD_SCHEMAS,validatePageInput} from './page-input-contracts.js';
+import {PAGE_METHOD_SCHEMAS,validatePageInput,pageInput} from './page-input-contracts.js';
 import {createPageJobs} from './page-jobs.js';
 import {createPageWait} from './page-wait.js';
 import {LIMITS} from './limits.js';
@@ -718,7 +718,7 @@ export function createPageAPI(host){
     const original=api[name];api[name]=async(input={})=>{try{const c=identityContext(input.context),s=current();for(const key of ['sessionId','documentId','documentInstanceId'])if(c[key]!==s.context[key])fail('INSTANCE_MISMATCH',`Stale ${key}`);const request={...input,context:{...c,expectedRevision:s.context.revision}};requestPolicies.set(request,'identity');return await original(request);}catch(e){return failure(e);}};
   }
   for(const name of Object.keys(PAGE_METHOD_SCHEMAS))if(typeof api[name]==='function'){
-    const original=api[name];api[name]=(...args)=>{try{const request=structuredClone(args[0]??{});validatePageInput(name,request);return original(request,...args.slice(1));}catch(error){if(name==='getState')throw error;return failure(error);}};
+    const original=api[name];api[name]=(...args)=>{try{const request=pageInput(args[0]??{});validatePageInput(name,request);return original(request,...args.slice(1));}catch(error){if(name==='getState')throw error;return failure(error);}};
   }
   api.contextPolicies=Object.freeze(Object.fromEntries([...Object.keys(api).filter(k=>typeof api[k]==='function'),...Object.keys(files).map(k=>'files.'+k)].map(name=>[name,contextPolicy(name)])));
   for(const name of Object.keys(api))if(typeof api[name]==='function')api[name]=explained(api[name]);
