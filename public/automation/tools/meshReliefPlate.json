@@ -794,87 +794,7 @@
       },
       "params": {
         "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "version",
-          "sizeXMm",
-          "sizeYMm",
-          "baseThicknessMm",
-          "spacingMm",
-          "bumps"
-        ],
-        "properties": {
-          "version": {
-            "type": "integer",
-            "const": 2
-          },
-          "sizeXMm": {
-            "type": "number",
-            "exclusiveMinimum": 0,
-            "description": "X 方向图案/平板宽度 (mm)",
-            "unit": "mm"
-          },
-          "sizeYMm": {
-            "type": "number",
-            "exclusiveMinimum": 0,
-            "description": "Y 方向图案/平板长度 (mm)",
-            "unit": "mm"
-          },
-          "baseThicknessMm": {
-            "type": "number",
-            "exclusiveMinimum": 0,
-            "description": "平板底部厚度 (mm)",
-            "unit": "mm"
-          },
-          "spacingMm": {
-            "type": "number",
-            "exclusiveMinimum": 0
-          },
-          "bumps": {
-            "type": "array",
-            "maxItems": 64,
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "centerMm",
-                "reliefHeightMm",
-                "plateauRadiusMm",
-                "outerRadiusMm"
-              ],
-              "properties": {
-                "centerMm": {
-                  "type": "array",
-                  "items": {
-                    "type": "number",
-                    "unit": "mm",
-                    "quantityKind": "length",
-                    "quantizationPolicy": "none"
-                  },
-                  "minItems": 2,
-                  "maxItems": 2,
-                  "unit": "mm",
-                  "quantityKind": "length",
-                  "quantizationPolicy": "none"
-                },
-                "reliefHeightMm": {
-                  "type": "number",
-                  "description": "当前层/起伏点的起伏高度 (mm)",
-                  "unit": "mm"
-                },
-                "plateauRadiusMm": {
-                  "type": "number",
-                  "minimum": 0
-                },
-                "outerRadiusMm": {
-                  "type": "number",
-                  "exclusiveMinimum": 0
-                }
-              }
-            }
-          }
-        },
-        "$schema": "https://json-schema.org/draft/2020-12/schema"
+        "description": "Use this card inputSchema"
       },
       "refs": {
         "type": "array",
@@ -890,166 +810,17 @@
       },
       "placement": {
         "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "version": {
-            "const": 1
-          },
-          "frame": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "world"
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "snapshot"
-                  },
-                  "origin": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  },
-                  "quaternion": {
-                    "type": "array",
-                    "minItems": 4,
-                    "maxItems": 4,
-                    "items": {
-                      "type": "number"
-                    },
-                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
-                  }
-                },
-                "required": [
-                  "kind",
-                  "origin",
-                  "quaternion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "work"
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "expectedFrameVersion"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "saved"
-                  },
-                  "frameId": {
-                    "type": "string",
-                    "minLength": 1
-                  },
-                  "expectedFrameVersion": {
-                    "type": "integer",
-                    "minimum": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "frameId",
-                  "expectedFrameVersion"
-                ]
-              }
-            ]
-          },
-          "sourceAnchor": {
-            "oneOf": [
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "enum": [
-                      "model-origin",
-                      "bottom-center",
-                      "bounds-center"
-                    ]
-                  }
-                },
-                "required": [
-                  "kind"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "point"
-                  },
-                  "point": {
-                    "type": "array",
-                    "minItems": 3,
-                    "maxItems": 3,
-                    "items": {
-                      "type": "number"
-                    }
-                  }
-                },
-                "required": [
-                  "kind",
-                  "point"
-                ]
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "properties": {
-                  "kind": {
-                    "const": "named"
-                  },
-                  "anchorId": {
-                    "type": "string",
-                    "minLength": 1
-                  }
-                },
-                "required": [
-                  "kind",
-                  "anchorId"
-                ]
-              }
-            ]
-          }
-        },
-        "required": [
-          "version",
-          "frame"
-        ]
+        "description": "Use this card placementSchema"
       }
     },
     "required": [
       "op",
       "params"
     ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -1146,5 +917,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:dafca3a881c96299255a102f354957af0dd9d61d645a78c0870cf708511bc0b4"
+  "docsHash": "sha256:9cc8b779cefe9b2c91d79ce1b8d068c60463d25142243cbf01425863321ea48d"
 }

@@ -139,148 +139,6 @@
     "contract": "not_migrated",
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
-  "contract": {
-    "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-    "whenToUse": [
-      "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
-    ],
-    "whenNotToUse": [
-      {
-        "case": "输入是三角网格，需要网格加工",
-        "use": "meshBoolean"
-      }
-    ],
-    "params": {},
-    "refs": {
-      "min": 0,
-      "max": 0,
-      "meaning": "独立创建，不引用已有实体"
-    },
-    "limits": [
-      {
-        "name": "maxFeatures",
-        "value": 2000,
-        "unit": "count",
-        "source": "src/limits.js#document.maxFeatures"
-      },
-      {
-        "name": "maxBytes",
-        "value": 20971520,
-        "unit": "count",
-        "source": "src/limits.js#document.maxBytes"
-      }
-    ],
-    "outputs": {
-      "geometryType": "brep",
-      "exportFormats": [
-        "step",
-        "brep",
-        "stl"
-      ],
-      "consumesRefs": false,
-      "metrics": [
-        "bounds",
-        "area",
-        "volume (when available)"
-      ]
-    },
-    "errors": [
-      {
-        "code": "PARAM_SCHEMA_INVALID",
-        "when": "输入违反该操作源码的校验或几何约束",
-        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
-      },
-      {
-        "code": "PARAM_RANGE_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
-      },
-      {
-        "code": "UNKNOWN_OPERATION",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
-      },
-      {
-        "code": "OPERATION_VERSION_UNSUPPORTED",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
-      },
-      {
-        "code": "SCHEMA_MISMATCH",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
-      },
-      {
-        "code": "CAPABILITY_UNAVAILABLE",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
-      },
-      {
-        "code": "GEOMETRY_INVALID",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
-      },
-      {
-        "code": "SIZE_LIMIT",
-        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
-        "recovery": "读取当前工具卡并修正参数或来源"
-      }
-    ],
-    "examples": {
-      "minimal": {
-        "op": "quickModel",
-        "params": {
-          "kind": "tube"
-        },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
-      },
-      "normal": {
-        "op": "quickModel",
-        "params": {
-          "kind": "tube"
-        },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
-      },
-      "invalid": [
-        {
-          "params": {
-            "__invalid": true
-          },
-          "errorCode": "PARAM_SCHEMA_INVALID"
-        }
-      ]
-    },
-    "routing": {
-      "class": "local-only",
-      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
-    },
-    "related": [
-      "box",
-      "cylinder",
-      "sphere",
-      "cone",
-      "torus",
-      "queryGeometry",
-      "measure",
-      "files.export"
-    ],
-    "synonyms": [
-      "quickModel",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-      "quick Model operation"
-    ],
-    "status": "experimental",
-    "sourcePaths": []
-  },
-  "purpose": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "whenToUse": [
-    "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code."
-  ],
   "whenNotToUse": [
     {
       "case": "输入是三角网格，需要网格加工",
@@ -359,6 +217,10 @@
   "visibleInLibrary": true,
   "libraryCategory": "sliders",
   "libraryCategoryLabel": "日字扣",
+  "purpose": "圆角双窗平面轮廓沿 Y 方向投影裁切同轴圆筒薄壁，形成侧视圆弧拱弯。适用于薄条一体双窗；径向板厚、外弧半径独立输入。圆线框及独立圆杆须用其它工具。",
+  "whenToUse": [
+    "This selected template matches the required structure; its complete parameters and placement contract are in this card."
+  ],
   "inputSchema": {
     "type": "object",
     "required": [
@@ -535,8 +397,217 @@
     "historyBinding": "snapshot",
     "previewSupported": true
   },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "additionalDocs": [
+    "api.placement"
+  ],
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "quickModel"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "parentContract": {
+    "opVersion": "legacy-1",
+    "schemaHash": "sha256:e1f812382dc2c0dc47a24399b708cef72551ace7c6fb8e6cb07c810f290daaaa"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use this callSchema and current context; run supplies the parent version/hash"
+    }
+  },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -590,5 +661,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6d1705cc0415ed98a3a6724ab93ea70f70661a4d7e7fb2bd15ce9abc166ee0bc"
+  "docsHash": "sha256:462d39eeedf44053a6fb215b23f5c13bddf9a9b4c5cc544b9a8029e6a7593e30"
 }

@@ -495,14 +495,22 @@ function templateCards() {
     const kind = template.kind, model = QUICK_MODELS[kind];
     const schema = parent.inputSchema.oneOf.find(item => item.properties.kind.const === kind);
     if (!schema || !model) throw new Error(`Missing registered template contract: ${kind}`);
-    const { templates, defaults, inputSchema, minimalExample, normalExample, schemaHash, ...shared } = parent;
+    // Parent contract repeats sibling examples and tells agents to fetch the
+    // entire parent catalog. The selected card carries these fields below.
+    const { templates, defaults, inputSchema, minimalExample, normalExample, schemaHash, contract, purpose, whenToUse, ...shared } = parent;
     return { ...shared, id:`template.${kind}`, category:'template', operationId:'quickModel',
       title:model.label, label:model.label,visibleInLibrary:template.visibleInLibrary,libraryCategory:template.category,libraryCategoryLabel:template.categoryLabel,
       synonyms:[kind,model.label,model.labelEn].filter(Boolean),
       description:model.description || template.description,
+      purpose:model.description||template.description,whenToUse:['This selected template matches the required structure; its complete parameters and placement contract are in this card.'],
       inputSchema:schema, schemaHash:contractHash(schema), defaults:template.defaults, fields:template.fields,placementPolicy:{...placementContract('quickModel'),defaultInsertionAnchor:model.defaultInsertionAnchor||'model-origin'},
+      placementSchema:PLACEMENT_SCHEMA,additionalDocs:['api.placement'],
+      callSchema:{...ADD_STEP_SCHEMA,properties:{...ADD_STEP_SCHEMA.properties,op:{const:'quickModel'},params:{type:'object',description:'Use this card inputSchema'},placement:{type:'object',description:'Use this card placementSchema'}}},
+      schemaRefs:{params:'inputSchema',placement:'placementSchema'},
+      parentContract:{opVersion:raw.version,schemaHash:raw.schemaHash},
+      mcpCall:{tool:'webcad_submit',method:'run',step:{method:'add',args:'Use this callSchema and current context; run supplies the parent version/hash'}},
       runtimeAvailability:'requires_ready_page',
-      usage:'相同叫法或近似名称可能对应多个工具；比较用途、结构、截面及参数含义后选择，不能只取第一个相似名称。Discovery card only. Use run method:add with op:quickModel and params.kind from minimalExample. Do not pass template IDs or this subset schemaHash to execute. run reads the parent operation version/hash.',
+      usage:'这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。',
       minimalExample:{op:'quickModel',params:template.minimalExample,refs:[]},
       normalExample:{op:'quickModel',params:template.normalExample,refs:[]},
       ...(kind==='sliderBuckle'?{sourceFreeJunction:{
@@ -536,7 +544,8 @@ function pageCards() {
       ...(card.id==='sketchProfile'?{closedPrimitiveRefs:{types:['rectangle','roundedRectangle','capsule'],loopEntry:{entityId:'<original-primitive-id>',reversed:false},expansion:'The original primitive reference expands internally to its ordered exact edges; do not guess derived edge IDs.',explicitLoopsAndRegions:true,rectangleOrigin:'Local XY lower-left; widthMm along +X and heightMm along +Y. heightMm is not extrusion depth.'},recipes:['recipes.rectangle-profile',...card.recipes]}:{}),
       placementPolicy:placementContract(card.id),
       placementSchema:PLACEMENT_SCHEMA,
-      callSchema:{...ADD_STEP_SCHEMA,properties:{...ADD_STEP_SCHEMA.properties,op:{const:card.id},params:card.inputSchema||{type:'object'}}},
+      callSchema:{...ADD_STEP_SCHEMA,properties:{...ADD_STEP_SCHEMA.properties,op:{const:card.id},params:{type:'object',description:'Use this card inputSchema'},placement:{type:'object',description:'Use this card placementSchema'}}},
+      schemaRefs:{params:'inputSchema',placement:'placementSchema'},
       mcpCall:{tool:'webcad_submit',method:'run',step:{method:'add',args:'Use callSchema; opVersion/schemaHash filled by run'}},
       ...(mechanicalIds.includes(card.id)?{docs:'api.mechanical',relatedTools:['getState','getTools','queryGeometry','run','feature.edit']}:{ }),
       ...(card.id==='refineShape'?{docs:'api.refine'}:{}),
