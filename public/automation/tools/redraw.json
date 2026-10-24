@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_view",
+    "method": "redraw",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "redraw({context}); 不接受额外字段。",
   "synonyms": [
     "redraw",
@@ -89,5 +94,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:af928bffa33660dfcf5a60c94f2f0283d1bd0e14d2d2b61086790474469f08c0"
+  "docsHash": "sha256:2c20e408998025dc3f7fa380a4370f7e233c89ed6b0c313c4a488abc34bac81f"
 }

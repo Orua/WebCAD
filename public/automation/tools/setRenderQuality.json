@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_view",
+    "method": "setRenderQuality",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
   "synonyms": [
     "setRenderQuality",
@@ -92,5 +97,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8feee802ba01a9f0941a094197cdf834710ba8dfd895a4503344e44929a99fe8"
+  "docsHash": "sha256:e1591fdb23c5cfc7b5fb4aed6d221482857ade110e2eaea823720940cbfd0d1a"
 }

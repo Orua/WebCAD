@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "waitFor",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。",
   "synonyms": [
     "waitFor",
@@ -72,5 +77,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:49c931dd44a49e9eccafab8309d1e3d649fe93e9884094f628e3edc905e00d4b"
+  "docsHash": "sha256:bc58ba559be03d2480cbe593e32f8080279adc200ba6a8d4471ffcad5b43f075"
 }

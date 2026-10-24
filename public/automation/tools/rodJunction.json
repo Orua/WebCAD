@@ -474,10 +474,393 @@
     "historyBinding": "legacy",
     "previewSupported": true
   },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "rodJunction"
+      },
+      "params": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "faceIds": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "radiusMm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 20,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        },
+        "required": [
+          "faceIds",
+          "radiusMm"
+        ],
+        "$schema": "https://json-schema.org/draft/2020-12/schema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": 1
+          },
+          "frame": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "world"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "snapshot"
+                  },
+                  "origin": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "quaternion": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "origin",
+                  "quaternion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "work"
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expectedFrameVersion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "saved"
+                  },
+                  "frameId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "frameId",
+                  "expectedFrameVersion"
+                ]
+              }
+            ]
+          },
+          "sourceAnchor": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "model-origin",
+                      "bottom-center",
+                      "bounds-center"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "point"
+                  },
+                  "point": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "point"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "named"
+                  },
+                  "anchorId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "anchorId"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "version",
+          "frame"
+        ]
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
   "docs": "api.mechanical",
   "runtimeAvailability": "requires_ready_page",
   "additionalDocs": [
-    "api.modeling-pitfalls"
+    "api.modeling-pitfalls",
+    "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
   "selectionGuide": {
@@ -533,5 +916,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:8cafa194f0d1b6c1ff89cf815fea84a25ecb6a1f11a5623780981393ca79cb09"
+  "docsHash": "sha256:43ed5e3668fbbfac1a3ba3d0b3186716b9601444a70c9e3fb8211582296766ca"
 }

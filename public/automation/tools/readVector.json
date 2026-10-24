@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "readVector",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "readVector({context,name,resourceId|text,scaleMm?:1,targetWidthMm?,entityIds?,bounds?:[minX,minY,maxX,maxY],layers?,offset?:0,limit?:500}); limit<=10000。文件先 files.register。",
   "synonyms": [
     "readVector",
@@ -94,5 +99,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e30f6502f08baaa90615a0bf9fa4ef5e1c5e93c855e661509bf83cce7e95ef04"
+  "docsHash": "sha256:6975444fd2e45a92c58fa7cb3230e58219e704845bfefe43911015495c796963"
 }

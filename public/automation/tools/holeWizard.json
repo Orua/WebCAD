@@ -748,9 +748,496 @@
     "historyBinding": "snapshot",
     "previewSupported": true
   },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "holeWizard"
+      },
+      "params": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "Hole type",
+            "enum": [
+              "plain",
+              "counterbore",
+              "countersink"
+            ],
+            "default": "plain"
+          },
+          "diameterMm": {
+            "type": "number",
+            "description": "Small hole diameter (mm)",
+            "exclusiveMinimum": 0,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "depthMm": {
+            "type": "number",
+            "description": "Blind depth according to depthReference (mm)",
+            "exclusiveMinimum": 0,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "through": {
+            "type": "boolean",
+            "description": "Through body along drilling axis",
+            "default": false
+          },
+          "drillPoint": {
+            "type": "string",
+            "description": "Blind bottom shape; omitted means flat",
+            "enum": [
+              "flat",
+              "angled"
+            ]
+          },
+          "drillPointAngleDeg": {
+            "type": "number",
+            "description": "Drill tip included angle; angled default 118 degrees",
+            "exclusiveMinimum": 0,
+            "exclusiveMaximum": 179,
+            "default": 118,
+            "unit": "deg",
+            "quantityKind": "angle",
+            "quantizationPolicy": "none"
+          },
+          "depthReference": {
+            "type": "string",
+            "description": "Angled blind depth: cylindrical segment length or total entrance-to-tip depth",
+            "enum": [
+              "cylindricalLength",
+              "tipDepth"
+            ]
+          },
+          "recessDiameterMm": {
+            "type": "number",
+            "description": "Counterbore/countersink opening diameter (mm)",
+            "exclusiveMinimum": 0,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "recessDepthMm": {
+            "type": "number",
+            "description": "Counterbore depth (mm)",
+            "exclusiveMinimum": 0,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "includedAngleDeg": {
+            "type": "number",
+            "description": "Countersink included angle in degrees",
+            "exclusiveMinimum": 0,
+            "exclusiveMaximum": 179,
+            "unit": "deg",
+            "quantityKind": "angle",
+            "quantizationPolicy": "none"
+          },
+          "x": {
+            "type": "number",
+            "description": "Cutter entrance X (mm)",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "y": {
+            "type": "number",
+            "description": "Cutter entrance Y (mm)",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "z": {
+            "type": "number",
+            "description": "Cutter entrance Z (mm)",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "axis": {
+            "type": "string",
+            "description": "Global axis",
+            "enum": [
+              "X",
+              "Y",
+              "Z"
+            ],
+            "default": "Z"
+          },
+          "direction": {
+            "type": "number",
+            "enum": [
+              1,
+              -1
+            ],
+            "default": 1,
+            "unit": "1",
+            "quantityKind": "direction",
+            "quantizationPolicy": "none"
+          }
+        },
+        "required": [
+          "kind",
+          "diameterMm",
+          "through",
+          "x",
+          "y",
+          "z"
+        ],
+        "additionalProperties": false,
+        "$schema": "https://json-schema.org/draft/2020-12/schema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": 1
+          },
+          "frame": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "world"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "snapshot"
+                  },
+                  "origin": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "quaternion": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "origin",
+                  "quaternion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "work"
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expectedFrameVersion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "saved"
+                  },
+                  "frameId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "frameId",
+                  "expectedFrameVersion"
+                ]
+              }
+            ]
+          },
+          "sourceAnchor": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "model-origin",
+                      "bottom-center",
+                      "bounds-center"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "point"
+                  },
+                  "point": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "point"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "named"
+                  },
+                  "anchorId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "anchorId"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "version",
+          "frame"
+        ]
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
   "runtimeAvailability": "requires_ready_page",
   "additionalDocs": [
-    "api.modeling-pitfalls"
+    "api.modeling-pitfalls",
+    "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
   "selectionGuide": {
@@ -830,5 +1317,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8bfd0c6d74c55223130fcccbb1e2ac41b6d9f8e6b2c776bfabfffb45c37165bf"
+  "docsHash": "sha256:d28294680fdfedc5c305b239b623a0a2ccd4c9bc3a135e9fe137fec30374d81f"
 }

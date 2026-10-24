@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "getServicesRequest",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
   "synonyms": [
     "getServicesRequest",
@@ -103,5 +108,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:df49b62f983627ff105783c444332b38dae9a980c15bff447603708791c7d03b"
+  "docsHash": "sha256:c8f88e58be10a5e9b5122ab142d74bb9d8da9558051c6248ab1244da2476d1e5"
 }

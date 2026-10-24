@@ -4,33 +4,6 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
-  "description": "getState({include?,compact?,fields?,sinceRevision?}={}); 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
-  "synonyms": [
-    "getState",
-    "工程状态",
-    "特征",
-    "实体",
-    "参数",
-    "基准",
-    "鼠标手柄"
-  ],
-  "inputContract": "getState({include?,compact?,fields?,sinceRevision?}={}); 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
-  "outputContract": "当前 context、stateSeq、referenceSystem、parameters、parameterValues、view 和 display；stateSeq 在页面实例内递增，覆盖选择/拓扑/工作坐标系/预览/就绪变化；sinceRevision 的 unchanged 只表示几何修订未变。kernelPerformance 返回最近成功重建的 totalMs、perFeatureMs、slowest 前10项、compiledReuse 和 compiledInvalidated。view.transform 为 {mode,bodyIds,attached,canDrag,blocker}，读回移动/旋转手柄与当前不可拖原因。不会默认返回导入源字节。",
-  "implementationStatus": "implemented",
-  "contractStatus": "page-method",
-  "runtimeAvailability": "requires_page",
-  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
-  "errorCodes": [
-    "PARAM_SCHEMA_INVALID",
-    "INSTANCE_MISMATCH"
-  ],
-  "argumentKeys": [
-    "include",
-    "compact",
-    "fields",
-    "sinceRevision"
-  ],
-  "unknownFields": "rejected",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -70,6 +43,38 @@
       }
     }
   },
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "getState",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
+  "description": "getState({include?,compact?,fields?,sinceRevision?}={}); 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
+  "synonyms": [
+    "getState",
+    "工程状态",
+    "特征",
+    "实体",
+    "参数",
+    "基准",
+    "鼠标手柄"
+  ],
+  "inputContract": "getState({include?,compact?,fields?,sinceRevision?}={}); 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
+  "outputContract": "当前 context、stateSeq、referenceSystem、parameters、parameterValues、view 和 display；stateSeq 在页面实例内递增，覆盖选择/拓扑/工作坐标系/预览/就绪变化；sinceRevision 的 unchanged 只表示几何修订未变。kernelPerformance 返回最近成功重建的 totalMs、perFeatureMs、slowest 前10项、compiledReuse 和 compiledInvalidated。view.transform 为 {mode,bodyIds,attached,canDrag,blocker}，读回移动/旋转手柄与当前不可拖原因。不会默认返回导入源字节。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "INSTANCE_MISMATCH"
+  ],
+  "argumentKeys": [
+    "include",
+    "compact",
+    "fields",
+    "sinceRevision"
+  ],
+  "unknownFields": "rejected",
   "selectionGuide": {
     "groupId": "discovery",
     "groupTitle": "连接、目录与文档",
@@ -123,5 +128,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:29bdcd092662bc9336b663ba32272dded13ce06e50c60f77bb069de553f702ad"
+  "docsHash": "sha256:7e0816c28a0203fab9c0ccd4e1a80ef2f6e3d44e450dc4dafe06f90ab7bf0751"
 }

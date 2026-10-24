@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "revision",
+  "mcpCall": {
+    "tool": "webcad_view",
+    "method": "updateModelLibrary",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "updateModelLibrary({context,expectedLibraryRevision,operation:move|restore,id?,index?})。move传内置id和移动后零起始index；restore恢复默认顺序。工具定义只读，不接受entry、library、脚本、upsert、remove或import。",
   "synonyms": [
     "updateModelLibrary",
@@ -91,5 +96,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a7b2f1457ddbd32ae265377385a3b3bd9b10d507ea45a66f3a0b2c8eb58ae947"
+  "docsHash": "sha256:d2265d3b3a263ba09454178b9ef1527bae0081448643ae53ff22bb07a115c586"
 }

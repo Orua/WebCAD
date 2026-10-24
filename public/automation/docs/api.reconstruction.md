@@ -14,6 +14,7 @@
 5. 每轮只做相关验证。具体失败先定位一个差异，再做一次有据修正。连续同机制失败且无新证据时记为未解决；新工具先修原始真实夹具，不为某货号硬编码，不枚举半径或放宽验收。
 6. 在同一窗口继续工作；保存/导出仅按任务要求进行。区分离线内核、当前页面提交、匹配显示、生成文件与写盘。记录取证/生成/验证/截图/传输的阶段耗时，自动阶段耗时不能称为端到端耗时。
 细节见readDocs({docId:'api.design-checks'})；材料检查的来源标签仍由调用者核对。
+多配件按 api.modeling.methods.staged-assembly 先交规划，按实际确认分批；定位按 api.placement 的结构化契约。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
 getMetalMaterials: contextPolicy=none

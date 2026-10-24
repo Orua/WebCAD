@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "info",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "info() 无参数。",
   "synonyms": [
     "info",
@@ -71,5 +76,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f6735f4fc709c6d9f879a729c8cc7d65876b5f1b1f98a7219b680b7e01793337"
+  "docsHash": "sha256:74fb30e9bb9811a39ba709d95849d1523c70e66c92f9d71ed1c5a59078863295"
 }

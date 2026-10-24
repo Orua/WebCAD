@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "measure",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
   "synonyms": [
     "measure",
@@ -81,5 +86,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8803556d6914cd4e01d7d50bc001a4d092601a07f6bb56c4fa54c3d34ce8ffe3"
+  "docsHash": "sha256:6f09ccf687502a6838b7851611e55be3fd19b22e04f3ebb331545d868297961f"
 }

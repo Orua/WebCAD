@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "measureRelation",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
   "synonyms": [
     "measureRelation",
@@ -75,5 +80,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fd0ba484cbb2dd806800dd0ebaeeb79d6098a13beba15caca735c09407676b48"
+  "docsHash": "sha256:3b5fcd099ebd4eca48f8bc6a5877b6f329d5298177a82d13a505f4c674056206"
 }

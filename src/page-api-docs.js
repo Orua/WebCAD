@@ -1,5 +1,7 @@
 import {LOGO_MACHINING_SCHEMA} from './logo-machining-optimization.js';
 import {AGENT_RUNTIME_GUIDANCE} from './agent-runtime-guidance.js';
+import {PLACEMENT_SCHEMA,PLACEMENT_GUIDE} from './placement-schema.js';
+import {PAGE_METHOD_SCHEMAS,ADD_STEP_SCHEMA,METHOD_TOOL} from './page-input-contracts.js';
 import {MODELING_DOCS} from './modeling-guidance.js';
 import {MODELING_PITFALLS} from './modeling-pitfalls.js';
 import {meshReliefSampleSchema} from './mesh/relief-sample.js';
@@ -71,6 +73,7 @@ const PAGE_METHODS = Object.freeze(['getMetalMaterials','setMetalMaterials','get
 const FILE_METHODS = Object.freeze(Object.keys(FILE_ARGUMENT_KEYS));
 const RELIEF_TAXONOMY = `浮雕 Agent 决策表\n输入/目标 | 工具 | 输出 | 限制\n作者制作的灰度高度图，毛发/纹理、打印 | meshHeightfieldRelief | 封闭网格/STL | 2049/边，1900000采样\n高度图局部抬高/压低/平滑/压平 | heightfieldSculpt，feature.edit追加params.sculpt | 网格/STL | 512笔，20000点\n网格与实体合并/挖出 | transform定位，再meshBoolean | 网格/STL | 2–16封闭实体\n恒深矢量LOGO | logo | BRep/STEP | 单精确面\n小图案或分层矢量、精确STEP | readRelief→relief | BRep/STEP | 4–65采样，32层\n精确浮雕局部修整 | reliefSculpt，prepareReliefSculpt→feature.edit | BRep | 7–65局部网格，128笔\n外凸圆柱浮雕 | relief | BRep | 外凸、角宽≤90°、总高≤R×20%、无旋转\n层间肩部过渡 | reliefShoulder | BRep | 需要Services\n已有STL局部修高 | sampleMeshRelief→meshReliefEdit | 网格 | 200000三角面\n圆形起伏底板 | meshReliefPlate | 网格 | 200000三角面\n照片/光影参考 | 先人工制作高度图，再meshHeightfieldRelief | 不直接加工 | 禁止把照片亮度当几何深度\nheightfieldSculpt和reliefSculpt是发现入口，执行真实feature.edit/prepareReliefSculpt，并非独立建模op。`;
 const PAGE_DOCS = Object.freeze({
+  'api.placement':PLACEMENT_GUIDE,
   ...MODELING_DOCS,
   'api.reading-map':READING_MAP,
   ...COMPLEX_GUIDES,
@@ -97,7 +100,7 @@ STEP/BREP同样可使用独立完整源资产（详见api.exact-source-assets）
   'api.knowledge-cache':KNOWLEDGE_GUIDANCE,
   'api.tool-selection':TOOL_SELECTION_DOC,
   'api.design-checks':DESIGN_INSPECTION_GUIDE,
-  'api.reconstruction':RECONSTRUCTION_WORKFLOW,
+  'api.reconstruction':RECONSTRUCTION_WORKFLOW+'\n多配件按 api.modeling.methods.staged-assembly 先交规划，按实际确认分批；定位按 api.placement 的结构化契约。',
   'api.relief': PATTERN_MACHINING_GUIDANCE+'\n\n'+'sampleReliefHeight({context,featureId,point:[x,y],draft?}) 只读吸取控制高度，与 UI Alt 吸管共用算法；返回 targetMm、quantity:height/depth、units:mm，可直接用于 flatten。点为图案局部[-.5,.5]，Y向上；轮廓外/孔洞内返回RELIEF_SAMPLE_OUTSIDE。draft不传读取工程，传入则采样该精修草稿；采样不修改工程。浮雕精修：prepareReliefSculpt 接收 featureId、strokes 与可选 draft，返回独立 deltaMm/mask 草稿；canCommit 为 true 后可请求 feature.edit 提交；executionCheck 与 UI 共用已知配方/分流预检，不能代替执行时来源、后台能力与未知任务核对。已配置后台时，大网格等不支持的精修配方提前返回 SERVICES_OPERATION_UNAVAILABLE，保留草稿、不降精度、不自动本地重算。原始 values/轮廓保留。抬高、压低、平滑、定高、填洼、削峰、锐化、恢复、遮罩共用局部坐标笔刷，支持 hardness 和 symmetry；凹雕抬高变浅、压低加深；定高字段 targetMm 在凹雕中表示深度。所有现有浮雕模式适用，STEP无来源数据不适用。后续面边编号可能失效，提前返回 blockers，不删除下游特征。 '+reliefNotes+' '+reliefLayerNotes+' files.register登记图像后readRelief({context,resourceId,name,samples:33,whiteHigh:false,style:"rounded",sourceInterpretation:"rasterArtwork"})返回values/regions/surfaceMode/aspectRatio/source。style:"rounded"按背景距离鼓起，style:"grayscale"保留灰度层次。flat/rounded的threshold默认0.5且须在0和1之间；grayscale轮廓阈值为1/255。透明像素属于背景。图片最多8 MiB/1600万像素；SVG支持基本形状、路径与渐变，文字需转路径，拒绝外部资源。run add op:relief，refs:[bodyId]，params:{faceId,widthMm,heightMm,depthMm,values,regions,surfaceMode,source,mode:"emboss",point:[x,y,z]}；平面可省point。不要丢弃regions而恢复矩形旧模式。preview.start/commit/cancel、feature.edit、history.undo与UI同路。',
   'api.refine': `清理分割线 refineShape：用于导入实体或建模后残留的同域分割，不用于删孔、补洞或圆角。先 connect({toolIds:['refineShape','getState','queryGeometry']})，核对 canExecute，再 run({context:当前requestContext,idempotencyKey:crypto.randomUUID(),steps:[{id:'clean',method:'add',args:{op:'refineShape',refs:[当前bodyId],params:{}}}]}）。仅一个封闭实体，最多400面/2000边。固定线性公差1e-7 mm、角公差1e-7 rad；不开放公差放大。采用独立 BREP 副本、OCCT ShapeUpgrade_UnifySameDomain，随后验证有效实体、外廓、体积和两个方向的材料差。无减少返回 NO_CHANGE；失败不写历史。UI 位于修饰→实体整理，选件后预览/应用，无数值参数。getState().bodies[].refineReport 返回 before/after 面边数、removedFaceCount、removedEdgeCount、removedMm3、addedMm3、volumeDeviationMm3、boundsDeviationMm。清理会重新编号边面，后续 queryGeometry 必须重新查询；上游历史保留，可撤销。现有布尔通常已自动整理，简单新建件返回 NO_CHANGE 是正常结果。`,
   'api.quick-hardware': `快捷模型包括 spring 弹簧、screw 螺丝、threadedSleeve 丝筒、domedPin 半圆钉。先 getTool({id:'template.screw'}) 或其他 template.kind 读完整 defaults、fields、inputSchema，然后 run({context,idempotencyKey,steps:[{id:'part',method:'add',args:{op:'quickModel',refs:[],params:{kind:'screw',headType:'flat',headWidthMm:6,headThicknessMm:2,threadSize:'M3',threadLengthMm:8,drive:'cross'}}}]})；每次使用新鲜 context 和唯一幂等键，默认放到当前参考位置。页面 API 中尺寸单位 mm。螺丝平头是圆柱头，沉头固定 0.20 mm 外缘直升位加圆锥，headThicknessMm 包含直升位；头的最下面位于参考位置，牙杆朝本地 +Z。槽型 cross/slotted/star/hex，默认十字，梅花由六组相切圆弧组成。M1–M12 支持卡内列出的粗牙规格，自动选螺距；实际 V 型牙槽不声称标准等级或配合公差，最长 100 圈。丝筒 upper bottom 在参考位置、本地 -Z 向下，face 是下端；从下端向 +Z 攻内牙，threadDepthMm 不超过总高，两端外径须大于名义螺牙直径。螺牙直径必须匹配支持的 M 粗牙直径。半圆钉只有 diameterMm、heightMm，由光滑 Bézier 母线旋转，平底在参考位置、凸面向 +Z，不要求球面。弹簧 radiusMm 是中心线半径，wireDiameterMm 是线径，pitchMm 是每圈轴向螺距，turns 是圈数，leftHanded 是左旋；螺距必须大于线径。getQuickModelUsage() 返回本浏览器累计成功创建次数和五个常用项；完整目录按简单优先，面板列表固定最小 240px，空间不足纵向滚动。仅新创建并提交后计数，不统计预览、失败、修改、撤销重做和打开工程。锣槽 faceGroove(refs:[bodyId],params:{faceId,lengthMm,widthMm,depthMm})；内车 innerTurn/外车 outerTurn(refs:[bodyId],params:{faceId,diameterMm,depthMm})。先 queryGeometry 选真实 planar faceId，工具沿该面的反向法线进入材料，中心用面面积中心；锣槽 X 为世界 X 在面上的投影（退化时世界 Y），宽方向保持右手系。内车移除给定直径的内圆柱材料，外车在给定深度内移除给定直径之外材料；不会把当前工作锚点再次应用到加工几何。选择只能是一个平面截面，非平面、没有切到材料或破坏单一有效实体会失败，来源不改。它们是实体几何操作，没有机床刀路或进给。读回 receipts、measure、queryGeometry 和 rendered revision；修改用 feature.edit，保存/STEP 导出用 files API。`,
@@ -423,6 +426,9 @@ function methodCard(name) {
     capture: ['REVISION_CONFLICT', 'CAPABILITY_UNAVAILABLE', 'DISPLAY_FAILED', 'CAPTURE_TIMEOUT'],
   };
   return { id: name, title: name, category: 'page-method', version: PAGE_DOC_VERSION, contextPolicy:contextPolicy(name),
+    ...(PAGE_METHOD_SCHEMAS[name]?{inputSchema:PAGE_METHOD_SCHEMAS[name]}:{}),mcpCall:{tool:AGENT_CONTRACT.methodTools[name]||'host-only',method:name,args:'Same inputSchema; webcad_submit also takes requestKey outside args'},
+    ...(name==='run'?{stepInputSchemas:{add:PAGE_METHOD_SCHEMAS.add,addMany:PAGE_METHOD_SCHEMAS.addMany},atomic:false}:{}),
+    ...(name==='resolvePlacement'?{docs:'api.placement',minimalExample:{context:{sessionId:'<live>',documentId:'<live>',documentInstanceId:'<live>'},op:'cylinder',params:{radius:3,height:10},refs:[],placement:{version:1,frame:{kind:'snapshot',origin:[0,0,0],quaternion:[0,0,0,1]},sourceAnchor:{kind:'bottom-center'}}}}:{}),
     ...(name==='run'?{docs:'api.run',minimalExample:{context:{sessionId:'<live sessionId>',documentId:'<live documentId>',documentInstanceId:'<live documentInstanceId>',expectedRevision:0},idempotencyKey:'<fresh unique key>',steps:[{id:'ring',method:'add',args:{op:'torus',params:{majorRadius:15,minorRadius:2.5}}},{id:'size',method:'measure',args:{bodyId:{$ref:'ring.createdBodyIds.0'}}}]},exampleInstructions:'替换完整 context 为本页最新 requestContext，幂等键为本次新请求生成；不要沿用示例 revision=0。先读取 torus/measure 完整卡。世界坐标、局部坐标及 relative/absolute 以对应工具卡和 placement 为准；居中实体不能假定从0开始，先读真实 bounds/center。',executeExample:{id:'rename',method:'execute',args:{action:'document.rename',args:{name:'示例工程'}}}}:{}),
     ...(name==='markLocation'?{docs:'api.location-marker',inputSchema:{type:'object',additionalProperties:false,required:['context'],properties:{context:{type:'object'},screen:{type:'array',minItems:2,maxItems:2,items:{type:'number',minimum:0,maximum:1}},active:{type:'boolean'}},not:{required:['screen','active']}}}:{}),
     description: input, synonyms: [name, ...synonyms.split(' ')], inputContract: input, outputContract: output,
@@ -529,6 +535,9 @@ function pageCards() {
       ...(card.id==='profileRevolve'?{recipes:[...(card.recipes||[]),'recipes.analytic-root-revolve']}:{}),
       ...(card.id==='sketchProfile'?{closedPrimitiveRefs:{types:['rectangle','roundedRectangle','capsule'],loopEntry:{entityId:'<original-primitive-id>',reversed:false},expansion:'The original primitive reference expands internally to its ordered exact edges; do not guess derived edge IDs.',explicitLoopsAndRegions:true,rectangleOrigin:'Local XY lower-left; widthMm along +X and heightMm along +Y. heightMm is not extrusion depth.'},recipes:['recipes.rectangle-profile',...card.recipes]}:{}),
       placementPolicy:placementContract(card.id),
+      placementSchema:PLACEMENT_SCHEMA,
+      callSchema:{...ADD_STEP_SCHEMA,properties:{...ADD_STEP_SCHEMA.properties,op:{const:card.id},params:card.inputSchema||{type:'object'}}},
+      mcpCall:{tool:'webcad_submit',method:'run',step:{method:'add',args:'Use callSchema; opVersion/schemaHash filled by run'}},
       ...(mechanicalIds.includes(card.id)?{docs:'api.mechanical',relatedTools:['getState','getTools','queryGeometry','run','feature.edit']}:{ }),
       ...(card.id==='refineShape'?{docs:'api.refine'}:{}),
       ...(card.id==='relief'?{docs:'api.relief'}:{}),
@@ -536,7 +545,7 @@ function pageCards() {
       ...(['transform','sketchProfile','profileExtrude','profileRepair'].includes(card.id)?{docs:'api.interaction'}:{}),
       runtimeAvailability: 'requires_ready_page',
       ...(['import','remove'].includes(card.id)?{executableOperation:false,contextPolicy:'revision',usage:card.id==='import'?'用files.register和files.import；不要调用add op:import':'用execute action:feature.remove；不要调用add op:remove'}:{}),
-      additionalDocs:['api.modeling-pitfalls'],
+      additionalDocs:['api.modeling-pitfalls','api.placement'],
       usage: ['import','remove'].includes(card.id) ? (card.id==='import'?'用files.register和files.import；不要调用add op:import':'用execute action:feature.remove；不要调用add op:remove') : 'Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. ' + (['C','T'].includes(PLACEMENT_POLICIES[card.id])||['faceHole','logo','transform','copy','mirror','linearPattern','circularPattern','split','planeSection','referenceExtrude'].includes(card.id)?'Explicit placement version 1 is enabled; read api.references. ':'Placement is not enabled for this operation. ') + (card.strictContract ? 'Strict v2 validation applies.' : 'Schema is advisory; kernel prerequisites and result verification still apply.'),
       minimalExample: { ...card.minimalExample,
         referenceInstructions: 'Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().' },

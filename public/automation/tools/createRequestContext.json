@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "createRequestContext",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
     "createRequestContext",
@@ -75,5 +80,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9b7458e3f069a48646b7c787f3db9e04e65142d21dc5b7b6d1b1a968137e266a"
+  "docsHash": "sha256:52a33b106216ce2675ea414102f9f4ff173345e7a68d34d42654068f09f6d9e9"
 }

@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "inspectThickness",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "inspectThickness({context,bodyId,mode:\"ray\",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:\"faces\",faceAId,faceBId,point；两面须平行且射线穿过连续材料。",
   "synonyms": [
     "inspectThickness",
@@ -73,5 +78,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ead2bee18ffb83b50bb350c5fad04cf1957e659aa4b4efac79f1c3093232347b"
+  "docsHash": "sha256:1898dcb64598ad44273cd347f9e3627f6a44a703228533ae68b0f49b146e82cf"
 }

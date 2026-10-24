@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "measureMass",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "measureMass({context,bodyId,materialId?})；测量当前对象体积，再按显式材料/对象材料/工程默认材料优先级计算。",
   "synonyms": [
     "measureMass",
@@ -71,5 +76,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f1b638df5d808092d5b4842ab1719f6f7a733d44fc800dde8210d519d3d3855e"
+  "docsHash": "sha256:b75a192837f79c3fb2a477056a50545bd6ee50b41353ce751ce4568681d04cd5"
 }

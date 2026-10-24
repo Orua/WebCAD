@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "recoverServicesJob",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "recoverServicesJob({jobId,reason,approved:true,acknowledgedState:\"interrupted\",idempotencyKey})。必须先用 getServicesJob 核对已停止旧任务。",
   "synonyms": [
     "recoverServicesJob",
@@ -100,5 +105,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f1d641a679902e497b1c6df3c54b4bb65faa598e25843e0aada5e15d03d8a17a"
+  "docsHash": "sha256:9f4c5f3c5f4d842cca9bda0e272f826a3e30b732863865fade395961d03c1136"
 }

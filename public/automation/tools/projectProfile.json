@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "projectProfile",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。",
   "synonyms": [
     "projectProfile",
@@ -86,5 +91,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f6d99cbf800372d787492d07f411a29946163a6988484b0935af3dd2969fb010"
+  "docsHash": "sha256:0e074cd4e386b1b30ca37547a12c752dbf11ec0daa52db2fc350fc22fa5bef8e"
 }

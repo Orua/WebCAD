@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "getBatchReceipt",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.",
   "synonyms": [
     "getBatchReceipt",
@@ -92,5 +97,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4a72c8354b2e9489f61795e02b68f1f807c6827fc7e8137bce628250c94a562e"
+  "docsHash": "sha256:b3b34c9f04b835903bc6615f3418532e7469bb64a650ea6a9e4b4087ef8d3310"
 }

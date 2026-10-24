@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "getServices",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "getServices()；正式入口默认跟随本站应用路径并使用网站登录；自定义地址支持本站相对路径或完整URL。配置存本地，专用授权仅存本标签会话。不会返回凭据。",
   "synonyms": [
     "getServices",
@@ -94,5 +99,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a3ecc2d24994b15eb90e1d08a2baafb2eddb9ade69782170d6fb4c7a84fb7eca"
+  "docsHash": "sha256:243728593f050eaa72ea0cff21df9f6fc5681374c6738c4e39e30d8ae0a77ded"
 }

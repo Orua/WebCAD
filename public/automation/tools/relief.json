@@ -2400,10 +2400,1558 @@
     "historyBinding": "legacy",
     "previewSupported": true
   },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "relief"
+      },
+      "params": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "faceId",
+          "sizeXMm",
+          "sizeYMm",
+          "reliefHeightMm"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "values"
+            ]
+          },
+          {
+            "required": [
+              "layers"
+            ]
+          }
+        ],
+        "properties": {
+          "layers": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 32,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "reliefHeightMm"
+              ],
+              "anyOf": [
+                {
+                  "required": [
+                    "regions"
+                  ]
+                },
+                {
+                  "required": [
+                    "strokes"
+                  ]
+                }
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "maxLength": 120
+                },
+                "sculpt": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "deltaMm",
+                    "mask"
+                  ],
+                  "properties": {
+                    "deltaMm": {
+                      "type": "array",
+                      "minItems": 4,
+                      "maxItems": 65,
+                      "items": {
+                        "type": "array",
+                        "minItems": 4,
+                        "maxItems": 65,
+                        "items": {
+                          "type": "number",
+                          "minimum": -20,
+                          "maximum": 20
+                        }
+                      }
+                    },
+                    "mask": {
+                      "type": "array",
+                      "minItems": 4,
+                      "maxItems": 65,
+                      "items": {
+                        "type": "array",
+                        "minItems": 4,
+                        "maxItems": 65,
+                        "items": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    }
+                  }
+                },
+                "localPatches": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "domainMm",
+                      "deltaMm",
+                      "protectionMm"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120,
+                        "pattern": "^[a-zA-Z0-9_-]+$"
+                      },
+                      "domainMm": {
+                        "type": "array",
+                        "minItems": 4,
+                        "maxItems": 4,
+                        "items": {
+                          "type": "number",
+                          "minimum": -500,
+                          "maximum": 500
+                        }
+                      },
+                      "deltaMm": {
+                        "type": "array",
+                        "minItems": 7,
+                        "maxItems": 65,
+                        "items": {
+                          "type": "array",
+                          "minItems": 7,
+                          "maxItems": 65,
+                          "items": {
+                            "type": "number",
+                            "minimum": -20,
+                            "maximum": 20
+                          }
+                        }
+                      },
+                      "mask": {
+                        "type": "array",
+                        "minItems": 7,
+                        "maxItems": 65,
+                        "items": {
+                          "type": "array",
+                          "minItems": 7,
+                          "maxItems": 65,
+                          "items": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          }
+                        }
+                      },
+                      "protectionMm": {
+                        "type": "number",
+                        "minimum": 0.02,
+                        "maximum": 20
+                      }
+                    }
+                  }
+                },
+                "startHeightMm": {
+                  "type": "number",
+                  "description": "Start height/depth from original host; requires supporting previous layer below this start",
+                  "minimum": 0,
+                  "maximum": 20
+                },
+                "reliefHeightMm": {
+                  "type": "number",
+                  "description": "当前层/起伏点的起伏高度 (mm)",
+                  "minimum": 0.01,
+                  "maximum": 20,
+                  "unit": "mm"
+                },
+                "mode": {
+                  "type": "string",
+                  "enum": [
+                    "emboss",
+                    "engrave"
+                  ]
+                },
+                "regions": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 1024,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "outer"
+                    ],
+                    "properties": {
+                      "outer": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 2000,
+                        "items": {
+                          "type": "array",
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "items": {
+                            "type": "number",
+                            "description": "Normalized contour coordinate",
+                            "minimum": -0.5,
+                            "maximum": 0.5
+                          }
+                        }
+                      },
+                      "holes": {
+                        "type": "array",
+                        "maxItems": 1024,
+                        "items": {
+                          "type": "array",
+                          "minItems": 3,
+                          "maxItems": 2000,
+                          "items": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": {
+                              "type": "number",
+                              "description": "Normalized contour coordinate",
+                              "minimum": -0.5,
+                              "maximum": 0.5
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "strokes": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 256,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "points",
+                      "widthMm"
+                    ],
+                    "properties": {
+                      "points": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2000,
+                        "items": {
+                          "type": "array",
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "items": {
+                            "type": "number",
+                            "description": "Normalized contour coordinate",
+                            "minimum": -0.5,
+                            "maximum": 0.5,
+                            "unit": "mm",
+                            "quantityKind": "length",
+                            "quantizationPolicy": "none"
+                          },
+                          "unit": "mm",
+                          "quantityKind": "length",
+                          "quantizationPolicy": "none"
+                        },
+                        "unit": "mm",
+                        "quantityKind": "length",
+                        "quantizationPolicy": "none"
+                      },
+                      "widthMm": {
+                        "type": "number",
+                        "description": "Full width of a round-ended open stroke (mm)",
+                        "exclusiveMinimum": 0,
+                        "maximum": 20,
+                        "unit": "mm",
+                        "quantityKind": "length",
+                        "quantizationPolicy": "none"
+                      }
+                    }
+                  }
+                },
+                "values": {
+                  "type": "array",
+                  "minItems": 4,
+                  "maxItems": 65,
+                  "items": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 65,
+                    "items": {
+                      "type": "number",
+                      "description": "Normalized height",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Ordered layers referencing the ORIGINAL host face. Emboss heights combine by union; engraving cuts below the host. Use explicit lower fill layers for shallow internal details. All layers commit as one undo step."
+          },
+          "strokes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 256,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "points",
+                "widthMm"
+              ],
+              "properties": {
+                "points": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2000,
+                  "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "number",
+                      "description": "Normalized contour coordinate",
+                      "minimum": -0.5,
+                      "maximum": 0.5,
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  },
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "widthMm": {
+                  "type": "number",
+                  "description": "Full width of a round-ended open stroke (mm)",
+                  "exclusiveMinimum": 0,
+                  "maximum": 20,
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                }
+              }
+            }
+          },
+          "maskStrategy": {
+            "type": "string",
+            "enum": [
+              "cutHoleSolids",
+              "faceWithHolesExtrude"
+            ],
+            "description": "Explicit contour construction strategy. One candidate, no silent switch or polyline retry; both retain supplied holes and fit tolerance."
+          },
+          "curvePolicy": {
+            "type": "string",
+            "enum": [
+              "fitWithinTolerance",
+              "preserveTopology"
+            ],
+            "description": "Explicit shared contour policy. preserveTopology keeps supplied segments on rings whose mutual clearance is <= twice the fit tolerance, before fitting; it never fills holes, changes source points or relaxes tolerance."
+          },
+          "compileLayers": {
+            "type": "string",
+            "enum": [
+              "logical",
+              "groupCompatible"
+            ],
+            "description": "Explicit compilation plan. Group contiguous uniform compatible layers with the same host, mode, absolute height and start; preserve all logical layers and member IDs. Sculpted, different-height/start/mode layers never merge."
+          },
+          "contourSnapMm": {
+            "type": "number",
+            "description": "Explicit 2D cleanup grid in mm; 0 preserves source points. Small gaps/holes below this resolution may merge. Each coordinate moves at most half a grid step.",
+            "minimum": 0,
+            "maximum": 0.05
+          },
+          "curveToleranceMm": {
+            "type": "number",
+            "description": "Explicit maximum source-vertex arc-fit deviation (mm); 0 keeps every polygon segment",
+            "minimum": 0,
+            "maximum": 0.05
+          },
+          "sculpt": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "deltaMm",
+              "mask"
+            ],
+            "properties": {
+              "deltaMm": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 65,
+                "items": {
+                  "type": "array",
+                  "minItems": 4,
+                  "maxItems": 65,
+                  "items": {
+                    "type": "number",
+                    "minimum": -20,
+                    "maximum": 20
+                  }
+                }
+              },
+              "mask": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 65,
+                "items": {
+                  "type": "array",
+                  "minItems": 4,
+                  "maxItems": 65,
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                }
+              }
+            }
+          },
+          "machiningIntent": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "version",
+              "requestedGeometry",
+              "sourceInterpretation",
+              "userIntentEvidence"
+            ],
+            "properties": {
+              "version": {
+                "type": "integer",
+                "const": 1
+              },
+              "requestedGeometry": {
+                "type": "string",
+                "enum": [
+                  "constantDepthContours",
+                  "layeredRelief",
+                  "continuousRelief",
+                  "mixed",
+                  "unspecified"
+                ]
+              },
+              "sourceInterpretation": {
+                "type": "string",
+                "enum": [
+                  "reviewedVectors",
+                  "rasterArtwork",
+                  "authoredHeightMap",
+                  "shadedReference",
+                  "sculptMesh"
+                ]
+              },
+              "userIntentEvidence": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1200
+              },
+              "sourceHash": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "emboss",
+                  "engrave"
+                ],
+                "unit": "1",
+                "quantityKind": "direction",
+                "quantizationPolicy": "none"
+              },
+              "dimensionsMm": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "width",
+                  "height"
+                ],
+                "properties": {
+                  "width": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 100000,
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  },
+                  "height": {
+                    "type": "number",
+                    "exclusiveMinimum": 0,
+                    "maximum": 100000,
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  }
+                }
+              },
+              "specifiedDepthsMm": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 32,
+                "items": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 100000
+                }
+              },
+              "targetPeakMm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100000
+              },
+              "preserve": {
+                "type": "array",
+                "maxItems": 32,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                }
+              },
+              "supportBinding": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "bodyId",
+                  "geometryFingerprint"
+                ],
+                "properties": {
+                  "bodyId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 150
+                  },
+                  "geometryFingerprint": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              },
+              "placementSnapshot": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "origin",
+                  "quaternion"
+                ],
+                "properties": {
+                  "origin": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number",
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  },
+                  "quaternion": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                      "type": "number",
+                      "unit": "1",
+                      "quantityKind": "direction",
+                      "quantizationPolicy": "none"
+                    },
+                    "unit": "1",
+                    "quantityKind": "direction",
+                    "quantizationPolicy": "none"
+                  }
+                }
+              }
+            }
+          },
+          "designBinding": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Strict fit→planar relief binding (version 1). Physical inputs are re-verified before every kernel execution; audit is provenance only.",
+            "required": [
+              "version",
+              "kind",
+              "datum",
+              "support",
+              "placement",
+              "field",
+              "controls",
+              "mask",
+              "audit"
+            ],
+            "properties": {
+              "version": {
+                "type": "integer",
+                "const": 1
+              },
+              "kind": {
+                "type": "string",
+                "const": "reliefDesignFit"
+              },
+              "datum": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "baselineMm"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "const": "authoredBaselineOnSelectedFace"
+                  },
+                  "baselineMm": {
+                    "type": "number"
+                  }
+                }
+              },
+              "support": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "sourceSha256",
+                  "faceId",
+                  "centerMm",
+                  "normal"
+                ],
+                "properties": {
+                  "sourceSha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "faceId": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "unit": "1",
+                    "quantityKind": "index",
+                    "quantizationPolicy": "none"
+                  },
+                  "centerMm": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number",
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  },
+                  "normal": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number",
+                      "unit": "1",
+                      "quantityKind": "direction",
+                      "quantizationPolicy": "none"
+                    },
+                    "unit": "1",
+                    "quantityKind": "direction",
+                    "quantizationPolicy": "none"
+                  }
+                }
+              },
+              "placement": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "originMm",
+                  "xDirection"
+                ],
+                "properties": {
+                  "originMm": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number",
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  },
+                  "xDirection": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "field": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "columns",
+                  "rows",
+                  "widthMm",
+                  "heightMm",
+                  "active",
+                  "fixedMask",
+                  "activeSha256",
+                  "fixedMaskSha256"
+                ],
+                "properties": {
+                  "columns": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 129
+                  },
+                  "rows": {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 129
+                  },
+                  "widthMm": {
+                    "type": "number",
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  },
+                  "heightMm": {
+                    "type": "number",
+                    "unit": "mm",
+                    "quantityKind": "length",
+                    "quantizationPolicy": "none"
+                  },
+                  "active": {
+                    "type": "string",
+                    "minLength": 4,
+                    "maxLength": 24000,
+                    "pattern": "^[A-Za-z0-9+/]+=*$"
+                  },
+                  "fixedMask": {
+                    "type": "string",
+                    "minLength": 4,
+                    "maxLength": 24000,
+                    "pattern": "^[A-Za-z0-9+/]+=*$"
+                  },
+                  "activeSha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "fixedMaskSha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              },
+              "controls": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "columns",
+                  "rows",
+                  "mode",
+                  "locked",
+                  "lockedSha256",
+                  "controlsSha256",
+                  "maxDeltaMm"
+                ],
+                "properties": {
+                  "columns": {
+                    "type": "integer",
+                    "minimum": 4,
+                    "maximum": 65
+                  },
+                  "rows": {
+                    "type": "integer",
+                    "minimum": 4,
+                    "maximum": 65
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "emboss",
+                      "engrave"
+                    ]
+                  },
+                  "locked": {
+                    "type": "string",
+                    "minLength": 4,
+                    "maxLength": 24000,
+                    "pattern": "^[A-Za-z0-9+/]+=*$"
+                  },
+                  "lockedSha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "controlsSha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "maxDeltaMm": {
+                    "type": "number"
+                  }
+                }
+              },
+              "mask": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "generator",
+                  "regionsSha256"
+                ],
+                "properties": {
+                  "generator": {
+                    "type": "string",
+                    "const": "analyzeDesignMask-rowflip-exact-collinear-v1"
+                  },
+                  "regionsSha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              },
+              "audit": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "designId",
+                  "draftRevision",
+                  "draftFingerprint",
+                  "fieldFingerprint",
+                  "optionsFingerprint",
+                  "metrics"
+                ],
+                "properties": {
+                  "deviationPolicy": {
+                    "type": "string",
+                    "enum": [
+                      "strict",
+                      "candidate"
+                    ]
+                  },
+                  "designId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "draftRevision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000000
+                  },
+                  "draftFingerprint": {
+                    "type": "string",
+                    "maxLength": 80
+                  },
+                  "fieldFingerprint": {
+                    "type": "string",
+                    "maxLength": 80
+                  },
+                  "optionsFingerprint": {
+                    "type": "string",
+                    "maxLength": 80
+                  },
+                  "servicesFirstFit": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "acceptanceToleranceMm"
+                    ],
+                    "properties": {
+                      "acceptanceToleranceMm": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "metrics": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "trainingMaxMm",
+                      "independentMaxMm",
+                      "protectionMaxMm",
+                      "deviationKind"
+                    ],
+                    "properties": {
+                      "trainingMaxMm": {
+                        "type": "number"
+                      },
+                      "independentMaxMm": {
+                        "type": "number"
+                      },
+                      "protectionMaxMm": {
+                        "type": "number"
+                      },
+                      "deviationKind": {
+                        "type": "string",
+                        "const": "sampled-not-global"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "localPatches": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "domainMm",
+                "deltaMm",
+                "protectionMm"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120,
+                  "pattern": "^[a-zA-Z0-9_-]+$"
+                },
+                "domainMm": {
+                  "type": "array",
+                  "minItems": 4,
+                  "maxItems": 4,
+                  "items": {
+                    "type": "number",
+                    "minimum": -500,
+                    "maximum": 500
+                  }
+                },
+                "deltaMm": {
+                  "type": "array",
+                  "minItems": 7,
+                  "maxItems": 65,
+                  "items": {
+                    "type": "array",
+                    "minItems": 7,
+                    "maxItems": 65,
+                    "items": {
+                      "type": "number",
+                      "minimum": -20,
+                      "maximum": 20
+                    }
+                  }
+                },
+                "mask": {
+                  "type": "array",
+                  "minItems": 7,
+                  "maxItems": 65,
+                  "items": {
+                    "type": "array",
+                    "minItems": 7,
+                    "maxItems": 65,
+                    "items": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                },
+                "protectionMm": {
+                  "type": "number",
+                  "minimum": 0.02,
+                  "maximum": 20
+                }
+              }
+            }
+          },
+          "faceId": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Current selected planar or convex cylindrical face index on refs[0]",
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "surfaceMode": {
+            "type": "string",
+            "enum": [
+              "smooth",
+              "flat"
+            ],
+            "description": "With regions: smooth heightfield or an exact planar crest at depthMm from the placement tangent plane. Legacy projects without regions keep their original rectangular heightfield."
+          },
+          "regions": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1024,
+            "description": "Independent silhouette, coordinates -0.5..0.5 in the image rectangle; outer contours and holes. Outside stays on the original host. Cylindrical X is developed arc length, projected along the placement normal.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "outer"
+              ],
+              "properties": {
+                "outer": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 2000,
+                  "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {
+                      "type": "number",
+                      "description": "Normalized contour coordinate",
+                      "minimum": -0.5,
+                      "maximum": 0.5
+                    }
+                  }
+                },
+                "holes": {
+                  "type": "array",
+                  "maxItems": 1024,
+                  "items": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 2000,
+                    "items": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number",
+                        "description": "Normalized contour coordinate",
+                        "minimum": -0.5,
+                        "maximum": 0.5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "point": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number",
+              "description": "World coordinate in mm",
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "description": "Required placement point on a cylindrical face; ignored for legacy planar placement",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "cylinderBaseMm": {
+            "type": "number",
+            "description": "仅外凸圆柱的基底层厚度 (mm)",
+            "minimum": 0.005,
+            "maximum": 1,
+            "unit": "mm"
+          },
+          "sizeXMm": {
+            "type": "number",
+            "description": "X 方向图案/平板宽度 (mm)",
+            "exclusiveMinimum": 0,
+            "maximum": 1000,
+            "unit": "mm"
+          },
+          "sizeYMm": {
+            "type": "number",
+            "description": "Y 方向图案/平板长度 (mm)",
+            "exclusiveMinimum": 0,
+            "maximum": 1000,
+            "unit": "mm"
+          },
+          "reliefHeightMm": {
+            "type": "number",
+            "description": "相对支撑面最大起伏高度 (mm)",
+            "minimum": 0.01,
+            "maximum": 20,
+            "unit": "mm"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "emboss",
+              "engrave"
+            ],
+            "default": "emboss"
+          },
+          "offsetXMm": {
+            "type": "number",
+            "description": "图案平面内X方向偏移 (mm)",
+            "unit": "mm"
+          },
+          "offsetYMm": {
+            "type": "number",
+            "description": "图案平面内Y方向偏移 (mm)",
+            "unit": "mm"
+          },
+          "angleDeg": {
+            "type": "number",
+            "description": "Rotation around outward face normal (degrees)",
+            "unit": "deg",
+            "quantityKind": "angle",
+            "quantizationPolicy": "none"
+          },
+          "values": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 65,
+            "items": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 65,
+              "items": {
+                "type": "number",
+                "description": "Normalized height control value",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sourceInterpretation": {
+                "type": "string",
+                "enum": [
+                  "rasterArtwork",
+                  "authoredHeightMap",
+                  "reviewedVectors",
+                  "shadedReference"
+                ]
+              },
+              "name": {
+                "type": "string",
+                "maxLength": 255
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "format": {
+                "type": "string",
+                "enum": [
+                  "jpg",
+                  "png",
+                  "svg",
+                  "grid"
+                ]
+              },
+              "style": {
+                "type": "string",
+                "enum": [
+                  "grayscale",
+                  "rounded",
+                  "flat"
+                ]
+              },
+              "whiteHigh": {
+                "type": "boolean"
+              },
+              "threshold": {
+                "type": "number",
+                "description": "Silhouette threshold",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "originalWidth": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "originalHeight": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "schemaVersion": {
+            "type": "integer",
+            "const": 2
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": 1
+          },
+          "frame": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "world"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "snapshot"
+                  },
+                  "origin": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "quaternion": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "origin",
+                  "quaternion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "work"
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expectedFrameVersion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "saved"
+                  },
+                  "frameId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "frameId",
+                  "expectedFrameVersion"
+                ]
+              }
+            ]
+          },
+          "sourceAnchor": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "model-origin",
+                      "bottom-center",
+                      "bounds-center"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "point"
+                  },
+                  "point": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "point"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "named"
+                  },
+                  "anchorId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "anchorId"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "version",
+          "frame"
+        ]
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
   "docs": "api.relief",
   "runtimeAvailability": "requires_ready_page",
   "additionalDocs": [
-    "api.modeling-pitfalls"
+    "api.modeling-pitfalls",
+    "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
   "selectionGuide": {
@@ -2487,5 +4035,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:368bfdf5212fd865a9d5e31dd30576d1363b33712b3478d24356302c4bb53321"
+  "docsHash": "sha256:74777f75e6e7c2063c46cb42dcae5c1279422edd27fee155b0da13055133137f"
 }

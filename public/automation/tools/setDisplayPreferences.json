@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_view",
+    "method": "setDisplayPreferences",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "setDisplayPreferences({context,values}); values 为部分配置，字段及范围见 api.display-preferences。",
   "synonyms": [
     "setDisplayPreferences",
@@ -93,5 +98,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:543c01749ebd4cbcc30b2a21d2878d8cc1a15bc047702beb33406a1ea2d9e9ec"
+  "docsHash": "sha256:6001f1f02d0ba84aa0cd60c2c45bc4ad40714f04fdd0f1b34775cb051ccb7074"
 }

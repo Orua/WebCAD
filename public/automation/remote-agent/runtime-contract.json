@@ -184,5 +184,1236 @@
       "maxSteps": 40
     }
   },
-  "contractHash": "sha256:3b1161680f4b7884d1aaa654375b0ec80ae025dcf98241f87c0c81e0c8464b52"
+  "methodSchemas": {
+    "add": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "op": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "type": "object"
+        },
+        "refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "placement": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "version": {
+              "const": 1
+            },
+            "frame": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "world"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "snapshot"
+                    },
+                    "origin": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "quaternion": {
+                      "type": "array",
+                      "minItems": 4,
+                      "maxItems": 4,
+                      "items": {
+                        "type": "number"
+                      },
+                      "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "origin",
+                    "quaternion"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "work"
+                    },
+                    "expectedFrameVersion": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "expectedFrameVersion"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "saved"
+                    },
+                    "frameId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "expectedFrameVersion": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "frameId",
+                    "expectedFrameVersion"
+                  ]
+                }
+              ]
+            },
+            "sourceAnchor": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "model-origin",
+                        "bottom-center",
+                        "bounds-center"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "point"
+                    },
+                    "point": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "point"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "named"
+                    },
+                    "anchorId": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "anchorId"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "version",
+            "frame"
+          ]
+        }
+      },
+      "required": [
+        "op",
+        "params"
+      ]
+    },
+    "addMany": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "features": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "key": {
+                "type": "string",
+                "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+              },
+              "op": {
+                "type": "string",
+                "minLength": 1
+              },
+              "params": {
+                "type": "object"
+              },
+              "refs": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "feature": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "required": [
+                        "feature"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120
+              },
+              "placement": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "version": {
+                    "const": 1
+                  },
+                  "frame": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "kind": {
+                            "const": "world"
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "kind": {
+                            "const": "snapshot"
+                          },
+                          "origin": {
+                            "type": "array",
+                            "minItems": 3,
+                            "maxItems": 3,
+                            "items": {
+                              "type": "number"
+                            }
+                          },
+                          "quaternion": {
+                            "type": "array",
+                            "minItems": 4,
+                            "maxItems": 4,
+                            "items": {
+                              "type": "number"
+                            },
+                            "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "origin",
+                          "quaternion"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "kind": {
+                            "const": "work"
+                          },
+                          "expectedFrameVersion": {
+                            "type": "integer",
+                            "minimum": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "expectedFrameVersion"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "kind": {
+                            "const": "saved"
+                          },
+                          "frameId": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "expectedFrameVersion": {
+                            "type": "integer",
+                            "minimum": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "frameId",
+                          "expectedFrameVersion"
+                        ]
+                      }
+                    ]
+                  },
+                  "sourceAnchor": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "kind": {
+                            "enum": [
+                              "model-origin",
+                              "bottom-center",
+                              "bounds-center"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "kind": {
+                            "const": "point"
+                          },
+                          "point": {
+                            "type": "array",
+                            "minItems": 3,
+                            "maxItems": 3,
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "point"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "kind": {
+                            "const": "named"
+                          },
+                          "anchorId": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "anchorId"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "version",
+                  "frame"
+                ]
+              }
+            },
+            "required": [
+              "key",
+              "op",
+              "params"
+            ]
+          }
+        }
+      },
+      "required": [
+        "features"
+      ]
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId",
+            "expectedRevision"
+          ]
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 40,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+              },
+              "method": {
+                "type": "string",
+                "minLength": 1
+              },
+              "args": {
+                "type": "object"
+              },
+              "stage": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              }
+            },
+            "required": [
+              "id",
+              "method"
+            ]
+          }
+        }
+      },
+      "required": [
+        "context",
+        "idempotencyKey",
+        "steps"
+      ]
+    },
+    "resolvePlacement": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId"
+          ]
+        },
+        "op": {
+          "type": "string",
+          "minLength": 1
+        },
+        "params": {
+          "type": "object"
+        },
+        "refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "placement": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "version": {
+              "const": 1
+            },
+            "frame": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "world"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "snapshot"
+                    },
+                    "origin": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "quaternion": {
+                      "type": "array",
+                      "minItems": 4,
+                      "maxItems": 4,
+                      "items": {
+                        "type": "number"
+                      },
+                      "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "origin",
+                    "quaternion"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "work"
+                    },
+                    "expectedFrameVersion": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "expectedFrameVersion"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "saved"
+                    },
+                    "frameId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "expectedFrameVersion": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "frameId",
+                    "expectedFrameVersion"
+                  ]
+                }
+              ]
+            },
+            "sourceAnchor": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "model-origin",
+                        "bottom-center",
+                        "bounds-center"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "point"
+                    },
+                    "point": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "point"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "named"
+                    },
+                    "anchorId": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "anchorId"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "version",
+            "frame"
+          ]
+        }
+      },
+      "required": [
+        "context",
+        "op",
+        "params",
+        "refs",
+        "placement"
+      ]
+    },
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId"
+          ]
+        },
+        "maxWidth": {
+          "type": "integer",
+          "minimum": 64,
+          "maximum": 4096
+        },
+        "format": {
+          "enum": [
+            "png",
+            "webp"
+          ]
+        },
+        "quality": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "context"
+      ]
+    },
+    "setView": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId"
+          ]
+        },
+        "direction": {
+          "enum": [
+            "top",
+            "bottom",
+            "front",
+            "back",
+            "left",
+            "right",
+            "side",
+            "iso"
+          ]
+        },
+        "projection": {
+          "enum": [
+            "orthographic",
+            "perspective"
+          ]
+        },
+        "fit": {
+          "type": "boolean"
+        },
+        "interactionPhase": {
+          "enum": [
+            "start",
+            "update",
+            "end"
+          ]
+        },
+        "selectedIds": {
+          "type": "array",
+          "maxItems": 200,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "section": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "axis": {
+              "enum": [
+                "X",
+                "Y",
+                "Z"
+              ]
+            },
+            "position": {
+              "type": "number"
+            },
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "axis",
+            "position",
+            "enabled"
+          ]
+        },
+        "display": {
+          "enum": [
+            "solid",
+            "edges",
+            "wire",
+            "transparentEdges"
+          ]
+        },
+        "grid": {
+          "type": "boolean"
+        },
+        "snap": {
+          "type": "boolean"
+        },
+        "gizmo": {
+          "enum": [
+            "off",
+            "translate",
+            "rotate"
+          ]
+        },
+        "selectionMode": {
+          "enum": [
+            "view",
+            "body",
+            "face",
+            "edge"
+          ]
+        },
+        "camera": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "position": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "number"
+              }
+            },
+            "target": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          "required": [
+            "position",
+            "target"
+          ]
+        },
+        "language": {
+          "enum": [
+            "zh",
+            "en"
+          ]
+        },
+        "temporaryDisplay": {
+          "enum": [
+            "normal",
+            "selectedOnly",
+            "transparentOthers"
+          ]
+        },
+        "anchorVisible": {
+          "type": "boolean"
+        },
+        "panels": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "left": {
+              "type": "boolean"
+            },
+            "right": {
+              "type": "boolean"
+            }
+          },
+          "required": []
+        },
+        "toolbar": {
+          "type": "boolean"
+        },
+        "workspace": {
+          "enum": [
+            "modeling",
+            "library",
+            "agent"
+          ]
+        },
+        "libraryMode": {
+          "enum": [
+            "cards",
+            "list"
+          ]
+        },
+        "focus": {
+          "type": "boolean"
+        },
+        "modelLibraryChange": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "context"
+      ]
+    },
+    "queryGeometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId"
+          ]
+        },
+        "bodyId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "face",
+            "edge"
+          ]
+        },
+        "filter": {
+          "type": "object"
+        },
+        "requireUnique": {
+          "type": "boolean"
+        },
+        "expectedCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      },
+      "required": [
+        "context",
+        "bodyId",
+        "kind"
+      ]
+    },
+    "getState": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "include": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "summary",
+              "features",
+              "bodies",
+              "bodiesLite",
+              "selection",
+              "capabilities",
+              "references",
+              "reliefDesigns"
+            ]
+          }
+        },
+        "compact": {
+          "type": "boolean"
+        },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          }
+        },
+        "sinceRevision": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": []
+    }
+  },
+  "contextPolicies": {
+    "getBatchReceipt": "none",
+    "connect": "none",
+    "info": "none",
+    "getState": "none",
+    "waitFor": "none",
+    "getAgentPanel": "none",
+    "getHistory": "none",
+    "searchTools": "none",
+    "getTools": "none",
+    "getTool": "none",
+    "readDocs": "none",
+    "getMaterials": "none",
+    "measureMass": "identity",
+    "queryGeometry": "identity",
+    "queryReferences": "identity",
+    "resolvePlacement": "identity",
+    "measure": "identity",
+    "measureRelation": "identity",
+    "inspectDesign": "identity",
+    "inspectProfile": "identity",
+    "inspectConstraints": "identity",
+    "inspectFit": "identity",
+    "inspectThickness": "identity",
+    "inspectDraft": "identity",
+    "inspectPrintability": "identity",
+    "files.capabilities": "none",
+    "planPatternMachining": "identity",
+    "prepareProfileEdit": "identity",
+    "projectProfile": "identity",
+    "sampleMeshRelief": "identity",
+    "sampleReliefHeight": "identity",
+    "prepareReliefSculpt": "identity",
+    "readRelief": "identity",
+    "readVector": "identity",
+    "connectVector": "none",
+    "fitProfile": "identity",
+    "traceTwinWindow": "identity",
+    "planAlignment": "identity",
+    "getUILayout": "none",
+    "getQuickModelUsage": "none",
+    "inspectRound": "identity",
+    "getModelLibrary": "none",
+    "resolveModelLibrary": "identity",
+    "probeBlendRadius": "identity",
+    "getServices": "none",
+    "getServicesCapabilities": "none",
+    "getServicesRouting": "none",
+    "readLogo": "identity",
+    "reviewLogo": "identity",
+    "logoWizard": "identity",
+    "reliefDesignField": "revision",
+    "reliefDesignReference": "revision",
+    "reliefDesignFit": "revision",
+    "prepareReliefDesignRelief": "revision",
+    "setView": "identity",
+    "setRenderQuality": "identity",
+    "setDisplayPreferences": "identity",
+    "selectRectangle": "identity",
+    "redraw": "identity",
+    "capture": "identity",
+    "updateModelLibrary": "revision",
+    "markLocation": "revision",
+    "execute": "revision",
+    "files.import": "revision",
+    "copySelection": "revision",
+    "pasteSelection": "revision",
+    "recoverKernel": "revision",
+    "files.save": "revision",
+    "files.export": "revision",
+    "files.reattach": "none",
+    "createDrawing": "revision",
+    "exportDrawing": "revision",
+    "run": "revision",
+    "add": "revision",
+    "addMany": "revision"
+  },
+  "methodTools": {
+    "getBatchReceipt": "webcad_read",
+    "connect": "webcad_read",
+    "info": "webcad_read",
+    "getState": "webcad_read",
+    "waitFor": "webcad_read",
+    "getAgentPanel": "webcad_read",
+    "getHistory": "webcad_read",
+    "searchTools": "webcad_read",
+    "getTools": "webcad_read",
+    "getTool": "webcad_read",
+    "readDocs": "webcad_read",
+    "getMaterials": "webcad_read",
+    "measureMass": "webcad_read",
+    "queryGeometry": "webcad_read",
+    "queryReferences": "webcad_read",
+    "resolvePlacement": "webcad_read",
+    "measure": "webcad_read",
+    "measureRelation": "webcad_read",
+    "inspectDesign": "webcad_read",
+    "inspectProfile": "webcad_read",
+    "inspectConstraints": "webcad_read",
+    "inspectFit": "webcad_read",
+    "inspectThickness": "webcad_read",
+    "inspectDraft": "webcad_read",
+    "inspectPrintability": "webcad_read",
+    "files.capabilities": "webcad_read",
+    "planPatternMachining": "webcad_read",
+    "prepareProfileEdit": "webcad_read",
+    "projectProfile": "webcad_read",
+    "sampleMeshRelief": "webcad_read",
+    "sampleReliefHeight": "webcad_read",
+    "prepareReliefSculpt": "webcad_read",
+    "readRelief": "webcad_read",
+    "readVector": "webcad_read",
+    "connectVector": "webcad_read",
+    "fitProfile": "webcad_read",
+    "traceTwinWindow": "webcad_read",
+    "planAlignment": "webcad_read",
+    "getUILayout": "webcad_read",
+    "getQuickModelUsage": "webcad_read",
+    "inspectRound": "webcad_read",
+    "getModelLibrary": "webcad_read",
+    "resolveModelLibrary": "webcad_read",
+    "probeBlendRadius": "webcad_read",
+    "getServices": "webcad_read",
+    "getServicesCapabilities": "webcad_read",
+    "getServicesRouting": "webcad_read",
+    "readLogo": "webcad_read",
+    "reviewLogo": "webcad_read",
+    "logoWizard": "webcad_read",
+    "reliefDesignField": "webcad_read",
+    "reliefDesignReference": "webcad_read",
+    "reliefDesignFit": "webcad_read",
+    "prepareReliefDesignRelief": "webcad_read",
+    "setView": "webcad_view",
+    "setRenderQuality": "webcad_view",
+    "setDisplayPreferences": "webcad_view",
+    "selectRectangle": "webcad_view",
+    "redraw": "webcad_view",
+    "capture": "webcad_view",
+    "updateModelLibrary": "webcad_view",
+    "markLocation": "webcad_view",
+    "files.save": "webcad_artifact",
+    "files.export": "webcad_artifact",
+    "files.reattach": "webcad_artifact",
+    "createDrawing": "webcad_artifact",
+    "exportDrawing": "webcad_artifact",
+    "run": "webcad_submit",
+    "execute": "webcad_submit",
+    "files.import": "webcad_submit",
+    "copySelection": "webcad_submit",
+    "pasteSelection": "webcad_submit",
+    "recoverKernel": "webcad_submit"
+  },
+  "contractHash": "sha256:12a3aa191618bc005938dbf9c2d8af4469e8a5c6e41399edaf09b026704868ec"
 }

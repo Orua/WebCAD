@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "identity",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "fitProfile",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "fitProfile({context,kind:\"circle\"|\"line\",plane?:\"XY\"|\"XZ\"|\"YZ\",points:[[u,v],...],maxResidualMm?}); 3–1000 点。",
   "synonyms": [
     "fitProfile",
@@ -88,5 +93,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7dec4de104d8136ee21279d9bbdf0357331f0de517f2f18604a141ee002adce8"
+  "docsHash": "sha256:8150c5c986417647e8eb27cc20f655da6a8e96d2803781138611539cebbea073"
 }

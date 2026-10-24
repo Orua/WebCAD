@@ -97,6 +97,67 @@ function contextPolicy(method) {
   return "revision";
 }
 
+// src/placement-schema.js
+var vectorSchema = { type: "array", minItems: 3, maxItems: 3, items: { type: "number" } };
+var quaternionSchema = { type: "array", minItems: 4, maxItems: 4, items: { type: "number" }, description: "Normalized quaternion [x,y,z,w]; runtime verifies unit length." };
+var object = (properties, required = Object.keys(properties)) => ({ type: "object", additionalProperties: false, properties, required });
+var FRAME_SCHEMA = { oneOf: [
+  object({ kind: { const: "world" } }),
+  object({ kind: { const: "snapshot" }, origin: vectorSchema, quaternion: quaternionSchema }),
+  object({ kind: { const: "work" }, expectedFrameVersion: { type: "integer", minimum: 1 } }),
+  object({ kind: { const: "saved" }, frameId: { type: "string", minLength: 1 }, expectedFrameVersion: { type: "integer", minimum: 1 } })
+] };
+var SOURCE_ANCHOR_SCHEMA = { oneOf: [
+  object({ kind: { enum: ["model-origin", "bottom-center", "bounds-center"] } }),
+  object({ kind: { const: "point" }, point: vectorSchema }),
+  object({ kind: { const: "named" }, anchorId: { type: "string", minLength: 1 } })
+] };
+var PLACEMENT_SCHEMA = object({ version: { const: 1 }, frame: FRAME_SCHEMA, sourceAnchor: SOURCE_ANCHOR_SCHEMA }, ["version", "frame"]);
+
+// src/page-input-contracts.js
+var str = { type: "string", minLength: 1 };
+var object2 = (properties, required = []) => ({ type: "object", additionalProperties: false, properties, required });
+var IDENTITY_CONTEXT_SCHEMA = object2({ sessionId: str, documentId: str, documentInstanceId: str, revision: { type: "integer", minimum: 0 }, expectedRevision: { type: "integer", minimum: 0 } }, ["sessionId", "documentId", "documentInstanceId"]);
+var revisionContext = { ...IDENTITY_CONTEXT_SCHEMA, required: ["sessionId", "documentId", "documentInstanceId", "expectedRevision"] };
+var ADD_STEP_SCHEMA = object2({ op: str, params: { type: "object" }, refs: { type: "array", items: str }, name: { type: "string", minLength: 1, maxLength: 120 }, placement: PLACEMENT_SCHEMA }, ["op", "params"]);
+var planFeature = { ...ADD_STEP_SCHEMA, required: ["key", "op", "params"], properties: { key: { type: "string", pattern: "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$" }, ...ADD_STEP_SCHEMA.properties, refs: { type: "array", items: { oneOf: [str, object2({ feature: str }, ["feature"])] } } } };
+var STEP_SCHEMA = object2({ id: { type: "string", pattern: "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$" }, method: str, args: { type: "object" }, stage: { type: "string", minLength: 1, maxLength: 80 } }, ["id", "method"]);
+var boolean = { type: "boolean" };
+var vector = vectorSchema;
+var PAGE_METHOD_SCHEMAS = {
+  add: ADD_STEP_SCHEMA,
+  addMany: object2({ features: { type: "array", minItems: 1, maxItems: 64, items: planFeature } }, ["features"]),
+  run: object2({ context: revisionContext, idempotencyKey: { type: "string", minLength: 1, maxLength: 80 }, steps: { type: "array", minItems: 1, maxItems: LIMITS.batch.maxSteps, items: STEP_SCHEMA } }, ["context", "idempotencyKey", "steps"]),
+  resolvePlacement: object2({ context: IDENTITY_CONTEXT_SCHEMA, op: str, params: { type: "object" }, refs: { type: "array", items: str }, placement: PLACEMENT_SCHEMA }, ["context", "op", "params", "refs", "placement"]),
+  capture: object2({ context: IDENTITY_CONTEXT_SCHEMA, maxWidth: { type: "integer", minimum: 64, maximum: 4096 }, format: { enum: ["png", "webp"] }, quality: { type: "number", exclusiveMinimum: 0, maximum: 1 } }, ["context"]),
+  setView: object2({
+    context: IDENTITY_CONTEXT_SCHEMA,
+    direction: { enum: ["top", "bottom", "front", "back", "left", "right", "side", "iso"] },
+    projection: { enum: ["orthographic", "perspective"] },
+    fit: boolean,
+    interactionPhase: { enum: ["start", "update", "end"] },
+    selectedIds: { type: "array", maxItems: 200, uniqueItems: true, items: str },
+    section: object2({ axis: { enum: ["X", "Y", "Z"] }, position: { type: "number" }, enabled: boolean }, ["axis", "position", "enabled"]),
+    display: { enum: ["solid", "edges", "wire", "transparentEdges"] },
+    grid: boolean,
+    snap: boolean,
+    gizmo: { enum: ["off", "translate", "rotate"] },
+    selectionMode: { enum: ["view", "body", "face", "edge"] },
+    camera: object2({ position: vector, target: vector }, ["position", "target"]),
+    language: { enum: ["zh", "en"] },
+    temporaryDisplay: { enum: ["normal", "selectedOnly", "transparentOthers"] },
+    anchorVisible: boolean,
+    panels: object2({ left: boolean, right: boolean }),
+    toolbar: boolean,
+    workspace: { enum: ["modeling", "library", "agent"] },
+    libraryMode: { enum: ["cards", "list"] },
+    focus: boolean,
+    modelLibraryChange: { type: "object" }
+  }, ["context"]),
+  queryGeometry: object2({ context: IDENTITY_CONTEXT_SCHEMA, bodyId: str, kind: { enum: ["face", "edge"] }, filter: { type: "object" }, requireUnique: boolean, expectedCount: { type: "integer", minimum: 1, maximum: 1e5 }, limit: { type: "integer", minimum: 1, maximum: 100 }, cursor: { type: "string", minLength: 1, maxLength: 2048 } }, ["context", "bodyId", "kind"]),
+  getState: object2({ include: { type: "array", items: { enum: ["summary", "features", "bodies", "bodiesLite", "selection", "capabilities", "references", "reliefDesigns"] } }, compact: boolean, fields: { type: "array", minItems: 1, maxItems: 32, items: { type: "string", minLength: 1, maxLength: 40 } }, sinceRevision: { type: "integer", minimum: 0 } })
+};
+
 // src/error-recovery.js
 var rule = (id, codes, reason, next, tools = [], options = {}) => ({ id, codes: new Set(codes.split(" ").filter(Boolean)), reason, next, tools, ...options });
 var rules = [
@@ -371,7 +432,10 @@ var contract = {
   editMethods: [...EDIT_METHODS].sort(),
   exportMethods: [...EXPORT_METHODS].sort(),
   // Hosts read timeouts and byte limits from here; WebCAD is their single source.
-  limits: { transport: { ...LIMITS.transport }, batch: { ...LIMITS.batch } }
+  limits: { transport: { ...LIMITS.transport }, batch: { ...LIMITS.batch } },
+  methodSchemas: PAGE_METHOD_SCHEMAS,
+  contextPolicies: Object.fromEntries([...READ_METHODS, ...VIEW_METHODS, ...EDIT_METHODS, ...EXPORT_METHODS, "run", "add", "addMany"].map((name) => [name, contextPolicy(name)])),
+  methodTools: Object.fromEntries([...READ_METHODS, ...VIEW_METHODS, ...EXPORT_METHODS, ...JOB_METHODS].map((name) => [name, VIEW_METHODS.has(name) ? "webcad_view" : EXPORT_METHODS.has(name) ? "webcad_artifact" : READ_METHODS.has(name) ? "webcad_read" : "webcad_submit"]))
 };
 var AGENT_CONTRACT = Object.freeze({ ...contract, contractHash: contractHash(contract) });
 function editsDocument(payload) {

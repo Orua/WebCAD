@@ -897,9 +897,588 @@
     "historyBinding": "snapshot",
     "previewSupported": true
   },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "copy"
+      },
+      "params": {
+        "type": "object",
+        "properties": {
+          "align": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "axis",
+              "to",
+              "valueMm"
+            ],
+            "properties": {
+              "axis": {
+                "type": "string",
+                "description": "World bounding-box axis",
+                "enum": [
+                  "x",
+                  "y",
+                  "z"
+                ]
+              },
+              "to": {
+                "type": "string",
+                "description": "Recomputed source bounds side",
+                "enum": [
+                  "min",
+                  "max",
+                  "center"
+                ]
+              },
+              "valueMm": {
+                "type": "number",
+                "description": "Target world coordinate (mm)"
+              }
+            }
+          },
+          "positionMode": {
+            "type": "string",
+            "description": "relative offset or absolute bounding-box center after rotation/scaling",
+            "enum": [
+              "relative",
+              "absolute"
+            ]
+          },
+          "x": {
+            "type": "number",
+            "description": "X translation (mm)",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "y": {
+            "type": "number",
+            "description": "Y translation (mm)",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "z": {
+            "type": "number",
+            "description": "Z translation (mm)",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "rx": {
+            "type": "number",
+            "description": "X rotation (degrees)",
+            "unit": "deg",
+            "quantityKind": "angle",
+            "quantizationPolicy": "none"
+          },
+          "ry": {
+            "type": "number",
+            "description": "Y rotation (degrees)",
+            "unit": "deg",
+            "quantityKind": "angle",
+            "quantizationPolicy": "none"
+          },
+          "rz": {
+            "type": "number",
+            "description": "Z rotation (degrees)",
+            "unit": "deg",
+            "quantityKind": "angle",
+            "quantizationPolicy": "none"
+          },
+          "scale": {
+            "type": "number",
+            "description": "Uniform dimensionless scale",
+            "exclusiveMinimum": 0,
+            "unit": "1",
+            "quantityKind": "scalar",
+            "quantizationPolicy": "none"
+          },
+          "mode": {
+            "type": "string",
+            "description": "Explicit spatial mode",
+            "enum": [
+              "translate",
+              "toPoint",
+              "rotate",
+              "scale",
+              "align"
+            ]
+          },
+          "delta": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "targetPoint": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "orientation": {
+            "type": "string",
+            "description": "Preserve or align to work frame",
+            "enum": [
+              "preserve",
+              "align-frame"
+            ]
+          },
+          "pivot": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "axisVector": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "unit": "1",
+              "quantityKind": "direction",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm",
+            "unit": "1",
+            "quantityKind": "direction",
+            "quantizationPolicy": "none"
+          },
+          "angleDeg": {
+            "type": "number",
+            "description": "Signed rotation angle (degrees)",
+            "unit": "deg",
+            "quantityKind": "angle",
+            "quantizationPolicy": "none"
+          },
+          "sourcePoint": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "sourceAxis": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "sourceUp": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "targetAxis": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "targetUp": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "World coordinate [x,y,z] in mm"
+          },
+          "axisRelation": {
+            "type": "string",
+            "description": "Same or opposite axis direction",
+            "enum": [
+              "same",
+              "opposite"
+            ]
+          },
+          "gapMm": {
+            "type": "number",
+            "description": "Signed gap along target axis (mm)",
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "twistAngleDeg": {
+            "type": "number",
+            "description": "Explicit in-plane twist angle (degrees)"
+          }
+        },
+        "required": [],
+        "additionalProperties": false,
+        "$schema": "https://json-schema.org/draft/2020-12/schema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "version": {
+            "const": 1
+          },
+          "frame": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "world"
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "snapshot"
+                  },
+                  "origin": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "quaternion": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                      "type": "number"
+                    },
+                    "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "origin",
+                  "quaternion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "work"
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "expectedFrameVersion"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "saved"
+                  },
+                  "frameId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "expectedFrameVersion": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "frameId",
+                  "expectedFrameVersion"
+                ]
+              }
+            ]
+          },
+          "sourceAnchor": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "model-origin",
+                      "bottom-center",
+                      "bounds-center"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "point"
+                  },
+                  "point": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "point"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "named"
+                  },
+                  "anchorId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "kind",
+                  "anchorId"
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "version",
+          "frame"
+        ]
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
   "runtimeAvailability": "requires_ready_page",
   "additionalDocs": [
-    "api.modeling-pitfalls"
+    "api.modeling-pitfalls",
+    "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
   "selectionGuide": {
@@ -947,5 +1526,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:196d8fc234538023b0225d6139ce18c791b9510bd5dae5b23ca37e62b69f4fa2"
+  "docsHash": "sha256:307462ca5c38e502e71ffd44d88a9b1535429591f54f25ce5bd7bf1c1a644018"
 }

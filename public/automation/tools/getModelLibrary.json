@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "getModelLibrary",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "getModelLibrary()",
   "synonyms": [
     "getModelLibrary",
@@ -84,5 +89,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3ee4b7b028aa65056ef21d05aed22a293f430905e26ce4bd0eec96f4f5295c90"
+  "docsHash": "sha256:6991eb9edc8ed6539d01a9c9fe26b1c6f460f65ed5acb86cba94af59652de7c6"
 }

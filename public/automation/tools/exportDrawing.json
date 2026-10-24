@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "revision",
+  "mcpCall": {
+    "tool": "webcad_artifact",
+    "method": "exportDrawing",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "工程图：exportDrawing({context,drawingId,format:pdf|jpg|dxf|svg,paper?:A4|A3,title?,name?,disabledDimensions?:[id]})，drawingId必须匹配当前revision。LOGO原轮廓：exportDrawing({context,logoId,format:\"dxf\"|\"json\",name?})，logoId来自本页readLogo或logoWizard.attach/artifacts，最近4份有效；无需创建实体或写脚本。drawingId与logoId二选一，LOGO不接收纸张/标注选项，name以.dxf或.logo.json结尾。需要cad.export；DWG不可用。",
   "synonyms": [
     "exportDrawing",
@@ -184,5 +189,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0e7e9bf19afb947d582df9886d74e8a1527d83a020ecdbf7d431361feff9b457"
+  "docsHash": "sha256:44db4068670b872c4a6e7aa01c6674cb00712b35ed822691ef2a250c0b361d91"
 }

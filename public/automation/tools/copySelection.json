@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "revision",
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "copySelection",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "copySelection({context,bodyIds}); 1–200个当前实体。",
   "synonyms": [
     "copySelection",
@@ -82,5 +87,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2f7864d893d7241d73bb33df5adfa6272f6af70e51e64a78ec6cac686c8da819"
+  "docsHash": "sha256:8091549b0197e46a3e73c08e084121fa25652abe363d98b25dc11842f0a31fe7"
 }

@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "revision",
+  "mcpCall": {
+    "tool": "webcad_view",
+    "method": "markLocation",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "docs": "api.location-marker",
   "inputSchema": {
     "type": "object",
@@ -127,5 +132,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:418bf2fde8ec07db7b310fe2a619a1af3ff8df0cac3f0e183da89e46867852b4"
+  "docsHash": "sha256:ad3c0fe264cff78c01d41200810f70e7ce3c8f20941bd93d20e4d342f411f956"
 }

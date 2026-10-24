@@ -4,6 +4,11 @@
   "category": "page-method",
   "version": "1.57.8",
   "contextPolicy": "none",
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "getUILayout",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "description": "getUILayout({includeModelLibrary?:boolean})",
   "synonyms": [
     "getUILayout",
@@ -90,5 +95,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a934e20d52441a72dbbe9a728d5f98bcce932b04c2aeb0d3cc2a4e70ac120be8"
+  "docsHash": "sha256:3bddac7f92da6354e34bc1d9f9107cbc2fc5114fc24425b209f7e2865d94450a"
 }
