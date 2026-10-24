@@ -8,3 +8,5 @@
 
 工具卡和文档只证明调用契约；实际任务必须按正文检查独立结果。正常与边界推理例见[整库例题](api.modeling.examples.whole-library-cases)；真实几何执行范围见独立库的历史测试记录（不随运行知识分发，不代表本次任务验收），未运行的功能不标通过。
 
+
+多配件、重复件或装配任务按[分批建模与交付](api.modeling.methods.staged-assembly)推进。

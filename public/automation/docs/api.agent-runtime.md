@@ -5,6 +5,8 @@ WebCAD是Agent适配代码与方法白名单的唯一维护源。window.webcad.a
 
 接入后优先核对宿主的 knowledgeReceipt：completeLibrary、knowledgeVersion、installedDirectory、installedFiles 和 cacheHit。ready 表示完整说明书、建模方法、技能与路由已用同一个 ZIP 下载解压并校验；只按需读过几章不代表“没有下载全本”，也无需再下载另一个技能包。页面 buildId/catalogHash/docsHash 改变或本地文件损坏，宿主刷新整包后才恢复 ready。没有实际回执不能声称已安装。
 
+多配件任务按 api.modeling.methods.staged-assembly 交付规划和当前批次，续轮沿用实际用户授权、最新规划和工程回执，不将自动提醒当成确认。
+
 CAD任务先从已安装库读取 api.modeling.start，按 agent-routing.json 选一个 modeling.* 工作流，再读取所选分支的完整工具卡。需要工厂产品、图纸、材料或工艺事实时才使用已提供的生产知识库路由；生产知识库与CAD能力同时可用，不先遍历业务整库。单纯询问安装状态只报告缓存回执，不调用无关几何工具，也不把整本正文塞进模型上下文。
 
 已绑定宿主提供了本页当前快照及已校验契约时直接复用，不要求每轮重复 connect。未绑定、版本变化或连接失效时才按宿主接口握手/恢复；不刷新未保存工程。目录摘要仅用于发现，执行前按需读取完整工具卡及 api.run，分页读取到完整内容。工具参数、批次上限和单位取当前契约，不从名称或旧提示猜测。
