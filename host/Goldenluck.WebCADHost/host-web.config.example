@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <!-- Optional installation example only; preserve the existing site's configuration. -->
+  <system.web><httpRuntime maxRequestLength="525312" executionTimeout="150" /></system.web>
+  <system.webServer><security><requestFiltering><requestLimits maxAllowedContentLength="537919488" /></requestFiltering></security></system.webServer>
+</configuration>
