@@ -1,5 +1,7 @@
 # api.modeling.guide
 
+执行路线选择见[执行策略](api.modeling.methods.execution-strategy)，按需读取。
+
 # AI怎样在WebCAD完成一个三维模型
 
 多个配件、装配体或复杂产品先读[分批建模与交付](api.modeling.methods.staged-assembly)，先交规划，按实际确认或已授权范围分批执行。单个简单件不增加固定确认轮次。

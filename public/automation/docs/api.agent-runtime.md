@@ -13,6 +13,8 @@ CAD任务先从已安装库读取 api.modeling.start，按 agent-routing.json �
 
 WebCAD 页面工具管理当前工程；普通宿主文件工具管理已授权的任务文件。页面 method_not_allowed 只表示该方法不在当前适配器允许集合中，不证明本地磁盘不可写。files.write/read/download 等宿主内部方法不能冒充 CAD 可执行方法；原生宿主的 webcad_artifact 负责工程保存/导出与附件中转，普通文本/矢量等文件用实际提供的本地文件工具生成。宿主未提供能力或实际拒绝时，说明具体工具和错误，不声称进行了未发生的尝试。
 
+执行路径按需读 api.modeling.methods.execution-strategy。native MCP 的 route 只传 query/limit，已知 ID 用 getTools；planLayout 是固定数值规划器。planSource/readLocal/route scope 属于可选页面客户端，不能冒充 MCP 参数。宿主能力摘要中 exposed 不代表后端已就绪；解释器 verified 是服务身份探测，本任务脚本仍检查退出码。pageScriptChannel 未提供时不从 .mjs 文件推断执行通道。分页沿 nextCursor 补读所需正文；历史 served/读卡索引不证明模型已理解，新上下文可显式完整重读。
+
 ## 当前状态、编辑与回执
 
 状态覆盖与提交事实统一见 api.state-facts：先用已覆盖的当前事实和nextContext继续，需要缺失精度/拓扑时再读。视觉证据见 api.evidence，可按指定版本复用隔离轴测/正交视图；图片、量测和写入授权分别核对，不默认每次调用截图。

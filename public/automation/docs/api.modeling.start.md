@@ -1,5 +1,7 @@
 # api.modeling.start
 
+执行路线选择见[执行策略](api.modeling.methods.execution-strategy)，按需读取。
+
 # 建模指导按需入口
 下载完成不等于把知识送入模型上下文。新建/复刻/修改模型时，首次读 api.modeling.guide 建立构造、基准、特征顺序和验收计划；简单检查或导出直接读匹配工作流。
 按 agent-routing.json 的 modeling.* 路线选择 readFirst；docs 是备用方法，不是必读清单。先明确几何与分支，再按 branches[].tools 读取所选少量完整卡；工具参数和能力始终以当前页面契约为准。正常建模不要自动加载诊断表。

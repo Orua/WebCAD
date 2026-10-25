@@ -1,9 +1,9 @@
 {
   "version": "1.57.12",
-  "buildId": "740f991840b5d635083150c29459983d4c3d081a-src-7ba61a11c575bc7d-working",
+  "buildId": "3a1f5cd0a81e9b12afece039fc0be5a73e8b5be8-src-3763bb15602d7e3b-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:9736a31055688c3776eb45b7c677e6f550c535c74c61ab0e872e7b4e25c8d9ce",
-  "docsHash": "sha256:85c1920d6f0ebfb7acda39151668c3dcfdbf30805db793f787fd0130674f37b4",
+  "catalogHash": "sha256:6b4014273d55689a96ce1938890e1a21f21bd04d941354c00806d52f9bf3cba0",
+  "docsHash": "sha256:1a05c87dd87dc01949ce00e23d92dc217748e889cc45921c2cdfc936ff8d42cb",
   "apiMethods": [
     "getMetalMaterials",
     "setMetalMaterials",
@@ -2497,7 +2497,7 @@
   "docs": [
     {
       "id": "api.agent-runtime",
-      "docsHash": "sha256:ee3712c193ac67d597c46b8c756ce5f5a28952461dc9d9ff0184517d0f2a35e3",
+      "docsHash": "sha256:1a52283e6f9bab933c65bc9f4f52cb2646918466e471cdc32f75569d7d26c2ab",
       "url": "docs/api.agent-runtime.md"
     },
     {
@@ -2672,7 +2672,7 @@
     },
     {
       "id": "api.modeling.guide",
-      "docsHash": "sha256:e1dd01a55c621be117c3c8058792a3538539e21c2587e7266d43aa75fb3ff40f",
+      "docsHash": "sha256:f460fdbcb3d0d5af796ec0a8e0c06a3bc71340354784fdd3b60ec630b8d13892",
       "url": "docs/api.modeling.guide.md"
     },
     {
@@ -2689,6 +2689,11 @@
       "id": "api.modeling.methods.construction-choice",
       "docsHash": "sha256:83681dcaf0f8fa1ec3bdb9ad6064ed71adc147c81d373b69e501f0696f6f61b5",
       "url": "docs/api.modeling.methods.construction-choice.md"
+    },
+    {
+      "id": "api.modeling.methods.execution-strategy",
+      "docsHash": "sha256:252a7d0e17198e0c7c44469bf0e504fd3df5758a656e1523b274a2e6e0321e41",
+      "url": "docs/api.modeling.methods.execution-strategy.md"
     },
     {
       "id": "api.modeling.methods.external-handoff",
@@ -2772,7 +2777,7 @@
     },
     {
       "id": "api.modeling.start",
-      "docsHash": "sha256:9af41e2193362897364213d80429ca6b5662b5ea52a51e51f0cc00006dce859e",
+      "docsHash": "sha256:aa4f015fe06b05a5960c2000f7d73a5309b82d5e7a264b5f9828383db69fa1dc",
       "url": "docs/api.modeling.start.md"
     },
     {
