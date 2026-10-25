@@ -2,7 +2,7 @@
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -77,5 +77,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:90e8372f8da759944dd505e51633d2f2a17c297acf7d1b0e1c89b8c001359bb5"
+  "docsHash": "sha256:f2e1ac0b6c5b7494fc9775397fb423d876e5700f3f3247aa54e6dba2da0edcc8"
 }

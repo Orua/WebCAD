@@ -7,7 +7,7 @@
 检查：确认产生的是实体还是开放壳、截面尺寸与端部位置、孔是否保留。没有闭合实心体的回执，不声称得到可直接加工实体。
 失败：按路径定位缺失/反向/自交截面，核对来源与导引兼容性；G1/G2 不成立不能用近似曲面冒充。先查原回执，不盲换截面顺序或反复改数值。详见 api.mechanical、api.references、api.feature-plan。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

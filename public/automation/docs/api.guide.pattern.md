@@ -8,7 +8,7 @@
 限制：读取当前卡和 getServicesCapabilities 的适用面、精度、来源复杂度与输出类型；不将平面成功外推到柱面/自由曲面。meshBoolean 不会自动得到精确 STEP。
 失败：区分来源没取得、轮廓不闭合、孔解释错误、支撑面不兼容、服务请求失败和未知提交。保留来源与诊断；不删细节/孔洞、不用粗网格、不改变深度来掩盖失败。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

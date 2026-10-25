@@ -2,7 +2,7 @@
 
 半圆冠双端孔 U 板：UI 在快捷模型中选择同名工具；AI 先 getTool({id:"quickModel"}) 读取 kind=uEndHolePlate 参数。页面脚本 const api=window.webcad.api; const {revision,...identity}=api.getState().context; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"partA",method:"add",args:{op:"quickModel",refs:[],params:{kind:"uEndHolePlate",outerWidth:22,innerWidth:10,totalHeight:31.7,thickness:3,holeDiameter:3.3,holeInset:2.7}}},{id:"size",method:"measure",args:{bodyId:{$ref:"partA.createdBodyIds.0"}}}]})。内外冠同心且均为半圆，两条直腿等宽、两端通孔沿 Z 贯穿。孔心 X=±(outerWidth+innerWidth)/4，Y 自端面向冠方向量 holeInset。限制 outerWidth>innerWidth>0、totalHeight>outerWidth/2、thickness>0、0<holeDiameter<(outerWidth-innerWidth)/2，孔与端面、冠保持净距；非法输入失败回滚。PG11804 A 件图面外宽22、内宽10、总高31.7、侧深3、孔位标注2-Ø3.3，另有2-M2标注；holeInset=2.7 是试拟，通孔不能代表真实攻牙。B 件和装配、局部圆润截面未建。读结果 status、精确 measure 和 rendered revision；历史修改用 feature.edit。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

@@ -2,7 +2,7 @@
 
 getEvidenceImage({context:{sessionId,documentId,documentInstanceId,expectedRevision},evidenceId?,viewId?:iso|front|top|right,maxWidth?:64..1024,format?:png|webp,quality?}) 返回只读证据图，默认640px WebP。所有视图均为正交投影，同一世界范围/尺度：front从-Y，top从+Z且up为+Y，right从+X，iso轴测。三视图分别请求同一expectedRevision，核对返回context、profileVersion和displaySignature；任一EVIDENCE_SUPERSEDED时不要混用。独立相机/临时render target不改用户相机、选择或工程。缓存按页面实例/revision/相关显示签名/规格隔离，同key或evidenceId重读返回原图。历史版本无缓存返回EVIDENCE_UNAVAILABLE，不能自动改用当前版本；最多12张/8MiB，单图1MiB，最多一项执行加一项等待。根层mime/dataUrl/context/display/evidenceId/hash可直接转MCP image，调用webcad_view(method:getEvidenceImage,args:...)。图像使用当前已安装显示网格，保留display.detail近似说明，关闭屏幕空间金属遮蔽；图片不代替精确量测。自动视觉策略默认off，三视图按需，不对每次工具调用自动截图。生成、落盘、返回image与转发模型输入分别核对。getState({sinceRevision})返回unchanged只表示geometry未变，unchangedScope为geometry；selection、referenceSystem、summary.busy、preview和hostControl仍返回当前已覆盖值，不能用相同revision延长旧动态状态。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

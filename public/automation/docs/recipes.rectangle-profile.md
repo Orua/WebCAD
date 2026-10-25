@@ -4,7 +4,7 @@
 创建步骤可直接使用卡中的 normalExample：const api=window.webcad.api;const c=api.connect({toolIds:["sketchProfile","profileExtrude"]});const shape=c.contracts.items.find(item=>item.id==="sketchProfile").card.normalExample;确认 c.canExecute 后调用 await api.run({context:c.requestContext,idempotencyKey:crypto.randomUUID(),steps:[{id:"outline",method:"add",args:{op:shape.op,params:shape.params,refs:[]}}]})。新创建省略 placement 时冻结当前参考锚点；如需世界 XY 平面，显式传 placement:{version:1,frame:{kind:"world"},sourceAnchor:{kind:"model-origin"}}。
 用户要求成体并给出厚度后，读取 profileExtrude 卡；把该用户明确给出的正毫米厚度记为 userDepthMm，步骤为 {id:"solid",method:"add",args:{op:"profileExtrude",refs:[{$ref:"outline.createdBodyIds.0"}],params:{operation:"newBody",extent:"distance",distanceMm:userDepthMm,direction:1}}。可以放在 outline 后的同一 run 批次；分批时使用闭面回执的真实 bodyId 和新鲜 context。distanceMm 不从二维 heightMm 推导，也不沿用示例默认值。厚度或拉伸正负方向缺失且会影响任务结果时，先向用户确认；只画闭面不需要厚度。检查闭面 solidCount=0、faceCount=1、面积1200 mm²，成体单实体体积为1200×userDepthMm mm³，以及当前 rendered revision。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

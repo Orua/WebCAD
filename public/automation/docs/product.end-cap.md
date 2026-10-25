@@ -6,7 +6,7 @@ U槽尾夹
 方向：恒厚开口U夹、前后片高和后孔已明确时，先读template.uStrapClip及api.quick-installation；半圆底和内直角仍按真实剖面设置。封闭帽套、字珠、面牌和自由侧面不套U夹；仅复用已核夹持接口，螺钉独立。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

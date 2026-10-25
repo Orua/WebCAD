@@ -2,7 +2,7 @@
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -76,5 +76,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:be1e6fe142dfb3446550d7b619c00e55c4e0a68f59ffedca550b75edb1f7a342"
+  "docsHash": "sha256:a94ae624e935cadb81a99b8647d27754a6a1d8ebb63fed062343d94f3476717d"
 }

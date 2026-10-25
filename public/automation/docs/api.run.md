@@ -7,7 +7,7 @@ add 是 feature.add 的适配器，自动读取当前工具版本/schemaHash，�
 每步可添加 stage（1..80字符的阶段名，例如来源确认/主面/浮雕/收边/检查），回执保留输入 SHA256、选择条件、耗时及原始结果。未请求项不加入步骤；检查阶段用 inspectDesign 等返回实际证据。相同文档 revision、方法和解析后的参数已失败时，换 key 仍返回 PREVIOUS_ATTEMPT_FAILED，结果未知则返回 PREVIOUS_ATTEMPT_UNKNOWN；先读取原任务/当前状态，真正改变几何、选择或策略后再提交。中间阶段失败或取消，completedStepIds 与 unattemptedStepIds 指导仅续接剩余步骤，不重复创建已成功的主面。步骤可省略 args。同一批次的 steps[].id 必须各不相同，不能重复；id 使用字母开头的 1..40 位字母数字下划线连字符；缺失、格式无效或重复均在执行任何步骤前拒绝，并返回对应 steps[index].id 路径。批次 key 最多80字符，当前文档实例最多保留100份回执。失败立即停止，completed/partial/failed/unknown 必须区分，atomic=false 表示先前成功步骤保留，可用 history.undo 逐步撤销。重新提交完全相同 key/请求返回原回执而不重复建模；更改请求需新 key；幂等仅本页面文档实例有效，重载后先读状态。
 files.save/export 名称可省略扩展名，按实际字节格式补齐。直接页面调用返回 generated 资源，未证明磁盘保存；Goldenluck Agent 宿主会将 run 内的保存/导出逐项送达附件（包括后续步骤失败前的检查点），分别检查 attachment 与 saveConfirmation，不必拆成独立工具调用；脚本客户端再 files.read/download/write，面板使用“下载”按钮只证明发起下载。新建/打开工程和截图使用专用页面 API，不属于批次。几何修改由旧有命令队列执行，其他 UI/客户端插入修改后批次停止，不自动接受新 revision。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

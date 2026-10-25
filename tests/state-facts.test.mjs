@@ -58,5 +58,15 @@ test('batch receipt integration adds facts once and replays the same prefix with
     getTool:()=>({version:'1',schemaHash:'hash'}),execute:async()=>{writes++;bodies.push(body());revision++;return {status:'committed',revisionBefore:1,revisionAfter:revision,createdBodyIds:['b'],validation:{geometry:'passed'}};}};
   const run=createPageBatch(api),request={context:{...context(1),expectedRevision:1},idempotencyKey:'batch',steps:[{id:'create',method:'add',args:{op:'box',params:{width:1,depth:2,height:3}}}]};delete request.context.revision;
   const receipt=await run(request);assert.equal(receipt.status,'completed');assert.equal(receipt.facts.geometryCommitted,true);assert.equal(receipt.facts.bodyCount,1);
+  assert.deepEqual(receipt.facts.activeCreatedBodyIds,['b']);assert.equal(receipt.facts.objectSet.beforeCount,0);assert.equal(receipt.facts.objectSet.afterCount,1);
   assert.deepEqual(await run(request),receipt);assert.equal(writes,1);
+});
+
+test('batch set reconciliation distinguishes consumed inputs, retained preparation bodies and unverified delivery',()=>{
+  const before={bodies:[body('baseline'),body('tool')]};
+  const state={context:context(4),bodies:[body('baseline'),body('result'),body('extra-preparation')],display:{rendered:{revision:4}}};
+  const facts=batchFacts(state,{status:'completed',results:[],displayMatchesContext:true},[],before);
+  assert.deepEqual(facts.activeCreatedBodyIds,['result','extra-preparation']);assert.deepEqual(facts.removedSinceStartBodyIds,['tool']);
+  assert.equal(facts.objectSet.plannedResultMatch,'not_asserted');assert.equal(facts.coverage.activeCreatedBodyIds.complete,true);
+  assert.equal(facts.delivery.framing,'not_verified');assert.equal(facts.delivery.saved,'not_asserted');assert.equal(facts.delivery.renderMatchesContext,true);
 });

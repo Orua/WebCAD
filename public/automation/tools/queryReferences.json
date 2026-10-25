@@ -2,7 +2,7 @@
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -76,5 +76,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9fa4046b59a11926a96db8980ad812a6c5b3ef01fe97d9ffcca602f3190ccfc0"
+  "docsHash": "sha256:55511b8a6a1a90bb8d2f9c53eb144e86edfca7e9f93caf8f828666bb0d8205fb"
 }

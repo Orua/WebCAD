@@ -2,7 +2,7 @@
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -83,5 +83,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:698b16b82e056df190de742d8cfc95895c4b4eefb632cec34cb784db6ef4b478"
+  "docsHash": "sha256:1fa0f15246e916a288de05272c5a84c834103596f4cb527eef3f8d4bc14d53e8"
 }

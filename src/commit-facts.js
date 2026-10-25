@@ -10,7 +10,7 @@ function boundsFor(state,affected){
     .map(body=>({id:body.id,min:body.bounds.min.map(round),max:body.bounds.max.map(round)}));
 }
 function bounded(facts){
-  const lists=['createdBodyIds','deletedBodyIds','affectedBodyIds','replacements'];
+  const lists=['createdBodyIds','deletedBodyIds','affectedBodyIds','replacements','activeCreatedBodyIds','removedSinceStartBodyIds'];
   const originals=Object.fromEntries(lists.map(key=>[key,facts[key]||[]]));
   let limit=40,result;
   do{
@@ -44,7 +44,7 @@ export function commitFacts(before,after,receipt){
     geometryCommitted:receipt.status==='committed'&&receipt.validation?.geometry==='passed',
     revisionBefore:before.revision,revisionAfter:after.revision,createdBodyIds:ids(created),deletedBodyIds:ids(removed),affectedBodyIds:affected,replacements:clone(receipt.replacements||[])});
 }
-export function batchFacts(state,receipt,steps){
+export function batchFacts(state,receipt,steps,beforeState){
   const values=receipt.results||[],committed=values.filter(item=>item.result?.status==='committed'),
     created=ids(committed.flatMap(item=>item.result.createdBodyIds||[])),replacements=committed.flatMap(item=>item.result.replacements||[]),
     affected=ids(committed.flatMap(item=>[...(item.result.facts?.affectedBodyIds||[]),...(item.result.createdBodyIds||[]),...(item.result.replacements||[]).map(row=>row.after)])),
@@ -53,6 +53,10 @@ export function batchFacts(state,receipt,steps){
     geometryCommitted:committed.some(item=>item.result.validation?.geometry==='passed'),
     revisionBefore:committed[0]?.result.revisionBefore??null,revisionAfter:state.context?.revision??null,
     createdBodyIds:created,deletedBodyIds:ids(committed.flatMap(item=>item.result.deletedBodyIds||item.result.facts?.deletedBodyIds||[])),affectedBodyIds:affected,replacements:clone(replacements),
+    activeCreatedBodyIds:beforeState?ids((state.bodies||[]).filter(body=>!(beforeState.bodies||[]).some(previous=>previous.id===body.id)).map(body=>body.id)):[],
+    removedSinceStartBodyIds:beforeState?ids((beforeState.bodies||[]).filter(body=>!(state.bodies||[]).some(current=>current.id===body.id)).map(body=>body.id)):[],
+    objectSet:{status:beforeState?'compared':'unavailable',beforeCount:beforeState?.bodies?.length??null,afterCount:state.bodies?.length??null,scope:'this_batch',plannedResultMatch:'not_asserted'},
+    delivery:{geometryRevision:state.context?.revision??null,renderRevision:state.display?.rendered?.revision??null,renderMatchesContext:receipt.displayMatchesContext===true,framing:'not_verified',saved:'not_asserted'},
     steps:{...clone(receipt.progress),committedStepIds:committed.map(item=>item.id),pendingStepIds:values.filter(item=>['unknown','queued','running'].includes(item.result?.status)).map(item=>item.id),
       pendingJobs:values.filter(item=>['unknown','queued','running'].includes(item.result?.status)).map(item=>({stepId:item.id,...Object.fromEntries(['pageJobId','jobId'].filter(key=>item.result[key]!==undefined).map(key=>[key,item.result[key]])),...(item.result.error?.jobId?{jobId:item.result.error.jobId}:{})}))},
     ...(receipt.error?{error:{code:receipt.error.code,path:receipt.error.path,details:'original_receipt'}}:{})};

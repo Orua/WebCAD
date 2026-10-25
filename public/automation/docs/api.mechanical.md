@@ -8,7 +8,7 @@ helix 的 radiusMm 是中心线半径，pitchMm 是每圈正轴向进给，turns
 thread refs=[单一实体]，当前圆柱 faceId、kind=external/internal、pitchMm、depthMm、lengthMm、startOffsetMm、includedAngleDeg、leftHanded。用所选解析圆柱面的实际轴/半径/轴向区间构造并裁切真实V槽，替换来源；区间必须在该面轴向范围内。getState().bodies[].threadReport 读实际轴、半径和尺寸。standard=none：不提供ISO/GB规格、配合公差、多头牙、端部退刀槽或力学认证。失败不得自动减小牙深、扩大公差或改用显示纹理。
 本扩展不把装配配合/工程图、通用草图样条约束、自由曲面G2、变半径圆角、钣金/凸轮/CAM视为已补齐。这些需要各自的数据模型、几何处理与验收；工具数量不表示主流机械CAD全功能覆盖。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

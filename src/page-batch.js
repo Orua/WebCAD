@@ -55,7 +55,7 @@ export function createPageBatch(api,{display}={}){
   const canonical=value=>JSON.stringify(value,(_,v)=>plain(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
   const digest=value=>contractHash(JSON.parse(value)).slice(7);
   async function run(input,control){
-    let results=[],key,fingerprint,started=false,activeStepId=null;
+    let results=[],key,fingerprint,started=false,activeStepId=null,beforeState;
     const standaloneRecoverySave=Array.isArray(input?.steps)&&input.steps.length===1&&input.steps[0]?.method==='files.save';
     const attempted=new Set();
     // Bounding boxes of bodies created/replaced by this batch (max 40), so callers can verify alignment without another read.
@@ -76,11 +76,11 @@ export function createPageBatch(api,{display}={}){
       elapsedMs:Math.round(performance.now()-startedAt),context:s.context,bodyBounds:touchedBounds(s),
       summary:s.summary,display:s.display,
       displayMatchesContext:s.display?.status==='rendered'&&['documentId','documentInstanceId','revision'].every(k=>s.display.rendered?.[k]===s.context[k])});
-      receipt.facts=batchFacts(s,receipt,Array.isArray(input?.steps)?input.steps:[]);return receipt;};
+      receipt.facts=batchFacts(s,receipt,Array.isArray(input?.steps)?input.steps:[],beforeState);return receipt;};
     try{
       safe(input);keys(input,['context','idempotencyKey','steps']);
       const signature=JSON.stringify(input);if(signature.length>3*1024*1024)bad('RESOURCE_LIMIT','Batch exceeds 3 MiB');fingerprint=contractHash(signature);
-      const now=api.getState();
+      const now=api.getState();beforeState={bodies:(now.bodies||[]).map(body=>({id:body.id}))};
       if(instance!==now.context.documentInstanceId){receipts.clear();archivedReceipts.clear();failedAttempts.clear();instance=now.context.documentInstanceId;}
       key=input.idempotencyKey;
       if(typeof key!=='string'||!key.length||key.length>80)bad('PARAM_SCHEMA_INVALID','idempotencyKey: 1..80 characters');

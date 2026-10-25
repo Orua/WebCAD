@@ -8,7 +8,7 @@ connect().onboarding.knowledge.policy=required-on-first-handshake。Agent首次�
 可选Node宿主helper（不是网页运行依赖）：createPageClient({send:宿主授权CDP适配器,knowledge:{baseUrl:目标页URL,directory:宿主缓存目录}})。connect自动下载/验证，返回knowledgeStatus:{status:ready,cacheHit,directory,downloadedFiles}；已有匹配缓存不发下载请求。未配置knowledge时返回download_required，helper.run在知识包准备前拒绝执行。其他宿主按相同清单实现存储适配。页面不能证明远端Agent已经写盘，不能把handshake描述符当成下载回执。
 await client.route('DWG图纸重建')返回匹配路由和需要的doc/tool IDs；await client.readLocal({docIds:['api.reconstruction'],toolIds:['inspectDesign']})仅取这两项。默认字符预算32000，不能容纳的整项返回omitted/CHAR_BUDGET，不截断schema；调用方缩小本次读取范围。下载不自动安装技能；安装包仍由宿主选择并执行。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

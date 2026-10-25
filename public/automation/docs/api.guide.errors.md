@@ -9,7 +9,7 @@ unknown/queued/running：先查原 job/batch/request 回执；超时不代表失
 partial：逐步列出成功和未完成项，只规划剩余工作，不能声称已整体回滚。
 向用户说清“什么失败、已确认保留什么、下一步查什么”。缺少提交证据时说尚未确认，不说已保存/未改变。具体 error.recovery 优先于此分类概览。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

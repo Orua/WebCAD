@@ -2,7 +2,7 @@
   "id": "measureMass",
   "title": "measureMass",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -76,5 +76,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:edbfa4c4a1792dd1b410c3d18217d282de59931077f9aa7ff555f76e8ca7a584"
+  "docsHash": "sha256:020ec6ea95166d223e691a7f41e4b265aab7c2d29f227ec2d46187be22a23fda"
 }

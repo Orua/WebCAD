@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.57.12 · sha256:6b4014273d55689a96ce1938890e1a21f21bd04d941354c00806d52f9bf3cba0
+API 1.57.13 · sha256:1dde765d82504ff3e4f1e009973cb667369811513f1592d4e1f90c4b5319d5de
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -23,6 +23,14 @@ WebCAD 页面工具管理当前工程；普通宿主文件工具管理已授权�
 
 ## 当前状态、编辑与回执
 
+发现与恢复共用当前用户任务的预算：同一版本同一工具卡/章节最多完整读取一次，确有缺失或新上下文时可补读一次；无新增状态或机制证据的连续两轮查卡/重连即停止。最多60秒用于无提交进展的发现和恢复，不将正常执行中的原CAD作业计入。预算耗尽说明阻塞原因、原taskId/commandId/pageJobId、已提交/失败/未知/未尝试步骤及当前锁状态；等待用户或新的状态证据，不重置预算继续循环。状态询问与Stop优先处理；停止推理和取消CAD分别读回，不能宣称未知作业已终止。
+
+发送写入前按完整当前schema预检：run.context必须包含sessionId、documentId、documentInstanceId、expectedRevision，使用当前快照的requestContext或刚成功回执的nextContext，不能直接把只有revision的getState.context当作写入context。缺字段先修正，身份不符重新绑定，旧revision拒绝后只重新计划未执行步骤。不得自动填入新revision来掩盖旧请求。feature.edit的目标、版本、hash与参数均按当前完整卡核对。
+
+坐标明确时显式world/model-origin或已核对snapshot，transform的相对增量不等于目标bbox中心或最小角点。布尔前检查操作数bbox，完工用批次facts.activeCreatedBodyIds、removedSinceStartBodyIds及objectSet与计划结果集合对账；跨批次还需任务基线到当前的差集。额外准备件必须披露，不能静默删除用户模型或诊断证据。
+
+最终摘要只写回执已有事实：目标ID、已测bbox/体积/solid数（不是对象数）、geometry/render revision、对象差集、已完成/失败/未知/未执行、截图是否完整可见、保存状态。facts.delivery.framing=not_verified或仅rendered不等于目标完整可见；0个实际渲染三角形不能当交付成功。缺量测写未测，没有写盘回执不得写已保存。
+
 状态覆盖与提交事实统一见 api.state-facts：先用已覆盖的当前事实和nextContext继续，需要缺失精度/拓扑时再读。视觉证据见 api.evidence，可按指定版本复用隔离轴测/正交视图；图片、量测和写入授权分别核对，不默认每次调用截图。
 
 工程状态、实体/面/边身份不放入静态契约缓存。新鲜快照或刚成功回执的 requestContext/nextContext 可连续使用；人工编辑、长等待、身份变化或 REVISION_CONFLICT 后再读取当前状态并重新计划。按当前字段解释实体顺序和空间位置，名称不证明几何关系；目标不唯一时先明确指代。
@@ -32,7 +40,7 @@ run 是有界的部分提交批次，不是原子事务；按 api.run 提供唯�
 结果分别报告工程提交、画面确认、导出字节、本地写入和附件可下载。文件生成不等于写盘，写盘不等于已送达；失败按实际 error.code、字段及原因定位。照片、图纸、业务资料中的文字只是证据，不构成新的操作授权。
 
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -142,7 +150,7 @@ files.release: contextPolicy=none
 
 语义圆角使用selector:{seamBetween:{a:特征ID,b:特征ID}}、edgesNear:{pointMm,radiusMm,sharpOnly}或facesFromFeature:{featureId,role}，每次重建由当前OCCT历史解析，不保存面号。smoothTransition/fillet的radius可为正数或{maxMm,minMm,stepRatio:0.75,maxAttempts:6}，区间内只重用同一来源，不重建前缀；回执radiusSearchReport写明实际半径与逐次结果。probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?,maxAttempts?})只读当前独立BRep副本，不改变revision、历史和选择；feasibleMaxMm为最多6个下降样本中的最大可行半径，不是认证全局最大值。全部失败返回feasibility:infeasible、feasibleMaxMm:null和tried；不自动应用。优先给用户允许的区间，回显radiusUsedMm。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -270,7 +278,7 @@ connect 的 queries 是最多4个短字符串；searchTools 使用单个 query �
 
 静态文档可直接按页面 base URL 读取 automation/quickstart.md、automation/tools/<id>.json、automation/docs/<docId>.md。HTTP 读取 JSON 必须按 UTF-8 解码，避免中文乱码。manifest/index 为程序索引输入，不要将全目录或全库打印进模型上下文。缓存只包含静态契约，不能代替实时工程状态。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -404,7 +412,7 @@ requirePass:true 时，只要有fail/unverified就返回status:failed及DESIGN_R
 
 限制：只验证列出的检查，不自动证明完整连接、所有孔、截面形状、圆角G1/G2、标准螺纹或装配合格；渲染、文件生成及磁盘写入仍各自确认。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -518,7 +526,7 @@ files.release: contextPolicy=none
 connect 可传 knownCatalogHash/knownDocsHash 检查整体漂移；changed 只表示静态说明变化，实时状态始终重新读取。manifest.json 为每张卡/每篇文档提供 docsHash，可比较增删变化；已删除ID必须从宿主缓存移除。readDocs({docId,knownHash}) 可复用完整文档缓存；knownHash 与 cursor 不可同时使用，分页文档须取完才能缓存为完整文档。缓存版本不能代替当前页面状态。
 可选离线库：一次下载同版本 automation/index.json 与 automation/tool-library.mjs；在具备持久存储能力的宿主保存。import {createToolLibrary} from './tool-library.mjs'; const lib=createToolLibrary(snapshot); lib.search(query) 返回摘要，lib.get(id) 取完整卡，lib.readDoc(id) 取一篇说明；lib.isCurrent(api.connect()) 对比 catalogHash/docsHash，漂移时刷新快照。离线库与页面使用相同搜索实现，所有运行可用性为 unknown；始终从目标页面取得新鲜 requestContext/实体/拓扑。不要把完整快照打印进模型上下文。没有磁盘能力的侧栏直接调用页面搜索即可。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -628,7 +636,7 @@ files.release: contextPolicy=none
 
 设置主菜单分风格、渲染设置、Services、精度、吸附、语言和参数。风格预设支持原绿色 #0c827d 和灰度 #666666；唯一配置经 getServices/setServices；授权只读 hasCredential，远程几何以实际已验收 capability 为准。dimensionPrecisionMm 默认0.01 mm、范围0.000001–10；anglePrecisionDeg 默认0.1°、范围0.000001–90。只用于鼠标交互移动/旋转步长；手工输入、表达式和 API 显式数值按原值建模，预览与提交一致。显示设置和步长不改写几何，内核容差独立。工具卡 numericInputPolicy 及参数 unit/quantityKind/quantizationPolicy 公开数值语义；执行回执 numericInput 提供 requestedParams/effectiveParams。themeColor 为 #RRGGBB，默认 #2563eb；snapThresholdMm 为 0–10 mm，默认0.2（20丝），0关闭拖动吸附。吸附后下一次拖动跳过吸附。透视+边线显示曲面三角网格，只是显示网格，不是精确等参线。setDisplayPreferences({context,values})：defaultColor/background 为 #RRGGBB，defaultFinish 为材质键；environmentMode 为 hdr（HDR 环境反射，所有金属默认）或 studio（可选产品摄影棚侧光）。exposure 0.1–3；environmentIntensity 0–3，默认1.2；environmentRotation/lightAzimuth -180–180 度（绕世界Z）；lightElevation -89–89 度；roughnessOffset 0–0.6（只影响金属）；keyIntensity/fillIntensity/ambientIntensity 0–6。字段均可部分更新。getState().displayPreferences 读当前值。cookie 保存一年，同源浏览器自动读取，persisted=false 表示未持久化。全局设置不属于工程撤销历史；单体显式颜色和材质优先，工程 document.appearance finish:null 跟随全局，否则保持工程覆盖。UI 可选标准、柔和、明暗对比预设或恢复默认。studio 使用与 CadViewer 相同的侧上方长条柔光箱、背侧轮廓光与暗反射区；lightAzimuth/lightElevation 控制相机坐标中的主光方向（默认 -65°/25°），environmentRotation 在此模式附加主光方位偏转。hdr 保留原世界环境和方向约定。曝光与定制灯光保持可调；仅完整匹配旧标准默认灯光的 Cookie 恢复为 HDR 和标准反射亮度1.2；自定义灯光、粗糙度与颜色保留。环境反射方向与直接光源方向是不同设置；金属实物显示对可见不透明实体自动增加基于深度与法线的局部遮蔽，凹槽/LOGO槽壁附近变暗，不修改几何或实际深度。setView({display:"solid"}) 隐藏辅助边线仍保留遮蔽；display:"edges" 使用可辨认的金属边线（不透明度0.38），金色材质为深暖色边界，选中与选边高亮保持清晰；solid 仍隐藏辅助边线。浅金A1及24K B2、亮镍、枪色默认采用mirror镜面配置，材质列表见api.metal-materials。浅金粗糙度0.055，studio 采用锐利柔光箱反射和暗部条带，hdr 保留真实环境反射；自定义粗糙度增量仍生效。纯线框、透明显示不启用遮蔽。getState().display.metalRendering 读回实际启用状态、采样数及投影。遮蔽是屏幕空间近似，仅使用当前可见表面，不代表离线光线追踪或隐藏表面的完整阴影。金属凹凸不等于实体几何缺陷。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -738,7 +746,7 @@ files.release: contextPolicy=none
 
 traceTwinWindow({context,outerLeft,outerRight,innerLeft,innerRight,barTopY,barBottomY,simplifyToleranceMm?}) 是只读闭合轮廓计算工具。四条曲线均为从上到下的有限 XY 采样点数组，每条3–2000点，左右对应端点 Y 差≤0.01 mm。外轮廓由左右外曲线及上下直线闭合；内轮廓在 barTopY/barBottomY 横向切分为上下两个孔，输出已按外包围盒中心归零的 vectorProfile regions、原始 bounds、size、简化前后点数与相对采样折线的最大观测偏差。simplifyToleranceMm 可选，范围0..0.2 mm，默认0表示不简化；保留端点和X极值点。工具不读取 DWG，不补造样条，不证明采样精度；源 DXF 样条必须由可靠解析器先按显式容差采样，且应核对原图横条边界。调用 api.run({steps:[{id:"shape",method:"add",args:{op:"vectorProfile",refs:[],params:{regions:result.regions,output:"solid",height:3.5}}}]}) 建实体。PG4307 源样条经 ezdxf 0.01 mm 参数采样得到24.006×21 mm、983.047 mm³的源线近似实体；再以简化公差0.01 mm处理628个侧曲线点，可降到162点，实际最大采样点偏差约0.00963 mm，体积约983.073648 mm³；样条采样及端点/交叉验证是独立前提。vectorProfile.params.source 应记录 DWG 哈希、采样距离和选用的实体 handle；本机采样脚本为 text-to-cad/agent/tools/cad-learning/export_spline_samples.py，完整调用见 docs/PAGE-API.zh-CN.md。非法或过大的输入返回 failed，不修改工程。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -848,7 +856,7 @@ files.release: contextPolicy=none
 
 纯图像浮雕（无人工点、无局部编辑）默认在 Services 使用 fit.quality v1：document.reliefDesign 的 draft.fieldSettings.servicesQuality={mode:"adaptive"|"off",maxControlSide:16–1025}，默认 adaptive/513（高级配置可提高到1025）。原始 u16 高度来源参与自适应控制网，report.fit.report.quality.ladder 回读实际控制网和采样误差；浏览器独立复核哈希、锁点和目标高度；65×65默认浏览器控制网在预算到达时保留当前候选，数值/图像技术参数折叠显示。该采样误差不是制造公差；默认 candidate：超出用户精度目标仍可预览、应用、保存和撤销，报告实际偏差；仅显式 strict 请求才按接受误差拒绝。图像导入网格长边留空时按实际像素、毫米尺寸与加工精度取129–1025且不放大；手动数字显式覆盖，模糊默认0。1025草稿高度网格随工程保存。 浮雕设计约束草稿使用document.reliefDesign，面加工→设计草稿有同等编辑入口。新建expectedDraftRevision:0，修改传当前草稿revision；getState({include:["reliefDesigns"]})读取。保存人工毫米点、支撑、孔和保护区，随工程撤销/历史/保存恢复；不从参考图亮度推断高度。reliefDesignFit在已解当前场上提供fit/get/cancel受保护数值B样条拟合与误差回读，不等于真实BRep加工。reliefDesignField solve/get/cancel/candidate提供可取消数值场、真实残差和保留圆形/矩形支撑、孔和保护基线的采样闭网格候选；返回边界近似界，无法保留孔拓扑时明确阻断。 动态落地用 transform 的 params:{align:{axis:"z",to:"min",valueMm:0}}，省略placement、mode和其他平移字段；每次重建按当前精确BRep包围盒重新计算位移，getState().bodies[].alignmentReport读回实际deltaMm。第一次feature.edit切换到align时移除旧定位/平移字段，保留未覆盖的旋转和比例；显式混入新平移字段仍报错。页面bodies.bounds可能是保守显示范围，精确最低点通过measure读取。所有编辑动作均使用 execute({context,idempotencyKey,action,args}) 或 run 的 execute 步骤。先 getTool({id:动作名称})，不要猜字段。document.rename 修改工程名称；feature.rename 可改导入件名称；body.visibility 指定 bodyIds/visible；body.appearance 设置 color/finish；document.appearance 设置工程默认 finish；body.explode 拆多实体组合；body.align 平移对齐；history.restore 回到保留的工程状态。后三者成功提交后的 validation.geometry=passed 表示经过重建，no_change 为 unchanged；外观/显隐/改名的几何保持 unchanged。该字段不证明当前画面已渲染或工程已保存。颜色 #RRGGBB，null 重置；finish:null 跟随工程，design 显示原色，金属材质暂时盖住原色但保留其数值。getState().colors/appearance/renderFinish/hidden 可读回。外观/显隐/改名不重算几何，保存到 .webcad 且支持撤销。preview.start 的普通特征 args 同 feature.add；文件来源用 fileImport:{resourceId,placement}。回执返回 previewId/generation，更新用 preview.update 的 expectedGeneration，提交或取消也必须带当前预览身份；旧 UI 预览继续接受空 args。草稿不改工程 revision。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -1456,7 +1464,7 @@ Services 浮雕响应与请求、哈希或误差不一致。
 代码：`UNSAVED_REPLACEMENT`
 
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -1566,7 +1574,7 @@ files.release: contextPolicy=none
 
 getEvidenceImage({context:{sessionId,documentId,documentInstanceId,expectedRevision},evidenceId?,viewId?:iso|front|top|right,maxWidth?:64..1024,format?:png|webp,quality?}) 返回只读证据图，默认640px WebP。所有视图均为正交投影，同一世界范围/尺度：front从-Y，top从+Z且up为+Y，right从+X，iso轴测。三视图分别请求同一expectedRevision，核对返回context、profileVersion和displaySignature；任一EVIDENCE_SUPERSEDED时不要混用。独立相机/临时render target不改用户相机、选择或工程。缓存按页面实例/revision/相关显示签名/规格隔离，同key或evidenceId重读返回原图。历史版本无缓存返回EVIDENCE_UNAVAILABLE，不能自动改用当前版本；最多12张/8MiB，单图1MiB，最多一项执行加一项等待。根层mime/dataUrl/context/display/evidenceId/hash可直接转MCP image，调用webcad_view(method:getEvidenceImage,args:...)。图像使用当前已安装显示网格，保留display.detail近似说明，关闭屏幕空间金属遮蔽；图片不代替精确量测。自动视觉策略默认off，三视图按需，不对每次工具调用自动截图。生成、落盘、返回image与转发模型输入分别核对。getState({sinceRevision})返回unchanged只表示geometry未变，unchangedScope为geometry；selection、referenceSystem、summary.busy、preview和hostControl仍返回当前已覆盖值，不能用相同revision延长旧动态状态。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -1676,7 +1684,7 @@ files.release: contextPolicy=none
 
 STEP/STP/BREP/BRP 每源128MiB，通过files.register的真实二进制资源导入；UI打开与插入预览共用。原字节按SHA-256存于v4 ZIP资产，别名归一step/brep；导入当前曲面实体不会恢复来源软件的鼻眼等语义或特征配方。v4工程总512MiB、JSON元数据20MiB、2000特征；旧JSON/v3仍20MiB并继续可读。源在全部保留历史不再引用后才回收；撤销与冷开保存保留源。STEP/BREP导出也走二进制资源，不在Agent回执内回传base64。IGES及Logo转换预算不变，Services精确检查点仍独立20MiB。128MiB是输入预算而非全范围性能保证；真实内核失败/超时保留原工程。读取files.capabilities().typedByteBudgets并使用唯一idempotencyKey以便安全取回同次导入回执。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -1787,7 +1795,7 @@ files.release: contextPolicy=none
 execute(request) 使用当前 CommandService 的结构化请求：{context:{sessionId,documentId,documentInstanceId,expectedRevision},idempotencyKey,action,args}。feature.add 的 args 使用真实工具卡的 op、opVersion、schemaHash、params、refs；feature.edit 使用 featureId、opVersion、schemaHash、params 补丁。严格参数契约列表以 info().capabilities.migratedOperations 和当前工具卡为准。其他操作的卡片是 advisory，不得把它当成严格 v2 可执行保证。
 同一页面修改由原命令队列串行处理。幂等回执只在当前 documentInstanceId 的有限内存范围内有效，不跨页面重载。成功提交与后续显示或文件写入失败应分别报告。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -1900,7 +1908,7 @@ execute action feature.addMany 的 args 为 {features:[{key,op,opVersion,schemaH
 先完成来源/尺寸/空间结构判断再批量提交。支持的操作：box, cylinder, sphere, cone, torus, extrude, revolve, sweep, loft, quickModel, vectorProfile, arcProfile, sketchProfile, curveSweep, advancedLoft, transform, copy, mirror, linearPattern, circularPattern, union, cut, intersect, group, fillet, chamfer, hole, multiHole, multiPocket, multiBoss。只使用完整工具卡中明确的参数，独立创建省略placement默认当前work frame，需要世界坐标时显式world frame；所有定位使用事务开始的参考锚点快照，不在中间自动移动锚点。圆角/倒角仅allEdges:true；面/边编号、选择token、Logo、导入、检查、文件和不在清单内的操作另行执行。需要当前面/边时把计划分段，提交后查询新拓扑。不得把不适用模板或假设尺寸塞进事务。失败返回实际featureId及featureKey，先定位该项再修订，不重复盲试。
 几何提交后可用{$ref:"build.featurePlan.featureIds.finalKey"}检查或导出；仅最终仍存在的bodyId可做后续操作。检查关键材料/尺寸及displayMatchesContext，一次通过即交付。速度统计必须注明WASM启动、计划编写/读图、计算/网格、检查、导出与传输是否计入；单事务速度不代表整件已经正确。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -2010,7 +2018,7 @@ files.release: contextPolicy=none
 
 页面建模、测量、视图与截图方法的失败通常返回 {status:"failed",commitState:"not_committed",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。普通 fillet/chamfer 失败的 error.report 包含 operation/stage/attemptCount/elapsedMs、confirmedFailedEdgeIds 与 candidateEdgeIds、supportGeometry；仅 confirmedFailedEdgeIds 是内核确认，候选不能当作确认原因。默认只尝试请求参数一次，不自动扫描或应用较小 R；stage=selection 时 attemptCount=0。报告过大时显式返回 truncated/omittedPaths 摘要。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入资源、导入和输出按扩展名与实际内容双重校验：STEP/STP/BREP/BRP/STL 128MiB、mesh384MiB、v4工程512MiB；普通资源与旧JSON/v3工程20MiB。最多32资源、合计512MiB、30分钟有效。v4把完整源资产独立保存，JSON元数据仍20MiB、最多2000个历史特征。2000 是建模特征数，不是撤销步数。新增、预览、导入、粘贴、批量对齐和拆散均受限；批量按实际新增特征数计数，编辑或删除仍可使用。计算前在无 timeline 的工程大小上预留 4 KiB，提交前按含锚点和裁剪后历史的完整文件再次校验。超限返回 SIZE_LIMIT，已运行的内核恢复原工程，revision、撤销/重做和当前工程不提交变化；不要重复重试，应减少特征或拆分工程。读取 files.capabilities() 获得当前实际上限。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -2124,7 +2132,7 @@ files.release: contextPolicy=none
 按返回的新实体与 replacements 更新引用；不要继续使用已被替换的实体/边编号。核对被切除/保留区域、孔、连接和对象数。
 没有相交、相切退化、无效实体和结果未知是不同问题。若未提交，可针对明确原因修正来源；partial 保留成功部分；unknown 查原回执，不重复切削，不重建全部。相关 api.run。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -2241,7 +2249,7 @@ unknown/queued/running：先查原 job/batch/request 回执；超时不代表失
 partial：逐步列出成功和未完成项，只规划剩余工作，不能声称已整体回滚。
 向用户说清“什么失败、已确认保留什么、下一步查什么”。缺少提交证据时说尚未确认，不说已保存/未改变。具体 error.recovery 优先于此分类概览。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -2356,7 +2364,7 @@ open 替换当前工程；import 向当前工程导入，具体格式和语义�
 generated 仅证明字节已生成；download_initiated 仅证明下载开始；write_verified/agent_write_verified 才是对应宿主的校验落盘回执。旧 revision 的保存不能清除新修改的 dirty。
 压缩/重连后，用宿主的项目索引找到原始路径、哈希和最后保存点，再按 fileId 解析；没有保存点的旧对话不能凭文字恢复历史画布。浏览器资源过期时从持久化原件重新登记，不重复计算源几何。详见 recipe.file-workflow、api.file-errors。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -2472,7 +2480,7 @@ files.release: contextPolicy=none
 限制：读取当前卡和 getServicesCapabilities 的适用面、精度、来源复杂度与输出类型；不将平面成功外推到柱面/自由曲面。meshBoolean 不会自动得到精确 STEP。
 失败：区分来源没取得、轮廓不闭合、孔解释错误、支撑面不兼容、服务请求失败和未知提交。保留来源与诊断；不删细节/孔洞、不用粗网格、不改变深度来掩盖失败。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -2587,7 +2595,7 @@ files.release: contextPolicy=none
 检查：核对实际作用边、R、实体有效性、相邻孔/薄壁及剩余对象。显示更新不是几何有效性证明。
 失败：区分选边过期、半径不可行、内核/服务不可用和未知提交。定位到具体来源/阶段，不自动减小 R，不反复换内核，不删除细节以换取成功。未知结果查询原 job/request；已有部分提交先保留。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -2702,7 +2710,7 @@ files.release: contextPolicy=none
 按子目标分批构建，链式使用回执的新 context；只读必要记录，格式解析和大文件筛选留在宿主，避免逐页把整份文件塞进对话。
 用 inspectDesign/measure 等按来源尺寸核对。假设、猜测轮廓或通过一个小样，不构成完整实件验收。来源不足时说明缺哪项，保留已完成工程。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -2817,7 +2825,7 @@ files.release: contextPolicy=none
 检查：确认产生的是实体还是开放壳、截面尺寸与端部位置、孔是否保留。没有闭合实心体的回执，不声称得到可直接加工实体。
 失败：按路径定位缺失/反向/自交截面，核对来源与导引兼容性；G1/G2 不成立不能用近似曲面冒充。先查原回执，不盲换截面顺序或反复改数值。详见 api.mechanical、api.references、api.feature-plan。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -2927,7 +2935,7 @@ files.release: contextPolicy=none
 
 同源宿主通过 window.webcad.hostControl.set({locked?:boolean,connected?:boolean}) 同步设置，get() 读取；返回 {version:1,locked,connected,mouseMode:"view"|"editable",pageApiWritable:true}。不是建模工具，不需要工程context，不增加revision、不存入工程。locked=true 仅允许鼠标在视口旋转、缩放和平移；人工菜单、属性、快捷键、拖入文件、锚点及实体手柄不可用；page API 建模、编辑、文件和查询仍可用。释放 set({locked:false}) 恢复人工编辑并保留查看模式。连接和控制状态显示在已有顶栏右侧；getState().hostControl 同步读取。宿主应在iframe加载后重新设置状态；跨源宿主不授权此直连接口。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -3038,7 +3046,7 @@ files.release: contextPolicy=none
 新插入的独立对象、导入和复制/阵列提交后清除选择（含通过预览应用及批量创建）；已有特征的参数编辑保留选择。body.appearance/document.appearance成功后清除实体与面边选择。setDisplayPreferences渲染字段、setRenderQuality和setView.display成功应用后同样取消选中，直接查看最终渲染。精度、主题、吸附设置不触发此规则。getState().selection读回空bodyIds/topology；需要后续加工时显式setView.selectedIds。鼠标与数值入口操作同一份工程。启动默认编辑页签、查看模式和透视投影；同源宿主控制见 api.host-control，锁定期间仅鼠标旋转/缩放/平移，page API 可继续建模；选择按钮或 V 进入实体选择，查看按钮或 Esc 返回查看。编辑页移动/旋转默认启用实体手柄，API 用 setView({context,gizmo:"translate"|"rotate",selectedIds?})；省略 selectionMode 自动转为 body，显式指定 face/edge 与该 gizmo 冲突返回 SELECTION_CONFLICT，host 未被调用。可以先启用模式再选实体；getState().view.transform 返回 {mode,bodyIds,attached,canDrag,blocker}。blocker 为 MODE_OFF、NO_SELECTION、MULTIPLE_SELECTION、HIDDEN_SELECTION、STALE_SELECTION、BUSY 或 null；attached/canDrag 表明当前单个可见对象是否已挂接、是否可拖。启用/取消手柄或更换选择不增加工程 revision，鼠标拖动松手通过 transform 提交一个历史步骤。精确数值变换先读 getTool({id:"transform"})；移动可用 params:{x:10,y:0,z:0}。绕指定中心旋转用 params:{mode:"rotate",pivot:[0,0,0],axisVector:[0,0,1],angleDeg:90}，并显式传 placement:{version:1,frame:{kind:"world"},sourceAnchor:{kind:"model-origin"}}；refs 必须是一个当前对象 ID。多个对象分别以 run 的 transform 步骤处理，atomic=false，遇失败前面的成功步骤保留。读回新 body/feature/revision 和 display.rendered。
 绘制轮廓默认按图元点击，不要求用户配置全部选项；API 使用现有严格 sketchProfile 契约，显式传 entities 和 chains/loops/regions，output 为 wire 或 face，工作平面用 placement。先读 getTool({id:"sketchProfile"})；minimalExample 是完整可执行参数示例。线、圆、三点圆弧、矩形、折线等图元均保存为解析来源；参数矩形、圆角矩形、长圆的外环可直接引用其原始图元 ID 一次（entityId 为该 id，reversed 为 false），内部会自动展开有序边；不自动生成 loops/regions，也不要求猜派生边 ID。sketchProfile.normalExample 提供完整40×30矩形闭面；详见 recipes.rectangle-profile。二维 heightMm 不表示拉伸厚度，profileExtrude.distanceMm 必须来自用户要求。人工参数和高级编辑按当前任务显示；菜单页签、分组和展开策略保持用户原设计。inspectProfile({context,bodyId}) 只读诊断。prepareProfileEdit 为高级修剪/延伸/圆角提供明确 entityId/targetId 与交点候选，selectionRequired=true 时必须选择候选；不猜测交点。轮廓成体另用 profileExtrude，保持轮廓来源可编辑。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -3154,7 +3162,7 @@ connect().onboarding.knowledge.policy=required-on-first-handshake。Agent首次�
 可选Node宿主helper（不是网页运行依赖）：createPageClient({send:宿主授权CDP适配器,knowledge:{baseUrl:目标页URL,directory:宿主缓存目录}})。connect自动下载/验证，返回knowledgeStatus:{status:ready,cacheHit,directory,downloadedFiles}；已有匹配缓存不发下载请求。未配置knowledge时返回download_required，helper.run在知识包准备前拒绝执行。其他宿主按相同清单实现存储适配。页面不能证明远端Agent已经写盘，不能把handshake描述符当成下载回执。
 await client.route('DWG图纸重建')返回匹配路由和需要的doc/tool IDs；await client.readLocal({docIds:['api.reconstruction'],toolIds:['inspectDesign']})仅取这两项。默认字符预算32000，不能容纳的整项返回omitted/CHAR_BUDGET，不截断schema；调用方缩小本次读取范围。下载不自动安装技能；安装包仍由宿主选择并执行。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -3264,7 +3272,7 @@ files.release: contextPolicy=none
 
 Pointer marking is silent: no instruction overlay or success toast; empty space is ignored without a dialog. Explicit API screen requests still return LOCATION_NO_HIT. All toolbar mode buttons use equal 32px square backgrounds. Toolbar: Select and View are primary controls; body/face/edge belong to Select, location marker belongs to View. Focus mode shows only the active group; leaving focus shows all. Move body shortcut is removed. Requires a connected native Agent. Click Mark location then the model surface, or double-click in body selection mode. markLocation({context,screen:[u,v]}) uses normalized viewport coordinates; active:true/false arms/cancels; context alone reads active/last. Coordinates are approximate world mm from the display mesh, bound to body/face and current revision. Shows P labels on the viewport. Inserts only 【位置P1】 in the native composer, with a compact P1 chip above it and coordinates on hover. The host keeps temporary point data and resolves only referenced tokens at send time; stale revision references fail. Existing draft is preserved, never automatically sent. Disconnected hosts fail AGENT_COMPOSER_UNAVAILABLE. No geometry/history/dirty change; host editing lock remains.
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -3382,7 +3390,7 @@ planPatternMachining({context,intent})只读规划。intent.version=1；requeste
 
 LOGO轮廓导出：readLogo成功后用返回的logoId调用exportDrawing({context,logoId,format:"dxf"})；生成附件不依赖工作区文件写权限，不创建实体或工程图，保留毫米1:1外环和孔洞。可用format:"json"保存原轮廓包供以后本机重新读取，只有最近4份logoId有效。\n统一 LOGO：工具栏“面加工→LOGO”与页面 execute({action:"feature.add",args:{op:"logo",...}}) 共用建模内核。先 getState() 得到当前 bodyId/revision，queryGeometry({context,bodyId,kind:"face",requireUnique:false}) 找精确 BRep 面与 faceId；放置点 point 必须为该面的三维 XYZ。新操作 params 使用 {placementVersion:2,faceId,point:[x,y,z],mode:"engrave"|"emboss",depthMm:显式正数,draftAngle:0,scale:1,angle:0,offsetXMm:0,offsetYMm:0,mirrorX:false,regions:[{outer:[[x,y],...],holes:[]}],source:{kind:"reviewed-contours",reviewed:true,original:{...}}}，refs:[bodyId]。source.reviewed=true 是调用者已复核轮廓来源、尺寸和孔洞的明确声明；新流程不猜深度。平面可凹刻/凸字/拔模，非平面只允许 mode=engrave 且 draftAngle=0，默认 projectionMode:singleFace（省略亦同）受原曲面边界、接缝、薄壁校验。明确 projectionMode:connectedFaces 可跨同一实体上相连的正向平面/圆角/周期接缝：placementVersion:2、mode:engrave、draftAngle:0；沿放置点外法向的反方向投影并生成精确相连刀具，先合并接缝刀具再布尔减料。depth 是沿投影方向的距离，不等于各曲面法向深度；UI 的“加工范围”使用同一参数。轮廓、孔洞、比例不变；越界、投影缺口/重叠、背面/侧壁、穿透薄壁或分离实体拒绝。getState().bodies[].logoProjectionReport 返回 mode、depthDirection:projection、depthMm、direction、sourceFaceIds（源修订面号）、removedVolumeMm3；面号不复用于结果修订。不能自动切换模式或缩字来掩盖失败。创建时记录源 BRep 哈希作快照审计；历史重建以稳定的面几何签名、类型、面积与中心校验，不能把跨内核不稳定的原始序列化字节误作历史匹配依据。旧 logo 缺少 placementVersion 沿用原平面语义，旧 curvedLogo 只供历史兼容。轮廓单位 mm、局部 X 为全局 X 投影到目标面切平面（X 法向附近改 Y）、局部 Y=法向×局部 X。浏览器 UI 本地读取 .logo.json/受限 SVG/粘贴 SVG 或闭合 d；外部 AI 可直接提供经复核的 regions，不能把 SVG 字符串当 regions。SVG 曲线离散误差源尺度约 0.005 mm，等比放大后误差也按比例增加。启用统一计算接口后，readLogo将PDF/AI、非本地支持的DXF和PNG/JPG/BMP交给受控后台；未配置后台时本机受限SVG/LOGO JSON和受支持闭合直线DXF可用。位图raster可省略；threshold与alphaThreshold是0–255整数，默认128与1，invert为布尔值且默认false。它不同于readRelief的0–1阈值；0.5不会自动换算或取整。NO_VECTOR_CONTENT表示本次前景为空；先读原作业并核对实际参数与源图，不自动反转、扫描阈值或重提交同一失败输入。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -3498,7 +3506,7 @@ helix 的 radiusMm 是中心线半径，pitchMm 是每圈正轴向进给，turns
 thread refs=[单一实体]，当前圆柱 faceId、kind=external/internal、pitchMm、depthMm、lengthMm、startOffsetMm、includedAngleDeg、leftHanded。用所选解析圆柱面的实际轴/半径/轴向区间构造并裁切真实V槽，替换来源；区间必须在该面轴向范围内。getState().bodies[].threadReport 读实际轴、半径和尺寸。standard=none：不提供ISO/GB规格、配合公差、多头牙、端部退刀槽或力学认证。失败不得自动减小牙深、扩大公差或改用显示纹理。
 本扩展不把装配配合/工程图、通用草图样条约束、自由曲面G2、变半径圆角、钣金/凸轮/CAM视为已补齐。这些需要各自的数据模型、几何处理与验收；工具数量不表示主流机械CAD全功能覆盖。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -3609,7 +3617,7 @@ files.release: contextPolicy=none
 完整网格承载：files.register({name,data})支持完整二进制STL和webcad-mesh-f64-u32-v1文件；files.import({context,resourceId,units,placement?,idempotencyKey})声明STL单位mm/cm/m/in，mesh格式固定mm。STL最多128MiB/2百万面，mesh字节最多384MiB/4百万结果面；这些是配置上限，实测范围看当前阶段报告，不能冒充全上限性能通过。只读源字节按SHA-256存储，不自动焊接近邻、删面、补孔或修复方向。rawMesh不冒充solidMesh/BRep；面积和包围盒来自正式Float64几何，体积及实体资格未知为null/未核。显示使用独立Float32坐标与previewOrigin，不能据预览导出或测量。保真STL未变换时导出原字节；明确变换的STL量化误差大于.005mm则拒绝，正式几何仍保留。网格不能导出精确STEP/BRep，也不能用精确面边编号或机械工具。混合/未结合组件不能冒充单一实体导出。
 STEP/BREP同样可使用独立完整源资产（详见api.exact-source-assets）。工程v4是含完整源字节的ZIP，按类型白名单与哈希核验，展开上限512MiB；v1-v3保持读取，旧版本不能降级丢网格。历史只引用资产，所有保留历史不再使用才回收。大文件通过资源描述及二进制通道，不把百万坐标/base64放入Agent回执。编码/解码/导入在Worker完成；无网络即可读取保存的源、测量和导出。源文件没有制造单位证据，显式单位输入仅为使用者解释。Services新增同一入口的受控MeshWorker，真实source/codec/client/offline检查未通过时保持禁用；当前自交未经独立核验，布尔/自动修复不开放。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -3719,7 +3727,7 @@ files.release: contextPolicy=none
 
 meshReliefPlate创建可复用底板：widthMm/depthMm/thicknessMm/spacingMm及bumps，中心XY、正面0、背面负厚度；bumps明确中心、高度、平顶半径及外半径，叠加是相加，导出仍为网格。创建和编辑都通过同一CommandService及Worker。网格局部修高meshReliefEdit通过feature.add或preview.start/commit调用。先getTool读取严格契约，getState.bodies[].meshReport.geometryHash绑定当前源，expectedRevision绑定文档。support显式毫米原点、单位xAxis/normal；seedMm为当前正面上的世界点；region为支撑XY核心半径和过渡宽，protectedRegions为硬保护圆。scaleHeight按支撑基面缩放局部高度；offset沿法向毫米增量；flatten指定基面高度；replace传field:{originMm:[U,V],sizeMm:[宽,高],heightsMm:二维毫米高度矩阵}，行沿正V，双线性目标在核心替换旧面、过渡带混合，绝非max覆盖。replace也可传profile代替field：segments为二维三次Bezier控制点，stations按近似弧长比例0到1列出sectionMm横向毫米/高度毫米样点，正横向为路径左边；endTaperMm控制首尾收尖，baseHeightMm为路径外基面，curveToleranceMm控制路径弦偏差，maxSourceSpacingMm为源采样门禁。截面和纵向线性插值，无高度插值过冲；首尾为三次平滑收尖。也可用deformation:{pivotMm,translationMm,scale:[正U比例,正V比例],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}局部移动/收窄/旋转；只对sourceRegion内不可变原网格逆变换采样，域外用显式baseHeightMm，避免复制邻件；保留峰高、固定拓扑及保护域，存在重采样误差，需独立验收，间距门禁不证明精度。layers模式按数组顺序合成1—16层，每层id唯一且enabled明确。surface层声明role=macro/detail：add/remove使用正heightMm及attachment=followHeight，表示沿法向的相对增减；replace使用attachment=absolute及heightMm/field/profile之一，表示绝对目标。freeze层regions冻结此后各层对应区域；全局保护作用于全部层。每层region必须在总域内。通过feature.edit修改原特征的整个layers数组，从该特征不可变输入重算；顺序与启停写入工程。细节随动限高度方向，不承诺横向或切向自动附着。强制targets检查最终合成，任一层失败整次不提交；edit.layers回读逐层结果，最小厚度为各层影响域保守下限，并非全模型厚度证书。profile、field、deformation、value、layers互斥；原特征跨模式变更涉及参数删除时新建派生操作。源三角面间距超出目标网格间距拒绝RELIEF_RESOLUTION_INSUFFICIENT，不自动重网格。仅正向单值、闭合一致定向网格，固定XY、Float64，不改拓扑。投影面片重叠区域的顶点及受影响顶点/重心检查底面厚度和近邻穿入，不能据此宣称任意三维自交验证。sampleMeshRelief读取当前正式网格支撑坐标下全部交点高度，可数值核对截面、底面与峰谷；空命中和多层交点显式返回。可选targets:{pointMm,heightMm,toleranceMm}数组为强制验收点，保护/域与目标冲突返回RELIEF_CONSTRAINT_CONFLICT及targets索引，不提交。meshReport.edit.constraints回读实测偏差。meshReport.edit读回输入/输出hash、影响量、保护差和实际最小厚度。最多20万三角面、2万修改点、1200万射线测试，超限保留源；分区不能免除相邻壳检查。历史撤销恢复原配方/源，不刷反向笔触。精确BRep与STEP继续使用曲面工具，本操作不会将网格伪装STEP。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -3829,7 +3837,7 @@ files.release: contextPolicy=none
 
 渲染设置→金属材质参数列表与getMetalMaterials()/setMetalMaterials({context,configuration})共享同一配置。configuration={version:1,styles:{mirror:{environmentMode:studio,roughness:0.055,reflectionStrength:1.08,metalBodyTint:0.015,studioReflection:polished,coat:0,hueKeep:0,depth:0}},materials:[{id,label,style,color:[r,g,b],...参数覆盖}]}，实际需包含getMetalMaterials返回的完整内置列表。styles有1–16项，materials最多64项；id/方式键为小写字母或数字开头的1–48位小写字母数字连字符，材质ID唯一，label为1–40字符。color及patinaColor是三个0–1的线性sRGB反射值（不是十六进制界面颜色）。材质参数覆盖对应style；新增方式只需新增安全参数组合，不允许上传或执行GLSL/JS。参数metalness/roughness/coat/hueKeep/anisotropy/antiqueStrength/antiquePitStrength为0–1，reflectionStrength/depth为0–3，metalBodyTint为0–0.5，antiqueAtlasOffset为0–0.5，antiqueTextureScale为0.1–10；environmentMode为studio/hdr/inherit，studioReflection为polished/environment。style指定环境优先于全局environmentMode，inherit跟随全局；其他灯光/曝光/粗糙度增量继续生效。可复制自定义材质，内置ID不能删除；当前工程/实体仍引用的自定义ID删除返回MATERIAL_IN_USE。导出直接读取configuration，导入传同结构；恢复默认传defaults。get读取无需context；set要求当前identity context。配置先校验后原子安装，非法值不修改显示；持久化失败返回persisted:false但当前页已应用，可导出备份。浏览器localStorage版本键保存，工程保存时嵌入renderMaterials；打开带配置工程仅使用工程快照，不覆盖浏览器默认；旧工程使用当前浏览器默认。浅金为A1线性RGB[1,0.66,0.23]，24K为B2[0.9,0.42,0.025]；亮镍[0.76,0.76,0.76]与枪色[0.18,0.21,0.24]底色不变，均为同一mirror参数。项目/实体finish键和撤销保留，配置管理本身是全局显示设置，不进入几何撤销历史。开发配置源src/metal-presets.js统一驱动列表、校验、UI下拉及AI允许材质。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -3939,7 +3947,7 @@ files.release: contextPolicy=none
 
 快捷工具定义由软件内置，只允许调整创建参数和显示顺序。getModelLibrary读取readOnlyDefinitions:true、allowedOperations:[move,restore]、revision及各工具fields/schema/execution；resolveModelLibrary({context,id,expectedLibraryRevision,params})返回run/add实际参数，params只接受该工具字段。updateModelLibrary({context,expectedLibraryRevision,operation:move,id,index})调整显示位置；restore恢复默认顺序。定义、脚本、导入、删除、upsert均拒绝。列表为45个当前工具，6个移除工具仅保留历史重建。category/categoryLabel标明分组，默认同组相邻、简单在前。catalogOrderVersion升级时启用新默认分组排序，原存储保留；升级后用户调整的顺序继续持久化。旧工程冻结脚本仍可重建，新建API不接受modelScript。缩略图与默认尺寸图在开发时预生成，运行时只加载静态资源，不启动预览几何内核；丝筒内部结构用半透明实体加边线。图片表示默认参数，创建值以输入框/参数为准。旧远程助手可用getUILayout({includeModelLibrary:true}).modelLibrary读库，并通过setView.modelLibraryChange执行同一排序接口。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -4095,7 +4103,7 @@ bodies[].displayReport.watertight/boundaryEdges 是显示三角网格在焊接�
 导出是用户显式动作，生成字节/资源不等于下载落盘。普通建模不附带导出，Agent 不用模糊按钮文字猜 STP；用 files.export 的明确格式契约。额外确认不是所有导出的必要步骤。
 
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -5011,7 +5019,7 @@ connect({queries:[本次能力]})或connect({toolIds:[已选ID]})获得当前状
 读取 getState().parameters 和 parameterValues。execute({context,idempotencyKey,action:"document.parameters",args:{parameters:{length:{value:50,unit:"mm"},edgeMargin:{value:5,unit:"mm"}},bindings:{"<实际板特征ID>":{"width":"length"},"<实际孔特征ID>":{"points.1.0":"length-edgeMargin","points.3.0":"length-edgeMargin"}}}}) 在一个撤销步骤内计算受影响特征并重建。后续只传 parameters:{length:{value:63,unit:"mm"}} 更新数值，原绑定保持。
 参数定义按名称合并；绑定按特征 ID 和数值路径合并。单位仅 mm/scalar，表达式支持有界四则运算和已注册函数，不执行 JS。未定义参数、循环、单位不符、越界或不安全的后续拓扑索引会拒绝并保留原模型。已绑定字段的直接数值编辑返回 PARAMETER_BOUND；请通过参数表或 document.parameters 修改。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -5140,7 +5148,7 @@ planPatternMachining({context,intent})只读规划。intent.version=1；requeste
 照片/光影参考 | 先人工制作高度图，再meshHeightfieldRelief | 不直接加工 | 禁止把照片亮度当几何深度
 heightfieldSculpt和reliefSculpt是发现入口，执行真实feature.edit/prepareReliefSculpt，并非独立建模op。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -5268,7 +5276,7 @@ frame 有且只有以下四种形状：
 变换有两条独立契约：省略 placement 的普通世界变换用 params:{x,y,z,rx,ry,rz,scale}；显式 placement 则使用 mode:'translate' 配 delta、mode:'rotate' 配 pivot/axisVector/angleDeg，或当前 transform 卡的其他 mode，不能混用旧 x/y/z 和 mode。变换后引用 createdBodyIds/replacements 中的新 ID；run 后续步骤用 $ref。
 
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -5378,7 +5386,7 @@ files.release: contextPolicy=none
 
 从 text-to-cad 的 dfam-check 迁移的浏览器几何事实检查。inspectPrintability({context,bodyId,angleLimitDeg?:45}) 接受当前实体 ID，角度须大于 0 小于 90 度。读取当前显示网格逐三角面计算表面积、六种轴向摆放的悬垂面积、面积占比、成型高度与支撑柱体粗估；距平台 0.1 mm 内的面视为已支撑。包围盒、体积与 solidCount 取内核 B-Rep 元数据。结果不改变工程 revision，不给合格判定。网格精度、材料、工艺、壁厚、孔径、粉末排出和切片支撑均需另行核验。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -5495,7 +5503,7 @@ source.units为提交几何和尺寸的单位；缺失或unresolved保持待核�
 TypeID为本地系统分类线索，不当结构真值。明确familyId可跨品类选择已核结构，返回categoryHintOverridden:true；候选列表仍按官方TypeID提供。杂类不训练统一模板；同类存在多个稳定族时逐族选。A/B/C字母不能代替零件职责；主件、活动件、底片、外购件分清后，再加载选中的完整卡，依据原尺寸做feature计划。尺寸、剖面、轴孔配合与开闭/出货状态应在规划时附来源；Logo最后。
 目录由结构抽样经验形成，非模型权重训练、非完整产品验证。原始业务图纸与照片留在本地，不随公共知识包下载。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -5605,7 +5613,7 @@ files.release: contextPolicy=none
 
 fitProfile({context,kind:"circle"|"line",plane?:"XY"|"XZ"|"YZ",points:[[u,v],...],maxResidualMm?}) 基于 3–1000 个按截面坐标给出的有限采样点，只计算圆或直线候选，不生成实体也不修改 revision。circle 返回圆心、半径、按输入顺序展开的角覆盖；line 返回中心点、方向和投影长度；两者都返回最大与 RMS 残差。maxResidualMm 只作用户输入阈值的数值比较，不是默认产品公差。源自 text-to-cad 的截面圆候选算法思想；结果是点样本的近似，不能替代原图尺寸、完整拓扑或内核精确实体。拟合曲面建模另有 fittedSurface 操作，需 3–12×3–12 对应点阵。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -5715,7 +5723,7 @@ files.release: contextPolicy=none
 
 queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,limit:20}) 返回精确 BRep 候选、总数、分页及快照绑定令牌。face.surfaceType 筛选支持 plane/cylinder/cone/sphere/torus/bspline/bezier/revolution/extrusion/offset/other；edge.curveType 支持 line/circle/ellipse/hyperbola/parabola/bspline/bezier/offset/other，也兼容内核原始小写类型（cylindre、bspline_surface、bspline_curve 等）。返回 geomType/surfaceType/curveType 保留实际内核编码。plane 另包含已证实共面的 BSpline（planar=true）。normal 和 atExtreme 仍仅适用于可识别平面；非平面不能伪造统一法向。BSpline 返回 spline 次数、控制点数量与节点数量，尚不返回完整控制网或 G0/G1/G2 认证。圆边返回 radiusMm/center/axis；radiusRangeMm 不适用于椭圆。拓扑编号和 selectionToken 只属于返回的工程实例与 revision。改模型后重新查询。 新筛选 bounds:{min:[x,y,z],max:[x,y,z],mode:"contained"|"intersects",toleranceMm?:0.000001} 使用世界坐标 BRep 包围盒；默认完整包含，不是实体体积相交证明。边支持 adjacentSurfaceTypes:["plane","cylinder"]，按实际相邻曲面类型匹配（两项要求两个邻面）。onFaceToken 限定当前面后可用 loopIndex，边返回 boundaryLoopIndices；环索引仅当前修订有效，不猜内外环。解析柱面返回 cylinder:{radiusMm,origin,axis}。expectedCount 为正整数，与匹配数量不符返回 SELECTION_COUNT_CHANGED（0 匹配为 NO_MATCH），报告 matchCount/expectedCount，且不创建选择令牌、不进入加工。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -5825,7 +5833,7 @@ files.release: contextPolicy=none
 
 三种链新建默认4节，一个历史特征/模型Compound，内部为互相穿接的独立实体。sizeMode=count时linkCount为1..100整数，maxLengthMm省略或0；sizeMode=length时maxLengthMm为正数≤10000，linkCount省略或0。二选一，冲突拒绝。总长按局部Y外包络名义尺寸L+(N-1)×pitch，pitch由真实链节BRep沿受拉方向求首次内口接触，接触容差0.00001 mm，不再采用固定留隙或外长百分比；选不大于上限的最大完整节数，小于一节或超过100节拒绝，不裁断。O字链在0/90度两个姿态交替，方向规律。钮链和磨链全部同向，后一节嵌入前一节高低凹位，不累计旋转；链中心沿+Y，磨面共面。成链时来源中心线Z起伏乘1.6，径向圆线不随之放大，W/L/线径不变，磨链仍裁到groundThicknessMm；原来源凹位太浅，原样同向装配会穿透。单节仍采用原来源起伏。chainReport.twistFactor/rollPatternDeg/layoutVersion可读。内核从保守无碰撞穿接位置沿+Y拉紧到首次内口接触，保持独立实体和原截面；validation.contactGapMm/contactToleranceMm/method返回实测接触，layoutVersion=taut-contact-2。穿接通用规则见api.modeling.methods.interlocked-assembly。比例无效明确失败。getState().bodies[].chainReport返回linkCount、lengthMm、pitchMm、sizeMode、rollStepDeg、validation；只省略尺寸键的旧工程配方继续重建单节。feature.edit切换方式须同时清零原来激活的数值。示例params:{kind: oChain,sizeMode:length,maxLengthMm:50,linkCount:0}（字符串值需引号）。来源驱动快捷工具：template.oChain、template.twistedChain、template.groundChain、template.ironFoot。均用add op:quickModel params.kind创建，固定本地WASM。链环outerWidthMm/outerLengthMm为X/Y外宽外长，wireDiameterMm为来源圆线尺度，gapMm为-Y端接缝，0闭合。O字链内孔为真椭圆，非跑道圆角矩形；扭链保持NL来源对角起伏，独立调中心线宽长和线径，不提供任意扭转角；磨链groundThicknessMm为上下磨面间距、grindRadiusMm为磨边固定R。底面Z=0。铁脚仔桥长Y、片宽X、顶面Z=0、脚朝-Z；taperAngleDeg控制脚侧收角，endRadiusMm控制脚端圆弧，footHoles为none/front(-Y)/back(+Y)/both；孔径0无孔。heightMm含顶片厚。V01默认单后脚孔，V02收脚4.2度/桥长10.5/片宽4.8/总高8.5/R1.9/片厚0.5/顶孔2.3/孔距5.5/脚孔2/脚孔心距底1.9/front；V03长26.4/宽6.1/高15.3/R3.05/厚0.5/顶孔2.6/孔距19/脚孔2.5/脚孔心3.05/both。省略字段沿当前卡默认，来源参数应完整传入。所有几何关系由内核校验，失败不改已提交工程；编辑用feature.edit，量测用measure/queryGeometry，保存/重开保持同一配方。O和磨链是通用重建，默认源件体积偏差分别约0.022%/0.010%；不是原STEP逐面字节复制。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -5935,7 +5943,7 @@ files.release: contextPolicy=none
 
 铜皮鸡眼template.twoPieceEyelet与合金鸡眼template.alloyEyelet均为一个quickModel特征、两个独立同轴实体。通过run的add op:quickModel、params.kind创建，feature.edit修改、getState/measure读取实体和尺寸；kind名称不是execute操作名。faceStyle=flat或curved，faceRiseMm为弧面径向拱高，flat忽略该值。A长脚件在上方（+Z），脚向下；B底片在下方（-Z），颈口向上，两片外观面朝外，底面Z=0。铜皮鸡眼新建默认explodedOffsetMm=0，assemblyGapMm=0，按长脚与短脚尺寸静态套合；assemblyGapMm为额外轴向拉开距离，正的explodedOffsetMm横向错开展示但仍相向。旧配方无faceStyle且未写横移时沿用24mm同向分开展示；新建会冻结faceStyle和定位参数。铜皮薄板以圆弧旋转形成曲面，轴向板厚保持，不模拟冲压。合金鸡眼参考PG14922，A外套管与B内套管相套，无内侧爪针；outerDiameterMm/boreDiameterMm为两面共用外径孔径，aFaceThicknessMm/bFaceThicknessMm为面厚，edgeChamferMm为真实面框倒角。a/bNeckOuterDiameterMm、InnerDiameterMm、LengthMm分别为两套管尺寸。materialGapMm为两面框内侧平面净距，须比最长套管大至少0.01mm；B套管外径须小于A套管内径。倒角须小于两面厚及环宽的一半，弧高须小于有效面环径向宽的一半。尺寸关系不成立明确失败且不提交工程。默认合金外径19.8/孔10及套管尺寸参考来源，平面/倒角/无针是用户指定改型，间隙与弧高为可调设计值，不冒充原图标注。铜皮装配朝向参考PG15211，默认尺寸仍为通用尺寸。两类均不模拟压铆、变形、锁扣与安装材料。原frameEyelet为带安装螺丝柱的另一类鸡眼面，保留其现有接口。保存重开与撤销共用标准历史配方。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -6045,7 +6053,7 @@ files.release: contextPolicy=none
 
 快捷模型包括 spring 弹簧、screw 螺丝、threadedSleeve 丝筒、domedPin 半圆钉。先 getTool({id:'template.screw'}) 或其他 template.kind 读完整 defaults、fields、inputSchema，然后 run({context,idempotencyKey,steps:[{id:'part',method:'add',args:{op:'quickModel',refs:[],params:{kind:'screw',headType:'flat',headWidthMm:6,headThicknessMm:2,threadSize:'M3',threadLengthMm:8,drive:'cross'}}}]})；每次使用新鲜 context 和唯一幂等键，默认放到当前参考位置。页面 API 中尺寸单位 mm。螺丝平头是圆柱头，沉头固定 0.20 mm 外缘直升位加圆锥，headThicknessMm 包含直升位；头的最下面位于参考位置，牙杆朝本地 +Z。槽型 cross/slotted/star/hex，默认十字，梅花由六组相切圆弧组成。M1–M12 支持卡内列出的粗牙规格，自动选螺距；实际 V 型牙槽不声称标准等级或配合公差，最长 100 圈。丝筒 upper bottom 在参考位置、本地 -Z 向下，face 是下端；从下端向 +Z 攻内牙，threadDepthMm 不超过总高，两端外径须大于名义螺牙直径。螺牙直径必须匹配支持的 M 粗牙直径。半圆钉只有 diameterMm、heightMm，由光滑 Bézier 母线旋转，平底在参考位置、凸面向 +Z，不要求球面。弹簧 radiusMm 是中心线半径，wireDiameterMm 是线径，pitchMm 是每圈轴向螺距，turns 是圈数，leftHanded 是左旋；螺距必须大于线径。getQuickModelUsage() 返回本浏览器累计成功创建次数和五个常用项；完整目录按简单优先，面板列表固定最小 240px，空间不足纵向滚动。仅新创建并提交后计数，不统计预览、失败、修改、撤销重做和打开工程。锣槽 faceGroove(refs:[bodyId],params:{faceId,lengthMm,widthMm,depthMm})；内车 innerTurn/外车 outerTurn(refs:[bodyId],params:{faceId,diameterMm,depthMm})。先 queryGeometry 选真实 planar faceId，工具沿该面的反向法线进入材料，中心用面面积中心；锣槽 X 为世界 X 在面上的投影（退化时世界 Y），宽方向保持右手系。内车移除给定直径的内圆柱材料，外车在给定深度内移除给定直径之外材料；不会把当前工作锚点再次应用到加工几何。选择只能是一个平面截面，非平面、没有切到材料或破坏单一有效实体会失败，来源不改。它们是实体几何操作，没有机床刀路或进给。读回 receipts、measure、queryGeometry 和 rendered revision；修改用 feature.edit，保存/STEP 导出用 files API。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -6155,7 +6163,7 @@ files.release: contextPolicy=none
 
 安装结构先按剖面选族：薄壁旋转翻边两件用 template.twoPieceEyelet；圆/圆角方形面框、短颈口和对称柱/普通孔用 template.frameEyelet；恒厚开口U夹用 template.uStrapClip。先 getTool({id:'template.frameEyelet'}) 或 getTool({id:'template.uStrapClip'}) 读该模板完整字段、默认值与限制，不必加载总目录。调用 run({context:新鲜requestContext,idempotencyKey:唯一键,steps:[{id:'part',method:'add',args:{op:'quickModel',refs:[],params:{kind:'frameEyelet'},name:'安装鸡眼'}}]})，U夹把kind改为uStrapClip；省略字段沿完整卡defaults，实际来源尺寸必须显式覆盖。两者一次创建一个精确实体、一条可编辑历史和一个撤销步骤；UI模型库→快捷模型共用同一构建。frameEyelet面框XY居中、底面Z=0，颈口/柱朝本地+Z，2柱沿Y、4柱按XY中心距；round要求内外宽高分别相等，角R仅控制roundedRect平面轮廓。孔径0为实柱；孔深0是通孔，正孔深从柱顶向-Z且必须留底。颈口/柱长0可生成背片，背片安装孔同样为直孔。uStrapClip宽沿X，后片+Y，底面Z=0，开口+Z；前后高度含底厚，外弯R=内弯R+壁厚，内弯R不能超过内净距/2；等于一半时为半圆底，0为内直角。后孔只穿后片，孔高从底面量，完整孔须位于直段。闭合帽套、变壁厚和空间扭曲不能套用。两者不模拟真实攻牙、锥孔、饰面/LOGO、压铆、弹性和三维边圆角；平面轮廓R不是三维边圆角。需按来源另用thread/holeWizard/rounding或原剖面建模，不能拿基础模板宣称产品完整通过。改尺寸用feature.edit（读新鲜context），然后measure/inspectDesign检查开孔、颈壁、盲孔底及后片孔；rendered revision须与提交一致。模板不自动保存或导出，也不修改源图。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -6275,7 +6283,7 @@ files.release: contextPolicy=none
 未命中：缩小到一个明确能力词，或按 ID/工具组查找。无合适工具时返回能力缺口和缺少的来源，不重复搜索同一个词，不猜测不存在的工具。
 
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -6399,7 +6407,7 @@ files.release: contextPolicy=none
 细节见readDocs({docId:'api.design-checks'})；材料检查的来源标签仍由调用者核对。
 多配件按 api.modeling.methods.staged-assembly 先交规划，按实际确认分批；定位按 api.placement 的结构化契约。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -6509,7 +6517,7 @@ files.release: contextPolicy=none
 
 世界原点不可修改；工作基准是工程元数据，getState().referenceSystem.workFrame 返回 origin/quaternion/locked/frameVersion。reference.setWorkFrame、resetWorkFrame、setLocked 与保存/激活/改名/删除具名基准均经 execute 的 revision 与幂等检查，可撤销且不移动旧实体。queryReferences({context,kind:"point"|"axis"|"frame",bodyIds,filter:{types?,near?},limit?,offset?,requireUnique?}) 返回精确 B-Rep 或明确派生候选、referenceId、几何指纹、歧义和分页；edge-nearest/trimmed-face-point 必须给 near:{point:[x,y,z],radiusMm}。圆心不冒充面内点；凹面/有孔面面积重心标为不保证落在修剪区域。referenceId 在工程 revision、实例或几何指纹变化后失效。reference.setBodyAnchor 需要当前对象的精确点 referenceId、bodyId、name、单位 quaternion；保存版本和指纹。已知刚体 transform/copy 继承锚点，改形无法证明映射时标记 stale，named 锚点定位拒绝旧来源。placement:{version:1,frame:{kind:"world"|"snapshot"|"work"|"saved",...},sourceAnchor:{kind:"model-origin"|"bottom-center"|"bounds-center"|"named"|"point",anchorId?,point?}}；work/saved 要对应版本，历史保存 frameSnapshot。各工具卡 placementPolicy 声明定位是否适用。transform/copy 新 mode 有 translate、toPoint、rotate、scale、align；align 必须给源/目标点、轴、面内方向、同向/反向、间隙和扭转角，缺失或退化拒绝。新追加的独立创建（placementPolicy.mode=creation-frame）省略 placement 时默认当前 workFrame 并保存快照；显式 world、既有无 placement 历史、旧工程重建和编辑保留世界坐标语义。新版工程 version:2，仍读取 version:1。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -6619,7 +6627,7 @@ files.release: contextPolicy=none
 
 清理分割线 refineShape：用于导入实体或建模后残留的同域分割，不用于删孔、补洞或圆角。先 connect({toolIds:['refineShape','getState','queryGeometry']})，核对 canExecute，再 run({context:当前requestContext,idempotencyKey:crypto.randomUUID(),steps:[{id:'clean',method:'add',args:{op:'refineShape',refs:[当前bodyId],params:{}}}]}）。仅一个封闭实体，最多400面/2000边。固定线性公差1e-7 mm、角公差1e-7 rad；不开放公差放大。采用独立 BREP 副本、OCCT ShapeUpgrade_UnifySameDomain，随后验证有效实体、外廓、体积和两个方向的材料差。无减少返回 NO_CHANGE；失败不写历史。UI 位于修饰→实体整理，选件后预览/应用，无数值参数。getState().bodies[].refineReport 返回 before/after 面边数、removedFaceCount、removedEdgeCount、removedMm3、addedMm3、volumeDeviationMm3、boundsDeviationMm。清理会重新编号边面，后续 queryGeometry 必须重新查询；上游历史保留，可撤销。现有布尔通常已自动整理，简单新建件返回 NO_CHANGE 是正常结果。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -6729,7 +6737,7 @@ files.release: contextPolicy=none
 
 所有带 context 的页面入口接受 getState().context（revision）或 connect().requestContext（expectedRevision）。createRequestContext(context?) 可显式转换；两字段同时出现且不一致时报错，绝不自动采用新版本。大文件使用 files.register/read，禁止塞进批次或反复回传模型上下文。files.save 生成资源，files.download 只发起下载；files.write 返回 verified 才证明句柄文件写入校验。按格式限制：STEP/STP/BREP/BRP/STL为128MiB、mesh384MiB、v4工程512MiB，其他普通资源20MiB；总资源512MiB。统一异常入口 await api.invoke({method,args}) 支持当前页面方法及 files.*；原同步发现和 files 方法保持兼容，可抛带 code 的异常。后台计算回执：submit({jobId,method,args}) 立即返回 queued，轮询 getJob({jobId})，完全相同 jobId/参数只取原任务；不得换 key 重复提交超时任务。状态 queued/running/committed/completed/partial/failed/unknown/cancelled，result 保留原回执与 context。分层浮雕通过 getJob.progress 或 getState.kernelProgress 提供实际层/轮廓计数及合成阶段，不是时间百分比；工程重建也返回kind=rebuild的阶段进度（特征、校验、源快照、显示、吸附、测量），elapsedMs为已用时间，不是完成百分比；其他操作可能progress:null。已路由本地的计算超过localTimeoutMs只提醒并继续同一任务，可保存最后已提交工程；不因时限终止Worker或推荐不存在的Services。内核初始化仍有保护时限，未就绪可recoverKernel，不刷新、不重放。cancelJob 可取消尚未运行任务；运行中的 run 请求会返回 STOP_REQUESTED_AFTER_CURRENT_STAGE，并在当前步骤回执后停止后续步骤，已提交结果保留。运行中的单次同步内核不承诺中断。run 的每步可提供 stage 描述，getJob.progress 返回当前 stepId、stage、completedSteps、totalSteps 及实际 kernel 子进度。当前页面最多保留100个完整任务；已确定终态转为archived:true摘要并保留原status/result、指纹及写入身份，后续同ID只读原结果，不重跑；未知任务不归档。刷新后先检查模型，不自动重放；无额外服务。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -6845,7 +6853,7 @@ planPatternMachining({context,intent})只读规划。intent.version=1；requeste
 
 sampleReliefHeight({context,featureId,point:[x,y],draft?}) 只读吸取控制高度，与 UI Alt 吸管共用算法；返回 targetMm、quantity:height/depth、units:mm，可直接用于 flatten。点为图案局部[-.5,.5]，Y向上；轮廓外/孔洞内返回RELIEF_SAMPLE_OUTSIDE。draft不传读取工程，传入则采样该精修草稿；采样不修改工程。浮雕精修：prepareReliefSculpt 接收 featureId、strokes 与可选 draft，返回独立 deltaMm/mask 草稿；canCommit 为 true 后可请求 feature.edit 提交；executionCheck 与 UI 共用已知配方/分流预检，不能代替执行时来源、后台能力与未知任务核对。已配置后台时，大网格等不支持的精修配方提前返回 SERVICES_OPERATION_UNAVAILABLE，保留草稿、不降精度、不自动本地重算。原始 values/轮廓保留。抬高、压低、平滑、定高、填洼、削峰、锐化、恢复、遮罩共用局部坐标笔刷，支持 hardness 和 symmetry；凹雕抬高变浅、压低加深；定高字段 targetMm 在凹雕中表示深度。所有现有浮雕模式适用，STEP无来源数据不适用。后续面边编号可能失效，提前返回 blockers，不删除下游特征。 浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过prepareReliefSculpt({context,featureId,layerIndex,strokes})选择单层，返回params.layers供feature.edit一次提交；各层sculpt独立保存。未有values/sculpt的等高层可显式samples=4–65初始化网格，已有网格不隐式重采样。精修保留轮廓和孔，仅改变该层高度，不保证消除相邻层台阶。timingsMs区分源复制、刀具、轮廓裁切、边界检查、精确布尔和最终有效性检查；最终仍须为有效单实体。 files.register登记图像后readRelief({context,resourceId,name,samples:33,whiteHigh:false,style:"rounded",sourceInterpretation:"rasterArtwork"})返回values/regions/surfaceMode/aspectRatio/source。style:"rounded"按背景距离鼓起，style:"grayscale"保留灰度层次。flat/rounded的threshold默认0.5且须在0和1之间；grayscale轮廓阈值为1/255。透明像素属于背景。图片最多8 MiB/1600万像素；SVG支持基本形状、路径与渐变，文字需转路径，拒绝外部资源。run add op:relief，refs:[bodyId]，params:{faceId,widthMm,heightMm,depthMm,values,regions,surfaceMode,source,mode:"emboss",point:[x,y,z]}；平面可省point。不要丢弃regions而恢复矩形旧模式。preview.start/commit/cancel、feature.edit、history.undo与UI同路。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -6968,7 +6976,7 @@ files.release: contextPolicy=none
 照片/光影参考 | 先人工制作高度图，再meshHeightfieldRelief | 不直接加工 | 禁止把照片亮度当几何深度
 heightfieldSculpt和reliefSculpt是发现入口，执行真实feature.edit/prepareReliefSculpt，并非独立建模op。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -7078,7 +7086,7 @@ files.release: contextPolicy=none
 
 inspectRound({context,bodyId,params:{edgeIds:[当前边号],mode:"edge",radiusMm:0.3}}) 复用 round 内部规划，只读独立 BRep 副本。params 按 getTool({id:"round"}) 完整契约；恰选 edgeIds 或 faceIds，faceIds 仅解析平面边界。返回实际 resolved/scope、targetCount、targets[].supportSurfaceTypes、constructionCategories、限制和 attemptCount:0。自动端头模式会测量一个真实截面；没有构造圆角、没有多半径扫描，不保证 R 或推荐深度可行。来源与历史不改。失败报告 stage=planning，不误报成半径失败。加工后须新 context 与 queryGeometry 重新选边；旧预检不跨 revision 生效。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -7193,7 +7201,7 @@ add 是 feature.add 的适配器，自动读取当前工具版本/schemaHash，�
 每步可添加 stage（1..80字符的阶段名，例如来源确认/主面/浮雕/收边/检查），回执保留输入 SHA256、选择条件、耗时及原始结果。未请求项不加入步骤；检查阶段用 inspectDesign 等返回实际证据。相同文档 revision、方法和解析后的参数已失败时，换 key 仍返回 PREVIOUS_ATTEMPT_FAILED，结果未知则返回 PREVIOUS_ATTEMPT_UNKNOWN；先读取原任务/当前状态，真正改变几何、选择或策略后再提交。中间阶段失败或取消，completedStepIds 与 unattemptedStepIds 指导仅续接剩余步骤，不重复创建已成功的主面。步骤可省略 args。同一批次的 steps[].id 必须各不相同，不能重复；id 使用字母开头的 1..40 位字母数字下划线连字符；缺失、格式无效或重复均在执行任何步骤前拒绝，并返回对应 steps[index].id 路径。批次 key 最多80字符，当前文档实例最多保留100份回执。失败立即停止，completed/partial/failed/unknown 必须区分，atomic=false 表示先前成功步骤保留，可用 history.undo 逐步撤销。重新提交完全相同 key/请求返回原回执而不重复建模；更改请求需新 key；幂等仅本页面文档实例有效，重载后先读状态。
 files.save/export 名称可省略扩展名，按实际字节格式补齐。直接页面调用返回 generated 资源，未证明磁盘保存；Goldenluck Agent 宿主会将 run 内的保存/导出逐项送达附件（包括后续步骤失败前的检查点），分别检查 attachment 与 saveConfirmation，不必拆成独立工具调用；脚本客户端再 files.read/download/write，面板使用“下载”按钮只证明发起下载。新建/打开工程和截图使用专用页面 API，不属于批次。几何修改由旧有命令队列执行，其他 UI/客户端插入修改后批次停止，不自动接受新 revision。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -7303,7 +7311,7 @@ files.release: contextPolicy=none
 
 autoRound 是严格 v2 整件圆边：params:{radius:0.1}，refs:[bodyId]，所有尖锐边统一处理，失败不部分提交。smoothTransition 是严格 v2 面组过渡：params:{radius:0.1,faceIds:[当前相邻面序号,...]}，refs:[bodyId]。选至少两个相邻面，仅对其公共尖缝联动倒圆。queryGeometry 边含 startPoint/endPoint/midpoint/bounds/adjacentFaceIds/normalAngleDeg/sharp/degenerate，面含 edgeIds；按位置和邻接找交线。getState().bodies[].transitionReport 含 processedEdgeIds/processedSeams/remainingSharpEdges/remainingSharpEdgeCount。过大半径、自交、未消除目标尖缝或抽样发现非边界新尖缝时拒绝，原模型保留。局部过渡与未选面的结束边界可能锐利，boundarySharpEdges 单独报告。检查法向为边上20/50/80%三点与1度阈值，不是曲率连续证明或全部顶点认证。未选原有锐边（如文字边）保留，不能宣称整件无利角。UI 加工→曲面处理→整件圆边/平滑过渡，选实体或 Ctrl 多选面，预览再确认。完成后用 feature.edit 修改原特征 params.radius，会从源几何重建并重算后续步骤；不是在结果上再倒一次圆角。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -7413,7 +7421,7 @@ files.release: contextPolicy=none
 
 readVector 对当前不能直接建模的 SPLINE 返回 unsupported[].sourceSpline，保留次数、控制点/节点/权重/周期性，或独立拟合点、拟合公差、端切向和源 handle；representation 区分 nurbs-parameters、fit-points、incomplete-spline。geometryCreated=false：保留参数不等于实现原始 NURBS 构造；fit-points 不能证明原始样条。DXF 源组码及 DWG 解码器实际提供的字段分别保留，不把不同源图元闭合插值成一条曲线。reliefReport.curveConversion（分层在 layers[]）记录实际使用的清理后点列/拟合边数、采样偏差、精确线圆弧面积、环孔数与核验类型；偏差参考 supplied-polyline-after-explicit-cleanup，sourceSplineDeviation=unknown，不是对源样条的全域误差界。成功回执在64000段/1024区域既有预算内保留完整环详情，ringCount/truncated明确表示完整性；错误诊断仍有界。采样偏差超过显式 curveToleranceMm 或面积改变量超过公差面积预算时拒绝转换；这也不替代源图尖角与区域用途的核对。完整原样条实体入口尚未开放。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -7522,8 +7530,9 @@ files.release: contextPolicy=none
 ## api.state-facts
 
 状态复用先确认文档身份、revision、动态stateSeq、新鲜度和覆盖。getState.coverageDetails中bodies/features分别提供profile(lite/full)、complete、totalCount、returnedCount、fields；complete只表示该profile集合完整，lite只有id/name/kind/bounds，不能冒充full。缺字段、not_requested、截断和真实空集合必须区分；缺features不等于features=[]，缺覆盖时按需精准读取。getState({sinceRevision})的unchangedScope:geometry只代表几何修订未变，summary.busy/selection/referenceSystem/preview/hostControl等仍是本次返回的动态值。普通SSE心跳不是内容确认。提交和run回执facts是已发生事实：createdBodyIds/deletedBodyIds/affectedBodyIds/replacements、revisionBefore/After、context/nextContext、实体数量和实际bounds。bounds单位mm、世界坐标、quantizationMm:0.001、accuracy:not_asserted；不能代替孔径/壁厚/半径/体积量测。measurements.status:not_measured表示未量测，measured.items只引用实际成功检查结果，过大结果回读原步骤回执。facts.coverage/truncated明确摘要是否完整，完整原回执保持可读；普通摘要目标16KiB。部分提交保留committedStepIds、失败/未执行项和pendingJobs，unknown先查原command/job，不换key重做。已有事实足够时直接继续；需要精度/拓扑或缺失字段才补读。状态镜像修复失败与几何回执独立，图片ready也不授权写入。视图证据按api.evidence读取；历史/旧实例数据不能充当当前写权限。
+facts.activeCreatedBodyIds/removedSinceStartBodyIds比较本批起点与结束时的实际对象集合，objectSet提供前后对象数和scope=this_batch；按coverage判断是否截断。跨批次要另记任务基线。delivery区分geometry/render revision，framing=not_verified、saved=not_asserted不代表已验收或保存。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -7633,7 +7642,7 @@ files.release: contextPolicy=none
 
 executeText({context,idempotencyKey,text,dryRun?}) 提供纯文本命令入口，不执行任意 JS 或 shell。每行一条，最多 20 行、总长 16384 字符。语法：add <操作ID> key=value ...；measure <bodyId|$last>。示例：add box width=30 depth=20 height=2.5 name="牌子"，下一行 measure $last。复杂参数可用 JSON 值，例如 points=[[[0,0,0],[1,0,0],[2,0,0]],[[0,1,0],[1,1,0],[2,1,0]],[[0,2,0],[1,2,0],[2,2,0]]]。refs 可用 JSON 数组或 $last。dryRun:true 仅返回解析后的步骤；正常执行交给同一 api.run/CommandService，返回逐步回执，非原子，已提交步骤保留。每次执行需新 idempotencyKey，重试同一请求可复用原 key。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -8085,7 +8094,7 @@ files.release: contextPolicy=none
 - createDrawing：按当前几何创建投影、剖视和尺寸工程图定义。
 - exportDrawing：导出已有drawingId工程图，或readLogo返回的logoId原轮廓DXF/JSON；不必创建三维实体或写脚本。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -9690,7 +9699,7 @@ files.release: contextPolicy=none
   }
 }
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -9800,7 +9809,7 @@ files.release: contextPolicy=none
 
 从 files.register 的文件资源或 text 直接 readVector；name 后缀 DWG/ASCII DXF/SVG/JSON。DWG 由浏览器 Worker 内 LibreDWG 解码并释放内存，不上传。DWG/DXF 支持模型空间 LINE、ARC、CIRCLE、无宽度 LWPOLYLINE（含 bulge 圆弧）；跳过类型逐项报告，包括 INSERT/标注/文字/样条，不展开块。scaleMm 显式指定每源单位的毫米数，默认1，不猜单位。SVG复用受限填充路径解析器，忽略仅含纯文本及可选id的title/desc说明，拒绝其中的嵌套元素或事件属性；原文件字节与来源哈希保留。曲线离散近似约0.005mm；不冒充精确圆弧，必须声明或输入毫米宽度。JSON为 entities 解析格式，单位mm。bounds 框选只包含整条边，entityIds/layers 可同时过滤；注意分页 total/truncated。先选需要的产品轮廓，再 connectVector 排序、反向、配对容差内唯一端点，报告每处实际移动量；容差0..1mm默认1e-6，不添加长补线。origin/flipY 仅为显式平移/翻转；源坐标和方向默认保留。canCreateFace=false 时返回开口/分叉/重线/交叉位置，不提交部分面。成功的 profile 经 api.run add sketchProfile 由精确内核检查成面，支持外环和孔洞；撤销一次即可删除新面，原图不改。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -9909,8 +9918,9 @@ files.release: contextPolicy=none
 ## api.views
 
 setView({context,interactionPhase?,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?,anchorVisible?,panels?}) 控制当前视口。interactionPhase 为 start/update/end，显式开始/更新网格快速显示预览，end后网格恢复完整显示；复杂BRep则按当前可见范围渐进细化，显示缓存不作为精确几何。鼠标操作使用同一生命周期，停止运动后恢复精细帧。display.detail报告是否approximate、正式/预览面数、像素误差预算和空间块视锥裁剪；近似显示不能作几何验收。缓存复用静止帧，旋转使用独立显示网格而非单图透视伪造。display 为 solid/edges/wire/transparentEdges（半透明实体、边线与显示曲面三角网格）；grid/snap 为布尔值；gizmo 为 off/translate/rotate；selectionMode 为 view/body/face/edge；默认 view 查看模式不点选、不框选，左键旋转、右键平移、滚轮缩放；主动选择 body/face/edge 后进入选择模式；language 为 zh/en；camera 为 {position:[x,y,z],target:[x,y,z]}，可替代旋转、平移、缩放手势。temporaryDisplay 为 normal/selectedOnly/transparentOthers，只改变临时显示并保留工程中原有隐藏状态；getState().view 读回设置。direction 可为 top/bottom/front/back/left/right/side/iso；projection 可为 orthographic/perspective；fit 是布尔值；selectedIds 是当前实体 ID 数组，最多 200 个且不得重复。section 为 {axis:"X"|"Y"|"Z",position:有限数字,enabled:布尔值}，仅做显示裁剪，不切割精确 B-Rep。相机与裁剪变化不增加建模 revision。redraw({context}) 重绘当前提交版本；capture({context}) 等待匹配当前模型的渲染帧，返回 image/png dataUrl、context 和 display，失败时可能为 DISPLAY_FAILED。调用前从 getState().context 取完整当前身份与 expectedRevision。
+同次请求先应用display、selectedIds和temporaryDisplay，再按camera→projection→direction→fit顺序取景；后项优先。display未带selectedIds仍沿用清空选择的旧行为，显式selectedIds（含空数组）优先。selectedOnly空选择显示空场景，fit使用默认空场景范围；不改变几何revision。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -10041,7 +10051,7 @@ await api.run({context:c.requestContext,idempotencyKey:crypto.randomUUID(),steps
 坐标错位、变换引用、UNKNOWN_OUTCOME、崩核恢复及SubD限制见 api.modeling-pitfalls。
 组合建模练习见 readDocs({docId:"recipes.hardware-practice"})：保留轮廓的槽轮旋转与四孔加工、三截面扭转旋钮放样与轴孔。多零件配合流程见 readDocs({docId:"recipes.clevis-practice"})：开口叉架、跨两耳贯穿孔、销轴、双垫片及间隙验证。示例只在获得建模授权后执行，追加当前工程，不自动保存或导出。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -10151,7 +10161,7 @@ files.release: contextPolicy=none
 
 UI配置源src/ui-layout.js。顶层只有CAD工具菜单。实体→快捷模型打开画布中央非全屏浮动模型选择工具，设置→Agent 配置打开软件配置弹窗；建模工具按编辑/路径/创建/实体/面加工/实体加工/曲面/修饰/检查/视图/设置分类。setView的workspace、toolbar、libraryMode、focus显式控制布局；getUILayout().current与getState().view.workspaceLayout读回。快捷模型工具保留工具与两侧栏的原显隐；关闭按钮或Esc返回画布；modelLibraryOpen/modelLibraryPresentation=floating-menu读回；Agent 配置不切换画布或显隐；专注画布保留顶栏恢复入口及查看/选体/选面/选边模式栏；setView.selectionMode 与 getState().view.selectionMode 同步，选中实体显示蓝色高亮、面和边橙色强调，清除选择恢复原外观，不修改工程颜色。Agent 模式进入（包括外部 Agent 入口 bindExternal）或 hostControl.connected 首次变为 true 时自动 focus:true、toolbar:false；退出 Agent 后恢复之前的工具及面板显隐，已有专注状态保持；活动任务先保留，完成后进入专注。视图工具栏与其他菜单同为44px；所有工具图标统一20px，按钮34px且不压缩，选中态只用背景色、不用外框占空间。左右属性栏仍独立可隐藏。模型库可卡片/详细列表、搜索及显示排序；工具定义固定，仅创建参数可调；getModelLibrary/updateModelLibrary/resolveModelLibrary与UI共用服务。setView切换遇活动任务或草稿时拒绝UI_TASK_ACTIVE；先应用或取消预览。浏览器标题显示未保存标记；URL document参数不是可恢复分享链接。setRenderQuality({context,quality}) 提供 draft/standard/fine/ultra 四档，getState().renderQuality 提供毫米公差、角度公差（弧度）及三角面数。只重算显示网格，不改工程 revision、精确 BRep 或 STEP 导出；不是屏幕自适应网格。OpenCascade 可保留已有更细网格，降档不承诺减少三角面数。当前不提供斑马纹、曲率梳和精确 G0/G1/G2 连续性认证；导入 STEP 也不能反推原始特征历史。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -10286,7 +10296,7 @@ PERSISTENCE_FAILED / RESULT_UNKNOWN: distinguish committed memory from durable s
 方向：两端头不一定相同，杆长不等于牙长；一端预装另一端客户自装属于交付状态，不能直接融合。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -10400,7 +10410,7 @@ files.release: contextPolicy=none
 方向：桥体、独立脚/底座、底片和螺钉分件。脚长不等于桥高，装饰面牌仅复用安装接口。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -10514,7 +10524,7 @@ files.release: contextPolicy=none
 方向：先一节，再明确交替方向与间距装配。投影椭圆不等于平面圆环；外购链长度和节数按图纸/订单，不凭照片数圈。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -10628,7 +10638,7 @@ files.release: contextPolicy=none
 方向：壳、按件、弹簧分件；先确定松开/锁紧孔位。无弹簧通孔珠不是活动索绳机构。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -10742,7 +10752,7 @@ U槽尾夹
 方向：恒厚开口U夹、前后片高和后孔已明确时，先读template.uStrapClip及api.quick-installation；半圆底和内直角仍按真实剖面设置。封闭帽套、字珠、面牌和自由侧面不套U夹；仅复用已核夹持接口，螺钉独立。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -10856,7 +10866,7 @@ files.release: contextPolicy=none
 方向：薄壁翻边两件先读template.twoPieceEyelet；圆/圆角方形恒厚面框、恒壁颈口及对称柱/直孔先读template.frameEyelet和api.quick-installation。椭圆、锥口、自由饰面和变壁厚保留原剖面路线。翻边、脚仔、螺钉固定分别处理，直孔不能冒充螺纹或锥孔。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -10970,7 +10980,7 @@ files.release: contextPolicy=none
 方向：面牌、翻片、轴、簧和底壳分件。方向与运动间隙先于Logo。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -11084,7 +11094,7 @@ files.release: contextPolicy=none
 方向：平面恒厚时面域拉伸；侧弯、非等宽、变截面另用原截面路线。不能用圆线模板覆盖。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -11198,7 +11208,7 @@ files.release: contextPolicy=none
 方向：主框、门、轴、簧、转接环分件，不融合。圆圈和椭圆圈外形不同但铰门关系相似。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -11312,7 +11322,7 @@ files.release: contextPolicy=none
 方向：拉头不默认拉链Y形滑块；先环/拉片、轴或卷眼、夹座、底片，再装饰。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -11426,7 +11436,7 @@ files.release: contextPolicy=none
 方向：先从接口判断螺钉、铆脚或外购钉。任意饰面不统一成尖杆或撞钉；回转头杆与异形面头分开。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -11540,7 +11550,7 @@ files.release: contextPolicy=none
 方向：两侧耳管与销分件，保持轴向/径向间隙。无功能备注优先于类别名。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -11654,7 +11664,7 @@ files.release: contextPolicy=none
 方向：稳定帽族用原轴向剖面回转或原面域构造；整串饰件和珠件只学帽接口，不套统一外形。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -11768,7 +11778,7 @@ files.release: contextPolicy=none
 方向：按背装图拆面牌、舌、锁壳、簧、底片和螺钉；外饰轮廓不能决定锁壳内部。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -11882,7 +11892,7 @@ files.release: contextPolicy=none
 方向：本地介子主要指穿带框，不能默认垫圈。螺母、方珠、球珠和任意装饰牌不进此族。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -11996,7 +12006,7 @@ files.release: contextPolicy=none
 方向：饰面、磁芯、壳套、脚片分件；型号与N等级依文字，几何模型不验证磁力。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -12110,7 +12120,7 @@ files.release: contextPolicy=none
 方向：横杆数量、不同截面和台阶分别恢复；齿纹后做。梯扣分类混入三角环和铰件须改族。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -12224,7 +12234,7 @@ files.release: contextPolicy=none
 方向：复用安装关系，不复用任意字牌外形。弧牌须保留侧弯；锁牌走锁机构族；凹凸文字和自由饰面后做。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -12338,7 +12348,7 @@ files.release: contextPolicy=none
 方向：框、舌针、轴、滚筒分件。先框和针槽，再卷眼/弯针，再滚筒，最后字位。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -12452,7 +12462,7 @@ files.release: contextPolicy=none
 方向：线框+钩芯、上下夹片、弹簧销套分族；不能只画主框或把芯杆融合。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -12566,7 +12576,7 @@ files.release: contextPolicy=none
 方向：先拉牌轮廓和侧剖，再卷眼/独立环/销，文字最后。大圆拉环和皮绳不强套薄片牌。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -12680,7 +12690,7 @@ files.release: contextPolicy=none
 方向：公母杆帽回转，异形饰面另拉伸。B/C字母不固定等于公母件；螺钉连接款切换连接机制。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -12794,7 +12804,7 @@ files.release: contextPolicy=none
 方向：先钩身与滑孔，再滑栓、簧和转环。别把压簧拉栓当铰门；粘胶端帽不能遗漏。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -12908,7 +12918,7 @@ files.release: contextPolicy=none
 方向：不要混用1号/4号/8050配套。只建用户指定的饰面或部件，不擅自扩成整套。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -13022,7 +13032,7 @@ files.release: contextPolicy=none
 方向：双层匙圈不自动变成均匀螺旋；链、狗扣、开口锁壳属于独立装配。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -13136,7 +13146,7 @@ files.release: contextPolicy=none
 方向：球头、锥头或平头按原剖面回转；底螺钉独立。M2.6攻牙不自动改成M2或M2.5螺杆。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -13250,7 +13260,7 @@ files.release: contextPolicy=none
 方向：先杆与环耳，再孔和独立圈。自由装饰挂钩、长杆端座另取原轮廓，不硬套T杆。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -13364,7 +13374,7 @@ files.release: contextPolicy=none
 方向：面窗、转头、转轴、定位件、簧分件。闭合投影重合不代表可以融合。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -13478,7 +13488,7 @@ files.release: contextPolicy=none
 方向：保留源截面与空间路径；放样/扫掠按真实证据选，不能凭照片反光给厚度。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -13592,7 +13602,7 @@ files.release: contextPolicy=none
 方向：核内外轮廓是否真实偏置，再原路径扫掠。仅真同心圆或两端半圆加直段且截面吻合时，可读单张template.ring或template.profileLoop卡走快路；自由多弧环不能套长圈。长圈不默认是真椭圆；二维R与三维圆角分开。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -13702,7 +13712,7 @@ files.release: contextPolicy=none
 
 打开用户提供的 .webcad 工程：经授权取得文件字节，await api.files.register({name,data}) 后调用 files.open({context,resourceId,unsaved:"fail"})。context 在读文件前取得；遇并发修改拒绝，未保存工程不能替换。读取卡片 files.write 了解真实磁盘保存；仅 files.save 生成字节不清除 dirty。正式界面不提供预置示例。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -13813,7 +13823,7 @@ files.release: contextPolicy=none
 浏览器文件流程：先调用 api.files.capabilities() 读取格式和限制。api.files.register({name,data,mime?}) 登记 File/Blob/ArrayBuffer/Uint8Array 真实字节，返回 resourceId。api.files.new({context})、open({context,resourceId,unsaved})或import({context,resourceId,units?,placement?,idempotencyKey?})；网格须明确units和idempotencyKey，先读api.mesh-assets 操作当前工程；save({context,name?}) 默认保存最终形态，不保存建模历史；最终BRep/完整网格保留对象ID、外观、显隐和锚点，重开不重放建模链。会话撤销最多20次，timeline最多20状态/512KiB；旧工程仍可读。export({context,format,ids?,name?}) 返回 status=generated 的资源描述。STEP 保留当前实体设计原色；未设实体颜色时使用当前默认颜色。材质灯光效果属于视口显示，STEP 不保存 PBR 渲染效果；改色后导出无需重建几何。read({resourceId,as:"blob"|"bytes"}) 返回实际 Blob 或 Uint8Array。download({resourceId}) 返回 download_initiated；write({resourceId,handle}) 仅在已授权句柄写入、关闭与 SHA-256/大小回读匹配后返回 write_verified。release({resourceId}) 释放页面资源；已启动下载的 Object URL 由定时器回收，不因 release 立即撤销。
 普通单资源20MiB；STEP/STP/BREP/BRP/STL128MiB、mesh384MiB、v4工程512MiB（按扩展名预检、内容仍须核验），最多32个、总计512MiB、有效期 30 分钟。生成 Blob 不等于写盘，下载启动不等于写盘成功。旧快照写入不能清除新 revision 的 dirty。页面 API 的新建/打开遇 dirty 一律拒绝 UNSAVED_REPLACEMENT；UI 的真实用户确认是独立路径。File/Blob 不保证能跨侧边栏 JSON 通道传递；宿主不能传字节时由用户在页面选择文件。当前静态版不含本机 IGES 转换器及服务端矢量转换器。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -13923,7 +13933,7 @@ files.release: contextPolicy=none
 
 解析线弧轮廓：先 getTool({id:'arcProfile'})。outer 是顺序相接且闭合的数组，每环2–256段，holes最多16环；每段 {type:'line',points:[[起点X,Y],[终点X,Y]]} 或 {type:'arc',points:[[起点X,Y],[弧中X,Y],[终点X,Y]]}。holes 是同样轮廓的数组，height 为非零有符号 Z 拉伸深度（mm）。相邻端点及首尾端点须在0.000001 mm内重合；孔必须切除材料，输出必须是拓扑有效单实体，失败不提交。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const outer=[{type:'line',points:[[0,0],[10,0]]},{type:'arc',points:[[10,0],[12,2.5],[10,5]]},{type:'line',points:[[10,5],[0,5]]},{type:'line',points:[[0,5],[0,0]]}];const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:{outer,holes:[],height:3}}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});检查逐步 status、solidCount、精确测量和 getState().display.rendered.revision；历史可 feature.edit 修改原段列表及高度。该工具保留 CAD 中的解析圆弧与侧面圆柱面；不读取本地 DXF、不猜轮廓归属、不支持样条、变厚或曲面投影。PG11419 原 DXF 的12个明确 LINE/ARC handle 可经 text-to-cad/agent/tools/cad-learning/export_dxf_arc_profile.py 转为此操作参数，详见 recipes.pg11419-analytic-profile。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -14033,7 +14043,7 @@ files.release: contextPolicy=none
 
 局部圆柱/平面凹根补料配方（GC14785 原销耳案例，不属于当前主面/浮雕要求）：自动 analytic-planar-arc 族要求无孔支撑平面与明确径向端面，本例因支撑面含孔而拒绝，不能放宽此保护。复用 sketchProfile 精确三边截面 + profileRevolve 的 join。源轴点 O=[-0.374944080737,0,-218.283357828157]、轴 Y、源圆柱半径 r=220.229963736933；经原圆弧端点确定起角 a 和正旋转范围 Δ，不沿用旧边号。局部 XY 截面为 corner=[r,y]→side=[r-R,y]，三点圆弧 side→top=[r,y+sR]，mid=[r-R+R/√2,y+sR(1-1/√2)]，再直线 top→corner。R=0.3，s 由材料方向明确指定。用 sketchProfile 的 line/arc3 与一个 loop/region 成面；placement:{version:1,frame:{kind:"snapshot",origin:O,quaternion:[0,-sin(a/2),0,cos(a/2)]},sourceAnchor:{kind:"model-origin"}}。随后 profileRevolve refs:[截面ID,目标实体ID]，params:{operation:"join",axisPoint:O,axisDirection:[0,1,0],angleDeg:Δ}。本次真实局部 y=18.15、s=-1、Δ=1.9749106718885936°。回读两端截面圆弧 R0.3、沿程20/50/80%两侧法向接续、孔壁和局部材料；端部三维收口仍未认证。只证明此指定凹根局部，不代表一般曲面圆角，也不授权给主面工程补背部结构。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -14143,7 +14153,7 @@ files.release: contextPolicy=none
 
 双孔弧形带板：UI 在“快捷模型”选择同名工具，AI 先 getTool({id:"quickModel"}) 查 kind=arcBandPlate 参数。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"band",method:"add",args:{op:"quickModel",refs:[],params:{kind:"arcBandPlate",outerRadius:20,innerRadius:15,centerAngle:270,spanAngle:111.2807337553,thickness:5,holeInsetAngle:8.4521160504,holeDiameter:2.3,recessDiameter:3.3,recessDepth:0.7}}},{id:"size",method:"measure",args:{bodyId:{$ref:"band.createdBodyIds.0"}}}]})。参数单位 mm/度；同心弧间形成恒宽平板，两孔沿中半径从弧端对称退让，可选上表面沉孔。要求外R>内R>0、0<spanAngle<350、孔及沉孔完整落在板上且彼此分离、0≤沉孔深<板厚，失败整步回滚。PG5752 B 件源 DWG 明确 R20/R15、孔中心距25.6757、孔 Ø2.3/Ø3.3；弧跨度111.2807338°和退让8.4521161°由源几何计算。沉孔深0.7 mm 是展示候选，源图未证实该层深，螺纹与 A 件另建。读取状态、测量和 rendered revision；feature.edit 可调同一历史。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -14253,7 +14263,7 @@ files.release: contextPolicy=none
 
 圆弧拱弯平板双窗扣：UI 在“快捷模型”选择同名工具；AI 先 getTool({id:"quickModel"}) 读取 kind=archedTwinWindowPlate 参数卡。PG5821 的薄条外观试建脚本：const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"arch",method:"add",args:{op:"quickModel",refs:[],params:{kind:"archedTwinWindowPlate",outerWidth:32.9,outerHeight:25.5,outerRadius:3,windowWidth:25.4,totalInnerHeight:18.5,windowRadius:0.5,barWidth:3.5,bendRadius:43.90964782342324,radialThickness:2.3}}},{id:"size",method:"measure",args:{bodyId:{$ref:"arch.createdBodyIds.0"}}}]})。参数为正视圆角双窗、圆筒外弧 R 与径向板厚；沿 Y 弯曲，圆筒轴沿 X。工具用正视轮廓柱体裁切精确同轴圆筒薄壁，建成一个有效实体。PG5821 模型包围约32.9×25.5×4.302 mm，图面侧深4.2，尚未叠加原侧视及验证未知边缘过渡，只计薄条外观试建。PG7219 侧视含两端 Ø5 圆截面与中部 Ø4 圆杆，属于弯曲圆线框加横杆，不能套此薄板工具。要求内弧半径>外高一半、窗口完全在外廓内，失败整步回滚。读批次状态、精确尺寸/体积和 rendered revision；feature.edit 可改历史参数。此工具不构造原件可能存在的局部边缘过渡，也不适用于弯曲轴向不明的图。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -14363,7 +14373,7 @@ files.release: contextPolicy=none
 
 鼓侧边平板双窗扣：UI 在“快捷模型”选择“鼓侧边平板双窗扣”，AI 先 getTool({id:"quickModel"}) 查看 kind=bowedTwinWindowPlate 参数卡。页面示例：const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"plate",method:"add",args:{op:"quickModel",refs:[],params:{kind:"bowedTwinWindowPlate",outerHeight:24.5,topStraightWidth:30.2527,sideRadius:35.688467,cornerRadius:6,windowWidth:32,windowHeight:6.55,windowSpacing:10.35,thickness:3.7,edgeRadius:0.8}}},{id:"size",method:"measure",args:{bodyId:{$ref:"plate.createdBodyIds.0"}}}]})。外廓上下直段、四角小 R、两侧相切大 R 鼓弧；两窗为直段加半圆，windowSpacing 是中心距；edgeRadius 是三维边倒 R。侧弧圆心由直段、外高和两 R 计算。PG3781 名义对称试建得到约43.58336×24.5×3.7 mm、2204.792137 mm³；独立 text-to-cad 源圆弧 STEP 为43.597847×24.5×3.7、2206.094501，横向差约0.01449 mm、体积差约1.30236 mm³。源 DWG 左右及上下圆弧有微小非对称，本参数模型不声称源弧精确重合。输入需侧R>角R、两者可相切、两孔分离且位于板内、边R小于板厚和壁厚一半；失败整步不提交。读取批次状态、精确尺寸/体积、渲染修订；feature.edit 可调同一历史特征。不是侧向拱弯板或独立杆装配。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -14473,7 +14483,7 @@ files.release: contextPolicy=none
 
 圆线直段长圈：UI 在“快捷模型”选择“圆线直段长圈”；AI 先 getTool({id:"quickModel"}) 查 kind=capsuleWire 参数。调用 const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"loop",method:"add",args:{op:"quickModel",refs:[],params:{kind:"capsuleWire",innerWidth:34.9,innerHeight:13.9,sectionSize:6.1}}},{id:"size",method:"measure",args:{bodyId:{$ref:"loop.createdBodyIds.0"}}}]})。内宽>内高>0、圆线直径>0；两端是精确半圆，中间上下直段，闭合且没有人为缝宽。外宽=内宽+2×线径，外高=内高+2×线径。PG11140 得 47.1×26.1×6.1 mm、体积约 3063.675857 mm³；PG9782 的 12.3×8.4/Ø3 得 18.3×14.4×3 mm、约 308.290304 mm³，两款均与 text-to-cad 独立 STEP 回读一致。PG9782 的孤立无标注轮廓没有确定语义，工具只代表有完整尺寸的主侧视主体。PG4680 底部接缝无数值，不能借用此闭合模型声称其无缝；真椭圆、四圆弧、圆角扁方截面分别使用对应工具。读回执/精确测量/渲染修订，失败整步回滚，同一历史可 feature.edit。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -14583,7 +14593,7 @@ files.release: contextPolicy=none
 
 倒角方线恒截面框：UI 在快捷模型选择 D 扣、方扣、日字扣、圆圈、开口 C 环或四圆弧旦扣；AI 先 getTool({id:'quickModel'})，选择 section:'chamferedSquare'、sectionSize 方线正面宽/侧深、sectionChamfer 单边 45°倒角切入量，须 0<C<sectionSize/2。截面是八条直线组成的等宽等深八边形，四角为平倒角而非圆角；sectionRadius 在该截面下忽略。PG4819 图面正视外37×28.5、内25×16.5，侧剖总深6、顶面平段3，所以截面边长6、C1.5。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'frame',method:'add',args:{op:'quickModel',refs:[],params:{kind:'dBuckle',section:'chamferedSquare',sectionSize:6,sectionChamfer:1.5,innerWidth:25,innerHeight:16.5,innerRadius:2,gapWidth:0}}},{id:'size',method:'measure',args:{bodyId:{$ref:'frame.createdBodyIds.0'}}}]});检查 status、solidCount、精确 bounds/volume 和 getState().display.rendered.revision。该候选应为37×28.5×6 mm 单实体；innerRadius:2 与 D 扣半圆冠路径是外观试拟，PG4819 源冠部为多段不同 R 圆弧，故不可宣称逐线复刻或量化80%相似。方扣等其它中心路径复用同一截面，但须各自满足工具的几何护栏。非法 C 或扫掠失败不提交；历史用 feature.edit 修改 sectionChamfer。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -14693,7 +14703,7 @@ files.release: contextPolicy=none
 
 多零件练习位于 automation/clevis-practice.js（源 docs/examples/clevis-practice.js），导出 clevisPracticeSteps 和 runClevisPractice(api)。自主尺寸，不用于还原客户源 CAD，不保证工艺公差或提供装配约束求解。helper 先 connect 点名相关工具并检查 canExecute，再以一个14步有界批次追加当前工程：60×32×36毛坯减开口，孔向导沿X贯穿两个分离的耳板材料区，四个底座安装孔，定位一根销轴，创建垫片后线性阵列到两侧，测量及等轴视图。所有定位显式冻结为world或snapshot，不依赖当前锚点。结果3个对象、4个封闭实体；垫片是一个含两实体的compound，不融合。叉架体积30720−276π mm³；销轴与叉架径向最短间隙0.2 mm，垫片与叉架轴向最短间隙0.5 mm。inspectFit只接收单一实体，因此用于销轴/叉架；measureRelation shortest可测垫片compound与叉架。helper 返回各checks及verified；batch completed不自动代表这些尺寸达标。部分失败立即停，按回执续做未尝试步骤，禁止重放整批。saved:false表示未保存；rendered只反映displayMatchesContext，仍需实际画面核对。此流程经公开API到内核集成验证，浏览器视觉验收需单独记录。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -14803,7 +14813,7 @@ files.release: contextPolicy=none
 
 闭合线弧倒角方线：先 getTool({id:'curveSweep'}) 读取当前参数卡。给出按行进方向排列的 2–64 条精确线弧 segments，相邻点及首尾端点误差须≤0.000001 mm；设置 pathType:'segments',closed:true,section:'chamferedSquare',sectionSize:6,sectionChamfer:1.5。全部路径点必须同处 XY 平面，0<sectionChamfer<sectionSize/2。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const p=(x,y)=>[x,y,0];const segments=[{type:'line',points:[p(10,-8),p(10,8)]},{type:'arc',points:[p(10,8),p(7.0710678118654755,15.071067811865476),p(0,18)]},{type:'arc',points:[p(0,18),p(-7.0710678118654755,15.071067811865476),p(-10,8)]},{type:'line',points:[p(-10,8),p(-10,-8)]},{type:'line',points:[p(-10,-8),p(10,-8)]}];const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'frame',method:'add',args:{op:'curveSweep',refs:[],params:{pathType:'segments',segments,closed:true,section:'chamferedSquare',sectionSize:2,sectionChamfer:0.5}}},{id:'size',method:'measure',args:{bodyId:{$ref:'frame.createdBodyIds.0'}}}]});检查 result.status、单实体/尺寸/体积和 getState().display.rendered.revision。可用 feature.edit 修改整段 segments 或截面参数；源图路径应由明确的 LINE/ARC handle 和侧剖截面推导，不从正视图自动猜测。该工具只支持恒截面，不表达局部变截面、侧向拱弯或未验证的倒圆。无效拓扑失败回滚。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -14913,7 +14923,7 @@ files.release: contextPolicy=none
 
 紧凑圆线方扣：UI 在快捷模型中选择“方扣”，AI 先用 getTool({id:"quickModel"}) 读 kind=rectBuckle 的当前参数。例：const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"frame",method:"add",args:{op:"quickModel",refs:[],params:{kind:"rectBuckle",section:"round",innerWidth:10,innerHeight:25,sectionSize:3.5,innerRadius:0.9,gapWidth:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"frame.createdBodyIds.0"}}}]})。圆线闭合方框与日字扣的内宽高下限为线径 2.5 倍；开缝圆框、方线框仍为 4 倍。0<innerRadius<内短边/2，截面 0.5–20 mm，内宽高上限 200 mm。PG10251 的名义正视由此形成外 17×32、外 R4.4、深 3.5 mm 单实体候选；原 DWG 使用回退预览，尚不能据此断言其它表面特征已完整复刻。读每步回执、精确测量、当前 rendered revision；用 feature.edit 修改历史参数。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -15023,7 +15033,7 @@ files.release: contextPolicy=none
 
 紧凑圆线日字扣：UI 在快捷模型中选择“日字扣”；AI 先用 getTool({id:"quickModel"}) 读 kind=sliderBuckle 参数。const api=window.webcad.api; const {revision,...identity}=api.getState().context; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"frame",method:"add",args:{op:"quickModel",refs:[],params:{kind:"sliderBuckle",section:"round",innerWidth:19.9,innerHeight:20.5,innerRadius:3,sectionSize:5.8,barDiameter:3.5,barOffset:0,gapWidth:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"frame.createdBodyIds.0"}}}]})。闭合圆线内宽高各≥2.5倍线径，横杆直径>0且≤框线径；横杆必须接在左右直腿，上下各留至少一倍框线径的净孔高。以上数值取 PG3014 图面内宽19.9、内高20.5、框截面Ø5.8、中杆Ø3.5；innerRadius=3 是未标注试拟。内核实体外廓31.5×32.1×5.8 mm，与图面外廓31.7×32.3 mm 各差0.2 mm；不要擅改Ø5.8去凑外廓。源图还示局部细节，须独立核验。读取 status/results/精确尺寸和 rendered revision；失败不提交，可通过 feature.edit 修订。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -15133,7 +15143,7 @@ files.release: contextPolicy=none
 
 独立底角 R 平板 D 框：UI 在“快捷模型”选择同名工具；AI 先 getTool({id:"quickModel"}) 查看当前参数卡。页面调用：const api=window.webcad.api; const {revision,...identity}=api.getState().context; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"d",method:"add",args:{op:"quickModel",refs:[],params:{kind:"dFlatFrame",outerWidth:28,outerHeight:25,innerWidth:20,innerHeight:17,outerBottomRadius:3.5,innerBottomRadius:2,thickness:4,gapWidth:1}}},{id:"size",method:"measure",args:{bodyId:{$ref:"d.createdBodyIds.0"}}}]}); 形状为半圆冠、直腿、独立内外底角 R 的平板单实体；gapWidth=0 为闭合，正数按实际平行缝宽切开底部中央。上例缝宽 1 mm 只是工具演示，PG9998 图面未确认该数值，不能把试算当源件复刻。厚度是平板 Z 深度，不是圆线直径；两条 D 轮廓不得相交或相切，内外高须足以容纳半圆冠和底角；底缝小于内底直段。失败整步回滚。检查批次状态、精确测量和 rendered revision；后续用 feature.edit 修改历史参数。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -15243,7 +15253,7 @@ files.release: contextPolicy=none
 
 DXF 闭合源轮廓：先在原图核定有效产品视图与 LINE/ARC/CIRCLE/SPLINE handle，使用 text-to-cad/agent/tools/cad-learning/export_dxf_profile.py 经 run-silent.ps1 以 --dxf 输入路径、--output 临时 JSON、--outer 逗号分隔外轮廓 handle、重复 --hole 指定各孔，--distance 0.01（圆弧弦高或样条展平距离 mm）、--join 0.01（源端点相接容差 mm）导出。工具自动沿端点连接并反向必要的边，拒绝断链/分叉/重复 handle/非闭合，输出居中的 regions、point_counts、max_join_gap_mm、源坐标包围和 handle 清单；每轮廓≤2000点、总数≤12000。页面已有 AI 可调用 add.vectorProfile：const api=window.webcad.api; const {revision,...identity}=api.getState().context; const sampled=已复核的导出JSON; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"profile",method:"add",args:{op:"vectorProfile",refs:[],params:{regions:sampled.regions,output:"solid",height:5,source:{kind:"dxf-arc-profile",outerHandles:sampled.outer_handles,holeHandles:sampled.hole_handles,distanceMm:sampled.distance_mm}}}},{id:"size",method:"measure",args:{bodyId:{$ref:"profile.createdBodyIds.0"}}}]})。PG8091 有效改模版例：外轮廓 F6,FE,FF,F8,F7,FB,F9,FA,FD,FC；孔 F5 与 100,102,103,101,105,104。采样轮廓为112/87/60点，源闭合最大接缝约0.000001 mm；源轮廓拉伸5 mm 试件为41.202×52.181×5 mm、4146.667412 mm³ 单实体。图面标外宽40.6、高52.2，宽度与采样几何差约0.602 mm，未解释前不称精确复刻；源图3D截面和边缘过渡也未证明。PG4307 两条 LINE + 两条 SPLINE 的外轮廓可用同一脚本导出，采样宽 24.006007、高 21 mm；内样条与邻近直线端点不重合，应继续使用 traceTwinWindow 专用拼接，不能放宽 --join 强凑。开放中心路径不适用。导出脚本不自动选择产品或猜孔层级，页面也不直接读取本机 DXF。读运行回执、精确尺寸、渲染修订；失败不提交。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -15353,7 +15363,7 @@ files.release: contextPolicy=none
 
 DXF 闭合 LWPOLYLINE bulge 圆弧：先核定有效产品视图及每个外/孔 handle。text-to-cad/agent/tools/cad-learning/export_dxf_arc_profile.py 经 run-silent.ps1 输入 --dxf 源图转换的 DXF、--outer 一个闭合 LWPOLYLINE handle、每个 --hole 一个闭合 LWPOLYLINE 或 CIRCLE handle、--height 侧视支持的等深厚度、--output 临时 JSON。脚本将各段 bulge 转为解析三点圆弧，保留正负弧向，拒绝开放多段线、零长边、非有限 bulge、非 XY 挤出方向或非零源 Z。AI 先读 getTool({id:'arcProfile'})，再以 const api=window.webcad.api;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});复核回执和渲染。PG7440 的外 BCA1、内 BCA0 是闭合圆角方框：该脚本精确提取 33×23 mm 正视轮廓，但侧视 Ø4 是圆线截面，直接 arcProfile 等深板会错误表达截面。应复用 quickModel.rectBuckle 与 recipes.source-round-rect 建源件候选；arcProfile 仅作正视轮廓校验或适用于确有平板截面的其他产品。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -15463,7 +15473,7 @@ files.release: contextPolicy=none
 
 DXF 成对边界推导闭合或开放中心线：在 text-to-cad 仓库使用 agent/tools/cad-learning/run-silent.ps1 调用 agent/tools/cad-learning/export_dxf_midline.py。指定 --dxf 源 DXF、--output 临时 JSON、--diameter 截面正面宽度，按行进顺序重复 --segment TYPE:OUTER_HANDLE:INNER_HANDLE:forward|reverse。TYPE 是 line 或 arc；圆弧两条边须同心同角域、半径差等于 diameter，直线等长平行且垂直偏移 diameter。--join 允许源端点接缝误差，最大0.1 mm；输出 max_join_gap_mm，超过容差拒绝。闭环加 --closed；倒角方线加 --section chamferedSquare --chamfer 倒角切入量，否则默认圆线。示例 PowerShell：& agent/tools/cad-learning/run-silent.ps1 -Script agent/tools/cad-learning/export_dxf_midline.py -ScriptArguments @('--dxf','source.dxf','--output','agent/temp/midline.json','--diameter','2','--closed','--section','chamferedSquare','--chamfer','0.5','--segment','arc:OUTER1:INNER1:forward','--segment','arc:OUTER2:INNER2:forward')。导出 params 可直接作为 WebCAD api.run 的 curveSweep 参数；先 getTool({id:'curveSweep'})，再按 recipes.closed-chamfered-path 调用、测量并读回。脚本不替用户选 handle，不修复自交、变截面或源 DXF 圆弧角度截断。PG4819 的 8 段源路径最大端点偏差约0.04935 mm，导出成功，但 WebCAD/OCCT 扫掠拓扑无效，未生成源路径实体；不能把该候选称为复刻。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -15573,7 +15583,7 @@ files.release: contextPolicy=none
 
 椭圆圈固定横杆：UI 在“快捷模型”选择“椭圆圈固定横杆”；AI 先从 getTool({id:"quickModel"}) 查 kind=ellipseBar 参数。调用 const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"oval",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ellipseBar",innerWidth:35,innerHeight:25,sectionSize:5,barDiameter:5,barDepthOffset:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"oval.createdBodyIds.0"}}}]})。从给定的真椭圆内轮廓向外偏置半线径成中心路径，以圆线扫掠，并融合一根沿 X 的固定圆杆；barDepthOffset 沿 Z 调整杆轴。约束：innerWidth>innerHeight≥4×sectionSize>0，0<barDiameter≤sectionSize，abs(barDepthOffset)<(sectionSize+barDiameter)/2。PG5155 DWG 有内 35×25 真椭圆、外样条和 Ø5 侧截面；当前内核候选实际包围 45.058424×35×5 mm，X 比 nominal 45 多约 0.058424 mm，不能按 45 mm 精确交付。一次构建在本地约 25 秒，生产源样条与杆端过渡尚未逐曲面核对。读回执、精确测量和 rendered revision；失败整步回滚，历史可由 feature.edit 修改。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -15683,7 +15693,7 @@ files.release: contextPolicy=none
 
 内真椭圆开缝圆线圈：UI 在“快捷模型”选择“内真椭圆开缝圆线圈”；AI 先从 getTool({id:"quickModel"}) 查 kind=ellipseOpenWire 参数。调用 const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"loop",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ellipseOpenWire",innerWidth:15,innerHeight:20,sectionSize:3.5,gapWidth:0.2}}},{id:"size",method:"measure",args:{bodyId:{$ref:"loop.createdBodyIds.0"}}}]})。输入真椭圆内孔宽高、圆线直径、底中实际平切缝宽，单位 mm；两轴须不等，短轴≥4×线径>0，0<缝宽<线径。内真椭圆外偏半线径为扫掠中心路径，再切出 X=±gapWidth/2 的平行端面。PG11580 名义参数的内核单实体约 22×26.999563×3.5 mm，平切端间距 0.2 mm；开缝会让实际总高略低于闭环名义 27 mm。当前只支持内轮廓是真椭圆、底中缝且平行平切；PG9432 外真椭圆基准的 WebCAD 切缝试验拓扑无效，不能填本工具的 innerWidth/innerHeight 强行冒充。PG12429 双独立椭圆亦须先确定轮廓基准。读回执和渲染修订，失败整步回滚；修改参数用 feature.edit。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -15793,7 +15803,7 @@ files.release: contextPolicy=none
 
 椭圆截面圆角方框：UI 在“快捷模型”选择同名工具，AI 先 getTool({id:"quickModel"}) 读取 kind=ellipseSectionRectFrame 参数卡。页面脚本：const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"frame",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ellipseSectionRectFrame",innerWidth:25,innerHeight:19,innerRadius:2.5,sectionWidth:5.5,sectionDepth:6}}},{id:"size",method:"measure",args:{bodyId:{$ref:"frame.createdBodyIds.0"}}}]})。正面宽=内宽+2×sectionWidth，正面高=内高+2×sectionWidth；侧深独立。沿圆角矩形中心线扫掠精确椭圆截面，PG5866 名义尺寸得36×30×6 mm、2617.38796 mm³ 单实体候选。源图仅明示宽高及侧视 Ø6，内 R2.5 和椭圆截面是试拟，不能把椭圆当源图已证实截面或声称完整复刻。sectionWidth 与 sectionDepth 必须不等，内宽高至少为正面料宽2.5倍、均≤200，0<内R<内短边一半；失败整步回滚。读批次 status、measure、rendered revision；feature.edit 改历史参数。PG5134 可反向设置：内17.7×19.7、正面料宽5.25、侧深4，内 R2.5 仍为试拟；名义实体28.2×30.2×4 mm。圆截面请用 rectBuckle。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -15903,7 +15913,7 @@ files.release: contextPolicy=none
 
 椭圆截面圆环：UI 在“快捷模型”选择同名工具，AI 先 getTool({id:"quickModel"}) 查 kind=ellipseSectionRing 参数。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"ring",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ellipseSectionRing",innerDiameter:37.4,sectionWidth:4.1,sectionDepth:5}}},{id:"size",method:"measure",args:{bodyId:{$ref:"ring.createdBodyIds.0"}}}]})。内径、正面带宽和侧深独立；沿圆形中心线扫掠精确椭圆截面，外径=内径+2×带宽。要求内径≥2.5×带宽、宽深均正且不等；失败整步回滚。PG6148 源 DWG 同心圆内Ø37.4/外Ø45.6、侧深5，而把侧深当圆线径会错误得到外Ø47.4；椭圆截面是对两投影的试拟，不是源已证实曲面。名义候选单实体45.6×45.6×5 mm、约2099.141486 mm³。读 status、measure、rendered revision；feature.edit 可调历史。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -16013,7 +16023,7 @@ files.release: contextPolicy=none
 
 开口 U 形椭圆截面线：先 getTool({id:'curveSweep'})。由外宽 W、内宽 I 得正面料宽 s=(W-I)/2；外冠 R、外高 H 得中心线冠 R_c=R-s/2、冠圆心 X_c=W/2-R、Y_c=H-s/2-R_c。路径为右直腿、右四分之一圆弧、顶短直线、左四分之一圆弧、左直腿，所有段按行进方向首尾精确相接。section:'ellipse',sectionWidth:s,sectionDepth:侧视深度，均为 mm 且宽深不同。PG10537 图面 W26.8、I21、H36、外冠R11、内冠约R8、侧深4.3，故 s2.9、R_c9.55、X_c2.4、Y_c25；内冠计算R8.1与名义R8差0.1 mm，截面椭圆是外观试拟。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const p=(x,y)=>[x,y,0],q=Math.SQRT1_2,segments=[{type:'line',points:[p(11.95,0),p(11.95,25)]},{type:'arc',points:[p(11.95,25),p(2.4+9.55*q,25+9.55*q),p(2.4,34.55)]},{type:'line',points:[p(2.4,34.55),p(-2.4,34.55)]},{type:'arc',points:[p(-2.4,34.55),p(-2.4-9.55*q,25+9.55*q),p(-11.95,25)]},{type:'line',points:[p(-11.95,25),p(-11.95,0)]}];const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'u',method:'add',args:{op:'curveSweep',refs:[],params:{pathType:'segments',segments,section:'ellipse',sectionWidth:2.9,sectionDepth:4.3}}},{id:'size',method:'measure',args:{bodyId:{$ref:'u.createdBodyIds.0'}}}]});检查逐步 status、单实体、包围尺寸、体积及 getState().display.rendered.revision。历史用 feature.edit 修改 segments/sectionWidth/sectionDepth。工具生成恒截面开口 U；端部 M2.5、倒角、打磨及实际截面没有足够源证据，未构造，不称完整复刻。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -16123,7 +16133,7 @@ files.release: contextPolicy=none
 
 双孔葫芦形圆线：复用 quickModel.kind='capsuleWire'、transform、union 三张现有工具卡，不增内核原语。先 getTool({id:'quickModel'})、getTool({id:'transform'})、getTool({id:'union'})。设每孔 innerWidth、innerHoleHeight、wireDiameter、两孔中心距 centerSpacing，要求 innerWidth>innerHoleHeight>0、wireDiameter>0、innerHoleHeight<centerSpacing<innerHoleHeight+2*wireDiameter，保证两孔分开且圆线实体有体积交叠。页面批量脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const p={kind:'capsuleWire',innerWidth:34.7,innerHeight:8.3,sectionSize:5.5};const offset=11.4/2;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'top',method:'add',args:{op:'quickModel',refs:[],params:p}},{id:'topMove',method:'add',args:{op:'transform',refs:[{$ref:'top.createdBodyIds.0'}],params:{y:offset}}},{id:'bottom',method:'add',args:{op:'quickModel',refs:[],params:p}},{id:'bottomMove',method:'add',args:{op:'transform',refs:[{$ref:'bottom.createdBodyIds.0'}],params:{y:-offset}}},{id:'joined',method:'add',args:{op:'union',refs:[{$ref:'topMove.createdBodyIds.0'},{$ref:'bottomMove.createdBodyIds.0'}],params:{}}},{id:'size',method:'measure',args:{bodyId:{$ref:'joined.createdBodyIds.0'}}}]});检查 result.status、逐步回执、measure.solidCount 和 getState().display.rendered.revision。理论包围宽=innerWidth+2*wireDiameter，高=innerHoleHeight+2*wireDiameter+centerSpacing，厚=wireDiameter。PG2145 的源内孔端 R4.15、外端 R9.65、圆心上下距11.4，合并模型 45.7×30.7×5.5 mm；图面名义高30.6，存在0.1 mm差，源腰部 R0.6 圆滑连接未复刻。该配方有5个可编辑历史特征，不自动猜源件全部三维接头；调参须同步修改两圈和对称偏移，或重新执行配方。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -16233,7 +16243,7 @@ files.release: contextPolicy=none
 
 平垫圈：UI 在“快捷模型”选择“平垫圈”；AI 用 getTool({id:"quickModel"}) 读取 kind=washer 当前参数卡。PG1797 名义例：const api=window.webcad.api; const {revision,...identity}=api.getState().context; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"washer",method:"add",args:{op:"quickModel",refs:[],params:{kind:"washer",innerDiameter:36.2,sectionSize:7,innerHeight:3.2}}},{id:"size",method:"measure",args:{bodyId:{$ref:"washer.createdBodyIds.0"}}}]}); sectionSize 是径向壁宽=(外径−内径)/2，并非圆线直径；innerHeight 在此工具是轴向厚度。结果外 Ø50.2、内 Ø36.2、厚 3.2 mm，体积约 3040.056379 mm³。PG0203 输入内径25、径向壁宽4.4、厚3.8，得外 Ø33.8、体积约1544.306418 mm³。内径、壁宽、厚度都必须大于0；输出是锐边平面圆环。原图未标边缘 R/C 时不自动添加。读批次状态、精确测量和 rendered revision；失败不提交，历史可用 feature.edit 改参数。不要把 washer 当作圆线圈 ring，也不要把 sectionSize 当作外径。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -16343,7 +16353,7 @@ files.release: contextPolicy=none
 
 斜肩开口框：UI 在“快捷模型”选择“斜肩开口框”；AI 先 getTool({id:"quickModel"}) 读 kind=gableOpenFrame 参数。页面脚本：const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"gable",method:"add",args:{op:"quickModel",refs:[],params:{kind:"gableOpenFrame",outerWidth:25,innerWidth:20,outerPeakHeight:16,outerShoulderHeight:12.4,innerPeakHeight:13.5,innerShoulderHeight:10.5,thickness:4,endRadius:1}}},{id:"size",method:"measure",args:{bodyId:{$ref:"gable.createdBodyIds.0"}}}]})。正视两个斜肩屋顶轮廓之间留开口，脚端有真实 R1 四分之一圆弧和短平底，外 25×16×4 mm；不通过事后倒圆改变总高。PG7918 图面明确外宽25、内宽20、外峰高16、外肩约12.4、脚端R1、侧深4；内峰13.5/内肩10.5依据图面轮廓试拟，尚未逐边回读源 CAD，不宣称完全复刻。此工具是平板正视轮廓拉伸，未处理侧视的完整圆端截面。须满足内外峰、肩分离和端R≤带宽一半；失败整步回滚。检查批次 status、measure 和 rendered revision；历史参数用 feature.edit。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -16453,7 +16463,7 @@ files.release: contextPolicy=none
 
 可复用组合流程位于 automation/hardware-practice.js（源文件 docs/examples/hardware-practice.js），导出 hardwarePracticeBatches 与 runHardwarePractice(api)。尺寸为自主练习值，不用于重建客户源 CAD。先通过受支持的页面脚本通道取得 api，读取相关卡与最新 context，并确认 canExecute；helper 每批重新取 context，失败即停，不重放已完成批次。第一批 5 步：保存槽轮母线，沿世界 Y 轴旋转，切四个安装孔，使用 body.visibility 的 visible:false 隐藏母线，精确测量。成品外径 32 mm、轴向长度 18 mm。第二批 8 步：保存三个不同尺寸与转角的圆角截面，依次放样，切直径 6 mm 的轴孔，隐藏来源，测量，等轴显示；旋钮高 32 mm。几何量、修订与来源引用来自实际回执，只有 displayMatchesContext 与实际页面画面确认后才算显示验收。helper 的 saved:false 明确表示未写工程文件。内核/公开 API 集成测试不能代替真实页面验收。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -16564,7 +16574,7 @@ files.release: contextPolicy=none
 四孔板示例，尺寸单位 mm。先调用 info()/getState() 取得当前完整上下文，再用 getTool({id:"box"}) 与 getTool({id:"multiHole"}) 读取实际版本、schemaHash 与示例。新增 box：{width:50,depth:30,height:3}、refs:[]。取得实际板件 bodyId 与新 revision 后新增 multiHole：{radius:2,depth:5,axis:"Z",direction:-1,points:[[5,5,4],[45,5,4],[5,25,4],[45,25,4]]}、refs:[实际 bodyId]。刀具从全局 Z=4 向下切至 Z=-1。体积期望值是 4500-48π mm³；须以当前精确 B-Rep 测量和导出回读验证。
 命名参数已通过 execute action document.parameters 接出；可绑定板长和右孔 X 到 length 与 length-edgeMargin，再只改 length。具体示例见 docs/examples/page-api-plate.js。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -16674,7 +16684,7 @@ files.release: contextPolicy=none
 
 批量圆柱凸台：先 getState() 取得当前上下文和真实 bodyId，getTool({id:"multiBoss"}) 读取严格 v2 卡。UI 路径“加工 → 槽与凸台 → 更多 → 批量圆柱凸台”。在 40×20×3 mm 板顶加两个凸台：feature.add 的 refs:[实际 bodyId]、params:{radius:2,height:3,axis:"Z",direction:1,points:[[10,10,3],[30,10,3]]}。每个 XYZ 是世界坐标的凸台底面中心，圆柱沿指定轴和符号方向长出。最多 64 个；每个都必须与当前主体融合为一个实体且增加材料，否则整步不提交。成功后读回 revision/body/feature，测量精确体积；示例理论值 2400+2×π×2²×3 mm³。历史修改用 feature.edit 传 radius/height/axis/direction 或完整 points 数组。工具只生成实心圆柱；通孔另用 multiHole，圆角另用 fillet/autoRound，不猜轴心或表面。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -16784,7 +16794,7 @@ files.release: contextPolicy=none
 
 批量矩形凹槽：先用 getState() 取得当前上下文和实际 bodyId，再用 getTool({id:"multiPocket"}) 读取版本、schemaHash 和严格参数。UI 路径为“加工 → 槽与凸台 → 更多 → 批量矩形凹槽”。在一个已有 40×20×3 mm 板件上执行 feature.add，refs:[实际 bodyId]，params:{depth:0.5,axis:"Z",direction:-1,pockets:[{x:10,y:10,z:3,width:6,height:4},{x:25,y:10,z:3,width:6,height:4,cornerRadius:0.5}]}。每组 XYZ 是世界坐标的刀具入口中心；切入轴 Z 时宽/高沿 X/Y，X 时沿 Y/Z，Y 时沿 Z/X。例中从 Z=3 向下切至 2.5。cornerRadius 可省略或为 0，若提供则必须小于宽高短边一半。1–64 个凹槽，每个都须去除剩余材料；任一失败，整步不提交。用 getState() 读回新 feature/body/revision，再 measure 精确体积。可通过 feature.edit 修改历史步骤的 depth、axis、direction 或完整 pockets 数组，从原始几何重建。圆孔用 multiHole；任意曲面区域另用相应面工具。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -16894,7 +16904,7 @@ files.release: contextPolicy=none
 
 竖向底部开口四圆弧圈：先分别读 getTool({id:"quickModel"}) 中 kind=ovalBuckle 与 getTool({id:"transform"})。可在同一个 api.run 请求的 steps 依次使用 {id:"oval",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ovalBuckle",section:"round",innerWidth:20,innerHeight:15,innerRadius:7,sectionSize:3.5,gapWidth:0.2}}} 和 {id:"upright",method:"add",args:{op:"transform",refs:[{$ref:"oval.createdBodyIds.0"}],params:{rz:-90}}}。请求使用 const {revision,...identity}=getState().context，context:{...identity,expectedRevision:revision}，idempotencyKey 每个新请求唯一。横向模板右端开口经绕 Z -90° 后移到竖向底部；旋转后的外包围约 22×27×3.5 mm。用 upright 步实际回执里的新 bodyId 测量及读 rendered revision。四圆弧不等于真椭圆；innerRadius 必须由源图或拟合证据决定，例中 7 mm 仅为操作演示。没有源证据时不能把这个示例宣称为实际产品复刻。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -17004,7 +17014,7 @@ files.release: contextPolicy=none
 
 PG11419 倒置 D 框源线实例：在 text-to-cad 目录使用 run-silent.ps1 调用 agent/tools/cad-learning/export_dxf_arc_profile.py，--dxf 指向由源 DWG 只读转换的 DXF，--output 指向 agent/temp 下 JSON，--outer 62BF,62CC,62D0,62C3,62C5,62C8,62C9,62BB，--hole 62F5,676A,6774,62F2，--height 3.5，--join 0.01。先核对 JSON 的 source_bounds、max_join_gap_mm、原图句柄与侧视。页面脚本：const api=window.webcad.api;const data=已复核的导出JSON;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});检查 r.status、逐步回执、单实体、尺寸体积、渲染 revision。height=3.5 mm 是侧视 3.4 与 3.7 mm 之间的等深试拟；源件变深和局部加工未重建。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -17114,7 +17124,7 @@ files.release: contextPolicy=none
 
 PG5752 A/B 两件源图分别试建：在 text-to-cad 目录通过 run-silent.ps1 调用 export_dxf_arc_profile.py。A 用 --outer 3D2,3D6,3D8,3D9 --hole 3DD --hole 3E1 --height 5 --join 0.01；B 用 --outer 52E,532,52F,530 --hole 579 --hole 57A --height 5 --join 0.05；均指定同一已核对 DXF 与 agent/temp 下不同 --output。A 两孔 R0.85，源标 2-M2，普通圆柱孔不表示螺纹；B 两孔 R1.15，大同心圆的沉孔深度不明。先 getTool({id:'arcProfile'}) 和 getTool({id:'transform'})，把导出 JSON 分别作为 dataA/dataB。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'a',method:'add',args:{op:'arcProfile',refs:[],params:dataA.params}},{id:'b',method:'add',args:{op:'arcProfile',refs:[],params:dataB.params}},{id:'bDisplay',method:'add',args:{op:'transform',refs:[{$ref:'b.createdBodyIds.0'}],params:{x:60}}},{id:'aSize',method:'measure',args:{bodyId:{$ref:'a.createdBodyIds.0'}}},{id:'bSize',method:'measure',args:{bodyId:{$ref:'bDisplay.createdBodyIds.0'}}}]});检查逐步回执、两个单实体的尺寸体积和渲染 revision。B 的 x=60 仅供同屏对照，不是源图装配定位，不做布尔合并。A 实测40×35.725769605×5 mm、2156.407441 mm³；B 实测33.020453×11.534217×5 mm、808.171586 mm³。装配间距、配合、螺纹和孔口层深仍需源证据。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -17224,7 +17234,7 @@ files.release: contextPolicy=none
 
 PG8091 改模版源线试建：从源 DWG 只读转换 DXF 后，用 text-to-cad/agent/tools/cad-learning/run-silent.ps1 调用 export_dxf_arc_profile.py。外 handle F6,FE,FF,F8,F7,FB,F9,FA,FD,FC；中心圆孔 F5（单个 CIRCLE 被拆为两条精确半圆弧）；弧槽孔 100,102,103,101,105,104；--height 5 取自侧视，--join 0.01。导出 JSON 的 params 可直接传入 api.run({context:{...api.getState().context,expectedRevision:api.getState().context.revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]})。先读取 getTool({id:'arcProfile'}) 和 recipes.analytic-arc-profile。源 DXF 解析外宽约41.208906 mm、图面标40.6 mm，差约0.608906 mm；未解释前按源线候选，不缩放成名义尺寸。只建正视等深实体，不推断侧面局部加工。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -17334,7 +17344,7 @@ files.release: contextPolicy=none
 
 圆周重复孔位：复用 quickModel/washer 和 multiHole 两个现有脚本工具，无需专用固定孔数模型。先 getTool({id:"quickModel"})、getTool({id:"multiHole"}) 查当前参数卡。PG3389 源图主视同心圆内 R10/外 R14.5，侧厚3.6；16个 R1.5 圆位均匀分布在中心半径12.25上，首孔90°，角步22.5°。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const points=Array.from({length:16},(_,i)=>{const a=(90+i*360/16)*Math.PI/180;return [12.25*Math.cos(a),12.25*Math.sin(a),1.8]});const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"ring",method:"add",args:{op:"quickModel",refs:[],params:{kind:"washer",innerDiameter:20,sectionSize:4.5,innerHeight:3.6}}},{id:"holes",method:"add",args:{op:"multiHole",refs:[{$ref:"ring.createdBodyIds.0"}],params:{radius:1.5,depth:0.5,axis:"Z",direction:-1,points}}},{id:"size",method:"measure",args:{bodyId:{$ref:"holes.createdBodyIds.0"}}}]}); 浅圆座深0.5 mm仅是可见试拟；源图文字说明为镶钻，未给出石座深度和宝石形状。外观试建为一个29×29×3.6 mm实体，体积=π(14.5²−10²)×3.6−16π1.5²×0.5。通用时改变 count、中心半径、起始角和半径，并检查每个孔完全在环带内、不互交；depth 从上表面向下切，PG3389 的0.5只是试拟。读 status、measure、rendered revision；参数变化用 feature.edit 改完整 points 数组。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -17444,7 +17454,7 @@ files.release: contextPolicy=none
 
 圆角扁方截面直段长圈：UI 在“快捷模型”选择“圆角扁方截面直段长圈”；AI 先 getTool({id:"quickModel"}) 查 kind=profileLoop 参数。调用 const api=window.webcad.api; const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"loop",method:"add",args:{op:"quickModel",refs:[],params:{kind:"profileLoop",innerWidth:35.2,innerHeight:14.6,sectionWidth:5.5,sectionDepth:6,sectionRadius:2.5}}},{id:"size",method:"measure",args:{bodyId:{$ref:"loop.createdBodyIds.0"}}}]})。内宽>内高>0；sectionWidth 为正面料宽，sectionDepth 为侧面总厚，sectionRadius 是截面 R，0<R≤min(宽,厚)/2，全部单位 mm。R 等于短边一半时用两半圆加直段构造截面，避免圆角矩形草图退化。中心路径为上下直段加两端半圆；外宽=内宽+2×料宽，外高=内高+2×料宽。PG3195 名义参数得 46.2×25.6×6 mm、约 2883.597260 mm³；独立 text-to-cad STEP 体积约 2883.597257。PG10669 参数为内51×15、sectionWidth4、sectionDepth8、sectionRadius2，名义实体59×23×8 mm；侧视细部和源曲面尚未逐线核对。别把厚 6 当 Ø6 圆线、别把跑道形误认为真椭圆。读批次回执、测量和 rendered revision；失败整步回滚，feature.edit 可修改参数。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -17556,7 +17566,7 @@ files.release: contextPolicy=none
 创建步骤可直接使用卡中的 normalExample：const api=window.webcad.api;const c=api.connect({toolIds:["sketchProfile","profileExtrude"]});const shape=c.contracts.items.find(item=>item.id==="sketchProfile").card.normalExample;确认 c.canExecute 后调用 await api.run({context:c.requestContext,idempotencyKey:crypto.randomUUID(),steps:[{id:"outline",method:"add",args:{op:shape.op,params:shape.params,refs:[]}}]})。新创建省略 placement 时冻结当前参考锚点；如需世界 XY 平面，显式传 placement:{version:1,frame:{kind:"world"},sourceAnchor:{kind:"model-origin"}}。
 用户要求成体并给出厚度后，读取 profileExtrude 卡；把该用户明确给出的正毫米厚度记为 userDepthMm，步骤为 {id:"solid",method:"add",args:{op:"profileExtrude",refs:[{$ref:"outline.createdBodyIds.0"}],params:{operation:"newBody",extent:"distance",distanceMm:userDepthMm,direction:1}}。可以放在 outline 后的同一 run 批次；分批时使用闭面回执的真实 bodyId 和新鲜 context。distanceMm 不从二维 heightMm 推导，也不沿用示例默认值。厚度或拉伸正负方向缺失且会影响任务结果时，先向用户确认；只画闭面不需要厚度。检查闭面 solidCount=0、faceCount=1、面积1200 mm²，成体单实体体积为1200×userDepthMm mm³，以及当前 rendered revision。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -17666,7 +17676,7 @@ files.release: contextPolicy=none
 
 读取 info()/getState() 后，搜索 referenceExtrude/referenceLoft 并读工具卡。已有 planeSection 与 faceBoundary 提供精确参考线框。referenceExtrude 接收一个平面闭合线框或单张带孔平面面，params:{direction:[0,0,1],distance:3}；散边多环不猜孔关系。referenceLoft 按 refs 顺序使用 2–12 个平面单闭环截面，params:{ruled:false}。结果均保留原参考对象；STEP 导出应显式传新实体 ids。可先平移/复制一个参考截面再放样。不自动补缺边，不提高公差来强行闭合。参考驱动的成体不等同从零参数化重建，放样的截面间形状必须对照源件验证。静态版仍无直接 IGES 转换器，离线开发检查的 OCP 不属于产品运行依赖。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -17776,7 +17786,7 @@ files.release: contextPolicy=none
 
 圆环内接横杆：UI 在快捷模型中选“圆环内接横杆”；AI 用 getTool({id:"quickModel"}) 找 kind=ringBar 的参数卡。先用 const {revision,...identity}=getState().context 分离当前身份与版本，再调用 api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"ring",method:"add",args:{op:"quickModel",refs:[],params:{kind:"ringBar",section:"round",innerDiameter:20,sectionSize:3,barDiameter:2,barOffset:0,barDepthOffset:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"ring.createdBodyIds.0"}}}]})。读取每步回执、新 revision 和 rendered revision。内径为孔的名义直径，外径=内径+2×截面尺寸；横杆沿 X，barOffset 是 Y 偏移，barDepthOffset 是相对环中面的 Z 错层，默认 0。还支持 section:"square" 和 0<sectionRadius<sectionSize/2。约束：内径≥4×截面尺寸、0<杆径≤截面尺寸、杆必须在孔内、abs(barDepthOffset)<(sectionSize+barDiameter)/2 才能交叠。PG10225/PG10226 的 Ø5 框与杆用错层 4 mm 可建 9 mm 总深的单实体名义轮廓，但源图 R1.5 接头、背面端部和制造表面未复刻，不能宣称完整产品。只适用固定单横杆；活动件、多个横杆和真实源图未标注的尺寸需分别建模。历史参数通过 feature.edit 修改。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -17886,7 +17896,7 @@ files.release: contextPolicy=none
 
 圆线日字扣外观候选：UI 选择“快捷模型 → 日字扣”，AI 先读 getTool({id:'quickModel'}) 的 kind=sliderBuckle 参数卡。const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'frame',method:'add',args:{op:'quickModel',refs:[],params:{kind:'sliderBuckle',section:'round',innerWidth:45,innerHeight:20,innerRadius:7,sectionSize:5,barDiameter:5,barOffset:0,gapWidth:0}}},{id:'size',method:'measure',args:{bodyId:{$ref:'frame.createdBodyIds.0'}}}]});检查 result.status、measure.solidCount、bounds、volume，并等 getState().display.rendered.revision 与新 revision 一致。PG8570 源 DWG 标内 45×20、外 55×30、框 Ø5；上述一体单实体候选实测 55×30×5 mm、3523.416492 mm³。innerRadius=7 是外观试拟，源上下边轻微鼓弧尚未复刻；侧视 4.3 的指向和中杆真实截面尚未完全消歧，不能把圆杆假设当源实体精确复原。若设 innerRadius=8 且 barDiameter=5，横杆端落在弯角区，工具返回 GEOMETRY_INVALID 且不提交。适用闭合圆线外框与固定中杆，不适用平板双窗或可动杆；历史可 feature.edit，失败时须调整源证实的参数而非放宽几何约束。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -17996,7 +18006,7 @@ files.release: contextPolicy=none
 
 圆边独立 R 框：UI 在“快捷模型”选择“圆边独立 R 平面框”；AI 先 getTool({id:"quickModel"}) 查 kind=roundedFlatFrame 的当前参数卡。用 const {revision,...identity}=getState().context，再 api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"frame",method:"add",args:{op:"quickModel",refs:[],params:{kind:"roundedFlatFrame",outerWidth:48,outerHeight:28,innerWidth:40,innerHeight:20,outerRadius:5,innerRadius:1.5,thickness:4,edgeRadius:1.9}}},{id:"size",method:"measure",args:{bodyId:{$ref:"frame.createdBodyIds.0"}}}]})。一个可编辑历史特征先生成独立内外 R 闭合框，再对所有尖锐边一次倒圆。参数要求真实内外轮廓不相交、0<edgeRadius≤thickness/2；任一尖边无法完成则整步不提交，不缩小输入 R。PG8016/PG8017 型尺寸在 R1.9 mm 下内核通过；R2 mm 在这些测试中被拒绝，故 R1.9 是外观近似，不等于精确半圆截面或原件全面验收。PG3213 可设外42×23、内30×11、外R6/内R1.5、厚6、整件圆边R2.9，精确测量42×23×6 mm、2923.414344 mm³；R3内核拒绝，不能称精确Ø6截面。其直边料宽6而外内角R差4.5，不满足恒截面扫掠的同心偏置，需保留独立内外R。读取批次回执、精确体积和 rendered revision；后续用 feature.edit 修改同一特征的参数。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -18106,7 +18116,7 @@ files.release: contextPolicy=none
 
 连续线弧圆线：先 getTool({id:'curveSweep'}) 获取当前参数卡。pathType:'segments' 接受 2–64 个有序段，每段 {type:'line',points:[起点XYZ,终点XYZ]} 或 {type:'arc',points:[起点XYZ,弧中XYZ,终点XYZ]}；相邻端点误差必须≤0.000001 mm，整条路径须开放，圆弧三点不能共线。radius 是圆截面半径（mm）。示例：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const segments=[{type:'line',points:[[0,0,0],[1,0,0]]},{type:'arc',points:[[1,0,0],[2,1,0],[1,2,0]]},{type:'line',points:[[1,2,0],[0,2,0]]}];const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'wire',method:'add',args:{op:'curveSweep',refs:[],params:{pathType:'segments',segments,radius:0.2}}},{id:'size',method:'measure',args:{bodyId:{$ref:'wire.createdBodyIds.0'}}}]});检查逐步 status、measure 的 solidCount/体积、getState().display.rendered.revision。此模式用连续解析线弧的精确 BRep 扫掠及 transformed 过渡，内核拓扑无效则整步拒绝；不从正视轮廓自动猜三维中心线、截面或端头。源图 PG8061 的成对同心弧可用于计算候选中心路径，但源端部 R0.8 与完整三维端面仍需另验。历史中可用 feature.edit 修改整段数组或 radius。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -18216,7 +18226,7 @@ files.release: contextPolicy=none
 
 小双窗扣外观候选：UI 选“快捷模型 → 平板双窗扣”，AI 先 getTool({id:"quickModel"}) 查 kind=twinWindowPlate 的当前参数卡。PG4307 页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"plate",method:"add",args:{op:"quickModel",refs:[],params:{kind:"twinWindowPlate",outerWidth:24,outerHeight:21,outerRadius:6,windowWidth:17,totalInnerHeight:14,windowRadius:2,barWidth:3,thickness:3.5,edgeRadius:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"plate.createdBodyIds.0"}}}]})。源图外廓标24×21、横条3、侧厚3.5；产品栏17×14作为名义内孔总范围。外R6、窗R2是从图面选择的圆角矩形试拟，源实体含 SPLINE，不能宣称与源曲线重合；真实双窗也可能有局部过渡或侧面变化。工具给一实体24×21×3.5 mm，正视双窗+横条可见；不自动添加未标边缘R。历史可 feature.edit 修改；下一步若要求更高保真，应引入源样条拟合后的闭合轮廓并核验偏差，而非继续猜圆角。读批次 status、measure、rendered revision；失败回滚。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -18326,7 +18336,7 @@ files.release: contextPolicy=none
 
 源线弧薄板加前后圆边：先确认产品有效正视的闭合外轮廓与每个孔、侧视板厚和边缘 R。text-to-cad/agent/tools/cad-learning/export_dxf_arc_profile.py 经 run-silent.ps1 导出 arcProfile 的 params；页面先 getTool({id:'arcProfile'}) 与 getTool({id:'autoRound'})。脚本 const api=window.webcad.api;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'profile',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'rounded',method:'add',args:{op:'autoRound',refs:[{$ref:'profile.createdBodyIds.0'}],params:{radius:0.5}}},{id:'size',method:'measure',args:{bodyId:{$ref:'rounded.createdBodyIds.0'}}}]});检查每步 committed、单实体、精确测量和渲染 revision；圆边失败不缩小源 R，应保留前一步并复核局部空间。PG6217 有效视图外 LINE 97E2,97E3,97E7,97EB 与 ARC 9A99,9AA3,9AB6,9AC0；上孔 LINE 97F0,97F1,97F2,97F8 与 ARC 97F4,97F5,97FE,97FF；下孔 LINE 97F9,97FA,97FB,97F3 与 ARC 97FC,97FD,97F6,97F7。侧厚3.5、前后 R0.5；源线外宽44.8、高26.646181，图面名义高26.6，保留差0.046181 mm。该流程为可编辑的两个历史特征，适合源 LINE/ARC 清晰的等厚薄板，不适用圆线截面、变深或来源散乱的 DXF。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -18436,7 +18446,7 @@ files.release: contextPolicy=none
 
 PG5752 B 件源线弧带板：先在有效工程视图选 B 件，不混 A 件。DXF 外 ARC 52E(R20)、532(R15) 与端 LINE 52F、530；两只通孔 CIRCLE 579、57A(R1.15)，板厚5。text-to-cad 下用 run-silent.ps1 调用 export_dxf_arc_profile.py，传 --dxf 源 DXF、--output agent/temp 下 JSON、--outer 52E,532,52F,530、--hole 579、--hole 57A、--height 5、--join 0.05。默认0.01会正确拒绝源内弧与端线约0.040002 mm 缝；0.05 为明确修缝容差，导出器保留原 ARC 三点并只把邻接 LINE 端点吸附到弧端，JSON 与 params.source 记录 maxJoinGapMm 和 joinStrategy。AI 先读 getTool({id:'arcProfile'})，再用 const api=window.webcad.api;const {revision,...identity}=api.getState().context;const r=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'part',method:'add',args:{op:'arcProfile',refs:[],params:data.params}},{id:'size',method:'measure',args:{bodyId:{$ref:'part.createdBodyIds.0'}}}]});检查单实体、测量和渲染 revision。另两只 R1.65 同心圆代表更大孔口轮廓，但深度未标；本配方不造沉孔、不建 A 件或装配。修缝后不称原始轮廓完全闭合或制造级复刻。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -18546,7 +18556,7 @@ files.release: contextPolicy=none
 
 源件参考建模：先 queryGeometry({context,bodyId,kind:"face",filter:{surfaceType:"plane"},requireUnique:false}) 找平面。planar=true 包括解析平面和全部控制点共面（1e-7 mm）的 BSpline；geomType/surfaceType 保留源编码，不伪装成解析 PLANE。未识别的 offset/revolution 等曲面不猜成平面。面结果的 wireCount 表示边界环数；面查询只计算边邻接，不计算全部边的锐角，要查锐边请查询 kind:"edge"。按面积、中心与法向选定当前 faceId，再 add extractFaces，params:{faceIds:[faceId]}，refs:[sourceId]；结果保留内孔并保留源对象，多个 faceIds 得到面复合体。提取结果不是实体。单张平面可再 referenceExtrude，指定世界 direction 与 distance；多截面可 referenceLoft。闭合轮廓端点偏差超过 1e-7 mm 会拒绝，即使源文件带闭合标志也不会自动补缝。识别成几何平面不代表 faceHole/faceExtrude 接受 BSpline 编码；这两个工具仍要求解析平面。所有结果仍须对照源件，局部成体、参考面加厚都不能计作完整产品重建。多壳源件先 sewFaces({tolerance:0.01,makeSolid:false})，从 getState().bodies 或 measure 读 shellCount，再 extractShell({shellIndex:0}) 提取当前零起始序号的壳（保留源对象）。按提取结果的边界、位置和尺寸识别部件，必要时 feature.edit 修改 shellIndex；重建可能重排序号，必须重新核对。已确认独立且闭合的壳可单独 sewFaces({tolerance:0.01,makeSolid:true})；开放壳报错，不自动补洞；内外嵌套壳可能表示空腔，不能逐壳实心化后当作原产品。缝合/提壳属于源件恢复，不是参数化产品重建。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -18656,7 +18666,7 @@ files.release: contextPolicy=none
 
 源图内外角可校验的圆线方框：UI 选择“快捷模型 → 方扣”，AI 先读 getTool({id:'quickModel'}) 的 kind=rectBuckle 参数卡。对任一图，先核外宽-内宽=外高-内高=2×线径，外角R-内角R=线径，侧视截面为同一圆线且闭合；不满足任一条件时不要套此配方。PG7440 的有效正视闭合多段线给外33×23、内25×15、外角R4.5、内角R0.5，侧视圆端R2，故可取线径4。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'frame',method:'add',args:{op:'quickModel',refs:[],params:{kind:'rectBuckle',section:'round',innerWidth:25,innerHeight:15,innerRadius:0.5,sectionSize:4,gapWidth:0}}},{id:'size',method:'measure',args:{bodyId:{$ref:'frame.createdBodyIds.0'}}}]});检查 status、solidCount、bounds、volume，再核 getState().display.rendered.revision。实测单实体33×23×4 mm，1152.436255 mm³；体积与圆截面积 π×2² 乘圆角中心路径长度 76+5π 一致。该几何复现正视理想圆弧与圆截面；图面未说明的接缝、局部表面和制造过渡仍须单独核验。历史用 feature.edit 修订，失败不提交。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -18766,7 +18776,7 @@ files.release: contextPolicy=none
 
 平板双窗扣：UI 在“快捷模型”选择“平板双窗扣”；AI 从 getTool({id:"quickModel"}) 查 kind=twinWindowPlate 参数。PG6217 图纸名义例：const {revision,...identity}=api.getState().context; await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"plate",method:"add",args:{op:"quickModel",refs:[],params:{kind:"twinWindowPlate",outerWidth:44.8,outerHeight:26.6,outerRadius:3.5,windowWidth:37.8,totalInnerHeight:19.6,windowRadius:2,barWidth:3.5,thickness:3.5,edgeRadius:0.5}}},{id:"size",method:"measure",args:{bodyId:{$ref:"plate.createdBodyIds.0"}}}]})。两孔等高=(totalInnerHeight-barWidth)/2=8.05，孔中心 Y=±(totalInnerHeight+barWidth)/4；横条是板体，不是圆杆。outerRadius/windowRadius 为 XY 平面角半径，edgeRadius 为前后尖边截面 R。约束：外宽>孔宽，外高>总内高>横条宽>0，平面 R 严格小于相应短边一半，2*edgeRadius 严格小于板厚、横条宽和最窄框壁；R=0 可做未倒边板。任何切孔或倒边失败时整步不提交，不自动缩小半径。成功读步骤回执、精确测量和 rendered revision；feature.edit 可改这一历史特征。只适用平板对称双窗；PG6217 产品照片外角比该 DWG 名义 R3.5 尖，版本仍待确认。鼓侧边、侧向拱弯、偏置孔及独立杆不属于此模板。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -18876,7 +18886,7 @@ files.release: contextPolicy=none
 
 半圆冠双端孔 U 板：UI 在快捷模型中选择同名工具；AI 先 getTool({id:"quickModel"}) 读取 kind=uEndHolePlate 参数。页面脚本 const api=window.webcad.api; const {revision,...identity}=api.getState().context; const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"partA",method:"add",args:{op:"quickModel",refs:[],params:{kind:"uEndHolePlate",outerWidth:22,innerWidth:10,totalHeight:31.7,thickness:3,holeDiameter:3.3,holeInset:2.7}}},{id:"size",method:"measure",args:{bodyId:{$ref:"partA.createdBodyIds.0"}}}]})。内外冠同心且均为半圆，两条直腿等宽、两端通孔沿 Z 贯穿。孔心 X=±(outerWidth+innerWidth)/4，Y 自端面向冠方向量 holeInset。限制 outerWidth>innerWidth>0、totalHeight>outerWidth/2、thickness>0、0<holeDiameter<(outerWidth-innerWidth)/2，孔与端面、冠保持净距；非法输入失败回滚。PG11804 A 件图面外宽22、内宽10、总高31.7、侧深3、孔位标注2-Ø3.3，另有2-M2标注；holeInset=2.7 是试拟，通孔不能代表真实攻牙。B 件和装配、局部圆润截面未建。读结果 status、精确 measure 和 rendered revision；历史修改用 feature.edit。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -18988,7 +18998,7 @@ files.release: contextPolicy=none
 WebCAD 页面自动化入口：window.webcad.api.connect({queries:[能力关键词]})。优先读取精简状态和搜索结果，再 getTools({ids}) 批量读取契约，详见 api.discovery。先读 automation/quickstart.md 或 readDocs({docId:"api.run"})，通过页面脚本调用 run 批次；AI 应通过宿主已授权的页面脚本通道在后台调用 window.webcad.api。不要为查工具或执行建模打开 JSON 调试面板、填输入框或点击执行按钮。没有可用脚本通道时，明确报告通道不可用；不要自动退回界面操作。 宿主通道发现见 api.connection。无需终端 CLI。读取当前页面的 info()/getState()，再用 searchTools({query:"安装板"})、getTool({id:"box"})、readDocs({docId:"coordinates"}) 查询契约。当前页面的建模、文件和视图操作由页面 API 调用浏览器 Worker 中的精确内核。
 页面 JS 执行通道必须由调用客户端提供并获用户授权；页面公开函数不证明某个侧边栏已能调用。建模写入须传当前 sessionId、documentId、documentInstanceId、expectedRevision，不能猜 revision。页面方法不接收任意脚本源码、任意 URL 或本地路径。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
@@ -109197,7 +109207,7 @@ files.release: contextPolicy=none
   "title": "高度图浮雕精修",
   "label": "高度图浮雕精修",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -109295,7 +109305,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:93c76102200960afd572b53aed056fce7d7624e5b0a487598f913aca2f7d8ef2"
+  "docsHash": "sha256:95047251d08d19230c0c7a92a59a24d194dcc44471bc9aaa48bb204658d45a9b"
 }
 ```
 
@@ -109307,7 +109317,7 @@ files.release: contextPolicy=none
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -109405,7 +109415,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:d95b3188ddf33db3d086d31b81003cf4ef3cd7a613565ef3353f2e851dbe33c6"
+  "docsHash": "sha256:da0e5855764919a3aac29df3ca27ce57238ab28f4c4108763f85ad40b3db8536"
 }
 ```
 
@@ -144949,7 +144959,7 @@ files.release: contextPolicy=none
   "id": "getMetalMaterials",
   "title": "getMetalMaterials",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -145046,7 +145056,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6eda3381fa0e21d5edc8eafdf140ae05ed65198057da3f391de263f079d29fc9"
+  "docsHash": "sha256:18e57567acae4ecdd2b19e388a57bec3f563322ae409b237265e42bb4bfe3c9f"
 }
 ```
 
@@ -145057,7 +145067,7 @@ files.release: contextPolicy=none
   "id": "setMetalMaterials",
   "title": "setMetalMaterials",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "host-only",
@@ -145159,7 +145169,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0508f454e957776bca7da2045537fb6b9dd7a4abfbb5d498aee2fce502972f0a"
+  "docsHash": "sha256:c6573590b85db516ee9a93da9af1f500f6bd2a5a34812c518e6fbf6352eebae2"
 }
 ```
 
@@ -145170,7 +145180,7 @@ files.release: contextPolicy=none
   "id": "getMaterials",
   "title": "getMaterials",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -145218,7 +145228,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5ec4895d7cc3a90f20852ec5ee6822e35a5d7a26e3ddaf526a50e62e932d45b3"
+  "docsHash": "sha256:867f6716a30d4595320eb7fc79a9e46d4e9ac2bec2bfcc375b666ee279fc87a5"
 }
 ```
 
@@ -145229,7 +145239,7 @@ files.release: contextPolicy=none
   "id": "measureMass",
   "title": "measureMass",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -145303,7 +145313,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:edbfa4c4a1792dd1b410c3d18217d282de59931077f9aa7ff555f76e8ca7a584"
+  "docsHash": "sha256:020ec6ea95166d223e691a7f41e4b265aab7c2d29f227ec2d46187be22a23fda"
 }
 ```
 
@@ -145314,7 +145324,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignFit",
   "title": "reliefDesignFit",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_read",
@@ -145560,7 +145570,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:1bde34ed75d869fda56229e68ee14e36c5f696d3060d6c86d653a1ff23f7c9d6"
+  "docsHash": "sha256:c2917bee8ab4bf995d1c8d8849e165d130c8fd7398b984fdc3cbd8239db7a07a"
 }
 ```
 
@@ -145571,7 +145581,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefDesignRelief",
   "title": "prepareReliefDesignRelief",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_read",
@@ -145964,7 +145974,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:309f88aa53683b40a6f0deb0250613d5b2c07b5b06c9c737ab24921ccd7ea453"
+  "docsHash": "sha256:ec02cd64b6012291e68a5e941c94b15f334e1c5796e2da25e3700e595fa2b875"
 }
 ```
 
@@ -145975,7 +145985,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignReference",
   "title": "reliefDesignReference",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_read",
@@ -146160,7 +146170,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f60809b79143074eb71d736282cfb28a3a44cecca5e5f4f327ae2e7bf99a1b10"
+  "docsHash": "sha256:05903e68911541b761dd83b45c188e338f8b5460e750244c355c60ebdccc2d41"
 }
 ```
 
@@ -146171,7 +146181,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignField",
   "title": "reliefDesignField",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_read",
@@ -146410,7 +146420,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:4ce4374c212f57148bcb418b3c6af5416cf27e3dfdc93efcbfff2d1d1c7f2ab6"
+  "docsHash": "sha256:8096dc219cdb5286c711fd4bdd83f79b5c10a42a6a8c92094ebe444b798a103a"
 }
 ```
 
@@ -146421,7 +146431,7 @@ files.release: contextPolicy=none
   "id": "readLogo",
   "title": "readLogo",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -146650,7 +146660,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:c9d3e1448d2de60d435b2257d5d21b414d97ef49b7314bec39da6193eca0f270"
+  "docsHash": "sha256:e0cf006d5486ca30b1ceae9fb7c512fa47989db79cb75dde78b16b68a3901501"
 }
 ```
 
@@ -146661,7 +146671,7 @@ files.release: contextPolicy=none
   "id": "reviewLogo",
   "title": "reviewLogo",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -146849,7 +146859,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:0cdc9343c2e542fa1fb27363d58c3fc480de906200c94409ddc9f101d18b3c45"
+  "docsHash": "sha256:7a0f6b2d169ece137a37c015b37aa50102c648fb8af4ea086486af9c43c0ea34"
 }
 ```
 
@@ -146860,7 +146870,7 @@ files.release: contextPolicy=none
   "id": "logoWizard",
   "title": "logoWizard",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -147128,7 +147138,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:9fec89cd93142460ea803e9c52898ac2157cab71cc249ca78bc47b52c3a28ced"
+  "docsHash": "sha256:4486765eab864186fd7d7ff9e6b7e916d281910b4fd2a5341fe5e6407c5e861d"
 }
 ```
 
@@ -147139,7 +147149,7 @@ files.release: contextPolicy=none
   "id": "getBatchReceipt",
   "title": "getBatchReceipt",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -147234,7 +147244,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:39b2117f929ef2a5af9e757d008a813569938444a5e68ad8b9d4f65335a0ed04"
+  "docsHash": "sha256:05390eb751c2b26eed2a7d9f4b3ef066f2069f23bdfd290666e79abe2c809f31"
 }
 ```
 
@@ -147245,7 +147255,7 @@ files.release: contextPolicy=none
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -147501,7 +147511,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:acd73d4f4cc04bc02986e5a55e169ba4dc843539684f8be289a1053262149f83"
+  "docsHash": "sha256:a851039f9a7d513f9c66a6648578f6e0630b69fff5f0a53bc3c75095cc61fa18"
 }
 ```
 
@@ -147512,7 +147522,7 @@ files.release: contextPolicy=none
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -147587,7 +147597,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:90e8372f8da759944dd505e51633d2f2a17c297acf7d1b0e1c89b8c001359bb5"
+  "docsHash": "sha256:f2e1ac0b6c5b7494fc9775397fb423d876e5700f3f3247aa54e6dba2da0edcc8"
 }
 ```
 
@@ -147598,7 +147608,7 @@ files.release: contextPolicy=none
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -147795,7 +147805,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:937a8a115f09ef1ad9f57b9dcb7da633b2fc7f0845f8b4b7a5ebac9978ca2447"
+  "docsHash": "sha256:947555845dc80e2c24523d39ad49f1248f5a71f6248b1a43594c846971ce48e1"
 }
 ```
 
@@ -147806,7 +147816,7 @@ files.release: contextPolicy=none
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -147893,7 +147903,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8c93d431d7f2757989642070fc66fb56de565b956ca6b8d309aacd36e76ffd24"
+  "docsHash": "sha256:e221998940a4b950d1ec9d82cec08e478e51e488bd7ef3123f3dd0df881ea4f0"
 }
 ```
 
@@ -147904,7 +147914,7 @@ files.release: contextPolicy=none
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_view",
@@ -147998,7 +148008,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2d5533a958301fdc8b08810c8ab9b9f12d950bf078c322c0891057dc7f111d9b"
+  "docsHash": "sha256:afbc60c4fa05a44b27b01518439abed55b28b65c8ed4428a08fcb5cb948d4a79"
 }
 ```
 
@@ -148009,7 +148019,7 @@ files.release: contextPolicy=none
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -148100,7 +148110,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8ce710c7d099e00b477f0ea607704532ad7b1a53e1ec967caf761e25998f4fdb"
+  "docsHash": "sha256:bd3eb97fcf540702905e39602de35d67c8118551dbbbea0208560fe745064a3c"
 }
 ```
 
@@ -148111,7 +148121,7 @@ files.release: contextPolicy=none
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -148386,7 +148396,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f38d1c25781bcfef59d853dd061e29225ee1d400a1def7c4c6e7d48d9e67b430"
+  "docsHash": "sha256:436ad857dc0c8dc18cc5291a04899b070e69443c6ef17a9495c88c5c4b2df4cb"
 }
 ```
 
@@ -148397,7 +148407,7 @@ files.release: contextPolicy=none
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -148495,7 +148505,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9a39f6233b964178f0874d04a196ce7e8afc739257def06f7c903439793b3c2d"
+  "docsHash": "sha256:8a9a9a8b8266ddc20cf29cd41cbfb24caee13d86807a1335897561c98ba239c8"
 }
 ```
 
@@ -148506,7 +148516,7 @@ files.release: contextPolicy=none
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -148609,7 +148619,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fd1b152300b990a48ad8296b11fe310bc1a747eb796e6483a703080c0aa0b02e"
+  "docsHash": "sha256:224a8ef3c1b0f2cab6146788a4600a4a13c6b466d32510c30d6c9b58cb9b9792"
 }
 ```
 
@@ -148620,7 +148630,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "host-only",
@@ -148733,7 +148743,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:81a1e4e96a6e0c0adb6794a66a0e64c79aa0d29493f61b20864240820b530f62"
+  "docsHash": "sha256:b353669d07979de0db175f9eb080badb6287c79a97aaa108f93d88c4b93fd432"
 }
 ```
 
@@ -148744,7 +148754,7 @@ files.release: contextPolicy=none
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -148860,7 +148870,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:9ad7bb9761a6fda78978bde46a2d3043ee7f8229ba8b4fff6c8c2db97da54916"
+  "docsHash": "sha256:85ee92c37b6612f0fd5f369a9b6e88457580f3930375786124ec06b44516b7cd"
 }
 ```
 
@@ -148871,7 +148881,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -148996,7 +149006,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:1545ced136531f07824379eca75128845fb5a92581a1ad5206e9dc94643bbf79"
+  "docsHash": "sha256:3536ec743292354f64d2171c2312dc43c7e4b522335b394a0446f270b6b65422"
 }
 ```
 
@@ -149007,7 +149017,7 @@ files.release: contextPolicy=none
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -149131,7 +149141,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:6224ac1c248c791bb5f969db1e94a8424e90957f72e657dd26364b1b8e4cda0e"
+  "docsHash": "sha256:55a5b4e28eaea1a1488f741ba33a0422ce7dee58b37852b5d9ab5d53bd5d1721"
 }
 ```
 
@@ -149142,7 +149152,7 @@ files.release: contextPolicy=none
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -149209,7 +149219,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3a1a30730b1315664ef315e3bc5d07e1f5fbd5aa2f4dae130d96b9b43069e40e"
+  "docsHash": "sha256:8233d6ed104f3b10ade22b8210f048328167269e8495153c1a419237bfd97c09"
 }
 ```
 
@@ -149220,7 +149230,7 @@ files.release: contextPolicy=none
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -149291,7 +149301,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fb5fa7809af76b3fccac5f3326c2aac3c0a05fcaa79eb8a50aecd56c86362afe"
+  "docsHash": "sha256:d076e656943d2a34ce0c30857b1b289818ccc6f2e098073525cc0da75fe52a10"
 }
 ```
 
@@ -149302,7 +149312,7 @@ files.release: contextPolicy=none
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -149397,7 +149407,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:55390d447636071e5779bd8b891bf49760743591a1945c6b6e0c81720f8eefc6"
+  "docsHash": "sha256:53fa906577c27b5686facbc842e9578807738c25ef33a30fbf5a0ac63ba238f2"
 }
 ```
 
@@ -149408,7 +149418,7 @@ files.release: contextPolicy=none
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_artifact",
@@ -149481,7 +149491,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fff04854cb77d5595a3e3289840c40a016447b27256dd8078b5338754efe7193"
+  "docsHash": "sha256:ddb789d929eaf28e29f7276ba700f3117d44f5ccc8bc6b255eae9f0d95b84641"
 }
 ```
 
@@ -149492,7 +149502,7 @@ files.release: contextPolicy=none
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_artifact",
@@ -149683,7 +149693,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a25d6048262c17ae1b3ebed018bf227d1d1ce49491ba35a7bc82e535e8fee4fc"
+  "docsHash": "sha256:ae58edc2647e12e95f52c59e11a66bde94f62535ab2a813e856fb866a3025e5b"
 }
 ```
 
@@ -149694,7 +149704,7 @@ files.release: contextPolicy=none
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -149775,7 +149785,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f597ea3bb6f80c31d2fd86073e586fd06223dbc120f1f4aee5dc96595f5d89ff"
+  "docsHash": "sha256:b92790a89093c1b122d0d414e541048468cf9cd4fbe45e7e6f5fda5d4f091828"
 }
 ```
 
@@ -149786,7 +149796,7 @@ files.release: contextPolicy=none
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -149871,7 +149881,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:046434e2ff412d630dbea133669627e9ab91995e389c9000b03e0d715a396a16"
+  "docsHash": "sha256:7f16dda5a25d7472e8ef14d07cf433e442ee5d13e8b3c4d277e70411387581f4"
 }
 ```
 
@@ -149882,7 +149892,7 @@ files.release: contextPolicy=none
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -149963,7 +149973,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:698b16b82e056df190de742d8cfc95895c4b4eefb632cec34cb784db6ef4b478"
+  "docsHash": "sha256:1fa0f15246e916a288de05272c5a84c834103596f4cb527eef3f8d4bc14d53e8"
 }
 ```
 
@@ -149974,7 +149984,7 @@ files.release: contextPolicy=none
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -150052,7 +150062,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:871e1b1e8bd359b558235b02d9c3fe55727a383d61b1f3e6666289b15ddd5b8f"
+  "docsHash": "sha256:ebdb352da53e3914853a4dc2adbef1f87b094896420f5e62cb706142bdda1410"
 }
 ```
 
@@ -150063,7 +150073,7 @@ files.release: contextPolicy=none
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -150160,7 +150170,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a92bb9962ef5f73f7e2a53b4306287ebbb1cb03418b2b4c605228b0aa3a74efa"
+  "docsHash": "sha256:0ef030359efdc186db6347af8f678ce072895c24b8c68e14554ef56b37e788ae"
 }
 ```
 
@@ -150171,7 +150181,7 @@ files.release: contextPolicy=none
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -150270,7 +150280,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4c794fd6d6cda1fc1410602a6af859af42758fb3e58f492739dae2824be7f02e"
+  "docsHash": "sha256:53914085aa4f1a361ff75e54dec274213cc6c78783c1dace4add4f9d597813fc"
 }
 ```
 
@@ -150281,7 +150291,7 @@ files.release: contextPolicy=none
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -150350,7 +150360,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0bdf6475a762a7dd93e3f8b0149625039350cf378079307b1c386ecbe9d1f309"
+  "docsHash": "sha256:0486454637429fc3dc3ee73a7ff2810ba6301ffd8d075ecbffde33c2c04bfdba"
 }
 ```
 
@@ -150361,7 +150371,7 @@ files.release: contextPolicy=none
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -150434,7 +150444,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5a70a6d96476730464992dfe4824a17a871fedf644b7823f6724a61f0da68e99"
+  "docsHash": "sha256:64d63dcf6cd8942df62b4345b5f761b5c58e2561cfd0d70ce20727f5225dd7e3"
 }
 ```
 
@@ -150445,7 +150455,7 @@ files.release: contextPolicy=none
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -150523,7 +150533,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b86a2f0217e478d9580d49c0ee7b775a3400328097dfe7675debafa0f2649a9a"
+  "docsHash": "sha256:7532b9cff7db541541051ccb7c666fda1186b11aba014b7582bd72d1ecd335f3"
 }
 ```
 
@@ -150534,7 +150544,7 @@ files.release: contextPolicy=none
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -150610,7 +150620,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5462e4392851ff011aa7dfb00224ef35157c6761ebcfc004ddc061fb267ae9c8"
+  "docsHash": "sha256:ad3e0c7cf0dddd2495ef376af9d468e9408975711436a07abe5d707d2a44be4d"
 }
 ```
 
@@ -150621,7 +150631,7 @@ files.release: contextPolicy=none
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -150696,7 +150706,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4050468968e28c0011f30ff0cd633942750c2564ca79c6257b58e1593bb04a76"
+  "docsHash": "sha256:40f14fc5cf211abac6e7af2863ed603d313325f78cc0b986ca28df4e0af8862c"
 }
 ```
 
@@ -150707,7 +150717,7 @@ files.release: contextPolicy=none
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -150777,7 +150787,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:571562e1bf94541fbf45eed84cec3d091ebf2723ebfd86cd255f6819583b984d"
+  "docsHash": "sha256:5358e720aa8afaca69d19cb411ecc940b1053b9048c874fd9c832f00063c010b"
 }
 ```
 
@@ -150788,7 +150798,7 @@ files.release: contextPolicy=none
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -150867,7 +150877,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6cbc7368099abda156c5c1c4ac0e2b37ea7402296c039d4cc03578e06cf81c13"
+  "docsHash": "sha256:a33bfc5a88a60a5a1a795845b2736d29f9201d7371e542284923495e17990955"
 }
 ```
 
@@ -150878,7 +150888,7 @@ files.release: contextPolicy=none
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -150952,7 +150962,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f6f8786318e5a49d520430ec9266c4e5f95343278e1854bddf3e0d7053302947"
+  "docsHash": "sha256:c9a25eb48a66daf0d8a7c72308e38b8132b1d8fa43e06f4c7f0741610a43ba9f"
 }
 ```
 
@@ -150963,7 +150973,7 @@ files.release: contextPolicy=none
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -151094,7 +151104,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:795144fe423b5d70d3c820065c49418b553add38742a2f37566a1625779d8a96"
+  "docsHash": "sha256:eaf66bfb6cecbd98e15bc4f18a9971dc40bf9747bc6d87acb1a3ee0b83ceff7c"
 }
 ```
 
@@ -151105,7 +151115,7 @@ files.release: contextPolicy=none
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -151184,7 +151194,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dfa6fa2843f2adbde94ace295c77976cac56c31fbf8593cfcab69d7adc352fb4"
+  "docsHash": "sha256:43710a56f5aaa804402168833d2da6ef0bb5996c7955c9bf725267c529055b0d"
 }
 ```
 
@@ -151195,7 +151205,7 @@ files.release: contextPolicy=none
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -151275,7 +151285,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:27192b396e6082a21853f6a796c12e2c748b491a5240dc8868a03a3723b8ffd1"
+  "docsHash": "sha256:a8f240e504616ffe1655af740e252e66253c5401b5ce5afb65f0b7e64b07866f"
 }
 ```
 
@@ -151286,7 +151296,7 @@ files.release: contextPolicy=none
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -151365,7 +151375,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b8b9c4eb4b75a5df0d3dcbfc6867bcda0b06dbb0da296f7d2928d849409af300"
+  "docsHash": "sha256:912f6efd904bb07696400a37483f0757f1591b3d73c0f681aa230b08b9a05d4c"
 }
 ```
 
@@ -151376,7 +151386,7 @@ files.release: contextPolicy=none
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -151455,7 +151465,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2c7fd4c8a6e7a86cd34da3ea231134c11f25559d4985c309c0599a3cb78a4651"
+  "docsHash": "sha256:b744997b036ea97cb0a8524dadba9e33d4cb8bb8b01bc4e61d7a836964718907"
 }
 ```
 
@@ -151466,7 +151476,7 @@ files.release: contextPolicy=none
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -151618,7 +151628,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ab90c71cd92c5a6d585ff1c3922f3f8b6d2014d29f8b9babb9f24e17eab16e2a"
+  "docsHash": "sha256:a5dd5782d66d6ad43391aa17983cdfa3cb27e6d9ca3817b94232d09a8d14fc51"
 }
 ```
 
@@ -151629,7 +151639,7 @@ files.release: contextPolicy=none
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -151703,7 +151713,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9fa4046b59a11926a96db8980ad812a6c5b3ef01fe97d9ffcca602f3190ccfc0"
+  "docsHash": "sha256:55511b8a6a1a90bb8d2f9c53eb144e86edfca7e9f93caf8f828666bb0d8205fb"
 }
 ```
 
@@ -151714,7 +151724,7 @@ files.release: contextPolicy=none
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -152041,7 +152051,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fb8556eae26889d50799c81df350c25d0440430ec09646e4106c90d76738d40e"
+  "docsHash": "sha256:688c619cc67387e19c8c0a4b4596ac5796c97818d9e82c9e66fc91650c2085d3"
 }
 ```
 
@@ -152052,7 +152062,7 @@ files.release: contextPolicy=none
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -152135,7 +152145,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e8c948372de498abded837b760d565d7bbf7f17544cb2a2f952fd013d0a35984"
+  "docsHash": "sha256:7abb725154756b2bfad76fb7a17f28e4e4f4d10b2cbe9430c3d49c79c38af13c"
 }
 ```
 
@@ -152146,7 +152156,7 @@ files.release: contextPolicy=none
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -152230,7 +152240,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4d0a4a6b77e414197662444a4807a67b3cae10b2d1cee028d5d4791ca99208dd"
+  "docsHash": "sha256:9bc2d85106d49f21cad8b8d9699dd5c5f38db4638b34b6b6822e4484d0ae9bde"
 }
 ```
 
@@ -152241,7 +152251,7 @@ files.release: contextPolicy=none
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -152319,7 +152329,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4a1745744850e92870d3287c9f3999a54a63f751689da10b6c20f3f69766f99d"
+  "docsHash": "sha256:fd48cc84f4bdc13bf2a8b99616281ecdf8bdcf487ac7478e03f374f37b7af95b"
 }
 ```
 
@@ -152330,7 +152340,7 @@ files.release: contextPolicy=none
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -152673,7 +152683,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:df177f3879409f486b07abf02c95f8cbd44e77051d6d431584a0a197d3ace3c1"
+  "docsHash": "sha256:394da69ec20c2d917a2b505c64d8d15ecd8c0f4ebb130ea99138ae59cd7d0852"
 }
 ```
 
@@ -152684,7 +152694,7 @@ files.release: contextPolicy=none
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -152762,7 +152772,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e630d9074578d7c1ab524e7b837f57a0d5dca8d3207a821645d108b139e233b8"
+  "docsHash": "sha256:99cfcb6f62ec5d6a6e55534f61c586db4a2392bf2a936a286f18c3ffc61834c6"
 }
 ```
 
@@ -152773,7 +152783,7 @@ files.release: contextPolicy=none
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -152859,7 +152869,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cb6c44a73993b7d320b9e244629c76ebd24bf946f4610fa0bfda3186d05d7dfe"
+  "docsHash": "sha256:0d89d6e84f434465b95786920dfca893aef458d33cf62c83d0b1ec1d9df518a2"
 }
 ```
 
@@ -152870,7 +152880,7 @@ files.release: contextPolicy=none
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -152966,7 +152976,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:78b801144894d2ec9bec3bb36fa28e13926657c536fb0c705f1fbd7c2e73b02e"
+  "docsHash": "sha256:89fb9d331827db5da3fd15c9de31b10daa84cd28cd193bca64c0d10009966820"
 }
 ```
 
@@ -152977,7 +152987,7 @@ files.release: contextPolicy=none
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153073,7 +153083,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b587ebc851191223fc8c82b605da80d99b0f13a89f74b181c6cc2b65536604e7"
+  "docsHash": "sha256:d5fc3aa525abe20272bd9a9b4e98e75ff6526e84e12c1eb6779e497a66693c82"
 }
 ```
 
@@ -153084,7 +153094,7 @@ files.release: contextPolicy=none
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153173,7 +153183,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4bcc10781e735dbcfd0bad189bb888859d71205caa507ab40feb22791e4cf7d1"
+  "docsHash": "sha256:5f99bd1ab5599593b266508a5d8f9d86db8b2250e4f5435503cd26d876d6eadc"
 }
 ```
 
@@ -153184,7 +153194,7 @@ files.release: contextPolicy=none
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153262,7 +153272,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:986bf310f270fa3cbd10aa37d0619e1b55494d4fc3f9b917af08534b0cce6916"
+  "docsHash": "sha256:4821f3f46c24afa6007401b5cf84b3d70f71267211737782d5fe62f2bb22923f"
 }
 ```
 
@@ -153273,7 +153283,7 @@ files.release: contextPolicy=none
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153349,7 +153359,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:99fa5585baeb5dc85ef593034d9781f699ee985a71d73943bb81cc39c1e79a11"
+  "docsHash": "sha256:5ef400448644a9b05fdb903b76dcdbd7558f715f76029170e2bf253d5c8502c9"
 }
 ```
 
@@ -153360,7 +153370,7 @@ files.release: contextPolicy=none
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153444,7 +153454,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f079c561426fc609cd9727456db18dbf26def5b36c1b1218f587b827ce2f9c99"
+  "docsHash": "sha256:985f3e195900b5db71f934d82dae45a9f87f6dd93e669a3af2da6ee9b49881ab"
 }
 ```
 
@@ -153455,7 +153465,7 @@ files.release: contextPolicy=none
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153546,7 +153556,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:7b7bf38e5ed0e593453f1348f395642f1fa17aa5895411df78bcb76ceaa3501f"
+  "docsHash": "sha256:91908e08db7dc03393c966dd1af8efb2cd5b52100adf867ad0158a0f8f241069"
 }
 ```
 
@@ -153557,7 +153567,7 @@ files.release: contextPolicy=none
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153654,7 +153664,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3649bd53012f2dab11167da8298c452743629071f50abbaa376de722d2764858"
+  "docsHash": "sha256:43082fd19b71efe7b4c2a6bc118ae07c1dc8860144634ab1248d6fc981c51218"
 }
 ```
 
@@ -153665,7 +153675,7 @@ files.release: contextPolicy=none
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153756,7 +153766,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:10ef57b3bb263e987a864facb7ee49f35c6560b25de2d937f01705ab15b35ac8"
+  "docsHash": "sha256:9e6bbac524a447074b2c11ea83593028897c69e82e45da3c9cf4522a5addc671"
 }
 ```
 
@@ -153767,7 +153777,7 @@ files.release: contextPolicy=none
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153858,7 +153868,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e9bd6532281fd44265f96736e0ebbd240eddee55c02478804f54982f7a663ac7"
+  "docsHash": "sha256:7dbfd48b55641aaf3b52c5ac7f21e73809b8e4d7718b122cdd02f459c6ae4b11"
 }
 ```
 
@@ -153869,7 +153879,7 @@ files.release: contextPolicy=none
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153958,7 +153968,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:918438132dc3eb3b86d9be3c929275bed24b174300a85bbea127328d63feeead"
+  "docsHash": "sha256:05754be0f56fbeb223f40cc487b54f47040589f2210b145b600c07ac4aa4a1a9"
 }
 ```
 
@@ -153969,7 +153979,7 @@ files.release: contextPolicy=none
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -154043,7 +154053,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:be1e6fe142dfb3446550d7b619c00e55c4e0a68f59ffedca550b75edb1f7a342"
+  "docsHash": "sha256:a94ae624e935cadb81a99b8647d27754a6a1d8ebb63fed062343d94f3476717d"
 }
 ```
 
@@ -154054,7 +154064,7 @@ files.release: contextPolicy=none
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -154154,7 +154164,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:122045de9f0d2f7cd39b964c5b964e540a6acf172bc8f24b00593c7fcacdfff1"
+  "docsHash": "sha256:3679006cffb874f896d3219ac051a40c297e06ce94ed5f8dcd63f11f6b18f40e"
 }
 ```
 
@@ -154165,7 +154175,7 @@ files.release: contextPolicy=none
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -154206,7 +154216,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:72f9224c19ad8dae88ff38c5f30dbd3cc8070a5229ded266a495821593e97bd1"
+  "docsHash": "sha256:d0c6820c8b5e9529bf6cab1055bffea1d181376286a9cae3904a129f5afde507"
 }
 ```
 
@@ -154217,7 +154227,7 @@ files.release: contextPolicy=none
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -154255,7 +154265,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f2421dba9c07290d71ae4eed95ddf9aec525defe810e971dd286b4bc9a5cad02"
+  "docsHash": "sha256:1009a2ee94d9840dce07c21bebf77f8bce38d65a097427b51b739b8b52623b8e"
 }
 ```
 
@@ -154266,7 +154276,7 @@ files.release: contextPolicy=none
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -154313,7 +154323,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:50fa446eff47555eb2105781435c73edba196a3439d0a80addf6a3a4a8938cc1"
+  "docsHash": "sha256:6f9b0a47791a3364e2100779c6eb5e27e9708247cfbaa8781ad03b60399e2ac7"
 }
 ```
 
@@ -154324,7 +154334,7 @@ files.release: contextPolicy=none
   "id": "markLocation",
   "title": "markLocation",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_view",
@@ -154458,7 +154468,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:587840fab950e6746d90b54597ee1e9bd5f6ed86fc4b1381c77d1752f70e6d5c"
+  "docsHash": "sha256:3b033a427b5d39a1ea590a64854cd21c15058e253ccb20adedca057ce4babacf"
 }
 ```
 
@@ -154469,7 +154479,7 @@ files.release: contextPolicy=none
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -154566,7 +154576,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cb97daced76e093a91e2d9713453384f4c380b7f7685eda35b8eb277f5e3f5c1"
+  "docsHash": "sha256:875cd4c5ba1349890265984e45a4852d978aac7efc436267bc490bb6c2c7f4dd"
 }
 ```
 
@@ -154577,7 +154587,7 @@ files.release: contextPolicy=none
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -154680,7 +154690,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:68d9b8824285fce29bb6b9209389f3d2199f1bb4c6e72fb67f76e663ede4aeb7"
+  "docsHash": "sha256:18781110597a1669d1b2da15db47ee14aa3131338c2ad1c77e0ec0b240c9feb0"
 }
 ```
 
@@ -154691,7 +154701,7 @@ files.release: contextPolicy=none
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -154793,7 +154803,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ce9c5b035a427932f63a56ac99cd958587baa1e6990f2d49b4ea1357a03dcf83"
+  "docsHash": "sha256:092bf1c2d40c43c0fbaf07a7690100adaacf07800df48b019e635a60ab901742"
 }
 ```
 
@@ -154804,7 +154814,7 @@ files.release: contextPolicy=none
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -154900,7 +154910,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e82d5b733ec2b28e789be5699ee73900e46f626de56df7d11c9dd7f82a766df4"
+  "docsHash": "sha256:f126ee55561cbbde78c5a32ebd0a1a10318cb90a0e8218c41397255ae8dba24a"
 }
 ```
 
@@ -154911,7 +154921,7 @@ files.release: contextPolicy=none
   "id": "clearServicesCredential",
   "title": "clearServicesCredential",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -155009,7 +155019,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:88ae195558d109c837aa9c1b9ae98e689187a8e7681da50d79a33478a48fa6ec"
+  "docsHash": "sha256:4c6bc08cb7d88c95b18443644c6f148d6d5b9eba64d06b2a0c2c52b729ec7934"
 }
 ```
 
@@ -155020,7 +155030,7 @@ files.release: contextPolicy=none
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -155125,7 +155135,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d844bb7ef5e79dd9450191025280aea026eaf07b863dda42d9cb8cc252ad81c3"
+  "docsHash": "sha256:991788a051983698cde1fa2703baa0644250887123e8b01047103c88778f499e"
 }
 ```
 
@@ -155136,7 +155146,7 @@ files.release: contextPolicy=none
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -155242,7 +155252,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c30eff269276c9ec28430f665e8bbe475ee13b8f1eb2d6019e18ee815f6da27c"
+  "docsHash": "sha256:edbae9cae9f92395768ce1ec22f64b88790bff7fccf8928595eda53e18e2e2a7"
 }
 ```
 
@@ -155253,7 +155263,7 @@ files.release: contextPolicy=none
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -155363,7 +155373,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:86dc8975d7bf046d04b498e115469467db0e97451bfa9157562fb52a928ebfa5"
+  "docsHash": "sha256:dec242bb8bc1e013f19253e20d212690563ac13a13198812eebc9d9c38f2bfa3"
 }
 ```
 
@@ -155374,7 +155384,7 @@ files.release: contextPolicy=none
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -155468,7 +155478,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f3eb0657c461581bd19b7c406c0e1999295f5c924be24f8fa4d97dc16a879c88"
+  "docsHash": "sha256:a103174c5430aded764e75c81c13eec3710f97b0e5b8862ddd00b674d87eff9a"
 }
 ```
 
@@ -155479,7 +155489,7 @@ files.release: contextPolicy=none
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -155578,7 +155588,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:8ec59c63aaf1e4c3bdf41232a7d7e66f9a643aa6a74adc1ead013b458d81a7b5"
+  "docsHash": "sha256:90c7fdf4fd0eb4473903e71dfb5e704d59f82d9ed7d718597a57cf96d1db7997"
 }
 ```
 
@@ -155589,7 +155599,7 @@ files.release: contextPolicy=none
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -155690,7 +155700,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:c22faf9e87e9ce6e289a5ee354eaab5d14a45b4a4fbb089f4b70b6ca1d052138"
+  "docsHash": "sha256:1d920f8baba111db90af2e74f379598da096e627c93c2023372881123ee60593"
 }
 ```
 
@@ -155701,7 +155711,7 @@ files.release: contextPolicy=none
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -156038,7 +156048,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f47c5b808f28b4d5e419a78f973776c3780c01869b743adc376508ee54848030"
+  "docsHash": "sha256:0ce5ab43c2f88569c6b99ce4749e618ccb8642d51e7417ac88b74ea467486f2d"
 }
 ```
 
@@ -156049,7 +156059,7 @@ files.release: contextPolicy=none
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -156145,7 +156155,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bdf790025405a43d3ed75fabf11aa220f5e64af6a1974843ded80e20bd2f9444"
+  "docsHash": "sha256:2df028b44d93df2c0f2f5f8bbee69012905aa0afa48544e980abb60f7c6bc5f7"
 }
 ```
 
@@ -156156,7 +156166,7 @@ files.release: contextPolicy=none
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -156319,7 +156329,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9d28b143b25cbc4160214884a4f8c1a490ee8a79ae2e4d7eee32b0b91419a840"
+  "docsHash": "sha256:bf4097485a64910b5ee2194f173d5c1974676acfa8219d792c8398e7ca048454"
 }
 ```
 
@@ -156330,7 +156340,7 @@ files.release: contextPolicy=none
   "id": "getEvidenceImage",
   "title": "getEvidenceImage",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "inputSchema": {
     "type": "object",
@@ -156531,7 +156541,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b5d4a276b5372f082ca842ed8aaa3c3098f0384e82e4438ae070fc1380c81629"
+  "docsHash": "sha256:008b40adb50b090713916612f47a7520fa77d0baf7636ac3827211ae6444807b"
 }
 ```
 
@@ -156542,7 +156552,7 @@ files.release: contextPolicy=none
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "inputSchema": {
     "type": "object",
@@ -157160,7 +157170,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3bba78a7aa340bfa7943c3123cb2d537634b7b9c8cf71677c1eedca81b9d4ad3"
+  "docsHash": "sha256:dd14eccec31d5b0b3eb3e8f8fb6ecf99811c457a1bdb71ed42e1eaf93f99e9ae"
 }
 ```
 
@@ -157172,7 +157182,7 @@ files.release: contextPolicy=none
   "title": "材料密度与重量",
   "description": "设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -157241,7 +157251,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5ea6dcf8d3d473de1d7ee0e889d5dffd907fb47a664292df119f540a6a06b327"
+  "docsHash": "sha256:d2c209edd4502c657db35099cfbe1352b684dc421cbc11c094e8bc075f030fdf"
 }
 ```
 
@@ -157253,7 +157263,7 @@ files.release: contextPolicy=none
   "title": "Services 原特征编译",
   "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -157367,7 +157377,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ecf21adf1dec334efbe1da4dee0b51c4529693bcf650fbcdadb5dd74e1b425da"
+  "docsHash": "sha256:54dbf5a88a2efbd12fb12ce924a7cf05cceff680a30b4acd0d70f8d6e459f366"
 }
 ```
 
@@ -157379,7 +157389,7 @@ files.release: contextPolicy=none
   "title": "快速对齐",
   "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -157482,7 +157492,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:94162fbff40d5f4f8f521cad4bd785afd3113325ca3c61516a8ccbc3ebad58e7"
+  "docsHash": "sha256:0c31b3480526eafa2efcce44f95383608aefb5cf28e44563ad51d6ec7a2a9ee4"
 }
 ```
 
@@ -157494,7 +157504,7 @@ files.release: contextPolicy=none
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -157583,7 +157593,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:acd4794d4064f089c55e8c9a0997895e63cc41e09d74ed13af26c283d59cef54"
+  "docsHash": "sha256:b6ae9ed7fe454a115e8d79e30230c12bd1f48b535cc4dc88c500479f758b9e73"
 }
 ```
 
@@ -157595,7 +157605,7 @@ files.release: contextPolicy=none
   "title": "浮雕设计约束草稿",
   "description": "保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。heightSource可选{source,depthMm,edgeKeepoutMm?,edgeFadeMm?,weight?}：source为浏览器转换生成的高度来源记录（原图sha256、转换设置及哈希、u16le网格≤1025²）；照片须带derivedFrom及用户确认“我确认此结果为我制作的高度图”，否则MACHINING_SOURCE_CONFLICT；高度图覆盖支撑外接矩形，亮=高，按depthMm映射到最低高度之上，作为求解观测。fieldSettings可选servicesQuality:{mode:adaptive/off,maxControlSide:16–1025}（纯图像无人工点/局部编辑时默认adaptive/1025，Services自动选控制网，结果报告实际ladder和误差；off保留旧拟合），以及machiningPrecisionMm(0.01–0.5 mm，默认0.05，可调：小于该值的起伏/噪声/台阶以C1平滑方式去除，边缘与基线平齐，记入草稿指纹)、columns/rows(9–129)、smoothWeight、maxIterations(1–20000)、toleranceMm及edits笔刷数组(最多256笔，按顺序执行)。每笔显式mode:raise/lower/flatten/smooth、centerMm:[x,y]、radiusMm:0.001..10000；strength可选0..1默认1；raise/lower必填amountMm:0..100，flatten必填targetMm:-100..100，smooth为一次邻域平滑。坐标与草稿支撑同一毫米坐标系；孔、边缘固定节点及保护区保持基线，高度不超heightRangeMm。UI新增/更新/移除笔画会连同当前其他有效表单字段一次保存，Agent等价传整份draft并携带expectedDraftRevision；原图reference及其他既有设置必须保留。随工程保留可重算设计。使用reliefDesignField求解/残差回读和保留圆/矩形支撑、孔与作者保护基线的采样闭网格候选（边界近似，不是精确圆）；不从原图亮度推断设计高度。getState({include:[\"reliefDesigns\"]})读取。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -157726,7 +157736,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:3a8ce391763bab616bf79d216be46351a7a167ac69fd29c29da3552cf9ee9489"
+  "docsHash": "sha256:472424c8140ec1b794129893729790c49238d66c31e503ca7cd80f4a9be58cb2"
 }
 ```
 
@@ -157738,7 +157748,7 @@ files.release: contextPolicy=none
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -157846,7 +157856,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d4119bf7b2996d2896e40743832a41da2df37cf075ce72c2639d167126961494"
+  "docsHash": "sha256:88d66fae657647d9455ff5665c947530c956c604b371a45b18aade244c87cb7d"
 }
 ```
 
@@ -157858,7 +157868,7 @@ files.release: contextPolicy=none
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -157968,7 +157978,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6a932f411703a2d98d2fa44960dc69d453650308429e8967f6914dc7be773cc6"
+  "docsHash": "sha256:109ea968aeb3d1270f190f6f9d16d5596943daec9d61b7357e2ef762ae7f195f"
 }
 ```
 
@@ -157980,7 +157990,7 @@ files.release: contextPolicy=none
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -158076,7 +158086,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:3a65e4192a65f0be39288f81f10dee2f2eb873d4fa068365ed47691db72db236"
+  "docsHash": "sha256:408c6a0c4da5cc601cc3fe96f2e143a72be4d5bb7050906ffdf268c76cd16fd7"
 }
 ```
 
@@ -158088,7 +158098,7 @@ files.release: contextPolicy=none
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -158218,7 +158228,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:eb2801ab58f9d28e9ebbd02d4c5109ffa26b41d88402a661ab175ff73fe3be78"
+  "docsHash": "sha256:b9b69bad0b47cc1edc7b31c39a09120bd8e55d401c5ded60bc2ac966d859f5cc"
 }
 ```
 
@@ -158230,7 +158240,7 @@ files.release: contextPolicy=none
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -158354,7 +158364,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:51536c137a3a1abeaaf0954fa8662c583a7582a8803f4b11aebe48d9dc18ef4e"
+  "docsHash": "sha256:85b5e53f94565dd837d09d80c914a73076204c376dd1008f6d5d1daf9cc91335"
 }
 ```
 
@@ -158366,7 +158376,7 @@ files.release: contextPolicy=none
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -158462,7 +158472,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:172ba880ff2f889d4b51f4a34ca527dc70ca8a6d558b1803ec5e8a512e8ace90"
+  "docsHash": "sha256:19585dce8482e3ccccbf07ad76ddccad36f2a2fa6e4ace2a988f354a832ad9d6"
 }
 ```
 
@@ -158474,7 +158484,7 @@ files.release: contextPolicy=none
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -158565,7 +158575,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a7f00107025289e2ad7e9b2d1aad93135c2b03bd17f99f17e9f32f87e3378b37"
+  "docsHash": "sha256:8afc38d7ae5313e6796b499e786d52a6044a58cd2a73667bba73196e58245535"
 }
 ```
 
@@ -158577,7 +158587,7 @@ files.release: contextPolicy=none
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -158648,7 +158658,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c1a5e8ef53382c80b57811dee59aa665305b014d7fe1085c0eb2c3d22c7d1e64"
+  "docsHash": "sha256:34862c190552f654f726dc08925dfb22b06f23548339a059066f25c66222dc11"
 }
 ```
 
@@ -158660,7 +158670,7 @@ files.release: contextPolicy=none
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -158731,7 +158741,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d8bf21b75217b0f75cfb7a1156f04ccd1ac3f20005b8ce0a5ad7a335a7b73717"
+  "docsHash": "sha256:3eb2aa153f6147bbb5901254b8743bfb698fb824e3f89de31d2a744383a9a227"
 }
 ```
 
@@ -158743,7 +158753,7 @@ files.release: contextPolicy=none
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -158814,7 +158824,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b2d1c047b20d7d99c307514d624f2b8c37943e3007ab2fd3ea9f204819afe9b3"
+  "docsHash": "sha256:a5db74f9c828326a8a403b064e1f8e3256321d6a4d1de9461034aace7973405b"
 }
 ```
 
@@ -158826,7 +158836,7 @@ files.release: contextPolicy=none
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -158897,7 +158907,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e0c890903040bbc5fa486ea046310782f70f9832541191c26658f4a4b04b9240"
+  "docsHash": "sha256:66ead0628c8b60476fe472522ef435fd9996e177775d2d5256dd66e900fc1d11"
 }
 ```
 
@@ -158909,7 +158919,7 @@ files.release: contextPolicy=none
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -158980,7 +158990,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f58fa3491d07500ea04085044c8e357672319e67ad34935b32d158abed8889c9"
+  "docsHash": "sha256:4ea37a9b853a992bad7bd768e0dc7f317add26c16890f519c0f7d9a68378e2cf"
 }
 ```
 
@@ -158992,7 +159002,7 @@ files.release: contextPolicy=none
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -159063,7 +159073,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d02879e2d8c60972e2ab9892be4ddf2106cc8d669fc6630dc6fc506f1eafbc8c"
+  "docsHash": "sha256:9ec016daeba7655c0d9784ccf32e9f5766ec3bd0550ffa3dcb9cd9740d4e26b0"
 }
 ```
 
@@ -159075,7 +159085,7 @@ files.release: contextPolicy=none
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -159150,7 +159160,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d198bd1842942e9b79cb16f9a5a08a4fc7e1ae5d187c21a727089478ca9b783c"
+  "docsHash": "sha256:a3c5fe2e3a9216797f594d80e424f24ff8223a18782da88024e5b56fd1137f39"
 }
 ```
 
@@ -159162,7 +159172,7 @@ files.release: contextPolicy=none
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -159233,7 +159243,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dd9ccd3e5e465ca9d775545e8d7ca85d0ebc16e40a86737abb7bae423b6c8bcd"
+  "docsHash": "sha256:d215f2bb2a0976722e36ecee5683d1533c49c2c0ab67c39f923168d56a7a6e72"
 }
 ```
 
@@ -159245,7 +159255,7 @@ files.release: contextPolicy=none
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -159320,7 +159330,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:13cf99650a8f5ae49ea933f9cefabf508017e4775ef6a2f3b773095819b8dea6"
+  "docsHash": "sha256:2e56c8b1a9c58265897c45ea1dc5e07326b02a94ef38938b0723333f4aecd577"
 }
 ```
 
@@ -159601,7 +159611,7 @@ files.release: contextPolicy=none
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -159675,7 +159685,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1f2b08086676ac13117c2320b1287c76af98679524c734483ff5553322c4944e"
+  "docsHash": "sha256:5d97cca6956a5bbb80ec897c0c4fccfd23a32caa1b821e6867fe3751d0c9163d"
 }
 ```
 
@@ -159687,7 +159697,7 @@ files.release: contextPolicy=none
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -159762,7 +159772,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3fafe35c0ea88cd232d5f6ed6a1941bb27cea32ac35dbf2d2fdc5af1dc3654af"
+  "docsHash": "sha256:8726419d54a74e580f8ec9465f97f0d15f2fa109da25a4f77d8a8f12ea8f8fcf"
 }
 ```
 
@@ -159774,7 +159784,7 @@ files.release: contextPolicy=none
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -159857,7 +159867,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:63225fc54100b69c1cc4ced0d6e1f9daf15c23e8fb84002b909cf153e7890b4f"
+  "docsHash": "sha256:61d458ca36e42284d2631159011ff6d8be737a992420ca42060aec4d28c5ad2c"
 }
 ```
 
@@ -159869,7 +159879,7 @@ files.release: contextPolicy=none
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -159944,7 +159954,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:29472a795f856d7231afcb7e9c6c5425bf5cbdf9788c21cc09901390b2fbde79"
+  "docsHash": "sha256:fb15b49e991f9a7030d8406f45327660f78c703672e420acc86f1a3d878a7fb3"
 }
 ```
 
@@ -159956,7 +159966,7 @@ files.release: contextPolicy=none
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -160031,7 +160041,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a70b0727019022419ad16385d18c5c54990961ff465ca6cba0433188917a8322"
+  "docsHash": "sha256:9820bbc12196f037a89542b642528f2932877943e1fdd63c692b8a2c1752675e"
 }
 ```
 
@@ -160043,7 +160053,7 @@ files.release: contextPolicy=none
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -160126,7 +160136,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a05ae89ae29224ce5823d293b76ab39ef156dbc1a468288962c74771d34b217f"
+  "docsHash": "sha256:bf138617256f1fe7ecbcb6873d311b1ba5ad35cecca5037ef4ad43a11a31ef3a"
 }
 ```
 
@@ -160138,7 +160148,7 @@ files.release: contextPolicy=none
   "title": "预览模型、原特征编辑或文件插入",
   "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -160189,7 +160199,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7f9080d0942114a6f97d6b0dfe75c934682af1f3c9242f2123120d54aa8978ec"
+  "docsHash": "sha256:bcdaf4bb3561ef5838f90103762671a80096277a5d7951e87413b004b54a26cd"
 }
 ```
 
@@ -160201,7 +160211,7 @@ files.release: contextPolicy=none
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -160252,7 +160262,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6ce346479ddb6f6d51513cc65d4519d89871f505e48f8acd69199fda92982f1e"
+  "docsHash": "sha256:289d9ac204a39c7ef4508e0c8673f619a0d4b1e4762eda2b6f99fd49f6f0c9a9"
 }
 ```
 
@@ -160264,7 +160274,7 @@ files.release: contextPolicy=none
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -160315,7 +160325,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:14e66f984fcf1655ef10abe11a33d37be655517a2536dab828715843edc1b2ab"
+  "docsHash": "sha256:b3cf5a0baa79b627231e49627cc1a30c8307d59885a831fcf0552d837c522ff6"
 }
 ```
 
@@ -160327,7 +160337,7 @@ files.release: contextPolicy=none
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -160386,7 +160396,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:15d526beb473be691a4a2b0fdea7c37374b62ec3ee0469da0789a2198a3f6526"
+  "docsHash": "sha256:116b36ca64e9c250ce1716e96358e3ce15a9db7d6c8ca1c465ebc54a23204508"
 }
 ```
 
@@ -160397,7 +160407,7 @@ files.release: contextPolicy=none
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -160530,7 +160540,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:25dcf77f876518001a23bb3950217eb8d05010f3ebea65d4ba7f25536de0bef5"
+  "docsHash": "sha256:3be5a3d05628cd7f69984aeb2d4a4735f42bf61ff21e6a2ae69f83fbb6cccac0"
 }
 ```
 
@@ -160541,7 +160551,7 @@ files.release: contextPolicy=none
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "label": "文件能力",
   "synonyms": [
@@ -160626,7 +160636,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:800c617ba8ddebd1b61a9c9ca135b00f48d61a2fa7931f4bf352c3138a83b587"
+  "docsHash": "sha256:980bb495ff9fafad593bcf3fd889816cc0660e0b8d8cdb0c3592ed1538adffa7"
 }
 ```
 
@@ -160637,7 +160647,7 @@ files.release: contextPolicy=none
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "label": "登记文件资源",
   "synonyms": [
@@ -160730,7 +160740,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:3d80614e051ce82692f6933bfb54c149f424b22bd5060cbf4590d84b77abb18b"
+  "docsHash": "sha256:d67f4037bb0f0257483d7f9ae8fe52937151c5e71cbbb72f792c8fbfa725c4c9"
 }
 ```
 
@@ -160741,7 +160751,7 @@ files.release: contextPolicy=none
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "label": "新建工程",
   "synonyms": [
@@ -160835,7 +160845,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:6628cc8c015739c9da0e5457368e2f7dd00f95443accc5714f3778236ad371a4"
+  "docsHash": "sha256:ee6357a21464d91b37cd2de45a04fac6d08a36754187c6384a9720430d90e78f"
 }
 ```
 
@@ -160846,7 +160856,7 @@ files.release: contextPolicy=none
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -160959,7 +160969,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:7ccf853b24644bf4c35bb65ebb794a2826fd2d11e03e7ebc4920d787c5fb41cb"
+  "docsHash": "sha256:460dbf4687292b22401cf652b902600b729ea5a132fc8f7947a6b333a42254e3"
 }
 ```
 
@@ -160970,7 +160980,7 @@ files.release: contextPolicy=none
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -161103,7 +161113,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:bc70c1a34f13333e1df0a6403ff24c406d7a63b4d05abac7b0159dbdab4a88b3"
+  "docsHash": "sha256:c7c56590a3cea984abc9c441d48be80d02e0639f36a270612ad2402c410c1a4c"
 }
 ```
 
@@ -161114,7 +161124,7 @@ files.release: contextPolicy=none
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -161225,7 +161235,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:a89a16f93c7857e65a5b808f538504197f86206fff87d934140369db41e8a369"
+  "docsHash": "sha256:61c5234d58a3b38359b20617e6c6879ae81ee467d207281c8401c6a5e63b1698"
 }
 ```
 
@@ -161236,7 +161246,7 @@ files.release: contextPolicy=none
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -161353,7 +161363,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:b092bf50df114e91501172f0cf3014d1a961cb3443ad0f0cb2e52d12657fa60a"
+  "docsHash": "sha256:52786b025578d084b15cdde4a0a4a5f149f603df1ae616d9ad6c7c0fc93bff2e"
 }
 ```
 
@@ -161364,7 +161374,7 @@ files.release: contextPolicy=none
   "id": "files.reattach",
   "title": "files.reattach",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "label": "reattach",
   "synonyms": [
@@ -161462,7 +161472,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:5cc5c667b535ce043e5106718c1eb217840a21400792a7ed4ef9142fb6c061b9"
+  "docsHash": "sha256:fea1515bc43a8b3ccc530574bfdd829e4528d1f8096f8afd7199e1dea2178de1"
 }
 ```
 
@@ -161473,7 +161483,7 @@ files.release: contextPolicy=none
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
@@ -161570,7 +161580,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:3a04c7c77c75d718a634465af258330797cd7bfe7eabcc48f4605935c77f6bea"
+  "docsHash": "sha256:96151e3da1e2bb25c2cbcf776efd122656b7aee0291782959fe6d2138fba8cc0"
 }
 ```
 
@@ -161581,7 +161591,7 @@ files.release: contextPolicy=none
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "label": "下载文件",
   "synonyms": [
@@ -161679,7 +161689,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:ba99f6428e372509d63900d03ffca11e8da246db196471cf7d82cca81ef3883c"
+  "docsHash": "sha256:7b6a83a25919b4c629068af1cbd006f094d788bc770342361920db28948b7717"
 }
 ```
 
@@ -161690,7 +161700,7 @@ files.release: contextPolicy=none
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -161793,7 +161803,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:55f4a0cf8ce78188d17dfedc266bb9c5c10c7f180343779a9c545d080f66e542"
+  "docsHash": "sha256:2993b12e10fed3dc16ea08720161a016ed1ee2ac732046a6b488fa68972d4ca9"
 }
 ```
 
@@ -161804,7 +161814,7 @@ files.release: contextPolicy=none
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -161907,7 +161917,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:d501924342363c4de65f9f70f1ebe470cb6e9510f39e05e2938c95f643599524"
+  "docsHash": "sha256:550acfe8d59dbe3567ed71cb25135137229d2254c9c36eaff43af6df0e4e2fd5"
 }
 ```
 
@@ -161918,7 +161928,7 @@ files.release: contextPolicy=none
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -162015,7 +162025,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:bc7142f3f173c6cc09782602e6566e939694c3ddb83b6fe69e7acddb97205f1f"
+  "docsHash": "sha256:7167ff311060d2246c31c51fa81e0cbf7bb0e124299290e1ce164c7d0cf39924"
 }
 ```
 
@@ -162027,7 +162037,7 @@ files.release: contextPolicy=none
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -162071,7 +162081,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:43cf45af5779dda4f0b3529b9f43eeedb1cdac50ec870acc90c8d1252970fc30"
+  "docsHash": "sha256:634e3f3e483674f0cde880b0bb190263dcc2424a8f098d40ffc730a7e6fef6d8"
 }
 ```
 
@@ -162083,7 +162093,7 @@ files.release: contextPolicy=none
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -162127,6 +162137,6 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:44d5eaa326a3ef3c44efacc075645cc905eb66421a234ee15e95a29a5600233d"
+  "docsHash": "sha256:ca73bc71606ec039dd4319e866ff7b66b6175f5c047c6a5164591ff02d05a9c5"
 }
 ```

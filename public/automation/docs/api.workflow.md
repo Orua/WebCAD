@@ -23,7 +23,7 @@ await api.run({context:c.requestContext,idempotencyKey:crypto.randomUUID(),steps
 坐标错位、变换引用、UNKNOWN_OUTCOME、崩核恢复及SubD限制见 api.modeling-pitfalls。
 组合建模练习见 readDocs({docId:"recipes.hardware-practice"})：保留轮廓的槽轮旋转与四孔加工、三截面扭转旋钮放样与轴孔。多零件配合流程见 readDocs({docId:"recipes.clevis-practice"})：开口叉架、跨两耳贯穿孔、销轴、双垫片及间隙验证。示例只在获得建模授权后执行，追加当前工程，不自动保存或导出。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

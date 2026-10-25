@@ -9,7 +9,7 @@ source.units为提交几何和尺寸的单位；缺失或unresolved保持待核�
 TypeID为本地系统分类线索，不当结构真值。明确familyId可跨品类选择已核结构，返回categoryHintOverridden:true；候选列表仍按官方TypeID提供。杂类不训练统一模板；同类存在多个稳定族时逐族选。A/B/C字母不能代替零件职责；主件、活动件、底片、外购件分清后，再加载选中的完整卡，依据原尺寸做feature计划。尺寸、剖面、轴孔配合与开闭/出货状态应在规划时附来源；Logo最后。
 目录由结构抽样经验形成，非模型权重训练、非完整产品验证。原始业务图纸与照片留在本地，不随公共知识包下载。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none
