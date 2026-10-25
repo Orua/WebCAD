@@ -2,7 +2,7 @@
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.57.13",
+  "version": "1.57.14",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_view",
@@ -96,5 +96,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:afbc60c4fa05a44b27b01518439abed55b28b65c8ed4428a08fcb5cb948d4a79"
+  "docsHash": "sha256:d48287e8da45271e60c8c0f8c140b9b07aac3aad22dfd93ca3c1b1eb7d64cc05"
 }

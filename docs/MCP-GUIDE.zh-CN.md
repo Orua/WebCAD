@@ -1,6 +1,6 @@
-# WebCAD MCP 使用指南
+# 历史兼容 MCP 开发指南（非当前产品入口）
 
-MCP 是需单独运行的兼容入口，当前 IIS 静态部署不包含 MCP 后台；AI 控制网页 CAD 的默认路径是已授权页面脚本通道和 `window.webcad.api`，详见 [页面 API](PAGE-API.zh-CN.md)。本文件中未带 placement 的坐标示例仍是旧世界坐标语义；不要将旧 MCP 说明当作新基准能力的声明。
+以下保留旧独立MCP协议和开发回归记录；其中667端口、20 MiB制品限制及旧文件流程不代表当前生产工作台配置，不应按本文件新增运行站点。当前唯一源码为 `F:/Project/WebCAD`，本机入口为 `http://localhost/webcad/`，生产入口为 `https://goldenfu.cn/webcad/` 及其工作台。Agent使用当前页面公开API及下载契约；当前容量、最终几何保存和会话历史规则见 [页面API](PAGE-API.zh-CN.md) 与 [用户手册](USER-GUIDE.zh-CN.md)。未带placement的历史示例仍是旧世界坐标语义。
 
 本指南供 AI 代理、MCP 客户端和维护者使用。WebCAD 的 AI 操作与页面操作共用建模事务、精确几何内核及视口；不是另一套独立 CAD 引擎。原 21 个 MCP 工具保持兼容；M2A 文件工具为增量入口。
 
