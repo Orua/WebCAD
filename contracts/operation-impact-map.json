@@ -1,4 +1,13 @@
 {
+  "sameOriginServicesAndHostIsolation20261026": {
+    "localImpact": "Default Services connects directly to same-origin cadservices/api.ashx without cookies or client credentials; legacy website URL migrates. Standalone Agent host source/package lives in this repository.",
+    "servicesImpact": "IIS same-origin requests use the existing internal job principal without website authentication. Cross-origin dedicated authorization, worker supervision, storage, job identities, input/result validation and cancellation remain enforced.",
+    "logoImpact": "None: Logo/native algorithms and source geometry unchanged.",
+    "contractImpact": "Page API1.57.15 documents siteSession as a legacy configuration name for same-origin unauthenticated compute. Independent Goldenluck.WebCADHost namespace/assembly has no Web.dll reference; Agent authentication remains separate. COMMAND_EXPIRED identifies pre-CAD dispatch expiry; lease/task control errors are separate from authentication.",
+    "documentImpact": "No business original, save, export or reopen operation in acceptance. Preserve committed QA document, pending original command identity and locks across authentication recovery.",
+    "cacheImpact": "Regenerate complete frontend knowledge package; package matching Gateway and standalone host; production only after local architecture acceptance.",
+    "requiredTests": ["Unauthenticated same-origin compute with cookies omitted", "Cross-origin/missing or wrong bearer rejection and explicit authorized path", "Real IIS persisted compute result/hash/geometry and original-job/idempotency/cancel", "Standalone module metadata excludes Web.dll and legacy namespaces", "Host auth polling stops; formal sign-in resumes original task without replay", "Production Agent ring/D fit, tube undo/redo, boolean total inventory and real screenshots"]
+  },
   "qaHostBridgePackaging20261025": {
     "localImpact": "Rebuild scoped host bridge from its existing handler source; reject duplicate WebCadHost/WebCadSettings in bridge metadata. No browser geometry change.",
     "servicesImpact": "None: Services/Native compute binaries and jobs unchanged.",

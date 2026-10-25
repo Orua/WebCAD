@@ -32,6 +32,21 @@ const session={cadSessionId:'cad',leaseEpoch:1,binding:context,scopes:['cad.read
 const envelope=payload=>({protocol:'goldenluck.webcad/1',cadSessionId:'cad',leaseEpoch:1,taskId:'task',commandId:'a'.repeat(32),requestHash:'hash',deadline:Date.now()/1000+30,payload});
 const payload={method:'run',args:{context:requestContext,idempotencyKey:'first',steps:[{id:'part',method:'add',args:{op:'box',params:{},refs:[]}}]}};
 
+test('dispatch expiry and released control have separate receipts and never invoke CAD',async()=>{
+ for(const released of [false,true]){
+  let calls=0;const reports=[];
+  const api={connect(){},getState:()=>({context}),invoke:async()=>{calls++;},submit(){calls++;}};
+  const adapter=createHostAdapter({api,session,now:()=>1000,report:async(kind,command,body)=>reports.push({kind,body})});
+  if(released)await adapter.release();
+  const command={...envelope({method:'getState',args:{}}),deadline:released?10:.5};
+  const result=await adapter.receive(command);
+  assert.equal(result.status,'failed');assert.equal(result.commitState,'not_committed');assert.equal(calls,0);
+  assert.equal(result.error.code,released?'lease_revoked':'COMMAND_EXPIRED');
+  assert.equal(result.error.recovery.classification,released?'host-control':'dispatch');
+  assert.equal(adapter.state().editing,false);assert.equal(reports.some(x=>x.kind==='ack'),false);
+ }
+});
+
 test('every advertised Agent job method is accepted by the real page job dispatcher',async()=>{
  const invoked=[];
  const api={getState:()=>({context}),invoke:async request=>{invoked.push(request.method);return {status:'read',context};}};

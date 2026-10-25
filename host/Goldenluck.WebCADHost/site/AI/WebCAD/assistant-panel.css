@@ -1,0 +1,127 @@
+/* One accent follows the current CAD page, including saved custom colours. */
+.gl-workbench.gl-cad h1,.gl-workbench.gl-cad .icon-button,.gl-workbench.gl-cad .icon-button:hover{color:var(--gl-blue)}
+.gl-workbench.gl-cad #send{background:var(--gl-blue);border-color:var(--gl-blue);color:var(--gl-accent-contrast,#fff)}
+.gl-cad .effort-control input{accent-color:var(--gl-blue)}
+.gl-cad .activity-label:before{background:var(--gl-blue)}
+.gl-cad .connection[data-state=ready]:before{background:#22a06b}
+.gl-cad .assistant-heading #connection{order:1;margin-left:4px;flex:none}
+/* A compact introduction, distinct from conversation messages on either entry. */
+.gl-workbench.gl-cad .workbench-empty{display:grid;grid-template-columns:24px minmax(0,1fr);gap:4px 8px;max-width:none;margin:0;padding:10px 12px;background:var(--gl-blue-soft);border-bottom:1px solid var(--gl-border-soft)}
+.gl-workbench.gl-cad .workbench-empty-mark{grid-row:1/3;width:24px;height:24px;margin:0;background:transparent;align-self:start}
+.gl-workbench.gl-cad .workbench-empty-mark .gl-icon{width:20px;height:20px}
+.gl-workbench.gl-cad .workbench-empty h2{margin:0;font-size:13px;line-height:20px}
+.gl-workbench.gl-cad .workbench-empty p{grid-column:2;margin:0;font-size:12px;line-height:18px}
+.gl-workbench.gl-cad .workbench-examples{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.gl-workbench.gl-cad .workbench-example{display:inline-flex;align-items:center;justify-content:center;gap:4px;width:auto;min-height:30px;padding:4px 7px;border:0;font-size:12px;line-height:18px;color:var(--gl-blue-deep);background:var(--gl-surface,#fff);border-radius:4px}
+.gl-workbench.gl-cad .workbench-example .gl-icon{width:14px;height:14px;flex:none}
+.gl-workbench.gl-cad .workbench-example:focus-visible{outline:2px solid var(--gl-blue);outline-offset:1px}
+.gl-workbench.gl-cad[data-cad-mobile=true] .workbench-empty{grid-template-columns:16px minmax(0,1fr);padding:4px 6px;gap:2px 6px}
+.gl-workbench.gl-cad[data-cad-mobile=true] .workbench-empty-mark{grid-row:auto;width:16px;height:16px}
+.gl-workbench.gl-cad[data-cad-mobile=true] .workbench-empty-mark .gl-icon{width:16px;height:16px}
+.gl-workbench.gl-cad[data-cad-mobile=true] .workbench-empty h2{font-size:12px;line-height:16px}
+.gl-workbench.gl-cad[data-cad-mobile=true] .workbench-empty p{display:none}
+.gl-workbench.gl-cad[data-cad-mobile=true] .workbench-examples{margin-top:0}
+.gl-workbench.gl-cad[data-cad-mobile=true] .workbench-example{min-height:24px;padding:2px 5px;font-size:11px;line-height:16px}
+.gl-workbench.gl-cad.agent-disconnected main{grid-template-columns:minmax(0,1fr)}
+.gl-cad.agent-disconnected aside{display:none}
+.gl-workbench.gl-cad.assistant-only main{display:flex;height:100dvh}
+.gl-cad.assistant-only .cad{display:none}
+.gl-workbench.gl-cad.assistant-only aside{flex:1;border:0;min-width:0}
+.gl-workbench.gl-cad.assistant-only .assistant-heading{flex-wrap:nowrap}
+.gl-cad.assistant-only.agent-disconnected aside{display:none}
+/* CAD-specific layout wins over shared agent-theme breakpoint rules. */
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=false]{height:min(100dvh,var(--cad-layout-height,100dvh));grid-template-columns:minmax(0,1fr) var(--assistant-panel-width);grid-template-rows:minmax(0,1fr)}
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=false].assistant-collapsed{grid-template-columns:minmax(0,1fr) 44px}
+.gl-cad main[data-cad-mobile=false] .assistant-panel-toggle{top:50%;bottom:auto;left:auto;right:calc(var(--assistant-panel-width) - 16px);transform:translateY(-50%);width:32px;height:48px}
+.gl-cad main[data-cad-mobile=false] .assistant-panel-toggle svg{transform:none}
+.gl-cad main[data-cad-mobile=false].assistant-collapsed .assistant-panel-toggle{right:6px}
+.gl-cad .cad-assistant-resizer{position:fixed;z-index:19;right:calc(var(--assistant-panel-width) - 4px);top:0;bottom:0;width:8px;touch-action:none;cursor:col-resize}
+.gl-cad .cad-assistant-resizer[hidden]{display:none}
+.gl-cad .cad-assistant-resizer:focus-visible{outline:2px solid var(--gl-blue);outline-offset:-2px}
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=true]{height:min(100dvh,var(--cad-layout-height,100dvh));grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) var(--assistant-panel-height)}
+.gl-cad main[data-cad-mobile=true] .assistant-panel-toggle{top:auto;left:50%;right:auto;bottom:calc(var(--assistant-panel-height) - 16px);transform:translate(-50%,50%);width:48px;height:32px}
+.gl-cad main[data-cad-mobile=true] .assistant-panel-toggle svg{transform:rotate(90deg)}
+.gl-cad main[data-cad-mobile=true] .cad-assistant-resizer{top:auto;left:0;right:0;bottom:calc(var(--assistant-panel-height) - 4px);width:auto;height:8px;cursor:row-resize}
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=true].assistant-collapsed{grid-template-rows:minmax(0,1fr) 44px}
+.gl-cad main[data-cad-mobile=true].assistant-collapsed .assistant-panel-toggle{bottom:6px;transform:translateX(-50%)}
+.gl-workbench.gl-cad.agent-disconnected:not(.assistant-only) main{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+.gl-workbench.gl-cad[data-cad-mobile=true] .assistant-heading{height:34px;min-height:34px;padding:0 6px;margin:0;gap:4px;flex-wrap:nowrap;overflow:hidden}
+.gl-workbench.gl-cad[data-cad-mobile=true] .assistant-heading h1{font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;gap:4px}
+.gl-workbench.gl-cad[data-cad-mobile=true] .assistant-heading h1 .gl-icon{width:16px;height:16px;flex:none}
+.gl-workbench.gl-cad[data-cad-mobile=true] .assistant-heading nav{flex:none;flex-wrap:nowrap;gap:1px;margin-left:auto}
+.gl-workbench.gl-cad[data-cad-mobile=true] .assistant-heading .icon-button{width:28px;height:32px;min-height:32px;padding:0}
+.gl-workbench.gl-cad[data-cad-mobile=true] .assistant-heading .icon-button svg{width:16px;height:16px}
+.gl-workbench.gl-cad[data-cad-mobile=true] #prompt{min-height:40px;max-height:90px;font-size:16px}
+.gl-workbench.gl-cad #chat{flex:none}
+.gl-workbench.gl-cad .turn-audit{margin-top:6px;white-space:normal}
+.gl-workbench.gl-cad .turn-breakdown-fields{display:grid;gap:2px;padding:4px 0 4px 19px;white-space:nowrap;font-size:10px;line-height:14px;font-variant-numeric:tabular-nums;color:var(--gl-muted)}
+.gl-workbench.gl-cad .step-audit>summary{cursor:pointer;width:max-content;max-width:100%;color:var(--gl-muted);font-size:11px}
+.gl-workbench.gl-cad .step-audit>summary:focus-visible{outline:2px solid var(--gl-blue);outline-offset:2px}
+.gl-workbench.gl-cad .turn-audit>.turn-duration{display:inline-flex;align-items:center;width:max-content;max-width:100%;margin:0;font-size:10px;line-height:18px;color:var(--gl-muted);cursor:pointer;user-select:none;list-style:none;font-variant-numeric:tabular-nums}
+.gl-workbench.gl-cad .turn-audit>.turn-duration::-webkit-details-marker{display:none}
+.gl-workbench.gl-cad .turn-audit>.turn-duration::before{content:"";display:inline-block;width:14px;height:14px;margin-right:5px;flex:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364758b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='14' r='7.5'/%3E%3Cpath d='M12 10v4l2.5 1.5M9 2h6M12 2v4M19 7l1.5-1.5'/%3E%3C/svg%3E") center/contain no-repeat}
+.gl-workbench.gl-cad .turn-audit[open]>.turn-duration::before{stroke:var(--gl-blue)}
+.gl-workbench.gl-cad .turn-audit>.turn-duration:focus-visible{outline:2px solid var(--gl-blue);outline-offset:2px}
+.gl-workbench.gl-cad .turn-audit-content{white-space:normal;font-size:10px;max-height:180px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.gl-workbench.gl-cad .turn-timeline{font-variant-numeric:tabular-nums;line-height:1.5;white-space:pre-wrap}
+.gl-workbench.gl-cad .activity-details{max-height:72px;overflow:auto;scrollbar-width:thin}
+.gl-workbench.gl-cad .step-timing{margin:3px 0;overflow-wrap:anywhere}
+.gl-workbench.gl-cad .turn-audit .step-timing small{font-size:11px}
+.gl-workbench.gl-cad .turn-audit .step-audit-detail{font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--gl-muted);margin:2px 0 6px}
+.gl-cad .activity[data-running=false] .activity-label:before{animation:none}
+.gl-cad .activity-details:empty{display:none}
+/* Running progress is visible; finished progress lives inside the closed timing audit. */
+.gl-workbench.gl-cad[data-cad-mobile=true] #messages{padding:8px}
+.gl-workbench.gl-cad[data-cad-mobile=true] :is(.activity,.activity-details,.turn-audit,.turn-audit-content,.turn-duration,.step-timings,.step-audit-detail,.message.system,.file-list,.workbench-input-hint,#attachment-status){font-size:11px;line-height:1.35}
+.gl-workbench.gl-cad[data-cad-mobile=true] .activity{margin-top:3px;padding-top:3px}
+.gl-workbench.gl-cad[data-cad-mobile=true] .activity-details{margin-top:2px;max-height:84px}
+.gl-workbench.gl-cad[data-cad-mobile=true] .turn-audit{margin-top:3px}
+.gl-workbench.gl-cad[data-cad-mobile=true] .step-timings{margin:3px 0}
+.gl-workbench.gl-cad[data-cad-mobile=true] .turn-audit .step-audit-detail{margin:1px 0 3px}
+.gl-workbench.gl-cad[data-cad-mobile=true] .message.system{padding:2px 0;margin:0 0 6px}
+.gl-workbench.gl-cad[data-cad-mobile=true] .file-list{margin-top:4px;gap:2px 6px}
+/* Collapse stays available in the compact mobile heading. */
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=false].assistant-collapsed{grid-template-columns:minmax(0,1fr) 28px}
+.gl-cad main[data-cad-mobile=false] .assistant-panel-toggle{right:calc(var(--assistant-panel-width) - 10px);width:20px}
+.gl-cad main[data-cad-mobile=false].assistant-collapsed .assistant-panel-toggle{right:4px}
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=true].assistant-collapsed{grid-template-rows:minmax(0,1fr) 34px}
+.gl-workbench.gl-cad main[data-cad-mobile=true].assistant-collapsed #assistant-panel>.assistant-heading{display:none}
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=false].assistant-collapsed{grid-template-columns:minmax(0,1fr) 0}
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=true].assistant-collapsed{grid-template-rows:minmax(0,1fr) 0}
+.gl-workbench.gl-cad main[data-cad-mobile="false"].assistant-collapsed>.assistant-panel-toggle{position:fixed;right:6px;left:auto;top:50%;bottom:auto;transform:translateY(-50%);display:grid;width:24px;height:48px}
+.gl-cad.assistant-only .assistant-heading .assistant-panel-toggle{display:none}
+/* Keep the model and effort selectors on one row, with their own width budget. */
+.gl-workbench.gl-cad #chat footer{display:grid;grid-template-columns:minmax(0,1fr) 30px auto;gap:6px;align-items:center}
+.gl-workbench.gl-cad #chat .effort-control{display:grid;grid-template-columns:minmax(0,1fr) 94px;gap:5px;min-width:0;order:0;flex:none}
+.gl-workbench.gl-cad #chat :is(#model,#effort){width:100%;min-width:0;max-width:100%;height:30px;white-space:nowrap;text-overflow:ellipsis;font-size:12px}
+.gl-workbench.gl-cad #chat .attachment-input{order:1}
+.gl-workbench.gl-cad #chat #send{order:2;min-width:54px;margin:0;white-space:nowrap;padding:4px 7px}
+@container cad-composer (max-width:320px){
+ .gl-workbench.gl-cad #chat footer{grid-template-columns:minmax(0,1fr) 30px}
+ .gl-workbench.gl-cad #chat .effort-control{grid-template-columns:minmax(0,1fr) 94px}
+ .gl-workbench.gl-cad #chat #send{grid-column:2;justify-self:end}
+}
+.gl-workbench.gl-cad #chat{container:cad-composer / inline-size}
+/* Both grid children must shrink below their content height when chat opens. */
+.gl-workbench.gl-cad:not(.assistant-only) main>.cad{min-height:0;overflow:hidden}
+.gl-workbench.gl-cad:not(.assistant-only) main>.cad .viewport{min-height:0;overflow:hidden}
+.gl-workbench.gl-cad:not(.assistant-only) #cad-frame{display:block;min-height:0}
+.gl-workbench.gl-cad:not(.assistant-only) main>#assistant-panel{min-height:0;overflow:hidden}
+/* The desktop 20x48 handle rotated 90 degrees, at the canvas bottom edge. */
+.gl-workbench.gl-cad main[data-cad-mobile=true]>.assistant-panel-toggle{position:fixed;display:grid;top:auto;right:auto;left:50%;bottom:var(--assistant-panel-height);transform:translateX(-50%);width:48px;height:20px;min-height:20px;padding:0;border-radius:5px 5px 0 0}
+.gl-workbench.gl-cad main[data-cad-mobile=true].assistant-collapsed>.assistant-panel-toggle{bottom:0}
+.gl-workbench.gl-cad.assistant-only main>.assistant-panel-toggle{display:none}
+/* Desktop canvas and conversation occupy separate columns. */
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=true]{display:block;position:relative;height:100dvh}
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=true]>.cad{position:absolute;inset:0}
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=true]>#assistant-panel{position:absolute;z-index:18;inset:0 0 0 auto;width:var(--assistant-panel-width);height:100%}
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=true]>#assistant-panel{inset:auto 0 0;width:100%;height:var(--assistant-panel-height);border-left:0;border-top:1px solid var(--gl-border-soft)}
+.gl-workbench.gl-cad main[data-cad-mobile].assistant-collapsed>#assistant-panel{display:none}
+.gl-workbench.gl-cad main[data-cad-mobile=true] .assistant-heading .assistant-panel-toggle{position:static;inset:auto;display:grid;transform:none;flex:none;width:28px;height:28px;min-height:28px;padding:0;border:0;box-shadow:none;border-radius:4px;background:transparent;color:var(--gl-blue)}
+.gl-workbench.gl-cad main[data-cad-mobile=true] .assistant-heading .assistant-panel-toggle svg{width:16px;height:16px;transform:rotate(90deg)}
+.gl-workbench.gl-cad main[data-cad-mobile=true].assistant-collapsed>.assistant-panel-toggle{left:auto;right:6px;bottom:6px;transform:none;width:28px;height:28px}
+.gl-workbench.gl-cad main[data-cad-mobile=true]{--cad-keyboard-inset:max(0px,calc(100dvh - var(--cad-layout-height,100dvh)))}
+.gl-workbench.gl-cad:not(.assistant-only) main[data-cad-mobile=true]>#assistant-panel{bottom:var(--cad-keyboard-inset)}
+.gl-workbench.gl-cad main[data-cad-mobile=true] .assistant-heading .assistant-panel-toggle{order:2}
+.gl-workbench.gl-cad main[data-cad-mobile=true]>.cad-assistant-resizer{bottom:calc(var(--cad-keyboard-inset) + var(--assistant-panel-height) - 4px)}
+.gl-workbench.gl-cad main[data-cad-mobile=true].assistant-collapsed>.assistant-panel-toggle{bottom:calc(var(--cad-keyboard-inset) + 6px)}

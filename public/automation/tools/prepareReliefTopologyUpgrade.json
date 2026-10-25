@@ -2,7 +2,7 @@
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.57.14",
+  "version": "1.57.15",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "host-only",
@@ -115,5 +115,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:5bfdf1f9d0097dcd24c6c4b414de4cae9052763427f7c847b9f3e9daf5b2b379"
+  "docsHash": "sha256:63978e64a73f660ff65659ace9def146122d3cf98ccedc8cfff2c00749cd74f3"
 }

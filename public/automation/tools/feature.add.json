@@ -3,7 +3,7 @@
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.57.14",
+  "version": "1.57.15",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -78,5 +78,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a1438380f85d6246f62d3bab5e67de6dd4b8dbb815b05f7203b4445e7f81c5c0"
+  "docsHash": "sha256:6a83c2c55b54df84a28c9794a4d40fa1e5374fe5aeda564bca7c3967783ab33f"
 }

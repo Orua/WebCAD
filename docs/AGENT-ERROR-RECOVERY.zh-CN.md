@@ -1,16 +1,17 @@
 # 错误解释与恢复
 
-失败先读 error.recovery 与 userMessage，保留 code/message/path/requestId/jobId/原幂等键供审计；向用户只说明中文原因、已保留状态和可执行下一步，不倾倒原始异常、堆栈、磁盘路径或凭证。恢复分类是建议契约，不执行重试、撤销或取消，不改变原始status/commitState。
+Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约束当前失败操作，agentMayContinue=true；不表示停止对话、诊断、其他只读查询或整个任务。已有用户授权继续有效，修正合法参数、读取日志和恢复工具连接不需要再次请用户确认。
 
-1. 权限、非法参数、工程/来源/版本冲突、含混拓扑、完整性、保护区和预算阻断必须先停。不能为友好而吞错、伪成功或解除限制。
-2. unknown/断线/超时/找不到原作业先对账：页面getJob、getBatchReceipt或Services getServicesJob/getServicesRequest按原ID查询，结合当前getState。只读取相关原任务；不得新key重放。cancel只是请求，最终停止状态才证明停止；本地超时提醒继续原任务。
-3. partial批次不是原子事务。检查每步回执，前面已提交内容保留；必要撤销用history.undo且先核对本次提交与当前revision，不撤销其他用户操作。
-4. 几何可逆试算只用已有preview.start/update/cancel：确认not_committed、有具体新机制证据和剩余共享预算、当前卡支持才可评估一个候选。预览有效才申请既有任务授权范围内的commit；失败cancel，读回工程版本，不能宣称未经验证的回滚。换参数/工具/内核/Agent不重置预算。不得擅改尺寸、图案、孔、深度、R或降低精度。
-5. 替代路线先getTool/readDocs：输入几何/范围、毫米单位、截面/路径、输出网格或BRep、孔和来源保持均须相容。网格不冒充STEP，平面贯穿切不冒充曲面等深字，显示光滑不冒充固定R。未实现的复杂Services操作不得本地兜底。
-6. 显示失败先核对committed和display.rendered；可仅重试redraw/capture一次，不能重做建模。文件区分generated/download_initiated/write_verified：只恢复原工件传输，不重算；哈希或写盘确认失败不得说已保存。
-7. 复述结论例：选边有多个匹配，本次失败步骤未提交；请重新查询当前边并明确目标。或：连接中断，结果未确认；先查询原任务，当前工程和回执继续保留。
+失败先读 code、message、path 和提交状态，向用户简短说明具体问题与下一步。保留原始诊断供查询，不倾倒堆栈或凭证；不吞错或伪报成功。
 
-字段：classification是原因族；automaticRetry始终false；retry.condition是重新评估条件；candidate.eligible仅标记可评估预览条件，candidate.allowed始终false且不授予执行权限；alternatives.readTools只给相关可读发现入口，不保证当前宿主/权限/能力支持；stop表示停止当前失败路线。即使stop=false也必须满足候选条件。动态第三方/无code异常归unclassified并保守停止，不声称静态扫描穷尽所有未来错误。
+1. 参数或选取无效：按当前工具卡修正相关字段；不因一次格式错误结束任务。权限、来源、工程身份及完整性检查仅阻止不符合条件的操作。
+2. unknown/断线/超时：用原 getJob、getBatchReceipt、getServicesJob/getServicesRequest 查询回执。不新建 key 重放结果未知的写入；其他独立工作可继续。cancel 只是停止请求，本地超时提醒仍继续原任务。
+3. partial：前面成功的提交保留，只处理失败或未执行部分，不重建已成功部分。
+4. 几何候选沿已有 preview.start/update/cancel，在确认 not_committed、有明确修正依据、支持的工具与剩余共享预算时继续；preview.commit 沿用当前任务已获授权，不另加确认。不得擅改尺寸、孔、深度、R或精度。候选不重置共享预算。
+5. 工具不支持时可继续查询等价能力和诊断；来源、单位、孔和输出语义仍须保持。不得把网格当作精确 BRep，也不以另一个内核掩盖尚未实现的操作。
+6. 显示或文件传输失败不等于建模失败。核对 committed、display.rendered、generated/download_initiated/write_verified，只恢复相应显示或传输，不重新计算模型。
+
+恢复字段是建议，不自动重试、撤销或取消，不改变原 status/commitState。candidate.eligible 只说明可评估，candidate.allowed 不新增执行授权。未知错误先查真实原因，不声称静态清单穷举了动态第三方错误。
 
 ## 当前源码字面错误码映射
 
@@ -22,7 +23,7 @@
 
 先通过现有设置完成登录或取得所需授权，再核对原请求；不要绕过权限或擅自上传来源。
 
-代码：`action_not_allowed`、`AGENT_METHOD_DENIED`、`AUTH_CONFIG_REQUIRED`、`HOST_ACCESS_DENIED`、`HTTPS_REQUIRED`、`IIS_STORAGE_FORBIDDEN`、`LAN_ONLY`、`lease_revoked`、`method_not_allowed`、`ORIGIN_FORBIDDEN`、`PERMISSION_REQUIRED`、`RECOVERY_AUTH_REQUIRED`、`scope_denied`、`SERVICES_AUTH_REQUIRED`、`task_binding_mismatch`、`task_ended`、`UNAUTHORIZED`、`UPLOAD_AUTH_REQUIRED`
+代码：`action_not_allowed`、`AGENT_METHOD_DENIED`、`AUTH_CONFIG_REQUIRED`、`HOST_ACCESS_DENIED`、`HTTPS_REQUIRED`、`IIS_STORAGE_FORBIDDEN`、`LAN_ONLY`、`method_not_allowed`、`ORIGIN_FORBIDDEN`、`PERMISSION_REQUIRED`、`RECOVERY_AUTH_REQUIRED`、`scope_denied`、`SERVICES_AUTH_REQUIRED`、`UNAUTHORIZED`、`UPLOAD_AUTH_REQUIRED`
 
 ### unsupported
 
@@ -30,7 +31,7 @@
 
 读取工具卡与实际能力；仅选择输入、输出、孔洞、尺寸和深度语义一致的已支持工具。没有等价工具时说明缺口并停止，不换核兜底。
 
-代码：`ADAPTIVE_FAMILY_UNMATCHED`、`ANALYTIC_FAMILY_UNMATCHED`、`CAPABILITY_UNAVAILABLE`、`CONTINUITY_UNSUPPORTED`、`CONTINUOUS_SCULPT_UNAVAILABLE`、`DESIGN_CHECK_UNSUPPORTED`、`END_ROUNDING_UNSUPPORTED`、`ENGINE_UNAVAILABLE`、`FORMAT_UNSUPPORTED`、`FORMAT_VARIANT_UNSUPPORTED`、`GUIDED_LOFT_BINDING_SHAPE_MISSING`、`GUIDED_LOFT_BINDING_SOURCE_UNSUPPORTED`、`HOST_UNAVAILABLE`、`LOCAL_VECTOR_UNSUPPORTED`、`LOFT_GUIDE_UNSUPPORTED`、`LOFT_POINT_CAP_UNSUPPORTED`、`MESH_BOOLEAN_UNAVAILABLE`、`MESH_BREP_UNAVAILABLE`、`MESH_COMBINATION_UNAVAILABLE`、`MESH_OPERATION_UNAVAILABLE`、`MESH_RECOVERY_UNAVAILABLE`、`MESH_TOOL_UNAVAILABLE`、`MESH_TOPOLOGY_UNAVAILABLE`、`NATIVE_ACCEPTANCE_INVALID`、`NATIVE_POLISHING_NETWORK_UNAVAILABLE`、`OPERATION_TBD`、`OPERATION_UNAVAILABLE`、`PROFILE_CONSTRAINT_UNSUPPORTED`、`REFINE_UNSUPPORTED`、`RELIEF_PATCH_UNSUPPORTED`、`RELIEF_PLAN_UNSUPPORTED`、`RELIEF_SHOULDER_UNSUPPORTED`、`RELIEF_SOURCE_UNSUPPORTED`、`RELIEF_UNSUPPORTED`、`SCOPE_EXPANSION_REQUIRED`、`SELECTION_UNSUPPORTED`、`SERVICES_OPERATION_UNAVAILABLE`、`TARGET_PEAK_UNAVAILABLE`、`UNKNOWN_OPERATION`、`UNSUPPORTED_CURVE_PROJECTION`、`UNSUPPORTED_FORMAT`、`VARIABLE_FAMILY_UNMATCHED`、`WIDTH_FAMILY_UNMATCHED`
+代码：`ADAPTIVE_FAMILY_UNMATCHED`、`AGENT_COMPOSER_UNAVAILABLE`、`ANALYTIC_FAMILY_UNMATCHED`、`CAPABILITY_UNAVAILABLE`、`CONTINUITY_UNSUPPORTED`、`CONTINUOUS_SCULPT_UNAVAILABLE`、`DESIGN_CHECK_UNSUPPORTED`、`DOMAIN_SHAPE_UNSUPPORTED`、`END_ROUNDING_UNSUPPORTED`、`ENGINE_UNAVAILABLE`、`EVIDENCE_UNAVAILABLE`、`FORMAT_UNSUPPORTED`、`FORMAT_VARIANT_UNSUPPORTED`、`GUIDED_LOFT_BINDING_SHAPE_MISSING`、`GUIDED_LOFT_BINDING_SOURCE_UNSUPPORTED`、`HOST_UNAVAILABLE`、`LOCAL_VECTOR_UNSUPPORTED`、`LOFT_GUIDE_UNSUPPORTED`、`LOFT_POINT_CAP_UNSUPPORTED`、`MESH_BOOLEAN_UNAVAILABLE`、`MESH_BREP_UNAVAILABLE`、`MESH_COMBINATION_UNAVAILABLE`、`MESH_OPERATION_UNAVAILABLE`、`MESH_RECOVERY_UNAVAILABLE`、`MESH_TOOL_UNAVAILABLE`、`MESH_TOPOLOGY_UNAVAILABLE`、`NATIVE_ACCEPTANCE_INVALID`、`NATIVE_POLISHING_NETWORK_UNAVAILABLE`、`OPERATION_TBD`、`OPERATION_UNAVAILABLE`、`PDF_RENDERER_UNAVAILABLE`、`PIPELINE_OPTION_UNSUPPORTED`、`PROFILE_CONSTRAINT_UNSUPPORTED`、`PROJECT_SNAPSHOT_UNAVAILABLE`、`REFINE_UNSUPPORTED`、`RELIEF_PATCH_UNSUPPORTED`、`RELIEF_PLAN_UNSUPPORTED`、`RELIEF_SHOULDER_UNSUPPORTED`、`RELIEF_SOURCE_UNSUPPORTED`、`RELIEF_UNSUPPORTED`、`SCOPE_EXPANSION_REQUIRED`、`SELECTION_UNSUPPORTED`、`SERVICES_OPERATION_UNAVAILABLE`、`TARGET_PEAK_UNAVAILABLE`、`UNKNOWN_OPERATION`、`UNSUPPORTED_CURVE_PROJECTION`、`UNSUPPORTED_FORMAT`、`VARIABLE_FAMILY_UNMATCHED`、`WIDTH_FAMILY_UNMATCHED`
 
 ### preview
 
@@ -62,7 +63,7 @@
 
 查询当前面、边及参考候选，明确目标与数量后再执行；不能猜选编号或自动扩大范围。
 
-代码：`ALIGN_UNDERCONSTRAINED`、`AMBIGUOUS_CONTOUR`、`AMBIGUOUS_REFERENCE`、`AMBIGUOUS_SELECTION`、`LOGO_SELECTION_INVALID`、`NO_MATCH`、`PROFILE_SELECTION_INVALID`、`RELIEF_SELECTION_AMBIGUOUS`、`ROUND_SELECTION_AMBIGUOUS`、`SELECTION_CONFLICT`、`SELECTION_COUNT_CHANGED`、`SELECTOR_EMPTY`、`SELECTOR_INVALID`、`SELECTOR_UNCERTAIN`、`TAP_BORE_AMBIGUOUS`
+代码：`ALIGN_UNDERCONSTRAINED`、`AMBIGUOUS_CONTOUR`、`AMBIGUOUS_REFERENCE`、`AMBIGUOUS_SELECTION`、`LOCATION_NO_HIT`、`LOGO_SELECTION_INVALID`、`NO_MATCH`、`PROFILE_SELECTION_INVALID`、`RELIEF_SELECTION_AMBIGUOUS`、`ROUND_SELECTION_AMBIGUOUS`、`SELECTION_CONFLICT`、`SELECTION_COUNT_CHANGED`、`SELECTOR_EMPTY`、`SELECTOR_INVALID`、`SELECTOR_UNCERTAIN`、`TAP_BORE_AMBIGUOUS`
 
 ### integrity
 
@@ -160,6 +161,14 @@
 
 代码：`CHECKPOINT_CLIENT_CAPACITY`、`CONTOUR_TOO_COMPLEX`、`FILE_TOO_LARGE`、`GEOMETRY_SOURCE_LIMIT`、`IMPORT_TOO_LARGE`、`LOFT_COMPLEXITY`、`MESH_DISPLAY_CAPACITY`、`MESH_SIZE_LIMIT`、`PROFILE_CONSTRAINT_LIMIT`、`REFINE_LIMIT`、`RELIEF_EDIT_CAPACITY`、`RELIEF_LIMIT`、`RELIEF_PLAN_LIMIT`、`RESOURCE_LIMIT`、`RESULT_TOO_LARGE`、`RESULT_TOO_LARGE_FOR_CLIENT`、`SIZE_LIMIT`、`SOURCE_BUDGET_EXCEEDED`
 
+### dispatch
+
+命令在进入CAD执行前已超过派发期限，尚未提交页面作业。
+
+保留原命令回执，核对连接和当前工程状态；确认未提交并恢复连接后，才处理尚未执行的步骤。
+
+代码：`COMMAND_EXPIRED`
+
 ### sequence
 
 这组依赖需要按已提交的当前结果顺序执行。
@@ -182,7 +191,7 @@
 
 读取对应工具卡和报错阶段，复核来源截面、路径、支撑及参数关系；先修正已证实的输入问题，不能用试错改变设计。
 
-代码：`DEGENERATE_PROJECTION`、`FIT_DEGENERATE`、`HEIGHTFIELD_INVALID`、`HEIGHTFIELD_SCULPT_INVALID`、`MESH_CODEC_INVALID`、`MESH_INDEX_INVALID`、`MESH_NONFINITE`、`MESH_NOT_MANIFOLD`、`MESH_REPORT_INVALID`、`MESH_SOURCE_CLASSIFICATION_REQUIRED`、`MESH_SOURCE_INVALID`、`MESH_TRANSFORM_INVALID`、`PROFILE_EDIT_INVALID`、`PROFILE_EXTRUDE_INVALID`、`PROFILE_INVALID`、`PROFILE_LOFT_INVALID`、`PROFILE_OFFSET_INVALID`、`PROFILE_REPAIR_INVALID`、`PROFILE_REVOLVE_INVALID`、`PROFILE_SWEEP_INVALID`、`PROJECTION_INVALID`、`RELIEF_CURVE_DEVIATION`、`RELIEF_CURVE_TOPOLOGY_INVALID`、`RELIEF_DEFORMATION_INVALID`、`RELIEF_FIELD_INVALID`、`RELIEF_INVALID`、`RELIEF_LAYERS_INVALID`、`RELIEF_PATCH_INVALID`、`RELIEF_PLATE_INVALID`、`RELIEF_PROFILE_INVALID`、`RELIEF_REGION_INVALID`、`RELIEF_SHOULDER_INVALID`、`RELIEF_SUPPORT_INVALID`
+代码：`DEGENERATE_PROJECTION`、`FIT_DEGENERATE`、`HEIGHTFIELD_INVALID`、`HEIGHTFIELD_SCULPT_INVALID`、`MESH_CODEC_INVALID`、`MESH_INDEX_INVALID`、`MESH_NONFINITE`、`MESH_NOT_MANIFOLD`、`MESH_REPORT_INVALID`、`MESH_SOURCE_CLASSIFICATION_REQUIRED`、`MESH_SOURCE_INVALID`、`MESH_TRANSFORM_INVALID`、`PROFILE_CAPACITY`、`PROFILE_EDIT_INVALID`、`PROFILE_EXTRUDE_INVALID`、`PROFILE_INVALID`、`PROFILE_LOFT_INVALID`、`PROFILE_OFFSET_INVALID`、`PROFILE_OUTSIDE`、`PROFILE_REPAIR_INVALID`、`PROFILE_REVOLVE_INVALID`、`PROFILE_SWEEP_INVALID`、`PROJECTION_INVALID`、`RELIEF_CURVE_DEVIATION`、`RELIEF_CURVE_TOPOLOGY_INVALID`、`RELIEF_DEFORMATION_INVALID`、`RELIEF_DESIGN_INTENT_REQUIRED`、`RELIEF_DESIGN_PLACEMENT_REQUIRED`、`RELIEF_DESIGN_STALE`、`RELIEF_DESIGN_TARGET_REQUIRED`、`RELIEF_DESIGN_UNSOLVED`、`RELIEF_FIELD_INVALID`、`RELIEF_INVALID`、`RELIEF_LAYERS_INVALID`、`RELIEF_PATCH_INVALID`、`RELIEF_PLATE_INVALID`、`RELIEF_PROFILE_INVALID`、`RELIEF_REGION_INVALID`、`RELIEF_SHOULDER_INVALID`、`RELIEF_SUPPORT_INVALID`
 
 ### design_check
 
@@ -191,6 +200,78 @@
 读取逐项检查和未验证项，修正已证实的问题；不能把有效实体或工具执行成功当成设计验收。
 
 代码：`DESIGN_CHECK_INCONCLUSIVE`、`DESIGN_REQUIREMENTS_NOT_MET`
+
+### design-capacity
+
+设计场的采样数量或求解工作量超过当前范围。
+
+读取数值场工具的采样与迭代上限，保留草稿；不要自动降低用户要求的造型精度。
+
+代码：`DOMAIN_CAPACITY`、`FIELD_CAPACITY`、`PIPELINE_CAPACITY`
+
+### design-constraints
+
+毫米高度点、支撑、孔或保护区域的约束无法同时应用。
+
+检查点位是否在有效支撑内并避开孔和保护区，核对最低/最高高度；只修订明确冲突的约束，不自动移动点或删除保护。
+
+代码：`DOMAIN_CONSTRAINT_CONFLICT`、`DOMAIN_EMPTY`、`DOMAIN_HARD_POINT_NOT_ON_GRID`、`DOMAIN_HARD_POINT_OUTSIDE`、`DOMAIN_INVALID`、`FIELD_CONSTRAINT_CONFLICT`、`FIELD_EMPTY_DOMAIN`、`FIELD_INPUT_INVALID`、`FIELD_SAMPLE_OUTSIDE`、`FIELD_UNANCHORED`、`LOCAL_EDIT_BOUNDS`、`LOCAL_EDIT_CONSTRAINT_CONFLICT`、`LOCAL_EDIT_EMPTY_DOMAIN`、`LOCAL_EDIT_INVALID`、`LOCAL_EDIT_OUTSIDE`、`PIPELINE_INVALID`
+
+### unclassified
+
+操作未能完成，目前没有足够证据确定安全恢复方式。
+
+保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
+
+代码：`EVIDENCE_INVALID`、`EVIDENCE_QUEUE_FULL`、`EVIDENCE_RENDER_FAILED`、`EVIDENCE_SIZE_LIMIT`、`EVIDENCE_SUPERSEDED`、`MATERIAL_IN_USE`、`PROJECT_ENCODING`
+
+### design-cancel
+
+本次数值求解或局部编辑已停止。
+
+保留已保存设计；需要继续时先读取当前草稿和任务状态，不自动重新求解。
+
+代码：`FIELD_CANCELLED`、`LOCAL_EDIT_CANCELLED`、`PIPELINE_CANCELLED`
+
+### design-solve
+
+本次数值求解未取得满足停止条件的有效结果。
+
+保留草稿，读取本次残差和工作量报告；先查具体约束或Worker故障，不将未收敛的场提交为模型。
+
+代码：`FIELD_FAILED`、`FIELD_NOT_CONVERGED`、`FIELD_NUMERICAL`、`FIELD_TIMEOUT`、`FIELD_WORKER_FAILED`
+
+### design-fit-cancel
+
+数值拟合已停止。
+
+原已解设计场保留；读取当前拟合状态，不自动重启。
+
+代码：`FIT_CANCELLED`
+
+### design-fit-capacity
+
+拟合的采样、控制网格或数值工作量超出当前范围。
+
+核对显式控制数与原场采样及容量；保留设计，不自动降低精度、改变误差或重试耗尽任务。
+
+代码：`FIT_CAPACITY`、`FIT_UNDERSAMPLED`、`FIT_WORK_BUDGET`
+
+### design-fit-constraints
+
+当前高度方向、支撑或保护约束与拟合条件不一致。
+
+读取原设计、baseline及受保护极点报告；不能删孔、放松保护或翻转高度来通过。
+
+代码：`FIT_CONSTRAINT_CONFLICT`、`FIT_DIRECTION_CONFLICT`、`FIT_DOMAIN_CONFLICT`、`FIT_DOMAIN_EMPTY`、`FIT_DOMAIN_UNSUPPORTED`、`FIT_NO_FREEDOM`、`FIT_PARAMETER_OUTSIDE`、`FIT_SOURCE_INVALID`
+
+### design-fit-quality
+
+本次拟合未达到明确误差、保护或求解条件。
+
+保留原设计场和实际诊断，不提交为实体；先核对误差与约束，不能自动修改容差或换算法重算。
+
+代码：`FIT_DEVIATION`、`FIT_FAILED`、`FIT_NOT_CONVERGED`、`FIT_PROTECTION_FAILED`、`FIT_TIMEOUT`、`FIT_WORKER_FAILED`、`NUMERICAL_RESULT_MISMATCH`
 
 ### guided_loft
 
@@ -266,11 +347,19 @@
 
 ### budget
 
-相同输入已有失败记录、仍有在途任务，或当前不允许重新计算。
+此前相同输入的任务未成功，本次未重新计算。
 
-保留原回执；先查原任务。只有新的机制证据、可用的共享试验预算和明确恢复条件同时满足才评估下一候选。
+查看原任务的具体错误；LOGO 识别任务确认已停止后，可重新点击识别。其他建模任务须先核对失败原因和当前工程。
 
-代码：`KNOWN_INPUT_FAILED`、`PREVIOUS_ATTEMPT_FAILED`、`RECOVERY_NOT_ALLOWED`、`RECOVERY_WORKER_ACTIVE`
+代码：`KNOWN_INPUT_FAILED`、`PREVIOUS_ATTEMPT_FAILED`
+
+### host-control
+
+页面控制权或当前任务绑定已结束或改变，并不等于登录到期。
+
+核对原任务、原命令和当前页面绑定；通过宿主重新连接原工程，结果未知时不得换键重画。
+
+代码：`lease_revoked`、`task_binding_mismatch`、`task_ended`
 
 ### material
 
@@ -279,6 +368,14 @@
 检查目标、刀具、方向、截面、深度及实际厚度；只以原参数做受控预览，不能通过改变尺寸凑成功。
 
 代码：`LOFT_VOLUME_MISMATCH`、`MATERIAL_CHECK_FAILED`、`MESH_BOOLEAN_EMPTY`、`NO_MATERIAL_ADDED`、`NO_MATERIAL_REMOVED`、`RELIEF_THICKNESS`、`RELIEF_THICKNESS_UNKNOWN`、`TAP_MATERIAL_INSUFFICIENT`
+
+### logo-render
+
+PDF页面渲染或渲染底图校验未通过。
+
+保留原文件，核对页码、服务端渲染能力与原作业报告；可以提供同一图案的受支持矢量文件，不自动替换内容。
+
+代码：`LOGO_RENDERED_IMAGE_INVALID`、`PDF_RENDER_FAILED`
 
 ### review
 
@@ -312,6 +409,62 @@
 
 代码：`PROFILE_CONSTRAINT_CONFLICT`、`PROFILE_CONSTRAINT_GEOMETRY_INVALID`、`PROFILE_CONSTRAINT_INVALID`、`PROFILE_CONSTRAINT_NUMERICAL`、`PROFILE_CONSTRAINT_UNSATISFIED`、`REFERENCE_LOCKED`、`RELIEF_BOUNDARY_CONFLICT`、`RELIEF_CONSTRAINT_CONFLICT`、`RELIEF_CONSTRAINT_INVALID`、`RELIEF_DESIGN_PROTECTED`、`RELIEF_PATCH_PROTECTION`
 
+### project-store
+
+当前工程的本地存储写入失败。
+
+保留当前页面工程，先检查浏览器存储和原保存回执；不能宣称已保存或自动重算几何。
+
+代码：`PROJECT_STORE_FAILED`
+
+### recovery-denied
+
+此任务不能从中断位置恢复。
+
+查看原任务状态和失败原因；已完成或已停止的任务不能当作可恢复任务继续。
+
+代码：`RECOVERY_NOT_ALLOWED`
+
+### recovery-active
+
+上一任务的计算进程仍在运行。
+
+等待原任务完成，或停止原任务并确认结束后再操作。
+
+代码：`RECOVERY_WORKER_ACTIVE`
+
+### design-base
+
+设计高度会穿过底板背面。
+
+核对最低设计高度与底厚，明确修订后重新生成候选；不自动抬高或削平原设计。
+
+代码：`RELIEF_DESIGN_BASE_INTERSECTION`
+
+### design-fit-brep-binding
+
+拟合与支撑面、放置或掩码的绑定不再一致。
+
+重新读取当前工程，重新选择真实平面并重新准备；不沿用旧面编号，不放宽绑定或改用其他轮廓策略。
+
+代码：`RELIEF_DESIGN_BINDING_INVALID`、`RELIEF_DESIGN_MASK_BLOCKED`、`RELIEF_DESIGN_SOURCE_CHANGED`、`RELIEF_DESIGN_SUPPORT_INVALID`
+
+### design-boundary
+
+当前采样尚不能完整保留支撑边界或贯穿孔。
+
+查看采样间距与边界报告，在允许范围内提高采样分辨率；孔仍无法分离时保留草稿，不自动填孔或更换底板。
+
+代码：`RELIEF_DESIGN_DOMAIN_EMPTY`、`RELIEF_DESIGN_DOMAIN_NONMANIFOLD`、`RELIEF_DESIGN_DOMAIN_TOPOLOGY_CHANGED`
+
+### design-mask
+
+浮雕范围数据与当前采样网格不一致。
+
+重新读取同一设计草稿并求解，保留孔与支撑边界；不要手工填补或丢弃掩码。
+
+代码：`RELIEF_DESIGN_MASK_INVALID`
+
 ### outside
 
 操作点、深度或加工范围未落在允许的实际目标区域。
@@ -319,6 +472,30 @@
 重新测量当前目标与局部坐标，明确位于材料/支撑范围内的位置；保留原深度与图案比例。
 
 代码：`RELIEF_DESIGN_OUTSIDE`、`RELIEF_OUTSIDE_FACE`、`RELIEF_SAMPLE_OUTSIDE`、`RELIEF_TARGET_OUTSIDE`、`SUBD_BRUSH_NO_HIT`、`TAP_DEPTH_INVALID`、`TAP_POINT_INVALID`
+
+### relief-services-required
+
+临时控制网需要 Services 完成首次拟合。
+
+保留当前设计并检查 Services 能力；如需本地执行，由用户明确选择浏览器拟合后重新准备。
+
+代码：`RELIEF_DESIGN_SERVICES_REQUIRED`
+
+### relief-reference
+
+浮雕原参考图不存在、已改变或未通过原件校验。
+
+读取当前设计草稿与已登记原图资源；核对真实图片格式、SHA256、大小和解码结果。原图仅供参考，不能按照片明暗自动生成高度。
+
+代码：`RELIEF_REFERENCE_INVALID`、`RELIEF_REFERENCE_MISSING`
+
+### relief-services-response
+
+Services 浮雕响应与请求、哈希或误差不一致。
+
+保留当前工程，核对原任务与返回产物；不提交、不自动重算或回退。
+
+代码：`SERVICES_RESPONSE_INVALID`
 
 ### wait
 

@@ -8,8 +8,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 
-// Uses the existing signed-in WebCAD permission. The backend credential never
-// enters browser storage, public configuration, responses or log files.
+// Compatibility entrance only. Current clients call same-origin /cadservices/api.ashx.
+// This adapter has no ERP login, Web.dll or signing-key dependency.
 public sealed class WebCADComputeEntry : HttpTaskAsyncHandler
 {
     static readonly HttpClient Client = new HttpClient(new HttpClientHandler { UseProxy=false, AllowAutoRedirect=false }) { Timeout=TimeSpan.FromSeconds(35) };
@@ -29,16 +29,13 @@ public sealed class WebCADComputeEntry : HttpTaskAsyncHandler
         try
         {
             string origin=context.Request.Headers["Origin"],own=context.Request.Url.GetLeftPart(UriPartial.Authority);
-            bool localEditor=context.Request.IsLocal && context.Request.Url.Host=="127.0.0.1" && origin=="http://127.0.0.1:17674";
-            if(!string.IsNullOrEmpty(origin) && origin!=own && !localEditor)throw new HttpException(403,"计算请求来源无效。");
-            if(localEditor){response.AddHeader("Access-Control-Allow-Origin",origin);response.AddHeader("Access-Control-Allow-Credentials","true");response.AddHeader("Vary","Origin");}
+            if(!string.IsNullOrEmpty(origin) && origin!=own)throw new HttpException(403,"计算请求来源无效。");
             if(context.Request.HttpMethod=="OPTIONS")
             {
-                if(!localEditor)throw new HttpException(403,"计算请求来源无效。");
+                if(origin!=own)throw new HttpException(403,"计算请求来源无效。");
                 response.AddHeader("Access-Control-Allow-Headers","Content-Type,X-WebCAD-Compute,X-File-Name,X-Asset-Kind,Idempotency-Key");response.AddHeader("Access-Control-Allow-Methods","GET,POST,OPTIONS");response.StatusCode=204;return;
             }
             if(context.Request.Headers["X-WebCAD-Compute"]!="1")throw new HttpException(403,"请从 WebCAD 计算工具发起请求。");
-            var host=Web.AI.WebCAD.WebCadHost.Resolve(context);
             if(context.Request.HttpMethod!="GET" && context.Request.HttpMethod!="POST")throw new HttpException(405,"计算入口仅支持 GET/POST。");
             string route=context.Request.QueryString["route"]??"/v1/capabilities";
             if(!Regex.IsMatch(route,"^/v1/(health|capabilities|assets|logo/(inspect|convert)|compute/jobs|jobs/[a-f0-9]{32}(/(cancel|recover|result))?|requests/[a-zA-Z0-9_-]{1,160}(/result)?|artifacts/[a-zA-Z0-9_-]{1,160})$"))throw new HttpException(400,"计算任务地址无效。");
@@ -46,7 +43,7 @@ public sealed class WebCADComputeEntry : HttpTaskAsyncHandler
             if(context.Request.ContentLength>limit)throw new HttpException(413,"计算输入超过容量限制。");
             using(var request=new HttpRequestMessage(new HttpMethod(context.Request.HttpMethod),GatewayUri(context.Request.Url,context.Request.ApplicationPath,route)))
             {
-                request.Headers.TryAddWithoutValidation("X-WebCAD-Website-Token",host.Token(Web.AI.WebCAD.WebCadHost.NewNonce()));
+                request.Headers.TryAddWithoutValidation("Origin",own);
                 foreach(string name in new[]{"X-File-Name","X-Asset-Kind","Idempotency-Key"})if(context.Request.Headers[name]!=null)request.Headers.TryAddWithoutValidation(name,context.Request.Headers[name]);
                 if(context.Request.HttpMethod=="POST")
                 {
@@ -61,14 +58,14 @@ public sealed class WebCADComputeEntry : HttpTaskAsyncHandler
                 using(var result=await Client.SendAsync(request,HttpCompletionOption.ResponseHeadersRead))
                 {
                     if((int)result.StatusCode==404){Write(context,502,"COMPUTE_BACKEND_NOT_FOUND","后台计算接口未找到，请管理员核对当前网站应用下的 cadservices/api.ashx。当前工程保留。");return;}
-                    if((int)result.StatusCode==401){Write(context,502,"COMPUTE_BACKEND_AUTH_REJECTED","网站登录已识别，但后台计算授权未通过，请管理员核对网站签名配置。当前工程保留。");return;}
+                    if((int)result.StatusCode==401){Write(context,502,"COMPUTE_BACKEND_AUTH_REJECTED","后台计算尚未安装同域免鉴权版本，请核对 Services 发布。当前工程保留。");return;}
                     response.StatusCode=(int)result.StatusCode;response.ContentType=result.Content.Headers.ContentType==null?"application/json":result.Content.Headers.ContentType.ToString();
                     foreach(string name in new[]{"X-WebCAD-Transport","X-WebCAD-Gateway-Build"}){System.Collections.Generic.IEnumerable<string> values;if(result.Headers.TryGetValues(name,out values))response.AddHeader(name,string.Join(",",values));}
                     await result.Content.CopyToAsync(response.OutputStream);
                 }
             }
         }
-        catch(HttpException error){Write(context,error.GetHttpCode(),error.GetHttpCode()==401?"SIGN_IN_REQUIRED":"COMPUTE_REQUEST_REJECTED",error.GetHttpCode()==401?"请先登录当前网站，再连接后台计算。":error.Message);}
+        catch(HttpException error){Write(context,error.GetHttpCode(),"COMPUTE_REQUEST_REJECTED",error.Message);}
         catch(Exception){Write(context,503,"COMPUTE_CONNECTION_UNAVAILABLE","后台计算暂不可用，请保留当前工程并联系管理员核对计算程序配置。");}
     }
     static void Write(HttpContext context,int status,string code,string message){context.Response.StatusCode=status;context.Response.ContentType="application/json";context.Response.Write(new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(new {code=code,message=message}));}

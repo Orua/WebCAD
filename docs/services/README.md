@@ -30,15 +30,17 @@ For a direct ERP mount, build with `scripts/build-services.ps1 -ParentApplicatio
 
 # Unified Services
 
+当前运行与授权边界（2026-10-26）：本机只使用 `http://localhost/webcad/`，生产为 `https://goldenfu.cn/webcad/`。Services 是本仓库独立的 ASHX/DLL 模块，默认同域直连 `/cadservices/api.ashx`，同域计算不使用网站登录、Cookie、网站签名或 `Web.dll`；原有内部任务主体保持不变，因此任务、资产和幂等键仍可对账。跨域计算端保留专用 Bearer 授权及 Origin 边界。旧 `/AI/WebCAD/WebCADCompute.ashx` 仅作为不依赖生产系统程序集的兼容转发入口。Agent 工作台另由 `host/Goldenluck.WebCADHost` 维护，仍有账号权限要求。以下带日期的验收笔记仅描述当时结果，不是当前运行入口或新架构的验收证明。
+
 The browser remains the sole document authority. Optional Services computes immutable snapshots; the UI and Agent share one Services setting, client, public page API and existing CommandService. Supported local modeling continues without Services.
 
 ## Configuration and migration
 
-Use Settings → Services. Configure one HTTPS or private-LAN HTTP `api.ashx` address and dedicated authorization. Address/mode are in `webcad.services.v1`; credentials are only in the tab's `sessionStorage`, never in a project or API readback. Change address, disable Services or clear authorization to remove credentials.
+Use Settings → Services. The deployment default is the same-origin `cadservices/api.ashx` with no client authorization or cookies. The stored `siteSession` mode name is retained for compatibility and now means this same-origin connection; old website-compute URLs migrate to the direct endpoint. Custom HTTPS or private-LAN HTTP endpoints retain dedicated authorization. Address/mode are in `webcad.services.v1`; custom credentials are only in the tab's `sessionStorage`, never in a project or API readback. Change address, disable Services or clear authorization to remove custom credentials.
 
 The old `webcad.logoConverter.v1` is preserved only as migration backup. Its endpoint and Key are never guessed/promoted. Old API getters delegate to Services without secrets; old setters reject with `SERVICES_MIGRATION_REQUIRED`.
 
-Logical routes use `?route=/v1/...`. Gateway forwards through an ACL-restricted local named pipe to an independent net48/x64 Host. Host uses SQLite and controlled per-job Logo/native processes. Console acceptance HTTP listens on `127.0.0.1` only. Tested code supports world-coordinate pure translation and gated uniform cylindrical emboss plans. The accepted local package additionally advertises protected independent local patches (1.1). Open strokes and engraving (1.2) remain behind a separate isolated prototype proof; their small dual-depth and support-binding tests do not establish real-product acceptance. General sculpt and 3D weaving are not advertised. The real six-hole double-layer local comparison passed; the single full-product attempt failed at an invalid fitted outer ring. The corrected plan passed all 105 contour-face preflights, which does not establish full material acceptance.
+Logical routes use `?route=/v1/...`. The current IIS handler loads the compiled Services runtime, which persists SQLite jobs and controls separate Logo/native worker processes. It does not require named pipes or an installed Host service. Historical geometry acceptance below remains scoped to its original fixtures: world-coordinate pure translation, gated uniform cylindrical emboss, protected local patches and preflight results do not establish full-product acceptance. General sculpt and 3D weaving are not advertised by that evidence.
 
 `feature.compileServices` compiles an existing eligible feature through CommandService. Upload requires explicit authorization. The result preserves its ID, operation, parameters and dependencies, validates the document instance/revision, source and result hashes, and installs an exact BRep checkpoint atomically. v3 ZIP projects contain the raw content-addressed BRep and reopen without Services. Changing upstream geometry invalidates the checkpoint. Legacy numeric downstream topology indices are rejected across kernels rather than guessed.
 

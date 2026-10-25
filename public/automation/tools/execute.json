@@ -2,7 +2,7 @@
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.57.14",
+  "version": "1.57.15",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -85,5 +85,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b8c74a21ba7c1d53c4a63a58b51a4100219431475ea5d2b12b488ef283dbf4c7"
+  "docsHash": "sha256:d658906238e993465b4cd7c6c74ce14427872dcda49128db2e9f3b514aab8547"
 }

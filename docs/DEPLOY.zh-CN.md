@@ -1,5 +1,7 @@
 # 一键增量发布
 
+涉及后端和宿主时，先验证 `scripts/build-agent-host.ps1` 的独立程序集及匹配 Services Gateway：本机真实计算、任务/产物、同域免鉴权与跨域授权、原 Agent 任务和正式登录恢复通过后，才可发布同一候选包。Agent 宿主源码位于本仓库 `host/Goldenluck.WebCADHost`；不重建或覆盖生产系统 `Web.dll`。Services 默认同域直连 `/cadservices/api.ashx`。部署清单包含实际有影响的独立 DLL、入口与前端，保留工程、配置、密钥和任务数据；旧计算入口只是无业务程序集依赖的兼容转发。
+
 发布脚本：`scripts/deploy.ps1`（PowerShell 7）。默认预演；传 `-Apply` 才发布。
 
 ```powershell

@@ -2,14 +2,14 @@
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.57.14",
+  "version": "1.57.15",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getServices",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "getServices()；正式入口默认跟随本站应用路径并使用网站登录；自定义地址支持本站相对路径或完整URL。配置存本地，专用授权仅存本标签会话。不会返回凭据。",
+  "description": "getServices()；正式入口默认跟随本站应用路径直连/cadservices/api.ashx，同域计算无需登录、Cookie或签名。authMode的siteSession名称仅保留配置兼容；自定义跨域地址使用专用授权，仅存本标签会话。不会返回凭据。",
   "synonyms": [
     "getServices",
     "Services",
@@ -17,7 +17,7 @@
     "配置",
     "授权"
   ],
-  "inputContract": "getServices()；正式入口默认跟随本站应用路径并使用网站登录；自定义地址支持本站相对路径或完整URL。配置存本地，专用授权仅存本标签会话。不会返回凭据。",
+  "inputContract": "getServices()；正式入口默认跟随本站应用路径直连/cadservices/api.ashx，同域计算无需登录、Cookie或签名。authMode的siteSession名称仅保留配置兼容；自定义跨域地址使用专用授权，仅存本标签会话。不会返回凭据。",
   "outputContract": "configured、enabled、url、computeMode、hasCredential、migrationRequired；configured不代表连接已验证，getServicesCapabilities读取真实能力。启用时setServices先验证再保存，失败不保存；不回显Token。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -99,5 +99,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e5037db62fe3700a1ae872ecf01a5e44430719aa3f8754e60c537a2185b4be26"
+  "docsHash": "sha256:301d7d22f7d66cbd0606b611c3df53d8ffd558e96e1d6626aa2a16e6c3c68892"
 }
