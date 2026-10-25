@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "id": "webcad-page-api",
   "version": "1.57.12",
-  "buildId": "740f991840b5d635083150c29459983d4c3d081a-src-7ba61a11c575bc7d-working",
-  "catalogHash": "sha256:9736a31055688c3776eb45b7c677e6f550c535c74c61ab0e872e7b4e25c8d9ce",
-  "docsHash": "sha256:85c1920d6f0ebfb7acda39151668c3dcfdbf30805db793f787fd0130674f37b4",
+  "buildId": "3a1f5cd0a81e9b12afece039fc0be5a73e8b5be8-src-3763bb15602d7e3b-working",
+  "catalogHash": "sha256:6b4014273d55689a96ce1938890e1a21f21bd04d941354c00806d52f9bf3cba0",
+  "docsHash": "sha256:1a05c87dd87dc01949ce00e23d92dc217748e889cc45921c2cdfc936ff8d42cb",
   "entrypoints": {
     "browser": "agent-start.html",
     "machine": "agent-start.json",
@@ -17,20 +17,20 @@
     {
       "relativePath": "SKILL.md",
       "url": "webcad-page-api/SKILL.md",
-      "sizeBytes": 8914,
-      "sha256": "sha256:b947dba98d06314de249643252cc3f5e04318f8fb771d5467873915eb5915b04"
+      "sizeBytes": 10641,
+      "sha256": "sha256:bbaee8d112d77b42894eb995be3ae4664836ca95348d8cbd94b523f7873fde92"
     },
     {
       "relativePath": "references/connection.md",
       "url": "webcad-page-api/references/connection.md",
-      "sizeBytes": 5328,
-      "sha256": "sha256:738f96960ed17a84db347399804ffe0e22c2db6aa5aa8d676d78b08ca5841f0d"
+      "sizeBytes": 5861,
+      "sha256": "sha256:fdc9c2b6f5640efaf2d8ea83c385c5090cdc39019c3c3395f4bd1fb5b79c8168"
     },
     {
       "relativePath": "scripts/page-client.mjs",
       "url": "webcad-page-api/scripts/page-client.mjs",
-      "sizeBytes": 8579,
-      "sha256": "sha256:90da0aea4ef28bbe6c42c654d404fe68346b0ad0f33931ba410bd57ee613dd2f"
+      "sizeBytes": 8658,
+      "sha256": "sha256:1e5f6dc2323befc687ca0b746e3ab90bf907c8879fd1befcf7c31e98b4f3b949"
     },
     {
       "relativePath": "scripts/knowledge-cache.mjs",
@@ -48,7 +48,7 @@
       "relativePath": "routes.json",
       "url": "routes.json",
       "sizeBytes": 68129,
-      "sha256": "sha256:3989229e06e2d56aac1112a3686aa7defb035be8da2ea3f447143daa61589d97"
+      "sha256": "sha256:b3f2af3ca51a58b10739a9c504ac497fc6798a694c36a64af7896852ef06f6e9"
     }
   ],
   "installer": {

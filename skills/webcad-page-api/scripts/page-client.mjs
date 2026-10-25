@@ -8,6 +8,7 @@ for(const name of ['getServices','setServices','getServicesCapabilities','clearS
 for(const name of ['confirmWritten','reattach'])files.add(name);
 for(const name of ['getBatchReceipt','recoverKernel','sampleMeshRelief','waitFor','probeBlendRadius'])methods.add(name);
 methods.add('getEvidenceImage');
+for(const name of ['getMetalMaterials','setMetalMaterials'])methods.add(name);
 export const PAGE_CLIENT_METHODS=Object.freeze([...methods]);
 export const PAGE_CLIENT_FILE_METHODS=Object.freeze([...files]);
 function failure(code,message,details={}){return Object.assign(new Error(message),{code,...details});}

@@ -37,7 +37,7 @@ test('downloaded modeling routes cover construction, process and diagnostics wit
     assert.equal(downloads,cache.downloadedFiles);
     assert.equal((await syncKnowledge(discoveryMetadata(),options)).cacheHit,true);
     assert.equal(downloads,cache.downloadedFiles,'unchanged complete package stays local');
-    const cases=[['建立矩形板','solid-section'],['同轴空心圆筒','axisymmetric'],['方线沿路径扫掠','path-section'],['多截面放样','transition'],['在安装板上开两个通孔','cut-features'],['倒角C0.5','finishing'],['装配对齐','placement'],['刻字LOGO','logo'],['保持孔位加厚','editing'],['导出STL网格','inspection'],['按源图复刻','source-reconstruction'],['轮廓断点修复','profiles-2d'],['生成三视图工程图','drawings'],['CNC型腔刀具检查','manufacturing'],['可打印支撑检查','printability'],['轴承标准件导入','part-reuse'],['按密度计算重量估重','material-properties'],['制造交接发到打印机','handoff'],['怎么建模','plan']];
+    const cases=[['Python脚本批量计算','execution-strategy'],['建立矩形板','solid-section'],['同轴空心圆筒','axisymmetric'],['方线沿路径扫掠','path-section'],['多截面放样','transition'],['在安装板上开两个通孔','cut-features'],['倒角C0.5','finishing'],['装配对齐','placement'],['刻字LOGO','logo'],['保持孔位加厚','editing'],['导出STL网格','inspection'],['按源图复刻','source-reconstruction'],['轮廓断点修复','profiles-2d'],['生成三视图工程图','drawings'],['CNC型腔刀具检查','manufacturing'],['可打印支撑检查','printability'],['轴承标准件导入','part-reuse'],['按密度计算重量估重','material-properties'],['制造交接发到打印机','handoff'],['怎么建模','plan']];
     for(const [query,id] of cases){
       const routes=await routeKnowledge(cache,query,{scope:'modeling'});
       const route=routes.find(r=>r.id==='modeling.'+id);assert(route,query);

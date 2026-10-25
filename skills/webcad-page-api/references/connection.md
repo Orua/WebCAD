@@ -1,3 +1,9 @@
+## Native MCP
+
+当前宿主暴露 webcad_* 时使用 MCP 和实际能力摘要。webcad_docs route 的 args 为 query/limit；已知工具用 getTools，章节用 readDocs。planLayout 是固定规划器；planSource/readLocal/CDP send 仅属于下述可选客户端。批次经 webcad_submit，工程读写沿同一 grant/context/revision/原回执，不让脚本获取凭据。解释器缺失不影响结构化 run。策略见 api.modeling.methods.execution-strategy。
+
+## 可选页面脚本宿主
+
 # 本地 Agent 包与页面连接
 
 页面部署根地址记为 `BaseUrl`，本机使用 `http://localhost/webcad/`；子路径部署需保留完整根路径。网页上的 `automation/agent-start.html` 是给人的入口，`automation/agent-start.json` 是给 Agent 的机器入口，`automation/routes.json` 来自实际 UI/API 映射。安装包仅帮助宿主发现和使用工具，不会给没有脚本权限的宿主增加权限。
@@ -41,6 +47,6 @@ const result = await client.run(steps,{context:connection.requestContext});
 
 `connect` 可在内核未就绪时发现工具；建模前需 `canExecute:true`，否则检查 `blockers`，不要取消用户的预览。已收到的完整工具卡可缓存哈希，`getTools` 只补缺失契约。模板卡 `template.*` 的执行 op 是 `quickModel`，`params.kind` 指定模板。
 
-`run` 要求传入规划步骤时取得的 requestContext，写入前重新握手并核对会话、工程、实例和 revision；有并发变化就抛 `STALE_CONTEXT` 并停止，不会自动采纳新 revision 来执行旧计划。核对通过后生成唯一 idempotencyKey，发送一批最多 40 步（LIMITS.batch.maxSteps）。若调用的传输断开或超时，会抛 `UNKNOWN_OUTCOME` 并附原请求和键；它绝不自动重发。先用 `getState` / 当前回执查清提交状态，再规划剩余步骤。需要取相同请求的原幂等回执时可显式 `client.call('run',error.request)`，不能换 key 重做不确定批次。`partial/failed/unknown` 与成功保持原回执，不包装成“完成”。当前页重载后幂等不保证。
+`run` 要求传入规划步骤时取得的 requestContext，写入前重新握手并核对会话、工程、实例和 revision；有并发变化就抛 `STALE_CONTEXT` 并停止，不会自动采纳新 revision 来执行旧计划。核对通过后生成唯一 idempotencyKey，按当前握手 limits.batch.maxSteps 与宿主安全上限发送有界批次。若调用的传输断开或超时，会抛 `UNKNOWN_OUTCOME` 并附原请求和键；它绝不自动重发。先用 `getState` / 当前回执查清提交状态，再规划剩余步骤。需要取相同请求的原幂等回执时可显式 `client.call('run',error.request)`，不能换 key 重做不确定批次。`partial/failed/unknown` 与成功保持原回执，不包装成“完成”。当前页重载后幂等不保证。
 
 `readDocs` 返回一页，按真实 `nextCursor` 继续读相关文档；不默认遍历所有文档。`findLocalRoutes` 只读本地 routes.json，可按动作名、工具 ID、method 或用途匹配；本地路由版本与实时目录不符时以页面 `getUILayout/readDocs/getTools` 为准。任务完成后由宿主释放浏览器控制。
