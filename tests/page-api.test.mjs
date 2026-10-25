@@ -17,7 +17,8 @@ test('getState publishes strict argument schema matching the existing object-inp
  }
  for(const input of [{context:context()},{extra:true},{compact:'true'},{include:['appearance']},{fields:[]},{fields:['']},{fields:['x'.repeat(41)]},{sinceRevision:-1},{sinceRevision:1.5}]){
   assert.throws(()=>validateSchema(schema,input,'input'));
-  assert.throws(()=>api.getState(input),error=>error.code==='PARAM_SCHEMA_INVALID');
+  let expected;try{validateSchema(schema,input,'args');}catch(error){expected=error;}
+  assert.throws(()=>api.getState(input),error=>error.code===expected.code&&error.path===expected.path);
  }
 });
 test('LOGO read/export produces host artifacts without geometry or workspace file writes',async()=>{
@@ -233,10 +234,12 @@ test('move and rotate API validates explicit body selection and returns handle r
   f.host.state=()=>({...readState(),bodies:[{id:'body-1'},{id:'body-2'}],view:{gizmo:mode,selectionMode:'body',transform:{mode,bodyIds:[...selectedIds],attached:mode!=='off'&&selectedIds.length===1&&!hidden.length,canDrag:mode!=='off'&&selectedIds.length===1&&!hidden.length,blocker:mode==='off'?'MODE_OFF':!selectedIds.length?'NO_SELECTION':selectedIds.length>1?'MULTIPLE_SELECTION':hidden.length?'HIDDEN_SELECTION':null}}});
   f.host.view=async input=>{f.calls.view++;if(input.gizmo!==undefined)mode=input.gizmo;if(input.selectedIds!==undefined)selectedIds=[...input.selectedIds];};
   for(const selectedIds of [null,false,'body-1',{},[7],[''],Array(201).fill('body-1')]){
-    const result=await f.api.setView({context:context(),gizmo:'translate',selectedIds});
-    assert.equal(result.error.code,'PARAM_SCHEMA_INVALID');assert.equal(result.error.path,'selectedIds');
+    const input={context:context(),gizmo:'translate',selectedIds},result=await f.api.setView(input);let expected;
+    try{validateSchema(getTool({id:'setView'}).inputSchema,input,'args');}catch(error){expected=error;}
+    assert.equal(result.error.code,expected.code);assert.equal(result.error.path,expected.path);
   }
-  for(const selectedIds of [['missing'],['body-1','body-1']])assert.equal((await f.api.setView({context:context(),gizmo:'translate',selectedIds})).error.code,'STALE_REFERENCE');
+  assert.equal((await f.api.setView({context:context(),gizmo:'translate',selectedIds:['missing']})).error.code,'STALE_REFERENCE');
+  assert.equal((await f.api.setView({context:context(),gizmo:'translate',selectedIds:['body-1','body-1']})).error.code,'PARAM_SCHEMA_INVALID');
   for(const gizmo of ['translate','rotate'])for(const selectionMode of ['face','edge']){
     const result=await f.api.setView({context:context(),gizmo,selectionMode});
     assert.equal(result.error.code,'SELECTION_CONFLICT');assert.equal(result.error.path,'selectionMode');

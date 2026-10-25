@@ -60,6 +60,7 @@
   ],
   "viewMethods": [
     "capture",
+    "getEvidenceImage",
     "markLocation",
     "redraw",
     "selectRectangle",
@@ -943,6 +944,75 @@
         "context"
       ]
     },
+    "getEvidenceImage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId",
+            "expectedRevision"
+          ]
+        },
+        "evidenceId": {
+          "type": "string",
+          "pattern": "^ev_[a-f0-9]{32}$"
+        },
+        "viewId": {
+          "enum": [
+            "iso",
+            "front",
+            "top",
+            "right"
+          ]
+        },
+        "maxWidth": {
+          "type": "integer",
+          "minimum": 64,
+          "maximum": 1024
+        },
+        "format": {
+          "enum": [
+            "png",
+            "webp"
+          ]
+        },
+        "quality": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "context"
+      ]
+    },
     "setView": {
       "type": "object",
       "additionalProperties": false,
@@ -1324,6 +1394,7 @@
     "selectRectangle": "identity",
     "redraw": "identity",
     "capture": "identity",
+    "getEvidenceImage": "revision",
     "updateModelLibrary": "revision",
     "markLocation": "revision",
     "execute": "revision",
@@ -1401,6 +1472,7 @@
     "selectRectangle": "webcad_view",
     "redraw": "webcad_view",
     "capture": "webcad_view",
+    "getEvidenceImage": "webcad_view",
     "updateModelLibrary": "webcad_view",
     "markLocation": "webcad_view",
     "files.save": "webcad_artifact",
@@ -1415,5 +1487,5 @@
     "pasteSelection": "webcad_submit",
     "recoverKernel": "webcad_submit"
   },
-  "contractHash": "sha256:12a3aa191618bc005938dbf9c2d8af4469e8a5c6e41399edaf09b026704868ec"
+  "contractHash": "sha256:786a566a98fdf3689bdbc756ae7def8683c0cc8754d6a085ebf8a82504a729a5"
 }

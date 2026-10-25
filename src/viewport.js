@@ -14,6 +14,7 @@ import {floorGridZ} from './floor-grid.js';
 import {ExactDisplayDetail} from './viewport/exact-detail.js';
 import {MetalOcclusionPass,metalEdgeOpacity} from './viewport/metal-occlusion.js';
 import {createViewCube} from './viewport/view-cube.js';
+import {captureEvidence,evidenceDisplaySignature} from './viewport/evidence-capture.js';
 const say=(zh,en)=>getLanguage()==='en'?en:zh;
 
 const COLORS = [0xaac4d9, 0xc5b395, 0x91bdb1, 0xb3a6c8, 0x9db5c6, 0xc39e9e];
@@ -391,6 +392,8 @@ export class CADViewport {
       requestAnimationFrame(()=>done('animation-frame'));timer=setTimeout(()=>done('timer-fallback'),fallbackMs);});
     this.renderFrame();return this.displayState();}
   displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
+  evidenceSignature(){return evidenceDisplaySignature(this);}
+  evidenceCapture(opts){return captureEvidence(this,opts);}
   screenshot(opts={}){
     this.renderFrame(true);
     const canvas=this.renderer.domElement,format=opts.format==='webp'?'image/webp':'image/png',quality=opts.quality;

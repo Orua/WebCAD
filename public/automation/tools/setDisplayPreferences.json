@@ -2,7 +2,7 @@
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.57.8",
+  "version": "1.57.10",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -91,6 +91,10 @@
         "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
       },
       {
+        "id": "getEvidenceImage",
+        "chooseWhen": "按明确工程修订取可复用的隔离轴测/正交三视图，不改变用户相机；缓存图不是精确尺寸量测或工程存档。"
+      },
+      {
         "id": "getUILayout",
         "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
       }
@@ -98,5 +102,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6001f1f02d0ba84aa0cd60c2c45bc4ad40714f04fdd0f1b34775cb051ccb7074"
+  "docsHash": "sha256:e0f6a6056a0a3ab9d72406943a9eefad70884ad353d49d0dac7fc793a3b3c630"
 }

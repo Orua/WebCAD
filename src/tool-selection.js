@@ -268,6 +268,7 @@ const groups = [
     redraw:'重绘当前显示，不重建特征历史。',
     selectRectangle:'按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。',
     capture:'生成当前已渲染画面的截图资源，不导出三维几何。',
+    getEvidenceImage:'按明确工程修订取可复用的隔离轴测/正交三视图，不改变用户相机；缓存图不是精确尺寸量测或工程存档。',
     getUILayout:'读界面区域及动作映射，不代表当前几何状态。',
   }],
   ['discovery','连接、目录与文档',{
@@ -365,7 +366,7 @@ const crossComparisons=[
   ['draftFaces','draftByPlane','inspectDraft'],
   ['group','union','body.explode','copySelection'],
   ['body.appearance','document.appearance','setDisplayPreferences'],
-  ['capture','files.export','exportDrawing'],
+  ['capture','getEvidenceImage','files.export','exportDrawing'],
   ['files.open','files.import','history.restore','document.refresh','recoverKernel'],
   ['files.save','files.export','createDrawing','exportDrawing'],
   ['getJob','getServicesJob','getServicesRequest'],

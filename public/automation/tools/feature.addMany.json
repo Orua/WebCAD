@@ -272,7 +272,7 @@
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "category": "command",
-  "version": "1.57.8",
+  "version": "1.57.10",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -346,5 +346,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8833533696807b2d9af4af736ca4695697c04904c3edbdcf2effdd6a4b86e5d0"
+  "docsHash": "sha256:9a0c9e8a435e4a85c83e6096463b3e25ac291b7b294ced7a557103e51ae04a60"
 }

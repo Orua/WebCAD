@@ -5,6 +5,7 @@ import {LIMITS} from './limits.js';
 import {validatePageInput} from './page-input-contracts.js';
 import {archiveReceiptResult} from './receipt-archive.js';
 import {withErrorRecovery} from './error-recovery.js';
+import {batchFacts} from './commit-facts.js';
 const methods = new Set(['add','execute','connect','info','getState','searchTools','getTools','getTool','readDocs',
   'getQuickModelUsage','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
   'files.import','files.save','files.export','files.release']);
@@ -63,7 +64,7 @@ export function createPageBatch(api,{display}={}){
       return ids.map(id=>{const b=(s.bodies||[]).find(body=>body.id===id);if(!b?.bounds?.min||!b?.bounds?.max)return null;
         return {id,center:[0,1,2].map(i=>round((b.bounds.min[i]+b.bounds.max[i])/2)),size:[0,1,2].map(i=>round(b.bounds.max[i]-b.bounds.min[i]))};}).filter(Boolean);};
     const startedAt=performance.now();
-    const finish=(status,error)=>{const s=api.getState();return withErrorRecovery({status,idempotencyKey:key,atomic:false,results,
+    const finish=(status,error)=>{const s=api.getState();const receipt=withErrorRecovery({status,idempotencyKey:key,atomic:false,results,
       requestContext:context(s.context),
       progress:{completedStepIds:results.filter(item=>!['failed','unknown'].includes(item.result?.status)).map(item=>item.id),
         failedStepId:status==='completed'||error?.code==='BATCH_CANCELLED'?null:activeStepId,
@@ -74,7 +75,8 @@ export function createPageBatch(api,{display}={}){
       ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message||String(error)||'Batch step failed',...(error.path?{path:error.path}:{}),...(error.commitState?{commitState:error.commitState}:{}),...(error.jobId||error.pageJobId?{jobId:error.jobId||error.pageJobId}:{}),...(error.requestId?{requestId:error.requestId}:{}),...(error.featureId?{featureId:error.featureId}:{}),...(error.affectedFeatureIds?{affectedFeatureIds:error.affectedFeatureIds,changedFeatureIds:error.changedFeatureIds}:{}),...(error.recoveryAction?{recoveryAction:error.recoveryAction}: {})}}:{}),
       elapsedMs:Math.round(performance.now()-startedAt),context:s.context,bodyBounds:touchedBounds(s),
       summary:s.summary,display:s.display,
-      displayMatchesContext:s.display?.status==='rendered'&&['documentId','documentInstanceId','revision'].every(k=>s.display.rendered?.[k]===s.context[k])});};
+      displayMatchesContext:s.display?.status==='rendered'&&['documentId','documentInstanceId','revision'].every(k=>s.display.rendered?.[k]===s.context[k])});
+      receipt.facts=batchFacts(s,receipt,Array.isArray(input?.steps)?input.steps:[]);return receipt;};
     try{
       safe(input);keys(input,['context','idempotencyKey','steps']);
       const signature=JSON.stringify(input);if(signature.length>3*1024*1024)bad('RESOURCE_LIMIT','Batch exceeds 3 MiB');fingerprint=contractHash(signature);

@@ -102,6 +102,7 @@ convertLogoPdf: contextPolicy=revision
 setView: contextPolicy=identity
 redraw: contextPolicy=identity
 capture: contextPolicy=identity
+getEvidenceImage: contextPolicy=revision
 run: contextPolicy=revision
 files.capabilities: contextPolicy=none
 files.register: contextPolicy=none

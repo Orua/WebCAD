@@ -2,7 +2,7 @@
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.57.8",
+  "version": "1.57.10",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -316,6 +316,10 @@
         "chooseWhen": "生成当前已渲染画面的截图资源，不导出三维几何。"
       },
       {
+        "id": "getEvidenceImage",
+        "chooseWhen": "按明确工程修订取可复用的隔离轴测/正交三视图，不改变用户相机；缓存图不是精确尺寸量测或工程存档。"
+      },
+      {
         "id": "getUILayout",
         "chooseWhen": "读界面区域及动作映射，不代表当前几何状态。"
       },
@@ -335,5 +339,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fff4e09c04f59ae1858af7e77bb1b701b13ddb12fb865a0d702e971abe5e5456"
+  "docsHash": "sha256:d90cfceaf9a0e605f01fb6e9785bf5a64a0db8866535e3e0f938d8733ccc2f23"
 }

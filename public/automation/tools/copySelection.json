@@ -2,7 +2,7 @@
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.57.8",
+  "version": "1.57.10",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -87,5 +87,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8091549b0197e46a3e73c08e084121fa25652abe363d98b25dc11842f0a31fe7"
+  "docsHash": "sha256:6d634a2e79f6450d896f046933dc88a93cc702a5407727e74a81c2510f2f5994"
 }

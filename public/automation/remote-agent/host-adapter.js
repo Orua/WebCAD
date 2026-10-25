@@ -130,6 +130,7 @@ var PAGE_METHOD_SCHEMAS = {
   run: object2({ context: revisionContext, idempotencyKey: { type: "string", minLength: 1, maxLength: 80 }, steps: { type: "array", minItems: 1, maxItems: LIMITS.batch.maxSteps, items: STEP_SCHEMA } }, ["context", "idempotencyKey", "steps"]),
   resolvePlacement: object2({ context: IDENTITY_CONTEXT_SCHEMA, op: str, params: { type: "object" }, refs: { type: "array", items: str }, placement: PLACEMENT_SCHEMA }, ["context", "op", "params", "refs", "placement"]),
   capture: object2({ context: IDENTITY_CONTEXT_SCHEMA, maxWidth: { type: "integer", minimum: 64, maximum: 4096 }, format: { enum: ["png", "webp"] }, quality: { type: "number", exclusiveMinimum: 0, maximum: 1 } }, ["context"]),
+  getEvidenceImage: object2({ context: revisionContext, evidenceId: { type: "string", pattern: "^ev_[a-f0-9]{32}$" }, viewId: { enum: ["iso", "front", "top", "right"] }, maxWidth: { type: "integer", minimum: 64, maximum: 1024 }, format: { enum: ["png", "webp"] }, quality: { type: "number", exclusiveMinimum: 0, maximum: 1 } }, ["context"]),
   setView: object2({
     context: IDENTITY_CONTEXT_SCHEMA,
     direction: { enum: ["top", "bottom", "front", "back", "left", "right", "side", "iso"] },
@@ -344,7 +345,7 @@ var READ_METHODS = /* @__PURE__ */ new Set([
   "getModelLibrary",
   "resolveModelLibrary"
 ]);
-var VIEW_METHODS = /* @__PURE__ */ new Set(["setView", "setRenderQuality", "setDisplayPreferences", "selectRectangle", "redraw", "capture", "updateModelLibrary", "markLocation"]);
+var VIEW_METHODS = /* @__PURE__ */ new Set(["setView", "setRenderQuality", "setDisplayPreferences", "selectRectangle", "redraw", "capture", "getEvidenceImage", "updateModelLibrary", "markLocation"]);
 var DISCOVERY_METHODS = /* @__PURE__ */ new Set(["getBatchReceipt", "connect", "info", "getState", "getAgentPanel", "getHistory", "searchTools", "getTools", "getTool", "readDocs", "files.capabilities", "getUILayout", "getQuickModelUsage", "getModelLibrary"]);
 var CONTEXTLESS_READ_METHODS = /* @__PURE__ */ new Set(["getServices", "getServicesCapabilities", "getServicesRouting"]);
 var EDIT_ACTIONS = /* @__PURE__ */ new Set([

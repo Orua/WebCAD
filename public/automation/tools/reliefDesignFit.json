@@ -2,7 +2,7 @@
   "id": "reliefDesignFit",
   "title": "reliefDesignFit",
   "category": "page-method",
-  "version": "1.57.8",
+  "version": "1.57.10",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_read",
@@ -248,5 +248,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:07224cf0634c802a0964f03fcb39944527b19821190d5e3b948b7daa710da9cf"
+  "docsHash": "sha256:81f5461bf39ce21c9711e492e2be6feaabc77d26b1f1d9a37d1a4ebabd5e42ed"
 }

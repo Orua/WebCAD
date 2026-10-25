@@ -45,6 +45,7 @@ import {normalizeOperationParams} from './operation-registry.js';
 import {modelLibrary} from './model-library.js';
 import {errorRecovery,withErrorRecovery} from './error-recovery.js';
 import {createStateObserver} from './agent/state-observer.js';
+import {createVisualEvidence} from './visual-evidence.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 
@@ -72,6 +73,7 @@ export function createPageAPI(host){
   const explained=fn=>(...args)=>{try{const result=fn(...args);return result&&typeof result.then==='function'?result.then(withErrorRecovery,explainThrown):withErrorRecovery(result);}catch(error){return explainThrown(error);}};
   const requestPolicies=new WeakMap();
   const current=()=>host.state();
+  const evidence=createVisualEvidence({state:current,signature:()=>host.evidenceSignature?.()??'unsupported',capture:opts=>{if(!host.evidenceCapture)throw Object.assign(Error('This host does not support isolated evidence capture.'),{code:'CAPABILITY_UNAVAILABLE'});return host.evidenceCapture(opts);}});
   const stateObserver=createStateObserver({key:()=>host.revisionKey?host.revisionKey():JSON.stringify(current().context),context:()=>current().context,subscribe:host.subscribeState});
   const failure=e=>withErrorRecovery({status:e.status==='unknown'||e.commitState==='unknown'?'unknown':'failed',commitState:e.commitState==='unknown'||e.status==='unknown'?'unknown':'not_committed',error:{...(e.jobId?{jobId:e.jobId}:{}),...(e.idempotencyKey?{idempotencyKey:e.idempotencyKey}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:e.retryable===true,recoveryAction:e.recoveryAction||((e.commitState==='unknown'||e.status==='unknown')?'RECONCILE_ORIGINAL_REQUEST':null)||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
   const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
@@ -261,7 +263,8 @@ export function createPageAPI(host){
       // compact omits the heavy display descriptor (agents only need it for capture/redraw).
       let out=stateInput.compact?{...state,stateSeq:stateObserver.version(),requestContext:req}:{...state,stateSeq:stateObserver.version(),requestContext:req,display:host.display()};
       if(sinceRevision!==undefined){
-        if(sinceRevision===out.context?.revision)return {status:'read',unchanged:true,context:out.context,requestContext:req,stateSeq:out.stateSeq,sinceRevision};
+        if(sinceRevision===out.context?.revision)return {status:'read',unchanged:true,unchangedScope:'geometry',context:out.context,requestContext:req,stateSeq:out.stateSeq,sinceRevision,
+          ...Object.fromEntries(['summary','selection','preview','referenceSystem','references','hostControl','kernelProgress'].filter(key=>out[key]!==undefined).map(key=>[key,out[key]]))};
         out={...out,sinceRevision,changes:bodyChanges(sinceRevision,state)};
       }
       if(fields)out=Object.fromEntries(Object.entries(out).filter(([k])=>['status','context','requestContext','stateSeq','changes','sinceRevision'].includes(k)||fields.includes(k)));
@@ -680,6 +683,10 @@ export function createPageAPI(host){
     setLogoConverter:guarded(async input=>{check(input,['context','url','key']);const result=setLogoConverterConfig(input);return {status:'applied',context:current().context,...result};}),
     convertLogoPdf:guarded(async input=>{check(input,['context','name','data','targetWidthMm','page','sizeConfirmed','allowUpload','pdfJoinToleranceMm']);if(typeof input.name!=='string'||!input.name.toLowerCase().endsWith('.pdf')||!(input.data instanceof Uint8Array||input.data instanceof ArrayBuffer||input.data instanceof Blob))fail('PARAM_SCHEMA_INVALID','Provide PDF bytes and filename');const file=new File([input.data],input.name,{type:'application/pdf'});const logo=await readBrowserLogo(file,x=>x,{targetWidthMm:input.targetWidthMm,page:input.page,pdfJoinToleranceMm:input.pdfJoinToleranceMm,sizeConfirmed:input.sizeConfirmed,allowUpload:input.allowUpload});return {status:'read',context:current().context,logo};}),
     redraw:guarded(async input=>{check(input,['context']);await host.redraw();check(input,['context']);return {status:'read',context:current().context,display:host.display()};}),
+    getEvidenceImage:guarded(async input=>{
+      check(input,['context','evidenceId','viewId','maxWidth','format','quality'],'identity');
+      return evidence.read(input);
+    }),
     capture:guarded(async input=>{
       check(input,['context','maxWidth','format','quality']);
       const format=input.format??'png';
