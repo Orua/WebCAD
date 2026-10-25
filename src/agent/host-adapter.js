@@ -109,7 +109,8 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
   async function execute(entry) {
     const command=entry.command;
     try {
-      if (!accepting || command.deadline*1000<=now()) throw failure('lease_revoked','Command expired or page control ended');
+      if (!accepting) throw failure('lease_revoked','Host page control has ended before CAD dispatch');
+      if (command.deadline*1000<=now()) throw failure('COMMAND_EXPIRED','Command deadline passed before CAD dispatch; no page job was submitted');
       if (endedTasks.has(command.taskId)) throw failure('task_ended','Task control has already ended');
       samePage();
       validatePayload(command.payload,binding,scopes);

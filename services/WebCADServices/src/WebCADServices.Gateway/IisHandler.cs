@@ -19,6 +19,16 @@ namespace WebCADServices.Gateway
     {
         public override bool IsReusable => true;
         public static readonly string BuildId = "sha256:" + Protocol.Hash(File.ReadAllBytes(typeof(IisHandler).Assembly.Location));
+        public static bool SameOrigin(Uri site, string origin, string referer, string fetchSite)
+        {
+            Uri source;
+            if (!string.IsNullOrEmpty(origin))
+                return Uri.TryCreate(origin, UriKind.Absolute, out source) && source.GetLeftPart(UriPartial.Authority) == site.GetLeftPart(UriPartial.Authority);
+            if (fetchSite == "cross-site" || fetchSite == "same-site") return false;
+            if (!string.IsNullOrEmpty(referer))
+                return Uri.TryCreate(referer, UriKind.Absolute, out source) && source.GetLeftPart(UriPartial.Authority) == site.GetLeftPart(UriPartial.Authority);
+            return fetchSite == "same-origin";
+        }
         public static bool PrivateAddress(string host)
         {
             if (string.Equals(host, "localhost", StringComparison.OrdinalIgnoreCase)) return true;
@@ -38,9 +48,10 @@ namespace WebCADServices.Gateway
             {
                 if (!request.IsSecureConnection && (!PrivateAddress(request.Url.Host) || !PrivateAddress(request.UserHostAddress))) throw new ServiceError("LAN_ONLY", "HTTP Services is available only on the private LAN", 403);
                 string origin = request.Headers["Origin"],allowed = ConfigurationManager.AppSettings["WebCAD.AllowedOrigin"] ?? request.Url.GetLeftPart(UriPartial.Authority);
+                bool sameOrigin = SameOrigin(request.Url, origin, request.Headers["Referer"], request.Headers["Sec-Fetch-Site"]);
                 if (!string.IsNullOrEmpty(origin))
                 {
-                    if (!string.Equals(origin, allowed, StringComparison.Ordinal)) throw new ServiceError("ORIGIN_FORBIDDEN", "Origin is not allowed", 403);
+                    if (!sameOrigin && !string.Equals(origin, allowed, StringComparison.Ordinal)) throw new ServiceError("ORIGIN_FORBIDDEN", "Origin is not allowed", 403);
                     response.AppendHeader("Access-Control-Allow-Origin", origin);response.AppendHeader("Vary", "Origin");
                     response.AppendHeader("Access-Control-Allow-Headers", "Authorization,Content-Type,X-File-Name,X-Asset-Kind,Idempotency-Key");
                     response.AppendHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
@@ -48,8 +59,9 @@ namespace WebCADServices.Gateway
                 }
                 if (request.HttpMethod == "OPTIONS") { if (string.IsNullOrEmpty(origin)) throw new ServiceError("ORIGIN_FORBIDDEN", "Origin is required", 403);response.StatusCode = 204;return; }
                 string header = request.Headers["Authorization"],credential = header != null && header.StartsWith("Bearer ", StringComparison.Ordinal) ? header.Substring(7) : null;
-                string websiteToken=request.Headers["X-WebCAD-Website-Token"];
-                if(!string.IsNullOrEmpty(websiteToken)){WebsiteAuthorization.Require(websiteToken,request.HttpMethod);credential=IisRuntime.ConfiguredCredential();}
+                // Same-origin computation has no website login, cookie or signed-token dependency.
+                // Keep the configured internal principal so existing jobs/assets retain their owner.
+                if (sameOrigin) credential = IisRuntime.ConfiguredCredential();
                 if (string.IsNullOrEmpty(credential)) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
                 var runtime = IisRuntime.Get(credential);
                 var authorized = runtime.Handle(new WireRequest { Method = "GET", Route = "/v1/health", Credential = credential });

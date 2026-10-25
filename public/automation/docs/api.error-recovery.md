@@ -25,7 +25,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 先通过现有设置完成登录或取得所需授权，再核对原请求；不要绕过权限或擅自上传来源。
 
-代码：`action_not_allowed`、`AGENT_METHOD_DENIED`、`AUTH_CONFIG_REQUIRED`、`HOST_ACCESS_DENIED`、`HTTPS_REQUIRED`、`IIS_STORAGE_FORBIDDEN`、`LAN_ONLY`、`lease_revoked`、`method_not_allowed`、`ORIGIN_FORBIDDEN`、`PERMISSION_REQUIRED`、`RECOVERY_AUTH_REQUIRED`、`scope_denied`、`SERVICES_AUTH_REQUIRED`、`task_binding_mismatch`、`task_ended`、`UNAUTHORIZED`、`UPLOAD_AUTH_REQUIRED`
+代码：`action_not_allowed`、`AGENT_METHOD_DENIED`、`AUTH_CONFIG_REQUIRED`、`HOST_ACCESS_DENIED`、`HTTPS_REQUIRED`、`IIS_STORAGE_FORBIDDEN`、`LAN_ONLY`、`method_not_allowed`、`ORIGIN_FORBIDDEN`、`PERMISSION_REQUIRED`、`RECOVERY_AUTH_REQUIRED`、`scope_denied`、`SERVICES_AUTH_REQUIRED`、`UNAUTHORIZED`、`UPLOAD_AUTH_REQUIRED`
 
 ### unsupported
 
@@ -162,6 +162,14 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 读取对应容量限制，按来源允许的部件/工程拆分或释放无用资源；不能自动减细节、降精度或改用另一内核。
 
 代码：`CHECKPOINT_CLIENT_CAPACITY`、`CONTOUR_TOO_COMPLEX`、`FILE_TOO_LARGE`、`GEOMETRY_SOURCE_LIMIT`、`IMPORT_TOO_LARGE`、`LOFT_COMPLEXITY`、`MESH_DISPLAY_CAPACITY`、`MESH_SIZE_LIMIT`、`PROFILE_CONSTRAINT_LIMIT`、`REFINE_LIMIT`、`RELIEF_EDIT_CAPACITY`、`RELIEF_LIMIT`、`RELIEF_PLAN_LIMIT`、`RESOURCE_LIMIT`、`RESULT_TOO_LARGE`、`RESULT_TOO_LARGE_FOR_CLIENT`、`SIZE_LIMIT`、`SOURCE_BUDGET_EXCEEDED`
+
+### dispatch
+
+命令在进入CAD执行前已超过派发期限，尚未提交页面作业。
+
+保留原命令回执，核对连接和当前工程状态；确认未提交并恢复连接后，才处理尚未执行的步骤。
+
+代码：`COMMAND_EXPIRED`
 
 ### sequence
 
@@ -346,6 +354,14 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 查看原任务的具体错误；LOGO 识别任务确认已停止后，可重新点击识别。其他建模任务须先核对失败原因和当前工程。
 
 代码：`KNOWN_INPUT_FAILED`、`PREVIOUS_ATTEMPT_FAILED`
+
+### host-control
+
+页面控制权或当前任务绑定已结束或改变，并不等于登录到期。
+
+核对原任务、原命令和当前页面绑定；通过宿主重新连接原工程，结果未知时不得换键重画。
+
+代码：`lease_revoked`、`task_binding_mismatch`、`task_ended`
 
 ### material
 

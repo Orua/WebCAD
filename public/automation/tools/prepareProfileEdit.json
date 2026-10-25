@@ -2,7 +2,7 @@
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.57.14",
+  "version": "1.57.15",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -98,5 +98,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cdaa0ccc79de317c35ef33b1b03d6d2ead2197480dfd11ba19dfa2b9cf5aebcc"
+  "docsHash": "sha256:ad8c7afaf8869f63310fa3db53f6f7e24fe558f8e3206f64b42cde44af7e9575"
 }

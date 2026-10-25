@@ -57,20 +57,35 @@ test('website-relative compute settings follow root and virtual-application depl
  const previous=globalThis.location;
  try{
   globalThis.location=new URL('https://goldenfu.cn/GOLDENLUCK/webcad/?document=fixture');
-  assert.equal(defaultServicesConfig().url,'https://goldenfu.cn/GOLDENLUCK/AI/WebCAD/WebCADCompute.ashx');
+  assert.equal(defaultServicesConfig().url,'https://goldenfu.cn/GOLDENLUCK/cadservices/api.ashx');
   assert.equal(normalizeServicesConfig({url:'/GOLDENLUCK/cadservices/api.ashx'}).url,'https://goldenfu.cn/GOLDENLUCK/cadservices/api.ashx');
-  assert.throws(()=>normalizeServicesConfig({url:'/GOLDENLUCK/cadservices/api.ashx',authMode:'siteSession'}),{code:'PARAM_SCHEMA_INVALID'});
+  assert.equal(normalizeServicesConfig({url:'/GOLDENLUCK/cadservices/api.ashx',authMode:'siteSession'}).authProfileId,'same-origin');
+  assert.equal(normalizeServicesConfig({url:'/GOLDENLUCK/AI/WebCAD/WebCADCompute.ashx',authMode:'siteSession'}).url,defaultServicesConfig().url);
+  assert.throws(()=>normalizeServicesConfig({url:'https://other.invalid/cadservices/api.ashx',authMode:'siteSession'}),{code:'PARAM_SCHEMA_INVALID'});
   assert.equal(normalizeServicesConfig({...defaultServicesConfig()}).authMode,'siteSession');
   globalThis.location=new URL('https://goldenfu.cn/webcad/');
-  assert.equal(defaultServicesConfig().url,'https://goldenfu.cn/AI/WebCAD/WebCADCompute.ashx');
-  globalThis.location=new URL('http://127.0.0.1:17674/');
-  assert.equal(defaultServicesConfig().url,'http://127.0.0.1/AI/WebCAD/WebCADCompute.ashx');
+  assert.equal(defaultServicesConfig().url,'https://goldenfu.cn/cadservices/api.ashx');
+  globalThis.location=new URL('http://localhost/webcad/');
+  assert.equal(defaultServicesConfig().url,'http://localhost/cadservices/api.ashx');
  }finally{if(previous===undefined)delete globalThis.location;else globalThis.location=previous;}
 });
 
 test('an empty IIS 404 is a computation path error, never a successful capability response',async()=>{
  const client=createServicesClient({config:{url:'http://localhost/cadservices/api.ashx'},credential:'test-only',fetchImpl:async()=>new Response('',{status:404})});
  await assert.rejects(client.capabilities(),error=>error.httpStatus===404&&error.code==='SERVICES_REQUEST_FAILED'&&error.message.includes('计算接口未找到'));
+});
+
+test('same-origin compute omits cookies and bearer while custom endpoints retain explicit authorization',async()=>{
+ const previous=globalThis.location;
+ try{
+  globalThis.location=new URL('https://goldenfu.cn/webcad/');globalThis.localStorage=memory();globalThis.sessionStorage=memory();
+  const calls=[];const fetchImpl=async(url,options)=>{calls.push({url,options});return Response.json({protocolVersion:'1.0',supportedClientProtocolRange:['1.0']});};
+  await createServicesClient({config:defaultServicesConfig(),fetchImpl}).capabilities();
+  assert.equal(new URL(calls[0].url).pathname,'/cadservices/api.ashx');
+  assert.equal(calls[0].options.credentials,'omit');assert.equal(calls[0].options.headers.Authorization,undefined);
+  await createServicesClient({config:{url:'https://compute.invalid/api.ashx'},credential:'explicit-test-only',fetchImpl}).capabilities();
+  assert.equal(calls[1].options.headers.Authorization,'Bearer explicit-test-only');assert.equal(calls[1].options.credentials,'omit');
+ }finally{if(previous===undefined)delete globalThis.location;else globalThis.location=previous;}
 });
 
 test('a custom compute authority preserves its port and cannot downgrade an HTTPS editor',()=>{

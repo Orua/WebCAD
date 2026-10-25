@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.57.14 · 操作目录 sha256:9ce927cc419fc3613a1a42c14b4a951c612b27ada80ed94e6664063aa9052adb
+API 1.57.15 · 操作目录 sha256:f9690279b2dc8672973cb40edd5a53c5b7bd64149419a04b06451f8a8599f74f
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -335,7 +335,7 @@ API 1.57.14 · 操作目录 sha256:9ce927cc419fc3613a1a42c14b4a951c612b27ada80ed
 - `configureAgentPanel` · page-method · configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。
 - `setAgentPanel` · page-method · setAgentPanel({context,visible:true|false})；true接入，false退出释放。或setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false,floatingPosition?:{xPx:80,yPx:80}}})；layout与visible分开调用。宽高1–4096像素，浮标坐标0–100000像素并夹限到画布内。
 - `markLocation` · page-method · markLocation({context,screen?:[u,v],active?:boolean})；screen与active互斥，screen是相对视口左上角的归一化0–1坐标；active:true/false启动/取消一次拾取；仅context读取active/last。
-- `getServices` · page-method · getServices()；正式入口默认跟随本站应用路径并使用网站登录；自定义地址支持本站相对路径或完整URL。配置存本地，专用授权仅存本标签会话。不会返回凭据。
+- `getServices` · page-method · getServices()；正式入口默认跟随本站应用路径直连/cadservices/api.ashx，同域计算无需登录、Cookie或签名。authMode的siteSession名称仅保留配置兼容；自定义跨域地址使用专用授权，仅存本标签会话。不会返回凭据。
 - `setServices` · page-method · setServices({context,url,authMode?:"siteSession"|"bearer",credential?,enabled?,computeMode?:"local"|"auto"|"serverPreferred",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。
 - `getServicesCapabilities` · page-method · getServicesCapabilities()；读取已配置服务。
 - `getServicesRouting` · page-method · getServicesRouting()；读取同一 ExecutionRouter 的最近决策。

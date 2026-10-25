@@ -5,9 +5,9 @@ function credentials(){try{return globalThis.sessionStorage;}catch{return null;}
 export function defaultServicesConfig(){
  const location=globalThis.location;
  if(!location||!['goldenfu.cn','localhost','127.0.0.1','10.121.11.8','10.121.11.223'].includes(location.hostname))return {enabled:false,url:''};
- const origin=location.hostname==='127.0.0.1'&&location.port==='17674'?'http://127.0.0.1':location.origin;
+ const origin=location.origin;
  const mount=location.pathname?.match(/^(.*)\/webcad(?:\/|$)/i)?.[1]??'';
- return {enabled:true,url:new URL(mount+'/AI/WebCAD/WebCADCompute.ashx',origin).href,authMode:'siteSession'};
+ return {enabled:true,url:new URL(mount+'/cadservices/api.ashx',origin).href,authMode:'siteSession'};
 }
 export function normalizeServicesConfig(input){
  if(!input||Object.keys(input).some(k=>!['version','enabled','url','authMode','computeMode','allowGeometryUploads','authProfileId','credential','localTimeoutMs','serverWaitMs'].includes(k)))throw serviceError('PARAM_SCHEMA_INVALID','计算设置字段无效');
@@ -23,8 +23,12 @@ export function normalizeServicesConfig(input){
  if(globalThis.location?.protocol==='https:'&&parsed.protocol==='http:')throw serviceError('PARAM_SCHEMA_INVALID','HTTPS页面不能直连HTTP计算端口，请使用HTTPS地址或本站转发入口');
  parsed.searchParams.delete('route');url=parsed.href;}
  if(enabled&&!url)throw serviceError('PARAM_SCHEMA_INVALID','启用 Services 须填写地址');
- if(authMode==='siteSession'&&url){const expected=defaultServicesConfig().url;if(url!==expected)throw serviceError('PARAM_SCHEMA_INVALID','网站登录授权仅限当前正式计算入口');}
- return {version:1,enabled,url,authMode,computeMode:'auto',localTimeoutMs,serverWaitMs,allowGeometryUploads:enabled,authProfileId:authMode==='siteSession'?'website-login':'dedicated-services'};
+ if(authMode==='siteSession'&&url){
+  const expected=defaultServicesConfig().url;
+  if(expected&&url===expected.replace('/cadservices/api.ashx','/AI/WebCAD/WebCADCompute.ashx'))url=expected;
+  if(url!==expected)throw serviceError('PARAM_SCHEMA_INVALID','免鉴权连接仅限当前同域计算入口');
+ }
+ return {version:1,enabled,url,authMode,computeMode:'auto',localTimeoutMs,serverWaitMs,allowGeometryUploads:enabled,authProfileId:authMode==='siteSession'?'same-origin':'dedicated-services'};
 }
 export function getServicesCredential(){const config=getServicesConfig();try{const saved=JSON.parse(credentials()?.getItem(AUTH)||'null');return saved?.url===config.url?saved.credential:'';}catch{return '';}}
 export function getServicesConfig(){
@@ -33,15 +37,15 @@ export function getServicesConfig(){
  let auth;try{auth=JSON.parse(credentials()?.getItem(AUTH)||'null');}catch{}
  // Known former deployment endpoints were saved per origin, but their bearer
  // authorization disappeared on every new tab. Restore them through the site's
- // signed-in entrance; keep custom endpoints, explicit off, timers and old data.
+ // same-origin entrance; keep custom endpoints, explicit off, timers and old data.
  let authorizationRestored=false;const defaults=defaultServicesConfig();
  if(config.enabled&&config.authMode==='bearer'&&!(auth?.url===config.url&&auth.credential)&&defaults.enabled){
   const previous=new URL(config.url);
   if(previous.pathname.toLowerCase()==='/cadservices/api.ashx'&&!previous.search&&!previous.port&&['goldenfu.cn','localhost','127.0.0.1','10.121.11.8','10.121.11.223'].includes(previous.hostname)){
-   config=normalizeServicesConfig({...config,url:defaults.url,authMode:'siteSession',authProfileId:'website-login'});authorizationRestored=true;
+   config=normalizeServicesConfig({...config,url:defaults.url,authMode:'siteSession',authProfileId:'same-origin'});authorizationRestored=true;
   }
  }
- return {...config,configured:!!(config.enabled&&config.url),hasCredential:!!(auth?.url===config.url&&auth.credential),authorizationRestored,migrationRequired:!saved&&!!storage().getItem(OLD),credentialStorage:config.authMode==='siteSession'?'website-login':'sessionStorage',storage:saved?'localStorage':'deployment-default'};
+ return {...config,configured:!!(config.enabled&&config.url),hasCredential:!!(auth?.url===config.url&&auth.credential),authorizationRestored,migrationRequired:!saved&&!!storage().getItem(OLD),credentialStorage:config.authMode==='siteSession'?'none':'sessionStorage',storage:saved?'localStorage':'deployment-default'};
 }
 export function saveServicesConfig(input){
  const previous=getServicesConfig(),value=normalizeServicesConfig({localTimeoutMs:previous.localTimeoutMs,serverWaitMs:previous.serverWaitMs,...input}),store=storage(),auth=credentials();

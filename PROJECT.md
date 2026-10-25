@@ -52,6 +52,8 @@
 
 ## 2. 产品形态与运行边界
 
+2026-10-26 计算与宿主解耦：Services 同域默认直连 `/cadservices/api.ashx`，不使用生产系统登录、Cookie、签名或 `Web.dll`；自定义跨域端保留专用授权。Agent 工作台桥接独立维护于 `host/Goldenluck.WebCADHost`，程序集与命名空间独立，使用已安装集成库提供账号权限，不引用 `Web.dll`、外部源码目录或 Services 认证。Services 的持久任务、幂等、取消、产物与几何校验继续保留。架构改动须完成本机真实计算和宿主恢复验收后才能部署同包到生产。
+
 - 静态前端可独立使用；可选受信 Services 同仓位于 services/WebCADServices，为转换和重型计算提供统一协议。2026-10-10 用户要求取代旧的纯本地排期，页面仍是唯一工程状态。前端构建通过 HTTPS 或 localhost 静态托管。
 - Replicad / OpenCascade WASM 在浏览器 Worker 内执行精确几何计算。
 - Three.js 负责显示，显示网格与精确 B-Rep 分离；STEP/BREP 导出来自精确内核。

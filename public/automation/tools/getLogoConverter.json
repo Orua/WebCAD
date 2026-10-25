@@ -2,7 +2,7 @@
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.57.14",
+  "version": "1.57.15",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -96,5 +96,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:6cdc3b62a99a6af72216a170cda7b254edaf5bc655488c3f1e112394f2afa409"
+  "docsHash": "sha256:cabe96330f146df9afe80c001e9209272a1ed839cfc0007fa5c7f2c7c352a510"
 }
