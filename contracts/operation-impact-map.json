@@ -1,4 +1,13 @@
 {
+  "qaProductionClosureDocs20261025": {
+    "localImpact": "Correct existing capacity/save documentation; keep geometry and UI behavior unchanged.",
+    "servicesImpact": "None: no Services or Native compute changes.",
+    "logoImpact": "None: no Logo operations changed.",
+    "contractImpact": "Page API 1.57.14; distinguish browser resource budgets, host attachment limits, v4 container/JSON budgets and legacy formats. No capacity widening in code.",
+    "documentImpact": "Default final geometry/object persistence has no recipe or timeline; current-session history remains independent. No save/export/reopen tests in this task.",
+    "cacheImpact": "Regenerate complete knowledge ZIP/index/routing/skills and all hashes together; retain user projects and settings.",
+    "requiredTests": ["Current docs against executing capacity constants", "Knowledge ZIP byte/member/hash consistency", "Production workflow acceptance recorded separately from builds and unit tests"]
+  },
   "qaDeliveryReliability20261025": {
     "localImpact": "Apply selection and temporary visibility before camera fit; compare actual batch object sets and disclose unverified framing/save state.",
     "servicesImpact": "None: geometry routing, server jobs, Native binaries and protocols unchanged.",

@@ -1,6 +1,6 @@
 # api.exact-source-assets
 
-STEP/STP/BREP/BRP 每源128MiB，通过files.register的真实二进制资源导入；UI打开与插入预览共用。原字节按SHA-256存于v4 ZIP资产，别名归一step/brep；导入当前曲面实体不会恢复来源软件的鼻眼等语义或特征配方。v4工程总512MiB、JSON元数据20MiB、2000特征；旧JSON/v3仍20MiB并继续可读。源在全部保留历史不再引用后才回收；撤销与冷开保存保留源。STEP/BREP导出也走二进制资源，不在Agent回执内回传base64。IGES及Logo转换预算不变，Services精确检查点仍独立20MiB。128MiB是输入预算而非全范围性能保证；真实内核失败/超时保留原工程。读取files.capabilities().typedByteBudgets并使用唯一idempotencyKey以便安全取回同次导入回执。
+STEP/STP/BREP/BRP 每源128MiB，通过files.register的真实二进制资源导入；UI打开与插入预览共用。原字节按SHA-256存于v4 ZIP资产，别名归一step/brep；导入当前曲面实体不会恢复来源软件的鼻眼等语义或特征配方。v4工程总512MiB、JSON元数据20MiB、2000特征；旧JSON/v3仍20MiB并继续可读。当前会话在全部保留状态都不再引用源资产后回收；默认保存仅保留最终对象必需的几何资产，不承诺保留导入原件、配方或时间线。STEP/BREP导出也走二进制资源，不在Agent回执内回传base64。IGES及Logo转换预算不变，Services精确检查点仍独立20MiB。128MiB是输入预算而非全范围性能保证；真实内核失败/超时保留原工程。读取files.capabilities().typedByteBudgets并使用唯一idempotencyKey以便安全取回同次导入回执。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none

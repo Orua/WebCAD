@@ -2,7 +2,7 @@
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.57.13",
+  "version": "1.57.14",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -80,5 +80,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fd48cc84f4bdc13bf2a8b99616281ecdf8bdcf487ac7478e03f374f37b7af95b"
+  "docsHash": "sha256:3ae38fa0d9b48794b46d186f30f17bccbcd9264391550c9b2b06d0edae51758c"
 }
