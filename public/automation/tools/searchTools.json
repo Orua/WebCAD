@@ -2,7 +2,7 @@
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.57.10",
+  "version": "1.57.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -81,5 +81,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7037ec564cae9119890de1d662dd9e80c8724130eea65bf56b273e7e1cf9917d"
+  "docsHash": "sha256:375e5d692bdaac219a18d8937bbf1f2496d34c131587d52852f1ec733663e4ef"
 }

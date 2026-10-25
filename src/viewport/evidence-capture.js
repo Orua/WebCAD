@@ -43,7 +43,9 @@ export function captureEvidence(viewport,opts){
   // No await and no setView: user camera, controls, selection and document are untouched.
   for(const [object]of hidden)object.visible=false;
   for(const [piece,,,geometry]of surfaces){piece.geometry=geometry;piece.visible=true;}
-  occlusion.value=0;renderer.autoClear=true;renderer.setRenderTarget(target);renderer.setViewport(0,0,size,size);renderer.setScissorTest(false);renderer.clear();renderer.render(scene,camera);
+  // setRenderTarget uses target.viewport in physical pixels. setViewport would
+  // multiply these dimensions by the user's device pixel ratio a second time.
+  occlusion.value=0;renderer.autoClear=true;renderer.setRenderTarget(target);renderer.setScissorTest(false);renderer.clear();renderer.render(scene,camera);
   const pixels=new Uint8Array(size*size*4);renderer.readRenderTargetPixels(target,0,0,size,size,pixels);
   const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;const context=canvas.getContext('2d'),image=context.createImageData(size,size);
   for(let y=0;y<size;y++)image.data.set(pixels.subarray((size-1-y)*size*4,(size-y)*size*4),y*size*4);

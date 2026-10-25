@@ -2,7 +2,7 @@
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.57.10",
+  "version": "1.57.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -98,5 +98,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:444ae8b7956d17f31d4ec29a9b803d2476d822145f369bf708fd166619f7bcca"
+  "docsHash": "sha256:70daf2de8a84b2bed584f628b45aa8528ed65ec6569171daff5f80772d3f3e6b"
 }
