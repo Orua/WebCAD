@@ -21,11 +21,12 @@ try{
  if($refs -contains 'Web' -or @($types|Where-Object {$_ -like 'Web.*'}).Count){throw 'Host must not reference Web.dll or define legacy Web namespace types.'}
 }finally{$pe.Dispose();$stream.Dispose()}
 foreach($file in Get-ChildItem -LiteralPath "$source/site" -Recurse -File){
+ if($file.Name -eq 'web.config'){continue} # Environment-owned; never ship over the site's configuration.
  $relative=$file.FullName.Substring([IO.Path]::GetFullPath("$source/site").TrimEnd('/','\').Length+1)
  $target=Join-Path $OutputDirectory $relative
  New-Item -ItemType Directory -Path (Split-Path $target) -Force|Out-Null
  Copy-Item -LiteralPath $file.FullName -Destination $target
 }
-$files=@(Get-ChildItem -LiteralPath $OutputDirectory -Recurse -File|Where-Object Name -ne 'host-manifest.json'|ForEach-Object{@{path=$_.FullName.Substring([IO.Path]::GetFullPath($OutputDirectory).TrimEnd('/','\').Length+1).Replace('\','/');sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant();bytes=$_.Length}})
+$files=@(Get-ChildItem -LiteralPath $OutputDirectory -Recurse -File|Where-Object {$_.Name -notin @('host-manifest.json','web.config')}|ForEach-Object{@{path=$_.FullName.Substring([IO.Path]::GetFullPath($OutputDirectory).TrimEnd('/','\').Length+1).Replace('\','/');sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant();bytes=$_.Length}})
 @{format='webcad-independent-agent-host-v1';sourceOwner='WebCAD/host/Goldenluck.WebCADHost';assembly='Goldenluck.WebCADHost';namespace='Goldenluck.WebCAD.Hosting';references=$refs;types=$types;files=$files}|ConvertTo-Json -Depth 5|Set-Content "$OutputDirectory/host-manifest.json" -Encoding utf8
 Get-FileHash -LiteralPath $dll -Algorithm SHA256
