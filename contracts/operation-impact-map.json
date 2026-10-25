@@ -1,4 +1,13 @@
 {
+  "qaHostBridgePackaging20261025": {
+    "localImpact": "Rebuild scoped host bridge from its existing handler source; reject duplicate WebCadHost/WebCadSettings in bridge metadata. No browser geometry change.",
+    "servicesImpact": "None: Services/Native compute binaries and jobs unchanged.",
+    "logoImpact": "None: Logo source and algorithms unchanged.",
+    "contractImpact": "None: same host routes, authorization and CSRF checks; remove duplicate assembly types causing production ProjectOpen handler CS0433 before request dispatch.",
+    "documentImpact": "Retain current page/document identity, geometry, original command receipts and task state; no save/export/reopen acceptance in this task.",
+    "cacheImpact": "Scoped WebCAD.NativeBridge.dll only, same package local/production; browser/knowledge release remains 1.57.14.",
+    "requiredTests": ["Compile against production reference assemblies and inspect defined types", "Original task terminal and lock readback before replacement", "Production handler returns project_open_not_found instead of compiler 500", "Production models and user-Agent-CAD workflow on original QA document"]
+  },
   "qaProductionClosureDocs20261025": {
     "localImpact": "Correct existing capacity/save documentation; keep geometry and UI behavior unchanged.",
     "servicesImpact": "None: no Services or Native compute changes.",
