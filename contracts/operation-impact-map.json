@@ -1,4 +1,13 @@
 {
+  "orthographicProjectedFit20261026": {
+    "localImpact": "Orthographic fit includes camera-projected box corners and viewport aspect, preserving the former scale when it already contains the object. Fix observed isometric cube clipping in production QA.",
+    "servicesImpact": "None: camera/frustum only; Gateway and Services jobs unchanged.",
+    "logoImpact": "None: no geometry or Logo worker changes.",
+    "contractImpact": "Page API1.57.16; same setView selection/projection/direction/fit arguments and UI action. No new operation or permission.",
+    "documentImpact": "View-only; geometry revision, body IDs/counts, bounds and volumes remain unchanged.",
+    "cacheImpact": "Rebuild one frontend and complete matching knowledge archive; existing host and backend DLLs remain the verified same binaries.",
+    "requiredTests": ["Projected-corner invariants reproduce old cube clipping and verify new containment", "Localhost cube isometric and ring/D-buckle top screenshots after one selection+fit call", "Production new host Agent one-call fit screenshot and unchanged geometry readback"]
+  },
   "sameOriginServicesAndHostIsolation20261026": {
     "localImpact": "Default Services connects directly to same-origin cadservices/api.ashx without cookies or client credentials; legacy website URL migrates. Standalone Agent host source/package lives in this repository.",
     "servicesImpact": "IIS same-origin requests use the existing internal job principal without website authentication. Cross-origin dedicated authorization, worker supervision, storage, job identities, input/result validation and cancellation remain enforced.",

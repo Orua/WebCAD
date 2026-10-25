@@ -2,7 +2,7 @@
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.57.15",
+  "version": "1.57.16",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -93,5 +93,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bd4c5c9b0bb358b629e65a9b4fa5d3c1a4938fd0d0db888d176c8f2ba3918d98"
+  "docsHash": "sha256:01d6f134ebc8ea1be8dfb0fa9a7c17734128320d5a128561add4b25afcd6a550"
 }

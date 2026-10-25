@@ -2,7 +2,7 @@
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.57.15",
+  "version": "1.57.16",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -277,5 +277,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:bc40d21ae0e64fbf0329da99b04738eb9888021a2116cea34a2ed3777abfffd4"
+  "docsHash": "sha256:328976c359dce60b1f1c99626438c37cf614a84927f15698c7056caea375f644"
 }

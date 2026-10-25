@@ -3,7 +3,7 @@
   "title": "材料密度与重量",
   "description": "设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。",
   "category": "command",
-  "version": "1.57.15",
+  "version": "1.57.16",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -72,5 +72,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:33b977f6a13a60f45cf455ee6bff986565cdb6d1d2cb98cd06ff610e723c8891"
+  "docsHash": "sha256:b3c9a0514e56f294c1872ad523ce5337f8fb06c171a1fab869e0bf3003b33279"
 }

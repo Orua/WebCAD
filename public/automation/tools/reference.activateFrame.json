@@ -3,7 +3,7 @@
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.57.15",
+  "version": "1.57.16",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -74,5 +74,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8277095019b4d4eca9f0623a0796da702d6eb6a2d58bb1f20ffa1b3d64bb8be6"
+  "docsHash": "sha256:732731cdc5928f629f134f6b976f7f429ac01db1bee0823d1917c83de7f7b67c"
 }
