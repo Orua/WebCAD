@@ -2,7 +2,7 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.57.8",
+  "version": "1.57.10",
   "contextPolicy": "revision",
   "inputSchema": {
     "type": "object",
@@ -571,6 +571,10 @@
     "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
+  "additionalDocs": [
+    "api.state-facts",
+    "api.evidence"
+  ],
   "selectionGuide": {
     "groupId": "dispatch",
     "groupTitle": "执行、批次与异步作业",
@@ -616,5 +620,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dde67f40a1c1b050b2d54b914d013d4b1cae5aa9c5bb604e5213372d591999fb"
+  "docsHash": "sha256:921538d57ae18a07f73647f2ebf7654c5efb96689bf3c9490d2c16ba924e30ae"
 }

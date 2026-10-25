@@ -2,7 +2,7 @@
   "id": "reliefDesignField",
   "title": "reliefDesignField",
   "category": "page-method",
-  "version": "1.57.8",
+  "version": "1.57.10",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_read",
@@ -241,5 +241,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:7ab61364d69288aa88db7ef9d7f5c96527ebee4ebfb153c51871031dec6000b6"
+  "docsHash": "sha256:9ffa6dfccf8e3ca35af5bb6dfc16f69a6d2ba66110fdbee2f4f625d722ebdf4e"
 }

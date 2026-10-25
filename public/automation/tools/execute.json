@@ -2,7 +2,7 @@
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.57.8",
+  "version": "1.57.10",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -36,6 +36,10 @@
     "maxBytes": 104857600,
     "preflightReserveBytes": 4096
   },
+  "additionalDocs": [
+    "api.state-facts",
+    "api.evidence"
+  ],
   "selectionGuide": {
     "groupId": "dispatch",
     "groupTitle": "执行、批次与异步作业",
@@ -81,5 +85,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:016dca1bd187f5ca612dec736041a463a66ac43be5557ccb7bc4e1458d48d156"
+  "docsHash": "sha256:87028e6c9c5620bb465271109d8f703d1a4c6c08b53605b53070397fcd202356"
 }

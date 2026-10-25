@@ -12,6 +12,7 @@ import {assertPatternExecution,PATTERN_OPERATIONS,uiPatternIntent} from './machi
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 import {archiveReceiptResult,unresolvedReceipt} from './receipt-archive.js';
 import {withErrorRecovery} from './error-recovery.js';
+import {commitFacts} from './commit-facts.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
@@ -84,6 +85,10 @@ export function createCommandService(adapter) {
       if(include.includes('features'))r.features=clone(s.features);
       if(include.includes('bodies'))r.bodies=clone(s.bodies);
       if(include.includes('bodiesLite'))r.bodies=(s.bodies||[]).map(({id,name,kind,bounds})=>({id,...(name?{name}:{}),...(kind?{kind}:{}),...(bounds?{bounds:clone(bounds)}:{})}));
+      r.coverageDetails={
+        bodies:Array.isArray(r.bodies)?{profile:include.includes('bodiesLite')?'lite':'full',complete:true,totalCount:s.bodies.length,returnedCount:r.bodies.length,fields:include.includes('bodiesLite')?['id','name','kind','bounds']:[...new Set(r.bodies.flatMap(body=>Object.keys(body)))]}:{complete:false,reason:'not_requested'},
+        features:Array.isArray(r.features)?{profile:'full',complete:true,totalCount:s.features.length,returnedCount:r.features.length,fields:[...new Set(r.features.flatMap(feature=>Object.keys(feature)))]}:{complete:false,reason:'not_requested'}
+      };
       if(include.includes('selection'))r.selection={bodyIds:clone(s.selectedIds),topology:clone(s.selectedTopology)};
       if(include.includes('references'))r.references=clone(s.referenceSystem);
       if(include.includes('capabilities'))r.capabilities={runtimeAvailability:s.kernelReady&&!s.busy&&!s.preview&&!s.previewComputing?'available':'not_ready',executeV2Operations:[...migratedOperationIds],geometryQuery:{faces:['plane'],edges:['line','circle'],loopRole:false,bounds:true,adjacentSurfaceTypes:true,boundaryLoopIndices:true,expectedCount:true},idempotencyGuarantee:'same document runtime instance; memory only; no cross-reload guarantee'};
@@ -216,6 +221,7 @@ export function createCommandService(adapter) {
         const replacements=after.features.filter(f=>createdFeatureIds.includes(f.id)&&createdBodyIds.includes(f.id)).flatMap(f=>(f.refs||[]).filter(id=>removedIds.has(id)).map(id=>({before:id,after:f.id})));
         const afterCtx=contextOf(after);result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,context:afterCtx,requestContext:{sessionId:afterCtx.sessionId,documentId:afterCtx.documentId,documentInstanceId:afterCtx.documentInstanceId,expectedRevision:after.revision},createdFeatureIds,createdBodyIds,replacements,validation:{geometry:'passed',...(args?.placement?{placement:'passed'}:{}),...(['hole','multiHole','multiPocket','tap','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
       }
+      if(result.status==='committed')result.deletedBodyIds=s.bodies.filter(body=>!after.bodies.some(next=>next.id===body.id)).map(body=>body.id);
       if(command==='editor_action')result.validation={geometry:result.status==='committed'&&['body.explode','body.align','history.restore','feature.compileServices'].includes(input.action)?'passed':'unchanged',editor:'passed'};
       if(command==='add_features')result.featurePlan={atomic:true,featureCount:args.features.length,featureIds:clone(args.featureIds)};
       if(command==='reference_action'){result.validation={geometry:'unchanged',reference:'passed'};result.referenceSystem=clone(after.referenceSystem);}
@@ -223,6 +229,7 @@ export function createCommandService(adapter) {
       if(args?.params&&op){const effective=after.previewDraft?.params&&input.action.startsWith('preview.')?after.previewDraft.params:after.features.find(feature=>feature.id===(args.featureId||result.createdFeatureIds?.[0]))?.params;result.numericInput={policy:'exact',requestedParams:clone(input.args?.params||input.args?.patch?.params||{}),effectiveParams:clone(effective||args.params),quantizationWarnings:[]};}
       if(args?.fileImport?.placement)result.resolvedPlacement={...describeResolvedPlacement('import',{},args.fileImport.placement),geometryValidated:false,referenceQuality:'provided-coordinates',binding:'snapshot'};
       if(input.action.startsWith('preview.')){if(['preview.start','preview.update'].includes(input.action))result={...result,status:after.preview?'previewing':'no_change',commitState:'not_committed',validation:{geometry:after.preview?'previewed':'cancelled',placement:args.placement||args.fileImport?.placement?'passed':'not_applicable'}};result.preview={active:!!after.preview,computing:!!after.previewComputing,...(after.previewInfo?{previewId:after.previewInfo.previewId,generation:after.previewInfo.generation,baseRevision:after.previewInfo.baseRevision}: {}),...(after.previewScope?{scope:clone(after.previewScope)}:{})};}
+      if(result.status==='committed')result.facts=commitFacts(s,after,result);
       receipts.set(key,{fingerprint,result:clone(result)});return result;
     }catch(e){
       const now=snapshot();let result=errorResult(e,requestId,now);
@@ -254,6 +261,10 @@ export function createCommandService(adapter) {
         const args=input.action==='import'?{...input.args,placement:newFeaturePlacement(input.args?.placement,before.referenceSystem,'import')}:input.args??{};
         const result=await adapter.execute(`file_${input.action}`,args,{...options,expectedRevision:before.revision});
         const after=snapshot(),readOnly=['save','export'].includes(input.action),receipt={status:readOnly?'read':'committed',requestId,context:contextOf(readOnly?before:after),...result};
+        if(input.action==='import'&&receipt.status==='committed'){
+          receipt.createdBodyIds=after.bodies.filter(body=>!before.bodies.some(previous=>previous.id===body.id)).map(body=>body.id);
+          receipt.validation={...receipt.validation,geometry:'passed'};receipt.facts=commitFacts(before,after,receipt);
+        }
         if(key)receipts.set(key,{fingerprint,result:clone(receipt)});return receipt;
       }catch(error){
         const after=snapshot();

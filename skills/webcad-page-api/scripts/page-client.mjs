@@ -7,6 +7,7 @@ for(const name of ['getModelLibrary','updateModelLibrary','resolveModelLibrary']
 for(const name of ['getServices','setServices','getServicesCapabilities','clearServicesCredential','getServicesJob','getServicesRequest','getServicesRouting','decideServicesWait','prepareReliefTopologyUpgrade','recoverServicesJob','cancelServicesJob','sampleReliefHeight','prepareReliefSculpt','inspectRound'])methods.add(name);
 for(const name of ['confirmWritten','reattach'])files.add(name);
 for(const name of ['getBatchReceipt','recoverKernel','sampleMeshRelief','waitFor','probeBlendRadius'])methods.add(name);
+methods.add('getEvidenceImage');
 export const PAGE_CLIENT_METHODS=Object.freeze([...methods]);
 export const PAGE_CLIENT_FILE_METHODS=Object.freeze([...files]);
 function failure(code,message,details={}){return Object.assign(new Error(message),{code,...details});}

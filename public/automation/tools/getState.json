@@ -2,7 +2,7 @@
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.57.8",
+  "version": "1.57.10",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -75,6 +75,11 @@
     "sinceRevision"
   ],
   "unknownFields": "rejected",
+  "additionalDocs": [
+    "api.state-facts",
+    "api.evidence"
+  ],
+  "docs": "api.state-facts",
   "selectionGuide": {
     "groupId": "discovery",
     "groupTitle": "连接、目录与文档",
@@ -128,5 +133,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7e0816c28a0203fab9c0ccd4e1a80ef2f6e3d44e450dc4dafe06f90ab7bf0751"
+  "docsHash": "sha256:e665c5a1f6d1e8d2f353c385becc76ca2163f9d47696a6fae19b7ade1a854eff"
 }
