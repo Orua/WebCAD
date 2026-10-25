@@ -2,7 +2,7 @@
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.57.10",
+  "version": "1.57.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -98,5 +98,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1b57b61e27420828840ce7c5cea52870768e6f4f4496a9e7126a145a34fd83e4"
+  "docsHash": "sha256:a9b65d4b31c359ee47dfea90147a7a5313ee2f4977c9bd25f3569d8283a3f11b"
 }

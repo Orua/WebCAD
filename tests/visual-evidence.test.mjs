@@ -68,6 +68,24 @@ test('offscreen render restores camera/renderer/helpers and retained patch visib
  // Camera movement and display-patch culling do not alter a fixed-view evidence key.
  v.modelContext=context;v.hidden=[];v.selected=[];v.clipPlanes=[];const first=evidenceDisplaySignature(v);v.camera.position.set(30,20,10);piece.visible=true;assert.equal(evidenceDisplaySignature(v),first);
 });
+test('DPR 1.25 keeps render-target viewport in physical pixels and restores the user viewport',()=>{
+ const originalDocument=globalThis.document,scene=new THREE.Scene(),modelRoot=new THREE.Group(),root=new THREE.Group(),geometry=new THREE.BoxGeometry(2,3,4),mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial());
+ scene.add(modelRoot);modelRoot.add(root);root.add(mesh);
+ const dpr=1.25,userCamera=new THREE.PerspectiveCamera(),cameraPosition=userCamera.position.clone(),userViewport=new THREE.Vector4(8,12,400,300),userScissor=new THREE.Vector4(4,8,200,100);
+ let target=null,logicalViewport=userViewport.clone(),physicalViewport=userViewport.clone().multiplyScalar(dpr),logicalScissor=userScissor.clone(),testScissor=true,renderCount=0;
+ const renderer={autoClear:false,outputColorSpace:THREE.SRGBColorSpace,getContext:()=>({isContextLost:()=>false}),getRenderTarget:()=>target,
+  setRenderTarget:value=>{target=value;physicalViewport=value?value.viewport.clone():logicalViewport.clone().multiplyScalar(dpr).floor();},
+  getViewport:value=>value.copy(logicalViewport),setViewport:(...values)=>{logicalViewport=values.length===1?values[0].clone():new THREE.Vector4(...values);physicalViewport=logicalViewport.clone().multiplyScalar(dpr).round();},
+  getScissor:value=>value.copy(logicalScissor),setScissor:value=>logicalScissor=value.clone(),getScissorTest:()=>testScissor,setScissorTest:value=>testScissor=value,clear(){},
+  render(actualScene,camera){assert.equal(actualScene,scene);assert.notEqual(camera,userCamera);assert.equal(camera.isOrthographicCamera,true);assert.deepEqual(physicalViewport.toArray(),[0,0,64,64]);renderCount++;},
+  readRenderTargetPixels(renderTarget,x,y,width,height,pixels){assert.equal(renderTarget,target);assert.deepEqual([x,y,width,height],[0,0,64,64]);assert.deepEqual(physicalViewport.toArray(),[0,0,width,height]);pixels.fill(255);}};
+ const viewport={scene,modelRoot,renderer,camera:userCamera,objects:new Map([['body',{root}]]),metals:{getOcclusionUniforms:()=>({webcadOcclusionEnabled:{value:1}})},clipPlanes:[]};
+ globalThis.document={createElement:()=>({getContext:()=>({createImageData:(w,h)=>({data:new Uint8ClampedArray(w*h*4)}),putImageData(){},fillRect(){},fillText(){}}),toDataURL:()=>shot().dataUrl})};
+ try{
+  for(const viewId of ['front','top']){const result=captureEvidence(viewport,{maxWidth:64,viewId,format:'png'});assert.equal(result.width,64);assert.equal(result.height,64);assert.equal(target,null);assert.deepEqual(logicalViewport.toArray(),userViewport.toArray());assert.deepEqual(physicalViewport.toArray(),userViewport.clone().multiplyScalar(dpr).toArray());assert.deepEqual(logicalScissor.toArray(),userScissor.toArray());assert.equal(testScissor,true);assert.equal(renderer.autoClear,false);assert.equal(mesh.geometry,geometry);assert.equal(viewport.camera,userCamera);assert.deepEqual(userCamera.position.toArray(),cameraPosition.toArray());}
+  assert.equal(renderCount,2);
+ }finally{if(originalDocument===undefined)delete globalThis.document;else globalThis.document=originalDocument;geometry.dispose();mesh.material.dispose();}
+});
 test('Page API preserves explicitly requested revision and publishes matching view-tool schema',async()=>{
  let calls=0;const state={context:{...context},summary:{busy:false,kernelReady:true},preview:{active:false,computing:false},bodies:[]};
  const api=createPageAPI({...fileHost,state:()=>state,evidenceSignature:()=>'',evidenceCapture:()=>{calls++;return shot();}});

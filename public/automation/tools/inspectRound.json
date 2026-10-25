@@ -2,7 +2,7 @@
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.57.10",
+  "version": "1.57.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -93,5 +93,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:8ba7a4ed3cdea344d30e49176d497f68aef473db9ae13549dceea440741700b9"
+  "docsHash": "sha256:6d1a097271681f65f87cbaf0cca299519a5cc730a6f350b556a2517b6bb7e9a9"
 }

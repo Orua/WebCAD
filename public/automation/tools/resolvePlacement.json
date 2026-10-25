@@ -2,7 +2,7 @@
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.57.10",
+  "version": "1.57.11",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -329,5 +329,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e06a26c95392ef1e3b2ce8d9e6eca934d95b98bb7eda86d672a41f14100b89cf"
+  "docsHash": "sha256:fd453ecb41ad5cb526b4dccd29702eb9726419ed5f3ea0b56a6d4d34f30458c8"
 }

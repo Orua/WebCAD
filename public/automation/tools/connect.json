@@ -2,7 +2,7 @@
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.57.10",
+  "version": "1.57.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -81,5 +81,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:04ade220e1d2f67187154879729c86fc827969839bc5c1ca93985779ee6314b2"
+  "docsHash": "sha256:14bd1645fc97dca5bf94b196387226a1c3d0c30d8b9338e7835284d00d706432"
 }
