@@ -4,6 +4,7 @@ import {MODELING_ROUTES} from './modeling-guidance.js';
 export const AGENT_KNOWLEDGE = Object.freeze({
   version:2,manifestUrl:'automation/agent-knowledge.json',archiveUrl:'automation/agent-bundle.zip',packageFormat:'zip',bundleRequired:true,routingUrl:'automation/agent-routing.json',
   modeling:{entryDocId:'api.modeling.start',guideDocId:'api.modeling.guide',diagnosisDocId:'api.modeling.problems.diagnosis',routePrefix:'modeling.',loading:'route -> one workflow/method -> selected branch complete cards; never bulk context'},
+  assemblyDocId:'api.modeling.methods.interlocked-assembly',
   policy:'required-on-first-handshake',cache:'source-base-url + catalogHash + docsHash',
   contextPolicy:'download-to-host-storage; load only selected routes, docs and complete cards',
   unavailableHostAction:'report-storage-or-download-limitation; never claim a local cache was created',
@@ -21,6 +22,7 @@ export const KNOWLEDGE_TOOL_SYNONYMS = Object.freeze({
   'reference.setBodyAnchor':['对象锚点','实体锚点'],
 });
 export const KNOWLEDGE_ROUTES = [
+  {id:'modeling.interlocked-assembly',title:'穿接装配与受拉贴合',keywords:['穿接','穿串','相扣','互扣','贴紧','贴合','悬空','拉紧','受拉','圆环','圆圈','扣','链','链节','链条','钥匙圈','匙圈','interlocked','taut','contact'],readFirst:'api.modeling.methods.interlocked-assembly',docs:['api.modeling.methods.interlocked-assembly','api.quick-chains'],tools:['template.oChain','template.twistedChain','template.groundChain','template.keyRing','transform','inspectFit'],note:'Require actual threading, inner-surface first contact under tension and non-penetration. Preserve separate parts and source geometry; no generic assembly solver is implied.'},
   {id:'error-recovery',title:'错误解释、可逆试算与安全恢复',keywords:['错误','失败','阻止','重试','撤销','替代','error','unknown','cancel','retry','recovery'],docs:['api.error-recovery','api.reliability','api.run','api.file-errors'],tools:['getState','getJob','getBatchReceipt','getServicesJob','getServicesRequest','getTool'],note:'Use error.recovery/userMessage; retain raw code/requestId for audit. Reconcile unknown before replay. Preview is conditional on unchanged intent, new mechanism and shared budget; never auto-retry, change dimensions, switch kernel or claim rollback without readback.'},
   {id:'modeling-pitfalls',title:'建模坐标、引用、未知结果与故障恢复',keywords:['错位','坐标','避让','centerMm','UUID','STALE_REFERENCE','UNKNOWN_OUTCOME','unknown','崩核','笔刷','stations','sections','绕序','watertight'],docs:['api.modeling-pitfalls','api.run','api.references'],tools:['getBatchReceipt','getState','recoverKernel','transform','ellipsoid','subdBody']},
   {id:'tool-selection',title:'相似工具比较与选择',keywords:['相似工具','工具区别','同名','近似名称','怎么选工具','tool selection','compare tools'],docs:['api.tool-selection','api.discovery'],tools:['searchTools','getTools'],note:'Use every candidate selectionGuide: compare input geometry, section/path, units, result and side effects; read exact cards without adding execution gates.'},

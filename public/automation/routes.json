@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.57.11",
-  "buildId": "a265a49925229ae01fdd30f8f30f20a3f9c5b182-src-df054bc32e7543c3-working",
-  "catalogHash": "sha256:190743e92b3b2ab7ae325de8a04ad47fd348415910a15d62d3a7282d627187ca",
-  "docsHash": "sha256:eabf154c08464dc964026adff22d2063f70867194e9ffae47a2aa6ad27061b80",
+  "pageApiVersion": "1.57.12",
+  "buildId": "740f991840b5d635083150c29459983d4c3d081a-src-7ba61a11c575bc7d-working",
+  "catalogHash": "sha256:9736a31055688c3776eb45b7c677e6f550c535c74c61ab0e872e7b4e25c8d9ce",
+  "docsHash": "sha256:85c1920d6f0ebfb7acda39151668c3dcfdbf30805db793f787fd0130674f37b4",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -976,7 +976,7 @@
         "preview.start"
       ],
       "method": "setView",
-      "usage": "实体→快捷模型：setView({context,workspace:\"library\"})。默认按类别和复杂度排序；钮链/磨链同向嵌接、O字链0/90度交替；链条使用sizeMode二选一输入linkCount或maxLengthMm，读bodies[].chainReport。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。"
+      "usage": "实体→快捷模型：setView({context,workspace:\"library\"})。默认按类别和复杂度排序；钮链/磨链同向嵌接、O字链0/90度交替，三种链均按内口受拉贴紧；链条使用sizeMode二选一输入linkCount或maxLengthMm，读bodies[].chainReport。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。"
     },
     "quickModelFavorites": {
       "tools": [

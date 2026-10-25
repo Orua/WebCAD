@@ -51,6 +51,10 @@ Follow the existing LogoVector deployment pattern: ASHX references compiled DLLs
 
 # WebCAD agent rules
 
+## 契约与总知识包同步（用户要求，2026-10-25）
+
+WebCAD 建模规则和技能通过牵手后的契约发现/下载注入，不写死在 Agent 程序中，不以预装技能为前提。修改契约、建模指导、路由或发布技能文本时，必须在同次交付运行 scripts/generate-page-docs.mjs（npm run build 已包含），同时更新完整 agent-bundle.zip、agent-knowledge.json、index.json、agent-routing.json、routes.json 及相关技能包；核对 docsHash、knowledgeVersion、ZIP 和包内逐文件 SHA-256。压缩包是发布产物，不提交到 Git。不得只改文本而保留旧总知识包。
+
 ## Local storage restriction (user instruction, 2026-10-09)
 
 F: contains necessary source, program/runtime files, Git metadata and lightweight entry/router files. Write all other transferable data directly to G:, including agent scratch scripts, downloads, CAD investigation data, exported models, screenshots, reports, notes, logs, caches and backups. New non-program work uses `G:/CAD-Workspace/WebCAD/`; existing migrated agent data stays under `G:/AgentStorage/F/Project/WebCAD/agent/` with original-path compatibility links. Transferable dependencies use G: with compatible configuration/junctions.

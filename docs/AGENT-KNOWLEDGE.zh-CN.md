@@ -65,3 +65,9 @@ const workflow = await client.readLocal({docIds:[selected.readFirst],maxChars:80
 ```
 
 运行知识不携带旧版工具卡、历史测试回执、来源审计大表或项目状态。工作流/方法/例题用于推理，不代表当前模型已验收；制造、切片、打印和仿真按实际能力交接。
+
+## 穿接装配与更新同步
+
+牵手返回 `onboarding.knowledge.assemblyDocId`；圆圈、圆环、扣、链及钥匙圈穿串任务经 `modeling.interlocked-assembly` 读取 `api.modeling.methods.interlocked-assembly`：实际穿接、沿受力方向首次内侧接触、无穿透、保持独立实体；松弛或指定间隙按用户显式要求。该章由当前 WebCAD 契约包注入，不写死 Agent 程序、不依赖预装技能。
+
+每次契约、技能或路由文本更新，同轮生成完整 `agent-bundle.zip` 和知识清单；发布门禁逐项比对当前文档/技能、ZIP大小/SHA-256和解压内容，拒绝旧包。压缩包随发布交付、不提交Git。

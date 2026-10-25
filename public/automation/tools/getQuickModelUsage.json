@@ -2,7 +2,7 @@
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.57.11",
+  "version": "1.57.12",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -83,5 +83,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9e88186eb665c91875c99ffd7b3803f590d5556a97919b4ca81dd826060007b0"
+  "docsHash": "sha256:f597ea3bb6f80c31d2fd86073e586fd06223dbc120f1f4aee5dc96595f5d89ff"
 }

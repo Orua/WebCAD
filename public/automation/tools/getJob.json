@@ -2,7 +2,7 @@
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.57.11",
+  "version": "1.57.12",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -80,5 +80,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4ecfe5e4957134a0c141c50331d30454e4ed481d52c256aa61f701fcb818fd03"
+  "docsHash": "sha256:b86a2f0217e478d9580d49c0ee7b775a3400328097dfe7675debafa0f2649a9a"
 }

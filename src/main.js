@@ -827,7 +827,8 @@ async function performAction(action,params={}){
   if(action==='explode')return runEditorAction('body.explode',{bodyId:selectedIds.length===1?selectedIds[0]:null});
   if(action==='new'){
     if(dirty&&!confirm('当前设计尚未另存。确定新建设计？（可以取消后先保存）'))return;
-    await rebuild(emptyDocument(),{fit:true,newInstance:true});selectedIds=[];dirty=false;refresh();return;
+    // A new project starts a separate history, just like the public file_new path.
+    await rebuild(emptyDocument(),{fit:true,newInstance:true,record:false});undoStack=[];redoStack=[];selectedIds=[];dirty=false;refresh();return;
   }
   if(action==='open'){
     const recent=await listRecentFiles(),choices=[...recent.map((item,index)=>({id:`recent-${index}`,label:`${item.name} · 最近打开`})),{id:'browse',label:'选择文件…'},{id:'cancel',label:'取消'}];

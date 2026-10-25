@@ -1,4 +1,4 @@
-import {CHAIN_SIZE_DEFAULTS,hasChainSize,chainLayout} from './chain-size.js';
+import {CHAIN_SIZE_DEFAULTS,CHAIN_CONTACT_TOLERANCE_MM,hasChainSize,chainLayout} from './chain-size.js';
 import source from './chain-source.js';
 import {sewFaces} from '../surface-repair.js';
 import {validMaterialSolid} from '../modeling/profiles/material-validation.js';
@@ -7,9 +7,9 @@ const n=(key,label,min=.01,max=500)=>({key,label,type:'number',min,max,step:.1,u
 const sizes=[{key:'sizeMode',label:'长度方式',type:'select',options:[{value:'count',label:'按节数'},{value:'length',label:'按总长'}]},{key:'linkCount',label:'链节数',type:'number',min:0,max:100,step:1,unit:'1'},n('maxLengthMm','总长上限',0,10000)];
 const common=[n('outerWidthMm','外宽 W'),n('outerLengthMm','外长 L'),n('wireDiameterMm','线径 d'),n('gapMm','接缝宽 g',0)];
 export const chainDefinitions={
- oChain:{label:'O字链',labelEn:'O chain link',description:'来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。',defaults:{outerWidthMm:7.2,outerLengthMm:9.2,wireDiameterMm:1.6,gapMm:.2,...CHAIN_SIZE_DEFAULTS},fields:[...common,...sizes]},
- twistedChain:{label:'钮链',labelEn:'Twisted chain link',description:'多节同向嵌接；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。',defaults:{outerWidthMm:11,outerLengthMm:15,wireDiameterMm:3,gapMm:0,...CHAIN_SIZE_DEFAULTS},fields:[...common,...sizes]},
- groundChain:{label:'磨链',labelEn:'Ground curb chain link',description:'多节同向嵌接，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。',defaults:{outerWidthMm:11,outerLengthMm:15,wireDiameterMm:3,gapMm:.1,groundThicknessMm:4.4,grindRadiusMm:.1,...CHAIN_SIZE_DEFAULTS},fields:[...common,n('groundThicknessMm','磨后总厚 T'),n('grindRadiusMm','磨边 R',0),...sizes]},
+ oChain:{label:'O字链',labelEn:'O chain link',description:'多节按内口受拉贴紧，保留独立链节。来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。',defaults:{outerWidthMm:7.2,outerLengthMm:9.2,wireDiameterMm:1.6,gapMm:.2,...CHAIN_SIZE_DEFAULTS},fields:[...common,...sizes]},
+ twistedChain:{label:'钮链',labelEn:'Twisted chain link',description:'多节同向嵌接并按内口受拉贴紧；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。',defaults:{outerWidthMm:11,outerLengthMm:15,wireDiameterMm:3,gapMm:0,...CHAIN_SIZE_DEFAULTS},fields:[...common,...sizes]},
+ groundChain:{label:'磨链',labelEn:'Ground curb chain link',description:'多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。',defaults:{outerWidthMm:11,outerLengthMm:15,wireDiameterMm:3,gapMm:.1,groundThicknessMm:4.4,grindRadiusMm:.1,...CHAIN_SIZE_DEFAULTS},fields:[...common,n('groundThicknessMm','磨后总厚 T'),n('grindRadiusMm','磨边 R',0),...sizes]},
 };
 function sourceSurface(net,p,cad,twistFactor){
  const oc=cad.getOC(),held=[],hold=x=>(held.push(x),x),nu=net.poles.length,nv=net.poles[0].length;
@@ -49,14 +49,41 @@ export function buildChainLink(params,cad,{twistFactor=1}={}){
  }finally{dispose(shape);held.reverse().forEach(dispose);}
 }
 
+const contactCache=new Map();
+function contactLayout(params,definition,layout,link,center,cad){
+ const key=JSON.stringify([params.kind,...definition.fields.map(f=>params[f.key]??definition.defaults[f.key]).slice(0,definition.fields.length-3),layout.twistFactor]);
+ let contact=contactCache.get(key);
+ if(!contact){
+  const first=link.clone().translate(0,0,-center),next=first.clone().rotate(layout.rollPatternDeg[1%layout.rollPatternDeg.length],[0,0,0],[0,1,0]);
+  let pitch=layout.pitchMm;
+  try{
+   // Translation by less than the exact surface distance cannot cross material.
+   // Advance along the tension axis from the certified interlocked placement.
+   // Stop on its first contact, retaining each original solid and its profile.
+   for(let i=0;i<64;i++){
+    const moved=next.clone().translate(0,pitch,0);let gap;
+    try{gap=cad.measureDistanceBetween(first,moved);}finally{dispose(moved);}
+    if(!Number.isFinite(gap)||gap<=0)throw Error('链条贴合距离计算无效');
+    if(gap<=CHAIN_CONTACT_TOLERANCE_MM){contact={pitchMm:pitch,gapMm:gap,initialValidation:layout.validation};break;}
+    pitch+=gap*.99;
+    if(pitch>=(params.outerLengthMm??definition.defaults.outerLengthMm))break;
+   }
+   if(!contact)throw Error('链条内口贴合未收敛，请调整单节比例');
+  }finally{dispose(first);dispose(next);}
+  if(contactCache.size>=100)contactCache.clear();contactCache.set(key,contact);
+ }
+ return chainLayout(params,definition,{contact});
+}
 // A saved pre-assembly recipe without size keys remains one original link.
 export function buildChain(params,cad){
- const definition=chainDefinitions[params.kind],legacy=!hasChainSize(params),layout=chainLayout(params,definition,{legacy});
+ const definition=chainDefinitions[params.kind],legacy=!hasChainSize(params);let layout=chainLayout(params,definition,{legacy});
  let link,result;const held=[];
  try{
   link=buildChainLink(params,cad,{twistFactor:layout.twistFactor});
   if(layout.linkCount===1){link.chainReport=layout;const complete=link;link=null;return complete;}
   const box=link.boundingBox;let center;try{center=params.kind==='groundChain'?(params.groundThicknessMm??definition.defaults.groundThicknessMm)/2:(box.bounds[0][2]+box.bounds[1][2])/2;}finally{dispose(box);}
+  layout=contactLayout(params,definition,layout,link,center,cad);
+  if(layout.linkCount===1){dispose(link);link=buildChainLink(params,cad);link.chainReport=layout;const complete=link;link=null;return complete;}
   for(let i=0;i<layout.linkCount;i++){
    let part=link.clone().translate(0,0,-center);const rotated=part.rotate(layout.rollPatternDeg[i%layout.rollPatternDeg.length],[0,0,0],[0,1,0]);dispose(part);part=rotated.translate(0,i*layout.pitchMm,0);dispose(rotated);held.push(part);
   }

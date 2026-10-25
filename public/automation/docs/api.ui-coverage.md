@@ -494,7 +494,7 @@
       "preview.start"
     ],
     "method": "setView",
-    "usage": "实体→快捷模型：setView({context,workspace:\"library\"})。默认按类别和复杂度排序；钮链/磨链同向嵌接、O字链0/90度交替；链条使用sizeMode二选一输入linkCount或maxLengthMm，读bodies[].chainReport。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。"
+    "usage": "实体→快捷模型：setView({context,workspace:\"library\"})。默认按类别和复杂度排序；钮链/磨链同向嵌接、O字链0/90度交替，三种链均按内口受拉贴紧；链条使用sizeMode二选一输入linkCount或maxLengthMm，读bodies[].chainReport。选择固定工具后只设置参数；getModelLibrary/resolveModelLibrary与UI共用参数定义。缩略图和尺寸图直接读取预制图片，实际模型通过preview.start或quickModel生成。"
   },
   "referenceExtrude": {
     "tools": [

@@ -538,7 +538,7 @@ export function createUI(root,callbacks={}) {
   mode.value=values.sizeMode;count.value=values.linkCount;length.value=values.maxLengthMm;count.step='1';
   const hint=element('p',{class:'property-callout wide',role:'status'});form.append(hint);
   const refresh=()=>{const byLength=mode.value==='length';count.closest('label').hidden=byLength;length.closest('label').hidden=!byLength;count.disabled=byLength;length.disabled=!byLength;count.required=!byLength;length.required=byLength;
-   try{const p={kind,...params,...Object.fromEntries(QUICK_MODELS[kind].fields.map(f=>[f.key,f.type==='number'?Number(form.elements.namedItem(f.key).value):form.elements.namedItem(f.key).value]))};const r=chainLayout(p,QUICK_MODELS[kind]);hint.textContent=`${r.linkCount} 节 · 实际总长 ${Number(r.lengthMm.toFixed(3))} mm · 节距 ${Number(r.pitchMm.toFixed(3))} mm；作为一个链条模型创建。`;}catch(e){hint.textContent=humanError(e);}
+   try{const p={kind,...params,...Object.fromEntries(QUICK_MODELS[kind].fields.map(f=>[f.key,f.type==='number'?Number(form.elements.namedItem(f.key).value):form.elements.namedItem(f.key).value]))};const r=chainLayout(p,QUICK_MODELS[kind]);hint.textContent=`预计最多 ${r.linkCount} 节；生成时按内口贴紧求实际节距和总长，以模型属性为准。作为一个链条模型创建。`;}catch(e){hint.textContent=humanError(e);}
   };
   mode.addEventListener('change',()=>{if(mode.value==='length'){count.value=0;if(!(Number(length.value)>0))length.value=50;}else{length.value=0;if(!(Number(count.value)>0))count.value=4;}refresh();});form.addEventListener('input',refresh);refresh();
  }

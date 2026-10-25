@@ -1,0 +1,25 @@
+// WebCAD-owned static knowledge: discovered after connect(), never an Agent program rule.
+export const INTERLOCKED_ASSEMBLY_GUIDANCE = `# 穿接装配与受拉贴合约束
+
+适用：圆环、圆圈、框扣、D扣、链节、链条、钥匙圈及其他互相穿串的独立配件。用户说“穿在一起、相扣、拉紧、内口贴紧、不要悬空”时，采用 **穿接装配（interlocked assembly）＋受拉贴合（taut contact / tangential contact）＋无穿透（non-penetration）**。仅“穿接成功”不足以满足贴紧。
+
+## 空间规则
+
+1. 从来源/需求确定实际相连的配件对、穿入哪个内口、穿过方向、局部姿态及受拉方向 n。圆心、包围盒、外轮廓彼此靠近不代表穿接。各扣的材料段应实际穿过对方内口，保持原有数量、轮廓、孔、截面、开口及活动自由度。沿用已确认方案；未指定受力方向时，从明确的链轴或连接关系推导，存在多解才询问。
+2. 对每个相邻连接对 i,j，以刚体变换 T_i、T_j 定位。保持穿接关系和不穿透，沿受拉方向移动到 **第一次内侧接触**：受力面是相邻扣在互扣区域彼此最近的内侧表面。不得因为下一处外侧碰到就把错误穿接位置当合格，不得穿过材料后在另一侧求接触。多节链逐对满足，不只检查首尾或第一对；非相邻件也不能相撞。
+3. 公式：g_ij = min ||T_i(p)-T_j(q)||，p、q 取当前真实连接内侧表面；0 ≤ g_ij ≤ ε_contact，且 Volume(T_i(S_i) ∩ T_j(S_j)) ≤ ε_volume。ε_contact 是声明的模型数值容差，非人为设计松隙。当前三种快捷链默认 ε_contact=0.00001 mm。受拉位置可表述为在保留穿接、无穿透条件下，沿 n 将相邻中心间距增至首次接触；禁止用固定百分比、中心重合或“有空隙所以安全”代替求解。
+4. 闭合、不相交的单环可用链接数 |Lk|=1 作普通单次穿接证据，但 g≈0 不证明穿接，链接数也不证明贴合。开口扣、双层钥匙圈和复杂多绕件不能套用单闭环链接数，应按真实开口/内口、穿入路径、截面及当前连接姿态确认。不要为得到闭环证据封住原开口，也不把静态最终装配误称为真实装入过程仿真。
+5. 保留独立实体，靠刚体定位贴紧。禁止布尔合并、拉伸/缩细线径、扩大内孔、改R角、加桥接材料来掩盖悬空或穿透。已有来源扭转形态与开口必须保留；快捷链已公开的成链形态参数按卡执行，不能擅自再改形。用户明确要求松弛、活动间隙、爆炸图或指定姿态时服从该要求，并记录为 slack/clearance/exploded，不能把它报告成受拉贴合。
+
+## 执行与验收
+
+先读相关模板或 transform/inspectFit 完整卡。三种链直接使用 template.oChain/template.twistedChain/template.groundChain，一个 Compound 内保持多个独立实体，chainReport 返回实际节距/总长及 validation.contactGapMm/contactToleranceMm。总长 L_total=L+(N-1)×pitch，使用几何求出的 pitch，按上限选最大完整节数；预览估算值不是最终尺寸。
+
+通用配件仅使用当前已有建模、变换和检查工具；本章是空间约束，**没有新增通用自动装配求解器或物理仿真接口**。inspectFit 对两个当前单一封闭实体报告 overlap/contactWithinTolerance/separated、真实最短距离及见证点；还须核对见证点确在预期内侧接触区域及穿接关系。Compound 内部链节不能凭空编造 bodyId 交给 inspectFit，应读取 chainReport；不支持的逐对读回明确标未验证。当前图形/截图只作姿态辅助，不能替代间隙、干涉和独立实体检查。
+
+交付至少说明：连接对、受力方向、保持的尺寸/数量、穿接证据、接触距离与容差、无穿透证据，以及尚未验证项。示例用户指令：“把这些圆环按受拉贴合约束逐对穿接，最近内口相切；保持独立实体和原尺寸，不穿透、不留悬空间隙。”
+
+## 注入与更新
+
+本规则由 WebCAD 牵手返回 onboarding.knowledge.assemblyDocId，并通过 agent-routing.json 命中本章；正文和工具卡来自当前 index.json/agent-bundle.zip。Agent 不需要预装或在程序中硬编码本规则。契约或技能正文每次变化必须同轮生成完整知识压缩包与清单，验证当前 docsHash、knowledgeVersion、ZIP SHA-256及包内文件哈希；旧缓存不匹配必须更新，不能只改网页文本。
+`;

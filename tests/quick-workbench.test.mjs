@@ -1,7 +1,35 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {recordTimeline,restoreTimeline,timelineList,validateTimeline} from '../src/document-timeline.js';
 import {planBodyAlignment} from '../src/modeling/interaction/align-bodies.js';
+
+test('UI new project clears populated document without recording cross-project history',async()=>{
+ const source=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
+ const action=source.slice(source.indexOf("  if(action==='new'){"),source.indexOf("  if(action==='open'){"));
+ const run=new Function('env',`return (async()=>{with(env){${action}}})()`);
+ const original={version:2,documentId:'old',features:[],imports:{},name:'old'};
+ const populated={...structuredClone(original),features:[{id:'ring',op:'torus',params:{},refs:[]}]};
+ recordTimeline(original,populated);validateTimeline(populated);
+ const fresh=()=>({version:2,documentId:crypto.randomUUID(),features:[],imports:{},name:'new'});
+ for(const mode of ['cancel','fail','create']){
+  const env={action:'new',dirty:true,undoStack:[original],redoStack:[original],selectedIds:['ring'],document:structuredClone(populated),confirm:()=>mode!=='cancel',emptyDocument:fresh,refresh:()=>{}};
+  env.rebuild=async(next,options)=>{
+   if(mode==='fail')throw new Error('kernel failure');
+   if(options.record!==false)recordTimeline(env.document,next);
+   validateTimeline(next);env.document=next;
+   assert.equal(options.newInstance,true);
+  };
+  if(mode==='fail')await assert.rejects(run(env),/kernel failure/);else await run(env);
+  if(mode==='create'){
+   assert.notEqual(env.document.documentId,populated.documentId);
+   assert.deepEqual(env.document.features,[]);assert.equal(env.document.timeline,undefined);
+   assert.deepEqual(env.undoStack,[]);assert.deepEqual(env.redoStack,[]);assert.deepEqual(env.selectedIds,[]);assert.equal(env.dirty,false);
+  }else{
+   assert.deepEqual(env.document,populated);assert.equal(env.undoStack.length,1);assert.equal(env.redoStack.length,1);assert.equal(env.dirty,true);
+  }
+ }
+});
 test('history stores source once and reconstructs geometry, name, visibility, appearance and anchor',()=>{
  const first={version:2,documentId:'doc',name:'start',features:[{id:'original',op:'import',params:{key:'source'},refs:[]}],imports:{source:{format:'brep',data:'x'.repeat(100000)}},hidden:[],referenceSystem:{workFrame:{origin:[0,0,0]}}};
  let doc=first,states=[structuredClone(first)];
