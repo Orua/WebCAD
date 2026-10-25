@@ -16,6 +16,14 @@ WebCAD 页面工具管理当前工程；普通宿主文件工具管理已授权�
 
 ## 当前状态、编辑与回执
 
+发现与恢复共用当前用户任务的预算：同一版本同一工具卡/章节最多完整读取一次，确有缺失或新上下文时可补读一次；无新增状态或机制证据的连续两轮查卡/重连即停止。最多60秒用于无提交进展的发现和恢复，不将正常执行中的原CAD作业计入。预算耗尽说明阻塞原因、原taskId/commandId/pageJobId、已提交/失败/未知/未尝试步骤及当前锁状态；等待用户或新的状态证据，不重置预算继续循环。状态询问与Stop优先处理；停止推理和取消CAD分别读回，不能宣称未知作业已终止。
+
+发送写入前按完整当前schema预检：run.context必须包含sessionId、documentId、documentInstanceId、expectedRevision，使用当前快照的requestContext或刚成功回执的nextContext，不能直接把只有revision的getState.context当作写入context。缺字段先修正，身份不符重新绑定，旧revision拒绝后只重新计划未执行步骤。不得自动填入新revision来掩盖旧请求。feature.edit的目标、版本、hash与参数均按当前完整卡核对。
+
+坐标明确时显式world/model-origin或已核对snapshot，transform的相对增量不等于目标bbox中心或最小角点。布尔前检查操作数bbox，完工用批次facts.activeCreatedBodyIds、removedSinceStartBodyIds及objectSet与计划结果集合对账；跨批次还需任务基线到当前的差集。额外准备件必须披露，不能静默删除用户模型或诊断证据。
+
+最终摘要只写回执已有事实：目标ID、已测bbox/体积/solid数（不是对象数）、geometry/render revision、对象差集、已完成/失败/未知/未执行、截图是否完整可见、保存状态。facts.delivery.framing=not_verified或仅rendered不等于目标完整可见；0个实际渲染三角形不能当交付成功。缺量测写未测，没有写盘回执不得写已保存。
+
 状态覆盖与提交事实统一见 api.state-facts：先用已覆盖的当前事实和nextContext继续，需要缺失精度/拓扑时再读。视觉证据见 api.evidence，可按指定版本复用隔离轴测/正交视图；图片、量测和写入授权分别核对，不默认每次调用截图。
 
 工程状态、实体/面/边身份不放入静态契约缓存。新鲜快照或刚成功回执的 requestContext/nextContext 可连续使用；人工编辑、长等待、身份变化或 REVISION_CONFLICT 后再读取当前状态并重新计划。按当前字段解释实体顺序和空间位置，名称不证明几何关系；目标不唯一时先明确指代。

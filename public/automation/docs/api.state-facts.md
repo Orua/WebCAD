@@ -1,8 +1,9 @@
 # api.state-facts
 
 状态复用先确认文档身份、revision、动态stateSeq、新鲜度和覆盖。getState.coverageDetails中bodies/features分别提供profile(lite/full)、complete、totalCount、returnedCount、fields；complete只表示该profile集合完整，lite只有id/name/kind/bounds，不能冒充full。缺字段、not_requested、截断和真实空集合必须区分；缺features不等于features=[]，缺覆盖时按需精准读取。getState({sinceRevision})的unchangedScope:geometry只代表几何修订未变，summary.busy/selection/referenceSystem/preview/hostControl等仍是本次返回的动态值。普通SSE心跳不是内容确认。提交和run回执facts是已发生事实：createdBodyIds/deletedBodyIds/affectedBodyIds/replacements、revisionBefore/After、context/nextContext、实体数量和实际bounds。bounds单位mm、世界坐标、quantizationMm:0.001、accuracy:not_asserted；不能代替孔径/壁厚/半径/体积量测。measurements.status:not_measured表示未量测，measured.items只引用实际成功检查结果，过大结果回读原步骤回执。facts.coverage/truncated明确摘要是否完整，完整原回执保持可读；普通摘要目标16KiB。部分提交保留committedStepIds、失败/未执行项和pendingJobs，unknown先查原command/job，不换key重做。已有事实足够时直接继续；需要精度/拓扑或缺失字段才补读。状态镜像修复失败与几何回执独立，图片ready也不授权写入。视图证据按api.evidence读取；历史/旧实例数据不能充当当前写权限。
+facts.activeCreatedBodyIds/removedSinceStartBodyIds比较本批起点与结束时的实际对象集合，objectSet提供前后对象数和scope=this_batch；按coverage判断是否截断。跨批次要另记任务基线。delivery区分geometry/render revision，framing=not_verified、saved=not_asserted不代表已验收或保存。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

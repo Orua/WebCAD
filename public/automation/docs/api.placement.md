@@ -20,7 +20,7 @@ frame 有且只有以下四种形状：
 变换有两条独立契约：省略 placement 的普通世界变换用 params:{x,y,z,rx,ry,rz,scale}；显式 placement 则使用 mode:'translate' 配 delta、mode:'rotate' 配 pivot/axisVector/angleDeg，或当前 transform 卡的其他 mode，不能混用旧 x/y/z 和 mode。变换后引用 createdBodyIds/replacements 中的新 ID；run 后续步骤用 $ref。
 
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

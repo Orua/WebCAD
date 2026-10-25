@@ -82,9 +82,12 @@ export function createPageAPI(host){
     const s=current();
     if(requiredContext){
       const c=input.context;
-      if(!c||Object.keys(c).some(k=>!['sessionId','documentId','documentInstanceId','expectedRevision'].includes(k)))fail('PARAM_SCHEMA_INVALID','Full context is required: pass api.getState().context');
+      if(!c||Object.keys(c).some(k=>!['sessionId','documentId','documentInstanceId','expectedRevision'].includes(k)))fail('PARAM_SCHEMA_INVALID','Use api.createRequestContext() or the last successful requestContext/nextContext for writes.','context');
       for(const key of ['sessionId','documentId','documentInstanceId'])if(c[key]!==s.context[key])fail('INSTANCE_MISMATCH',`Stale ${key}`);
-      if(requiredContext!=='identity'&&requestPolicies.get(input)!=='identity'&&c.expectedRevision!==s.context.revision)fail('REVISION_CONFLICT','Read current state and replan');
+      if(requiredContext!=='identity'&&requestPolicies.get(input)!=='identity'){
+        if(!Number.isSafeInteger(c.expectedRevision)||c.expectedRevision<0)fail('PARAM_SCHEMA_INVALID','expectedRevision required; use api.createRequestContext().','context.expectedRevision');
+        if(c.expectedRevision!==s.context.revision)fail('REVISION_CONFLICT','Read current state and replan');
+      }
     }
     if(s.summary.busy||!s.summary.kernelReady||s.preview.active||s.preview.computing)fail('CAPABILITY_UNAVAILABLE','Finish computation/preview before this request');
     return s;

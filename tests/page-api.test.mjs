@@ -7,6 +7,11 @@ import {prepareAnalyticProfileEdit} from '../src/profile-editing.js';
 import {validateSchema} from '../src/contracts/operation-schema.js';
 
 const context = () => ({ sessionId: 'page-1', documentId: 'doc-1', documentInstanceId: 'instance-1', expectedRevision: 7 });
+test('revision-protected writes reject a missing expectedRevision with a field path before execution',async()=>{
+ const {api,calls}=fixture(),{expectedRevision,...identity}=context();
+ const result=await api.execute({context:identity,idempotencyKey:'qa-missing-revision',action:'history.undo',args:{}});
+ assert.equal(result.status,'failed');assert.equal(result.commitState,'not_committed');assert.equal(result.error.code,'PARAM_SCHEMA_INVALID');assert.equal(result.error.path,'context.expectedRevision');assert.equal(calls.execute,0);
+});
 test('getState publishes strict argument schema matching the existing object-input boundary',()=>{
  const card=getTool({id:'getState'}),schema=card.inputSchema,{api}=fixture();
  assert.equal(card.contextPolicy,'none');assert.equal(schema.additionalProperties,false);

@@ -1216,7 +1216,31 @@ const pageAPI=createPageAPI({
   display:()=>viewport.displayState(),frame:()=>{flushDisplayBatch();if(lastWarnings.some(w=>w.code==='DISPLAY_FAILED'))throw Object.assign(new Error('Display failed; call redraw'),{code:'DISPLAY_FAILED'});viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});return viewport.frame();},capture:(opts)=>viewport.screenshot(opts),
   evidenceSignature:()=>{flushDisplayBatch();if(lastWarnings.some(w=>w.code==='DISPLAY_FAILED'))throw Object.assign(Error('Display failed; call redraw.'),{code:'DISPLAY_FAILED'});viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});return viewport.evidenceSignature();},
   evidenceCapture:opts=>viewport.evidenceCapture(opts),
-  view:async input=>{flushDisplayBatch();ui.setWorkspaceLayout(input);viewport.setViewInteraction(input.interactionPhase??'end');if(input.anchorVisible!==undefined)viewport.setAnchorVisible(input.anchorVisible);if(input.panels)ui.setPanels(input.panels);if(input.temporaryDisplay)viewport.setTemporaryDisplay(input.temporaryDisplay);if(input.display)viewport.setDisplay(input.display);if(input.grid!==undefined)viewport.grid.visible=input.grid;if(input.snap!==undefined)viewport.snapEnabled=input.snap;if(input.gizmo){if(input.gizmo!=='off'){viewport.setAnchorDrag(false);viewport.setSelectionMode('body');selectedTopology=null;}viewport.setGizmo(input.gizmo);}if(input.selectionMode){if(input.selectionMode!=='body')viewport.setGizmo('off');viewport.setSelectionMode(input.selectionMode);selectedTopology=null;}if(input.language){setLanguage(input.language);viewport.updateLanguage();ui.update({language:input.language});}if(input.camera)viewport.setCamera(input.camera);if(input.section)viewport.setSection(input.section);if(input.projection)viewport.setProjection(input.projection);if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);if(input.fit)viewport.fit();if(input.selectedIds){if(JSON.stringify(input.selectedIds)!==JSON.stringify(selectedIds))ui.discardForSelection();selectedIds=[...input.selectedIds];selectedTopology=null;viewport.setSelection(selectedIds);}if(input.display!==undefined)clearSelection();viewport.setSelection(selectedIds,selectedTopology);refresh();await viewport.frame();},
+  view:async input=>{
+    flushDisplayBatch();ui.setWorkspaceLayout(input);viewport.setViewInteraction(input.interactionPhase??'end');
+    if(input.anchorVisible!==undefined)viewport.setAnchorVisible(input.anchorVisible);
+    if(input.panels)ui.setPanels(input.panels);
+    if(input.display){viewport.setDisplay(input.display);if(input.selectedIds===undefined)clearSelection();}
+    if(input.selectedIds!==undefined){
+      if(JSON.stringify(input.selectedIds)!==JSON.stringify(selectedIds))ui.discardForSelection();
+      selectedIds=[...input.selectedIds];selectedTopology=null;
+    }
+    // Selection and visibility must be final before projection/view/fit read bounds.
+    viewport.setSelection(selectedIds,selectedTopology);
+    if(input.temporaryDisplay)viewport.setTemporaryDisplay(input.temporaryDisplay);
+    if(input.grid!==undefined)viewport.grid.visible=input.grid;
+    if(input.snap!==undefined)viewport.snapEnabled=input.snap;
+    if(input.gizmo){if(input.gizmo!=='off'){viewport.setAnchorDrag(false);viewport.setSelectionMode('body');selectedTopology=null;}viewport.setGizmo(input.gizmo);}
+    if(input.selectionMode){if(input.selectionMode!=='body')viewport.setGizmo('off');viewport.setSelectionMode(input.selectionMode);selectedTopology=null;}
+    if(input.language){setLanguage(input.language);viewport.updateLanguage();ui.update({language:input.language});}
+    // Preserve camera -> projection -> direction -> fit precedence.
+    if(input.camera)viewport.setCamera(input.camera);
+    if(input.section)viewport.setSection(input.section);
+    if(input.projection)viewport.setProjection(input.projection);
+    if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);
+    if(input.fit)viewport.fit();
+    viewport.setSelection(selectedIds,selectedTopology);refresh();await viewport.frame();
+  },
   redraw:async()=>{flushDisplayBatch();viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();lastWarnings=lastWarnings.filter(w=>w.code!=='DISPLAY_FAILED');},
 });
 async function deliverLocationMarker(hit){

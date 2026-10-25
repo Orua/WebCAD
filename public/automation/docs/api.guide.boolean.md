@@ -6,7 +6,7 @@
 按返回的新实体与 replacements 更新引用；不要继续使用已被替换的实体/边编号。核对被切除/保留区域、孔、连接和对象数。
 没有相交、相切退化、无效实体和结果未知是不同问题。若未提交，可针对明确原因修正来源；partial 保留成功部分；unknown 查原回执，不重复切削，不重建全部。相关 api.run。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

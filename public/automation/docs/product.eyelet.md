@@ -6,7 +6,7 @@
 方向：薄壁翻边两件先读template.twoPieceEyelet；圆/圆角方形恒厚面框、恒壁颈口及对称柱/直孔先读template.frameEyelet和api.quick-installation。椭圆、锥口、自由饰面和变壁厚保留原剖面路线。翻边、脚仔、螺钉固定分别处理，直孔不能冒充螺纹或锥孔。
 这是结构方向筛选，未证明尺寸、有效版本、3D或产品覆盖。工具能力以当前完整卡为准。
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

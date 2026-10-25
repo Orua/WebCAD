@@ -35,7 +35,7 @@ import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-in
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
 import {LOGO_RASTER_SCHEMA} from './logo-raster-options.js';
 import {ERROR_RECOVERY_VERSION,errorRecoveryCatalogDoc,errorRecovery} from './error-recovery.js';
-const PAGE_DOC_VERSION = '1.57.12';
+const PAGE_DOC_VERSION = '1.57.13';
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
     entities:[{id:'rectangle-1',type:'rectangle',originMm:[0,0],widthMm:40,heightMm:30}],
@@ -192,7 +192,7 @@ thread refs=[单一实体]，当前圆柱 faceId、kind=external/internal、pitc
   'api.file-errors': `页面建模、测量、视图与截图方法的失败通常返回 {status:"failed",commitState:"not_committed",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。普通 fillet/chamfer 失败的 error.report 包含 operation/stage/attemptCount/elapsedMs、confirmedFailedEdgeIds 与 candidateEdgeIds、supportGeometry；仅 confirmedFailedEdgeIds 是内核确认，候选不能当作确认原因。默认只尝试请求参数一次，不自动扫描或应用较小 R；stage=selection 时 attemptCount=0。报告过大时显式返回 truncated/omittedPaths 摘要。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入资源、导入和输出按扩展名与实际内容双重校验：STEP/STP/BREP/BRP/STL 128MiB、mesh384MiB、v4工程512MiB；普通资源与旧JSON/v3工程20MiB。最多32资源、合计512MiB、30分钟有效。v4把完整源资产独立保存，JSON元数据仍20MiB、最多2000个历史特征。2000 是建模特征数，不是撤销步数。新增、预览、导入、粘贴、批量对齐和拆散均受限；批量按实际新增特征数计数，编辑或删除仍可使用。计算前在无 timeline 的工程大小上预留 4 KiB，提交前按含锚点和裁剪后历史的完整文件再次校验。超限返回 SIZE_LIMIT，已运行的内核恢复原工程，revision、撤销/重做和当前工程不提交变化；不要重复重试，应减少特征或拆分工程。读取 files.capabilities() 获得当前实际上限。`,
 });
 const LEGACY_READABLE = new Set(['coordinates', 'errors', 'api.query-geometry']);
-const ALIASES = Object.freeze({ 'webcad://docs/start': 'start', 'webcad://docs/coordinates': 'coordinates',
+const ALIASES = Object.freeze({ 'api.execute-v2':'api.execute', 'webcad://docs/api.execute-v2':'api.execute', 'webcad://docs/start': 'start', 'webcad://docs/coordinates': 'coordinates',
   'webcad://docs/api.logo': 'api.logo',
   'webcad://docs/errors': 'errors', 'webcad://docs/api.execute': 'api.execute',
   'webcad://docs/api.named-parameters': 'api.named-parameters',
@@ -702,7 +702,9 @@ export function readDocs(input) {
     // the full method context table to each small on-demand chapter.
     if (Object.hasOwn(MODELING_DOCS, id)) return page(PAGE_DOCS[id], PAGE_DOC_VERSION);
     const policies=[...PAGE_METHODS,...FILE_METHODS.map(name=>'files.'+name)].map(name=>`${name}: contextPolicy=${contextPolicy(name)}`).join('\n');
-    return page(PAGE_DOCS[id]+'\n\nContext policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.\n'+policies, PAGE_DOC_VERSION);
+    const viewOrder=id==='api.views'?'\n同次请求先应用display、selectedIds和temporaryDisplay，再按camera→projection→direction→fit顺序取景；后项优先。display未带selectedIds仍沿用清空选择的旧行为，显式selectedIds（含空数组）优先。selectedOnly空选择显示空场景，fit使用默认空场景范围；不改变几何revision。':'';
+    const facts=id==='api.state-facts'?'\nfacts.activeCreatedBodyIds/removedSinceStartBodyIds比较本批起点与结束时的实际对象集合，objectSet提供前后对象数和scope=this_batch；按coverage判断是否截断。跨批次要另记任务基线。delivery区分geometry/render revision，framing=not_verified、saved=not_asserted不代表已验收或保存。':'';
+    return page(PAGE_DOCS[id]+viewOrder+facts+'\n\nContext policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.\n'+policies, PAGE_DOC_VERSION);
   }
   if (LEGACY_READABLE.has(id)) {
     const { knownHash, ...request } = input;

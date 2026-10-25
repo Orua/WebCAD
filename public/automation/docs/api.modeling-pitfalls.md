@@ -48,7 +48,7 @@ bodies[].displayReport.watertight/boundaryEdges 是显示三角网格在焊接�
 导出是用户显式动作，生成字节/资源不等于下载落盘。普通建模不附带导出，Agent 不用模糊按钮文字猜 STP；用 files.export 的明确格式契约。额外确认不是所有导出的必要步骤。
 
 
-Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = full context and current expectedRevision. Full context: pass api.getState().context.
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

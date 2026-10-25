@@ -821,7 +821,7 @@ await a.run({
 });
 ```
 
-最大 20 步、3 MiB、JSON 深度 32。`add` 自动取得当前工具版本/hash，参数和引用仍按工具卡填写；不会把 advisory 卡升级成严格契约。批次自动推进本批回执中的 revision，遇外部修改即停止。
+最大40步、3 MiB、JSON深度32，以当前工具卡上限为准。`context` 使用 `createRequestContext()` 或刚成功回执的 `requestContext/nextContext`，须含 `expectedRevision`；不要直接传只有 `revision` 的 `getState().context`。`add` 自动取得当前工具版本/hash，参数和引用仍按工具卡填写；不会把 advisory 卡升级成严格契约。批次自动推进本批回执中的 revision，遇外部修改即停止。
 
 `completed` 表示步骤已完成；`displayMatchesContext` 才表示回执时的画面对应当前模型版本。需要可见结果时加入 `setView` 或 `redraw` 步骤，并检查该字段；画面呈现可能晚于几何提交。
 
@@ -945,7 +945,7 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 
 `save`/`export` 返回 `status: 'generated'` 的资源描述；`read({resourceId,as:'blob'|'bytes'})` 返回实际 Blob 或 `Uint8Array`。`download({resourceId})` 仅返回 `download_initiated`；`write({resourceId,handle})` 在已授权的 File System Access 句柄写入、关闭并校验回读大小和 SHA-256 后返回 `write_verified`。保存旧快照时若已有新 revision，dirty 仍为真。`release({resourceId})` 释放资源；已经启动的下载 Object URL 由定时器回收，不因 release 立即撤销。文件选择或授权可能需要真实用户操作，页面 API 不会伪造授权点击。跨插件 JSON 边界不能假设 Blob 会无损传递；客户端不能传真实字节时，可由用户在 WebCAD 页面选择文件。每个资源上限 20 MiB，最多 32 个、合计 64 MiB，有效期 30 分钟。
 
-原生 `.webcad` 最多 2000 个建模历史特征，完整紧凑 UTF-8 JSON 最多 20 MiB，包含保留状态历史、锚点和 base64 导入源。2000 不是撤销步数；对齐/拆散/粘贴按实际新增的特征数计。新增、预览、导入及批量操作在计算前检查容量（不计可裁剪的 timeline，预留 4 KiB），提交前在锚点同步和历史裁剪之后检查完整大小；超限返回 `SIZE_LIMIT`，恢复原 Worker 工程并保留原 revision 和撤销/重做。编辑、删除和取消预览仍可使用。工具卡 `documentLimits` 提供限额；收到超限不要重复提交，应减少特征或拆分工程，不能只看原始导入文件大小。
+运行工程最多2000个建模特征；旧JSON格式20 MiB、v4容器512 MiB且JSON元数据20 MiB。默认保存最终精确BRep或完整网格及对象状态，不保存配方和撤销时间线；旧工程继续可读。会话撤销最多20次，时间线最多20状态/512 KiB。2000不是撤销步数。新增、预览、导入及批量操作计算前预检容量、提交前检查完整大小；超限返回 `SIZE_LIMIT` 并保留原工程、revision和撤销栈。具体按工具卡 `documentLimits` 与文件分类限额，不以原始导入文件大小代替最终容量。
 
 静态版不含原有本机 IGES 转换器，也不含 DWG/DXF/矢量 PDF/AI 的服务端转换器。目录中相应卡片标为 `unavailable`，执行应返回 `CAPABILITY_UNAVAILABLE`。可先在现有 CAD 工具中离线转 STEP；这不算 WebCAD 的原生 IGES 支持。
 

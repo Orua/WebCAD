@@ -2,7 +2,7 @@
   "id": "getMaterials",
   "title": "getMaterials",
   "category": "page-method",
-  "version": "1.57.12",
+  "version": "1.57.13",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -50,5 +50,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5ec4895d7cc3a90f20852ec5ee6822e35a5d7a26e3ddaf526a50e62e932d45b3"
+  "docsHash": "sha256:867f6716a30d4595320eb7fc79a9e46d4e9ac2bec2bfcc375b666ee279fc87a5"
 }

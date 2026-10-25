@@ -1,4 +1,13 @@
 {
+  "qaDeliveryReliability20261025": {
+    "localImpact": "Apply selection and temporary visibility before camera fit; compare actual batch object sets and disclose unverified framing/save state.",
+    "servicesImpact": "None: geometry routing, server jobs, Native binaries and protocols unchanged.",
+    "logoImpact": "None: Logo workers and source geometry unchanged.",
+    "contractImpact": "Page API 1.57.13; correct write-context guidance, bounded discovery/recovery and additive batch facts with explicit coverage. Preserve camera/projection/direction/fit precedence.",
+    "documentImpact": "View changes do not change geometry revision; no automatic cleanup or replay. Align final-state save and 20-step session history documentation.",
+    "cacheImpact": "Regenerate complete agent ZIP, index, routes, knowledge version and all member hashes together. Preserve user data and cookies.",
+    "requiredTests": ["Bidirectional ring/D-buckle selectedOnly fit in localhost browser", "Batch actual set delta, partial commits, idempotency and stale revision", "Host recovery stops at budget and authentication boundary", "Complete knowledge ZIP verification and release endpoint identity"]
+  },
   "chainTautContact20261025": {
       "localImpact": "All three quick chains advance rigid links from certified interlocked placement to first inner contact, exact BRep gap <=0.00001 mm; recompute count and length from resolved pitch. Preserve shapes, independent solids and legacy single links.",
       "servicesImpact": "None: chain quick models remain fixed local WASM; no Services/Native binary or protocol changes.",
