@@ -18,9 +18,9 @@ export function normalizeChainSize(params,{creation=true}={}){
  if(!(typeof params.maxLengthMm==='number'&&Number.isFinite(params.maxLengthMm)&&params.maxLengthMm>0&&params.maxLengthMm<=10000))fail('总长须在0–10000 mm之间');
  return {...params,sizeMode:mode,linkCount:0,maxLengthMm:params.maxLengthMm};
 }
-export function chainLayout(params,definition,{legacy=false}={}){
+export function chainLayout(params,definition,{legacy=false,contact}={}){
  const p={...definition.defaults,...normalizeChainSize(params,{creation:!legacy})},l=p.outerLengthMm,d=p.wireDiameterMm;
- const pitch=params.kind==='oChain'?l-2*d-.2:l*.56;
+ const pitch=contact?.pitchMm??(params.kind==='oChain'?l-2*d-.2:l*.56);
  if(!(Number.isFinite(pitch)&&pitch>0))fail('单节尺寸不能形成有效节距');
  let count=p.linkCount;
  if(p.sizeMode==='length'){
@@ -31,8 +31,9 @@ export function chainLayout(params,definition,{legacy=false}={}){
  }
  const lengthMm=l+(count-1)*pitch;
  if(count>1&&!(p.outerWidthMm>3*d+.2&&pitch>l/2))fail('多节链要求外宽>3×线径+0.2，节距大于半节外长，避免相邻或隔节碰撞');
- const rollStepDeg=params.kind==='oChain'?90:0,twistFactor=params.kind==='oChain'||count===1?1:1.6,validation=count>1?chainClearance(params.kind,p.outerWidthMm,l,d,pitch,rollStepDeg,twistFactor):null;
- if(validation&&(!(validation.clearanceLowerBoundMm>0)||Math.abs(Math.abs(validation.linkingNumber)-1)>.05))fail('这些单节比例不能安全穿接，请调整外宽、外长或线径');
- return {sizeMode:p.sizeMode,linkCount:count,pitchMm:pitch,lengthMm,maxLengthMm:p.sizeMode==='length'?p.maxLengthMm:null,rollStepDeg,rollPatternDeg:params.kind==='oChain'?[0,90]:[0],twistFactor,layoutVersion:'nested-curb-1',assembly:'one-compound-independent-interlocked-links',lengthAxis:'local +Y',legacySingleLink:legacy,...(validation?{validation}: {})};
+ const rollStepDeg=params.kind==='oChain'?90:0,twistFactor=params.kind==='oChain'||count===1?1:1.6,validation=count>1?(contact?.initialValidation??chainClearance(params.kind,p.outerWidthMm,l,d,pitch,rollStepDeg,twistFactor)):null;
+ if(validation&&((!contact&&!(validation.clearanceLowerBoundMm>0))||Math.abs(Math.abs(validation.linkingNumber)-1)>.05))fail('这些单节比例不能安全穿接，请调整外宽、外长或线径');
+ return {sizeMode:p.sizeMode,linkCount:count,pitchMm:pitch,lengthMm,maxLengthMm:p.sizeMode==='length'?p.maxLengthMm:null,rollStepDeg,rollPatternDeg:params.kind==='oChain'?[0,90]:[0],twistFactor,layoutVersion:contact?'taut-contact-2':'nested-curb-1',assembly:'one-compound-independent-interlocked-links',lengthAxis:'local +Y',legacySingleLink:legacy,...(validation?{validation:{...validation,...(contact?{initialClearanceLowerBoundMm:validation.clearanceLowerBoundMm,clearanceLowerBoundMm:contact.gapMm,contactGapMm:contact.gapMm,contactToleranceMm:CHAIN_CONTACT_TOLERANCE_MM,method:'exact-brep-conservative-advancement'}:{})}}: {})};
 }
+export const CHAIN_CONTACT_TOLERANCE_MM=1e-5;
 import {chainClearance} from './chain-clearance.js';

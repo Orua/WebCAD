@@ -2,7 +2,7 @@
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.57.11",
+  "version": "1.57.12",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -339,5 +339,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6912c1ecf9ceaa0ecd15a6a829e2cc5f38f8100029ded8366361339203997fa9"
+  "docsHash": "sha256:f47c5b808f28b4d5e419a78f973776c3780c01869b743adc376508ee54848030"
 }

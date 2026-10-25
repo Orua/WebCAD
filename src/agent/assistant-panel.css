@@ -49,7 +49,7 @@ body.has-agent-panel[data-cad-mobile=true]>.agent-assistant-panel{bottom:var(--c
 body.has-agent-panel[data-cad-mobile=true]>.agent-panel-toggle{bottom:calc(var(--cad-keyboard-inset) + var(--agent-panel-height) - 32px)}
 body.has-agent-panel[data-cad-mobile=true]>.cad-assistant-resizer{bottom:calc(var(--cad-keyboard-inset) + var(--agent-panel-height) - 4px)}
 body.has-agent-panel[data-cad-mobile=true].agent-panel-collapsed>.agent-panel-toggle{bottom:calc(var(--cad-keyboard-inset) + 6px)}
-.agent-floating-toggle{position:absolute;left:0;top:0;z-index:12;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:148px;max-width:calc(100% - 16px);height:88px;padding:4px;border:0;border-radius:0;background:transparent;color:var(--accent);box-shadow:none;cursor:grab;touch-action:none;user-select:none}
+.agent-floating-toggle{position:absolute;left:0;top:0;z-index:10011;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:148px;max-width:calc(100% - 16px);height:88px;padding:4px;border:0;border-radius:0;background:transparent;color:var(--accent);box-shadow:none;cursor:grab;touch-action:none;user-select:none}
 .agent-floating-toggle:hover{background:transparent}
 .agent-floating-toggle.is-dragging{cursor:grabbing}
 .agent-floating-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:3px}

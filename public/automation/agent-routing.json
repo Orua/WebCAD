@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:190743e92b3b2ab7ae325de8a04ad47fd348415910a15d62d3a7282d627187ca",
-  "docsHash": "sha256:eabf154c08464dc964026adff22d2063f70867194e9ffae47a2aa6ad27061b80",
+  "catalogHash": "sha256:9736a31055688c3776eb45b7c677e6f550c535c74c61ab0e872e7b4e25c8d9ce",
+  "docsHash": "sha256:85c1920d6f0ebfb7acda39151668c3dcfdbf30805db793f787fd0130674f37b4",
   "bootstrapDocIds": [
     "api.reading-map",
     "api.knowledge-cache",
@@ -16,6 +16,47 @@
   },
   "selectionPolicy": "Read api.reading-map once; route by task; read only readFirst; compare selectionGuide; fetch selected complete cards. docs/tools are candidates, not mandatory bulk reads. Exact UI actions use routes.json. Live IDs come from the page.",
   "routes": [
+    {
+      "id": "modeling.interlocked-assembly",
+      "title": "穿接装配与受拉贴合",
+      "keywords": [
+        "穿接",
+        "穿串",
+        "相扣",
+        "互扣",
+        "贴紧",
+        "贴合",
+        "悬空",
+        "拉紧",
+        "受拉",
+        "圆环",
+        "圆圈",
+        "扣",
+        "链",
+        "链节",
+        "链条",
+        "钥匙圈",
+        "匙圈",
+        "interlocked",
+        "taut",
+        "contact"
+      ],
+      "readFirst": "api.modeling.methods.interlocked-assembly",
+      "docs": [
+        "api.modeling.methods.interlocked-assembly",
+        "api.quick-chains"
+      ],
+      "tools": [
+        "template.oChain",
+        "template.twistedChain",
+        "template.groundChain",
+        "template.keyRing",
+        "transform",
+        "inspectFit"
+      ],
+      "note": "Require actual threading, inner-surface first contact under tension and non-penetration. Preserve separate parts and source geometry; no generic assembly solver is implied.",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
+    },
     {
       "id": "error-recovery",
       "title": "错误解释、可逆试算与安全恢复",

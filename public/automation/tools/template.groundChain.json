@@ -37,7 +37,7 @@
     "磨链",
     "Ground curb chain link"
   ],
-  "description": "多节同向嵌接，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+  "description": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -217,7 +217,7 @@
   "visibleInLibrary": true,
   "libraryCategory": "chains",
   "libraryCategoryLabel": "链条",
-  "purpose": "多节同向嵌接，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+  "purpose": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
   "whenToUse": [
     "This selected template matches the required structure; its complete parameters and placement contract are in this card."
   ],
@@ -259,7 +259,7 @@
         }
       }
     ],
-    "description": "多节同向嵌接，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+    "description": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
     "properties": {
       "kind": {
         "type": "string",
@@ -344,7 +344,7 @@
       }
     }
   },
-  "schemaHash": "sha256:abc9fcc7314bf66afdfc9d70fb9269fab298887260dcbdd9dafbd914d59cb18d",
+  "schemaHash": "sha256:cb7c222e29d4e655c7938c21282bcbaadda584c64de9ad80b46dfa94c22b5c83",
   "defaults": {
     "outerWidthMm": 11,
     "outerLengthMm": 15,
@@ -657,7 +657,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:e1f812382dc2c0dc47a24399b708cef72551ace7c6fb8e6cb07c810f290daaaa"
+    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -710,5 +710,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7560848a880c7643e8e8b4db4fc23f6849aae2070ea6d7475b09bf51c8e4d283"
+  "docsHash": "sha256:16a5af36b74e345b453491904c161d0e04cd1160a089bfbc171b56f3131d3ca3"
 }

@@ -2,7 +2,7 @@
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.57.11",
+  "version": "1.57.12",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -71,5 +71,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:140d6d56c402f2e2880f96bef8276b3d1724366e43219b42ca476af4ef3c0c9f"
+  "docsHash": "sha256:0bdf6475a762a7dd93e3f8b0149625039350cf378079307b1c386ecbe9d1f309"
 }

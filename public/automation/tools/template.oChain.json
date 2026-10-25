@@ -37,7 +37,7 @@
     "O字链",
     "O chain link"
   ],
-  "description": "来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+  "description": "多节按内口受拉贴紧，保留独立链节。来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -217,7 +217,7 @@
   "visibleInLibrary": true,
   "libraryCategory": "chains",
   "libraryCategoryLabel": "链条",
-  "purpose": "来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+  "purpose": "多节按内口受拉贴紧，保留独立链节。来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
   "whenToUse": [
     "This selected template matches the required structure; its complete parameters and placement contract are in this card."
   ],
@@ -259,7 +259,7 @@
         }
       }
     ],
-    "description": "来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+    "description": "多节按内口受拉贴紧，保留独立链节。来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
     "properties": {
       "kind": {
         "type": "string",
@@ -328,7 +328,7 @@
       }
     }
   },
-  "schemaHash": "sha256:1ff4a851bf87f1f99c2e1aa2985fe098df46cceec9310103de2b4739d4f838d2",
+  "schemaHash": "sha256:b84ee0b73a90125230a026131ec502a937df7ccd7fcbdac6767671410adbf464",
   "defaults": {
     "outerWidthMm": 7.2,
     "outerLengthMm": 9.2,
@@ -621,7 +621,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:e1f812382dc2c0dc47a24399b708cef72551ace7c6fb8e6cb07c810f290daaaa"
+    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -672,5 +672,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:21725dfcc79ba52208fd131e66308274921fb1b48685d742d66d24bfe3bbcaf2"
+  "docsHash": "sha256:d227e81544d418cea0f3fbbfd680fc539c72df0be6df8ae19b2905ee01cdcdd8"
 }

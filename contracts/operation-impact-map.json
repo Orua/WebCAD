@@ -1,5 +1,37 @@
 {
+  "chainTautContact20261025": {
+      "localImpact": "All three quick chains advance rigid links from certified interlocked placement to first inner contact, exact BRep gap <=0.00001 mm; recompute count and length from resolved pitch. Preserve shapes, independent solids and legacy single links.",
+      "servicesImpact": "None: chain quick models remain fixed local WASM; no Services/Native binary or protocol changes.",
+      "logoImpact": "None: source Logo conversion and workers unchanged.",
+      "contractImpact": "Page API 1.57.12, chainReport contact readback; handshake assemblyDocId and task route inject general interlocked/taut/non-penetration guidance. No Agent program rule or generic assembly solver.",
+      "documentImpact": "Existing recipes rebuild tightened assemblies; saved final-state BRep remains frozen until explicit regenerate/edit. Counts/sections/source geometry preserved.",
+      "cacheImpact": "Regenerate complete ZIP, knowledge index, routes, skills and hashes together; release gate compares every ZIP member and current text.",
+      "requiredTests": [
+          "All three real WASM chains: every adjacent gap, nonadjacent separation, independent solids and volume",
+          "Resolved pitch total-length maximum, legacy edit and rebuild persistence",
+          "Localhost one browser round: three chain models, readback and render",
+          "Release ZIP byte/hash/text synchronization and endpoints identity"
+      ]
+  },
+  "newProjectHistory20261025": {
+    "localImpact": "UI new project uses record:false and clears undo/redo after successful rebuild, matching public file_new; populated documents no longer create a cross-document timeline.",
+    "servicesImpact": "None: browser document lifecycle only; no compute or transport change.",
+    "logoImpact": "None: no Logo worker or geometry change.",
+    "contractImpact": "Existing UI new and public file_new routes and arguments retained; API unsaved-document protection unchanged.",
+    "documentImpact": "Confirmed new project starts empty with a fresh identity and history. Cancel or rebuild failure preserves the committed document and undo stacks.",
+    "cacheImpact": "Rebuild frontend and generated knowledge identity; preserve stored projects, cookies and configuration.",
+    "requiredTests": ["Populated UI new action success/cancel/failure regression", "Existing timeline checks", "One localhost browser check of populated-document new and empty canvas"]
+  },
   "version": 1,
+  "assistantOverlayRefinement20261025": {
+    "localImpact": "Robot renders above the host operation veil in the same canvas stacking context; progress gap reduced to 1px. Workspace checkpoint diagnostics removed from the conversation heading.",
+    "servicesImpact": "None: browser and linked workspace presentation only; authorization and interaction lock retained.",
+    "logoImpact": "None: geometry and workers unchanged.",
+    "contractImpact": "No new operation or argument: existing hostControl, floating position and Agent layout APIs remain shared with UI.",
+    "documentImpact": "None: checkpoint persistence, project data and history unchanged.",
+    "cacheImpact": "Rebuild frontend and bump linked workspace module version; preserve user data and existing assets.",
+    "requiredTests": ["Existing floating lifecycle and drag checks", "Build contract gates", "One localhost browser check for veil/robot stacking, gap and clean heading"]
+  },
   "configurableMetalMaterials20261024": {
     "localImpact": "User-selected A1 light gold and B2 24K; nickel/gunmetal retain base RGB, share mirror studio style. Safe editable style/material registry, settings list, clone/delete/import/export and browser persistence.",
     "servicesImpact": "None: browser display only, no compute binary or gateway changes.",

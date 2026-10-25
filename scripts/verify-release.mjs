@@ -2,7 +2,7 @@ import {verifyQuickModelPreviews} from './quick-model-preview-contracts.mjs';
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {readBuildIdentity} from './build-identity.mjs';
-import { infoMetadata, getTool } from '../src/page-api-docs.js';
+import { infoMetadata, getTool, readDocs } from '../src/page-api-docs.js';
 import { listOperations } from '../src/operation-registry.js';
 import { assertPlacementCoverage } from '../src/placement-policy.js';
 import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
@@ -11,6 +11,7 @@ import {isDeepStrictEqual} from 'node:util';
 import {AGENT_ONBOARDING} from '../src/agent-onboarding.js';
 import {verifyOperationContracts} from './verify-operation-contracts.mjs';
 import {spawnSync} from 'node:child_process';
+import {unzipSync} from 'three/addons/libs/fflate.module.js';
 
 const root = resolve(import.meta.dirname, '..');
 const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
@@ -72,6 +73,28 @@ for(const file of [...kit.files,kit.installer]){
   if(typeof file.url!=='string'||file.url.includes('..')||file.url.startsWith('/')||file.url.includes(':'))throw new Error('Invalid agent kit URL');
   const bytes=await readFile(resolve(outputDirectory,'automation',file.url));
   if(file.sha256!==`sha256:${createHash('sha256').update(bytes).digest('hex')}`||file.sizeBytes!==bytes.length)throw new Error(`Agent kit file verification failed: ${file.url}`);
+}
+// Contract and skill text changes must ship in the same complete knowledge ZIP.
+const knowledgeManifest=await outputJson('automation/agent-knowledge.json');
+for(const key of ['buildId','catalogHash','docsHash']){
+  const expected=key==='buildId'?buildId:metadata[key];
+  if(knowledgeManifest[key]!==expected)throw Error(`Knowledge package ${key} is stale`);
+}
+const digest=bytes=>'sha256:'+createHash('sha256').update(bytes).digest('hex');
+const zipBytes=await readFile(resolve(outputDirectory,'automation',knowledgeManifest.archive.url));
+if(zipBytes.length!==knowledgeManifest.archive.sizeBytes||digest(zipBytes)!==knowledgeManifest.archive.sha256)throw Error('Knowledge ZIP identity mismatch');
+const unpacked=unzipSync(zipBytes);
+if(Object.keys(unpacked).length!==knowledgeManifest.archive.files.length)throw Error('Knowledge ZIP file list mismatch');
+for(const file of knowledgeManifest.archive.files){
+  const archived=unpacked[file.name],published=await readFile(resolve(outputDirectory,'automation',file.name));
+  if(!archived||archived.length!==file.sizeBytes||digest(archived)!==file.sha256||!Buffer.from(archived).equals(published))throw Error(`Stale knowledge ZIP member: ${file.name}`);
+}
+if(digest(Buffer.from(JSON.stringify(knowledgeManifest.archive.files)))!==knowledgeManifest.knowledgeVersion)throw Error('Knowledge version mismatch');
+const skillSource=await readFile(resolve(root,'skills/webcad-page-api/SKILL.md'));
+if(!Buffer.from(unpacked['webcad-page-api/SKILL.md']).equals(skillSource))throw Error('Knowledge ZIP skill differs from current source');
+for(const [id,text] of Object.entries(index.docs)){
+  let live='',cursor;do{const page=readDocs({docId:id,limitChars:16000,...(cursor?{cursor}:{})});live+=page.text;cursor=page.nextCursor;}while(cursor);
+  if(text!==live)throw Error(`Stale knowledge doc: ${id}`);
 }
 const routes=await outputJson('automation/routes.json');
 if(!isDeepStrictEqual(routes.routes,UI_API_ROUTES))throw new Error('Agent operation routes differ from UI API routes');

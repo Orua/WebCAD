@@ -2,7 +2,7 @@
   "id": "markLocation",
   "title": "markLocation",
   "category": "page-method",
-  "version": "1.57.11",
+  "version": "1.57.12",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_view",
@@ -136,5 +136,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:00aa5834acd41582464f374adeb7fb005b3ab2d007bb4f28b150c35f9ce046eb"
+  "docsHash": "sha256:587840fab950e6746d90b54597ee1e9bd5f6ed86fc4b1381c77d1752f70e6d5c"
 }
