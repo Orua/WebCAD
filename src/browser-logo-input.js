@@ -132,7 +132,7 @@ export function createLogoImportUI({onLogo,onInvalidate,validateLogoDocument,log
  for(const control of [width,pageField,pdfDetails,rasterDetails,machiningPanel,advanced])control.hidden=true;
  width.value='35';width.title='画布定位时可缩放的初始宽度（mm）';
  host.append(progress,thumbnail,route,change,sourcePanel,error,reviewPanel);
- let generation=0,pending=null,busy=false,session=null,editor=null,imageUrl=null,wizardRevision=0,lastError=null,reviewBinding=null,largeEditor=null,machiningOverride;
+ let generation=0,pending=null,busy=false,session=null,editor=null,imageUrl=null,wizardRevision=0,lastError=null,reviewBinding=null,largeEditor=null,machiningOverride,placementController=null;
  const markStep=index=>steps.forEach((step,i)=>{if(i===index)step.setAttribute('aria-current','step');else step.removeAttribute('aria-current');});markStep(0);
  const showConfirmed=value=>{for(const control of [label,read])control.hidden=value;change.hidden=!value;for(const control of [width,pageField,summary,advanced])control.hidden=true;read.hidden=true;};
  const showSummary=logo=>{const full=logoSummary(logo),svg=full.querySelector('svg');if(svg)thumbnail.replaceChildren(svg);thumbnail.title=logo.sizeMm?.map(v=>Number(v).toFixed(2)).join(' × ')+' mm';summary.replaceChildren();};
@@ -169,10 +169,11 @@ export function createLogoImportUI({onLogo,onInvalidate,validateLogoDocument,log
  confirm.addEventListener('click',()=>{try{accept();}catch(e){error.textContent=humanError(e);}});
  back.addEventListener('click',async()=>{await invalidate();route.textContent='修改来源或参数后，重新识别。';});
  change.addEventListener('click',async()=>{await invalidate();route.textContent='选择新图片，或修改宽度后重新识别。';});
- const get=()=>({open:true,editorOpen:!!largeEditor,revision:wizardRevision,step:busy?'reading':sourcePanel.hidden?reviewPanel.hidden?'target':'review':'source',busy,machiningReadiness:pending?inspectLogoMachiningCapacity(pending):null,error:error.textContent||null,errorDetails:lastError?structuredClone(lastError):null,name:reviewBinding?.sourceFile?.name??input.files?.[0]?.name??null,logoId:reviewBinding?.info?.logoId??null,sourceResourceId:reviewBinding?.info?.sourceResourceId??null,sourceStatus:reviewBinding?.info?.sourceStatus??(reviewBinding?.sourceFile?'not-registered':'unavailable-original'),parameters:{targetWidthMm:selectedWidth()??null,page:Number(page.value),pdfJoinToleranceMm:Number(pdfJoin.value),raster:rasterOptions(),machining:machiningOverride},review:session?.get()??null});
+ const get=()=>({open:true,editorOpen:!!largeEditor,placement:placementController?.get()??null,revision:wizardRevision,step:busy?'reading':sourcePanel.hidden?reviewPanel.hidden?'target':'review':'source',busy,machiningReadiness:pending?inspectLogoMachiningCapacity(pending):null,error:error.textContent||null,errorDetails:lastError?structuredClone(lastError):null,name:reviewBinding?.sourceFile?.name??input.files?.[0]?.name??null,logoId:reviewBinding?.info?.logoId??null,sourceResourceId:reviewBinding?.info?.sourceResourceId??null,sourceStatus:reviewBinding?.info?.sourceStatus??(reviewBinding?.sourceFile?'not-registered':'unavailable-original'),parameters:{targetWidthMm:selectedWidth()??null,page:Number(page.value),pdfJoinToleranceMm:Number(pdfJoin.value),raster:rasterOptions(),machining:machiningOverride},review:session?.get()??null});
  activeWizard={element:host,get,binding:()=>reviewBinding,refresh:shared=>{if(shared===session){if(!editor){editor=createLogoVectorReview({session,imageUrl,onChange:reviewChanged});editorHost.replaceChildren(editor.element);}editor.render();reviewChanged(session.get());}},act:async request=>{
   if(request.action==='get')return get();if(request.expectedRevision!==wizardRevision)throw inputError('LOGO 向导已变化，请读取最新 revision。','LOGO_REVIEW_STALE');
   if(busy)throw inputError('正在读取来源，请等待原任务完成。','LOGO_WIZARD_BUSY');
+  if(['place','position','align','fold','unfold'].includes(request.action)){if(!placementController)throw inputError('当前向导尚未提供画布定位。','CAPABILITY_UNAVAILABLE');await placementController.act(request);++wizardRevision;return get();}
   if(request.action==='edit'){openLargeEditor();return get();}
   if(request.action==='closeEditor'){closeLargeEditor();return get();}
   if(request.action==='parameters'){
@@ -190,6 +191,6 @@ export function createLogoImportUI({onLogo,onInvalidate,validateLogoDocument,log
  }};
  if(initialLogo){showSummary(initialLogo);pending=initialLogo;session=createLogoReviewSession(initialLogo);editor=createLogoVectorReview({session,imageUrl:null,onChange:reviewChanged});editorHost.replaceChildren(editor.element);reviewBinding={session,sourceFile:null,valid:true,info:null};showConfirmed(true);sourcePanel.hidden=reviewPanel.hidden=true;markStep(2);route.textContent='已保留确认过的 '+initialLogo.sizeMm.map(v=>Number(v).toFixed(3)).join(' × ')+' mm 轮廓。';}
  let mounted=host.isConnected;const dispose=()=>{closeLargeEditor();++generation;clearImage();cleanup.disconnect();if(activeWizard?.element===host)activeWizard=null;};
- const cleanup=new MutationObserver(()=>{if(host.isConnected)mounted=true;else if(mounted)dispose();});cleanup.observe(document.body,{childList:true,subtree:true});host.disposeLogoImporter=dispose;
+ const cleanup=new MutationObserver(()=>{if(host.isConnected)mounted=true;else if(mounted)dispose();});cleanup.observe(document.body,{childList:true,subtree:true});host.disposeLogoImporter=dispose;host.setLogoPlacementController=value=>{placementController=value;};host.notifyLogoPlacement=()=>{++wizardRevision;};
  return host;
 }

@@ -2,7 +2,7 @@
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.57.20",
+  "version": "1.57.21",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -165,5 +165,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:63fc0b29d02aa1f476067e5854a0ac1855befd55a6c3b175c9f77896567bfdd2"
+  "docsHash": "sha256:555ea98e4cb9083a6819c304c7289c1a37760f4c1d5096a2c6cfa8eeb761ca65"
 }

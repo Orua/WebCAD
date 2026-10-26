@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {orthographicFitExtent} from './viewport/fit-bounds.js';
 import {installRectangleSelection,rectangleCandidates} from './viewport/rectangle-selection.js';
 import {RoundRangeGuide} from './viewport/round-range-guide.js';
+import {LogoPlacementGuide} from './viewport/logo-placement-guide.js';
 import {applyViewportDisplay} from './viewport/display-modes.js';
 import {snapReleasedDrag} from './viewport/drag-snap-controller.js';
 import {rankEdgeHits,worldUnitsPerPixel} from './viewport/edge-picking.js';
@@ -84,6 +85,8 @@ export class CADViewport {
   rectangleCandidates(input){return rectangleCandidates(this,input);}
   clearRoundGuide(){this.roundGuide?.dispose();this.roundGuide=null;}
   setRoundGuide(report,handlers){this.clearRoundGuide();if(report)this.roundGuide=new RoundRangeGuide(this,report,handlers);}
+  clearLogoPlacement(){this.logoGuide?.dispose();this.logoGuide=null;}
+  setLogoPlacement(input,handlers){this.clearLogoPlacement();if(input)this.logoGuide=new LogoPlacementGuide(this,input,handlers);return this.logoGuide;}
   clearScopeOverlay(){if(!this.scopeOverlay)return;this.modelRoot.remove(this.scopeOverlay);this.disposeObject(this.scopeOverlay);this.scopeOverlay=null;}
   setScopeOverlay(sourceEdges,selectedIds,expandedIds){
     this.clearScopeOverlay();
@@ -379,7 +382,7 @@ export class CADViewport {
     const exactDetail=this.exactDisplayDetail.update(active);if(exactDetail)this.displayDetail={...this.displayDetail,...exactDetail};
     if(!active)this.viewInteraction='settled';
   }
-  renderFrame(forceFine=false){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.updateDisplayDetail(forceFine);this.updateLocationMarkers();
+  renderFrame(forceFine=false){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.logoGuide?.render();this.updateDisplayDetail(forceFine);this.updateLocationMarkers();
     const stamp=[this.camera.matrixWorld.elements,this.camera.projectionMatrix.elements,this.scene.background?.getHex(),this.clipPlanes.map(p=>[p.normal.toArray(),p.constant]),this.renderer.toneMappingExposure,this.modelContext,this.scene.environment?.id,this.displayPreferences,this.finishKey,this.partFinishes,this.selected,this.topology];
     this.scene.traverse(o=>{if(o.geometry||o.isLight)stamp.push([o.id,o.visible,o.matrixWorld.elements,o.geometry?.id,o.intensity,o.material?.color?.getHex(),o.material?.emissive?.getHex(),o.material?.opacity,o.material?.wireframe,o.material?.version,o.material?.map?.id,o.material?.envMap?.id,o.material?.roughness,o.material?.metalness]);});
     const key=JSON.stringify(stamp);if(forceFine||key!==this.lastFrameKey){this.metalOcclusion.render(this.scene,this.camera,{enabled:this.mode!=='wire'&&this.mode!=='transparentEdges',clippingPlanes:this.clipPlanes});this.renderer.render(this.scene,this.camera);this.lastFrameKey=key;this.cachedFrameReused=false;this.lastRenderedTriangles=this.renderer.info.render.triangles;}else this.cachedFrameReused=true;this.displayDetail.actualRenderedTriangles=this.lastRenderedTriangles;const position=this.anchorProxy.position.clone().project(this.camera),width=this.host.clientWidth,height=this.host.clientHeight;this.anchorMarker.style.transform=`translate(${(position.x+1)*width/2}px,${(1-position.y)*height/2}px)`;this.anchorMarker.hidden=!this.anchorVisible||position.z>1;this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;}

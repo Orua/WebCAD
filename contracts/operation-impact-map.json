@@ -1,4 +1,17 @@
 {
+  "logoCanvasPlacement20261026": {
+    "localImpact": "Keep the original wizard and vector draft while folding to a viewport icon. Exact planar face highlight, display-only orange contours, four projected-bound margins, editable top/left, drag/scale/rotate/center controls; commit via the existing logo transaction.",
+    "servicesImpact": "None: no backend/runtime/Native algorithm changes.",
+    "logoImpact": "Placement maps to existing point/scale/angle/offset/depth, keeping image glyphs and source regions unchanged. Pointer motion does not submit geometry. Exact faceInfo normal and current source/revision guard selection.",
+    "contractImpact": "API1.57.21 logoWizard place/position/align/fold/unfold plus placement readback share human controls. Canvas guide is for precise planar faces; curved tooling remains in its existing form. Margin readouts describe projected face bounds, not a proof of interior clearance around holes.",
+    "documentImpact": "Placement remains view/draft state; only confirmation creates the normal atomic logo feature with existing undo and persistence.",
+    "cacheImpact": "Regenerate matching complete knowledge/routing snapshot.",
+    "requiredTests": [
+      "Eight targeted placement-coordinate, source preservation and wizard tests",
+      "One local face selection, margins/drag/align and actual line-art engraving check",
+      "Build/knowledge ZIP hashes and same frontend production identity"
+    ]
+  },
   "logoCompactReview20261026": {
     "localImpact": "Source image selection automatically converts with internal defaults. All wizard tabs retain a vector thumbnail; edit opens a separate large modal sharing the exact UI/Agent review session. Save and editor actions use small SVG icons and title help.",
     "servicesImpact": "None: existing single-conversion endpoint and configuration unchanged.",

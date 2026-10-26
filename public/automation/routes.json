@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.57.20",
-  "buildId": "7f24cf92f732d0f0e9224fe2d4f701cd5d6ddd07-src-962d3d6e16bf37ce-working",
-  "catalogHash": "sha256:8129d4efcf64d85db069995f9b4f50ff595cc9af55d275cd8782223fa3cf516f",
-  "docsHash": "sha256:9f24c379733e06fbeba203c913bceecc0ed5f2083af7a7dd8f16e7f7bd109491",
+  "pageApiVersion": "1.57.21",
+  "buildId": "27725b22934a067375bcf5e582570592f25db5b0-src-6520c8e89a2b2bdf-working",
+  "catalogHash": "sha256:dc680e490ca8f42b4b7be7bebd05d8034b352464d1319d2fd6c79cd828962705",
+  "docsHash": "sha256:af9decfcc209ac4a1cb2b24e685ff18480298708019a3670a8cc9359f845b24d",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -587,7 +587,7 @@
         "preview.cancel"
       ],
       "method": "execute",
-      "usage": "独立LOGO向导：登记原文件、readLogo读取轮廓；位图明确宽度及上传授权，reviewLogo/向导明确确认字形、孔洞和尺寸，再指定目标面、三维放置点、雕刻深度；加工范围使用logo.params.projectionMode:singleFace|connectedFaces，跨面仅凹刻0°拔模，depth沿投影方向。预览或应用后getState().bodies[].logoProjectionReport读回接缝面号、方向和减料体积。"
+      "usage": "LOGO画布定位：向导折为浮动按钮；选面高亮、异色轮廓、上/左可编辑间距与右/下间距、拖移/等比缩放/旋转/居中，数字与图标控制。AI用logoWizard place/position/align/fold/unfold操作同一独立定位草稿，get.placement读回原logo所需point/scale/angle/depth/offsetX/offsetY；确认仍提交logo同一事务。登记原文件、readLogo读取轮廓；位图明确宽度及上传授权，reviewLogo/向导明确确认字形、孔洞和尺寸，再指定目标面、三维放置点、雕刻深度；加工范围使用logo.params.projectionMode:singleFace|connectedFaces，跨面仅凹刻0°拔模，depth沿投影方向。预览或应用后getState().bodies[].logoProjectionReport读回接缝面号、方向和减料体积。"
     },
     "logoExport": {
       "tools": [

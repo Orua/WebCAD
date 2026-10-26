@@ -2,14 +2,14 @@
   "id": "logoWizard",
   "title": "logoWizard",
   "category": "page-method",
-  "version": "1.57.20",
+  "version": "1.57.21",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "logoWizard",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "logoWizard({context,action?:get|attach|artifacts|parameters|read|back|load|edit|closeEditor|select|setPoint|deletePoint|deleteContour|undo|confirm,expectedRevision?,parameters?:{targetWidthMm,page,pdfJoinToleranceMm,raster},allowUpload?:false,logoId?,regionIndex?,holeIndex?,pointIndex?,pointMm?,confirmed?})。get读取已打开向导且不分配资源；edit打开大窗编辑矢量，closeEditor收回；所有步骤持续缩略图，编辑后实时更新；其他动作须wizard.revision。attach登记UI原件和共享草稿，artifacts绑定并导出当前稿；前者需cad.read，后者需cad.export。load从readLogo的logoId读取同源轮廓/原图；read处理UI已选择的文件，默认不上传，需allowUpload:true才可调用已配置后台。没有活动向导不自动开窗，独立流程用reviewLogo。",
+  "description": "logoWizard({context,action?:get|attach|artifacts|parameters|read|back|load|edit|closeEditor|place|position|align|fold|unfold|select|setPoint|deletePoint|deleteContour|undo|confirm,expectedRevision?,parameters?:{targetWidthMm,page,pdfJoinToleranceMm,raster},allowUpload?:false,logoId?,regionIndex?,holeIndex?,pointIndex?,pointMm?,confirmed?})。get读取已打开向导且不分配资源；edit打开大窗编辑矢量，closeEditor收回；place({bodyId,faceId,point:[x,y,z]})在精确平面建立画布定位，position({placement:{leftMm,topMm,scale,angleDeg,depthMm,point}})更新同一预览，align({alignment:center|horizontal|vertical})对齐；fold/unfold收起或展开原向导。get.placement回读当前point/scale/angle/depth/offsetX/offsetY/margins/frame，四边距离以目标面投影外框为基准，孔洞和实际边界由最终几何验证。定位不启动几何计算，确认雕刻仍用现有logo工具；所有步骤持续缩略图，编辑后实时更新；其他动作须wizard.revision。attach登记UI原件和共享草稿，artifacts绑定并导出当前稿；前者需cad.read，后者需cad.export。load从readLogo的logoId读取同源轮廓/原图；read处理UI已选择的文件，默认不上传，需allowUpload:true才可调用已配置后台。没有活动向导不自动开窗，独立流程用reviewLogo。",
   "synonyms": [
     "logoWizard",
     "LOGO",
@@ -20,7 +20,7 @@
     "目标面",
     "参数"
   ],
-  "inputContract": "logoWizard({context,action?:get|attach|artifacts|parameters|read|back|load|edit|closeEditor|select|setPoint|deletePoint|deleteContour|undo|confirm,expectedRevision?,parameters?:{targetWidthMm,page,pdfJoinToleranceMm,raster},allowUpload?:false,logoId?,regionIndex?,holeIndex?,pointIndex?,pointMm?,confirmed?})。get读取已打开向导且不分配资源；edit打开大窗编辑矢量，closeEditor收回；所有步骤持续缩略图，编辑后实时更新；其他动作须wizard.revision。attach登记UI原件和共享草稿，artifacts绑定并导出当前稿；前者需cad.read，后者需cad.export。load从readLogo的logoId读取同源轮廓/原图；read处理UI已选择的文件，默认不上传，需allowUpload:true才可调用已配置后台。没有活动向导不自动开窗，独立流程用reviewLogo。",
+  "inputContract": "logoWizard({context,action?:get|attach|artifacts|parameters|read|back|load|edit|closeEditor|place|position|align|fold|unfold|select|setPoint|deletePoint|deleteContour|undo|confirm,expectedRevision?,parameters?:{targetWidthMm,page,pdfJoinToleranceMm,raster},allowUpload?:false,logoId?,regionIndex?,holeIndex?,pointIndex?,pointMm?,confirmed?})。get读取已打开向导且不分配资源；edit打开大窗编辑矢量，closeEditor收回；place({bodyId,faceId,point:[x,y,z]})在精确平面建立画布定位，position({placement:{leftMm,topMm,scale,angleDeg,depthMm,point}})更新同一预览，align({alignment:center|horizontal|vertical})对齐；fold/unfold收起或展开原向导。get.placement回读当前point/scale/angle/depth/offsetX/offsetY/margins/frame，四边距离以目标面投影外框为基准，孔洞和实际边界由最终几何验证。定位不启动几何计算，确认雕刻仍用现有logo工具；所有步骤持续缩略图，编辑后实时更新；其他动作须wizard.revision。attach登记UI原件和共享草稿，artifacts绑定并导出当前稿；前者需cad.read，后者需cad.export。load从readLogo的logoId读取同源轮廓/原图；read处理UI已选择的文件，默认不上传，需allowUpload:true才可调用已配置后台。没有活动向导不自动开窗，独立流程用reviewLogo。",
   "outputContract": "返回wizard:{open,editorOpen,revision,step,busy,error,parameters,review,logoId,sourceResourceId,sourceStatus}及context。attach/artifacts另返回logoId/sourceResourceId；无原件明确unavailable-original；artifacts返回resources及sha256。同一UI/Agent草稿，confirmed:true后才进入目标面；确认本身不创建几何。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -78,6 +78,11 @@
           "load",
           "edit",
           "closeEditor",
+          "place",
+          "position",
+          "align",
+          "fold",
+          "unfold",
           "select",
           "setPoint",
           "deletePoint",
@@ -115,6 +120,59 @@
       },
       "confirmed": {
         "type": "boolean"
+      },
+      "bodyId": {
+        "type": "string"
+      },
+      "faceId": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "point": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "alignment": {
+        "enum": [
+          "center",
+          "horizontal",
+          "vertical"
+        ]
+      },
+      "placement": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "point": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          },
+          "leftMm": {
+            "type": "number"
+          },
+          "topMm": {
+            "type": "number"
+          },
+          "scale": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "angleDeg": {
+            "type": "number"
+          },
+          "depthMm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        }
       },
       "allowUpload": {
         "type": "boolean",
@@ -272,5 +330,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:090eb42d28ac8f436ce64bb91ba4d49b604903032628edb61aad8afaab295746"
+  "docsHash": "sha256:e7b6afe3e180b0dce62065e855fb26f07a8fda8d48e582b8f35745c24debe0d0"
 }
