@@ -655,6 +655,18 @@
     "refs": []
   },
   "docs": "api.quick-chains",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.oChain",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "chains",
     "groupTitle": "链环的空间结构",
@@ -672,5 +684,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d227e81544d418cea0f3fbbfd680fc539c72df0be6df8ae19b2905ee01cdcdd8"
+  "docsHash": "sha256:fadb3f80bd896a62ec0a121c5a82950f4df8a7f4eb77d5854420e047a62ba300"
 }

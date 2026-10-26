@@ -2,7 +2,7 @@
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -88,6 +88,18 @@
     "CAPTURE_TIMEOUT"
   ],
   "docs": "api.views",
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "capture",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "appearance",
     "groupTitle": "名称、外观与显示",
@@ -165,5 +177,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d78c67b13d35e7312bc8179545f4551b4786d935c16bc661bb91ae5bd1c4c107"
+  "docsHash": "sha256:b893e2fa5557064de31f1edbd9db96f5be5870b60f8e10eaad4d5863da28b6d7"
 }

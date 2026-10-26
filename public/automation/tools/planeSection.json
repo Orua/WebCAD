@@ -650,6 +650,18 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "planeSection",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "profiles",
     "groupTitle": "轮廓创建、提取与修复",
@@ -711,5 +723,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:096cabf6b3891ffd9aa0c89dc7fd6bf98a3f51eb53b95f7a558fb10c0230a67e"
+  "docsHash": "sha256:63c944625f1a3e8616bb8e3ea938094dfaeb30a6f6795c09653fd696b2727366"
 }

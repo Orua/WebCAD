@@ -1038,6 +1038,18 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "fillet",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "rounding",
     "groupTitle": "圆角、端头与平滑过渡",
@@ -1091,5 +1103,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:fbdcd4a661c336795c6a554822056bb7e62743bbc9e4a32f2caae6602e241e33"
+  "docsHash": "sha256:a68498c863b5e67ee5b57b3e245aa40d9d3290f061de220ca53d6618e4c8f682"
 }

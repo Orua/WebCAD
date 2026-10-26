@@ -2,7 +2,7 @@
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_artifact",
@@ -140,6 +140,18 @@
     "geometryComputed": false,
     "requiredScope": "cad.export"
   },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "exportDrawing",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "file-output",
     "groupTitle": "工程保存、导出与送达",
@@ -193,5 +205,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:204b084bd425965d01556cce05436bcd7eba0bdb55cb02ed1eb7d3f49d7758ef"
+  "docsHash": "sha256:8edf05c5d705900ba1711eb042e7af64d90e2d35dd5c5bfd46f714f1d07662bf"
 }

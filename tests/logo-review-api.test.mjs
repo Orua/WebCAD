@@ -173,6 +173,13 @@ test('automatic LOGO acceptance materializes a live logoId without sending array
  const context={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:3};let forwarded;
  const api=createPageAPI({state:()=>({context:{...context},summary:{kernelReady:true,busy:false},preview:{active:false},bodies:[]}),display:()=>({}),execute:async input=>{forwarded=input;return {status:'applied',context};},files:async()=>{},confirmSaved:()=>({saved:false})});
  const loaded=await api.readLogo({context,logo:packet()});assert.equal(loaded.status,'read',JSON.stringify(loaded));assert.equal(loaded.reviewRequired,false);assert.equal(loaded.logo.source.contourReview.acceptance,'automatic-policy');
+ const mistakenRead=await api.readLogo({context,logoId:loaded.logoId});assert.equal(mistakenRead.error.code,'PARAM_SCHEMA_INVALID');assert.equal(mistakenRead.error.path,'logoId');
+ const missingDraftId=await api.reviewLogo({context,action:'get'});assert.equal(missingDraftId.error.code,'PARAM_SCHEMA_INVALID');assert.equal(missingDraftId.error.path,'logoId');
+ assert.equal((await api.reviewLogo({context,logoId:loaded.logoId,action:'get'})).status,'read');
+ const referenceExample=getTool({id:'logo'}).minimalExample.params;assert.equal(Object.hasOwn(referenceExample,'source'),false);assert.equal(Object.hasOwn(referenceExample,'regions'),false);
+ const wrongId=await api.execute({context:api.createRequestContext(),idempotencyKey:'logo-wrong-id',action:'feature.add',args:{op:'logo',params:{logoId:'not-the-current-id'},refs:['target']}});assert.equal(wrongId.error.code,'RESOURCE_EXPIRED');assert.equal(wrongId.error.path,'logoId');
+ const conflictingSource=await api.execute({context:api.createRequestContext(),idempotencyKey:'logo-conflicting-source',action:'feature.add',args:{op:'logo',params:{logoId:loaded.logoId,source:{reviewed:true}},refs:['target']}});assert.equal(conflictingSource.error.code,'PARAM_SCHEMA_INVALID');assert.equal(conflictingSource.error.path,'params.source');
+ const staleReview=await api.execute({context:api.createRequestContext(),idempotencyKey:'logo-stale-review',action:'feature.add',args:{op:'logo',params:{logoId:loaded.logoId,expectedReviewRevision:0},refs:['target']}});assert.equal(staleReview.error.code,'LOGO_REVIEW_STALE');assert.equal(staleReview.error.path,'params.expectedReviewRevision');
  const result=await api.execute({context:api.createRequestContext(),idempotencyKey:'logo-reference',action:'feature.add',args:{op:'logo',params:{logoId:loaded.logoId,faceId:0,mode:'engrave',depthMm:.2,placementVersion:2,point:[0,0,0]},refs:['target']}});
  assert.equal(result.status,'applied',JSON.stringify(result));assert.deepEqual(forwarded.args.params.regions,packet().regions);assert.equal(forwarded.args.params.source.reviewed,true);assert.equal(forwarded.args.params.logoId,undefined);
  for(const metadata of ['type','version','units'])assert.equal(Object.hasOwn(forwarded.args.params,metadata),false,`file metadata ${metadata} must not reach strict CAD parameters`);
@@ -180,4 +187,94 @@ test('automatic LOGO acceptance materializes a live logoId without sending array
  const preview=await api.readLogo({context,logo:packet(),reviewPolicy:'preview'});assert.equal(preview.reviewRequired,true);forwarded=null;
  const blocked=await api.execute({context:api.createRequestContext(),idempotencyKey:'logo-preview-blocked',action:'feature.add',args:{op:'logo',params:{logoId:preview.logoId},refs:['target']}});
  assert.equal(blocked.error.code,'LOGO_REVIEW_REQUIRED');assert.equal(forwarded,null);
+});
+
+function preparedFixture({bodies,faces,distance=0,unknown=false}={}){
+ const context={sessionId:'prep-s',documentId:'prep-d',documentInstanceId:'prep-i',revision:4},calls=[];
+ const currentBodies=bodies||[{id:'target',name:'原始支架',faceCount:12,edgeCount:24,solidCount:1}];
+ const rows=faces||[{topologyId:10,surfaceType:'plane',planar:true,center:[0,46.7407944878,58.5],normal:[0,-.9396926,.3420201],area:6214.798}];
+ const api=createPageAPI({state:()=>({context:{...context},summary:{kernelReady:true,busy:false},preview:{active:false},bodies:currentBodies}),display:()=>({}),
+  query:async()=>({status:'read',items:structuredClone(rows),matchCount:rows.length}),measureRelation:async()=>({distanceMm:distance}),measure:async()=>({volume:1000,solidCount:1}),
+  execute:async request=>{calls.push(request);if(unknown)throw Object.assign(Error('reply lost'),{code:'TRANSPORT_LOST'});validateSchema(getTool({id:request.args.op}).inputSchema,request.args.params);context.revision++;return {status:'committed',context:{...context},revisionAfter:context.revision,createdBodyIds:['engraved']};},
+  files:async()=>{},confirmSaved:()=>({saved:false})});
+ return {api,context,calls};
+}
+test('prepared LOGO asks for actual intent, fills verified technical fields and applies exactly once',async()=>{
+ const f=preparedFixture();await f.api.readLogo({context:f.context,logo:packet()});
+ const first=await f.api.prepareOperation({context:f.context,op:'logo',face:10,params:{widthMm:25}});
+ assert.equal(first.status,'needs_input',JSON.stringify(first));assert.deepEqual(first.questions.map(q=>q.answerPath),['params.mode','params.depthMm']);assert.equal(f.calls.length,0);assert.equal(f.context.revision,4);
+ const blocked=await f.api.applyPreparedOperation({context:f.context,preparationId:first.preparationId});assert.equal(blocked.status,'needs_input');assert.equal(f.calls.length,0);
+ const plan=await f.api.prepareOperation({context:f.context,preparationId:first.preparationId,answers:{'params.mode':'engrave','params.depthMm':.15}});
+ assert.equal(plan.status,'prepared',JSON.stringify(plan));assert.deepEqual(plan.summary.refs,['target']);assert.equal(plan.summary.params.scale,2.5);assert.equal(plan.summary.params.expectedReviewRevision,1);assert.equal(plan.summary.params.machiningIntent.version,1);assert.deepEqual(plan.summary.params.point,[0,46.7407944878,58.5]);
+ assert.equal(plan.summary.baseline.volumeMm3,1000);assert.equal(plan.summary.baseline.revision,4);
+ const results=await Promise.all([f.api.applyPreparedOperation({context:f.context,preparationId:plan.preparationId}),f.api.applyPreparedOperation({context:f.context,preparationId:plan.preparationId})]);
+ assert(results.every(r=>r.status==='committed'),JSON.stringify(results));assert.equal(f.calls.length,1);assert.equal(f.calls[0].args.params.logoId,undefined);assert.equal(f.calls[0].args.params.source.reviewed,true);
+ const repeated=await f.api.applyPreparedOperation({context:f.context,preparationId:plan.preparationId});assert.equal(repeated.reused,true);assert.equal(f.calls.length,1);
+ f.context.documentInstanceId='different-instance';const wrongDocument=await f.api.applyPreparedOperation({context:f.context,preparationId:plan.preparationId});assert.equal(wrongDocument.error.code,'INSTANCE_MISMATCH');assert.equal(f.calls.length,1);
+});
+test('prepared operations do not guess an ambiguous body, artwork, curved point or a centroid in a hole',async()=>{
+ const f=preparedFixture({bodies:[{id:'a'},{id:'b'}]});await f.api.readLogo({context:f.context,logo:packet()});await f.api.readLogo({context:f.context,logo:{...packet(),name:'second'}});
+ const ambiguous=await f.api.prepareOperation({context:f.context,op:'logo',params:{mode:'engrave',depthMm:.1}});assert.equal(ambiguous.status,'needs_input');assert.deepEqual(ambiguous.questions.map(q=>q.answerPath),['bodyId','params.logoId']);assert.equal(f.calls.length,0);
+ const mixed=preparedFixture();await mixed.api.readLogo({context:mixed.context,logo:packet()});await mixed.api.readLogo({context:mixed.context,logo:packet(),reviewPolicy:'preview'});const choose=await mixed.api.prepareOperation({context:mixed.context,op:'logo',face:10,params:{mode:'engrave',depthMm:.1}});assert.equal(choose.status,'needs_input');assert(choose.questions.some(q=>q.answerPath==='params.logoId'));assert.equal(mixed.calls.length,0);
+ for(const options of [{faces:[{topologyId:2,surfaceType:'cylinder',planar:false,center:[0,0,0]}]},{distance:2}]){
+  const x=preparedFixture(options);await x.api.readLogo({context:x.context,logo:packet()});const plan=await x.api.prepareOperation({context:x.context,op:'logo',face:options.faces?2:10,params:{mode:'engrave',depthMm:.1}});
+  assert.equal(plan.status,'needs_input',JSON.stringify(plan));assert(plan.questions.some(q=>q.answerPath==='params.point'));assert.equal(x.calls.length,0);
+ }
+});
+test('prepared operation revision, input answers and unknown receipts retain the strict transaction boundaries',async()=>{
+ const f=preparedFixture();await f.api.readLogo({context:f.context,logo:packet()});const plan=await f.api.prepareOperation({context:f.context,op:'logo',face:10,params:{mode:'engrave',depthMm:.1}});assert.equal(plan.status,'prepared');
+ f.context.revision++;const stale=await f.api.applyPreparedOperation({context:f.context,preparationId:plan.preparationId});assert.equal(stale.error.code,'PREPARATION_STALE');assert.equal(f.calls.length,0);
+ const x=preparedFixture({unknown:true});await x.api.readLogo({context:x.context,logo:packet()});const p=await x.api.prepareOperation({context:x.context,op:'logo',face:10,params:{mode:'engrave',depthMm:.1}});
+ const a=await x.api.applyPreparedOperation({context:x.context,preparationId:p.preparationId}),b=await x.api.applyPreparedOperation({context:x.context,preparationId:p.preparationId});assert.equal(a.status,'unknown');assert.equal(b.status,'unknown');assert.equal(x.calls.length,1);
+ const ordinary=await f.api.prepareOperation({context:f.context,op:'box',params:{width:20,depth:30}});assert.equal(ordinary.status,'needs_input');assert(ordinary.questions.some(q=>q.answerPath==='params.height'));assert.equal(f.calls.length,0);
+ assert.throws(()=>validatePayload({method:'applyPreparedOperation',args:{context:f.context,preparationId:plan.preparationId}},f.context,['cad.read']),e=>e.code==='scope_denied');
+});
+
+test('the same preparation flow resolves blend face scope and hole entry without inventing process dimensions',async()=>{
+ for(const [op,params]of [['fillet',{radius:.2}],['chamfer',{distance:.15}]]){
+  const f=preparedFixture();const p=await f.api.prepareOperation({context:f.context,op,face:10,params});assert.equal(p.status,'prepared',JSON.stringify(p));assert.deepEqual(p.summary.params.faceIds,[10]);assert.equal(p.summary.baseline.volumeMm3,1000);assert.equal(f.calls.length,0);
+ }
+ const f=preparedFixture({faces:[{topologyId:5,surfaceType:'plane',planar:true,center:[10,15,2],normal:[0,0,1],area:600}]});
+ const hole=await f.api.prepareOperation({context:f.context,op:'holeWizard',face:'top',params:{kind:'plain',diameterMm:2,through:true}});assert.equal(hole.status,'prepared',JSON.stringify(hole));
+ assert.deepEqual([hole.summary.params.x,hole.summary.params.y,hole.summary.params.z],[10,15,2]);assert.equal(hole.summary.params.axis,'Z');assert.equal(hole.summary.params.direction,-1);
+ const blind=await f.api.prepareOperation({context:f.context,op:'holeWizard',face:'top',params:{kind:'counterbore',diameterMm:2,through:false}});assert.equal(blind.status,'needs_input');assert.deepEqual(blind.questions.map(q=>q.answerPath),['params.recessDiameterMm','params.recessDepthMm','params.depthMm']);assert.equal(f.calls.length,0);
+ const wrong=await f.api.prepareOperation({context:f.context,op:'fillet',face:5,params:{radius:.2,edgeIds:[1]}});assert.equal(wrong.error.code,'SELECTION_CONFLICT');
+});
+test('nested multi-pocket omissions resume the same preparation and disclose optional defaults',async()=>{
+ const f=preparedFixture(),p=await f.api.prepareOperation({context:f.context,op:'multiPocket',params:{depth:1,pockets:[{x:5,y:5,z:2,width:4}]}});
+ assert.equal(p.status,'needs_input');assert.deepEqual(p.questions.map(q=>q.answerPath),['params.pockets.0.height']);
+ const ready=await f.api.prepareOperation({context:f.context,preparationId:p.preparationId,answers:{'params.pockets.0.height':6}});assert.equal(ready.status,'prepared',JSON.stringify(ready));assert.equal(ready.summary.params.pockets[0].height,6);assert.equal(ready.summary.params.axis,'Z');assert.equal(ready.summary.params.direction,-1);assert.equal(f.calls.length,0);
+});
+
+test('relief retains a real layered source by short ID and asks for actual height without geometry',async()=>{
+ const f=preparedFixture(),layers=[{name:'原环',heightMm:.3,mode:'emboss',regions:[{outer:[[-.4,-.4],[.4,-.4],[.4,.4],[-.4,.4]],holes:[[[-.1,-.1],[-.1,.1],[.1,.1],[.1,-.1]]]}]}];
+ const source={version:1,widthMm:8,heightMm:8,layers};
+ const resource=await f.api.files.register({name:'original.relief.json',data:new Blob([JSON.stringify(source)])});
+ const read=await f.api.readRelief({context:f.context,resourceId:resource.resourceId,name:'original.relief.json',sourceInterpretation:'reviewedVectors'});
+ assert.equal(read.status,'read',JSON.stringify(read));assert.match(read.reliefId,/^relief_/);
+ const retained=await f.api.readRelief({context:f.context,reliefId:read.reliefId});assert.equal(retained.source.sha256,read.source.sha256);assert.deepEqual(retained.layers,read.layers);
+ assert.equal((await f.api.readRelief({context:f.context,reliefId:read.reliefId,name:'other.json'})).error.code,'PARAM_SCHEMA_INVALID');
+ const missing=await f.api.prepareOperation({context:f.context,op:'relief',face:10,params:{reliefId:read.reliefId}});
+ assert.equal(missing.status,'needs_input',JSON.stringify(missing));assert(missing.questions.some(q=>q.answerPath==='params.reliefHeightMm'));assert.equal(f.calls.length,0);
+ const plan=await f.api.prepareOperation({context:f.context,preparationId:missing.preparationId,answers:{'params.reliefHeightMm':.3}});
+ assert.equal(plan.status,'prepared',JSON.stringify(plan));assert.equal(plan.summary.params.layers[0].regions.retained,true);assert.equal(plan.summary.params.layers[0].regions.count,1);
+ await f.api.applyPreparedOperation({context:f.context,preparationId:plan.preparationId});
+ assert.equal(f.calls.length,1);const params=f.calls[0].args.params;
+ assert.equal(params.sizeXMm,8);assert.equal(params.sizeYMm,8);assert.equal(params.reliefHeightMm,.3);assert.equal(params.reliefId,undefined);
+ assert.deepEqual(params.layers[0].regions,layers[0].regions);assert.equal(params.layers[0].reliefHeightMm,.3);assert.equal(params.source.sha256,read.source.sha256);assert.equal(params.machiningIntent.requestedGeometry,'layeredRelief');
+});
+
+test('millimeter suffix variants map only to declared millimeter fields and preserve explicit sizes',async()=>{
+ const f=preparedFixture(),p=await f.api.prepareOperation({context:f.context,op:'box',params:{widthMm:20,depthMm:20,heightMm:3}});
+ assert.equal(p.status,'prepared',JSON.stringify(p));assert.deepEqual(p.summary.params,{width:20,depth:20,height:3});assert.equal(f.calls.length,0);
+ const conflict=await f.api.prepareOperation({context:f.context,op:'box',params:{width:10,widthMm:20,depth:20,height:3}});assert.equal(conflict.error.code,'PARAM_SCHEMA_INVALID');
+ const f2=preparedFixture(),blend=await f2.api.prepareOperation({context:f2.context,op:'fillet',face:'top',params:{radiusMm:.2}});assert.equal(blend.status,'prepared',JSON.stringify(blend));assert.equal(blend.summary.params.radius,.2);
+});
+
+test('relief asks for curved placement and rejects shaded references without computing',async()=>{
+ const f=preparedFixture({faces:[{topologyId:2,surfaceType:'cylinder',planar:false,center:[0,0,0],area:20}]}),values=Array.from({length:4},()=>[0,.3,.3,0]);
+ const input={context:f.context,op:'relief',face:2,params:{values,widthMm:8,heightMm:8,depthMm:.2,mode:'emboss',sourceInterpretation:'authoredHeightMap'}};
+ const needs=await f.api.prepareOperation(input);assert.equal(needs.status,'needs_input',JSON.stringify(needs));assert(needs.questions.some(q=>q.answerPath==='params.point'));assert.equal(f.calls.length,0);
+ const ready=await f.api.prepareOperation({context:f.context,preparationId:needs.preparationId,answers:{'params.point':[5,0,0]}});assert.equal(ready.status,'prepared',JSON.stringify(ready));
+ const shaded=await f.api.prepareOperation({...input,point:[5,0,0],params:{...input.params,sourceInterpretation:'shadedReference'}});assert.equal(shaded.status,'needs_input');assert(shaded.questions.some(q=>q.issue?.code==='MACHINING_INTENT_CONFLICT'));assert.equal(f.calls.length,0);
 });

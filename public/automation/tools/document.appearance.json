@@ -8,7 +8,7 @@
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -63,6 +63,28 @@
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "finish": {}
+    },
+    "required": [
+      "finish"
+    ]
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "document.appearance",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "appearance",
     "groupTitle": "名称、外观与显示",
@@ -132,5 +154,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9baf69a10e8f6f28e0d7ef4888dd2e190da1c48402ec855dcb7d8ed07854f7ac"
+  "docsHash": "sha256:8c19f6510fd5d4468c0f1a01ae1427845ab8befb7bc0a4404e9c777bfae09cb7"
 }

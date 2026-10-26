@@ -11,4 +11,4 @@
 <script src="runtime-uuid.js?v=20261026-isolated"></script>
 <script src="../agent-voice.js?v=20261024-3"></script>
 <script src="../agent-guidance.js?v=20261024-voice1"></script>
-<script type="module" src="webcad-workspace.js?v=20261026-isolated"></script></body></html>
+<script type="module" src="webcad-workspace.js?v=20261026-prepared1"></script></body></html>

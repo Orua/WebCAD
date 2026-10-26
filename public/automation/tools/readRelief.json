@@ -2,14 +2,14 @@
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "readRelief",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
+  "description": "readRelief({context,reliefId,includeData?:false})回读本页同一不可变原件；与文件参数互斥，不重新转换。首次读取readRelief({context,resourceId,name,includeData?:false,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
   "synonyms": [
     "readRelief",
     "浮雕",
@@ -27,8 +27,8 @@
     "轮廓",
     "凹凸曲面"
   ],
-  "inputContract": "readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
-  "outputContract": "status=read；分层文件返回layers、widthMm、heightMm、curveToleranceMm；图片返回values、regions、surfaceMode、contourSamples、rows、columns、aspectRatio、source{sha256,name,format,style}、interpretation；values/regions/surfaceMode/source一起交给relief params，不依赖UI选择。",
+  "inputContract": "readRelief({context,reliefId,includeData?:false})回读本页同一不可变原件；与文件参数互斥，不重新转换。首次读取readRelief({context,resourceId,name,includeData?:false,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。",
+  "outputContract": "status=read、reliefId；includeData:false仅返回摘要，避免高度/轮廓大数组往返。活动UI先用reliefWizard handoff移交原件和参数，再提交。reliefId也可直接用于execute feature.add/preview.start，程序在提交前绑定完整原件；尺寸、高度、方向与machiningIntent仍须明确。本页最多保留4份不可变原件，跨工程实例失效。分层文件返回layers、widthMm、heightMm、curveToleranceMm；图片返回values、regions、surfaceMode、contourSamples、rows、columns、aspectRatio、source{sha256,name,format,style}、interpretation；优先把reliefId交给prepareOperation(op:relief)，由页面保留完整高度、轮廓、孔洞和来源，不依赖UI选择。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -45,6 +45,125 @@
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.relief",
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "includeData": {
+        "type": "boolean"
+      },
+      "reliefId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "resourceId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "samples": {
+        "type": "integer",
+        "minimum": 4,
+        "maximum": 65
+      },
+      "whiteHigh": {
+        "type": "boolean"
+      },
+      "style": {
+        "enum": [
+          "grayscale",
+          "rounded",
+          "flat"
+        ]
+      },
+      "threshold": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "exclusiveMaximum": 1
+      },
+      "sourceInterpretation": {
+        "enum": [
+          "authoredHeightMap",
+          "rasterArtwork",
+          "reviewedVectors",
+          "shadedReference"
+        ]
+      }
+    },
+    "required": [
+      "context"
+    ],
+    "oneOf": [
+      {
+        "required": [
+          "reliefId"
+        ],
+        "not": {
+          "required": [
+            "resourceId"
+          ]
+        }
+      },
+      {
+        "required": [
+          "resourceId",
+          "name",
+          "sourceInterpretation"
+        ],
+        "not": {
+          "required": [
+            "reliefId"
+          ]
+        }
+      }
+    ]
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "readRelief",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "relief",
     "groupTitle": "LOGO、矢量浮雕与网格精修",
@@ -119,6 +238,10 @@
         "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
       },
       {
+        "id": "reliefWizard",
+        "chooseWhen": "操作当前浮雕UI草稿的尺寸与平面画布定位，source绑定真实原件为reliefId；不计算或提交几何。"
+      },
+      {
         "id": "planPatternMachining",
         "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
       }
@@ -126,5 +249,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:2633407eb5b4b7a50e5fb7f096d45847622882b173bbadb171b867576d4a7430"
+  "docsHash": "sha256:f1be87e13c506c6b6686059cea01fa4b4d4484504c2e7ef43494626c625d018a"
 }

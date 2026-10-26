@@ -2,7 +2,7 @@
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -30,6 +30,24 @@
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "getQuickModelUsage",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "discovery",
     "groupTitle": "连接、目录与文档",
@@ -83,5 +101,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7b4b7c4513d64983e8896aab14e870427195f4b4e35c64c311b80ad75a3e7dca"
+  "docsHash": "sha256:c39ea75946024d18705014a999a85234095d6a2f597d988f2ed814d2bfb18066"
 }

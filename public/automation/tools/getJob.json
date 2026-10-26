@@ -2,7 +2,7 @@
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -28,6 +28,24 @@
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "getJob",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "dispatch",
     "groupTitle": "执行、批次与异步作业",
@@ -81,5 +99,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2f7a57332281ad9481ce7f837c19e75e64c4bac279b0c500262a401645d835a3"
+  "docsHash": "sha256:e4e7881c6df67da8c275db6be9e8b8cfe7783e2a927946a2138ff78be35556ae"
 }

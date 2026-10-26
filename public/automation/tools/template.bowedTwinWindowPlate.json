@@ -636,6 +636,18 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.bowedTwinWindowPlate",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "bar-frames",
     "groupTitle": "双窗与带横杆框",
@@ -665,5 +677,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5bbd8ae104dac7f152f2656e67ff8da8a6d27310ace78e0b28a37bcdb5de21b0"
+  "docsHash": "sha256:4e7b99440a8c0466de05e05a172c77176095e84884c4f44679cce2fe8594a0b0"
 }

@@ -87,6 +87,7 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
   showFromDraft(heightSource){try{const g=heightSource?.source?.grid;if(!g)return;const cols=g.columns,rows=g.rows;let values;
    if(g.encoding==='u16le'&&typeof g.data==='string'){const bytes=Uint8Array.from(atob(g.data),c=>c.charCodeAt(0)),view=new DataView(bytes.buffer);values=Float64Array.from({length:cols*rows},(_,i)=>view.getUint16(i*2,true)/65535);}
    else if(Array.isArray(g.values))values=g.values;else return;
+   const settings=heightSource.source.settings;invert.checked=settings.invert;black.value=settings.levels.black;white.value=settings.levels.white;gamma.value=settings.gamma;blur.value=settings.blurPx;
    paintFromGrid({columns:cols,rows,values});depth.value=heightSource.depthMm??depth.value;keepout.value=heightSource.edgeKeepoutMm??keepout.value;fade.value=heightSource.edgeFadeMm??fade.value;
    info.textContent=`已保留草稿高度预览 ${cols}×${rows}（同草稿重开不清除图像面板）。`;sync();}catch(e){info.textContent=humanError(e);}}};
 }

@@ -2,7 +2,7 @@
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -28,6 +28,32 @@
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "queries": {},
+      "toolIds": {},
+      "limit": {},
+      "includeContracts": {},
+      "knownCatalogHash": {},
+      "knownDocsHash": {},
+      "knownHashes": {}
+    },
+    "required": []
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "connect",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "discovery",
     "groupTitle": "连接、目录与文档",
@@ -81,5 +107,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:76660fd69dcdfb6f96f1e5e3b6f0729c994766abbb326033c58fbc68e493b11d"
+  "docsHash": "sha256:dc70e35cb8d7aeb04c4c6558c78959ec99bf77e05e4f30f9e66ab0578f781694"
 }

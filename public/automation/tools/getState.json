@@ -2,7 +2,7 @@
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -80,6 +80,18 @@
     "api.evidence"
   ],
   "docs": "api.state-facts",
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "getState",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "discovery",
     "groupTitle": "连接、目录与文档",
@@ -133,5 +145,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:54007530892100e0ebe4ffe05c587055bbc4cfad73846e0a42ef29a1e6a34b0d"
+  "docsHash": "sha256:be642f3753cfbf15fbbc4e53cec2530f73225d3d2978bac3ee4c991ae808f1e6"
 }

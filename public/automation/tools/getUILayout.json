@@ -2,7 +2,7 @@
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -30,6 +30,28 @@
     "LIBRARY_STORAGE_UNAVAILABLE"
   ],
   "docs": "api.workspace",
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "includeModelLibrary": {
+        "type": "boolean"
+      }
+    },
+    "required": []
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "getUILayout",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "appearance",
     "groupTitle": "名称、外观与显示",
@@ -99,5 +121,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7ec5e5e3d10d00a32c21ad787d713d98089edb393a82b5b5233281c838fac954"
+  "docsHash": "sha256:e46a625386030716f048d57890b7adbb9ab9b859093e84d8211b86a41faf0415"
 }

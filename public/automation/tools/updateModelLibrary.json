@@ -2,7 +2,7 @@
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_view",
@@ -42,6 +42,78 @@
     "read": "getUILayout({includeModelLibrary:true}).modelLibrary",
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
+  },
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "expectedLibraryRevision": {
+        "type": "integer",
+        "minimum": -1
+      },
+      "operation": {
+        "enum": [
+          "move",
+          "restore"
+        ]
+      },
+      "id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "index": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "required": [
+      "context",
+      "expectedLibraryRevision",
+      "operation"
+    ]
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "updateModelLibrary",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
   },
   "selectionGuide": {
     "groupId": "discovery",
@@ -96,5 +168,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b3824cfbab0d509839cab471422deeb129590bcf1bc36d1b8379a6befac72519"
+  "docsHash": "sha256:dda80add2b0848600e8d91c22bc78fbccecc774af7d79b76062c99e29841ef8a"
 }

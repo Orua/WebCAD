@@ -655,6 +655,18 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.roundedBossTray",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "plates-shells",
     "groupTitle": "孔板、凸柱板与薄壁壳",
@@ -700,5 +712,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:04effcf47a649a2b2ed2563d9f636e49ccd2fcf01e380d0948a8ad6af8be7ed0"
+  "docsHash": "sha256:4e499493d0b93057abae83cfd7f4b6fd959264f711657447ce48cddadc2d824e"
 }

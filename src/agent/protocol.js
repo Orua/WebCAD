@@ -8,7 +8,7 @@ export const IDENTITY_KEYS = Object.freeze(['sessionId','documentId','documentIn
 export const READ_METHODS = new Set(['getBatchReceipt','connect','info','getState','waitFor','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs',
   'getMetalMaterials','getMaterials','measureMass','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectDesign','inspectProfile',
   'inspectConstraints','inspectFit','inspectThickness','inspectDraft','inspectPrintability','files.capabilities',
-  'planPatternMachining','prepareProfileEdit','projectProfile','sampleMeshRelief','sampleReliefHeight','prepareReliefSculpt','readRelief','readVector','connectVector',
+  'planPatternMachining','prepareProfileEdit','projectProfile','sampleMeshRelief','sampleReliefHeight','prepareReliefSculpt','reliefWizard','readRelief','readVector','connectVector',
   'fitProfile','traceTwinWindow','planAlignment','getUILayout','getQuickModelUsage','inspectRound','getModelLibrary','resolveModelLibrary']);
 export const VIEW_METHODS = new Set(['setMetalMaterials','setView','setRenderQuality','setDisplayPreferences','selectRectangle','redraw','capture','getEvidenceImage','updateModelLibrary','markLocation']);
 READ_METHODS.add('getDebugReport');
@@ -31,7 +31,10 @@ READ_METHODS.add('probeBlendRadius');
 for(const method of ['getServices','getServicesCapabilities','getServicesRouting','readLogo'])READ_METHODS.add(method);
 for(const method of ['reviewLogo','logoWizard','reliefDesignField','reliefDesignReference','reliefDesignFit']){READ_METHODS.add(method);JOB_METHODS.add(method);}
 READ_METHODS.add('prepareReliefDesignRelief');
+READ_METHODS.add('prepareOperation');JOB_METHODS.add('prepareOperation');JOB_METHODS.add('applyPreparedOperation');EDIT_METHODS.add('applyPreparedOperation');
+READ_METHODS.add('prepareToolCall');
 JOB_METHODS.add('readLogo');
+JOB_METHODS.add('reliefWizard');
 JOB_METHODS.add('probeBlendRadius');
 JOB_METHODS.add('files.reattach');
 // Host-managed resources and service credentials never enter model-controlled arguments.
@@ -52,7 +55,7 @@ const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,
   limits:{transport:{...LIMITS.transport},batch:{...LIMITS.batch}},
   hostOnlyMethods:HOST_ONLY_METHODS,routingGuidance:{
     wrongTool:'按 allowedTool 调用相同 method，保留其参数；本次未提交，不需要重连或重画。',
-    hostOnly:'该方法由宿主管理，不是 Agent 可调用入口；不要换工具反复调用，也不要通过 invoke/submit 包装绕过。选择已读工具卡的公开操作或报告该能力未开放。',
+    hostOnly:'该方法由宿主管理，不通过 invoke/submit 包装绕过。若工具卡给出 alternative，使用该公开入口；convertLogoPdf 的 PDF 转换由 webcad_read readLogo({context,sessionFileId,page,allowUpload:true})公开支持，不得把旧适配器 host-only 误报为 PDF 不可用。无公开替代时报告具体方法未开放。',
     notExposed:'当前绑定契约没有开放此方法；有页面文档不等于 MCP 可执行。核对 methodTools 和工具卡 mcpCall；同一版本无新证据时停止换入口/重连/反复查卡。'
   },
   methodSchemas:PAGE_METHOD_SCHEMAS,contextPolicies:Object.fromEntries([...READ_METHODS,...VIEW_METHODS,...EDIT_METHODS,...EXPORT_METHODS,'run','add','addMany'].map(name=>[name,contextPolicy(name)])),
@@ -63,7 +66,7 @@ export const AGENT_CONTRACT=Object.freeze({...contract,contractHash:contractHash
 export function editsDocument(payload) {
   if(payload?.method==='reliefDesignReference')return ['attach','detach'].includes(payload.args?.action);
   if(payload?.method==='run')return (payload.args?.steps||[]).some(editsDocument);
-  return ['add','addMany','execute','files.import','pasteSelection','setMetalMaterials'].includes(payload?.method);
+  return ['add','addMany','execute','files.import','pasteSelection','setMetalMaterials','applyPreparedOperation'].includes(payload?.method);
 }
 export function failure(code, message) { const error=Object.assign(new Error(message), {code});const recovery=errorRecovery(error);return Object.assign(error,{userMessage:recovery.userMessage,recovery}); }
 const plain = value => value && typeof value === 'object' && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype;
@@ -93,6 +96,7 @@ export function validatePayload(payload, binding, scopes) {
   if (!plain(payload) || Object.keys(payload).sort().join(',')!=='args,method' || !plain(payload.args)) throw failure('PARAM_SCHEMA_INVALID','Expected method and args');
   const {method,args}=payload;
   if (!scopes.includes('cad.read')) throw failure('scope_denied','CAD read access required');
+  if(method==='reliefWizard'&&!['get','source'].includes(args.action??'get')&&!scopes.includes('cad.edit'))throw failure('scope_denied','CAD edit access required for relief draft control');
   if(method==='reliefDesignReference'&&!['get','resource'].includes(args.action??'get')&&!scopes.includes('cad.edit'))throw failure('scope_denied','CAD edit access required for reference attachment');
   if(method==='reliefDesignField'&&!['get','candidate'].includes(args.action??'get')&&!scopes.includes('cad.edit'))throw failure('scope_denied','CAD edit access required for numerical field tasks');
   if(method==='reliefDesignFit'&&(args.action??'get')!=='get'&&!scopes.includes('cad.edit'))throw failure('scope_denied','CAD edit access required for numerical fitting tasks');

@@ -7,7 +7,7 @@
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -73,6 +73,59 @@
     "PROJECT_ENCODING_MESSAGE_ERROR",
     "PROJECT_ENCODING_SEND_FAILED"
   ],
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "name": {}
+    },
+    "required": [
+      "context"
+    ]
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "files.save",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "file-output",
     "groupTitle": "工程保存、导出与送达",
@@ -118,5 +171,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:71709deca776c8534227cfdc6d1ad17f5c0ca31ada6d5f14eb2a346d65d9c40a"
+  "docsHash": "sha256:7b2cf9d7ccc5ce6b96d939e80a5227a69d851cf6292a3a429dd807d173bb3d9b"
 }

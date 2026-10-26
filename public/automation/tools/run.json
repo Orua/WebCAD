@@ -2,7 +2,7 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "revision",
   "inputSchema": {
     "type": "object",
@@ -601,6 +601,18 @@
     "api.state-facts",
     "api.evidence"
   ],
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "run",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "dispatch",
     "groupTitle": "执行、批次与异步作业",
@@ -646,5 +658,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8594b1bd8eb5d42053ecdfb39b2e26f5aa6f47201086fbff554bfcaaef117b1d"
+  "docsHash": "sha256:2b923584d649a5b18cf3df7bb21e711fd30b5e3f1d3a25631a54937828f24057"
 }

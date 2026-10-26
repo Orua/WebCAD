@@ -1,4 +1,23 @@
 // Programmatic host input: real bytes only; no picker events, paths or URLs.
+const canvasSource=name=>/\.(step|stp|brep|brp|stl|obj|ply|3mf)$/i.test(name||'');
+const sameDocument=(a,b)=>a&&b&&['sessionId','documentId','documentInstanceId'].every(key=>a[key]===b[key]);
+// File selection can finish before the page knowledge handshake. Resolve that
+// race before creating a model task instead of sending an unusable attachment.
+export async function ensureCanvasResources(items,{snapshot,register,release=async()=>{}}){
+ const needed=items.filter(item=>canvasSource(item.name));if(!needed.length)return;
+ const initial=await snapshot();
+ if(!initial.ready||!initial.context?.documentInstanceId)throw Object.assign(Error('画布尚未就绪，附件已保留；连接完成后再发送。'),{code:'ATTACHMENT_CANVAS_NOT_READY'});
+ for(const item of needed){
+  if(item.resourceId&&sameDocument(item.resourceBinding,initial.context))continue;
+  let resource;
+  try{
+   resource=await register(item.file);
+   if(!resource?.resourceId||resource.size!==item.size||resource.sha256!==item.sha256)throw Object.assign(Error('画布资源回执与选定原件不符，未发送任务。'),{code:'ATTACHMENT_REGISTER_MISMATCH'});
+   const latest=await snapshot();if(!latest.ready||!sameDocument(initial.context,latest.context))throw Object.assign(Error('附件登记期间工程已变化，附件保留；请核对当前工程后再发送。'),{code:'ATTACHMENT_BINDING_CHANGED'});
+   item.resourceId=resource.resourceId;item.resourceBinding={...initial.context};
+  }catch(error){if(resource?.resourceId)try{await release(resource.resourceId);}catch{}throw error;}
+ }
+}
 export function createAttachmentBytesAPI({snapshot,accept,validate,FileType=File}){
   let running=false;
   const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};

@@ -43,6 +43,10 @@ Optional persistent cache: download the target page's `automation/index.json` an
 
 Read [references/connection.md](references/connection.md) for installation/update commands, host adapter requirements and a short client example. The optional `scripts/page-client.mjs` accepts an already authorized CDP `send` adapter, reads a fresh context for each batch, generates a unique key, awaits page promises and reports uncertain outcomes without replay. It does not open a browser, grant permissions, install dependencies or start a service.
 
+## 准备单简化入口
+
+明确的建模操作（含advisory）优先读prepareOperation/applyPreparedOperation短卡：准备返回prepared或needs_input。按questions.answerPath或answerPaths补答同一preparationId；只有缺少真实设计意图才问用户。prepared后按nextCall应用编号，不重拼refs/版本/hash。其余工具先用prepareToolCall({context,toolId,args})，用callPreparationId/answers续接；prepared后按原工具nextCall执行，blocked不绕过宿主管理或伪装成功。全部卡均有preparation入口，示例见api.prepare-tools。浮雕readRelief返回reliefId，页面复用真实高度/分层/轮廓/孔洞/来源，尺寸、凹凸、实际高度须明确，曲面落点不猜。文件导入仍用宿主已登记的附件resourceId。
+
 ## 确定参数后的快速提交
 
 源图/尺寸已确认且无需中间面边查询时，读取 api.feature-plan 与 feature.addMany 卡；在run中用method:addMany一次提交主体、刀具、定位、布尔。每项使用key，refs用当前ID或{feature:"earlierKey"}。计划保留每个可编辑特征，一次重建/一个撤销步骤；失败全部不提交。Logo、选择性圆角与需要当前拓扑的加工分段执行。不要把未确认源参数变成模板假设。结果steps的elapsedMs用于区分建模、检查、导出；整件用宿主计时，不将内核时间称为端到端。

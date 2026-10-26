@@ -2,7 +2,7 @@
   "id": "getEvidenceImage",
   "title": "getEvidenceImage",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "revision",
   "inputSchema": {
     "type": "object",
@@ -126,6 +126,18 @@
     "maxWidth": 640,
     "format": "webp"
   },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "getEvidenceImage",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "appearance",
     "groupTitle": "名称、外观与显示",
@@ -203,5 +215,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:40c84260c29fdb626c19dff1237310b6d3bb2b3a997214f9f244217a42f348e1"
+  "docsHash": "sha256:3214ae2baa8a58b9cc9504205aa72c2fc0c7a4adee63f2e0899c0fbe8ac9d48d"
 }

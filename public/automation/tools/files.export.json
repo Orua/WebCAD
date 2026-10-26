@@ -7,7 +7,7 @@
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -71,6 +71,69 @@
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "format": {
+        "enum": [
+          "step",
+          "stl",
+          "brep",
+          "png"
+        ]
+      },
+      "ids": {},
+      "name": {}
+    },
+    "required": [
+      "context",
+      "format"
+    ]
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "files.export",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "file-output",
     "groupTitle": "工程保存、导出与送达",
@@ -124,5 +187,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:0f5768a27e9c7c2fe1b2c2f85b5f35007ff47fe06a49d07e04864d4849649aa2"
+  "docsHash": "sha256:bca9256a4bba79cba783a5e9e99967f94a9bfb8c0dff4b5d19da2adf6614fcb7"
 }

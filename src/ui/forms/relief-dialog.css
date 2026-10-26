@@ -1,0 +1,23 @@
+@import '../logo-vector-review.css';
+.relief-wizard .relief-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.relief-wizard .relief-form>.wide{grid-column:1/-1}
+.relief-wizard .form-field{min-width:0;margin:0}
+.relief-wizard .relief-check{display:flex;align-items:center;gap:8px}
+.relief-wizard .relief-check input{width:auto}
+.relief-wizard .relief-options{padding:10px 0;border-top:1px solid var(--border)}
+.relief-wizard .relief-options summary{cursor:pointer;font-size:12px;font-weight:600;margin-bottom:8px}
+.relief-wizard .relief-options:not([open]) summary{margin-bottom:0}
+.relief-wizard .relief-thumbnail{grid-column:1/-1;display:grid;justify-items:center;gap:6px;width:100%;padding:10px;font-size:11px}
+.relief-wizard .relief-thumbnail[hidden]{display:none}
+.relief-wizard .relief-thumbnail canvas{display:block!important;width:100%;height:160px;object-fit:contain;background:var(--panel)}
+.relief-wizard .relief-actions{display:flex;gap:8px;flex-wrap:wrap}
+.relief-wizard .relief-footer{position:sticky;bottom:0;background:var(--panel);padding-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+.relief-wizard .relief-footer button{flex:1 1 auto}
+.relief-wizard .property-callout{white-space:pre-line;overflow-wrap:anywhere}
+.relief-large-preview{width:min(900px,94vw);max-height:90dvh}
+.relief-large-preview canvas{display:block;width:100%;height:min(65dvh,650px);object-fit:contain;background:var(--panel)}
+.logo-placement-overlay[data-ui-action=relief] .logo-placement-toolbar{flex-wrap:wrap;justify-content:center}
+.logo-placement-overlay[data-ui-action=relief] button[aria-label=预览浮雕]{background:var(--primary,#2466a4);color:#fff}
+@media(max-width:480px){.relief-wizard .relief-form{gap:8px}.relief-wizard .relief-thumbnail canvas{height:130px}}
+
+.right-panel .cad-dialog.relief-wizard .relief-form{grid-template-columns:repeat(2,minmax(0,1fr))}

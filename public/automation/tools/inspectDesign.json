@@ -2,7 +2,7 @@
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -296,6 +296,18 @@
     "maxMaterialPoints": 128
   },
   "unknownFields": "rejected",
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "inspectDesign",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "inspection",
     "groupTitle": "测量、拓扑与质量检查",
@@ -345,5 +357,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c3a0143204a52687ab207dc09dbc895a79e175e6d5513cae414ea74710589455"
+  "docsHash": "sha256:b7a31b5fc323ec859fe6cf3d9fa53bfdba5ad392fc43105619f00937efa3f15d"
 }

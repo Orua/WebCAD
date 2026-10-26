@@ -2,7 +2,7 @@
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -276,6 +276,18 @@
     "FRAME_INVALID",
     "PLACEMENT_NOT_APPLICABLE"
   ],
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "resolvePlacement",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "transform",
     "groupTitle": "实体、相机与对齐",
@@ -329,5 +341,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8638617a1c3e6651a593a5b42b3d2f882c3995a10ad263f7f71ac2830dbcb769"
+  "docsHash": "sha256:c25cf2ba6582333441beb84d6488df63ed07a9fad9b76ef3195e2b1e3fd4e21c"
 }

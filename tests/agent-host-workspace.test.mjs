@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {timingTotals,createTurnTimeline} from '../host/Goldenluck.WebCADHost/site/AI/WebCAD/turn-timing.js';
+import {ensureCanvasResources} from '../host/Goldenluck.WebCADHost/site/AI/WebCAD/attachment-bytes.js';
 const source=await readFile(new URL('../host/Goldenluck.WebCADHost/site/AI/WebCAD/workspace-transport.js',import.meta.url),'utf8');
 const {readGatewayJson,gatewayFetch,createRecoveryLoop,publicProgressText,toolActivityText,cadOutcomeText,uploadHostArtifact,durationText,historyUserText,modelCatalogPlan,isModelSelectionError,modelSelectionMessage}=await import(new URL('../host/Goldenluck.WebCADHost/site/AI/WebCAD/workspace-transport.js',import.meta.url));
 const modelWorkspace=await readFile(new URL('../host/Goldenluck.WebCADHost/site/AI/WebCAD/webcad-workspace.js',import.meta.url),'utf8');
@@ -76,7 +77,7 @@ test('actual refresh path blocks absent/failed choices and only reads the model 
 function sendHarness(error,{pending=null,ready=true}={}){
  let submit,refreshes=0,recoveries=0,sendCalls=0;
  const handlerSource=sendSource(modelWorkspace);
- const run=Function('document','rpc','isModelSelectionError','modelSelectionMessage','isTransportError','initialPending','ready',`
+ const run=Function('document','rpc','isModelSelectionError','modelSelectionMessage','isTransportError','initialPending','ready','ensureCanvasResources',`
   let taskId=null,sending=false,connecting=false,projectOpening=false,attaching=false,disposed=false,manualControl=false,knowledgeReady=true,pendingSend=initialPending,attachments=[];
   const session={agentMode:'native',binding:{},leaseEpoch:1},adapter={state:()=>({pending:[]})},modelSelect={value:'a'},prompt={value:'测量现有模型',focus(){}},notices=[],modelNotice={},modelNoticeText={};
   const attachmentPicker={ready:async()=>{},clear(){}},api=()=>({getState:async()=>({context:{}})});
@@ -91,7 +92,7 @@ function sendHarness(error,{pending=null,ready=true}={}){
  const state=run({getElementById:id=>id==='chat'?{addEventListener:(_,handler)=>submit=handler}:{value:'1'}},async action=>{
   if(action==='heartbeat')return {};if(action==='send'){sendCalls++;throw error;}if(action==='models'){refreshes++;return {};}if(action==='recover'){recoveries++;return {};}
   throw Error('unexpected action '+action);
- },isModelSelectionError,modelSelectionMessage,()=>true,pending,ready);
+ },isModelSelectionError,modelSelectionMessage,()=>true,pending,ready,ensureCanvasResources);
  assert.equal(typeof submit,'function','the real form listener remains registered');
  return {state,submit:()=>state.send(),counts:()=>({refreshes,recoveries,sendCalls})};
 }
@@ -183,7 +184,7 @@ test('UP-12 completed controls release before stalled attachment lists, without 
 test('UP-11 empty requests start once immediately; attached requests upload before start and unknown sends keep their key',async()=>{
   const workspace=await readFile(new URL('../host/Goldenluck.WebCADHost/site/AI/WebCAD/webcad-workspace.js',import.meta.url),'utf8');
   const submit=sendSource(workspace);
-  const makeFactory=new Function('isModelSelectionError','modelSelectionMessage',`return function(attachments,failFirstSend,agentMode){
+  const makeFactory=new Function('isModelSelectionError','modelSelectionMessage','ensureCanvasResources',`return function(attachments,failFirstSend,agentMode){
     let taskId=null,sending=false,connecting=false,projectOpening=false,session={leaseEpoch:1,agentMode:agentMode||'native'},manualControl=false,disposed=false,pendingSend=null,overlayDismissed=false,lastHeartbeatAt=0,knowledgeReady=true;
     let handler;const actions=[],sendKeys=[],sendPayloads=[],prompt={value:'测试请求',focus(){}},modelSelect={value:'test-model'};
     const modelSendReady=()=>true,modelNotice={},modelNoticeText={},refreshModels=()=>{},adapter={state:()=>({pending:[]})},documentChanged=()=>false,attachmentIdentity=item=>item.resourceId;
@@ -197,7 +198,7 @@ test('UP-11 empty requests start once immediately; attached requests upload befo
     ${submit}
     return {run:()=>sendChat(),actions,sendKeys,sendPayloads};
   };`);
-  const factory=makeFactory(isModelSelectionError,modelSelectionMessage);
+  const factory=makeFactory(isModelSelectionError,modelSelectionMessage,ensureCanvasResources);
   const empty=factory([],false);await empty.run();assert.deepEqual(empty.actions,['heartbeat','send','follow']);assert.equal(empty.sendPayloads[0].autoStart,true);assert.equal(empty.sendPayloads[0].message,'测试请求');
   const external=factory([],false,'external');await external.run();assert.equal(external.sendPayloads[0].message,'外部模式连接指令\n\n【当前用户请求】\n测试请求');
   const attached=factory([{name:'原图.svg',resourceId:'vector-test',kind:'vector',size:17,file:new Uint8Array(17)}],false);await attached.run();

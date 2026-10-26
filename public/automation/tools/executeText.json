@@ -2,7 +2,7 @@
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -32,6 +32,24 @@
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.text-command",
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "executeText",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "dispatch",
     "groupTitle": "执行、批次与异步作业",
@@ -77,5 +95,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e3fdf617c7c220d5e9290716c7e21e92a0eda476954f3f38a2ee1678e24c5ae4"
+  "docsHash": "sha256:95dbee502914105c766841e521b13ae60129f5fd57dd9f2d5a80c88d18ec82bf"
 }

@@ -34,6 +34,9 @@ import {validateReferenceQuery} from './reference-query.js';
 import {readVectorInput,selectVector} from './browser-vector-input.js';
 import {connectVector} from './vector-import.js';
 import {planPatternMachining,validateMachiningIntent} from './machining-intent.js';
+import {readReliefImageDesign} from './relief-image-design.js';
+import {materializeReliefReference,reliefReadResult} from './relief-reference.js';
+import {reliefEditorState,actReliefEditor} from './relief-ui-state.js';
 import {readReliefImage} from './relief-image.js';
 import {prepareReliefSculpt,sampleReliefHeight,reliefLayerParams} from './relief-sculpt.js';
 import {planReliefTopologyUpgrade} from './services/relief-plan.js';
@@ -42,11 +45,13 @@ import {geometryRecipeFingerprint} from './services/geometry-exchange.js';
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 import {assertHistoryEditSafe} from './history-edit-safety.js';
 import {validateDesignRequirements} from './design-inspection.js';
-import {normalizeOperationParams} from './operation-registry.js';
+import {normalizeOperationParams,normalizeOperationPatch} from './operation-registry.js';
 import {modelLibrary} from './model-library.js';
 import {errorRecovery,withErrorRecovery} from './error-recovery.js';
 import {createStateObserver} from './agent/state-observer.js';
 import {createVisualEvidence} from './visual-evidence.js';
+import {createOperationPreparation} from './prepared-operations.js';
+import {createToolCallPreparation} from './tool-call-preparation.js';
 
 // Only structured, bounded commands cross this boundary. No mutable app objects escape.
 
@@ -104,9 +109,15 @@ export function createPageAPI(host){
   const vectorCache=new Map();
   const drawingCache=new Map();
   const logoCache=new Map();
+  const reliefCache=new Map();let reliefSequence=0;
+  const imageDesignRequests=new Map();
+  function trimReliefCache(){while(reliefCache.size>=4){const id=reliefCache.keys().next().value,old=reliefCache.get(id);reliefCache.delete(id);if(old?.ownsSourceResource)Promise.resolve(rawFiles.release({resourceId:old.sourceResourceId})).catch(()=>{});}}
+  let operationPreparation;
+  let toolCallPreparation;
   function cachedLogo(logoId,s){
     const cached=logoCache.get(logoId);
-    if(!cached||cached.documentInstanceId!==s.context.documentInstanceId)fail('RESOURCE_EXPIRED','Read the original LOGO again in this document');
+    if(!cached)fail('RESOURCE_EXPIRED','Unknown logoId in this page. Copy the exact logoId from the current readLogo or reviewLogo result; do not reconstruct it.','logoId');
+    if(cached.documentInstanceId!==s.context.documentInstanceId)fail('RESOURCE_EXPIRED','This logoId belongs to a different document instance; read the original LOGO in this document.','logoId');
     if(cached.wizardBinding?.valid===false){releaseLogoEntry(logoId,cached);fail('RESOURCE_EXPIRED','The wizard source or parameters changed; attach the current draft again');}
     const state=cached.reviewSession.get();cached.logo=state.logo;
     if(cached.artifactRevision!==state.revision&&cached.resources?.length)releaseLogoArtifacts(cached);
@@ -115,10 +126,10 @@ export function createPageAPI(host){
   function materializeLogo(args){
     if(args?.op!=='logo'||!args.params?.logoId)return args;
     const {logoId,expectedReviewRevision,...params}=args.params;
-    if(params.regions!==undefined||params.source!==undefined)fail('PARAM_SCHEMA_INVALID','Choose logoId or explicit contours, not both');
+    if(params.regions!==undefined||params.source!==undefined)fail('PARAM_SCHEMA_INVALID','With logoId, omit source and regions; the current draft supplies its verified contours and provenance.','params.source');
     const cached=cachedLogo(logoId,current()),review=cached.reviewSession.get();
     if(review.reviewRequired)fail('LOGO_REVIEW_REQUIRED','The requested preview has not been confirmed.');
-    if(expectedReviewRevision!==undefined&&expectedReviewRevision!==review.revision)fail('LOGO_REVIEW_STALE','Read the current draft revision');
+    if(expectedReviewRevision!==undefined&&expectedReviewRevision!==review.revision)fail('LOGO_REVIEW_STALE','expectedReviewRevision differs from the current draft; read reviewLogo.review.revision, or omit this optional lock.','params.expectedReviewRevision');
     return {...args,params:{...logoOperationData(review.logo),...params}};
   }
   function releaseLogoArtifacts(cached){
@@ -291,8 +302,11 @@ export function createPageAPI(host){
     updateModelLibrary:guarded(input=>{check(input,['context','expectedLibraryRevision','operation','id','index']);const {context,...change}=input;const result=modelLibrary.update(change);host.refreshLibrary?.();return {status:'applied',...result,context:current().context};}),
     resolveModelLibrary:guarded(input=>{check(input,['context','id','expectedLibraryRevision','params']);const {context,...request}=input;return {status:'read',...modelLibrary.resolve(request),context:current().context};}),
     createRequestContext:(context=current().context)=>requestContext(context),
+    prepareOperation:guarded(input=>{check(input,['context','op','bodyId','refs','params','face','point','intent','name','placement','preparationId','answers'],'identity');return operationPreparation.prepare(input);}),
+    prepareToolCall:guarded(input=>{check(input,['context','toolId','args','callPreparationId','answers'],'identity',true);return toolCallPreparation(input);}),
+    applyPreparedOperation:guarded(input=>{check(input,['context','preparationId'],'identity',true);return operationPreparation.apply(input);}),
     searchTools:input=>searchTools(input,{browserReady:current().summary.kernelReady}),getTools,getTool,readDocs,
-    execute:async input=>{if(input?.action==='document.reliefDesignReference')return failure(Object.assign(new Error('Use the registered-resource reliefDesignReference method'),{code:'PARAM_SCHEMA_INVALID'}));let request;try{request=normalizeRequest(input);}catch(e){return failure(e);}let submitted=false;try{if(request?.action==='preview.start'&&request.args?.fileImport){const file=request.args.fileImport;if(Object.keys(request.args).some(key=>key!=='fileImport')||!file||typeof file!=='object'||Object.keys(file).some(key=>!['resourceId','name','placement'].includes(key)))fail('PARAM_SCHEMA_INVALID','File preview takes only fileImport with resourceId and placement');const source=await rawFiles.previewInput({resourceId:file.resourceId});request={...request,args:{fileImport:{...source,resourceId:file.resourceId,placement:file.placement}}};}if(['feature.add','preview.start'].includes(request.action))request={...request,args:materializeLogo(request.args)};submitted=true;return withErrorRecovery(await host.execute(request));}catch(e){return submitted?withErrorRecovery({...failure(e),status:'unknown',commitState:'unknown',error:{...failure(e).error,recoveryAction:'INSPECT_STATE_BEFORE_RETRY'}}):failure(e);}},queryGeometry:guarded(input=>host.query(input)),
+    execute:async input=>{if(input?.action==='document.reliefDesignReference')return failure(Object.assign(new Error('Use the registered-resource reliefDesignReference method'),{code:'PARAM_SCHEMA_INVALID'}));let request;try{request=normalizeRequest(input);}catch(e){return failure(e);}let submitted=false;try{if(request?.action==='preview.start'&&request.args?.fileImport){const file=request.args.fileImport;if(Object.keys(request.args).some(key=>key!=='fileImport')||!file||typeof file!=='object'||Object.keys(file).some(key=>!['resourceId','name','placement'].includes(key)))fail('PARAM_SCHEMA_INVALID','File preview takes only fileImport with resourceId and placement');const source=await rawFiles.previewInput({resourceId:file.resourceId});request={...request,args:{fileImport:{...source,resourceId:file.resourceId,placement:file.placement}}};}if(['feature.add','preview.start'].includes(request.action))request={...request,args:materializeReliefReference(materializeLogo(request.args),reliefCache.get(request.args?.params?.reliefId),current().context.documentInstanceId)};submitted=true;return withErrorRecovery(await host.execute(request));}catch(e){return submitted?withErrorRecovery({...failure(e),status:'unknown',commitState:'unknown',error:{...failure(e).error,recoveryAction:'INSPECT_STATE_BEFORE_RETRY'}}):failure(e);}},queryGeometry:guarded(input=>host.query(input)),
     queryReferences:guarded(async input=>{check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);const request=validateReferenceQuery(input),result=await host.references(request);check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);return result;}),
     resolvePlacement:guarded(async input=>{check(input,['context','op','params','refs','placement']);if(typeof input.op!=='string'||!Array.isArray(input.refs)||input.refs.some(id=>typeof id!=='string')||!input.params||typeof input.params!=='object')fail('PARAM_SCHEMA_INVALID','op, params and refs required');const result=await host.resolvePlacement(input);check(input,['context','op','params','refs','placement']);return result;}),
     setRenderQuality:guarded(async input=>{check(input,['context','quality']);renderQuality(input.quality);await host.quality(input.quality);check(input,['context','quality']);return {status:'applied',context:current().context,renderQuality:current().renderQuality,display:host.display()};}),
@@ -559,6 +573,7 @@ export function createPageAPI(host){
       return {...result,context:current().context};
     }),
     readLogo:guarded(async input=>{
+      if(input?.logoId!==undefined)fail('PARAM_SCHEMA_INVALID','readLogo creates a new draft and does not accept logoId. Use reviewLogo({context,logoId,action:"get"}) to inspect the existing draft, or pass logoId in logo operation params.','logoId');
       const keys=['context','resourceId','name','targetWidthMm','page','sizeConfirmed','allowUpload','raster','pdfJoinToleranceMm','machining','logo','sessionFileId','reviewPolicy'];check(input,keys);
       const policy=input.reviewPolicy??'automatic';if(!['automatic','preview'].includes(policy))fail('PARAM_SCHEMA_INVALID','Choose automatic or preview reviewPolicy');
       if(input.sessionFileId&&!input.logo&&!input.resourceId)fail('CAPABILITY_UNAVAILABLE','sessionFileId is resolved by the authorized native host, not the page.');
@@ -581,7 +596,9 @@ export function createPageAPI(host){
       return {status:'read',context:current().context,logoId,logo,machiningReadiness:inspectLogoMachiningCapacity(logo),review,sourceResourceId:input.resourceId??null,reviewRequired:review.reviewRequired,reviewPolicy:policy,nextAction:review.reviewRequired?'Use logoWizard action open with logoId to show the large editor; stop until the user confirms.':'Vectorization is complete. Keep vectors in host storage; use logo params.logoId for the authorized engraving. Do not echo contour arrays or ask for a redundant confirmation.'};
     }),
     reviewLogo:guarded(async input=>{
-      const keys=['context','logoId','action','expectedRevision','regionIndex','holeIndex','pointIndex','pointMm','confirmed'],s=check(input,keys),cached=cachedLogo(input.logoId,s),action=input.action??'get';
+      const keys=['context','logoId','action','expectedRevision','regionIndex','holeIndex','pointIndex','pointMm','confirmed'],s=check(input,keys);
+      if(typeof input.logoId!=='string'||!input.logoId)fail('PARAM_SCHEMA_INVALID','reviewLogo requires logoId from the current readLogo result; readLogo does not accept logoId.','logoId');
+      const cached=cachedLogo(input.logoId,s),action=input.action??'get';
       if(typeof action!=='string')fail('PARAM_SCHEMA_INVALID','Provide a LOGO review action');
       if(cached.artifactPending&&action!=='get')fail('LOGO_WIZARD_BUSY','Wait for the original artifact request');
       if(action==='artifacts'){
@@ -615,13 +632,55 @@ export function createPageAPI(host){
       }
       return {status:'applied',wizard,context:current().context};
     }),
+    reliefWizard:guarded(async input=>{
+      const keys=['context','action','expectedRevision','parameters','placement','alignment','reliefId','resourceId','name','idempotencyKey','widthMm','heightMm','depthMm','precisionMm','invert','sourceInterpretation'];check(input,keys,'identity');
+      const action=input.action??'get';
+      if(action==='createDesign'){
+        if(typeof input.idempotencyKey!=='string'||!input.idempotencyKey||input.idempotencyKey.length>80)fail('PARAM_SCHEMA_INVALID','createDesign需要唯一idempotencyKey。','idempotencyKey');
+        const instance=current().context.documentInstanceId,key=instance+':'+input.idempotencyKey,{context,...payload}=input,fingerprint=JSON.stringify(payload),old=imageDesignRequests.get(key);
+        if(old){if(old.fingerprint!==fingerprint)fail('IDEMPOTENCY_CONFLICT','同一图片浮雕请求编号不能改变参数。');return old.promise;}
+        if(imageDesignRequests.size>=16)fail('RESOURCE_LIMIT','本页图片浮雕请求已达到16项，请核对现有设计。');
+        const promise=(async()=>{
+          const cached=input.reliefId?reliefCache.get(input.reliefId):null;
+          if(input.reliefId&&(!cached||cached.documentInstanceId!==instance))fail('RESOURCE_EXPIRED','请使用当前工程的原始浮雕编号。');
+          if(input.reliefId&&input.resourceId)fail('PARAM_SCHEMA_INVALID','reliefId与resourceId二选一。');
+          const resourceId=input.resourceId??cached?.sourceResourceId;
+          if(!resourceId)fail('RESOURCE_EXPIRED','需要登记的原始高度图，不能用采样网格冒充原图。');
+          const blob=await rawFiles.read({resourceId}),file=new File([blob],input.name??cached?.source?.name??'height.png',{type:blob.type});
+          const result=await readReliefImageDesign(file,input,current().context);check(input,keys,'identity');
+          const id=crypto.randomUUID(),receipt=await api.execute({context:requestContext(current().context),idempotencyKey:input.idempotencyKey,action:'document.reliefDesign',args:{id,expectedDraftRevision:0,draft:result.draft}});
+          if(!['committed','no_change'].includes(receipt.status))return receipt;
+          const entry=current().reliefDesigns?.find(d=>d.id===id);
+          return {status:'created-design',commitState:'design_only',geometryReady:false,designId:id,draftRevision:entry?.revision??1,conversion:result.conversion,context:current().context,nextAction:'使用reliefDesignField solve、reliefDesignFit servicesFirst、prepareReliefDesignRelief读取所选平面并明确placement/datum/intent，再preview.start和commit；这是图片拟合链路，不提交到通用轮廓relief桥接。'};
+        })();imageDesignRequests.set(key,{fingerprint,promise});return promise;
+      }
+      if(!['get','source','handoff','parameters','position','align'].includes(action))fail('PARAM_SCHEMA_INVALID','未知浮雕向导动作。','action');
+      if(action==='get')return {status:'read',wizard:reliefEditorState(),context:current().context};
+      const result=await actReliefEditor({...input,action:action==='handoff'?'source':action});check(input,keys,'identity');
+      if(action==='source'||action==='handoff'){
+        const wizard=reliefEditorState(),instance=current().context.documentInstanceId;
+        let cached=[...reliefCache.values()].find(c=>c.documentInstanceId===instance&&c.uiRevision===wizard.revision&&c.uiEditorId===wizard.editorId);
+        if(!cached){trimReliefCache();const reliefId=`relief_${++reliefSequence}`;cached={...structuredClone(result.data),reliefId,documentInstanceId:instance,uiRevision:wizard.revision,uiEditorId:wizard.editorId};reliefCache.set(reliefId,cached);}
+        if(!cached.sourceResourceId&&result.file){const resource=await rawFiles.register({name:result.file.name,data:result.file});cached.sourceResourceId=resource.resourceId;cached.ownsSourceResource=true;}
+        if(action==='handoff')await actReliefEditor({action:'dismiss'});
+        return {status:'attached',editorClosed:action==='handoff',reliefId:cached.reliefId,bodyId:result.bodyId,params:{...result.params,reliefId:cached.reliefId},wizard,context:current().context};
+      }
+      return {status:'draft',wizard:reliefEditorState(),context:current().context};
+    }),
     readRelief:guarded(async input=>{
-      const keys=['context','resourceId','name','samples','whiteHigh','style','threshold','sourceInterpretation'];check(input,keys);
+      const keys=['context','reliefId','resourceId','name','samples','whiteHigh','style','threshold','sourceInterpretation','includeData'];check(input,keys);
+      if(input.reliefId!==undefined){
+        if(Object.keys(input).some(key=>!['context','reliefId','includeData'].includes(key)))fail('PARAM_SCHEMA_INVALID','读取已有浮雕原件只传context和reliefId。','reliefId');
+        const cached=reliefCache.get(input.reliefId);if(!cached||cached.documentInstanceId!==current().context.documentInstanceId)fail('RESOURCE_EXPIRED','此浮雕编号不在当前页面/工程实例；请读取真实原件，不重构编号。','reliefId');
+        const {documentInstanceId,...data}=structuredClone(cached);return {status:'read',...reliefReadResult(data,input),context:current().context};
+      }
       if(typeof input.resourceId!=='string'||!input.resourceId||typeof input.name!=='string')fail('PARAM_SCHEMA_INVALID','Provide a registered image resourceId and its file name');
       const blob=await rawFiles.read({resourceId:input.resourceId});
       if(!input.sourceInterpretation)fail('MACHINING_SOURCE_REQUIRED','Declare sourceInterpretation; shaded reference brightness is not depth.');
       const data=await readReliefImage(blob,input);check(input,keys);
-      return {status:'read',...data,context:current().context};
+      trimReliefCache();
+      const reliefId=`relief_${++reliefSequence}`;reliefCache.set(reliefId,{...structuredClone(data),reliefId,sourceResourceId:input.resourceId,documentInstanceId:current().context.documentInstanceId});
+      return {status:'read',reliefId,...reliefReadResult(data,input),context:current().context};
     }),
     readVector:guarded(async input=>{
       const keys=['context','resourceId','name','text','scaleMm','targetWidthMm','entityIds','bounds','layers','offset','limit'];check(input,keys);
@@ -736,6 +795,13 @@ export function createPageAPI(host){
         ...(input.maxWidth?{maxWidth:input.maxWidth}:{}),...(shot.width?{width:shot.width,height:shot.height}:{}),format};
     }),files:Object.freeze(files),
   };
+  operationPreparation=createOperationPreparation({state:current,getCard:getTool,normalize:normalizeOperationParams,execute:input=>api.execute(input),
+    queryFaces:input=>api.queryGeometry({context:current().context,kind:'face',...input}),
+    pointOnFace:(bodyId,topologyId,pointWorld)=>api.measureRelation({context:current().context,mode:'pointFace',face:{bodyId,kind:'face',topologyId},pointWorld}),
+    measureBody:bodyId=>api.measure({context:current().context,bodyId,kind:'body'}),
+    logoDrafts:()=>[...logoCache.values()].filter(c=>c.documentInstanceId===current().context.documentInstanceId&&c.wizardBinding?.valid!==false).map(c=>({...c.reviewSession.get(),logoId:c.logoId,name:c.sourceName})),
+    reliefDrafts:()=>[...reliefCache.values()].filter(c=>c.documentInstanceId===current().context.documentInstanceId)});
+  toolCallPreparation=createToolCallPreparation({state:current,getCard:getTool,normalizePatch:normalizeOperationPatch});
   const run=createPageBatch(api,{display:host.displayBatch});
   api.run=guarded(input=>run(input));
   api.getBatchReceipt=guarded(input=>{if(!input||Object.keys(input).some(key=>!['idempotencyKey','documentInstanceId'].includes(key)))fail('PARAM_SCHEMA_INVALID','Provide only idempotencyKey and original documentInstanceId');return run.getReceipt(input);});

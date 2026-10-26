@@ -564,6 +564,18 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.flangedBushing",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "tubes-threads",
     "groupTitle": "筒、螺纹与弹簧模板",
@@ -597,5 +609,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:90671f3cb787570999942e212535a93878e0f152732801ed78462c92dbe09606"
+  "docsHash": "sha256:e3dd7b67d4491cd2030ae5a989e1cf8acb7425c0f3bfb0705ec8b4fde3ad5013"
 }

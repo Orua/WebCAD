@@ -530,6 +530,18 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.capsuleWire",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "rings",
     "groupTitle": "环、环片及开口圈",
@@ -571,5 +583,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6541fe4718e8188960db3e2e9c9e4ea73325db11f522b358949e0bb9340fd76a"
+  "docsHash": "sha256:2b0d4372242aafa521fb82dab043926ecd60ecaa0cf4d9bd631cfd0c4ba4e24a"
 }

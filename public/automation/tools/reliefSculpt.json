@@ -3,7 +3,7 @@
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -20,6 +20,18 @@
     "浮雕精修",
     "sculpt"
   ],
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "reliefSculpt",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "relief",
     "groupTitle": "LOGO、矢量浮雕与网格精修",
@@ -90,6 +102,10 @@
         "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
       },
       {
+        "id": "reliefWizard",
+        "chooseWhen": "操作当前浮雕UI草稿的尺寸与平面画布定位，source绑定真实原件为reliefId；不计算或提交几何。"
+      },
+      {
         "id": "readRelief",
         "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
       },
@@ -101,5 +117,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:1760e016445f38b724249dc8106f6e9151ba3f1d0783a62ec3680d9307fdf472"
+  "docsHash": "sha256:75cfd266048cbb392c612d4bea6781bb1ebc57911d7d0723d680dc199650a0b8"
 }

@@ -2,7 +2,7 @@
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -31,6 +31,74 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "bodyAId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "bodyBId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "toleranceMm": {
+        "type": "number"
+      },
+      "volumeThresholdMm3": {
+        "type": "number"
+      }
+    },
+    "required": [
+      "context",
+      "bodyAId",
+      "bodyBId"
+    ]
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "inspectFit",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "inspection",
     "groupTitle": "测量、拓扑与质量检查",
@@ -80,5 +148,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:86922233277d8b1e6a59535a6dfb843a9976e8159e078b73bc6b8388dfa99011"
+  "docsHash": "sha256:20ed6afd322bdc29eee55fc702dfb4698a5a10f9be1d1ef7fa8835ca088fcee5"
 }

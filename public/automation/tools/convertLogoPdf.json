@@ -2,24 +2,36 @@
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
     "method": "convertLogoPdf",
-    "reason": "host binary conversion",
-    "agentCallable": false
+    "reason": "Legacy binary adapter; PDF conversion is publicly available through readLogo with sessionFileId.",
+    "agentCallable": false,
+    "alternative": {
+      "tool": "webcad_read",
+      "method": "readLogo",
+      "args": {
+        "context": "<live context>",
+        "sessionFileId": "<current conversation PDF file ID>",
+        "page": 1,
+        "allowUpload": true,
+        "reviewPolicy": "automatic"
+      }
+    }
   },
-  "description": "convertLogoPdf({context,name,data,targetWidthMm?,page?,pdfJoinToleranceMm?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
+  "description": "Agent 不调用此旧方法。PDF 转矢量的公开入口为 webcad_read(method:\"readLogo\",args:{context,sessionFileId:当前PDF附件ID,page:1,allowUpload:true,reviewPolicy:\"automatic\",targetWidthMm:放置宽度})；host-only 仅限制此二进制适配器，不代表 PDF 转换不可用。授权页面脚本使用 readLogo({context,resourceId,name,...})。",
   "synonyms": [
     "convertLogoPdf",
+    "旧",
     "PDF",
-    "LOGO",
-    "Services",
-    "标准轮廓"
+    "二进制适配器；Agent",
+    "改用",
+    "readLogo"
   ],
-  "inputContract": "convertLogoPdf({context,name,data,targetWidthMm?,page?,pdfJoinToleranceMm?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。",
-  "outputContract": "待人工复核的 logo.regions、尺寸和 PDF SHA-256；保留完整转换报告；明确确认轮廓后才能以 source.reviewed=true 加工。",
+  "inputContract": "Agent 不调用此旧方法。PDF 转矢量的公开入口为 webcad_read(method:\"readLogo\",args:{context,sessionFileId:当前PDF附件ID,page:1,allowUpload:true,reviewPolicy:\"automatic\",targetWidthMm:放置宽度})；host-only 仅限制此二进制适配器，不代表 PDF 转换不可用。授权页面脚本使用 readLogo({context,resourceId,name,...})。",
+  "outputContract": "readLogo 返回 logoId、矢量文件及审核状态，随后按 logo 工具卡加工；不要因 convertLogoPdf 的 host-only 标记停止 PDF 任务。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -31,10 +43,28 @@
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID"
   ],
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "convertLogoPdf",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "services",
     "groupTitle": "统一服务与远程作业",
-    "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。",
+    "chooseWhen": "仅旧二进制适配器为host-only；Agent转换PDF请用公开readLogo(sessionFileId,page,allowUpload:true)，不能据此认定PDF不可用。",
     "alternatives": [
       {
         "id": "getServices",
@@ -89,8 +119,20 @@
         "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
       },
       {
+        "id": "prepareToolCall",
+        "chooseWhen": "所有工具共用只读参数预检；按字段问询并返回原工具nextCall，建模转prepareOperation，宿主和不可用入口明确返回blocker，不执行或绕过权限。"
+      },
+      {
+        "id": "prepareOperation",
+        "chooseWhen": "简化建模首选：给op及实际设计参数，页面补齐唯一目标/图案和技术字段；缺意图返回needs_input问询，准备不计算几何。LOGO转换后只需face、mode、depthMm、widthMm；浮雕保留readRelief的reliefId来源。"
+      },
+      {
+        "id": "applyPreparedOperation",
+        "chooseWhen": "只用prepareOperation返回的编号应用同一完整请求；不重拼refs/版本/哈希/加工意图。重复编号回原回执，unknown不重算。"
+      },
+      {
         "id": "readLogo",
-        "chooseWhen": "从已登记的图片或矢量文件取得待复核的闭合轮廓；JPG/PNG描摹需要实际毫米宽度和明确上传授权，不把照片光影当作深度。"
+        "chooseWhen": "Agent 对 PDF/JPG/PNG/SVG/DXF 统一使用 webcad_read readLogo({context,sessionFileId,allowUpload:true,targetWidthMm?,page?,reviewPolicy?})取得可加工草稿。PDF也走此入口；原生宿主解析附件并调用已配置Services，automatic后继续雕刻。"
       },
       {
         "id": "reviewLogo",
@@ -104,5 +146,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:c24cf258c34f85142ca5d9e80d11edbdf1f80965d198de932297b6429c87cbbe"
+  "docsHash": "sha256:118abd79c53fd1031039580d4ad6bdb1b945372d3234050897b0f0a6ee36e6c5"
 }

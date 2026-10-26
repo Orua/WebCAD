@@ -592,6 +592,18 @@
     "api.modeling-pitfalls",
     "api.placement"
   ],
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "import",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "file-input",
     "groupTitle": "文件登记、打开与导入",
@@ -629,5 +641,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dc2f8a90dcf556a351c192fdbf8705a87e84b75c5fb191887727d55ba25c27f0"
+  "docsHash": "sha256:82035d98de7afbb10b6dcda7aa0ad349e5dc5f2b0227e4857288829c8e6251e8"
 }

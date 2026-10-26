@@ -37,9 +37,11 @@
     "measureRelation",
     "planAlignment",
     "planPatternMachining",
+    "prepareOperation",
     "prepareProfileEdit",
     "prepareReliefDesignRelief",
     "prepareReliefSculpt",
+    "prepareToolCall",
     "probeBlendRadius",
     "projectProfile",
     "queryGeometry",
@@ -51,6 +53,7 @@
     "reliefDesignField",
     "reliefDesignFit",
     "reliefDesignReference",
+    "reliefWizard",
     "resolveModelLibrary",
     "resolvePlacement",
     "reviewLogo",
@@ -74,6 +77,7 @@
     "updateModelLibrary"
   ],
   "jobMethods": [
+    "applyPreparedOperation",
     "copySelection",
     "createDrawing",
     "execute",
@@ -94,6 +98,7 @@
     "measureMass",
     "measureRelation",
     "pasteSelection",
+    "prepareOperation",
     "prepareProfileEdit",
     "probeBlendRadius",
     "projectProfile",
@@ -103,6 +108,7 @@
     "reliefDesignField",
     "reliefDesignFit",
     "reliefDesignReference",
+    "reliefWizard",
     "reviewLogo",
     "run",
     "setRenderQuality",
@@ -159,6 +165,7 @@
     "reference.setWorkFrame"
   ],
   "editMethods": [
+    "applyPreparedOperation",
     "copySelection",
     "execute",
     "files.import",
@@ -222,10 +229,176 @@
   },
   "routingGuidance": {
     "wrongTool": "按 allowedTool 调用相同 method，保留其参数；本次未提交，不需要重连或重画。",
-    "hostOnly": "该方法由宿主管理，不是 Agent 可调用入口；不要换工具反复调用，也不要通过 invoke/submit 包装绕过。选择已读工具卡的公开操作或报告该能力未开放。",
+    "hostOnly": "该方法由宿主管理，不通过 invoke/submit 包装绕过。若工具卡给出 alternative，使用该公开入口；convertLogoPdf 的 PDF 转换由 webcad_read readLogo({context,sessionFileId,page,allowUpload:true})公开支持，不得把旧适配器 host-only 误报为 PDF 不可用。无公开替代时报告具体方法未开放。",
     "notExposed": "当前绑定契约没有开放此方法；有页面文档不等于 MCP 可执行。核对 methodTools 和工具卡 mcpCall；同一版本无新证据时停止换入口/重连/反复查卡。"
   },
   "methodSchemas": {
+    "reliefWizard": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId"
+          ]
+        },
+        "reliefId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "widthMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "heightMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "depthMm": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "precisionMm": {
+          "type": "number",
+          "minimum": 0.01,
+          "maximum": 0.5
+        },
+        "invert": {
+          "type": "boolean"
+        },
+        "sourceInterpretation": {
+          "const": "authoredHeightMap"
+        },
+        "action": {
+          "enum": [
+            "get",
+            "source",
+            "handoff",
+            "createDesign",
+            "parameters",
+            "position",
+            "align"
+          ]
+        },
+        "expectedRevision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "widthMm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "heightMm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "depthMm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mode": {
+              "enum": [
+                "emboss",
+                "engrave"
+              ]
+            },
+            "offsetX": {
+              "type": "number"
+            },
+            "offsetY": {
+              "type": "number"
+            },
+            "angleDeg": {
+              "type": "number"
+            }
+          },
+          "required": []
+        },
+        "placement": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "offsetX": {
+              "type": "number"
+            },
+            "offsetY": {
+              "type": "number"
+            },
+            "leftMm": {
+              "type": "number"
+            },
+            "topMm": {
+              "type": "number"
+            },
+            "scale": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "angleDeg": {
+              "type": "number"
+            },
+            "depthMm": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": []
+        },
+        "alignment": {
+          "enum": [
+            "horizontal",
+            "vertical",
+            "center"
+          ]
+        }
+      },
+      "required": [
+        "context"
+      ]
+    },
     "getDebugReport": {
       "type": "object",
       "additionalProperties": false,
@@ -552,6 +725,364 @@
       "required": [
         "op",
         "params"
+      ]
+    },
+    "prepareOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId"
+          ]
+        },
+        "op": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bodyId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "refs": {
+          "type": "array",
+          "maxItems": 40,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "params": {
+          "type": "object"
+        },
+        "face": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "enum": [
+                "top",
+                "bottom",
+                "front",
+                "back",
+                "left",
+                "right"
+              ]
+            }
+          ]
+        },
+        "point": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number"
+          }
+        },
+        "intent": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1200
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "placement": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "version": {
+              "const": 1
+            },
+            "frame": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "world"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "snapshot"
+                    },
+                    "origin": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "quaternion": {
+                      "type": "array",
+                      "minItems": 4,
+                      "maxItems": 4,
+                      "items": {
+                        "type": "number"
+                      },
+                      "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "origin",
+                    "quaternion"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "work"
+                    },
+                    "expectedFrameVersion": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "expectedFrameVersion"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "saved"
+                    },
+                    "frameId": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "expectedFrameVersion": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "frameId",
+                    "expectedFrameVersion"
+                  ]
+                }
+              ]
+            },
+            "sourceAnchor": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "model-origin",
+                        "bottom-center",
+                        "bounds-center"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "point"
+                    },
+                    "point": {
+                      "type": "array",
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "point"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "named"
+                    },
+                    "anchorId": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "anchorId"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "version",
+            "frame"
+          ]
+        },
+        "preparationId": {
+          "type": "string",
+          "pattern": "^prep_[0-9]+$"
+        },
+        "answers": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "context"
+      ]
+    },
+    "prepareToolCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId"
+          ]
+        },
+        "toolId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "args": {
+          "type": "object"
+        },
+        "callPreparationId": {
+          "type": "string",
+          "pattern": "^call_[0-9]+$"
+        },
+        "answers": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "context"
+      ]
+    },
+    "applyPreparedOperation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId"
+          ]
+        },
+        "preparationId": {
+          "type": "string",
+          "pattern": "^prep_[0-9]+$"
+        }
+      },
+      "required": [
+        "context",
+        "preparationId"
       ]
     },
     "addMany": {
@@ -1549,6 +2080,7 @@
     "sampleMeshRelief": "identity",
     "sampleReliefHeight": "identity",
     "prepareReliefSculpt": "identity",
+    "reliefWizard": "identity",
     "readRelief": "identity",
     "readVector": "identity",
     "connectVector": "none",
@@ -1572,6 +2104,8 @@
     "reliefDesignReference": "revision",
     "reliefDesignFit": "revision",
     "prepareReliefDesignRelief": "revision",
+    "prepareOperation": "identity",
+    "prepareToolCall": "identity",
     "setMetalMaterials": "identity",
     "setView": "identity",
     "setRenderQuality": "identity",
@@ -1588,6 +2122,7 @@
     "copySelection": "revision",
     "pasteSelection": "revision",
     "recoverKernel": "revision",
+    "applyPreparedOperation": "identity",
     "files.save": "revision",
     "files.export": "revision",
     "files.reattach": "none",
@@ -1631,6 +2166,7 @@
     "sampleMeshRelief": "webcad_read",
     "sampleReliefHeight": "webcad_read",
     "prepareReliefSculpt": "webcad_read",
+    "reliefWizard": "webcad_read",
     "readRelief": "webcad_read",
     "readVector": "webcad_read",
     "connectVector": "webcad_read",
@@ -1654,6 +2190,8 @@
     "reliefDesignReference": "webcad_read",
     "reliefDesignFit": "webcad_read",
     "prepareReliefDesignRelief": "webcad_read",
+    "prepareOperation": "webcad_read",
+    "prepareToolCall": "webcad_read",
     "setMetalMaterials": "webcad_view",
     "setView": "webcad_view",
     "setRenderQuality": "webcad_view",
@@ -1675,7 +2213,8 @@
     "files.import": "webcad_submit",
     "copySelection": "webcad_submit",
     "pasteSelection": "webcad_submit",
-    "recoverKernel": "webcad_submit"
+    "recoverKernel": "webcad_submit",
+    "applyPreparedOperation": "webcad_submit"
   },
-  "contractHash": "sha256:941371d0f24651eb3ebcbf5e0c91a25dc8a4f456708df19ee7e2cbc34958db1d"
+  "contractHash": "sha256:d6c42e8174ccd3cb41f17cd369a27f6d26948cec8bd941006ad00f92c03fe29a"
 }

@@ -18,7 +18,7 @@ const createHostAdapter=options=>{
 
 import {gatewayFetch,isTransportError,isModelSelectionError,modelSelectionMessage,modelCatalogPlan,createRecoveryLoop,publicProgressText,toolActivityText,renderReply,cadOutcomeText,uploadHostArtifact,durationText,registerHostAttachments,attachmentIdentity,createHostRecoveryJournal,settleIndependent,historyUserText,documentKey,documentChanged,planConversation,isForeignConversationError,PROJECT_SWITCH_NOTICE,PROJECT_REOPEN_NOTICE,FOREIGN_CONVERSATION_NOTICE} from './workspace-transport.js?v=20261025-bounded-recovery';
 import {createProjectOpenController} from './project-open.js?v=20261026-auth-stop';
-import {createAttachmentBytesAPI} from './attachment-bytes.js?v=20261021-byte-attach1';
+import {createAttachmentBytesAPI,ensureCanvasResources} from './attachment-bytes.js?v=20261026-attach-ready2';
 const config=JSON.parse(document.getElementById('webcad-config').textContent);
 const editLock=document.getElementById('edit-lock'),dismissLock=document.getElementById('dismiss-lock');
 dismissLock.dataset.hostControlAllowed='true';
@@ -919,6 +919,10 @@ async function sendChat(override,onAccepted){
     await attachmentPicker.ready();
     if(!modelSendReady())throw Object.assign(new Error('请先选择当前列表中的可用模型。'),{code:'MODEL_SELECTION_REQUIRED'});
     const bound=await prepareTaskBinding();
+    if(!pendingSend&&!bound.dialogueOnly)await ensureCanvasResources(attachments,{
+      snapshot:async()=>({ready:knowledgeReady,context:(await api().getState()).context}),
+      register:async file=>{const bytes=await file.arrayBuffer();return api().files.register({name:file.name,data:bridge?new Uint8Array(bytes):new frame.contentWindow.Uint8Array(bytes),mime:file.type||'application/octet-stream'});},
+      release:resourceId=>api().files.release({resourceId})});
     if(pendingSend && pendingSend.message!==text)throw new Error('请先重试原请求，确认原任务结果后再发送新指令');
     const attachmentKeys=attachments.map(attachmentIdentity);
     if(pendingSend?.attachmentKeys&&JSON.stringify(pendingSend.attachmentKeys)!==JSON.stringify(attachmentKeys))throw new Error('附件内容已变化，请先停止或核对原任务，再发送新请求');
@@ -983,7 +987,7 @@ async function acceptFiles(files){
       const bytes=await file.arrayBuffer(),sha256=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(n=>n.toString(16).padStart(2,'0')).join('');
       let resourceId;
       if(knowledgeReady){try{const resource=await api().files.register({name:file.name,data:bridge?new Uint8Array(bytes):new frame.contentWindow.Uint8Array(bytes),mime:file.type||'application/octet-stream'});resourceId=resource.resourceId;}catch{/* The original still goes to the Agent; canvas registration is optional. */}}
-      registered.push({resourceId,name:file.name,size:file.size,sha256,file,kind:/\.(svg|dxf|logo\.json)$/i.test(file.name)?'vector':'file'});
+      registered.push({resourceId,resourceBinding:resourceId?{...bound?.binding}:null,name:file.name,size:file.size,sha256,file,kind:/\.(svg|dxf|logo\.json)$/i.test(file.name)?'vector':'file'});
     }
     if(session!==bound||taskId||pendingSend||projectOpening)throw Object.assign(new Error('对话或消息已变化，请重新添加附件。'),{code:'ATTACHMENT_BINDING_CHANGED'});
     attachments=registered;

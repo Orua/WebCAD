@@ -600,6 +600,18 @@
     "api.modeling-pitfalls",
     "api.placement"
   ],
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "remove",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "booleans-organize",
     "groupTitle": "布尔、分割与组合",
@@ -653,5 +665,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:558ec9989c56e5ad64fc6f23350a19a8a084f8ca6f333c75e1d5c7f5334db045"
+  "docsHash": "sha256:5abc7f37012e2e15f6bf1940024fed7b218f223a483d7b2c0e20ad2dc83ccf24"
 }

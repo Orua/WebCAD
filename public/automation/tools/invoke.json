@@ -2,7 +2,7 @@
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -27,6 +27,24 @@
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.reliability",
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "invoke",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "dispatch",
     "groupTitle": "执行、批次与异步作业",
@@ -72,5 +90,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d6c2c5c024bf698e380ac8d03ff0703b1d409e84148c9b701e211b4852082351"
+  "docsHash": "sha256:e89695aec91e0064fe913a8515409e53dfe15ed8c44074d10921f0217e03894f"
 }

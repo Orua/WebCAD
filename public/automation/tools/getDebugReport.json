@@ -2,7 +2,7 @@
   "id": "getDebugReport",
   "title": "getDebugReport",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -73,6 +73,18 @@
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "getDebugReport",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "debug",
     "groupTitle": "运行诊断与日志",
@@ -86,5 +98,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:748a4394a3fdb6b717c24b695e6ddc73ee54510b44200d74f3bdbfb3558eeb7b"
+  "docsHash": "sha256:5b22336485b36b221b8a0e91d827f99356a9ffac3cbd3b7ff0b3fcc48323b2c0"
 }

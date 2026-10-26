@@ -2,7 +2,7 @@
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -105,6 +105,18 @@
     "AMBIGUOUS_SELECTION"
   ],
   "docs": "api.query-geometry",
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "queryGeometry",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "inspection",
     "groupTitle": "测量、拓扑与质量检查",
@@ -154,5 +166,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b19e44f33a0fb51ea93f97c5c568176f6590ea80f3d066ec023473cc2bd76a41"
+  "docsHash": "sha256:261f26aac235f702aeaa3bb8b1de0f37434625ffe0949d6f70c527cc68b11a00"
 }

@@ -7,15 +7,17 @@ WebCAD是Agent适配代码与方法白名单的唯一维护源。window.webcad.a
 
 多配件任务按 api.modeling.methods.staged-assembly 交付规划和当前批次，续轮沿用实际用户授权、最新规划和工程回执，不将自动提醒当成确认。
 
-CAD任务先从已安装库读取 api.modeling.start，按 agent-routing.json 选一个 modeling.* 工作流，再读取所选分支的完整工具卡。需要工厂产品、图纸、材料或工艺事实时才使用已提供的生产知识库路由；生产知识库与CAD能力同时可用，不先遍历业务整库。单纯询问安装状态只报告缓存回执，不调用无关几何工具，也不把整本正文塞进模型上下文。
+已明确操作且命中prepared-operations路线时，先读prepareOperation/applyPreparedOperation两张短卡即可；准备摘要通过后直接按nextCall应用，不必读api.run或底层长卡。需要选择建模方法的复杂任务才先读api.modeling.start，再按agent-routing.json选一个modeling.*分支。工厂产品、图纸、材料或工艺事实按需读生产知识库，不先遍历业务整库。单纯询问安装状态只报告缓存回执，不调用无关CAD工具。
 
-已绑定宿主提供了本页当前快照及已校验契约时直接复用，不要求每轮重复 connect。未绑定、版本变化或连接失效时才按宿主接口握手/恢复；不刷新未保存工程。目录摘要仅用于发现，执行前按需读取完整工具卡及 api.run，分页读取到完整内容。工具参数、批次上限和单位取当前契约，不从名称或旧提示猜测。
+已绑定宿主提供了本页当前快照及已校验契约时直接复用，不要求每轮重复connect。未绑定、版本变化或连接失效时才握手/恢复；不刷新未保存工程。目录摘要仅用于发现：简化入口读两张准备卡；直接使用run时才读取底层操作卡及api.run，按需分页取完整内容。参数、批次上限和单位取当前契约，不从名称或旧提示猜测。
 
 WebCAD 页面工具管理当前工程；普通宿主文件工具管理已授权的任务文件。页面 method_not_allowed 只表示该方法不在当前适配器允许集合中，不证明本地磁盘不可写。files.write/read/download 等宿主内部方法不能冒充 CAD 可执行方法；原生宿主的 webcad_artifact 负责工程保存/导出与附件中转，普通文本/矢量等文件用实际提供的本地文件工具生成。宿主未提供能力或实际拒绝时，说明具体工具和错误，不声称进行了未发生的尝试。
 
 执行路径按需读 api.modeling.methods.execution-strategy。native MCP 的 route 只传 query/limit，已知 ID 用 getTools；planLayout 是固定数值规划器。planSource/readLocal/route scope 属于可选页面客户端，不能冒充 MCP 参数。宿主能力摘要中 exposed 不代表后端已就绪；解释器 verified 是服务身份探测，本任务脚本仍检查退出码。pageScriptChannel 未提供时不从 .mjs 文件推断执行通道。分页沿 nextCursor 补读所需正文；历史 served/读卡索引不证明模型已理解，新上下文可显式完整重读。
 
 ## 工具入口与错误后的纠正
+
+建模操作（含advisory）优先用prepareOperation准备、applyPreparedOperation应用短编号，案例见api.prepare-operation。prepared摘要已经是完整校验的具体请求，不再拼底层refs/版本/哈希/加工意图或反复读底层卡。needs_input时按questions.answerPath续接answers；用户原话已有的设计值直接填回，确实缺意图才向用户提问。准备阶段不做几何；apply回执才判断提交。其他多参数工具优先prepareToolCall({toolId,args})预检，needs_input用同一callPreparationId/answers续接；prepared按原工具nextCall执行，host-only不绕过。浮雕先readRelief得到reliefId，prepareOperation(op:relief)携带明确尺寸/凹凸/高度，不搬运高度数组、不猜照片深度。脚本沿现有run结构化步骤，不执行任意脚本。
 
 先看完整工具卡 mcpCall 和握手 agentProtocol.methodTools；页面存在的方法不一定开放给 MCP。mcpCall.tool 为 host-only 时读 reason，不要调用 invoke、submit 等包装器来绕过。METHOD_CATEGORY_MISMATCH 时先对照 error.details.tool、allowedTool、reason 和当前卡：有 allowedTool 则只纠正工具类别，保留参数和已授权目标；没有则选择已读的受支持替代操作或报告能力未开放。同一契约下反复换入口、重连和查卡不会开放方法。PARAM_SCHEMA_INVALID 按 path/missingFields/allowedFields 修正字段；确认 not_committed 才重新提交纠正后的请求。unknown/queued/running 查原 commandId，不重放写入。
 
@@ -41,6 +43,10 @@ run 是有界的部分提交批次，不是原子事务；按 api.run 提供唯�
 
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+reliefWizard: contextPolicy=identity
+prepareToolCall: contextPolicy=identity
+prepareOperation: contextPolicy=identity
+applyPreparedOperation: contextPolicy=identity
 getDebugReport: contextPolicy=none
 setDebugPanel: contextPolicy=identity
 getMetalMaterials: contextPolicy=none

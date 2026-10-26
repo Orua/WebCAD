@@ -1,0 +1,188 @@
+{
+  "id": "applyPreparedOperation",
+  "title": "applyPreparedOperation",
+  "category": "page-method",
+  "version": "1.60.0",
+  "contextPolicy": "identity",
+  "docs": "api.prepare-operation",
+  "relatedTools": [
+    "prepareOperation",
+    "applyPreparedOperation",
+    "readLogo",
+    "queryGeometry",
+    "measure"
+  ],
+  "executionPolicy": {
+    "readOnly": false,
+    "geometryComputed": true,
+    "preparedPlans": 32,
+    "ttlMs": 1800000,
+    "missingParameters": "structured needs_input questions; no mutation",
+    "automaticDefaults": "unique verified references and technical fields only",
+    "arbitraryScripts": false
+  },
+  "minimalExample": {
+    "preparationId": "<returned preparationId>"
+  },
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "preparationId": {
+        "type": "string",
+        "pattern": "^prep_[0-9]+$"
+      }
+    },
+    "required": [
+      "context",
+      "preparationId"
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "applyPreparedOperation",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
+  "description": "applyPreparedOperation({context,preparationId})。只复制prepareOperation返回的短编号；版本/哈希/refs/完整参数/幂等键由准备单提供，无需重拼。须用户本次已授权该建模任务。",
+  "synonyms": [
+    "applyPreparedOperation",
+    "应用准备单",
+    "执行已准备操作",
+    "防重复提交"
+  ],
+  "inputContract": "applyPreparedOperation({context,preparationId})。只复制prepareOperation返回的短编号；版本/哈希/refs/完整参数/幂等键由准备单提供，无需重拼。须用户本次已授权该建模任务。",
+  "outputContract": "原CommandService提交回执加preparationId/recipeHash。重复同编号返回原结果reused=true，不重算；unknown也只回原结果。工程/源审核版次变化则拒绝，保存与渲染仍分别核验。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "applyPreparedOperation",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "services",
+    "groupTitle": "统一服务与远程作业",
+    "chooseWhen": "只用prepareOperation返回的编号应用同一完整请求；不重拼refs/版本/哈希/加工意图。重复编号回原回执，unknown不重算。",
+    "alternatives": [
+      {
+        "id": "getServices",
+        "chooseWhen": "读统一 Services 配置及授权状态，不代表服务支持全部操作。"
+      },
+      {
+        "id": "setServices",
+        "chooseWhen": "设置统一服务地址、凭证与模式；配置不等于能力验收。"
+      },
+      {
+        "id": "clearServicesCredential",
+        "chooseWhen": "清除当前服务授权，不删除工程或服务器任务。"
+      },
+      {
+        "id": "getServicesCapabilities",
+        "chooseWhen": "读已配置后端实际协议与能力，不能用工具名猜支持。"
+      },
+      {
+        "id": "getServicesRouting",
+        "chooseWhen": "读实际分流规则和最近决策；不是强制把所有操作转远程。"
+      },
+      {
+        "id": "feature.compileServices",
+        "chooseWhen": "按当前后端能力编译匹配特征并验证导回；服务器成功不等于页面已提交。"
+      },
+      {
+        "id": "getServicesJob",
+        "chooseWhen": "读远程 Services job；与页面 getJob 的作业域不同。"
+      },
+      {
+        "id": "getServicesRequest",
+        "chooseWhen": "按原幂等键查询远程接收记录，用于断线未知结果对账。"
+      },
+      {
+        "id": "cancelServicesJob",
+        "chooseWhen": "对指定远程 job 请求受控停止，不等于暂停内核。"
+      },
+      {
+        "id": "decideServicesWait",
+        "chooseWhen": "对等待中的原 job 继续或停止；继续不会重新提交计算。"
+      },
+      {
+        "id": "recoverServicesJob",
+        "chooseWhen": "按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。"
+      },
+      {
+        "id": "getLogoConverter",
+        "chooseWhen": "旧配置读取兼容入口，委托统一 Services；不是独立授权。"
+      },
+      {
+        "id": "setLogoConverter",
+        "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
+      },
+      {
+        "id": "prepareToolCall",
+        "chooseWhen": "所有工具共用只读参数预检；按字段问询并返回原工具nextCall，建模转prepareOperation，宿主和不可用入口明确返回blocker，不执行或绕过权限。"
+      },
+      {
+        "id": "prepareOperation",
+        "chooseWhen": "简化建模首选：给op及实际设计参数，页面补齐唯一目标/图案和技术字段；缺意图返回needs_input问询，准备不计算几何。LOGO转换后只需face、mode、depthMm、widthMm；浮雕保留readRelief的reliefId来源。"
+      },
+      {
+        "id": "readLogo",
+        "chooseWhen": "Agent 对 PDF/JPG/PNG/SVG/DXF 统一使用 webcad_read readLogo({context,sessionFileId,allowUpload:true,targetWidthMm?,page?,reviewPolicy?})取得可加工草稿。PDF也走此入口；原生宿主解析附件并调用已配置Services，automatic后继续雕刻。"
+      },
+      {
+        "id": "reviewLogo",
+        "chooseWhen": "校对本页logoId的毫米轮廓草稿、确认和生成可读取中间文件；不需要打开界面，也不提交雕刻几何。"
+      },
+      {
+        "id": "logoWizard",
+        "chooseWhen": "读取或控制已打开的LOGO分步向导；与用户共享来源参数、轮廓草稿和确认，不能代替目标面的实际雕刻。"
+      },
+      {
+        "id": "convertLogoPdf",
+        "chooseWhen": "仅旧二进制适配器为host-only；Agent转换PDF请用公开readLogo(sessionFileId,page,allowUpload:true)，不能据此认定PDF不可用。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:95eda9f2cbcfb251f545d5fee2e41df5f4af0ae1379044f5b853240c9f438de7"
+}

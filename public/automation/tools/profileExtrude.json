@@ -787,6 +787,18 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "profileExtrude",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "extrusion",
     "groupTitle": "拉伸与旋转成型",
@@ -828,5 +840,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8afd2346ef62f40cc7e9a0abd8d845073e6ff88edc6aa0b7bbbb94b874b46d20"
+  "docsHash": "sha256:55099f8f4f7697a0ebd5947f08de58066e2df2063457acbaa507a370d6ed4588"
 }

@@ -585,6 +585,18 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.uEndHolePlate",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "d-frames",
     "groupTitle": "D形、U形与开口框",
@@ -622,5 +634,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d269e8f04930e2e4bbc2025758f7959f0fd97c58f849416109adc5485a856bdc"
+  "docsHash": "sha256:366400a730eeefc72f83f570ae5768af5e6e7a48c09bc016009e52f84eec7c14"
 }
