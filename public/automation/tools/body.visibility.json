@@ -8,7 +8,7 @@
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.57.23",
+  "version": "1.57.24",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -104,5 +104,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:1054afecfdf85bef1651931daea1e54e21b55c27edb0f43b2779fda7eacabf0f"
+  "docsHash": "sha256:0f74f2a3efd4f3783c40cf16e5cd7949391cd30bf09ab290270eb4db855d53d1"
 }

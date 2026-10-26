@@ -47,7 +47,11 @@ export function validateSchema(schema, value, path = 'params') {
       throw new Error(`Unsupported schema keyword: ${key}`);
     }
     const fail = message => contractError('PARAM_SCHEMA_INVALID', p, message);
-    const range = message => contractError('PARAM_RANGE_INVALID', p, message);
+    const range = message => {
+      const error=new OperationContractError('PARAM_RANGE_INVALID',p,message);
+      if(Array.isArray(v))error.details={validation:{actualCount:v.length}};
+      throw error;
+    };
     const matches = sub => { try { visit(sub, v, p); return true; } catch (e) { if (!(e instanceof OperationContractError)) throw e; return false; } };
     if (s.type) {
       const ok = s.type === 'object' ? v !== null && typeof v === 'object' && !Array.isArray(v)

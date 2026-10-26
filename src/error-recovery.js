@@ -1,4 +1,5 @@
 import sourceCodes from '../contracts/error-recovery-codes.json' with {type:'json'};
+import {parameterErrorMessage} from './parameter-error-message.js';
 // One recovery contract for UI, page receipts and hosts. This module never executes a retry,
 // changes an argument, clears a guard, commits/undoes geometry, or cancels a job.
 const rule=(id,codes,reason,next,tools=[],options={})=>({id,codes:new Set(codes.split(' ').filter(Boolean)),reason,next,tools,...options});
@@ -99,7 +100,7 @@ export function recoveryRule(code,message=''){
 export function errorRecovery(error={},receipt={}){
   const code=String(error.code||'UNCLASSIFIED_ERROR'),base=recoveryRule(code,String(error.message||''));
   const logoFailure=error.details?.logoFailure,logoReason=businessReason(logoFailure?.reason),logoNext=businessReason(logoFailure?.next);
-  const detail=businessReason(error.message),reason=logoReason??(detail?(base===unknown?detail:`${base.reason}${detail}`):base.reason);
+  const parameterReason=parameterErrorMessage(error),detail=businessReason(error.message),reason=logoReason??parameterReason??(detail?(base===unknown?detail:`${base.reason}${detail}`):base.reason);
   const commit=receipt.commitState??error.commitState??error.serviceCommitState;
   const uncertain=receipt.status==='unknown'||commit==='unknown'||base.reconcile===true;
   const partial=receipt.status==='partial'||receipt.atomic===false&&receipt.results?.some(step=>['committed','completed'].includes(step.result?.status));
@@ -131,7 +132,7 @@ export function humanError(error,receipt={}){
   // Keep full recovery/receipt guidance on the API, without repeating it in
   // every field correction notice.
   if(!Object.keys(receipt).length&&!source.commitState&&!source.serviceCommitState){
-    const specific=businessReason(source.message);
+    const specific=parameterErrorMessage(source)||businessReason(source.message);
     return specific||recovery.reason;
   }
   return recovery.userMessage;

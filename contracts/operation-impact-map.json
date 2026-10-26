@@ -1,4 +1,13 @@
 {
+  "logoParameterDiagnostics20261026": {
+    "localImpact": "UI schema failures name the actual field and translate bounded validator diagnostics; collection limits report actual and allowed counts. No arbitrary raw messages, values, stack traces or credential paths are exposed.",
+    "servicesImpact": "None: this patch changes browser-side diagnostics only; no Gateway, Logo or Native binary or authorization changes.",
+    "logoImpact": "No geometry or input changes. Manual LOGO failures retain the precise source metadata, ring, coordinate or depth field instead of collapsing English validation to a generic sentence. The user's tiger failure still requires its actual receipt/source; a heart result is not its acceptance.",
+    "contractImpact": "API1.57.24 retains original code/message/path and adds bounded validation.actualCount on schema range errors; shared userMessage uses the same field explanation as UI.",
+    "documentImpact": "No document mutation, replay or automatic correction; existing engraving and rollback paths remain unchanged.",
+    "cacheImpact": "Regenerate the complete knowledge archive and manifest with current error recovery docs and software hashes.",
+    "requiredTests": ["Actual schema failures for ring capacity, undefined metadata, coordinates, depth, types and unknown fields", "Credential/path redaction and existing recovery/commit-state checks", "One matching frontend package on localhost and production; browser UI remains unverified when the host control tool is unavailable"]
+  },
   "logoHostDirect20261026": {
     "localImpact": "ReadLogo accepts a validated host packet, defaults to task-authorized automatic acceptance, and returns a live logoId. The page materializes accepted current draft contours before normal logo transactions. Explicit preview blocks engraving and opens the shared large editor. Preserve source millimeters for SVG/JSON; 35mm is only a provisional image draft.",
     "servicesImpact": "No Gateway/Logo/Native binary change: host transport uses the existing authenticated asset/job/artifact protocol. Credentials remain in existing private IIS configuration/DPAPI; no forged Origin/cookies or model-visible token.",
