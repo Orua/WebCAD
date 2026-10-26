@@ -2,12 +2,13 @@
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "host-only",
     "method": "prepareReliefTopologyUpgrade",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "host-approved saved topology migration planning",
+    "agentCallable": false
   },
   "description": "prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:\"faceWithHolesExtrude\"|\"cutHoleSolids\"})。只读规划，不计算几何；原参数没有策略时必须明确选定。",
   "synonyms": [
@@ -115,5 +116,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:642c50ac70b801fce7cccc10a015ce6cb8a00476518ab5e1e38c965da18cc89c"
+  "docsHash": "sha256:91f0a654b3a3f096cac298feb04112ad1aa5dd5d0a28fc3ba0696c5965830673"
 }

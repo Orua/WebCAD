@@ -2,12 +2,13 @@
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
     "method": "setLogoConverter",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "service credentials",
+    "agentCallable": false
   },
   "description": "改用 setServices，旧 setter 拒绝存影子配置。",
   "synonyms": [
@@ -101,5 +102,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:7dc2d317ece062571b5efbd7584b1ddb80094f5f622c4abf3f1ad2d617f45af7"
+  "docsHash": "sha256:5c72ba2626c82c752210e80558445ac82bbb4f425cfb34ad00ca1fad5487db0b"
 }

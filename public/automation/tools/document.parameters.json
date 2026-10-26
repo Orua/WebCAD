@@ -2,7 +2,12 @@
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.57.16",
+  "version": "1.57.17",
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "execute",
+    "action": "document.parameters"
+  },
   "description": "通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。",
   "synonyms": [
     "参数",
@@ -135,5 +140,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2340e7c277fa1b5455daf64777a1b5976ded0772b9d3383bb59e6cfea8dab38f"
+  "docsHash": "sha256:c1ca5dd87a31a2f895259e8fe5d9ff93106df34808346ee2f657846c38607d5c"
 }

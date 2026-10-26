@@ -2,12 +2,13 @@
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
     "method": "configureAgentPanel",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "user-owned assistant destination",
+    "agentCallable": false
   },
   "description": "configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。",
   "synonyms": [
@@ -40,5 +41,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cedabeb914cd00a94781efbf4f88be04b56026e30fc3ec588ef475c882904e28"
+  "docsHash": "sha256:020467a5e98543f8bbeebe39c7efe789e92196efef0eac725bc15b22cd6b9eac"
 }

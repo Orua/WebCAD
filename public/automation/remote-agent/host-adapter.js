@@ -1,4 +1,115 @@
 // src/contracts/operation-schema.js
+var OperationContractError = class extends Error {
+  constructor(code, path, message, recoveryAction = "CORRECT_PARAMETERS") {
+    super(message);
+    this.name = "OperationContractError";
+    Object.assign(this, { code, path, retryable: false, recoveryAction });
+  }
+};
+function contractError(code, path, message, recoveryAction) {
+  throw new OperationContractError(code, path, message, recoveryAction);
+}
+var annotations = /* @__PURE__ */ new Set(["$schema", "$id", "title", "description", "default", "examples", "$comment", "unit", "quantityKind", "quantizationPolicy"]);
+var assertions = /* @__PURE__ */ new Set([
+  "type",
+  "properties",
+  "required",
+  "additionalProperties",
+  "items",
+  "minItems",
+  "maxItems",
+  "uniqueItems",
+  "minimum",
+  "maximum",
+  "exclusiveMinimum",
+  "exclusiveMaximum",
+  "minLength",
+  "maxLength",
+  "pattern",
+  "enum",
+  "const",
+  "anyOf",
+  "allOf",
+  "oneOf",
+  "not"
+]);
+function assertJsonValue(value, path = "params", seen = /* @__PURE__ */ new Set()) {
+  if (value === null || typeof value === "string" || typeof value === "boolean") return;
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) contractError("PARAM_SCHEMA_INVALID", path, "A finite number is required.");
+    return;
+  }
+  if (typeof value !== "object" || seen.has(value)) contractError("PARAM_SCHEMA_INVALID", path, "A finite JSON value is required.");
+  if (!Array.isArray(value) && ![Object.prototype, null].includes(Object.getPrototypeOf(value))) {
+    contractError("PARAM_SCHEMA_INVALID", path, "A plain JSON object is required.");
+  }
+  if (Object.getOwnPropertySymbols(value).length) contractError("PARAM_SCHEMA_INVALID", path, "Symbol fields are not supported.");
+  seen.add(value);
+  for (const key of Object.keys(value)) assertJsonValue(value[key], `${path}.${key}`, seen);
+  if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) if (!Object.hasOwn(value, i)) contractError("PARAM_SCHEMA_INVALID", `${path}.${i}`, "Sparse arrays are not supported.");
+  }
+  seen.delete(value);
+}
+function validateSchema(schema, value, path = "params") {
+  assertJsonValue(value, path);
+  function visit(s, v, p) {
+    if (s === true) return;
+    if (s === false) contractError("PARAM_SCHEMA_INVALID", p, "This value is not accepted.");
+    for (const key of Object.keys(s)) if (!annotations.has(key) && !assertions.has(key)) {
+      throw new Error(`Unsupported schema keyword: ${key}`);
+    }
+    const fail = (message) => contractError("PARAM_SCHEMA_INVALID", p, message);
+    const range = (message) => contractError("PARAM_RANGE_INVALID", p, message);
+    const matches = (sub) => {
+      try {
+        visit(sub, v, p);
+        return true;
+      } catch (e) {
+        if (!(e instanceof OperationContractError)) throw e;
+        return false;
+      }
+    };
+    if (s.type) {
+      const ok = s.type === "object" ? v !== null && typeof v === "object" && !Array.isArray(v) : s.type === "array" ? Array.isArray(v) : s.type === "integer" ? Number.isInteger(v) : s.type === "null" ? v === null : typeof v === s.type;
+      if (!ok) fail(`Expected ${s.type}.`);
+    }
+    if (s.enum && !s.enum.some((x) => canonicalJson(x) === canonicalJson(v))) fail("Value is not in the allowed enumeration.");
+    if (Object.hasOwn(s, "const") && canonicalJson(s.const) !== canonicalJson(v)) fail("Value does not match the required constant.");
+    if (typeof v === "number") {
+      if (s.minimum !== void 0 && v < s.minimum) range(`Minimum is ${s.minimum}.`);
+      if (s.maximum !== void 0 && v > s.maximum) range(`Maximum is ${s.maximum}.`);
+      if (s.exclusiveMinimum !== void 0 && v <= s.exclusiveMinimum) range(`Must exceed ${s.exclusiveMinimum}.`);
+      if (s.exclusiveMaximum !== void 0 && v >= s.exclusiveMaximum) range(`Must be less than ${s.exclusiveMaximum}.`);
+    }
+    if (typeof v === "string") {
+      const count = [...v].length;
+      if (s.minLength !== void 0 && count < s.minLength) range(`Minimum length is ${s.minLength}.`);
+      if (s.maxLength !== void 0 && count > s.maxLength) range(`Maximum length is ${s.maxLength}.`);
+      if (s.pattern !== void 0 && !new RegExp(s.pattern, "u").test(v)) fail("String does not match the required pattern.");
+    }
+    if (Array.isArray(v)) {
+      if (s.minItems !== void 0 && v.length < s.minItems) range(`At least ${s.minItems} items are required.`);
+      if (s.maxItems !== void 0 && v.length > s.maxItems) range(`At most ${s.maxItems} items are accepted.`);
+      if (s.uniqueItems && new Set(v.map(canonicalJson)).size !== v.length) fail("Duplicate items are not accepted.");
+      if (s.items) v.forEach((item, index) => visit(s.items, item, `${p}.${index}`));
+    }
+    if (v !== null && typeof v === "object" && !Array.isArray(v)) {
+      for (const key of s.required || []) if (!Object.hasOwn(v, key)) contractError("PARAM_SCHEMA_INVALID", `${p}.${key}`, "Required field is missing.");
+      for (const key of Object.keys(v)) {
+        if (Object.hasOwn(s.properties || {}, key)) visit(s.properties[key], v[key], `${p}.${key}`);
+        else if (s.additionalProperties === false) contractError("PARAM_SCHEMA_INVALID", `${p}.${key}`, "Unknown field.");
+        else if (typeof s.additionalProperties === "object") visit(s.additionalProperties, v[key], `${p}.${key}`);
+      }
+    }
+    if (s.allOf && !s.allOf.every(matches)) fail("Value does not meet all required conditions.");
+    if (s.anyOf && !s.anyOf.some(matches)) fail("Value does not meet a required alternative.");
+    if (s.oneOf && s.oneOf.filter(matches).length !== 1) fail("Exactly one alternative is required.");
+    if (s.not && matches(s.not)) fail("This combination is not accepted.");
+  }
+  visit(schema, value, path);
+  return value;
+}
 function canonicalJson(value) {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
   if (value !== null && typeof value === "object") return `{${Object.keys(value).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(value[k])}`).join(",")}}`;
@@ -125,6 +236,9 @@ var STEP_SCHEMA = object2({ id: { type: "string", pattern: "^[a-zA-Z][a-zA-Z0-9_
 var boolean = { type: "boolean" };
 var vector = vectorSchema;
 var PAGE_METHOD_SCHEMAS = {
+  getMetalMaterials: object2({}),
+  getMaterials: object2({}),
+  setMetalMaterials: object2({ context: IDENTITY_CONTEXT_SCHEMA, configuration: { type: "object" } }, ["context", "configuration"]),
   add: ADD_STEP_SCHEMA,
   addMany: object2({ features: { type: "array", minItems: 1, maxItems: 64, items: planFeature } }, ["features"]),
   run: object2({ context: revisionContext, idempotencyKey: { type: "string", minLength: 1, maxLength: 80 }, steps: { type: "array", minItems: 1, maxItems: LIMITS.batch.maxSteps, items: STEP_SCHEMA } }, ["context", "idempotencyKey", "steps"]),
@@ -158,6 +272,10 @@ var PAGE_METHOD_SCHEMAS = {
   queryGeometry: object2({ context: IDENTITY_CONTEXT_SCHEMA, bodyId: str, kind: { enum: ["face", "edge"] }, filter: { type: "object" }, requireUnique: boolean, expectedCount: { type: "integer", minimum: 1, maximum: 1e5 }, limit: { type: "integer", minimum: 1, maximum: 100 }, cursor: { type: "string", minLength: 1, maxLength: 2048 } }, ["context", "bodyId", "kind"]),
   getState: object2({ include: { type: "array", items: { enum: ["summary", "features", "bodies", "bodiesLite", "selection", "capabilities", "references", "reliefDesigns"] } }, compact: boolean, fields: { type: "array", minItems: 1, maxItems: 32, items: { type: "string", minLength: 1, maxLength: 40 } }, sinceRevision: { type: "integer", minimum: 0 } })
 };
+function validatePageInput(method, input2, path = "args") {
+  const schema = PAGE_METHOD_SCHEMAS[method];
+  if (schema) validateSchema(schema, input2, path);
+}
 
 // src/error-recovery.js
 var rule = (id, codes, reason, next, tools = [], options = {}) => ({ id, codes: new Set(codes.split(" ").filter(Boolean)), reason, next, tools, ...options });
@@ -314,6 +432,7 @@ var READ_METHODS = /* @__PURE__ */ new Set([
   "getTools",
   "getTool",
   "readDocs",
+  "getMetalMaterials",
   "getMaterials",
   "measureMass",
   "queryGeometry",
@@ -347,9 +466,8 @@ var READ_METHODS = /* @__PURE__ */ new Set([
   "getModelLibrary",
   "resolveModelLibrary"
 ]);
-var VIEW_METHODS = /* @__PURE__ */ new Set(["setView", "setRenderQuality", "setDisplayPreferences", "selectRectangle", "redraw", "capture", "getEvidenceImage", "updateModelLibrary", "markLocation"]);
+var VIEW_METHODS = /* @__PURE__ */ new Set(["setMetalMaterials", "setView", "setRenderQuality", "setDisplayPreferences", "selectRectangle", "redraw", "capture", "getEvidenceImage", "updateModelLibrary", "markLocation"]);
 var DISCOVERY_METHODS = /* @__PURE__ */ new Set(["getBatchReceipt", "connect", "info", "getState", "getAgentPanel", "getHistory", "searchTools", "getTools", "getTool", "readDocs", "files.capabilities", "getUILayout", "getQuickModelUsage", "getModelLibrary"]);
-var CONTEXTLESS_READ_METHODS = /* @__PURE__ */ new Set(["getServices", "getServicesCapabilities", "getServicesRouting"]);
 var EDIT_ACTIONS = /* @__PURE__ */ new Set([
   "feature.add",
   "feature.addMany",
@@ -409,7 +527,7 @@ var JOB_METHODS = /* @__PURE__ */ new Set([
   "pasteSelection",
   "inspectRound"
 ]);
-var EDIT_METHODS = /* @__PURE__ */ new Set(["execute", "files.import", "copySelection", "pasteSelection", "recoverKernel"]);
+var EDIT_METHODS = /* @__PURE__ */ new Set(["execute", "files.import", "copySelection", "pasteSelection", "recoverKernel", "setMetalMaterials"]);
 var EXPORT_METHODS = /* @__PURE__ */ new Set(["files.save", "files.export", "files.reattach", "createDrawing", "exportDrawing"]);
 JOB_METHODS.add("recoverKernel");
 JOB_METHODS.add("measureMass");
@@ -423,29 +541,6 @@ READ_METHODS.add("prepareReliefDesignRelief");
 JOB_METHODS.add("readLogo");
 JOB_METHODS.add("probeBlendRadius");
 JOB_METHODS.add("files.reattach");
-var contract = {
-  schemaVersion: 1,
-  adapterVersion: 2,
-  protocol: PROTOCOL,
-  readMethods: [...READ_METHODS].sort(),
-  viewMethods: [...VIEW_METHODS].sort(),
-  jobMethods: [...JOB_METHODS].sort(),
-  discoveryMethods: [...DISCOVERY_METHODS].sort(),
-  editActions: [...EDIT_ACTIONS].sort(),
-  editMethods: [...EDIT_METHODS].sort(),
-  exportMethods: [...EXPORT_METHODS].sort(),
-  // Hosts read timeouts and byte limits from here; WebCAD is their single source.
-  limits: { transport: { ...LIMITS.transport }, batch: { ...LIMITS.batch } },
-  methodSchemas: PAGE_METHOD_SCHEMAS,
-  contextPolicies: Object.fromEntries([...READ_METHODS, ...VIEW_METHODS, ...EDIT_METHODS, ...EXPORT_METHODS, "run", "add", "addMany"].map((name) => [name, contextPolicy(name)])),
-  methodTools: Object.fromEntries([...READ_METHODS, ...VIEW_METHODS, ...EXPORT_METHODS, ...JOB_METHODS].map((name) => [name, VIEW_METHODS.has(name) ? "webcad_view" : EXPORT_METHODS.has(name) ? "webcad_artifact" : READ_METHODS.has(name) ? "webcad_read" : "webcad_submit"]))
-};
-var AGENT_CONTRACT = Object.freeze({ ...contract, contractHash: contractHash(contract) });
-function editsDocument(payload) {
-  if (payload?.method === "reliefDesignReference") return ["attach", "detach"].includes(payload.args?.action);
-  if (payload?.method === "run") return (payload.args?.steps || []).some(editsDocument);
-  return ["add", "addMany", "execute", "files.import", "pasteSelection"].includes(payload?.method);
-}
 var HOST_ONLY_METHODS = Object.freeze({
   invoke: "dispatch wrapper",
   submit: "adapter owns job IDs",
@@ -476,6 +571,35 @@ var HOST_ONLY_METHODS = Object.freeze({
   "files.new": "requires new document binding",
   "files.open": "requires new document binding"
 });
+var contract = {
+  schemaVersion: 1,
+  adapterVersion: 2,
+  protocol: PROTOCOL,
+  readMethods: [...READ_METHODS].sort(),
+  viewMethods: [...VIEW_METHODS].sort(),
+  jobMethods: [...JOB_METHODS].sort(),
+  discoveryMethods: [...DISCOVERY_METHODS].sort(),
+  editActions: [...EDIT_ACTIONS].sort(),
+  editMethods: [...EDIT_METHODS].sort(),
+  exportMethods: [...EXPORT_METHODS].sort(),
+  // Hosts read timeouts and byte limits from here; WebCAD is their single source.
+  limits: { transport: { ...LIMITS.transport }, batch: { ...LIMITS.batch } },
+  hostOnlyMethods: HOST_ONLY_METHODS,
+  routingGuidance: {
+    wrongTool: "\u6309 allowedTool \u8C03\u7528\u76F8\u540C method\uFF0C\u4FDD\u7559\u5176\u53C2\u6570\uFF1B\u672C\u6B21\u672A\u63D0\u4EA4\uFF0C\u4E0D\u9700\u8981\u91CD\u8FDE\u6216\u91CD\u753B\u3002",
+    hostOnly: "\u8BE5\u65B9\u6CD5\u7531\u5BBF\u4E3B\u7BA1\u7406\uFF0C\u4E0D\u662F Agent \u53EF\u8C03\u7528\u5165\u53E3\uFF1B\u4E0D\u8981\u6362\u5DE5\u5177\u53CD\u590D\u8C03\u7528\uFF0C\u4E5F\u4E0D\u8981\u901A\u8FC7 invoke/submit \u5305\u88C5\u7ED5\u8FC7\u3002\u9009\u62E9\u5DF2\u8BFB\u5DE5\u5177\u5361\u7684\u516C\u5F00\u64CD\u4F5C\u6216\u62A5\u544A\u8BE5\u80FD\u529B\u672A\u5F00\u653E\u3002",
+    notExposed: "\u5F53\u524D\u7ED1\u5B9A\u5951\u7EA6\u6CA1\u6709\u5F00\u653E\u6B64\u65B9\u6CD5\uFF1B\u6709\u9875\u9762\u6587\u6863\u4E0D\u7B49\u4E8E MCP \u53EF\u6267\u884C\u3002\u6838\u5BF9 methodTools \u548C\u5DE5\u5177\u5361 mcpCall\uFF1B\u540C\u4E00\u7248\u672C\u65E0\u65B0\u8BC1\u636E\u65F6\u505C\u6B62\u6362\u5165\u53E3/\u91CD\u8FDE/\u53CD\u590D\u67E5\u5361\u3002"
+  },
+  methodSchemas: PAGE_METHOD_SCHEMAS,
+  contextPolicies: Object.fromEntries([...READ_METHODS, ...VIEW_METHODS, ...EDIT_METHODS, ...EXPORT_METHODS, "run", "add", "addMany"].map((name) => [name, contextPolicy(name)])),
+  methodTools: Object.fromEntries([...READ_METHODS, ...VIEW_METHODS, ...EXPORT_METHODS, ...JOB_METHODS].map((name) => [name, VIEW_METHODS.has(name) ? "webcad_view" : EXPORT_METHODS.has(name) ? "webcad_artifact" : READ_METHODS.has(name) ? "webcad_read" : "webcad_submit"]))
+};
+var AGENT_CONTRACT = Object.freeze({ ...contract, contractHash: contractHash(contract) });
+function editsDocument(payload) {
+  if (payload?.method === "reliefDesignReference") return ["attach", "detach"].includes(payload.args?.action);
+  if (payload?.method === "run") return (payload.args?.steps || []).some(editsDocument);
+  return ["add", "addMany", "execute", "files.import", "pasteSelection", "setMetalMaterials"].includes(payload?.method);
+}
 function failure(code, message) {
   const error = Object.assign(new Error(message), { code });
   const recovery = errorRecovery(error);
@@ -530,7 +654,8 @@ function validatePayload(payload, binding, scopes) {
     throw failure("method_not_allowed", "Use structured public CAD methods only");
   }
   if (!DISCOVERY_METHODS.has(method)) {
-    const contextlessRead = CONTEXTLESS_READ_METHODS.has(method) && Object.keys(args).length === 0;
+    const contextlessRead = contextPolicy(method) === "none" && READ_METHODS.has(method) && (PAGE_METHOD_SCHEMAS[method] || Object.keys(args).length === 0);
+    if (contextlessRead && PAGE_METHOD_SCHEMAS[method]) validatePageInput(method, args);
     if (!contextlessRead) {
       assertIdentity(args.context, binding);
       if (contextPolicy(method) !== "identity" && (!Number.isSafeInteger(args.context.expectedRevision) || args.context.expectedRevision < 0)) throw failure("PARAM_SCHEMA_INVALID", "expectedRevision required");

@@ -2,10 +2,54 @@
   "id": "setMetalMaterials",
   "title": "setMetalMaterials",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "identity",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "configuration": {
+        "type": "object"
+      }
+    },
+    "required": [
+      "context",
+      "configuration"
+    ]
+  },
   "mcpCall": {
-    "tool": "host-only",
+    "tool": "webcad_view",
     "method": "setMetalMaterials",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
@@ -104,5 +148,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1236dfa784c5e428dea9080e27166179c8f76a6bba32d9b2b688146fd074cf8d"
+  "docsHash": "sha256:6b97098ebaed9157cce6bcbb39944a207c296f68c3aaddc45432d0335413bd38"
 }

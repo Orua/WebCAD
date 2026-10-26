@@ -1,18 +1,17 @@
 import {contractHash} from '../contracts/operation-schema.js';
 import {LIMITS} from '../limits.js';
 import {contextPolicy} from '../page-context-policy.js';
-import {PAGE_METHOD_SCHEMAS,METHOD_TOOL} from '../page-input-contracts.js';
+import {PAGE_METHOD_SCHEMAS,validatePageInput} from '../page-input-contracts.js';
 import {errorRecovery} from '../error-recovery.js';
 export const PROTOCOL = 'goldenluck.webcad/1';
 export const IDENTITY_KEYS = Object.freeze(['sessionId','documentId','documentInstanceId']);
 export const READ_METHODS = new Set(['getBatchReceipt','connect','info','getState','waitFor','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs',
-  'getMaterials','measureMass','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectDesign','inspectProfile',
+  'getMetalMaterials','getMaterials','measureMass','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectDesign','inspectProfile',
   'inspectConstraints','inspectFit','inspectThickness','inspectDraft','inspectPrintability','files.capabilities',
   'planPatternMachining','prepareProfileEdit','projectProfile','sampleMeshRelief','sampleReliefHeight','prepareReliefSculpt','readRelief','readVector','connectVector',
   'fitProfile','traceTwinWindow','planAlignment','getUILayout','getQuickModelUsage','inspectRound','getModelLibrary','resolveModelLibrary']);
-export const VIEW_METHODS = new Set(['setView','setRenderQuality','setDisplayPreferences','selectRectangle','redraw','capture','getEvidenceImage','updateModelLibrary','markLocation']);
+export const VIEW_METHODS = new Set(['setMetalMaterials','setView','setRenderQuality','setDisplayPreferences','selectRectangle','redraw','capture','getEvidenceImage','updateModelLibrary','markLocation']);
 export const DISCOVERY_METHODS = new Set(['getBatchReceipt','connect','info','getState','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage','getModelLibrary']);
-const CONTEXTLESS_READ_METHODS = new Set(['getServices','getServicesCapabilities','getServicesRouting']);
 export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.edit','feature.rename','document.rename',
   'document.materials','feature.compileServices','document.reliefDesign',
   'body.visibility','body.appearance','body.explode','document.appearance','history.undo','history.redo',
@@ -22,7 +21,7 @@ export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.ed
 export const JOB_METHODS = new Set(['run','execute','queryGeometry','measure','measureRelation','inspectProfile','inspectConstraints',
   'inspectDesign','inspectFit','inspectThickness','inspectDraft','setView','setRenderQuality','files.save','files.export','files.import',
   'prepareProfileEdit','projectProfile','createDrawing','exportDrawing','copySelection','pasteSelection','inspectRound']);
-export const EDIT_METHODS = new Set(['execute','files.import','copySelection','pasteSelection','recoverKernel']);
+export const EDIT_METHODS = new Set(['execute','files.import','copySelection','pasteSelection','recoverKernel','setMetalMaterials']);
 export const EXPORT_METHODS = new Set(['files.save','files.export','files.reattach','createDrawing','exportDrawing']);
 JOB_METHODS.add('recoverKernel');
 JOB_METHODS.add('measureMass');
@@ -33,22 +32,6 @@ READ_METHODS.add('prepareReliefDesignRelief');
 JOB_METHODS.add('readLogo');
 JOB_METHODS.add('probeBlendRadius');
 JOB_METHODS.add('files.reattach');
-const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,
-  readMethods:[...READ_METHODS].sort(),viewMethods:[...VIEW_METHODS].sort(),jobMethods:[...JOB_METHODS].sort(),
-  discoveryMethods:[...DISCOVERY_METHODS].sort(),editActions:[...EDIT_ACTIONS].sort(),
-  editMethods:[...EDIT_METHODS].sort(),exportMethods:[...EXPORT_METHODS].sort(),
-  // Hosts read timeouts and byte limits from here; WebCAD is their single source.
-  limits:{transport:{...LIMITS.transport},batch:{...LIMITS.batch}},
-  methodSchemas:PAGE_METHOD_SCHEMAS,contextPolicies:Object.fromEntries([...READ_METHODS,...VIEW_METHODS,...EDIT_METHODS,...EXPORT_METHODS,'run','add','addMany'].map(name=>[name,contextPolicy(name)])),
-  methodTools:Object.fromEntries([...READ_METHODS,...VIEW_METHODS,...EXPORT_METHODS,...JOB_METHODS].map(name=>[name,VIEW_METHODS.has(name)?'webcad_view':EXPORT_METHODS.has(name)?'webcad_artifact':READ_METHODS.has(name)?'webcad_read':'webcad_submit']))};
-export const AGENT_CONTRACT=Object.freeze({...contract,contractHash:contractHash(contract)});
-// A task may think/read for minutes; only a command that changes the document
-// needs exclusive manual editing control. Page revision guards remain active.
-export function editsDocument(payload) {
-  if(payload?.method==='reliefDesignReference')return ['attach','detach'].includes(payload.args?.action);
-  if(payload?.method==='run')return (payload.args?.steps||[]).some(editsDocument);
-  return ['add','addMany','execute','files.import','pasteSelection'].includes(payload?.method);
-}
 // Host-managed resources and service credentials never enter model-controlled arguments.
 export const HOST_ONLY_METHODS = Object.freeze({invoke:'dispatch wrapper',submit:'adapter owns job IDs',getJob:'original receipt via webcad_job',cancelJob:'host stop control',awaitJob:'adapter awaits page job completion',
   configureAgentPanel:'user-owned assistant destination',setAgentPanel:'user-owned connection lifetime',
@@ -59,6 +42,27 @@ export const HOST_ONLY_METHODS = Object.freeze({invoke:'dispatch wrapper',submit
   createRequestContext:'use live requestContext',executeText:'use explicit run steps',getLogoConverter:'service configuration',setLogoConverter:'service credentials',convertLogoPdf:'host binary conversion',
   'files.register':'host binary upload','files.read':'host artifact transport','files.download':'host download','files.write':'host disk capability',
   'files.confirmWritten':'host write receipt','files.release':'host resource lifetime','files.new':'requires new document binding','files.open':'requires new document binding'});
+const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,
+  readMethods:[...READ_METHODS].sort(),viewMethods:[...VIEW_METHODS].sort(),jobMethods:[...JOB_METHODS].sort(),
+  discoveryMethods:[...DISCOVERY_METHODS].sort(),editActions:[...EDIT_ACTIONS].sort(),
+  editMethods:[...EDIT_METHODS].sort(),exportMethods:[...EXPORT_METHODS].sort(),
+  // Hosts read timeouts and byte limits from here; WebCAD is their single source.
+  limits:{transport:{...LIMITS.transport},batch:{...LIMITS.batch}},
+  hostOnlyMethods:HOST_ONLY_METHODS,routingGuidance:{
+    wrongTool:'按 allowedTool 调用相同 method，保留其参数；本次未提交，不需要重连或重画。',
+    hostOnly:'该方法由宿主管理，不是 Agent 可调用入口；不要换工具反复调用，也不要通过 invoke/submit 包装绕过。选择已读工具卡的公开操作或报告该能力未开放。',
+    notExposed:'当前绑定契约没有开放此方法；有页面文档不等于 MCP 可执行。核对 methodTools 和工具卡 mcpCall；同一版本无新证据时停止换入口/重连/反复查卡。'
+  },
+  methodSchemas:PAGE_METHOD_SCHEMAS,contextPolicies:Object.fromEntries([...READ_METHODS,...VIEW_METHODS,...EDIT_METHODS,...EXPORT_METHODS,'run','add','addMany'].map(name=>[name,contextPolicy(name)])),
+  methodTools:Object.fromEntries([...READ_METHODS,...VIEW_METHODS,...EXPORT_METHODS,...JOB_METHODS].map(name=>[name,VIEW_METHODS.has(name)?'webcad_view':EXPORT_METHODS.has(name)?'webcad_artifact':READ_METHODS.has(name)?'webcad_read':'webcad_submit']))};
+export const AGENT_CONTRACT=Object.freeze({...contract,contractHash:contractHash(contract)});
+// A task may think/read for minutes; only a command that changes the document
+// needs exclusive manual editing control. Page revision guards remain active.
+export function editsDocument(payload) {
+  if(payload?.method==='reliefDesignReference')return ['attach','detach'].includes(payload.args?.action);
+  if(payload?.method==='run')return (payload.args?.steps||[]).some(editsDocument);
+  return ['add','addMany','execute','files.import','pasteSelection','setMetalMaterials'].includes(payload?.method);
+}
 export function failure(code, message) { const error=Object.assign(new Error(message), {code});const recovery=errorRecovery(error);return Object.assign(error,{userMessage:recovery.userMessage,recovery}); }
 const plain = value => value && typeof value === 'object' && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype;
 
@@ -112,7 +116,8 @@ export function validatePayload(payload, binding, scopes) {
     throw failure('method_not_allowed','Use structured public CAD methods only');
   }
   if (!DISCOVERY_METHODS.has(method)) {
-    const contextlessRead=CONTEXTLESS_READ_METHODS.has(method)&&Object.keys(args).length===0;
+    const contextlessRead=contextPolicy(method)==='none'&&READ_METHODS.has(method)&&(PAGE_METHOD_SCHEMAS[method]||Object.keys(args).length===0);
+    if(contextlessRead&&PAGE_METHOD_SCHEMAS[method])validatePageInput(method,args);
     if(!contextlessRead){
       assertIdentity(args.context,binding);
       if (contextPolicy(method)!=='identity' && (!Number.isSafeInteger(args.context.expectedRevision) || args.context.expectedRevision<0)) throw failure('PARAM_SCHEMA_INVALID','expectedRevision required');

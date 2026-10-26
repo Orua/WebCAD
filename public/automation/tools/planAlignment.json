@@ -2,7 +2,7 @@
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -73,5 +73,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:06140698e3eefb36cf9770d5e96d5651308535a019acbaf8106a6af5bb350777"
+  "docsHash": "sha256:3ecfe4c5e535bb55d8f5d4587840af00ba6aa76c889ac66ed6538a4678861068"
 }

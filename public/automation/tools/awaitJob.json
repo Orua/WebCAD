@@ -2,12 +2,13 @@
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
     "method": "awaitJob",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "adapter awaits page job completion",
+    "agentCallable": false
   },
   "description": "awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。",
   "synonyms": [
@@ -22,7 +23,7 @@
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorModel": "Direct page scripts may use api.invoke for structured errors. MCP callers use this card mcpCall; invoke is an internal host wrapper, not an Agent method.",
   "errorCodes": [
     "PARAM_RANGE_INVALID",
     "JOB_NOT_FOUND"
@@ -72,5 +73,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:09106c44815d91d5dd175c367801c03a061138dc94c4903fd13d88e2a9f547ee"
+  "docsHash": "sha256:a99497e0268acf474dfc913d276435c88803c87cc93e5ce9a662f29cfa76ca31"
 }

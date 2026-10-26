@@ -2,7 +2,7 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "revision",
   "inputSchema": {
     "type": "object",
@@ -499,6 +499,32 @@
     }
   },
   "atomic": false,
+  "mcpExample": {
+    "method": "run",
+    "requestKey": "<fresh host request key>",
+    "args": {
+      "context": {
+        "sessionId": "<live sessionId>",
+        "documentId": "<live documentId>",
+        "documentInstanceId": "<live documentInstanceId>",
+        "expectedRevision": 0
+      },
+      "idempotencyKey": "<fresh batch key>",
+      "steps": [
+        {
+          "id": "rename",
+          "method": "execute",
+          "args": {
+            "action": "document.rename",
+            "args": {
+              "name": "示例工程"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "transportGuide": "Goldenluck MCP 调用 webcad_submit：method、requestKey、args 在外层；完整 run 请求放在 args 内。外层 requestKey 不会代替 args.idempotencyKey，run 不接受 key 字段；不要把 method、requestKey 或第二层 args 放进 run 请求。页面直接调用 api.run 时只传 args 的内容。替换示例 context 为当前 requestContext，保留两个层次，不自动改写 revision 或重试未知结果。参数拒绝先读 error.details.path/missingFields/allowedFields/commitState，按已读契约修正；不要把报错的简称当成字段，也不要输出全量 index。",
   "docs": "api.run",
   "minimalExample": {
     "context": {
@@ -620,5 +646,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c683d987736722de09859223853fdefa41fddd4222c75c7864189d78f51b9866"
+  "docsHash": "sha256:99a6db5004f5af79efe29d7af862d1cce3d870d6c353fe059d839897ef68fd0f"
 }

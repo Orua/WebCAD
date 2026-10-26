@@ -2,12 +2,13 @@
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
     "method": "setAgentPanel",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "user-owned connection lifetime",
+    "agentCallable": false
   },
   "description": "setAgentPanel({context,visible:true|false})；true接入，false退出释放。或setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false,floatingPosition?:{xPx:80,yPx:80}}})；layout与visible分开调用。宽高1–4096像素，浮标坐标0–100000像素并夹限到画布内。",
   "synonyms": [
@@ -49,5 +50,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3da34958efd8da16722338ebd0cfdfce431cae2b7166642589c19e84cdf36200"
+  "docsHash": "sha256:2151ce268cb50e81779e2238d55e560614fa7aa35fa1bb5382b7a142a7535fa1"
 }

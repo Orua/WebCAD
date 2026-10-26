@@ -2,7 +2,7 @@
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -101,5 +101,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:485620cbbfee460d7f00aae5ac877def1e31ed31c6cba881087e5fae06abdb44"
+  "docsHash": "sha256:87bf87dc3264f96b05513c3907bc67529e3a5538e80d2bf78f1321a325396f47"
 }

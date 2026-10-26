@@ -1,8 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "files.write",
+    "reason": "host disk capability",
+    "agentCallable": false
+  },
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -24,7 +30,7 @@
     "handle"
   ],
   "unknownFields": "rejected",
-  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.write\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
+  "errorModel": "Direct page file scripts throw or reject with error.code. MCP callers follow mcpCall; invoke is not an Agent method. Page-script invoke({method:\"files.write\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
@@ -105,5 +111,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:95ced45b311f6091f4be86773b430abed3b64d5f82f69729220d5931f93febb8"
+  "docsHash": "sha256:eea0fc41340af65d4ada1beede2202d73ded854ce4c186127c7ad539555b74c9"
 }

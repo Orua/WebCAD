@@ -1,8 +1,13 @@
 {
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "files.import",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -27,7 +32,7 @@
     "units"
   ],
   "unknownFields": "rejected",
-  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.import\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
+  "errorModel": "Direct page file scripts throw or reject with error.code. MCP callers follow mcpCall; invoke is not an Agent method. Page-script invoke({method:\"files.import\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
@@ -135,5 +140,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:8b9d2b1713a54241460de11fe49058503eb802384d36a998f4de7c91620e23cc"
+  "docsHash": "sha256:24c0624ba00a34f7f091acf40e0f843f0b2912fbd8a3abb8b827b16d69f8d247"
 }

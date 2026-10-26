@@ -2,7 +2,7 @@
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -69,5 +69,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:66afb54cb3194b5306271b4c208e71bfce60b4e97aadd38ab21ab1a67aa26155"
+  "docsHash": "sha256:beb683c28d7d1269d68c24f89756f2f0e290126d5933b3200863b572632da16e"
 }

@@ -2,12 +2,13 @@
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
     "method": "getServicesRequest",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "host server request reconciliation",
+    "agentCallable": false
   },
   "description": "getServicesRequest({idempotencyKey})；连接未知时先查既有接收记录。",
   "synonyms": [
@@ -108,5 +109,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d32f8b0a588a09c4272f1efe9a940b3fba6eb002cb1c6d6432887174fd30133e"
+  "docsHash": "sha256:f60e73c4ed701f0db61c7280160b055e1f90b56444e0e003c71418e07909fb04"
 }

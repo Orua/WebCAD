@@ -2,12 +2,13 @@
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
     "method": "getLogoConverter",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "service configuration",
+    "agentCallable": false
   },
   "description": "getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。",
   "synonyms": [
@@ -96,5 +97,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:ae4d257e59ea8d81cd4f0a9d06b0bb4ff06637f28870bd92aff53bbb57440eb6"
+  "docsHash": "sha256:cab4ea0abbbd8a78164a2f98b94f466bbe5a09392f61c5bbdc180873033b46b4"
 }

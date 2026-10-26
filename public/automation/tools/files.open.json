@@ -1,8 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "files.open",
+    "reason": "requires new document binding",
+    "agentCallable": false
+  },
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -26,7 +32,7 @@
     "units"
   ],
   "unknownFields": "rejected",
-  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.open\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
+  "errorModel": "Direct page file scripts throw or reject with error.code. MCP callers follow mcpCall; invoke is not an Agent method. Page-script invoke({method:\"files.open\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
@@ -115,5 +121,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:14aefa807b2dc6c309246dcd5b250082f3ce139406e7441990ab8a3de433bbab"
+  "docsHash": "sha256:4d2d3e1b6cc9dd0a0fe9790079c4187e3b4f20d531eb48cc4c5d7711c68f50ca"
 }

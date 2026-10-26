@@ -2,12 +2,13 @@
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
     "method": "submit",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "adapter owns job IDs",
+    "agentCallable": false
   },
   "description": "submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.",
   "synonyms": [
@@ -23,7 +24,7 @@
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorModel": "Direct page scripts may use api.invoke for structured errors. MCP callers use this card mcpCall; invoke is an internal host wrapper, not an Agent method.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "RESOURCE_LIMIT",
@@ -75,5 +76,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:23045fa35f3a224cd321f245950dab5130da53e2edc0067fb65ec188f610fe4a"
+  "docsHash": "sha256:a419dadd5c3ee694ac0a68db5584e267313d14c77f9e9b24d6828bc7bcc800f5"
 }
