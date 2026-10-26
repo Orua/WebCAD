@@ -60,7 +60,11 @@ function validateSchema(schema, value, path = "params") {
       throw new Error(`Unsupported schema keyword: ${key}`);
     }
     const fail = (message) => contractError("PARAM_SCHEMA_INVALID", p, message);
-    const range = (message) => contractError("PARAM_RANGE_INVALID", p, message);
+    const range = (message) => {
+      const error = new OperationContractError("PARAM_RANGE_INVALID", p, message);
+      if (Array.isArray(v)) error.details = { validation: { actualCount: v.length } };
+      throw error;
+    };
     const matches = (sub) => {
       try {
         visit(sub, v, p);
@@ -277,6 +281,60 @@ function validatePageInput(method, input2, path = "args") {
   if (schema) validateSchema(schema, input2, path);
 }
 
+// src/parameter-error-message.js
+var labels = { depth: "\u96D5\u523B\u6DF1\u5EA6", depthMm: "\u6DF1\u5EA6", scale: "LOGO \u6BD4\u4F8B", angle: "\u65CB\u8F6C\u89D2\u5EA6", offsetX: "\u6C34\u5E73\u504F\u79FB", offsetY: "\u5782\u76F4\u504F\u79FB", point: "\u653E\u7F6E\u70B9\u5750\u6807", faceId: "\u76EE\u6807\u9762", sizeMm: "\u56FE\u6848\u5C3A\u5BF8", name: "\u540D\u79F0", source: "\u6765\u6E90\u8BB0\u5F55", regions: "\u56FE\u6848\u533A\u57DF", placementVersion: "\u5B9A\u4F4D\u7248\u672C", mode: "\u52A0\u5DE5\u65B9\u5F0F", projectionMode: "\u52A0\u5DE5\u8303\u56F4", draftAngle: "\u8131\u6A21\u659C\u5EA6", mirrorX: "\u955C\u50CF\u8BBE\u7F6E" };
+function fieldName(path) {
+  if (typeof path !== "string" || path.length > 220 || !/^params(?:\.(?:[A-Za-z_][A-Za-z_0-9]{0,39}|\d{1,7}))*$/.test(path) || /(?:password|secret|token|cookie|authorization|api_?key)/i.test(path)) return null;
+  const keys = path.split(".").slice(1);
+  if (!keys.length) return "\u53C2\u6570";
+  let label = labels[keys[0]] || "\u53C2\u6570\u5B57\u6BB5";
+  if (keys[0] === "regions" && /^\d+$/.test(keys[1] || "")) {
+    label = `\u7B2C ${Number(keys[1]) + 1} \u4E2A\u56FE\u6848\u533A\u57DF`;
+    if (keys[2] === "outer") label += "\u7684\u5916\u8F6E\u5ED3";
+    if (keys[2] === "holes" && /^\d+$/.test(keys[3] || "")) label += `\u7684\u7B2C ${Number(keys[3]) + 1} \u4E2A\u5B54\u6D1E`;
+    const index = keys[2] === "outer" ? 3 : keys[2] === "holes" ? 4 : -1;
+    if (index >= 0 && /^\d+$/.test(keys[index] || "")) {
+      label += `\uFF0C\u7B2C ${Number(keys[index]) + 1} \u4E2A\u8282\u70B9`;
+      if (["0", "1"].includes(keys[index + 1])) label += keys[index + 1] === "0" ? " X \u5750\u6807" : " Y \u5750\u6807";
+    }
+  } else if (keys[0] === "point" && ["0", "1", "2"].includes(keys[1])) label += ` ${["X", "Y", "Z"][Number(keys[1])]}`;
+  return `${label}\uFF08${path}\uFF09`;
+}
+function parameterErrorMessage(error = {}) {
+  if (!["PARAM_SCHEMA_INVALID", "PARAM_RANGE_INVALID", "TYPE_MISMATCH", "INVALID_INPUT", "HEIGHTFIELD_INVALID"].includes(error.code)) return null;
+  const field = fieldName(error.path);
+  if (!field) return null;
+  const message = String(error.message || ""), types = { number: "\u6570\u503C", integer: "\u6574\u6570", array: "\u6570\u7EC4", object: "\u5BF9\u8C61", string: "\u6587\u5B57", boolean: "\u662F\u6216\u5426", null: "\u7A7A\u503C" };
+  let reason = {
+    "A finite number is required.": "\u5FC5\u987B\u662F\u6709\u6548\u7684\u6709\u9650\u6570\u503C\uFF0C\u4E0D\u80FD\u662F NaN \u6216\u65E0\u7A77\u5927\u3002",
+    "A finite JSON value is required.": "\u542B\u6709\u672A\u586B\u5199\u6216\u4E0D\u80FD\u63D0\u4EA4\u7684\u6570\u636E\uFF0C\u8FD9\u662F\u7A0B\u5E8F\u63D0\u4EA4\u6570\u636E\u7684\u95EE\u9898\u3002",
+    "A plain JSON object is required.": "\u5FC5\u987B\u662F\u666E\u901A\u6570\u636E\u5BF9\u8C61\u3002",
+    "Required field is missing.": "\u7F3A\u5C11\u5FC5\u586B\u5185\u5BB9\u3002",
+    "Unknown field.": "\u5F53\u524D\u5DE5\u5177\u4E0D\u63A5\u53D7\u8FD9\u4E2A\u5B57\u6BB5\uFF0C\u8FD9\u662F\u7A0B\u5E8F\u63D0\u4EA4\u5B57\u6BB5\u7684\u95EE\u9898\u3002",
+    "Value is not in the allowed enumeration.": "\u4E0D\u662F\u5F53\u524D\u5DE5\u5177\u652F\u6301\u7684\u9009\u9879\u3002",
+    "Value does not match the required constant.": "\u4E0E\u5F53\u524D\u5DE5\u5177\u8981\u6C42\u7684\u56FA\u5B9A\u503C\u4E0D\u4E00\u81F4\u3002",
+    "String does not match the required pattern.": "\u683C\u5F0F\u4E0D\u6B63\u786E\u3002",
+    "Duplicate items are not accepted.": "\u5B58\u5728\u91CD\u590D\u9879\u3002",
+    "Sparse arrays are not supported.": "\u5B58\u5728\u7F3A\u5931\u7684\u6570\u636E\u9879\u3002",
+    "Symbol fields are not supported.": "\u542B\u6709\u4E0D\u80FD\u63D0\u4EA4\u7684\u5185\u90E8\u5B57\u6BB5\u3002",
+    "This value is not accepted.": "\u5F53\u524D\u5DE5\u5177\u4E0D\u63A5\u53D7\u6B64\u503C\u3002",
+    "Value does not meet all required conditions.": "\u672A\u6EE1\u8DB3\u6B64\u5B57\u6BB5\u7684\u7EC4\u5408\u6761\u4EF6\u3002",
+    "Value does not meet a required alternative.": "\u672A\u5339\u914D\u6B64\u5B57\u6BB5\u652F\u6301\u7684\u683C\u5F0F\u3002",
+    "Exactly one alternative is required.": "\u5FC5\u987B\u4E14\u53EA\u80FD\u9009\u62E9\u4E00\u79CD\u53C2\u6570\u683C\u5F0F\u3002",
+    "This combination is not accepted.": "\u8FD9\u4E9B\u53C2\u6570\u4E0D\u80FD\u540C\u65F6\u4F7F\u7528\u3002"
+  }[message];
+  let match;
+  if (match = /^Expected (number|integer|array|object|string|boolean|null)\.$/.exec(message)) reason = `\u5FC5\u987B\u662F${types[match[1]]}\u3002`;
+  const number = "(-?\\d+(?:\\.\\d+)?(?:e[+-]?\\d+)?)";
+  for (const [prefix, text] of [["Minimum is ", "\u5FC5\u987B\u5927\u4E8E\u6216\u7B49\u4E8E"], ["Maximum is ", "\u5FC5\u987B\u5C0F\u4E8E\u6216\u7B49\u4E8E"], ["Must exceed ", "\u5FC5\u987B\u5927\u4E8E"], ["Must be less than ", "\u5FC5\u987B\u5C0F\u4E8E"]]) if (match = new RegExp("^" + prefix + number + "\\.$", "i").exec(message)) reason = `${text} ${match[1]}\u3002`;
+  for (const [pattern, text] of [[/^At most (\d+) items are accepted\.$/, "\u6700\u591A\u5141\u8BB8"], [/^At least (\d+) items are required\.$/, "\u81F3\u5C11\u9700\u8981"]]) if (match = pattern.exec(message)) {
+    const count = error.details?.validation?.actualCount;
+    reason = `${text} ${match[1]} \u9879${Number.isSafeInteger(count) && count >= 0 ? `\uFF0C\u5F53\u524D\u4E3A ${count} \u9879` : ""}\u3002`;
+  }
+  for (const [pattern, text] of [[/^Minimum length is (\d+)\.$/, "\u6587\u5B57\u957F\u5EA6\u81F3\u5C11\u4E3A"], [/^Maximum length is (\d+)\.$/, "\u6587\u5B57\u957F\u5EA6\u6700\u591A\u4E3A"]]) if (match = pattern.exec(message)) reason = `${text} ${match[1]} \u4E2A\u5B57\u7B26\u3002`;
+  return reason ? `${field}\uFF1A${reason}` : null;
+}
+
 // src/error-recovery.js
 var rule = (id, codes, reason, next, tools = [], options = {}) => ({ id, codes: new Set(codes.split(" ").filter(Boolean)), reason, next, tools, ...options });
 var rules = [
@@ -372,7 +430,7 @@ function recoveryRule(code, message = "") {
 function errorRecovery(error = {}, receipt = {}) {
   const code = String(error.code || "UNCLASSIFIED_ERROR"), base = recoveryRule(code, String(error.message || ""));
   const logoFailure = error.details?.logoFailure, logoReason = businessReason(logoFailure?.reason), logoNext = businessReason(logoFailure?.next);
-  const detail = businessReason(error.message), reason = logoReason ?? (detail ? base === unknown ? detail : `${base.reason}${detail}` : base.reason);
+  const parameterReason = parameterErrorMessage(error), detail = businessReason(error.message), reason = logoReason ?? parameterReason ?? (detail ? base === unknown ? detail : `${base.reason}${detail}` : base.reason);
   const commit = receipt.commitState ?? error.commitState ?? error.serviceCommitState;
   const uncertain = receipt.status === "unknown" || commit === "unknown" || base.reconcile === true;
   const partial = receipt.status === "partial" || receipt.atomic === false && receipt.results?.some((step) => ["committed", "completed"].includes(step.result?.status));

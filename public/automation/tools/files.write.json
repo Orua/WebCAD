@@ -8,7 +8,7 @@
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.57.23",
+  "version": "1.57.24",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -111,5 +111,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:a435f152f11b6981e6a5ef7e4f508ff1f20fcff2cc3eb1ad30751ef5b05910be"
+  "docsHash": "sha256:8d97265777d1bf04f3cc9902a375ce16e4c517df61c99fed3edee7dd9f0bf66e"
 }

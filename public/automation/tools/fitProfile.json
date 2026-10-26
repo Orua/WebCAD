@@ -2,7 +2,7 @@
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.57.23",
+  "version": "1.57.24",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -93,5 +93,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dfc5f4f95f1bc73a337697d2ebec82506c949972d2aa0f765e68ecd082445250"
+  "docsHash": "sha256:cff88dec7515aa3530756a59832e486b1c6e633556d3d63d3d0cc7cc7bb5c349"
 }

@@ -2,7 +2,7 @@
   "id": "logoWizard",
   "title": "logoWizard",
   "category": "page-method",
-  "version": "1.57.23",
+  "version": "1.57.24",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -331,5 +331,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:afcae98eb8ffb9bd1b2e7b358b1efca895376ca9839414f393cf02949c1c9ff1"
+  "docsHash": "sha256:f9d36323a784f6c7de08edc11a166da40953502eff6121e67b4a05050a552539"
 }

@@ -2,7 +2,7 @@
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.57.23",
+  "version": "1.57.24",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -76,5 +76,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:26d7d781d33a519a0b11dcd1f5926f4ac8998e7073a78635adda03515f6aad62"
+  "docsHash": "sha256:e5288b2ad218691390516d5a624b5d47d4c89f9450dec1aff522b7b0825acb04"
 }
