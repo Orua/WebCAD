@@ -63,11 +63,20 @@ namespace WebCADServices.Gateway
                 // Keep the configured internal principal so existing jobs/assets retain their owner.
                 if (sameOrigin) credential = IisRuntime.ConfiguredCredential();
                 if (string.IsNullOrEmpty(credential)) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
+                string route = request.QueryString["route"] ?? "/v1/health";
+                if (!System.Text.RegularExpressions.Regex.IsMatch(route, "^/v1/[a-zA-Z0-9/_-]+$")) throw new ServiceError("ROUTE_NOT_FOUND", "Invalid route", 404);
+                // Connection settings only check transport/protocol/authorization. Do not
+                // initialize workers, open the job store or query the runtime queues.
+                if (route.StartsWith("/v1/hello/", StringComparison.Ordinal) && request.HttpMethod == "GET")
+                {
+                    string challenge = route.Substring("/v1/hello/".Length);
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(challenge, "^[a-f0-9]{32}$")) throw new ServiceError("REQUEST_INVALID", "Invalid handshake challenge", 400);
+                    IisRuntime.AuthorizeCredential(credential);
+                    Write(context, WireResponse.Json(new { service = "webcad-services", protocolVersion = Protocol.Version, handshakeVersion = 1, challenge, authorized = true, gatewayBuildId = BuildId }));return;
+                }
                 var runtime = IisRuntime.Get(credential);
                 var authorized = runtime.Handle(new WireRequest { Method = "GET", Route = "/v1/health", Credential = credential });
                 if (authorized.Status != 200) { Write(context, authorized);return; }
-                string route = request.QueryString["route"] ?? "/v1/health";
-                if (!System.Text.RegularExpressions.Regex.IsMatch(route, "^/v1/[a-zA-Z0-9/_-]+$")) throw new ServiceError("ROUTE_NOT_FOUND", "Invalid route", 404);
                 int resourceBudget=Protocol.ResourceBudget(route,request.Headers["X-Asset-Kind"],request.Headers["X-File-Name"]);
                 if (request.ContentLength > resourceBudget) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);
                 byte[] body;
@@ -114,6 +123,12 @@ namespace WebCADServices.Gateway
                 if (diff != 0) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
                 current = new IisRuntime(token);return current.runtime;
             }
+        }
+        internal static void AuthorizeCredential(string supplied)
+        {
+            byte[] a = Encoding.UTF8.GetBytes(ConfiguredCredential()),b = Encoding.UTF8.GetBytes(supplied ?? "");
+            int diff = a.Length ^ b.Length;for (int i = 0;i < a.Length;i++) diff |= a[i] ^ (i < b.Length ? b[i] : 0);
+            if (diff != 0) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
         }
         internal static string ConfiguredCredential()
         {
