@@ -691,6 +691,18 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "profileLoft",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "sweep-loft",
     "groupTitle": "扫掠、放样及导向曲面",
@@ -728,5 +740,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:d4b66f265ebf475d82a8ba58b91fc9d3bbd559cf3050fb1e19b7383f19be4d28"
+  "docsHash": "sha256:8709bb608f6746870645a95672e15929355ec36a0a0586f124cbaf5f2644c5c1"
 }

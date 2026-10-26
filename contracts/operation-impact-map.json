@@ -1,4 +1,18 @@
 {
+  "preparedOperations20261026": {
+    "localImpact": "Add read-only prepareOperation and applyPreparedOperation. Technical fields and uniquely verified references are resolved in the page; missing design parameters return structured needs_input questions and resumable plan IDs. Host send repairs STEP attachment registration skipped when selection preceded knowledge readiness; registration/hash/binding must succeed before creating a model task.",
+    "servicesImpact": "No Gateway, Logo or Native binary change. Same configured Services source conversion and existing geometry routing.",
+    "logoImpact": "Reuse the accepted current vector draft, exact width, review revision and target. Never guess depth/material direction, ambiguous body/source/face or a curved-surface point. Planar centroid is accepted only after exact finite-face distance verification. Shared preparation also resolves explicit fillet/chamfer face scopes and main-axis hole entry, asks conditional counterbore/countersink/blind-hole fields, and resumes nested multi-pocket omissions without replacing other input.",
+    "contractImpact": "Public READ/EDIT/JOB routes and strict schemas, minimal examples, three task recipes and existing declarative run compatibility. No arbitrary scripts; apply uses the original CommandService.",
+    "documentImpact": "Preparation is read-only and revision-bound. Same plan ID returns its original settled or unknown receipt without replay. Source review changes reject at ordinary materialization. Existing undo/save semantics retained.",
+    "cacheImpact": "32 page-local plans, 30-minute unconsumed expiry, complete knowledge bundle regenerated with hashes. No document state stored in static knowledge.",
+    "requiredTests": [
+      "Missing design fields/questions/resume without mutation",
+      "Unique vs ambiguous body/source, exact plane center, curved point required",
+      "Schema and review/revision guards; same-plan concurrent and unknown receipt replay protection",
+      "Luna workbench imported PDF inclined face and one existing curved model case"
+    ]
+  },
   "debugDiagnostics20261026": {
     "localImpact": "Append Debug to Settings. Independent diagnostic dialog leaves current tool/LOGO drafts intact; remains readable while busy or Agent-controlled. Bounded tab journal records UI/API transactions, worker phases, Services request/job phases and original field errors. Search/filter, compact AI clipboard with manual fallback, and JSON/JSONL downloads share one report source.",
     "servicesImpact": "No Gateway/Logo/Native binaries changed. Browser client logs routes, timing, job/asset identifiers and returned error details without headers, credentials or uploaded bytes. Server disk logs are explicitly unavailable, not fabricated.",
@@ -6,7 +20,13 @@
     "contractImpact": "API1.57.25 adds getDebugReport and identity-scoped setDebugPanel; matching READ/VIEW classification, strict input schemas, UI routes and documentation. Native Agent uses discovered runtime permissions; no preinstalled skills or program prompt changes.",
     "documentImpact": "Read-only diagnostic snapshots and independent UI window; no revision/history/dirty changes, automatic retries, task cancellation or external upload. Exported diagnostic data is not an engineering file or saved-geometry acceptance.",
     "cacheImpact": "Regenerate complete finite knowledge/remote software and ZIP; journal v1 is sanitized before memory/sessionStorage retention and bounded to1500 events/1MiB. Restores only the same tab's recorded history.",
-    "requiredTests": ["Ordered bounded journal, refresh restore, filters and cursor", "Credentials/query/binary redaction and undefined/NaN/error-path fidelity", "Original exception/receipt/unknown commit semantics and no retry", "Strict API read/panel context and busy-document invariance", "One local Debug open, view/filter, copy/export and draft-preservation browser check; same package HTTP verification and GitHub main push"]
+    "requiredTests": [
+      "Ordered bounded journal, refresh restore, filters and cursor",
+      "Credentials/query/binary redaction and undefined/NaN/error-path fidelity",
+      "Original exception/receipt/unknown commit semantics and no retry",
+      "Strict API read/panel context and busy-document invariance",
+      "One local Debug open, view/filter, copy/export and draft-preservation browser check; same package HTTP verification and GitHub main push"
+    ]
   },
   "logoParameterDiagnostics20261026": {
     "localImpact": "UI schema failures name the actual field and translate bounded validator diagnostics; collection limits report actual and allowed counts. No arbitrary raw messages, values, stack traces or credential paths are exposed.",
@@ -15,7 +35,11 @@
     "contractImpact": "API1.57.24 retains original code/message/path and adds bounded validation.actualCount on schema range errors; shared userMessage uses the same field explanation as UI.",
     "documentImpact": "No document mutation, replay or automatic correction; existing engraving and rollback paths remain unchanged.",
     "cacheImpact": "Regenerate the complete knowledge archive and manifest with current error recovery docs and software hashes.",
-    "requiredTests": ["Actual schema failures for ring capacity, undefined metadata, coordinates, depth, types and unknown fields", "Credential/path redaction and existing recovery/commit-state checks", "One matching frontend package on localhost and production; browser UI remains unverified when the host control tool is unavailable"]
+    "requiredTests": [
+      "Actual schema failures for ring capacity, undefined metadata, coordinates, depth, types and unknown fields",
+      "Credential/path redaction and existing recovery/commit-state checks",
+      "One matching frontend package on localhost and production; browser UI remains unverified when the host control tool is unavailable"
+    ]
   },
   "logoHostDirect20261026": {
     "localImpact": "ReadLogo accepts a validated host packet, defaults to task-authorized automatic acceptance, and returns a live logoId. The page materializes accepted current draft contours before normal logo transactions. Explicit preview blocks engraving and opens the shared large editor. Preserve source millimeters for SVG/JSON; 35mm is only a provisional image draft.",
@@ -3700,5 +3724,29 @@
       "Upload stage sequence and direct affected UI check",
       "One actual logo carving receipt; native Agent full flow remains unverified due test transport timeouts"
     ]
+  },
+  "toolPreparation20261027": {
+    "localImpact": "All 285 public cards expose one preparation route. Addable operations, including advisory/templates and relief, retain existing execution. Other methods/commands/files receive read-only questions and the original nextCall; no alternate executor.",
+    "servicesImpact": "None in binaries/protocol or authorization. Original Services/Native routing, source upload consent, lifecycle and geometry validation remain authoritative.",
+    "logoImpact": "Existing short-reference LOGO and exactly-once application preserved. No converter/fitter algorithm change; the previously reported dense PNG timeout remains unresolved.",
+    "contractImpact": "API1.59 adds identity-scoped prepareToolCall, finite structural preparation schemas on every callable tool, selected oneOf/anyOf/nested question support and nullable JSON schema types. Relief read returns an immutable page-local reliefId; explicit sizes/mode/height/source interpretation remain required.",
+    "documentImpact": "All preparation remains not_committed. Original document identity/revision guards, scopes, undo/save and source geometry are preserved. Relief data/holes are retained, not reconstructed; arbitrary scripts and shaded-photo depth inference remain unavailable.",
+    "cacheImpact": "Regenerate complete finite knowledge/remote software/ZIP and member hashes. Four immutable relief sources per page/document instance; plans remain bounded32/30min. No state/topology stored in static knowledge.",
+    "requiredTests": [
+      "Data-driven every-card empty preparation and all85 addable operation schemas plus53 template examples, zero compute/write",
+      "Same-plan nested and alternative answers; advisory template discriminator and nullable types",
+      "Relief immutable original data and holes, curved point, source conflict, ordinary exactly-once apply",
+      "Luna localhost real relief and non-modeling preflight with original permissions/readback/save"
+    ]
+  }
+,
+  "reliefUsability20261027": {
+    "localImpact":"Compact relief import and image design forms, explicit original-image transition, live height thumbnail/enlarged view and shared LOGO canvas placement with margins, drag, scale, rotate and alignment; stale preview blocked on edits.",
+    "servicesImpact":"No DLL, Native or protocol change. Short references materialize in the page before the existing deterministic executor route; retain original job/receipt and page installation gates.",
+    "logoImpact":"Reuse LogoPlacementGuide via a separate relief adapter; no artwork conversion or LOGO behavior change.",
+    "contractImpact":"API1.60 reliefWizard reads/updates the same UI draft, attaches immutable reliefId, and explicitly creates a persisted image design from the original resource through the existing Services source converter; idempotent design request and edit scope gates. readRelief includeData:false and direct execute reliefId avoid model array transport. Regenerate full finite knowledge.",
+    "documentImpact":"Existing relief recipe and source geometry unchanged; guide is display-only, preview/apply/undo share CommandService.",
+    "cacheImpact":"Full knowledge hashes refreshed; relief source cache remains four document-instance scoped immutable entries.",
+    "requiredTests":["relief reference materialization and compact response","relief placement mapping and source retention","targeted page/Agent contracts and knowledge hashes","one localhost import/place/preview/apply check with actual executor receipt"]
   }
 }

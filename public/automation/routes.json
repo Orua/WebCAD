@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.57.25",
-  "buildId": "91bb012cf6d7c8e4343264bf4ae0c3d0e7f746cf-src-62e216a82c33f308-working",
-  "catalogHash": "sha256:1975ef2dcc562bc7d01b63c535939ef3d611f145d6c01598e0b9291ba8a5363a",
-  "docsHash": "sha256:53a402da10baf48a33f65c9d077f36cdc8af8c9725772a2eb87e6c14d3ec1a18",
+  "pageApiVersion": "1.60.0",
+  "buildId": "ee55f356d8a668968bae2b16f134e69431cc9735-src-906e7bc980de300c-working",
+  "catalogHash": "sha256:c9742f8171bc5b2cac0e7a709dc5ddf84f705c541998d45f11191a2ab5cb7954",
+  "docsHash": "sha256:84cfb3d492d74162ee25e9a0cca414014b8ca0a846d90c3c0a9d00cd0d65647e",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -1073,6 +1073,7 @@
     },
     "relief": {
       "tools": [
+        "reliefWizard",
         "planPatternMachining",
         "relief",
         "readRelief",
@@ -1085,7 +1086,7 @@
         "history.undo"
       ],
       "method": "execute",
-      "usage": "面加工→浮雕。先读api.pattern-machining、planPatternMachining区分意图；新创建params.machiningIntent保存加工意义，readRelief显式sourceInterpretation。恒深文字/图案走LOGO，灰度只用于作者高度图。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
+      "usage": "面加工→浮雕：主表单保留导图、用途、毫米尺寸、方向和高度，图像/轮廓/精确位置折叠。同步高度缩略图和大图；平面画布拖移、等比缩放、旋转、水平/垂直/双向居中，显示投影外框边距，实际孔/边界以几何预览为准；更换目标面保留导图参数。AI用reliefWizard get/source/handoff/parameters/position/align操作同一草稿，handoff返回reliefId和毫米params并关闭编辑器释放任务，prepareOperation缺参补答后applyPreparedOperation一次；readRelief includeData:false可避免高度大数组往返。先读api.pattern-machining、planPatternMachining区分意图；新创建params.machiningIntent保存加工意义，readRelief显式sourceInterpretation。恒深文字/图案走LOGO，灰度只用于作者高度图。files.register图像，readRelief生成独立轮廓regions与高度values；run add relief显式faceId/refs/尺寸/高度/位置、values/regions/surfaceMode/source。surfaceMode=flat为精确平顶，smooth为轮廓内平滑起伏，背景保留原面。支持分层.relief.json及layers显式高度、strokes开放刻线和curveToleranceMm曲线公差；UI逐层编辑高度和方向，API feature.edit修改layers。柱面须point、角宽≤90°、angleDeg=0。旧无regions工程保留原基底层语义。预览后提交，getState.bodies[].reliefReport回读背景、表面方式与实际材料变化。"
     },
     "reliefDesign": {
       "tools": [
@@ -1585,7 +1586,7 @@
     "referenceExtrude": "参考轮廓拉伸 / 轮廓拉伸",
     "referenceLoft": "参考截面放样 / 截面放样",
     "refineShape": "清理分割线 / getState / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
-    "relief": "精确浮雕（矢量/小图） / planPatternMachining / readRelief / 登记文件资源 / getState / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
+    "relief": "精确浮雕（矢量/小图） / reliefWizard / planPatternMachining / readRelief / 登记文件资源 / getState / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
     "reliefShoulder": "浮雕层肩部",
     "remove": "删除 / 删除实体",
     "revolve": "旋转成型 / 轮廓旋转",

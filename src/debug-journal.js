@@ -65,6 +65,7 @@ export function debugResult(value){
  if(!value||typeof value!=='object')return value;
  if(ArrayBuffer.isView(value)||value instanceof ArrayBuffer)return {bytes:value.byteLength};
  const keys=['requestId','status','code','commitState','context','nextContext','createdBodyIds','jobId','pageJobId','assetId','requestKey','execution','error','result','results','report','details','logoId','sourceResourceId','sizeMm','machiningReadiness','volume','area','bounds','solidCount','shellCount','geometryType','name','size','bytes','sha256','resourceId','saved','dirty','saveConfirmation','attachment','display','view','summary','protocolVersion','gatewayBuildId','pageApiVersion','catalogHash','docsHash','elapsedMs'];
+ keys.push('preparationId','recipeHash','questions','autoFilled','nextCall','expiresAt','reused','baseline');
  return Object.fromEntries(keys.filter(key=>value[key]!==undefined).map(key=>[key,value[key]]));
 }
 export function traceDebug(source,action,input,fn){

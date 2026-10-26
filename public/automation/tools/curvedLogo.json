@@ -1187,6 +1187,18 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "curvedLogo",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "relief",
     "groupTitle": "LOGO、矢量浮雕与网格精修",
@@ -1257,6 +1269,10 @@
         "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
       },
       {
+        "id": "reliefWizard",
+        "chooseWhen": "操作当前浮雕UI草稿的尺寸与平面画布定位，source绑定真实原件为reliefId；不计算或提交几何。"
+      },
+      {
         "id": "readRelief",
         "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
       },
@@ -1268,5 +1284,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:2308bc651e5c946a22c1e7e56835e89fe10c0aae42f3d1af95b0c2a3b294632c"
+  "docsHash": "sha256:48750cd53402133cbeb75f79afd4ebacc8f86519114116aff7484d1804a1cbca"
 }

@@ -2,7 +2,7 @@
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -37,6 +37,87 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "featureId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "point": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 2,
+        "items": {
+          "type": "number"
+        }
+      },
+      "draft": {
+        "type": "object"
+      },
+      "layerIndex": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "samples": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "patchId": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "context",
+      "featureId",
+      "point"
+    ]
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "sampleReliefHeight",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "relief",
     "groupTitle": "LOGO、矢量浮雕与网格精修",
@@ -107,6 +188,10 @@
         "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
       },
       {
+        "id": "reliefWizard",
+        "chooseWhen": "操作当前浮雕UI草稿的尺寸与平面画布定位，source绑定真实原件为reliefId；不计算或提交几何。"
+      },
+      {
         "id": "readRelief",
         "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
       },
@@ -118,5 +203,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:d39116e8f6b9c44217771658dc4928910f691054e18b79962525266763498a9c"
+  "docsHash": "sha256:3b084f7186ccef9b18c8bd73a146b00f369d6c6f18d47e3e094e076c93aac63e"
 }

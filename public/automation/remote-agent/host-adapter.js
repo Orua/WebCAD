@@ -75,7 +75,8 @@ function validateSchema(schema, value, path = "params") {
       }
     };
     if (s.type) {
-      const ok = s.type === "object" ? v !== null && typeof v === "object" && !Array.isArray(v) : s.type === "array" ? Array.isArray(v) : s.type === "integer" ? Number.isInteger(v) : s.type === "null" ? v === null : typeof v === s.type;
+      const isType = (type) => type === "object" ? v !== null && typeof v === "object" && !Array.isArray(v) : type === "array" ? Array.isArray(v) : type === "integer" ? Number.isInteger(v) : type === "null" ? v === null : typeof v === type;
+      const ok = (Array.isArray(s.type) ? s.type : [s.type]).some(isType);
       if (!ok) fail(`Expected ${s.type}.`);
     }
     if (s.enum && !s.enum.some((x) => canonicalJson(x) === canonicalJson(v))) fail("Value is not in the allowed enumeration.");
@@ -204,7 +205,8 @@ var LIMITS = freeze({
 var none = /* @__PURE__ */ new Set(["getDebugReport", "getMetalMaterials", "getMaterials", "getBatchReceipt", "info", "getState", "getUILayout", "getHistory", "createRequestContext", "connect", "connectVector", "searchTools", "getTools", "getTool", "readDocs", "getQuickModelUsage", "getModelLibrary", "getAgentPanel", "getLogoConverter", "getServices", "getServicesCapabilities", "getServicesRouting", "getServicesRequest", "getServicesJob", "getJob", "cancelJob", "waitFor", "invoke", "submit", "decideServicesWait", "recoverServicesJob"]);
 var identity = /* @__PURE__ */ new Set(["setDebugPanel", "setMetalMaterials", "measureMass", "setView", "selectRectangle", "setDisplayPreferences", "setRenderQuality", "capture", "redraw", "measure", "measureRelation", "queryGeometry", "queryReferences", "resolvePlacement", "resolveModelLibrary", "planAlignment", "planPatternMachining", "prepareProfileEdit", "projectProfile", "fitProfile", "traceTwinWindow", "prepareReliefSculpt", "prepareReliefTopologyUpgrade", "readVector", "readRelief"]);
 function contextPolicy(method) {
-  if (["readLogo", "reviewLogo", "logoWizard"].includes(method)) return "identity";
+  if (["prepareToolCall", "prepareOperation", "applyPreparedOperation"].includes(method)) return "identity";
+  if (["readLogo", "reviewLogo", "logoWizard", "reliefWizard"].includes(method)) return "identity";
   if (method === "probeBlendRadius") return "identity";
   if (none.has(method)) return "none";
   if (identity.has(method) || /^(inspect|sample)/.test(method)) return "identity";
@@ -240,12 +242,16 @@ var STEP_SCHEMA = object2({ id: { type: "string", pattern: "^[a-zA-Z][a-zA-Z0-9_
 var boolean = { type: "boolean" };
 var vector = vectorSchema;
 var PAGE_METHOD_SCHEMAS = {
+  reliefWizard: object2({ context: IDENTITY_CONTEXT_SCHEMA, reliefId: str, resourceId: str, name: str, idempotencyKey: { type: "string", minLength: 1, maxLength: 80 }, widthMm: { type: "number", exclusiveMinimum: 0 }, heightMm: { type: "number", exclusiveMinimum: 0 }, depthMm: { type: "number", exclusiveMinimum: 0 }, precisionMm: { type: "number", minimum: 0.01, maximum: 0.5 }, invert: boolean, sourceInterpretation: { const: "authoredHeightMap" }, action: { enum: ["get", "source", "handoff", "createDesign", "parameters", "position", "align"] }, expectedRevision: { type: "integer", minimum: 0 }, parameters: object2({ widthMm: { type: "number", exclusiveMinimum: 0 }, heightMm: { type: "number", exclusiveMinimum: 0 }, depthMm: { type: "number", exclusiveMinimum: 0 }, mode: { enum: ["emboss", "engrave"] }, offsetX: { type: "number" }, offsetY: { type: "number" }, angleDeg: { type: "number" } }), placement: object2({ offsetX: { type: "number" }, offsetY: { type: "number" }, leftMm: { type: "number" }, topMm: { type: "number" }, scale: { type: "number", exclusiveMinimum: 0 }, angleDeg: { type: "number" }, depthMm: { type: "number", exclusiveMinimum: 0 } }), alignment: { enum: ["horizontal", "vertical", "center"] } }, ["context"]),
   getDebugReport: object2({ source: { enum: ["all", "ui", "api", "agent", "kernel", "services", "runtime"] }, level: { enum: ["all", "info", "warn", "error"] }, query: { type: "string", maxLength: 160 }, afterSequence: { type: "integer", minimum: 0 }, limit: { type: "integer", minimum: 1, maximum: 1500 }, includeState: boolean }),
   setDebugPanel: object2({ context: IDENTITY_CONTEXT_SCHEMA, visible: boolean }, ["context", "visible"]),
   getMetalMaterials: object2({}),
   getMaterials: object2({}),
   setMetalMaterials: object2({ context: IDENTITY_CONTEXT_SCHEMA, configuration: { type: "object" } }, ["context", "configuration"]),
   add: ADD_STEP_SCHEMA,
+  prepareOperation: object2({ context: IDENTITY_CONTEXT_SCHEMA, op: str, bodyId: str, refs: { type: "array", maxItems: 40, items: str }, params: { type: "object" }, face: { oneOf: [{ type: "integer", minimum: 0 }, { enum: ["top", "bottom", "front", "back", "left", "right"] }] }, point: vector, intent: { type: "string", minLength: 1, maxLength: 1200 }, name: { type: "string", minLength: 1, maxLength: 120 }, placement: PLACEMENT_SCHEMA, preparationId: { type: "string", pattern: "^prep_[0-9]+$" }, answers: { type: "object" } }, ["context"]),
+  prepareToolCall: object2({ context: IDENTITY_CONTEXT_SCHEMA, toolId: str, args: { type: "object" }, callPreparationId: { type: "string", pattern: "^call_[0-9]+$" }, answers: { type: "object" } }, ["context"]),
+  applyPreparedOperation: object2({ context: IDENTITY_CONTEXT_SCHEMA, preparationId: { type: "string", pattern: "^prep_[0-9]+$" } }, ["context", "preparationId"]),
   addMany: object2({ features: { type: "array", minItems: 1, maxItems: 64, items: planFeature } }, ["features"]),
   run: object2({ context: revisionContext, idempotencyKey: { type: "string", minLength: 1, maxLength: 80 }, steps: { type: "array", minItems: 1, maxItems: LIMITS.batch.maxSteps, items: STEP_SCHEMA } }, ["context", "idempotencyKey", "steps"]),
   resolvePlacement: object2({ context: IDENTITY_CONTEXT_SCHEMA, op: str, params: { type: "object" }, refs: { type: "array", items: str }, placement: PLACEMENT_SCHEMA }, ["context", "op", "params", "refs", "placement"]),
@@ -491,6 +497,7 @@ function debugResult(value) {
   if (!value || typeof value !== "object") return value;
   if (ArrayBuffer.isView(value) || value instanceof ArrayBuffer) return { bytes: value.byteLength };
   const keys = ["requestId", "status", "code", "commitState", "context", "nextContext", "createdBodyIds", "jobId", "pageJobId", "assetId", "requestKey", "execution", "error", "result", "results", "report", "details", "logoId", "sourceResourceId", "sizeMm", "machiningReadiness", "volume", "area", "bounds", "solidCount", "shellCount", "geometryType", "name", "size", "bytes", "sha256", "resourceId", "saved", "dirty", "saveConfirmation", "attachment", "display", "view", "summary", "protocolVersion", "gatewayBuildId", "pageApiVersion", "catalogHash", "docsHash", "elapsedMs"];
+  keys.push("preparationId", "recipeHash", "questions", "autoFilled", "nextCall", "expiresAt", "reused", "baseline");
   return Object.fromEntries(keys.filter((key) => value[key] !== void 0).map((key) => [key, value[key]]));
 }
 function traceDebug(source, action, input2, fn) {
@@ -696,6 +703,7 @@ var READ_METHODS = /* @__PURE__ */ new Set([
   "sampleMeshRelief",
   "sampleReliefHeight",
   "prepareReliefSculpt",
+  "reliefWizard",
   "readRelief",
   "readVector",
   "connectVector",
@@ -782,7 +790,13 @@ for (const method of ["reviewLogo", "logoWizard", "reliefDesignField", "reliefDe
   JOB_METHODS.add(method);
 }
 READ_METHODS.add("prepareReliefDesignRelief");
+READ_METHODS.add("prepareOperation");
+JOB_METHODS.add("prepareOperation");
+JOB_METHODS.add("applyPreparedOperation");
+EDIT_METHODS.add("applyPreparedOperation");
+READ_METHODS.add("prepareToolCall");
 JOB_METHODS.add("readLogo");
+JOB_METHODS.add("reliefWizard");
 JOB_METHODS.add("probeBlendRadius");
 JOB_METHODS.add("files.reattach");
 var HOST_ONLY_METHODS = Object.freeze({
@@ -831,7 +845,7 @@ var contract = {
   hostOnlyMethods: HOST_ONLY_METHODS,
   routingGuidance: {
     wrongTool: "\u6309 allowedTool \u8C03\u7528\u76F8\u540C method\uFF0C\u4FDD\u7559\u5176\u53C2\u6570\uFF1B\u672C\u6B21\u672A\u63D0\u4EA4\uFF0C\u4E0D\u9700\u8981\u91CD\u8FDE\u6216\u91CD\u753B\u3002",
-    hostOnly: "\u8BE5\u65B9\u6CD5\u7531\u5BBF\u4E3B\u7BA1\u7406\uFF0C\u4E0D\u662F Agent \u53EF\u8C03\u7528\u5165\u53E3\uFF1B\u4E0D\u8981\u6362\u5DE5\u5177\u53CD\u590D\u8C03\u7528\uFF0C\u4E5F\u4E0D\u8981\u901A\u8FC7 invoke/submit \u5305\u88C5\u7ED5\u8FC7\u3002\u9009\u62E9\u5DF2\u8BFB\u5DE5\u5177\u5361\u7684\u516C\u5F00\u64CD\u4F5C\u6216\u62A5\u544A\u8BE5\u80FD\u529B\u672A\u5F00\u653E\u3002",
+    hostOnly: "\u8BE5\u65B9\u6CD5\u7531\u5BBF\u4E3B\u7BA1\u7406\uFF0C\u4E0D\u901A\u8FC7 invoke/submit \u5305\u88C5\u7ED5\u8FC7\u3002\u82E5\u5DE5\u5177\u5361\u7ED9\u51FA alternative\uFF0C\u4F7F\u7528\u8BE5\u516C\u5F00\u5165\u53E3\uFF1BconvertLogoPdf \u7684 PDF \u8F6C\u6362\u7531 webcad_read readLogo({context,sessionFileId,page,allowUpload:true})\u516C\u5F00\u652F\u6301\uFF0C\u4E0D\u5F97\u628A\u65E7\u9002\u914D\u5668 host-only \u8BEF\u62A5\u4E3A PDF \u4E0D\u53EF\u7528\u3002\u65E0\u516C\u5F00\u66FF\u4EE3\u65F6\u62A5\u544A\u5177\u4F53\u65B9\u6CD5\u672A\u5F00\u653E\u3002",
     notExposed: "\u5F53\u524D\u7ED1\u5B9A\u5951\u7EA6\u6CA1\u6709\u5F00\u653E\u6B64\u65B9\u6CD5\uFF1B\u6709\u9875\u9762\u6587\u6863\u4E0D\u7B49\u4E8E MCP \u53EF\u6267\u884C\u3002\u6838\u5BF9 methodTools \u548C\u5DE5\u5177\u5361 mcpCall\uFF1B\u540C\u4E00\u7248\u672C\u65E0\u65B0\u8BC1\u636E\u65F6\u505C\u6B62\u6362\u5165\u53E3/\u91CD\u8FDE/\u53CD\u590D\u67E5\u5361\u3002"
   },
   methodSchemas: PAGE_METHOD_SCHEMAS,
@@ -842,7 +856,7 @@ var AGENT_CONTRACT = Object.freeze({ ...contract, contractHash: contractHash(con
 function editsDocument(payload) {
   if (payload?.method === "reliefDesignReference") return ["attach", "detach"].includes(payload.args?.action);
   if (payload?.method === "run") return (payload.args?.steps || []).some(editsDocument);
-  return ["add", "addMany", "execute", "files.import", "pasteSelection", "setMetalMaterials"].includes(payload?.method);
+  return ["add", "addMany", "execute", "files.import", "pasteSelection", "setMetalMaterials", "applyPreparedOperation"].includes(payload?.method);
 }
 function failure(code, message) {
   const error = Object.assign(new Error(message), { code });
@@ -873,6 +887,7 @@ function validatePayload(payload, binding, scopes) {
   if (!plain(payload) || Object.keys(payload).sort().join(",") !== "args,method" || !plain(payload.args)) throw failure("PARAM_SCHEMA_INVALID", "Expected method and args");
   const { method, args } = payload;
   if (!scopes.includes("cad.read")) throw failure("scope_denied", "CAD read access required");
+  if (method === "reliefWizard" && !["get", "source"].includes(args.action ?? "get") && !scopes.includes("cad.edit")) throw failure("scope_denied", "CAD edit access required for relief draft control");
   if (method === "reliefDesignReference" && !["get", "resource"].includes(args.action ?? "get") && !scopes.includes("cad.edit")) throw failure("scope_denied", "CAD edit access required for reference attachment");
   if (method === "reliefDesignField" && !["get", "candidate"].includes(args.action ?? "get") && !scopes.includes("cad.edit")) throw failure("scope_denied", "CAD edit access required for numerical field tasks");
   if (method === "reliefDesignFit" && (args.action ?? "get") !== "get" && !scopes.includes("cad.edit")) throw failure("scope_denied", "CAD edit access required for numerical fitting tasks");

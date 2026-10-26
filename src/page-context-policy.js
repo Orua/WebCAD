@@ -1,7 +1,8 @@
 const none=new Set(['getDebugReport','getMetalMaterials','getMaterials','getBatchReceipt','info','getState','getUILayout','getHistory','createRequestContext','connect','connectVector','searchTools','getTools','getTool','readDocs','getQuickModelUsage','getModelLibrary','getAgentPanel','getLogoConverter','getServices','getServicesCapabilities','getServicesRouting','getServicesRequest','getServicesJob','getJob','cancelJob','waitFor','invoke','submit','decideServicesWait','recoverServicesJob']);
 const identity=new Set(['setDebugPanel','setMetalMaterials','measureMass','setView','selectRectangle','setDisplayPreferences','setRenderQuality','capture','redraw','measure','measureRelation','queryGeometry','queryReferences','resolvePlacement','resolveModelLibrary','planAlignment','planPatternMachining','prepareProfileEdit','projectProfile','fitProfile','traceTwinWindow','prepareReliefSculpt','prepareReliefTopologyUpgrade','readVector','readRelief']);
 export function contextPolicy(method){
- if(['readLogo','reviewLogo','logoWizard'].includes(method))return 'identity';
+ if(['prepareToolCall','prepareOperation','applyPreparedOperation'].includes(method))return 'identity';
+ if(['readLogo','reviewLogo','logoWizard','reliefWizard'].includes(method))return 'identity';
  if(method==='probeBlendRadius')return 'identity';
  if(none.has(method))return 'none';
  if(identity.has(method)||/^(inspect|sample)/.test(method))return 'identity';

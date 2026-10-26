@@ -681,6 +681,18 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.squareArchedBridge",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "d-frames",
     "groupTitle": "D形、U形与开口框",
@@ -718,5 +730,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:eb91e9965ba282dddc1e902e8a78a1848cda30e6d6c2ac52b293624e4b189460"
+  "docsHash": "sha256:ce66158862e5cad31beafad94dcc6ade841c79892f01ca47bf0dc60fe1cde0d2"
 }

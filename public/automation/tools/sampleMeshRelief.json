@@ -2,7 +2,7 @@
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -118,6 +118,18 @@
     "readOnly": true,
     "geometrySource": "authoritative-mesh-f64"
   },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "sampleMeshRelief",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "relief",
     "groupTitle": "LOGO、矢量浮雕与网格精修",
@@ -188,6 +200,10 @@
         "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
       },
       {
+        "id": "reliefWizard",
+        "chooseWhen": "操作当前浮雕UI草稿的尺寸与平面画布定位，source绑定真实原件为reliefId；不计算或提交几何。"
+      },
+      {
         "id": "readRelief",
         "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
       },
@@ -199,5 +215,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:bfdbb5b92c088806a3915496770b5b51dbc13820c50674857891d644072491f1"
+  "docsHash": "sha256:15b98d9036a77bc1a4cd2e8a083ecdfdb8c0af94942806f723ec8d388ca36f77"
 }

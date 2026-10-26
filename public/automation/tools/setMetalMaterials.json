@@ -2,7 +2,7 @@
   "id": "setMetalMaterials",
   "title": "setMetalMaterials",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -79,6 +79,18 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.metal-materials",
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "setMetalMaterials",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "appearance",
     "groupTitle": "名称、外观与显示",
@@ -148,5 +160,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ceca83c0c2098a5d29c4ca634649289cef94ee0d0d109b37d7d3c64534d3324b"
+  "docsHash": "sha256:6caaa6fc0b69333e21aad4df7a94cde656285b5778bcf3fd3140c99294f8419a"
 }

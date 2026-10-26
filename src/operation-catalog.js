@@ -93,10 +93,11 @@ export const operationCatalog={
 
 
 const logoReferenceSchema=operationCatalog.operations.logo.paramsSchema;
-logoReferenceSchema.properties.logoId={type:'string',minLength:1,description:'Live page draft returned by readLogo; the page materializes its current accepted contours before executing.'};
-logoReferenceSchema.properties.expectedReviewRevision={type:'integer',minimum:0};
+logoReferenceSchema.properties.logoId={type:'string',minLength:1,description:'Copy the exact live page draft ID from readLogo/reviewLogo. With logoId omit source and regions; the page supplies verified contours and provenance.'};
+logoReferenceSchema.properties.expectedReviewRevision={type:'integer',minimum:0,description:'Optional optimistic draft lock. Omit unless reviewLogo returned the current review.revision; automatic confirmation advances it from 0 to 1.'};
 logoReferenceSchema.required=logoReferenceSchema.required.filter(key=>key!=='regions');
-logoReferenceSchema.anyOf=[{required:['regions'],not:{required:['logoId']}},{required:['logoId'],not:{required:['regions']}}];
+logoReferenceSchema.anyOf=[{required:['regions'],not:{required:['logoId']}},{required:['logoId'],not:{anyOf:[{required:['regions']},{required:['source']}]}}];
+operationCatalog.operations.logo.notes+=' For an existing automatic readLogo draft, use only the exact returned logoId plus placement/engraving fields; do not send source or regions, and omit expectedReviewRevision unless read from the current review.revision. Never reconstruct or edit a UUID by hand.';
 operationCatalog.operations.vectorProfile={description:'Create independent planar faces or solids from closed vector regions',refs:0,paramsSchema:{type:'object',additionalProperties:false,required:['regions','output'],properties:{regions:operationCatalog.operations.logo.paramsSchema.properties.regions,source:{type:'object'},name:{type:'string'},sizeMm:{type:'array',items:{type:'number'}},areaMm2:{type:'number'},output:choice('Output geometry',['face','solid']),plane,scale:positive('Contour scale'),angle:num('In-plane angle'),height:length('Nonzero signed extrusion height for solid'),x:length('Contour center world X'),y:length('Contour center world Y'),z:length('Contour center world Z')}},notes:'No selected body needed. Closed regions and holes only; normalize imported bounds center to origin before position. XY normal +Z, XZ normal -Y, YZ normal +X. Curves are approximated at source import tolerance. Face output has zero solids; change output to solid and height to extrude later.'};
 const analyticSegment={type:'object',additionalProperties:false,required:['type','points'],properties:{type:choice('Exact edge type',['line','arc']),points:{type:'array',items:point2,minItems:2,maxItems:3}}};
 const analyticLoop={type:'array',items:analyticSegment,minItems:2,maxItems:256};

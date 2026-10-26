@@ -1,0 +1,293 @@
+{
+  "id": "reliefWizard",
+  "title": "reliefWizard",
+  "category": "page-method",
+  "version": "1.60.0",
+  "contextPolicy": "identity",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "reliefId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "resourceId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "widthMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "heightMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "depthMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "precisionMm": {
+        "type": "number",
+        "minimum": 0.01,
+        "maximum": 0.5
+      },
+      "invert": {
+        "type": "boolean"
+      },
+      "sourceInterpretation": {
+        "const": "authoredHeightMap"
+      },
+      "action": {
+        "enum": [
+          "get",
+          "source",
+          "handoff",
+          "createDesign",
+          "parameters",
+          "position",
+          "align"
+        ]
+      },
+      "expectedRevision": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "parameters": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "widthMm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "heightMm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "depthMm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "mode": {
+            "enum": [
+              "emboss",
+              "engrave"
+            ]
+          },
+          "offsetX": {
+            "type": "number"
+          },
+          "offsetY": {
+            "type": "number"
+          },
+          "angleDeg": {
+            "type": "number"
+          }
+        },
+        "required": []
+      },
+      "placement": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "offsetX": {
+            "type": "number"
+          },
+          "offsetY": {
+            "type": "number"
+          },
+          "leftMm": {
+            "type": "number"
+          },
+          "topMm": {
+            "type": "number"
+          },
+          "scale": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "angleDeg": {
+            "type": "number"
+          },
+          "depthMm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": []
+      },
+      "alignment": {
+        "enum": [
+          "horizontal",
+          "vertical",
+          "center"
+        ]
+      }
+    },
+    "required": [
+      "context"
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "reliefWizard",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
+  "description": "reliefWizard({context,action:get|source|handoff|createDesign|parameters|position|align,expectedRevision?,parameters?:{widthMm,heightMm,depthMm,mode,offsetX,offsetY,angleDeg},placement?:{offsetX,offsetY,leftMm,topMm,scale,angleDeg,depthMm},alignment?:horizontal|vertical|center})。createDesign支持无UI调用：{reliefId或resourceId,name?,idempotencyKey,widthMm,heightMm,depthMm,precisionMm?:0.05,invert?:false,sourceInterpretation:authoredHeightMap}，从原始高度图走Services高度转换并保存设计草稿；返回designId/draftRevision/conversion，geometryReady:false，再按nextAction走reliefDesignField/reliefDesignFit/prepareReliefDesignRelief。它不使用普通轮廓桥接，不把照片当高度，不静默改变方向、尺寸或高度。get读取当前浮雕编辑器；source将实际UI原件绑定为reliefId，返回bodyId和params；handoff在绑定后受控关闭编辑器，释放任务占用供Agent提交；parameters修改同一表单；position/align操作同一平面画布定位草稿，不计算几何。需先由用户打开浮雕工具。",
+  "synonyms": [
+    "reliefWizard",
+    "浮雕向导",
+    "画布定位",
+    "边距",
+    "居中",
+    "UI草稿",
+    "Agent复用"
+  ],
+  "inputContract": "reliefWizard({context,action:get|source|handoff|createDesign|parameters|position|align,expectedRevision?,parameters?:{widthMm,heightMm,depthMm,mode,offsetX,offsetY,angleDeg},placement?:{offsetX,offsetY,leftMm,topMm,scale,angleDeg,depthMm},alignment?:horizontal|vertical|center})。createDesign支持无UI调用：{reliefId或resourceId,name?,idempotencyKey,widthMm,heightMm,depthMm,precisionMm?:0.05,invert?:false,sourceInterpretation:authoredHeightMap}，从原始高度图走Services高度转换并保存设计草稿；返回designId/draftRevision/conversion，geometryReady:false，再按nextAction走reliefDesignField/reliefDesignFit/prepareReliefDesignRelief。它不使用普通轮廓桥接，不把照片当高度，不静默改变方向、尺寸或高度。get读取当前浮雕编辑器；source将实际UI原件绑定为reliefId，返回bodyId和params；handoff在绑定后受控关闭编辑器，释放任务占用供Agent提交；parameters修改同一表单；position/align操作同一平面画布定位草稿，不计算几何。需先由用户打开浮雕工具。",
+  "outputContract": "status:read|attached|draft，wizard包含revision、busy、sourceReady、previewReady、target、parameters和placement（实际边距）。expectedRevision锁定向导草稿。handoff返回的params可交prepareOperation(op:relief,bodyId,params)，缺参补答后applyPreparedOperation一次。原件数据不经模型转述；真正预览/应用仍用现有统一事务和Services路由。无活动UI返回CAPABILITY_UNAVAILABLE；旧草稿返回REVISION_CONFLICT。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docs": "api.relief",
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "reliefWizard",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "操作当前浮雕UI草稿的尺寸与平面画布定位，source绑定真实原件为reliefId；不计算或提交几何。",
+    "alternatives": [
+      {
+        "id": "logo",
+        "chooseWhen": "已审阅矢量LOGO：单面法向等深，或跨相连面投影凹刻；后者depth沿投影方向，保持轮廓、尺寸和孔。"
+      },
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "reliefDesignReference",
+        "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
+      },
+      {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
+        "id": "reliefDesignFit",
+        "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
+      },
+      {
+        "id": "reliefDesignField",
+        "chooseWhen": "从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.guide.pattern",
+  "docsHash": "sha256:72c52559eb6f40aa10779b69d31ea77f4f882c5cfae8ea1cd59f10b8ffe6dd14"
+}

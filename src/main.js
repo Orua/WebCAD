@@ -181,6 +181,14 @@ const ui=createUI(document.getElementById('app'),{
   initialDocumentName:documentModel.name,
   onAction:(action,params)=>traceDebug('ui',action,params,()=>performAction(action,params)).catch(error=>{reportError(error);return false;}),
   onRoundGuide:(report,handlers)=>viewport.setRoundGuide(report,handlers),
+  onReliefPlacement:async(input,handlers)=>{
+    if(!input){viewport.clearReliefPlacement();return null;}
+    const atRevision=revision;
+    if(!bodies.some(body=>body.id===input.bodyId))throw new Error('目标实体已变化，请重新选面。');
+    const face=await request('faceInfo',{bodyId:input.bodyId,faceId:input.faceId});
+    if(revision!==atRevision)throw new Error('定位期间模型已变化，请重新选面。');
+    return viewport.setReliefPlacement({...input,face},handlers);
+  },
   onLogoPlacement:async(input,handlers)=>{
     if(!input){viewport.clearLogoPlacement();return null;}
     const atRevision=revision;

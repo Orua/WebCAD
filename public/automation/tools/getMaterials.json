@@ -2,7 +2,7 @@
   "id": "getMaterials",
   "title": "getMaterials",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -34,6 +34,18 @@
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "getMaterials",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "materials",
     "groupTitle": "密度与估算重量",
@@ -51,5 +63,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:19d1525c209c1a088ec85d9d9d5d6bd57f0a081ebfdc240e5df911e8fe7e7bf4"
+  "docsHash": "sha256:20ea53e3963da1c2d2b7513ccd8b852ecae7befb43a30f17111325b72ecdc869"
 }

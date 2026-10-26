@@ -2,7 +2,7 @@
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -32,6 +32,64 @@
     "PARAM_RANGE_INVALID",
     "JOB_NOT_FOUND"
   ],
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "afterRevision": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "jobId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "timeoutMs": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 25000
+      },
+      "documentInstanceId": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [],
+    "oneOf": [
+      {
+        "required": [
+          "afterRevision"
+        ],
+        "not": {
+          "required": [
+            "jobId"
+          ]
+        }
+      },
+      {
+        "required": [
+          "jobId"
+        ],
+        "not": {
+          "required": [
+            "afterRevision"
+          ]
+        }
+      }
+    ]
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "waitFor",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "dispatch",
     "groupTitle": "执行、批次与异步作业",
@@ -77,5 +135,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:eda573a23a159db5b99763eadaeb30d7ffdd4637b7d291d3ca41935de1850024"
+  "docsHash": "sha256:652745afc8b1b769c418530b6486de35101a19f61139668f427fe5bfea5b8fbb"
 }

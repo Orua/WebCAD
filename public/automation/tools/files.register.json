@@ -8,7 +8,7 @@
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "none",
   "label": "登记文件资源",
   "synonyms": [
@@ -64,6 +64,31 @@
     "SIZE_LIMIT",
     "RESOURCE_LIMIT"
   ],
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "name": {},
+      "data": {},
+      "mime": {}
+    },
+    "required": [
+      "name",
+      "data"
+    ]
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "files.register",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "file-input",
     "groupTitle": "文件登记、打开与导入",
@@ -101,5 +126,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:170ed253b2974b2b4361614ba1b386e12a71ba45142bf0a51420b987b43e9a68"
+  "docsHash": "sha256:07b171c6661e53d7504ca428bfa23000d3fa0ba69be66c8566576b5f27f1b80c"
 }

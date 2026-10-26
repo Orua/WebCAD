@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.57.25 · 操作目录 sha256:1975ef2dcc562bc7d01b63c535939ef3d611f145d6c01598e0b9291ba8a5363a
+API 1.60.0 · 操作目录 sha256:c9742f8171bc5b2cac0e7a709dc5ddf84f705c541998d45f11191a2ab5cb7954
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -8,6 +8,10 @@ API 1.57.25 · 操作目录 sha256:1975ef2dcc562bc7d01b63c535939ef3d611f145d6c01
 
 ## 页面方法
 
+- `reliefWizard`
+- `prepareToolCall`
+- `prepareOperation`
+- `applyPreparedOperation`
 - `getDebugReport`
 - `setDebugPanel`
 - `getMetalMaterials`
@@ -262,6 +266,10 @@ API 1.57.25 · 操作目录 sha256:1975ef2dcc562bc7d01b63c535939ef3d611f145d6c01
 - `template.uEndHolePlate` · advisory · 半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。
 - `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
 - `template.gableOpenFrame` · advisory · 两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。
+- `reliefWizard` · page-method · reliefWizard({context,action:get|source|handoff|createDesign|parameters|position|align,expectedRevision?,parameters?:{widthMm,heightMm,depthMm,mode,offsetX,offsetY,angleDeg},placement?:{offsetX,offsetY,leftMm,topMm,scale,angleDeg,depthMm},alignment?:horizontal|vertical|center})。createDesign支持无UI调用：{reliefId或resourceId,name?,idempotencyKey,widthMm,heightMm,depthMm,precisionMm?:0.05,invert?:false,sourceInterpretation:authoredHeightMap}，从原始高度图走Services高度转换并保存设计草稿；返回designId/draftRevision/conversion，geometryReady:false，再按nextAction走reliefDesignField/reliefDesignFit/prepareReliefDesignRelief。它不使用普通轮廓桥接，不把照片当高度，不静默改变方向、尺寸或高度。get读取当前浮雕编辑器；source将实际UI原件绑定为reliefId，返回bodyId和params；handoff在绑定后受控关闭编辑器，释放任务占用供Agent提交；parameters修改同一表单；position/align操作同一平面画布定位草稿，不计算几何。需先由用户打开浮雕工具。
+- `prepareToolCall` · page-method · prepareToolCall({context,toolId,args?})；续接{context,callPreparationId,answers:{问题answerPath:答案}}。全部工具卡都有preparation入口。建模操作会路由prepareOperation；页面方法、编辑命令和文件工具预检后返回原工具nextCall。
+- `prepareOperation` · page-method · prepareOperation({context,op?,bodyId?,refs?,face?:top|bottom|front|back|left|right|当前面号,point?:[x,y,z],params?,intent?,name?,placement?})。op为当前目录可新增的建模操作（严格或advisory）；导入/删除走其独立入口；LOGO只给face、mode、depthMm、widthMm。圆角/倒角face自动解析边界，孔向导face解析有效入口及朝材料内的主轴方向；多个实体/图案不猜选。续接用{context,preparationId,answers:{问题answerPath:答案}}。
+- `applyPreparedOperation` · page-method · applyPreparedOperation({context,preparationId})。只复制prepareOperation返回的短编号；版本/哈希/refs/完整参数/幂等键由准备单提供，无需重拼。须用户本次已授权该建模任务。
 - `getDebugReport` · page-method · getDebugReport({source?:all|ui|api|agent|kernel|services|runtime,level?:all|info|warn|error,query?:string,afterSequence?:integer,limit?:1..1500,includeState?:boolean})。默认最近500条与状态。
 - `setDebugPanel` · page-method · setDebugPanel({context,visible:true|false})；identity context。
 - `getMetalMaterials` · page-method · getMetalMaterials()
@@ -288,7 +296,7 @@ API 1.57.25 · 操作目录 sha256:1975ef2dcc562bc7d01b63c535939ef3d611f145d6c01
 - `prepareReliefTopologyUpgrade` · page-method · prepareReliefTopologyUpgrade({context,featureId,maskStrategy?:"faceWithHolesExtrude"|"cutHoleSolids"})。只读规划，不计算几何；原参数没有策略时必须明确选定。
 - `sampleReliefHeight` · page-method · sampleReliefHeight({context,featureId,layerIndex?,samples?,point:[x,y],draft?:{deltaMm,mask}})。point为图案局部归一化[-0.5,0.5]，Y向上。featureId须为当前浮雕历史步骤。分层必须明确 layerIndex；samples 仅用于读初始等高层的新草稿，约束同 prepareReliefSculpt。省略draft读取已提交精修，传入draft则读取该未提交草稿；草稿网格须与来源一致。
 - `prepareReliefSculpt` · page-method · prepareReliefSculpt({context,featureId,layerIndex?,patch?:{id,domainMm:[uMin,vMin,uMax,vMax],samples:7–65,protectionMm},samples?,draft?:{deltaMm,mask},strokes:[{mode:"raise"|"lower"|"smooth"|"flatten"|"restore"|"mask"|"unmask"|"fill"|"scrape"|"sharpen",radiusMm,strength?:1,amountMm?:0.1,targetMm?:0,hardness?:0,symmetry?:"none"|"x"|"y"|"xy",points:[[x,y],...]},...]})。单层与显式选层使用同一笔刷；points为图案局部[-0.5,0.5]，Y向上。每次最多128笔/4096点，半径至少一个控制网格间距；每笔按到折线距离处理一次。hardness为0–1，0软边/1硬边；x左右、y上下对称。fill只填洼，scrape只削峰，sharpen增强局部高度对比，均遵守mask。draft用于继续未提交草稿，不传则从工程开始。
-- `readRelief` · page-method · readRelief({context,resourceId,name,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。
+- `readRelief` · page-method · readRelief({context,reliefId,includeData?:false})回读本页同一不可变原件；与文件参数互斥，不重新转换。首次读取readRelief({context,resourceId,name,includeData?:false,samples?:33,whiteHigh?:false,style?:grayscale|rounded|flat,threshold?:0.5,sourceInterpretation:authoredHeightMap|rasterArtwork|reviewedVectors|shadedReference})。先 files.register；只读，本地解码。
 - `getHistory` · page-method · getHistory()。会话最多20状态/512KiB，磁盘新保存文件不保留timeline。
 - `planAlignment` · page-method · planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true：true=整体按联合包围盒移动并保持相对位置，false=每个实体各自对齐。
 - `selectRectangle` · page-method · selectRectangle({context,rect:[left,top,right,bottom],mode?:window|crossing,additive?:false})。坐标相对于当前视口宽高归一化0..1；setView.camera可先明确相机。
@@ -349,7 +357,7 @@ API 1.57.25 · 操作目录 sha256:1975ef2dcc562bc7d01b63c535939ef3d611f145d6c01
 - `cancelServicesJob` · page-method · cancelServicesJob({context,jobId})
 - `getLogoConverter` · page-method · getLogoConverter() 委托 getServices；旧 URL/Key 不自动授权统一服务。
 - `setLogoConverter` · page-method · 改用 setServices，旧 setter 拒绝存影子配置。
-- `convertLogoPdf` · page-method · convertLogoPdf({context,name,data,targetWidthMm?,page?,pdfJoinToleranceMm?,sizeConfirmed:true,allowUpload:true})；data 为 PDF Uint8Array/ArrayBuffer/Blob，最多 20 MiB。
+- `convertLogoPdf` · page-method · Agent 不调用此旧方法。PDF 转矢量的公开入口为 webcad_read(method:"readLogo",args:{context,sessionFileId:当前PDF附件ID,page:1,allowUpload:true,reviewPolicy:"automatic",targetWidthMm:放置宽度})；host-only 仅限制此二进制适配器，不代表 PDF 转换不可用。授权页面脚本使用 readLogo({context,resourceId,name,...})。
 - `setView` · page-method · setView({context,interactionPhase?:start|update|end,direction?,projection?,fit?,selectedIds?,section?,display?,grid?,snap?,gizmo?,selectionMode?,camera?,language?,temporaryDisplay?}); 网格运动阶段使用独立显示LOD。复杂 BRep 首屏使用粗曲面及保守显示包围框，停止运动后按当前屏幕像素需求逐面细化可见范围，不自动恢复整件最高精度。display.detail 的 adaptiveExact、phase、visibleFaces、culledFaces、pending、budgetLimited、refinementError 读回显示状态。capture 返回当前已渲染帧及其近似状态，不等待无限细化。原始BRep和导出不变；metricsDeferred 时面积/体积为 null、boundsSource 为 conservative-display-box，measure 仍按精确实体计算。 gizmo 为 off/translate/rotate；启用手柄默认实体选择，与显式 face/edge 冲突拒绝。详见 api.views 和 api.interaction；workspace=modeling返回画布、library打开非全屏浮动快捷模型菜单（不改变菜单或侧栏显隐）；兼容workspace=agent打开Agent配置弹窗并保持workspace=modeling，current.agentSettingsOpen读回，workspace=modeling关闭弹窗；toolbar:boolean独立隐藏全部分类和工具菜单；focus:true隐藏菜单和两侧栏并切回建模，focus:false恢复之前显隐；libraryMode=cards/list。getState().view.workspaceLayout与getUILayout().current读回。切换工作区存在未结束UI任务时返回UI_TASK_ACTIVE；预览先preview.cancel。panels={left:boolean,right:boolean}，anchorVisible 为布尔值；section={axis:"X"|"Y"|"Z",position:number,enabled:boolean}。兼容旧远程助手模型库管理可单独setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})，返回updateModelLibrary的applied/failed；不改变视图或工程。
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context,maxWidth?:64..4096,format?:"png"|"webp",quality?:0<q<=1}); 建议 maxWidth:800,format:"webp"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:"capture",args:{context,maxWidth:800,format:"webp"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。

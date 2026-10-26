@@ -22,12 +22,17 @@ const planFeature={...ADD_STEP_SCHEMA,required:['key','op','params'],properties:
 const STEP_SCHEMA=object({id:{type:'string',pattern:'^[a-zA-Z][a-zA-Z0-9_-]{0,39}$'},method:str,args:{type:'object'},stage:{type:'string',minLength:1,maxLength:80}},['id','method']);
 const boolean={type:'boolean'},vector=vectorSchema;
 export const PAGE_METHOD_SCHEMAS={
+ reliefWizard:object({context:IDENTITY_CONTEXT_SCHEMA,reliefId:str,resourceId:str,name:str,idempotencyKey:{type:'string',minLength:1,maxLength:80},widthMm:{type:'number',exclusiveMinimum:0},heightMm:{type:'number',exclusiveMinimum:0},depthMm:{type:'number',exclusiveMinimum:0},precisionMm:{type:'number',minimum:.01,maximum:.5},invert:boolean,sourceInterpretation:{const:'authoredHeightMap'},action:{enum:['get','source','handoff','createDesign','parameters','position','align']},expectedRevision:{type:'integer',minimum:0},parameters:object({widthMm:{type:'number',exclusiveMinimum:0},heightMm:{type:'number',exclusiveMinimum:0},depthMm:{type:'number',exclusiveMinimum:0},mode:{enum:['emboss','engrave']},offsetX:{type:'number'},offsetY:{type:'number'},angleDeg:{type:'number'}}),placement:object({offsetX:{type:'number'},offsetY:{type:'number'},leftMm:{type:'number'},topMm:{type:'number'},scale:{type:'number',exclusiveMinimum:0},angleDeg:{type:'number'},depthMm:{type:'number',exclusiveMinimum:0}}),alignment:{enum:['horizontal','vertical','center']}},['context']),
+
  getDebugReport:object({source:{enum:['all','ui','api','agent','kernel','services','runtime']},level:{enum:['all','info','warn','error']},query:{type:'string',maxLength:160},afterSequence:{type:'integer',minimum:0},limit:{type:'integer',minimum:1,maximum:1500},includeState:boolean}),
  setDebugPanel:object({context:IDENTITY_CONTEXT_SCHEMA,visible:boolean},['context','visible']),
  getMetalMaterials:object({}),
  getMaterials:object({}),
  setMetalMaterials:object({context:IDENTITY_CONTEXT_SCHEMA,configuration:{type:'object'}},['context','configuration']),
  add:ADD_STEP_SCHEMA,
+ prepareOperation:object({context:IDENTITY_CONTEXT_SCHEMA,op:str,bodyId:str,refs:{type:'array',maxItems:40,items:str},params:{type:'object'},face:{oneOf:[{type:'integer',minimum:0},{enum:['top','bottom','front','back','left','right']}]},point:vector,intent:{type:'string',minLength:1,maxLength:1200},name:{type:'string',minLength:1,maxLength:120},placement:PLACEMENT_SCHEMA,preparationId:{type:'string',pattern:'^prep_[0-9]+$'},answers:{type:'object'}},['context']),
+ prepareToolCall:object({context:IDENTITY_CONTEXT_SCHEMA,toolId:str,args:{type:'object'},callPreparationId:{type:'string',pattern:'^call_[0-9]+$'},answers:{type:'object'}},['context']),
+ applyPreparedOperation:object({context:IDENTITY_CONTEXT_SCHEMA,preparationId:{type:'string',pattern:'^prep_[0-9]+$'}},['context','preparationId']),
  addMany:object({features:{type:'array',minItems:1,maxItems:64,items:planFeature}},['features']),
  run:object({context:revisionContext,idempotencyKey:{type:'string',minLength:1,maxLength:80},steps:{type:'array',minItems:1,maxItems:LIMITS.batch.maxSteps,items:STEP_SCHEMA}},['context','idempotencyKey','steps']),
  resolvePlacement:object({context:IDENTITY_CONTEXT_SCHEMA,op:str,params:{type:'object'},refs:{type:'array',items:str},placement:PLACEMENT_SCHEMA},['context','op','params','refs','placement']),
@@ -40,7 +45,7 @@ export const PAGE_METHOD_SCHEMAS={
  queryGeometry:object({context:IDENTITY_CONTEXT_SCHEMA,bodyId:str,kind:{enum:['face','edge']},filter:{type:'object'},requireUnique:boolean,expectedCount:{type:'integer',minimum:1,maximum:100000},limit:{type:'integer',minimum:1,maximum:100},cursor:{type:'string',minLength:1,maxLength:2048}},['context','bodyId','kind']),
  getState:object({include:{type:'array',items:{enum:['summary','features','bodies','bodiesLite','selection','capabilities','references','reliefDesigns']}},compact:boolean,fields:{type:'array',minItems:1,maxItems:32,items:{type:'string',minLength:1,maxLength:40}},sinceRevision:{type:'integer',minimum:0}})
 };
-export const METHOD_TOOL=name=>name==='run'?'webcad_submit':['capture','getEvidenceImage','setView','setMetalMaterials','setDebugPanel'].includes(name)?'webcad_view':['add','addMany'].includes(name)?'run-step':'webcad_read';
+export const METHOD_TOOL=name=>['run','applyPreparedOperation'].includes(name)?'webcad_submit':['capture','getEvidenceImage','setView','setMetalMaterials','setDebugPanel'].includes(name)?'webcad_view':['add','addMany'].includes(name)?'run-step':'webcad_read';
 export function validatePageInput(method,input,path='args'){
  const schema=PAGE_METHOD_SCHEMAS[method];if(schema)validateSchema(schema,input,path);
 }

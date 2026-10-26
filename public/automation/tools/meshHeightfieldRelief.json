@@ -1100,6 +1100,18 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "meshHeightfieldRelief",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "relief",
     "groupTitle": "LOGO、矢量浮雕与网格精修",
@@ -1170,6 +1182,10 @@
         "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
       },
       {
+        "id": "reliefWizard",
+        "chooseWhen": "操作当前浮雕UI草稿的尺寸与平面画布定位，source绑定真实原件为reliefId；不计算或提交几何。"
+      },
+      {
         "id": "readRelief",
         "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
       },
@@ -1181,5 +1197,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f40fdefc829217d1b5a209a9d1bd73d2ca0faecb64adb841c8709880a173e827"
+  "docsHash": "sha256:b5e01b3fdff0c8d41066ca56c861ffd571827b4cd49c7f03f71a52ee0cc75cc7"
 }

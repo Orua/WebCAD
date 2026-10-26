@@ -580,6 +580,18 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.counterboreTool",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "tubes-threads",
     "groupTitle": "筒、螺纹与弹簧模板",
@@ -617,5 +629,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:34583f9ecc5aebd48df20b1c839f2600cf4660a0777fdc57395219592e959cfc"
+  "docsHash": "sha256:7909359be94c14b3e0e082028a8d3b947a055769db7c74b6cc24a6eb39717ced"
 }

@@ -515,6 +515,18 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.domedPin",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "pins-components",
     "groupTitle": "钉、针与独立连接件",
@@ -544,5 +556,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3725ece716c089f6cfc24530d60913e45ccaac158491b2b9d5c8da7afde5386b"
+  "docsHash": "sha256:24c83ed924d600ada5070d229dccd7c858b5ffd071e2f7233c696609d47557b8"
 }

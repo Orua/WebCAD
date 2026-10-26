@@ -633,6 +633,18 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.rectBuckle",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "rect-frames",
     "groupTitle": "矩形框与截面",
@@ -654,5 +666,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f03866b508f98e96ba02a30f2895c80e1838b48680d889ecac87ab46c924dbc8"
+  "docsHash": "sha256:f6de480bd298c6c1c0fb3b28b00f307cfe7b703217a5f93a5c47f90f3c03ab53"
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:1975ef2dcc562bc7d01b63c535939ef3d611f145d6c01598e0b9291ba8a5363a",
-  "docsHash": "sha256:53a402da10baf48a33f65c9d077f36cdc8af8c9725772a2eb87e6c14d3ec1a18",
+  "catalogHash": "sha256:c9742f8171bc5b2cac0e7a709dc5ddf84f705c541998d45f11191a2ab5cb7954",
+  "docsHash": "sha256:84cfb3d492d74162ee25e9a0cca414014b8ca0a846d90c3c0a9d00cd0d65647e",
   "bootstrapDocIds": [
     "api.reading-map",
     "api.knowledge-cache",
@@ -16,6 +16,33 @@
   },
   "selectionPolicy": "Read api.reading-map once; route by task; read only readFirst; compare selectionGuide; fetch selected complete cards. docs/tools are candidates, not mandatory bulk reads. Exact UI actions use routes.json. Live IDs come from the page.",
   "routes": [
+    {
+      "id": "prepared-operations",
+      "title": "简化准备单与多参数补答",
+      "keywords": [
+        "准备单",
+        "简化准备",
+        "少参数",
+        "缺参",
+        "多参数",
+        "参数补齐",
+        "prepareOperation",
+        "applyPreparedOperation"
+      ],
+      "readFirst": "api.prepare-operation",
+      "docs": [
+        "api.prepare-operation",
+        "api.prepare-machining",
+        "api.prepare-tools"
+      ],
+      "tools": [
+        "prepareToolCall",
+        "prepareOperation",
+        "applyPreparedOperation"
+      ],
+      "readPlan": "Read the two short preparation cards; use their needs_input/answers or nextCall. Read raw operation cards only for uncommon advanced parameters.",
+      "note": "Reuse one revision-bound plan ID. Resolve required design values from the actual user request; ask only for missing intent. Do not retype technical fields or replay unknown writes."
+    },
     {
       "id": "modeling.interlocked-assembly",
       "title": "穿接装配与受拉贴合",
@@ -567,11 +594,14 @@
       ],
       "docs": [
         "api.guide.pattern",
+        "api.prepare-operation",
         "api.logo",
         "api.relief-taxonomy",
         "api.pattern-machining"
       ],
       "tools": [
+        "prepareOperation",
+        "applyPreparedOperation",
         "readLogo",
         "exportDrawing",
         "getServices",
@@ -583,7 +613,7 @@
         "relief",
         "logo"
       ],
-      "note": "Prefer native-host readLogo with conversation sessionFileId: original bytes go directly to configured Services, vectors are verified and saved in host storage, only vectors enter the page. Default automatic acceptance continues to engraving with logoId; preview/open editor and pause only when the user asks to see or adjust first. Report vectorization progress. Published adapters own point fitting; never put secrets or full contour arrays in model context. Photos/shaded references require authored height data.",
+      "note": "Prefer native-host readLogo with conversation sessionFileId: original bytes go directly to configured Services, vectors are verified and saved in host storage, only vectors enter the page. readLogo creates a draft; never pass logoId back to readLogo. Automatic acceptance proceeds to prepareOperation(op:logo, face, params:mode/depthMm/widthMm) then applyPreparedOperation using its returned short ID; reviewLogo requires the same logoId only if a draft read is needed. For a plate top face use plane normal +Z and atExtreme Z max in queryGeometry, not plane alone or unsupported filter.center. Preview/open editor and pause only when the user asks to see or adjust first. Report vectorization progress. Published adapters own point fitting; never put secrets or full contour arrays in model context. Photos/shaded references require authored height data.",
       "readFirst": "api.guide.pattern",
       "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },

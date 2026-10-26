@@ -778,6 +778,18 @@
     "restrictions": "Round, equal frame/bar diameter and no gap; complete junctions must fit between corners. rollingBall jointRadius is an independent 3D radius (0<R<=20 mm; wire diameter<=40 mm). profileRound jointRadius is planar. sourceFree ignores jointRadius; legacy sourceFixedR retains wireDiameter/4. Invalid dimensions fail before commit."
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.sliderBuckle",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "bar-frames",
     "groupTitle": "双窗与带横杆框",
@@ -807,5 +819,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9e1db9d5f09ef973a1e0b7a8aea82dbef15d139b757c3dced30c40b566c1a409"
+  "docsHash": "sha256:f0fb84e73540a831a24e1aed9b3ad990878d4399069ae1dc160d03d3e3938e77"
 }

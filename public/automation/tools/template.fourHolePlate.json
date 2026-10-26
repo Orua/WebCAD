@@ -608,6 +608,18 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.fourHolePlate",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "plates-shells",
     "groupTitle": "孔板、凸柱板与薄壁壳",
@@ -645,5 +657,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e4ed4a0376e1986143c0ba643f69c02559b031312e75087253235e6add628cdf"
+  "docsHash": "sha256:efd464a33b0b851a954d7011f2cfbc546b03e6cdbecc91873820bb5115ca53ea"
 }

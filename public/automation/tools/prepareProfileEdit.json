@@ -2,7 +2,7 @@
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -33,6 +33,84 @@
     "GEOMETRY_INVALID"
   ],
   "docs": "api.interaction",
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "bodyId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "mode": {
+        "enum": [
+          "intersections",
+          "trim",
+          "extend",
+          "trimCircle",
+          "fillet"
+        ]
+      },
+      "entityId": {},
+      "targetId": {},
+      "edgeIds": {},
+      "endpoint": {},
+      "candidateId": {},
+      "startCandidateId": {},
+      "endCandidateId": {},
+      "keepSide": {},
+      "radiusMm": {},
+      "arcId": {},
+      "output": {}
+    },
+    "required": [
+      "context",
+      "bodyId",
+      "mode"
+    ]
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "prepareProfileEdit",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "profiles",
     "groupTitle": "轮廓创建、提取与修复",
@@ -98,5 +176,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:377ed85cb78059e5c83b4ed6309d25d01702f7f23ae65e0e9878c9a39bedfd55"
+  "docsHash": "sha256:1dbbe92ce3255480f7d4a214ca9ceeda9fa1e59111ef57226d9c8a15b05f368a"
 }

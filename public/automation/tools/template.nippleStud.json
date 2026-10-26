@@ -875,6 +875,18 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.nippleStud",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "pins-components",
     "groupTitle": "钉、针与独立连接件",
@@ -904,5 +916,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f2861d916e642662195af46980309934f0a958fab79b79ef27e1bcf422d540bd"
+  "docsHash": "sha256:b6c254669a275d42a028eacad0b4afd71e87c06d401eccb34fb74ccc1be20933"
 }

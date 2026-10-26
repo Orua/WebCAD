@@ -575,6 +575,18 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.buckleTongue",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "pins-components",
     "groupTitle": "钉、针与独立连接件",
@@ -604,5 +616,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8bf2c7796164daeb901ffccae60bc0e60a26d967775de29f4d96fc6799feebd6"
+  "docsHash": "sha256:30fafa245689aae509934f27ae135d2ae1fe9931c7232dd1cfc98537bfcbeb14"
 }

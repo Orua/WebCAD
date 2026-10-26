@@ -180,11 +180,12 @@
       "logoId": {
         "type": "string",
         "minLength": 1,
-        "description": "Live page draft returned by readLogo; the page materializes its current accepted contours before executing."
+        "description": "Copy the exact live page draft ID from readLogo/reviewLogo. With logoId omit source and regions; the page supplies verified contours and provenance."
       },
       "expectedReviewRevision": {
         "type": "integer",
-        "minimum": 0
+        "minimum": 0,
+        "description": "Optional optimistic draft lock. Omit unless reviewLogo returned the current review.revision; automatic confirmation advances it from 0 to 1."
       },
       "schemaVersion": {
         "type": "integer",
@@ -376,8 +377,17 @@
           "logoId"
         ],
         "not": {
-          "required": [
-            "regions"
+          "anyOf": [
+            {
+              "required": [
+                "regions"
+              ]
+            },
+            {
+              "required": [
+                "source"
+              ]
+            }
           ]
         }
       }
@@ -413,7 +423,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. singleFace (default/missing) rejects face boundaries and seams. Explicit projectionMode:connectedFaces requires placementVersion:2, mode:engrave and draftAngle:0. It crosses connected front-facing plane/round/periodic seams with one projection direction (inward normal at point); depth is along that direction, not surface-normal depth. Preserves outline scale/holes; rejects incomplete projection, overlap, grazing/back faces, thin walls, disconnected solids, invalid geometry or stale face. Read getState().bodies[].logoProjectionReport for crossed source face IDs, direction, depth and actual removedVolumeMm3.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. singleFace (default/missing) rejects face boundaries and seams. Explicit projectionMode:connectedFaces requires placementVersion:2, mode:engrave and draftAngle:0. It crosses connected front-facing plane/round/periodic seams with one projection direction (inward normal at point); depth is along that direction, not surface-normal depth. Preserves outline scale/holes; rejects incomplete projection, overlap, grazing/back faces, thin walls, disconnected solids, invalid geometry or stale face. Read getState().bodies[].logoProjectionReport for crossed source face IDs, direction, depth and actual removedVolumeMm3. For an existing automatic readLogo draft, use only the exact returned logoId plus placement/engraving fields; do not send source or regions, and omit expectedReviewRevision unless read from the current review.revision. Never reconstruct or edit a UUID by hand.",
   "title": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
   "category": "modification",
   "synonyms": [
@@ -424,7 +434,7 @@
     "LOGO"
   ],
   "description": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
-  "schemaHash": "sha256:18e35dddc735534c4e2762ea20ff720cb5889c008d4efdbb4b2f3af905402ef8",
+  "schemaHash": "sha256:fcd8e241d1078025c1f3e5318dba50e11efd7016112e29a7a3ffe0f4d2f4389a",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -485,57 +495,33 @@
     }
   ],
   "knownUnsupportedCases": [
-    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. singleFace (default/missing) rejects face boundaries and seams. Explicit projectionMode:connectedFaces requires placementVersion:2, mode:engrave and draftAngle:0. It crosses connected front-facing plane/round/periodic seams with one projection direction (inward normal at point); depth is along that direction, not surface-normal depth. Preserves outline scale/holes; rejects incomplete projection, overlap, grazing/back faces, thin walls, disconnected solids, invalid geometry or stale face. Read getState().bodies[].logoProjectionReport for crossed source face IDs, direction, depth and actual removedVolumeMm3."
+    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. singleFace (default/missing) rejects face boundaries and seams. Explicit projectionMode:connectedFaces requires placementVersion:2, mode:engrave and draftAngle:0. It crosses connected front-facing plane/round/periodic seams with one projection direction (inward normal at point); depth is along that direction, not surface-normal depth. Preserves outline scale/holes; rejects incomplete projection, overlap, grazing/back faces, thin walls, disconnected solids, invalid geometry or stale face. Read getState().bodies[].logoProjectionReport for crossed source face IDs, direction, depth and actual removedVolumeMm3. For an existing automatic readLogo draft, use only the exact returned logoId plus placement/engraving fields; do not send source or regions, and omit expectedReviewRevision unless read from the current review.revision. Never reconstruct or edit a UUID by hand."
   ],
   "minimalExample": {
     "op": "logo",
     "params": {
-      "placementVersion": 2,
-      "projectionMode": "singleFace",
+      "logoId": "<exact current readLogo.logoId>",
       "faceId": 0,
+      "placementVersion": 2,
       "point": [
         5,
         5,
         3
       ],
       "mode": "engrave",
-      "draftAngle": 0,
-      "regions": [
-        {
-          "outer": [
-            [
-              -1,
-              -1
-            ],
-            [
-              1,
-              -1
-            ],
-            [
-              0,
-              1
-            ]
-          ]
-        }
-      ],
-      "source": {
-        "kind": "reviewed-contours",
-        "reviewed": true
-      },
+      "depthMm": 0.2,
+      "scale": 1,
       "machiningIntent": {
         "version": 1,
         "requestedGeometry": "constantDepthContours",
         "sourceInterpretation": "reviewedVectors",
-        "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
-      },
-      "depthMm": 0.2,
-      "schemaVersion": 2
+        "userIntentEvidence": "Replace with the actual user request"
+      }
     },
     "refs": [
       "<current-bodyId-1>"
     ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry()."
   },
   "normalExample": {
     "op": "logo",
@@ -894,7 +880,7 @@
         }
       },
       "logoId": {
-        "meaning": "Live page draft returned by readLogo; the page materializes its current accepted contours before executing.",
+        "meaning": "Copy the exact live page draft ID from readLogo/reviewLogo. With logoId omit source and regions; the page supplies verified contours and provenance.",
         "unit": "none",
         "range": [
           1,
@@ -905,7 +891,7 @@
         }
       },
       "expectedReviewRevision": {
-        "meaning": "expectedReviewRevision: Reviewed LOGO: single-face normal depth or connected-face directional projection",
+        "meaning": "Optional optimistic draft lock. Omit unless reviewLogo returned the current review.revision; automatic confirmation advances it from 0 to 1.",
         "unit": "none",
         "range": [
           0,
@@ -1475,6 +1461,18 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "logo",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "relief",
     "groupTitle": "LOGO、矢量浮雕与网格精修",
@@ -1545,6 +1543,10 @@
         "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
       },
       {
+        "id": "reliefWizard",
+        "chooseWhen": "操作当前浮雕UI草稿的尺寸与平面画布定位，source绑定真实原件为reliefId；不计算或提交几何。"
+      },
+      {
         "id": "readRelief",
         "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
       },
@@ -1556,5 +1558,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:e6af04d80be53fcec07dd7646c06ebf6d095c65c0b673812d6447dfbb1c65c87"
+  "docsHash": "sha256:e0a2f22d6f07963fe157202900cf19795588ec677cd0a0dec990eeab9a6f5d19"
 }

@@ -213,6 +213,7 @@
 - reliefDesignField：从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。
 - sampleReliefHeight：读取浮雕参数/草稿指定点的控制高度，不是修改高度。
 - sampleMeshRelief：按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。
+- reliefWizard：操作当前浮雕UI草稿的尺寸与平面画布定位，source绑定真实原件为reliefId；不计算或提交几何。
 - readRelief：读取已登记高度图资源及采样定义，尚未创建浮雕实体。
 - planPatternMachining：根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。
 
@@ -316,10 +317,13 @@
 - recoverServicesJob：按明确批准与确认信息恢复远程作业；不能另造 jobId 规避状态。
 - getLogoConverter：旧配置读取兼容入口，委托统一 Services；不是独立授权。
 - setLogoConverter：已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。
-- readLogo：从已登记的图片或矢量文件取得待复核的闭合轮廓；JPG/PNG描摹需要实际毫米宽度和明确上传授权，不把照片光影当作深度。
+- prepareToolCall：所有工具共用只读参数预检；按字段问询并返回原工具nextCall，建模转prepareOperation，宿主和不可用入口明确返回blocker，不执行或绕过权限。
+- prepareOperation：简化建模首选：给op及实际设计参数，页面补齐唯一目标/图案和技术字段；缺意图返回needs_input问询，准备不计算几何。LOGO转换后只需face、mode、depthMm、widthMm；浮雕保留readRelief的reliefId来源。
+- applyPreparedOperation：只用prepareOperation返回的编号应用同一完整请求；不重拼refs/版本/哈希/加工意图。重复编号回原回执，unknown不重算。
+- readLogo：Agent 对 PDF/JPG/PNG/SVG/DXF 统一使用 webcad_read readLogo({context,sessionFileId,allowUpload:true,targetWidthMm?,page?,reviewPolicy?})取得可加工草稿。PDF也走此入口；原生宿主解析附件并调用已配置Services，automatic后继续雕刻。
 - reviewLogo：校对本页logoId的毫米轮廓草稿、确认和生成可读取中间文件；不需要打开界面，也不提交雕刻几何。
 - logoWizard：读取或控制已打开的LOGO分步向导；与用户共享来源参数、轮廓草稿和确认，不能代替目标面的实际雕刻。
-- convertLogoPdf：通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。
+- convertLogoPdf：仅旧二进制适配器为host-only；Agent转换PDF请用公开readLogo(sessionFileId,page,allowUpload:true)，不能据此认定PDF不可用。
 
 ## 助手面板
 - getAgentPanel：读助手面板配置与显示状态，不发起建模任务。
@@ -349,6 +353,10 @@
 - exportDrawing：导出已有drawingId工程图，或readLogo返回的logoId原轮廓DXF/JSON；不必创建三维实体或写脚本。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+reliefWizard: contextPolicy=identity
+prepareToolCall: contextPolicy=identity
+prepareOperation: contextPolicy=identity
+applyPreparedOperation: contextPolicy=identity
 getDebugReport: contextPolicy=none
 setDebugPanel: contextPolicy=identity
 getMetalMaterials: contextPolicy=none

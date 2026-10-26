@@ -2,7 +2,7 @@
   "id": "setDebugPanel",
   "title": "setDebugPanel",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -73,6 +73,18 @@
     "INSTANCE_MISMATCH",
     "CAPABILITY_UNAVAILABLE"
   ],
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "setDebugPanel",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "debug",
     "groupTitle": "运行诊断与日志",
@@ -86,5 +98,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b88caa340fa0f0d3245dcc6f74f9d2ab45b0dfa5cb8bc800f0b501c88415a064"
+  "docsHash": "sha256:5233df8ad862bc9bdbbb15936d852cfeb9383e39d1b0c966fc14af0d13699490"
 }

@@ -6,11 +6,11 @@ import {reliefServicesReady} from '../../services/relief-pipeline.js';
 import {createReliefHeightPanel} from './relief-design-height-panel.js';
 import {adaptiveBrowserControlNet,adaptiveFieldResolution,effectiveEdgeMargins} from '../../relief-design-field.js';
 
-export function showReliefDesignDialog({getState,openDialog,element,button,onSave,onGenerate,onPreview,close}){
+export function showReliefDesignDialog({getState,openDialog,element,button,onSave,onGenerate,onPreview,onPlacement,initialDesignId,initialMode,close}){
  let initial=getState(),loaded=null,busy=false,dirty=false,fieldResult=null,referenceUrl=null,referenceGeneration=0,selectedEdit=-1,editInputsDirty=false,resolutionTouched=false,fitRunning=false,fitBaselineMm=NaN,brep=null;
- const d=openDialog('浮雕设计约束','保存毫米约束 → 求解数值场 → 预览并生成支持范围内的网格。');
+ const d=openDialog('图片浮雕','选择高度图和尺寸，在选面上定位、预览并应用。',{returnToSelect:true});
  d.dataset.taskPanel='true';
- d.style.cssText='width:min(840px,96vw);max-width:96vw;max-height:90vh;display:flex;flex-direction:column;overflow:hidden';
+ d._acceptSelection=true;d.style.cssText='width:100%;max-width:100%;display:flex;flex-direction:column;overflow:hidden';
  const scroller=element('div',{});scroller.style.cssText='min-height:0;overflow:auto';
  const selector=element('select',{'aria-label':'选择设计草稿'});
  const status=element('p',{'aria-live':'polite',class:'property-callout'});
@@ -20,7 +20,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  // 高级配置: everything beyond the essentials (image, size/depth, emboss/engrave, placement, preview/apply)
  // lives in one collapsed section with working defaults; the common case never needs to open it.
  const advanced=element('details',{class:'relief-advanced','data-relief-advanced':'true'});
- advanced.append(element('summary',{},'高级配置（已按默认值填好；常规使用无需展开）'),element('p',{class:'property-footnote'},'设计约束：数值场采样、加工精度、网格底厚、高度点/孔/保护区、局部编辑、拟合控制点与误差、原始参考图，以及精确 BRep 的 X方向/基线确认/加工意图。'));
+ advanced.append(element('summary',{},'高级设置'),element('p',{class:'property-footnote'},'采样、精度、局部编辑、拟合与参考图；常用参数已设好。'));
  const advancedForm=element('div',{class:'parameter-form'});advancedForm.style.cssText='display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px';advanced.append(advancedForm);
  function field(label,el,parent=form){const row=element('label',{class:'form-field'});row.append(element('span',{},label),el);parent.append(row);return el;}
  const name=field('草稿名称',element('input',{type:'text',maxlength:120}));
@@ -81,18 +81,18 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  const fitStart=button('拟合当前数值场',()=>fitPreferServices(),'secondary'),fitBrowser=button('浏览器拟合（回退）',()=>computeFit(),'secondary'),fitStop=button('停止拟合',()=>stopFit(),'secondary');fitStop.disabled=true;
  const fitButtons=element('div',{});fitButtons.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px';fitButtons.append(fitStart,fitBrowser,fitStop);fitPanel.append(fitSummary,fitHint,fitForm,fitButtons,fitResult);fitPanel.open=true;fitSummary.textContent='数值拟合与诊断';advanced.append(fitPanel);form.append(fitMode.closest('label'));
  let servicesFirstOK=false;reliefServicesReady('reliefDesign').then(v=>{servicesFirstOK=v;brep?.sync?.();});
- brep=createReliefBrepPanel({element,button,runPreview:onPreview,request:()=>({context:window.webcad.api.getState().context,designId:loaded?.id,expectedDraftRevision:loaded?.revision}),isBusy:()=>busy||dirty||editInputsDirty||!loaded||!Number.isFinite(fitBaselineMm)&&!servicesFirstOK,draftGate:()=>({saved:!!loaded&&!dirty&&!editInputsDirty,reason:!loaded?'请先保存草稿到工程':(dirty||editInputsDirty)?'请先保存当前设计和笔画修改':'已保存'}),ensureFit:()=>ensureFit(),setBusy:value=>{busy=value;},getFitBaseline:()=>fitBaselineMm});scroller.append(brep.panel);
+ brep=createReliefBrepPanel({element,button,runPreview:onPreview,request:()=>({context:window.webcad.api.getState().context,designId:loaded?.id,expectedDraftRevision:loaded?.revision}),isBusy:()=>busy,ensureSaved:async()=>{if(!loaded||dirty||editInputsDirty)await commit(false);return !!loaded&&!dirty&&!editInputsDirty;},onPlacement,getFootprint:()=>({widthMm:Number(width.value),heightMm:kind.value==='circle'?Number(width.value):Number(height.value),depthMm:Number(high.value)-Number(low.value),canvas:heightPanel.panel.querySelector('canvas')}),draftGate:()=>({saved:!!loaded&&!dirty&&!editInputsDirty,reason:!loaded?'请先保存草稿到工程':(dirty||editInputsDirty)?'请先保存当前设计和笔画修改':'已保存'}),ensureFit:()=>ensureFit(),setBusy:value=>{busy=value;},getFitBaseline:()=>fitBaselineMm});scroller.append(brep.panel);
  const canvas=element('canvas',{width:640,height:240,'aria-label':'支撑范围和人工高度点示意'});
  canvas.style.cssText='width:100%;height:auto;max-height:240px;border:1px solid var(--border);margin-top:12px';
  advanced.append(referencePanel);brep.moveAdvanced?.(advanced);scroller.append(advanced);
- scroller.append(canvas);
+ advanced.append(canvas);
  const footer=element('div',{class:'dialog-footer'});footer.style.cssText='flex-shrink:0;display:flex;flex-wrap:wrap;gap:8px;margin-top:10px';
- const save=button('保存草稿到工程',()=>commit(false),'primary'),remove=button('删除当前草稿',()=>commit(true),'secondary');
+ const save=button('保存设计',()=>commit(false),'secondary'),remove=button('删除当前草稿',()=>commit(true),'secondary');
  const solve=button('求解数值场',()=>compute(),'secondary'),cancel=button('停止求解',()=>window.webcad.api.reliefDesignField(request('cancel')),'secondary');
  const generate=button('生成网格',()=>generateMesh(),'primary');generate.disabled=true;cancel.disabled=true;
  const technicalActions=element('div',{});technicalActions.style.cssText=footer.style.cssText;technicalActions.append(solve,cancel,generate);advanced.append(technicalActions);
- footer.append(remove,button('关闭',()=>{if(!busy)close();},'secondary'),save);d.append(scroller,status,footer);
- d._onClose=()=>{if(brep.hasPreview())brep.cancelPreview();clearReferencePreview();if(loaded){window.webcad.api.reliefDesignField(request('cancel'));if(fitRunning)window.webcad.api.reliefDesignFit(request('cancel'));}};
+ advanced.append(remove);footer.append(button('关闭',()=>{if(!busy)close();},'secondary'),save);d.append(scroller,status,footer);
+ d._onClose=()=>{brep.dispose?.();if(brep.hasPreview())brep.cancelPreview();clearReferencePreview();if(loaded){window.webcad.api.reliefDesignField(request('cancel'));if(fitRunning)window.webcad.api.reliefDesignFit(request('cancel'));}};
  function clearReferencePreview(){referenceGeneration++;if(referenceUrl)URL.revokeObjectURL(referenceUrl);referenceUrl=null;referencePreview.removeAttribute('src');referencePreview.style.display='none';}
  async function showReference(){
   clearReferencePreview();const generation=referenceGeneration,ref=loaded?.draft.reference;
@@ -295,5 +295,5 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  }
  selector.onchange=()=>load(initial.document.reliefDesigns?.find(item=>item.id===selector.value)||null);
  scroller.addEventListener('input',event=>{if(busy||event.target===referencePicker||event.target===editList)return;if(event.target.dataset.designFit){fitResult.textContent='拟合参数已改变；上次报告不对应当前输入。参数不会自动保存为设计高度。';return;}fitResult.textContent='设计或笔画输入已改变；请先保存并求解后重新拟合。';if(event.target.dataset.designEdit){editInputsDirty=true;generate.disabled=true;syncEditControls();try{draw(read());status.textContent='笔画参数尚未保存；保存此笔将一起保存当前表单修改。';}catch(e){status.textContent=humanError(e);}return;}if(event.target===resolution)resolutionTouched=true;dirty=true;fieldResult=null;generate.disabled=true;height.disabled=kind.value==='circle';syncEditControls();try{draw(read());status.textContent='有未保存的设计修改；旧数值场不能生成几何。';}catch(e){status.textContent=humanError(e);}if(event.target===width||event.target===height||event.target===kind)warnMarginsNow();});
- load(initial.document.reliefDesigns?.[0]||null);
+ load(initial.document.reliefDesigns?.find(e=>e.id===initialDesignId)||initial.document.reliefDesigns?.[0]||null);if(['emboss','engrave'].includes(initialMode))fitMode.value=initialMode;
 }

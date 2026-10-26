@@ -13,6 +13,7 @@ export function createPageJobs(api,{runBatch}={}) {
   methods.add('measureMass');methods.add('reliefDesignFit');
   methods.add('inspectRound');
   methods.add('readLogo');
+  methods.add('prepareOperation');methods.add('applyPreparedOperation');
   methods.add('reviewLogo');
   methods.add('logoWizard');
   methods.add('reliefDesignField');methods.add('reliefDesignReference');

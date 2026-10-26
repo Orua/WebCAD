@@ -665,6 +665,18 @@
     "refs": []
   },
   "docs": "api.quick-hardware",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.screw",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "tubes-threads",
     "groupTitle": "筒、螺纹与弹簧模板",
@@ -702,5 +714,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5992956ce25e9aab87ebc3280994a4480aa7eb8a40402dae2ddda5d7ea57c82e"
+  "docsHash": "sha256:8b03f8ae902886666e8f3dc621df583476f81faef940ba34151b1a4abd84ceb3"
 }

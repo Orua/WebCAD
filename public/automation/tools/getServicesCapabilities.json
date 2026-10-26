@@ -2,7 +2,7 @@
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.57.25",
+  "version": "1.60.0",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -31,6 +31,24 @@
     "SERVICES_REQUEST_FAILED",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
+  "preparationSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "toolId": "getServicesCapabilities",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "services",
     "groupTitle": "统一服务与远程作业",
@@ -85,8 +103,20 @@
         "chooseWhen": "已弃用的旧 setter，不能建立影子 URL/Key；配置用 setServices。"
       },
       {
+        "id": "prepareToolCall",
+        "chooseWhen": "所有工具共用只读参数预检；按字段问询并返回原工具nextCall，建模转prepareOperation，宿主和不可用入口明确返回blocker，不执行或绕过权限。"
+      },
+      {
+        "id": "prepareOperation",
+        "chooseWhen": "简化建模首选：给op及实际设计参数，页面补齐唯一目标/图案和技术字段；缺意图返回needs_input问询，准备不计算几何。LOGO转换后只需face、mode、depthMm、widthMm；浮雕保留readRelief的reliefId来源。"
+      },
+      {
+        "id": "applyPreparedOperation",
+        "chooseWhen": "只用prepareOperation返回的编号应用同一完整请求；不重拼refs/版本/哈希/加工意图。重复编号回原回执，unknown不重算。"
+      },
+      {
         "id": "readLogo",
-        "chooseWhen": "从已登记的图片或矢量文件取得待复核的闭合轮廓；JPG/PNG描摹需要实际毫米宽度和明确上传授权，不把照片光影当作深度。"
+        "chooseWhen": "Agent 对 PDF/JPG/PNG/SVG/DXF 统一使用 webcad_read readLogo({context,sessionFileId,allowUpload:true,targetWidthMm?,page?,reviewPolicy?})取得可加工草稿。PDF也走此入口；原生宿主解析附件并调用已配置Services，automatic后继续雕刻。"
       },
       {
         "id": "reviewLogo",
@@ -98,11 +128,11 @@
       },
       {
         "id": "convertLogoPdf",
-        "chooseWhen": "通过已授权转换能力把指定 PDF 来源转矢量资源；不是直接刻字或字体替代。"
+        "chooseWhen": "仅旧二进制适配器为host-only；Agent转换PDF请用公开readLogo(sessionFileId,page,allowUpload:true)，不能据此认定PDF不可用。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d7a666b23af5a6b2d8f9c5c76d44479d5da840f9f9de6f180c43a9df01edf6b3"
+  "docsHash": "sha256:a852cc394deb756e70d216556ca5133e5c324bc3aa413de5b6a4b796f3b30ff8"
 }

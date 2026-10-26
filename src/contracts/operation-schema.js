@@ -54,10 +54,8 @@ export function validateSchema(schema, value, path = 'params') {
     };
     const matches = sub => { try { visit(sub, v, p); return true; } catch (e) { if (!(e instanceof OperationContractError)) throw e; return false; } };
     if (s.type) {
-      const ok = s.type === 'object' ? v !== null && typeof v === 'object' && !Array.isArray(v)
-        : s.type === 'array' ? Array.isArray(v)
-          : s.type === 'integer' ? Number.isInteger(v)
-            : s.type === 'null' ? v === null : typeof v === s.type;
+      const isType=type=>type==='object'?v!==null&&typeof v==='object'&&!Array.isArray(v):type==='array'?Array.isArray(v):type==='integer'?Number.isInteger(v):type==='null'?v===null:typeof v===type;
+      const ok=(Array.isArray(s.type)?s.type:[s.type]).some(isType);
       if (!ok) fail(`Expected ${s.type}.`);
     }
     if (s.enum && !s.enum.some(x => canonicalJson(x) === canonicalJson(v))) fail('Value is not in the allowed enumeration.');

@@ -742,6 +742,18 @@
     "refs": []
   },
   "docs": "api.quick-eyelets",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.alloyEyelet",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
   "selectionGuide": {
     "groupId": "eyelets",
     "groupTitle": "面框与两件式鸡眼",
@@ -759,5 +771,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bebb04da1b855da44a949dd0479d571806f419a8de2076f66561daf0c914888e"
+  "docsHash": "sha256:eff5d849e59d9a200a4bedf7402de23c6c2af78fc350f15e48bf64db98996c66"
 }
