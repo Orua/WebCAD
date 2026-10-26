@@ -2,7 +2,7 @@
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -11,7 +11,6 @@
       "include": {
         "type": "array",
         "items": {
-          "type": "string",
           "enum": [
             "summary",
             "features",
@@ -41,7 +40,8 @@
         "type": "integer",
         "minimum": 0
       }
-    }
+    },
+    "required": []
   },
   "mcpCall": {
     "tool": "webcad_read",
@@ -63,7 +63,7 @@
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorModel": "Direct page scripts may use api.invoke for structured errors. MCP callers use this card mcpCall; invoke is an internal host wrapper, not an Agent method.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "INSTANCE_MISMATCH"
@@ -133,5 +133,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2319ef33256f1f637f952a1f05c380410319e0bcebc0db12065c06bf77ac19a0"
+  "docsHash": "sha256:d4645623d22ddfeef6d3cf4ce6b77e9d0b36e68b9213d2434ddc56025ce3034d"
 }

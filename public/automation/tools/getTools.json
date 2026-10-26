@@ -2,7 +2,7 @@
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -22,7 +22,7 @@
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorModel": "Direct page scripts may use api.invoke for structured errors. MCP callers use this card mcpCall; invoke is an internal host wrapper, not an Agent method.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "PARAM_RANGE_INVALID",
@@ -82,5 +82,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:08b2cf248707a30dbf8fbd60e54d109558905c75c56f7ee186ff8e020c86c6db"
+  "docsHash": "sha256:f28a9199975494d47454bb3fd5b0df281641d2656c44ab75b5a5a91601e44556"
 }

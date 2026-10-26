@@ -1,9 +1,24 @@
 {
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "execute",
+    "action": "body.appearance"
+  },
+  "metalExample": {
+    "action": "body.appearance",
+    "args": {
+      "bodyIds": [
+        "<live bodyId>"
+      ],
+      "finish": "light-gold"
+    }
+  },
+  "appearanceGuide": "金属颜色由 finish 预设选择；仅修改 color 并使用 design 是普通原色。使用 allowedFinishes 中已有的金属无需先读取或重写全局材质配置。",
   "id": "body.appearance",
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -133,5 +148,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:24f41065358b9df91be43ff450dff31902a86b12598f1f5a2875099ad3990f11"
+  "docsHash": "sha256:905ba9ca24a1eae1f53010547be394f35b3cf9d5caf45f36a56b5506ca1a342c"
 }

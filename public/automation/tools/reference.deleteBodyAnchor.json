@@ -1,9 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "execute",
+    "action": "reference.deleteBodyAnchor"
+  },
   "id": "reference.deleteBodyAnchor",
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -74,5 +79,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0e6169b08f6315a18f6d7ab0074885c5fbb316b6159d1c6db807d1ad4a634d1a"
+  "docsHash": "sha256:3bc37cb35e38e33cb5e47b99cd93ea7e264cf11aa4bcf6d84b8f2cd6e2adcf4e"
 }

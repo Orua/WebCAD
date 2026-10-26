@@ -1,9 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "execute",
+    "action": "feature.remove"
+  },
   "id": "feature.remove",
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -86,5 +91,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:0ed3766471583f6fa75f7c81108535406352bbf29d9a16e9e7457fe5e9f591d2"
+  "docsHash": "sha256:02c589ecfecb4d217be53bc17fa855b7c0b5dd876e5b1456939c6b0fba42e367"
 }

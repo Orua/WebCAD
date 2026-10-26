@@ -1,8 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "files.release",
+    "reason": "host resource lifetime",
+    "agentCallable": false
+  },
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -23,7 +29,7 @@
     "resourceId"
   ],
   "unknownFields": "rejected",
-  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.release\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
+  "errorModel": "Direct page file scripts throw or reject with error.code. MCP callers follow mcpCall; invoke is not an Agent method. Page-script invoke({method:\"files.release\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
@@ -99,5 +105,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:16501ad84d244fa35452d0fab9d772813997000b12e1acf4c4353aa91f01478d"
+  "docsHash": "sha256:9b25a462b82d7248fd9b959de99ba80e10e35bfaf369181aabb8261102cda78d"
 }

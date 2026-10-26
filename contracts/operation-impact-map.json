@@ -1,4 +1,22 @@
 {
+  "allAgentToolRouting20261026": {
+    "localImpact": "Restore published metal-material read/update routes and use contract-owned context/edit policies. Audit every public method/file entry and execute action against callable implementation, MCP route, category, shared schema and context policy during documentation generation/build.",
+    "servicesImpact": "None: preserve Services and Native compute, credentials, permission gates and user decisions.",
+    "logoImpact": "None: no Logo geometry or source-artwork changes.",
+    "contractImpact": "Combined API 1.57.17 candidate publishes host-only reasons and generic routing correction guidance; file/command cards show explicit MCP routes. Metal reads need no context; configuration updates require cad.edit and matching document identity. Existing finish presets can be applied directly using body.appearance.",
+    "documentImpact": "No original document modified in this source-only task; no automatic wrapper fallback, request rewrite or replay. Global material update remains separate from geometry revision and validates configuration atomically.",
+    "cacheImpact": "Regenerate the complete knowledge package and adapter contract. Local tool-category/schema rejections also write bounded structural diagnostics with task/contract/error/commit identity.",
+    "requiredTests": ["All public method and execute-action registrations and card routes", "Build gate rejects omitted registration, wrong category and schema drift", "Real page/adapter metal configuration read/update with edit scope and old-instance rejection", "Generic Agent page-owned context policies and category correction diagnostics", "Knowledge ZIP/hash/member/docs synchronization; no deployment pending user changes"]
+  },
+  "cadSubmissionDiagnostics20261026": {
+    "localImpact": "Publish a complete MCP run envelope example with distinct host requestKey and args.idempotencyKey. Agent forwards structured errors and validates run with the verified page schema; rejected submissions and failed page receipts get bounded structural-only diagnostic records.",
+    "servicesImpact": "None: Services jobs, authentication, Native compute and routing unchanged.",
+    "logoImpact": "None: no geometry, Logo worker or source-artwork changes.",
+    "contractImpact": "Page API 1.57.17; run arguments unchanged. Clarify envelope nesting, exact error fields and no-write rejection. Agent retains legacy envelope validation only when no verified schema is published.",
+    "documentImpact": "No automatic correction, retry, key substitution, revision update or document mutation on rejected requests. Partial/unknown page receipts retain their original command and commit evidence.",
+    "cacheImpact": "Regenerate the complete knowledge ZIP, index/routing/skills and all hashes. Diagnostics rotate in the configured Agent operational log directory; no source geometry, request values, files or credentials are logged.",
+    "requiredTests": ["Published schema controls batch limits and extra/missing fields", "Structured broker errors survive MCP with rejected/not_committed status", "Rejected requests are not enqueued; task-filtered diagnostics retain shape/path/version and redact request values", "Partial and unknown page receipts are recorded without claiming no commit", "Complete knowledge integrity build and one localhost page contract check"]
+  },
   "orthographicProjectedFit20261026": {
     "localImpact": "Orthographic fit includes camera-projected box corners and viewport aspect, preserving the former scale when it already contains the object. Fix observed isometric cube clipping in production QA.",
     "servicesImpact": "None: camera/frustum only; Gateway and Services jobs unchanged.",

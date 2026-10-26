@@ -2,12 +2,13 @@
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
     "method": "cancelJob",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "host stop control",
+    "agentCallable": false
   },
   "description": "cancelJob({jobId})",
   "synonyms": [
@@ -20,7 +21,7 @@
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorModel": "Direct page scripts may use api.invoke for structured errors. MCP callers use this card mcpCall; invoke is an internal host wrapper, not an Agent method.",
   "errorCodes": [
     "JOB_NOT_FOUND"
   ],
@@ -78,5 +79,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b4f7705e2982eb49e8063009b46c61a4c3fe1cb08e11d81346d74048958a8ac3"
+  "docsHash": "sha256:0861d2ba773c08ddeec59f0dc61edd040fade4a473e824fa9323cc27779784b5"
 }

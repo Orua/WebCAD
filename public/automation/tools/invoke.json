@@ -2,12 +2,13 @@
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
     "method": "invoke",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "dispatch wrapper",
+    "agentCallable": false
   },
   "description": "invoke({method,args}); public method name or files.*.",
   "synonyms": [
@@ -71,5 +72,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bcbc0d7138f7feb7a388a3bce27ffb7d212adf8f03ea5d4b4567f94aa254006a"
+  "docsHash": "sha256:b2eebdf1e765ccd6634016b9c390f12a9a6c969a5d138f9b607c479e3764b0f1"
 }

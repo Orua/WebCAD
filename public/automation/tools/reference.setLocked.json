@@ -1,9 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "execute",
+    "action": "reference.setLocked"
+  },
   "id": "reference.setLocked",
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -74,5 +79,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0fe96db3d0ef5865a3eef480d47dfa908454e542c1fa936bdca4d43911b615a6"
+  "docsHash": "sha256:be9b710edf76fd4a3b4a273ade94634215a7c4ba29c1b290aeaef8ee82b4288f"
 }

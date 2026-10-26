@@ -22,6 +22,9 @@ const planFeature={...ADD_STEP_SCHEMA,required:['key','op','params'],properties:
 const STEP_SCHEMA=object({id:{type:'string',pattern:'^[a-zA-Z][a-zA-Z0-9_-]{0,39}$'},method:str,args:{type:'object'},stage:{type:'string',minLength:1,maxLength:80}},['id','method']);
 const boolean={type:'boolean'},vector=vectorSchema;
 export const PAGE_METHOD_SCHEMAS={
+ getMetalMaterials:object({}),
+ getMaterials:object({}),
+ setMetalMaterials:object({context:IDENTITY_CONTEXT_SCHEMA,configuration:{type:'object'}},['context','configuration']),
  add:ADD_STEP_SCHEMA,
  addMany:object({features:{type:'array',minItems:1,maxItems:64,items:planFeature}},['features']),
  run:object({context:revisionContext,idempotencyKey:{type:'string',minLength:1,maxLength:80},steps:{type:'array',minItems:1,maxItems:LIMITS.batch.maxSteps,items:STEP_SCHEMA}},['context','idempotencyKey','steps']),
@@ -35,7 +38,7 @@ export const PAGE_METHOD_SCHEMAS={
  queryGeometry:object({context:IDENTITY_CONTEXT_SCHEMA,bodyId:str,kind:{enum:['face','edge']},filter:{type:'object'},requireUnique:boolean,expectedCount:{type:'integer',minimum:1,maximum:100000},limit:{type:'integer',minimum:1,maximum:100},cursor:{type:'string',minLength:1,maxLength:2048}},['context','bodyId','kind']),
  getState:object({include:{type:'array',items:{enum:['summary','features','bodies','bodiesLite','selection','capabilities','references','reliefDesigns']}},compact:boolean,fields:{type:'array',minItems:1,maxItems:32,items:{type:'string',minLength:1,maxLength:40}},sinceRevision:{type:'integer',minimum:0}})
 };
-export const METHOD_TOOL=name=>name==='run'?'webcad_submit':['capture','getEvidenceImage','setView'].includes(name)?'webcad_view':['add','addMany'].includes(name)?'run-step':'webcad_read';
+export const METHOD_TOOL=name=>name==='run'?'webcad_submit':['capture','getEvidenceImage','setView','setMetalMaterials'].includes(name)?'webcad_view':['add','addMany'].includes(name)?'run-step':'webcad_read';
 export function validatePageInput(method,input,path='args'){
  const schema=PAGE_METHOD_SCHEMAS[method];if(schema)validateSchema(schema,input,path);
 }

@@ -2,12 +2,13 @@
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
     "method": "decideServicesWait",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "host user wait decision",
+    "agentCallable": false
   },
   "description": "decideServicesWait({jobId,decision:\"continue\"|\"stop\"})，可在工程忙碌时调用；jobId必须是getServicesRouting().pendingWait中的当前任务。",
   "synonyms": [
@@ -100,5 +101,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4abf0a659f451db4d33050d73302f4e276ae7cafe831c75c82804683f1832760"
+  "docsHash": "sha256:61d058d7f86511a2124ef1b5382e1fce8277382c592e53969b3673354665534d"
 }

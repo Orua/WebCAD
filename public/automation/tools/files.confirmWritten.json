@@ -1,8 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "files.confirmWritten",
+    "reason": "host write receipt",
+    "agentCallable": false
+  },
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -25,7 +31,7 @@
     "sha256"
   ],
   "unknownFields": "rejected",
-  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.confirmWritten\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
+  "errorModel": "Direct page file scripts throw or reject with error.code. MCP callers follow mcpCall; invoke is not an Agent method. Page-script invoke({method:\"files.confirmWritten\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
     "maxBytes": 104857600,
     "maxResources": 32,
@@ -105,5 +111,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:bc252858cfdd67516c0276b22b1fd9b572dd46cc9974d3762042c8df44236362"
+  "docsHash": "sha256:7e0bb5dfa3951f40721739ba7a7082690c1d93440b6522285c67570ebe24d5c3"
 }

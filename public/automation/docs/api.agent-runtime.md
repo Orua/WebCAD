@@ -15,6 +15,12 @@ WebCAD 页面工具管理当前工程；普通宿主文件工具管理已授权�
 
 执行路径按需读 api.modeling.methods.execution-strategy。native MCP 的 route 只传 query/limit，已知 ID 用 getTools；planLayout 是固定数值规划器。planSource/readLocal/route scope 属于可选页面客户端，不能冒充 MCP 参数。宿主能力摘要中 exposed 不代表后端已就绪；解释器 verified 是服务身份探测，本任务脚本仍检查退出码。pageScriptChannel 未提供时不从 .mjs 文件推断执行通道。分页沿 nextCursor 补读所需正文；历史 served/读卡索引不证明模型已理解，新上下文可显式完整重读。
 
+## 工具入口与错误后的纠正
+
+先看完整工具卡 mcpCall 和握手 agentProtocol.methodTools；页面存在的方法不一定开放给 MCP。mcpCall.tool 为 host-only 时读 reason，不要调用 invoke、submit 等包装器来绕过。METHOD_CATEGORY_MISMATCH 时先对照 error.details.tool、allowedTool、reason 和当前卡：有 allowedTool 则只纠正工具类别，保留参数和已授权目标；没有则选择已读的受支持替代操作或报告能力未开放。同一契约下反复换入口、重连和查卡不会开放方法。PARAM_SCHEMA_INVALID 按 path/missingFields/allowedFields 修正字段；确认 not_committed 才重新提交纠正后的请求。unknown/queued/running 查原 commandId，不重放写入。
+
+错误是纠正调用的依据，不是换字段试运气的依据。纠正后核对回执；未获得新契约或机制证据时不重复相同错误。已读契约在当前上下文仍完整时复用；压缩后只补所需的一张卡或章节，不读全量目录。
+
 ## 当前状态、编辑与回执
 
 发现与恢复共用当前用户任务的预算：同一版本同一工具卡/章节最多完整读取一次，确有缺失或新上下文时可补读一次；无新增状态或机制证据的连续两轮查卡/重连即停止。最多60秒用于无提交进展的发现和恢复，不将正常执行中的原CAD作业计入。预算耗尽说明阻塞原因、原taskId/commandId/pageJobId、已提交/失败/未知/未尝试步骤及当前锁状态；等待用户或新的状态证据，不重置预算继续循环。状态询问与Stop优先处理；停止推理和取消CAD分别读回，不能宣称未知作业已终止。

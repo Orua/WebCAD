@@ -1,9 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "execute",
+    "action": "feature.edit"
+  },
   "id": "feature.edit",
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -78,5 +83,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4782ac76e0fca73330dbc6935d9a5cc05eb9ebd0031504f36e613842fccb88a8"
+  "docsHash": "sha256:8eb9db3f82061bcb7d81a97272c2b607f71a752e82ce9f31ed5fb6e69d81b110"
 }

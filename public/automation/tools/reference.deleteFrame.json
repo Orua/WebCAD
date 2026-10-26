@@ -1,9 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "execute",
+    "action": "reference.deleteFrame"
+  },
   "id": "reference.deleteFrame",
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -74,5 +79,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2d90c016bfb36ecc2a4c77be11265f962fac3dfd11356d5405239791521d292e"
+  "docsHash": "sha256:f5d6494c741bfc8892b60954480016624c64ca56dce0f20b0e4dcf27aae5bed0"
 }

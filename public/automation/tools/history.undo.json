@@ -1,9 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "execute",
+    "action": "history.undo"
+  },
   "id": "history.undo",
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -78,5 +83,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:aa8849ce5195f3b2f9d3f1bcbb04e6c92d248c3d55b669e2cc1f70081a7da919"
+  "docsHash": "sha256:8deda1736cccb1ab0832664fd3bde57eb12e4a59ccb067428ea79ccf318fc9c0"
 }

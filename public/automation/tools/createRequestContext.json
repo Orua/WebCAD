@@ -2,12 +2,13 @@
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
     "method": "createRequestContext",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "use live requestContext",
+    "agentCallable": false
   },
   "description": "createRequestContext(context?); omit to read the current context.",
   "synonyms": [
@@ -21,7 +22,7 @@
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorModel": "Direct page scripts may use api.invoke for structured errors. MCP callers use this card mcpCall; invoke is an internal host wrapper, not an Agent method.",
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "REVISION_CONFLICT"
@@ -80,5 +81,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1f20fd7d59ad1fc64b68d6dd6bde3358acfc64dde265376961add4abb43db9d3"
+  "docsHash": "sha256:67df368332f0d7eba30afeb6811394cb3f45c97c9e651aecd1b0c410ac0e0b60"
 }

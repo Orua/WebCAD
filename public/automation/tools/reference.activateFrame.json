@@ -1,9 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "execute",
+    "action": "reference.activateFrame"
+  },
   "id": "reference.activateFrame",
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -74,5 +79,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:732731cdc5928f629f134f6b976f7f429ac01db1bee0823d1917c83de7f7b67c"
+  "docsHash": "sha256:bc247b687c1b33b5b132243cca8848aab2874607bc49c0495b54929b8e4d24af"
 }

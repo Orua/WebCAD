@@ -2,12 +2,13 @@
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
     "method": "cancelServicesJob",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "host server cancellation",
+    "agentCallable": false
   },
   "description": "cancelServicesJob({context,jobId})",
   "synonyms": [
@@ -112,5 +113,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7284c654142251f95bd14ef5e17e821ef4780b19743a83f4384287f99db2486e"
+  "docsHash": "sha256:36561518decea75ebb3ab58a19d1ad7fb39dac86ae9d2d2867af88fa92181e26"
 }

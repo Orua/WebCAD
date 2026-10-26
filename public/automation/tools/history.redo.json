@@ -1,9 +1,14 @@
 {
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "execute",
+    "action": "history.redo"
+  },
   "id": "history.redo",
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -78,5 +83,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:460d9539e115328795a27e7d586e250643599c251a14e3cca5d465a966c9629a"
+  "docsHash": "sha256:5744dc0f8e4d236bb37bedf3a48aceceb38b02cb039966d6e2c30ea0842de37d"
 }

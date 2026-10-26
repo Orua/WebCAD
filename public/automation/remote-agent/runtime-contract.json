@@ -11,6 +11,7 @@
     "getBatchReceipt",
     "getHistory",
     "getMaterials",
+    "getMetalMaterials",
     "getModelLibrary",
     "getQuickModelUsage",
     "getServices",
@@ -65,6 +66,7 @@
     "redraw",
     "selectRectangle",
     "setDisplayPreferences",
+    "setMetalMaterials",
     "setRenderQuality",
     "setView",
     "updateModelLibrary"
@@ -159,7 +161,8 @@
     "execute",
     "files.import",
     "pasteSelection",
-    "recoverKernel"
+    "recoverKernel",
+    "setMetalMaterials"
   ],
   "exportMethods": [
     "createDrawing",
@@ -185,7 +188,98 @@
       "maxSteps": 40
     }
   },
+  "hostOnlyMethods": {
+    "invoke": "dispatch wrapper",
+    "submit": "adapter owns job IDs",
+    "getJob": "original receipt via webcad_job",
+    "cancelJob": "host stop control",
+    "awaitJob": "adapter awaits page job completion",
+    "configureAgentPanel": "user-owned assistant destination",
+    "setAgentPanel": "user-owned connection lifetime",
+    "setServices": "host service credentials and upload consent",
+    "clearServicesCredential": "host authorization lifetime",
+    "getServicesJob": "host server job ownership",
+    "getServicesRequest": "host server request reconciliation",
+    "cancelServicesJob": "host server cancellation",
+    "decideServicesWait": "host user wait decision",
+    "recoverServicesJob": "requires explicit recovery approval",
+    "prepareReliefTopologyUpgrade": "host-approved saved topology migration planning",
+    "createRequestContext": "use live requestContext",
+    "executeText": "use explicit run steps",
+    "getLogoConverter": "service configuration",
+    "setLogoConverter": "service credentials",
+    "convertLogoPdf": "host binary conversion",
+    "files.register": "host binary upload",
+    "files.read": "host artifact transport",
+    "files.download": "host download",
+    "files.write": "host disk capability",
+    "files.confirmWritten": "host write receipt",
+    "files.release": "host resource lifetime",
+    "files.new": "requires new document binding",
+    "files.open": "requires new document binding"
+  },
+  "routingGuidance": {
+    "wrongTool": "按 allowedTool 调用相同 method，保留其参数；本次未提交，不需要重连或重画。",
+    "hostOnly": "该方法由宿主管理，不是 Agent 可调用入口；不要换工具反复调用，也不要通过 invoke/submit 包装绕过。选择已读工具卡的公开操作或报告该能力未开放。",
+    "notExposed": "当前绑定契约没有开放此方法；有页面文档不等于 MCP 可执行。核对 methodTools 和工具卡 mcpCall；同一版本无新证据时停止换入口/重连/反复查卡。"
+  },
   "methodSchemas": {
+    "getMetalMaterials": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {},
+      "required": []
+    },
+    "getMaterials": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {},
+      "required": []
+    },
+    "setMetalMaterials": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId"
+          ]
+        },
+        "configuration": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "context",
+        "configuration"
+      ]
+    },
     "add": {
       "type": "object",
       "additionalProperties": false,
@@ -1345,6 +1439,7 @@
     "getTools": "none",
     "getTool": "none",
     "readDocs": "none",
+    "getMetalMaterials": "none",
     "getMaterials": "none",
     "measureMass": "identity",
     "queryGeometry": "identity",
@@ -1388,6 +1483,7 @@
     "reliefDesignReference": "revision",
     "reliefDesignFit": "revision",
     "prepareReliefDesignRelief": "revision",
+    "setMetalMaterials": "identity",
     "setView": "identity",
     "setRenderQuality": "identity",
     "setDisplayPreferences": "identity",
@@ -1423,6 +1519,7 @@
     "getTools": "webcad_read",
     "getTool": "webcad_read",
     "readDocs": "webcad_read",
+    "getMetalMaterials": "webcad_read",
     "getMaterials": "webcad_read",
     "measureMass": "webcad_read",
     "queryGeometry": "webcad_read",
@@ -1466,6 +1563,7 @@
     "reliefDesignReference": "webcad_read",
     "reliefDesignFit": "webcad_read",
     "prepareReliefDesignRelief": "webcad_read",
+    "setMetalMaterials": "webcad_view",
     "setView": "webcad_view",
     "setRenderQuality": "webcad_view",
     "setDisplayPreferences": "webcad_view",
@@ -1487,5 +1585,5 @@
     "pasteSelection": "webcad_submit",
     "recoverKernel": "webcad_submit"
   },
-  "contractHash": "sha256:786a566a98fdf3689bdbc756ae7def8683c0cc8754d6a085ebf8a82504a729a5"
+  "contractHash": "sha256:9b189ec9b2acbb74f275fa40ae1ca8f2df0019652811f9d1f7fb29b22097bed6"
 }

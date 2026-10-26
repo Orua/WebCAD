@@ -2,12 +2,13 @@
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
     "method": "getJob",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "original receipt via webcad_job",
+    "agentCallable": false
   },
   "description": "getJob({jobId})",
   "synonyms": [
@@ -22,7 +23,7 @@
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
-  "errorModel": "May throw a coded contract error; use api.invoke for a structured error envelope.",
+  "errorModel": "Direct page scripts may use api.invoke for structured errors. MCP callers use this card mcpCall; invoke is an internal host wrapper, not an Agent method.",
   "errorCodes": [
     "JOB_NOT_FOUND"
   ],
@@ -80,5 +81,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3059ccff8824d46d66aabff0a129e237c1349b7bface086d3c48a1e6f52457cf"
+  "docsHash": "sha256:449d96c63f65ccdcc8cb8a18826de419c29afc562dc134cbad9294af1af382de"
 }

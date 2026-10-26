@@ -2,12 +2,13 @@
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.57.16",
+  "version": "1.57.17",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
     "method": "executeText",
-    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+    "reason": "use explicit run steps",
+    "agentCallable": false
   },
   "description": "executeText({context,idempotencyKey,text,dryRun?}); 每行 add <op> key=value 或 measure <bodyId|$last>。",
   "synonyms": [
@@ -76,5 +77,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:731c30e8bb0185f3feb9f343e4971d45b07016f8da24d0af9df864608e81dfc6"
+  "docsHash": "sha256:9ed48112af6e6d69d2ea3eb44aa2688b38dc18f5686d2ec23a4ab867405de06b"
 }
