@@ -2,7 +2,7 @@
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.57.19",
+  "version": "1.57.20",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -98,5 +98,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f979ef0c3eb5eef128ff9c60df3c2eaf0cf89a59bf26141575c0f3efe2a0c6f4"
+  "docsHash": "sha256:faa9b028761eb6d29b2410ea11c6759e0923580b9f7de33191aa83f5e746b528"
 }

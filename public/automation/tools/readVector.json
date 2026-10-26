@@ -2,7 +2,7 @@
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.57.19",
+  "version": "1.57.20",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -99,5 +99,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1e8a3f46ebdf534d4a4ca2933c9b0e48c405d3e164f807ad1503d1ece355b7a8"
+  "docsHash": "sha256:e054422d49c6bb742f60f6e51cd6d93c02b764ef89645bc6334fbc7114b12567"
 }

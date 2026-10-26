@@ -1,5 +1,6 @@
 import {humanError} from '../error-recovery.js';
 import {logoContourBounds} from '../logo-vector-review.js';
+import {setLogoButtonIcon} from './logo-icons.js';
 
 const NS='http://www.w3.org/2000/svg';
 const svgTags=new Set(['svg','g','path','circle','image']);
@@ -10,10 +11,11 @@ export function createLogoVectorReview({session,imageUrl,onChange,onError}){
  const button=(text,action)=>{const b=el('button',{type:'button',class:'secondary','data-ui-action':'logoReview'},text);b.addEventListener('click',action);return b;};
  const run=request=>{try{const state=session.act({...request,expectedRevision:session.get().revision});error.textContent='';render();onChange?.(state);return state;}catch(e){error.textContent=humanError(e);onError?.(e);render();}};
  const undo=button('撤销',()=>run({action:'undo'})),removePoint=button('删除节点',()=>run({action:'deletePoint'})),removeContour=button('删除所选轮廓',()=>run({action:'deleteContour'})),apply=button('更新坐标',()=>run({action:'setPoint',pointMm:[Number(x.value),Number(y.value)]}));
+ for(const [control,icon,title]of [[undo,'undo','撤销修改'],[removePoint,'point','删除节点'],[removeContour,'trash','删除所选轮廓'],[apply,'check','应用节点坐标']])setLogoButtonIcon(control,icon,title);
  toolbar.append(select,undo);
  const fields=el('div',{class:'logo-review-coordinates'});for(const [name,input]of [['节点',node],['X · mm',x],['Y · mm',y]]){const label=el('label',{},name);label.append(input);fields.append(label);}
  const actions=el('div',{class:'logo-review-actions'});actions.append(apply,removePoint,removeContour);
- root.append(el('h3',{},'校对字形与孔洞'),el('p',{class:'property-footnote'},'选择轮廓，拖动节点或输入毫米坐标；核对后确认。'),toolbar,canvas,fields,actions,status,error);
+ canvas.setAttribute('title','选择轮廓，拖动节点或输入毫米坐标。');root.append(toolbar,canvas,fields,actions,status,error);
  let viewport=null,drag=null;
  function render(){
   const state=session.get(),{logo,selection}=state;undo.disabled=!state.canUndo;
@@ -34,7 +36,7 @@ export function createLogoVectorReview({session,imageUrl,onChange,onError}){
   const radius=Math.max(viewport[2],viewport[3])*.008;
   const visible=ring.length<=250?ring.map((_,i)=>i):[selection.pointIndex];
   for(const index of visible){const p=ring[index],handle=el('circle',{cx:p[0],cy:-p[1],r:radius,class:index===selection.pointIndex?'logo-review-node selected':'logo-review-node'});handle.addEventListener('pointerdown',event=>{event.preventDefault();event.stopPropagation();run({action:'select',...selection,pointIndex:index});drag={index,pointerId:event.pointerId,original:session.get().revision};canvas.setPointerCapture(event.pointerId);});canvas.append(handle);}
-  status.textContent=`${logo.sizeMm.map(v=>v.toFixed(3)).join(' × ')} mm · ${logo.regions.length} 个区域 · ${logo.regions.reduce((n,r)=>n+(r.holes?.length||0),0)} 个孔 · ${state.reviewRequired?'尚未确认':'已确认'}${imageUrl&&!frame?'；此旧转换缺少底图对齐信息，未叠加原图。':''}`;
+  status.textContent=`${logo.sizeMm.map(v=>v.toFixed(2)).join(' × ')} mm`;status.title=`${logo.regions.length} 个区域 · ${logo.regions.reduce((n,r)=>n+(r.holes?.length||0),0)} 个孔 · ${state.reviewRequired?'尚未确认':'已确认'}`;
  }
  const local=event=>{const p=canvas.createSVGPoint();p.x=event.clientX;p.y=event.clientY;const matrix=canvas.getScreenCTM();if(!matrix)throw new Error('画布当前不可见');const q=p.matrixTransform(matrix.inverse());return [q.x,-q.y];};
  canvas.addEventListener('pointermove',event=>{if(!drag||drag.pointerId!==event.pointerId)return;const [a,b]=local(event);x.value=String(a);y.value=String(b);const h=canvas.querySelector('.logo-review-node.selected');if(h){h.setAttribute('cx',a);h.setAttribute('cy',-b);}});

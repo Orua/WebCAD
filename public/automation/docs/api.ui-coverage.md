@@ -26,7 +26,7 @@
       "files.download"
     ],
     "method": "reviewLogo",
-    "usage": "LOGO紧凑向导：来源→轮廓校对→目标面。位图加工精度由readLogo.machining或logoWizard.parameters.machining设置enabled/toleranceMm/minDetailMm，共享报告和原始轮廓。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。"
+    "usage": "LOGO紧凑向导：选图自动识别→缩略图校对→目标面，各步持续预览，技术参数隐藏。logoWizard action edit打开大窗矢量编辑、closeEditor收回，get.editorOpen读回；保存图标与artifacts/exportDrawing同源。位图加工精度由readLogo.machining或logoWizard.parameters.machining设置enabled/toleranceMm/minDetailMm，共享报告和原始轮廓。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。"
   },
   "logoExport": {
     "tools": [
