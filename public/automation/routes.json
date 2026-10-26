@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.57.17",
-  "buildId": "e759ec91eb10bebb98574467e17da5350da80449-src-bc4cc630a17019ca-working",
-  "catalogHash": "sha256:c48c43cf1fe0e1e15d8b471f879cf22f767462560cd8a5304d4c485f62ad5388",
-  "docsHash": "sha256:93ac65d4124a9dda6cd8a860f4429becd7558a8b8fe58f59f7afdffe06d7c9ec",
+  "pageApiVersion": "1.57.18",
+  "buildId": "34d93015c891954000b04363b95c2de37de57928-src-01c8ed66a43d0035-working",
+  "catalogHash": "sha256:39492aff188b813be62d15899e7385dcbf288d8d6b9ea75b790b0701388a74ab",
+  "docsHash": "sha256:147cbbaf9d29288f2f88925d819555503878117b14f6b07eddc12568c5b704c4",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -1283,7 +1283,7 @@
         "clearServicesCredential"
       ],
       "method": "setServices",
-      "usage": "主界面维护统一计算接口地址，可传本站相对路径或带域名/IP/端口的完整URL；显示解析后的实际地址。默认入口使用当前网站登录，自定义端使用专用授权。context、url、authMode、credential、enabled、localTimeoutMs、serverWaitMs；启用时先验证能力，成功才保存，失败明确未保存。所有后台工具共享配置。getServicesRouting读取实际分流原因；不回显授权。"
+      "usage": "主界面维护统一计算接口地址，可传本站相对路径或带域名/IP/端口的完整URL；地址即启用，相对/同域地址自动连接，无额外勾选；说明使用问号title。跨域端使用专用授权。context、url、authMode、credential、enabled、localTimeoutMs、serverWaitMs；人工与API共用5秒限时hello随机挑战握手，仅验证连接、协议及授权，不初始化运行时或查询队列；成功才保存，失败明确未保存。所有后台工具共享配置。getServicesRouting读取实际分流原因；不回显授权。"
     },
     "servicesWaitDecision": {
       "tools": [

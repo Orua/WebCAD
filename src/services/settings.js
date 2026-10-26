@@ -11,7 +11,7 @@ export function defaultServicesConfig(){
 }
 export function normalizeServicesConfig(input){
  if(!input||Object.keys(input).some(k=>!['version','enabled','url','authMode','computeMode','allowGeometryUploads','authProfileId','credential','localTimeoutMs','serverWaitMs'].includes(k)))throw serviceError('PARAM_SCHEMA_INVALID','计算设置字段无效');
- const authMode=input.authMode??'bearer';if(!['bearer','siteSession'].includes(authMode))throw serviceError('PARAM_SCHEMA_INVALID','计算授权方式无效');
+ let authMode=input.authMode;if(authMode!==undefined&&!['bearer','siteSession'].includes(authMode))throw serviceError('PARAM_SCHEMA_INVALID','计算授权方式无效');
  const enabled=input.enabled??true,computeMode=input.computeMode??'auto',localTimeoutMs=input.localTimeoutMs??60000,serverWaitMs=input.serverWaitMs??180000;
  if(!Number.isInteger(localTimeoutMs)||localTimeoutMs<1000||localTimeoutMs>600000||!Number.isInteger(serverWaitMs)||serverWaitMs<1000||serverWaitMs>900000)throw serviceError('PARAM_SCHEMA_INVALID','本地超时须为1–600秒，服务器提醒须为1–900秒');
  if(typeof enabled!=='boolean'||!['local','auto','serverPreferred'].includes(computeMode)||input.allowGeometryUploads!==undefined&&typeof input.allowGeometryUploads!=='boolean')throw serviceError('PARAM_SCHEMA_INVALID','执行模式或上传授权无效');
@@ -23,10 +23,11 @@ export function normalizeServicesConfig(input){
  if(globalThis.location?.protocol==='https:'&&parsed.protocol==='http:')throw serviceError('PARAM_SCHEMA_INVALID','HTTPS页面不能直连HTTP计算端口，请使用HTTPS地址或本站转发入口');
  parsed.searchParams.delete('route');url=parsed.href;}
  if(enabled&&!url)throw serviceError('PARAM_SCHEMA_INVALID','启用 Services 须填写地址');
+ if(authMode===undefined)authMode=url&&globalThis.location&&new URL(url).origin===globalThis.location.origin?'siteSession':'bearer';
  if(authMode==='siteSession'&&url){
   const expected=defaultServicesConfig().url;
   if(expected&&url===expected.replace('/cadservices/api.ashx','/AI/WebCAD/WebCADCompute.ashx'))url=expected;
-  if(url!==expected)throw serviceError('PARAM_SCHEMA_INVALID','免鉴权连接仅限当前同域计算入口');
+  if(!globalThis.location||new URL(url).origin!==globalThis.location.origin)throw serviceError('PARAM_SCHEMA_INVALID','免鉴权连接仅限当前同域计算入口');
  }
  return {version:1,enabled,url,authMode,computeMode:'auto',localTimeoutMs,serverWaitMs,allowGeometryUploads:enabled,authProfileId:authMode==='siteSession'?'same-origin':'dedicated-services'};
 }

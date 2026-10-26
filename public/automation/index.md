@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.57.17 · 操作目录 sha256:c48c43cf1fe0e1e15d8b471f879cf22f767462560cd8a5304d4c485f62ad5388
+API 1.57.18 · 操作目录 sha256:39492aff188b813be62d15899e7385dcbf288d8d6b9ea75b790b0701388a74ab
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -335,8 +335,8 @@ API 1.57.17 · 操作目录 sha256:c48c43cf1fe0e1e15d8b471f879cf22f767462560cd8a
 - `configureAgentPanel` · page-method · configureAgentPanel({context,url})；HTTP/HTTPS助手页面地址，不带query/hash/凭据；HTTPS页面只接受HTTPS。
 - `setAgentPanel` · page-method · setAgentPanel({context,visible:true|false})；true接入，false退出释放。或setAgentPanel({context,layout:{widthPx?:360,heightPx?:280,collapsed?:false,floatingPosition?:{xPx:80,yPx:80}}})；layout与visible分开调用。宽高1–4096像素，浮标坐标0–100000像素并夹限到画布内。
 - `markLocation` · page-method · markLocation({context,screen?:[u,v],active?:boolean})；screen与active互斥，screen是相对视口左上角的归一化0–1坐标；active:true/false启动/取消一次拾取；仅context读取active/last。
-- `getServices` · page-method · getServices()；正式入口默认跟随本站应用路径直连/cadservices/api.ashx，同域计算无需登录、Cookie或签名。authMode的siteSession名称仅保留配置兼容；自定义跨域地址使用专用授权，仅存本标签会话。不会返回凭据。
-- `setServices` · page-method · setServices({context,url,authMode?:"siteSession"|"bearer",credential?,enabled?,computeMode?:"local"|"auto"|"serverPreferred",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；本地超时1–600秒、服务器提醒1–900秒，均用整数毫秒，设置保存并在下一操作生效。启用已配置Services即授权复杂运算发送到该端；简单运算本地。旧computeMode/allowGeometryUploads仅兼容读取，不覆盖此政策。支持 HTTPS 或内网 HTTP；HTTPS 页面不能直接调用内网 HTTP。服务由 ASHX 引用 DLL，沿用 LOGO 部署方式，不安装 Host。启用前验证协议。
+- `getServices` · page-method · getServices()；正式入口默认跟随本站应用路径直连/cadservices/api.ashx；相对路径自动同域，无需启用或同域勾选。authMode的siteSession名称保留配置兼容；跨域地址使用专用授权，仅存本标签会话。不会返回凭据。
+- `setServices` · page-method · setServices({context,url,authMode?:"siteSession"|"bearer",credential?,enabled?,computeMode?:"local"|"auto"|"serverPreferred",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；填写地址即启用，空地址保存即停用；相对/同域地址自动siteSession，跨域自动bearer。启用前GET /v1/hello/{32位随机十六进制challenge}，5秒限时，校验service:webcad-services、protocolVersion:1.0、handshakeVersion:1、challenge回显、authorized:true及gatewayBuildId；不启动几何内核、不检查任务队列或完整能力。本地提醒1–600秒、服务器提醒1–900秒，均用整数毫秒。配置即授权支持的复杂运算发送到该端；简单运算本地。支持HTTPS或内网HTTP，HTTPS页面不可直连HTTP。保留现有同域与专用授权边界。
 - `getServicesCapabilities` · page-method · getServicesCapabilities()；读取已配置服务。
 - `getServicesRouting` · page-method · getServicesRouting()；读取同一 ExecutionRouter 的最近决策。
 - `clearServicesCredential` · page-method · clearServicesCredential({context})

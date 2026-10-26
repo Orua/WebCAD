@@ -669,7 +669,7 @@ export function createPageAPI(host){
     getServices:async()=>getServicesConfig(),
     getServicesCapabilities:async()=>servicesClient.capabilities(),
     getServicesRequest:async input=>{if(!input||Object.keys(input).some(k=>k!=='idempotencyKey')||!/^[a-zA-Z0-9_-]{1,160}$/.test(input.idempotencyKey))fail('PARAM_SCHEMA_INVALID','Provide a Services idempotencyKey');return servicesClient.getRequest(input.idempotencyKey);},
-    setServices:guarded(async input=>{check(input,['context','url','authMode','credential','enabled','computeMode','allowGeometryUploads','localTimeoutMs','serverWaitMs']);const {context,...config}=input;if(config.enabled!==false)await createServicesClient({config,credential:config.credential}).capabilities();return {status:'applied',context:current().context,...saveServicesConfig(config)};}),
+    setServices:guarded(async input=>{const keys=['context','url','authMode','credential','enabled','computeMode','allowGeometryUploads','localTimeoutMs','serverWaitMs'];check(input,keys);const {context,...config}=input;if(config.enabled===undefined)config.enabled=!!config.url?.trim();const connection=config.enabled?await createServicesClient({config,credential:config.credential}).handshake():null;check(input,keys);return {status:'applied',context:current().context,...saveServicesConfig(config),connection};}),
     getServicesRouting:()=>host.servicesRouting?.()??{lastDecision:null,historyStorage:'bounded-session-memory'},
     decideServicesWait:guarded(async input=>{
       if(!input||Object.keys(input).some(key=>!['jobId','decision'].includes(key))||typeof input.jobId!=='string'||!/^[a-f0-9]{32}$/.test(input.jobId)||!['continue','stop'].includes(input.decision))fail('PARAM_SCHEMA_INVALID','选择当前任务的 continue 或 stop');
