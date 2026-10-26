@@ -297,3 +297,5 @@ export function buildVectorProfile(params, cad) {
     return cad.makeCompound(shapes);
   }finally{shapes.forEach(dispose);dispose(plane);}
 }
+/** Only operation geometry/provenance crosses into strict CAD parameters. */
+export function logoOperationData(logo){return Object.fromEntries(['regions','source','name','sizeMm'].filter(key=>logo[key]!==undefined).map(key=>[key,logo[key]]));}

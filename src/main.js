@@ -1161,6 +1161,7 @@ const commandService=createCommandService({
   query:args=>request('queryGeometry',args),
 });
 const pageAPI=createPageAPI({
+  openLogoWizard:()=>ui.openLogoWizard(),
   reliefReferenceRead:(designId,options)=>readReliefDesignReference(documentModel,designId,options),
   reliefReferenceCommit:input=>commandService.execute(input,{fromUI:true,referenceResourceValidated:true}),
   recoverKernel:async({stopRunning=false}={})=>{

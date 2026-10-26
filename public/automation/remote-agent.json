@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "adapterVersion": 2,
-  "buildId": "27725b22934a067375bcf5e582570592f25db5b0-src-6520c8e89a2b2bdf-working",
-  "catalogHash": "sha256:dc680e490ca8f42b4b7be7bebd05d8034b352464d1319d2fd6c79cd828962705",
-  "docsHash": "sha256:af9decfcc209ac4a1cb2b24e685ff18480298708019a3670a8cc9359f845b24d",
+  "buildId": "57189d51693e0bdb234bc5de45673478f87a2010-src-2ac3341832ae46f7-working",
+  "catalogHash": "sha256:40085b557b0cfafdf11de05d29de0494dcd5737ef34937b84cae61720798fba1",
+  "docsHash": "sha256:13b1f1f49459333441a6250dd97dd2a348eef8a8174804f24eedaae1efdc8e40",
   "contractHash": "sha256:9b189ec9b2acbb74f275fa40ae1ca8f2df0019652811f9d1f7fb29b22097bed6",
   "protocol": "goldenluck.webcad/1",
   "files": [
@@ -24,6 +24,12 @@
       "url": "remote-agent/layout-planner.py.txt",
       "sizeBytes": 5427,
       "sha256": "sha256:0b2407d8f7b07ce7954e7d8db340150452f8131d60ec3e9272afce23ab633490"
+    },
+    {
+      "name": "logo-preparer.mjs",
+      "url": "remote-agent/logo-preparer.js",
+      "sizeBytes": 34310,
+      "sha256": "sha256:8c7dc0fcb24cd33d5904065c7b8b0b2e63e7ecec858111deb83fa3d8219114fd"
     }
   ]
 }

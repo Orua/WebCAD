@@ -46,3 +46,9 @@ Read [references/connection.md](references/connection.md) for installation/updat
 ## 确定参数后的快速提交
 
 源图/尺寸已确认且无需中间面边查询时，读取 api.feature-plan 与 feature.addMany 卡；在run中用method:addMany一次提交主体、刀具、定位、布尔。每项使用key，refs用当前ID或{feature:"earlierKey"}。计划保留每个可编辑特征，一次重建/一个撤销步骤；失败全部不提交。Logo、选择性圆角与需要当前拓扑的加工分段执行。不要把未确认源参数变成模板假设。结果steps的elapsedMs用于区分建模、检查、导出；整件用宿主计时，不将内核时间称为端到端。
+
+
+## LOGO直连与阶段约定
+
+先读当前api.logo和readLogo卡。原生宿主优先readLogo({context,sessionFileId,allowUpload:true,targetWidthMm,reviewPolicy})，宿主直接Services并验证/本地保存矢量，只把矢量送入页面。不得取Cookie/服务密钥、伪造Origin或自行调用内部接口。没有此能力就明确报告，不谎称已走直连。
+默认automatic接受已验证稿并输出“已完成矢量化”等真实进度，再用logo.params.logoId继续雕刻。只有用户要求先看/调整才preview，logoWizard action open打开大窗并结束本阶段等待确认。继续时读取当前wizard.logoId，保留用户编辑；不重复转换、不把整个轮廓数组交给模型。点数/精度由发布适配器自动处理。图像35mm默认是可缩放放置稿，不是源尺寸实测。目标面/深度/定位和最终几何仍由当前卡及页面内核验证。

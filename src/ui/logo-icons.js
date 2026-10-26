@@ -13,7 +13,8 @@ const paths={
  zoomIn:'M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14M15 15l6 6M7 10h6M10 7v6',
  zoomOut:'M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14M15 15l6 6M7 10h6',
  center:'M3 3v18M21 3v18M7 8h10v8H7ZM12 3v4M12 17v4',
- horizontal:'M3 12h4M17 12h4M7 7h10v10H7ZM12 3v4M12 17v4',
+ horizontal:'M12 3v18M5 7h14v4H5ZM8 14h8v4H8Z',
+ vertical:'M12 3v18M5 7h14v4H5ZM8 14h8v4H8Z',
  rotate:'M4 10a8 8 0 1 1 1 8M4 4v6h6',
  top:'M3 4h18M7 8h10v12H7Z',
  left:'M4 3v18M8 7h12v10H8Z',
@@ -23,6 +24,6 @@ const paths={
 export function logoIcon(name){
  const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),path=document.createElementNS(ns,'path');
  for(const [key,value]of Object.entries({viewBox:'0 0 24 24',width:18,height:18,fill:'none',stroke:'currentColor','stroke-width':1.7,'stroke-linecap':'round','stroke-linejoin':'round','aria-hidden':'true'}))svg.setAttribute(key,value);
- path.setAttribute('d',paths[name]??paths.edit);svg.append(path);return svg;
+ path.setAttribute('d',paths[name]??paths.edit);if(name==='vertical')path.setAttribute('transform','rotate(90 12 12)');svg.append(path);return svg;
 }
 export function setLogoButtonIcon(button,name,title){button.replaceChildren(logoIcon(name));button.title=title;button.setAttribute('aria-label',title);button.setAttribute('data-logo-icon',name);return button;}

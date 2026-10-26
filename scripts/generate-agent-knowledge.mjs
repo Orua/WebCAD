@@ -23,7 +23,7 @@ export async function generateAgentKnowledge({target,metadata,cards,docs}){
     const bytes=await readFile(resolve(target,name));
     files.push({name,url:name,sizeBytes:bytes.length,sha256:sha(bytes)});
   }
-  const bundleNames=[...files.map(f=>f.name),'agent-kit.json','webcad-page-api/SKILL.md','webcad-page-api/references/connection.md','webcad-page-api/scripts/page-client.mjs','webcad-page-api/scripts/knowledge-cache.mjs','webcad-page-api/scripts/static-archive.mjs','remote-agent.json','remote-agent/host-adapter.js','remote-agent/runtime-contract.json','remote-agent/layout-planner.py.txt'];
+  const bundleNames=[...files.map(f=>f.name),'agent-kit.json','webcad-page-api/SKILL.md','webcad-page-api/references/connection.md','webcad-page-api/scripts/page-client.mjs','webcad-page-api/scripts/knowledge-cache.mjs','webcad-page-api/scripts/static-archive.mjs','remote-agent.json','remote-agent/host-adapter.js','remote-agent/runtime-contract.json','remote-agent/layout-planner.py.txt','remote-agent/logo-preparer.js'];
   const payloads=await Promise.all(bundleNames.map(async name=>[name,await readFile(resolve(target,name))]));
   const archiveFiles=payloads.map(([name,data])=>({name,sizeBytes:data.length,sha256:sha(data)}));
   const version=sha(Buffer.from(JSON.stringify(archiveFiles)));

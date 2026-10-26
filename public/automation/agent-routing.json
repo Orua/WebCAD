@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:dc680e490ca8f42b4b7be7bebd05d8034b352464d1319d2fd6c79cd828962705",
-  "docsHash": "sha256:af9decfcc209ac4a1cb2b24e685ff18480298708019a3670a8cc9359f845b24d",
+  "catalogHash": "sha256:40085b557b0cfafdf11de05d29de0494dcd5737ef34937b84cae61720798fba1",
+  "docsHash": "sha256:13b1f1f49459333441a6250dd97dd2a348eef8a8174804f24eedaae1efdc8e40",
   "bootstrapDocIds": [
     "api.reading-map",
     "api.knowledge-cache",
@@ -583,7 +583,7 @@
         "relief",
         "logo"
       ],
-      "note": "Monochrome JPG/PNG uses readLogo with actual width and explicit upload permission; review contours and holes before logo engraving. Local SVG and reviewed JSON need no server. Photos/shaded references require authored height data. Read current compute capabilities; configuration readback never discloses credentials.",
+      "note": "Prefer native-host readLogo with conversation sessionFileId: original bytes go directly to configured Services, vectors are verified and saved in host storage, only vectors enter the page. Default automatic acceptance continues to engraving with logoId; preview/open editor and pause only when the user asks to see or adjust first. Report vectorization progress. Published adapters own point fitting; never put secrets or full contour arrays in model context. Photos/shaded references require authored height data.",
       "readFirst": "api.guide.pattern",
       "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },

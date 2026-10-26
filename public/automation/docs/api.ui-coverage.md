@@ -26,7 +26,7 @@
       "files.download"
     ],
     "method": "reviewLogo",
-    "usage": "LOGO紧凑向导：选图自动识别→缩略图校对→目标面，各步持续预览，技术参数隐藏。logoWizard action edit打开大窗矢量编辑、closeEditor收回，get.editorOpen读回；保存图标与artifacts/exportDrawing同源。位图加工精度由readLogo.machining或logoWizard.parameters.machining设置enabled/toleranceMm/minDetailMm，共享报告和原始轮廓。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。"
+    "usage": "LOGO默认AI流程由原生readLogo(sessionFileId)宿主直连Services并本地保存矢量，默认automatic后用logoId雕刻；用户要求先看才preview/open大窗暂停。人工LOGO紧凑向导：上传/后台计算/优化状态由logoWizard.transferStage读回，轮廓保存和放大图标在右上；选图自动识别→缩略图校对→目标面，各步持续预览，技术参数隐藏。logoWizard action edit打开大窗矢量编辑、closeEditor收回，get.editorOpen读回；保存图标与artifacts/exportDrawing同源。位图加工精度由readLogo.machining或logoWizard.parameters.machining设置enabled/toleranceMm/minDetailMm，共享报告和原始轮廓。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。"
   },
   "logoExport": {
     "tools": [
@@ -325,7 +325,7 @@
       "preview.cancel"
     ],
     "method": "execute",
-    "usage": "LOGO画布定位：向导折为浮动按钮；选面高亮、异色轮廓、上/左可编辑间距与右/下间距、拖移/等比缩放/旋转/居中，数字与图标控制。AI用logoWizard place/position/align/fold/unfold操作同一独立定位草稿，get.placement读回原logo所需point/scale/angle/depth/offsetX/offsetY；确认仍提交logo同一事务。登记原文件、readLogo读取轮廓；位图明确宽度及上传授权，reviewLogo/向导明确确认字形、孔洞和尺寸，再指定目标面、三维放置点、雕刻深度；加工范围使用logo.params.projectionMode:singleFace|connectedFaces，跨面仅凹刻0°拔模，depth沿投影方向。预览或应用后getState().bodies[].logoProjectionReport读回接缝面号、方向和减料体积。"
+    "usage": "LOGO画布定位：向导折为浮动按钮；选面高亮、异色轮廓、上/左可编辑间距与右/下间距、拖移/等比缩放/旋转/水平、垂直及双向居中，数字与图标控制。AI用logoWizard place/position/align/fold/unfold操作同一独立定位草稿，get.placement读回原logo所需point/scale/angle/depth/offsetX/offsetY；确认仍提交logo同一事务。登记原文件、readLogo读取轮廓；位图授权上传后程序适配端点；AI默认自动接受，用户要求预览才reviewLogo/向导确认；指定目标面、三维放置点、雕刻深度；加工范围使用logo.params.projectionMode:singleFace|connectedFaces，跨面仅凹刻0°拔模，depth沿投影方向。预览或应用后getState().bodies[].logoProjectionReport读回接缝面号、方向和减料体积。"
   },
   "meshBoolean": {
     "tools": [

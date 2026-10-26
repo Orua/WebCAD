@@ -50,7 +50,7 @@ export function createLogoReviewSession(input){
   if(action==='confirm'){
    if(request.confirmed!==true)fail('LOGO_REVIEW_REQUIRED','确认前须明确核对字形、孔洞和毫米尺寸。');
    validateRegions(next);
-   next.source={...(next.source||{}),reviewed:true,reviewRequired:false,contourReview:{version:1,revision:revision+1,confirmed:true,edited:!!next.source?.contourEditing}};
+   next.source={...(next.source||{}),reviewed:true,reviewRequired:false,contourReview:{version:1,revision:revision+1,confirmed:true,acceptance:request.acceptance==='automatic'?'automatic-policy':'explicit',edited:!!next.source?.contourEditing}};
   }else{
    const ring=selectionRing(next,selection),pointIndex=selection.pointIndex;
    if(action==='setPoint'){

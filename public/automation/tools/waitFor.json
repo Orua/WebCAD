@@ -2,7 +2,7 @@
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.57.21",
+  "version": "1.57.23",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -77,5 +77,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:45a04fc2b26048cfc15021057cabcc9835d9885c7fe2051e920fb289436e12bd"
+  "docsHash": "sha256:796d1e90add31886daae6e9e414373bd2b5c9753134f8d93a6ba79fc144730fc"
 }

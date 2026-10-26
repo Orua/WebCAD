@@ -2,7 +2,7 @@
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.57.21",
+  "version": "1.57.23",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -113,5 +113,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:304bba7806e22129c01418a5b73286b698987a64f12972f23b025c0680afe9c1"
+  "docsHash": "sha256:261fa7af5337af648de7eb8305f3031c963a18599c43ee8cfac7b287f4bdd57f"
 }
