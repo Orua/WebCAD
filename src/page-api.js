@@ -569,7 +569,7 @@ export function createPageAPI(host){
       return {status:action==='get'?'read':'applied',logoId:input.logoId,sourceResourceId:cached.sourceResourceId,review,resources:cached.artifactRevision===review.revision?cached.resources||[]:[],context:current().context};
     }),
     logoWizard:guarded(async input=>{
-      const keys=['context','action','expectedRevision','parameters','logoId','regionIndex','holeIndex','pointIndex','pointMm','confirmed','allowUpload'],s=check(input,keys),action=input.action??'get';
+      const keys=['context','action','expectedRevision','parameters','logoId','regionIndex','holeIndex','pointIndex','pointMm','confirmed','allowUpload','bodyId','faceId','point','placement','alignment'],s=check(input,keys),action=input.action??'get';
       if(input.allowUpload!==undefined&&typeof input.allowUpload!=='boolean')fail('PARAM_SCHEMA_INVALID','allowUpload must be boolean');
       if(action==='get')return {status:'read',wizard:getLogoWizardState(),context:s.context};
       if(action==='attach'||action==='artifacts'){

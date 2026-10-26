@@ -178,6 +178,15 @@ const ui=createUI(document.getElementById('app'),{
   initialDocumentName:documentModel.name,
   onAction:(action,params)=>performAction(action,params).catch(error=>{reportError(error);return false;}),
   onRoundGuide:(report,handlers)=>viewport.setRoundGuide(report,handlers),
+  onLogoPlacement:async(input,handlers)=>{
+    if(!input){viewport.clearLogoPlacement();return null;}
+    const atRevision=revision;
+    if(!bodies.some(body=>body.id===input.bodyId))throw new Error('目标实体已变化，请重新选面。');
+    const face=await request('faceInfo',{bodyId:input.bodyId,faceId:input.faceId});
+    if(revision!==atRevision)throw new Error('定位期间模型已变化，请重新选面。');
+    selectedIds=[input.bodyId];selectedTopology={bodyId:input.bodyId,type:'face',ids:[input.faceId],point:[...input.point],geomType:'PLANE'};viewport.setSelection(selectedIds,selectedTopology);
+    const guide=viewport.setLogoPlacement({...input,face},handlers);refresh();return guide;
+  },
   heightfieldPreview:id=>{const feature=documentModel.features.find(f=>f.id===id&&f.op==='meshHeightfieldRelief');if(!feature)return null;const item=documentModel.imports?.[feature.params.heights?.importKey];return {params:legacyReliefParams(feature.op,clone(feature.params)),heights:heightfieldSamples(feature.params,item?documentModel.binaryAssets?.[item.assetHash]:undefined)};},
   onSelection:(id,additive)=>selectBody(id,additive),
   onPickCandidate:hit=>pick(hit,false),

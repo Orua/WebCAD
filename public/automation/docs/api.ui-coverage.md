@@ -325,7 +325,7 @@
       "preview.cancel"
     ],
     "method": "execute",
-    "usage": "独立LOGO向导：登记原文件、readLogo读取轮廓；位图明确宽度及上传授权，reviewLogo/向导明确确认字形、孔洞和尺寸，再指定目标面、三维放置点、雕刻深度；加工范围使用logo.params.projectionMode:singleFace|connectedFaces，跨面仅凹刻0°拔模，depth沿投影方向。预览或应用后getState().bodies[].logoProjectionReport读回接缝面号、方向和减料体积。"
+    "usage": "LOGO画布定位：向导折为浮动按钮；选面高亮、异色轮廓、上/左可编辑间距与右/下间距、拖移/等比缩放/旋转/居中，数字与图标控制。AI用logoWizard place/position/align/fold/unfold操作同一独立定位草稿，get.placement读回原logo所需point/scale/angle/depth/offsetX/offsetY；确认仍提交logo同一事务。登记原文件、readLogo读取轮廓；位图明确宽度及上传授权，reviewLogo/向导明确确认字形、孔洞和尺寸，再指定目标面、三维放置点、雕刻深度；加工范围使用logo.params.projectionMode:singleFace|connectedFaces，跨面仅凹刻0°拔模，depth沿投影方向。预览或应用后getState().bodies[].logoProjectionReport读回接缝面号、方向和减料体积。"
   },
   "meshBoolean": {
     "tools": [

@@ -2,7 +2,7 @@
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.57.20",
+  "version": "1.57.21",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -86,5 +86,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ba07ee9e7f73229a169066fcb4b2626bc10fc64221cab607db8d40f47e9cf97e"
+  "docsHash": "sha256:a51f2fbf3d20f81dde462bccf32213ac1598aa541ae62c7ca52b9d3a53706cb5"
 }

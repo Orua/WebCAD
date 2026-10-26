@@ -2,7 +2,7 @@
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.57.20",
+  "version": "1.57.21",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -118,5 +118,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:44791a6c056360ecbd0bf2fee889b0f22087e140e7f6c08e82466af044100db6"
+  "docsHash": "sha256:b3f6cef3e879d4f34f0e521a12bd8b2c34ed05e7674b8e91bdf5c782a603daa1"
 }
