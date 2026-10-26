@@ -1,4 +1,17 @@
 {
+  "logoEndpointFit20261026": {
+    "localImpact": "UI and AI image import share bounded RDP fitting to actual region/total/ring machining ceilings. Preserve source, holes, topology, extrema and original contours; certify full polyline deviation. Raster uploads submit one conversion without redundant capabilities/inspect.",
+    "servicesImpact": "No backend binary change: use the existing accepted raster convert endpoint and original idempotent job.",
+    "logoImpact": "Automatic source-contour reduction before geometry, with actual bound and capacity receipt. No guessed glyphs, dimension changes or implicit region/hole deletion. Explicit disabled/zero-tolerance path preserves input.",
+    "contractImpact": "API1.57.19 readLogo defaults to endpoint fitting; reports source.endpointAdaptation and retains independent review draft.",
+    "documentImpact": "Conversion remains an independent draft; no geometry/selection/document mutation.",
+    "cacheImpact": "Rebuild full matching knowledge package and per-file hashes; one same frontend package local/production.",
+    "requiredTests": [
+      "14 targeted import/adaptation/optimizer tests",
+      "Actual 1050x1185 line-art PNG: one conversion, 11132/5256 source points to 3992/1703 under live machining limits, regions and holes preserved",
+      "Build/knowledge hash gate and local/production release identity"
+    ]
+  },
   "servicesQuickConnection20261026": {
     "localImpact": "Simplify Services settings to one address and optional advanced settings; configured address enables connection and same-origin authorization is inferred. UI and setServices share a bounded lightweight handshake.",
     "servicesImpact": "Authenticated /v1/hello/{challenge} returns fixed protocol and nonce before IisRuntime initialization, workers, store and queue health. Existing Origin/private-HTTP and constant-time credential checks remain.",

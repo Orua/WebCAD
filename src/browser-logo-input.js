@@ -1,4 +1,4 @@
-import {validateLogoMachining,optimizeLogoForMachining} from './logo-machining-optimization.js';
+import {validateLogoMachining,fitLogoToMachining} from './logo-machining-optimization.js';
 import {humanError} from './error-recovery.js';
 import { validateRegions,inspectLogoMachiningCapacity } from './logo-model.js';
 import { parseLocalLogoSvg } from './svg-logo-input.js';
@@ -54,20 +54,20 @@ export async function readBrowserLogo(file,validate,{targetWidthMm,page,sizeConf
   if(!file)throw inputError('请选择 LOGO 文件','INVALID_INPUT');
   validateLogoMachining(machining);
   const name=file.name.toLowerCase();
-  if(machining?.enabled&&!/\.(png|jpe?g|bmp)$/.test(name))throw inputError('加工简化目前只用于位图 LOGO。','PARAM_SCHEMA_INVALID');
+  const prepare=logo=>fitLogoToMachining(fitLogoWidth(logo,targetWidthMm),machining);
   const isPaged=/\.(pdf|ai)$/.test(name);
   if(pdfJoinToleranceMm!==undefined&&(!Number.isFinite(pdfJoinToleranceMm)||pdfJoinToleranceMm<0||pdfJoinToleranceMm>0.1))throw inputError('pdfJoinToleranceMm 须为 0–0.1 mm 数值；PDF / AI 的 0 使用源宽度 × 0.0025 自动线接合规则，其他格式不应用。','PARAM_SCHEMA_INVALID');
   if(name.endsWith('.logo.json')){
     if(file.size>2*1024*1024)throw inputError('LOGO JSON 必须不超过 2 MiB。');
-    const logo=validate(JSON.parse(await file.text()));validateRegions(logo);return fitLogoWidth(logo,targetWidthMm);
+    const logo=validate(JSON.parse(await file.text()));validateRegions(logo);return inspectLogoMachiningCapacity(logo).supported?fitLogoWidth(logo,targetWidthMm):prepare(logo);
   }
   if(name.endsWith('.svg')){
     if(file.size>20*1024*1024)throw inputError('SVG 必须不超过 20 MiB。');
-    const text=await file.text();try{const logo=validate(parseLocalLogoSvg(text,{name:file.name,targetWidthMm}));logo.source.sha256=await sourceHash(text);validateRegions(logo);return fitLogoWidth(logo,targetWidthMm);}catch(error){if(!allowUpload)throw inputError(`本地未能读取此 SVG：${error.message}。如需后台转换，请点击“识别轮廓”明确上传。`,'UPLOAD_AUTH_REQUIRED');}
+    const text=await file.text();try{const logo=validate(parseLocalLogoSvg(text,{name:file.name,targetWidthMm}));logo.source.sha256=await sourceHash(text);validateRegions(logo);return prepare(logo);}catch(error){if(!allowUpload)throw inputError(`本地未能读取此 SVG：${error.message}。如需后台转换，请点击“识别轮廓”明确上传。`,'UPLOAD_AUTH_REQUIRED');}
   }
   if(name.endsWith('.dxf')){
     if(file.size>20*1024*1024)throw inputError('DXF 必须不超过 20 MiB。');
-    const text=await file.text();try{const logo=validate(parseLocalLogoDxf(text,{name:file.name,targetWidthMm}));logo.source.sha256=await sourceHash(text);return fitLogoWidth(logo,targetWidthMm);}catch(error){if(error.code!=='LOCAL_VECTOR_UNSUPPORTED')throw error;}
+    const text=await file.text();try{const logo=validate(parseLocalLogoDxf(text,{name:file.name,targetWidthMm}));logo.source.sha256=await sourceHash(text);return prepare(logo);}catch(error){if(error.code!=='LOCAL_VECTOR_UNSUPPORTED')throw error;}
   }
   if(/\.(svg|pdf|ai|dxf|png|jpe?g|bmp)$/.test(name)){
     if(file.size>20*1024*1024)throw inputError('LOGO 源文件必须不超过 20 MiB。');
@@ -78,10 +78,9 @@ export async function readBrowserLogo(file,validate,{targetWidthMm,page,sizeConf
     validateLogoRasterOptions(raster);
     if(!sizeConfirmed||isRaster&&!(Number.isFinite(targetWidthMm)&&targetWidthMm>0))throw inputError('请填写图案实际宽度（mm）；图片像素不能作为毫米尺寸。','SIZE_REQUIRED');
     if(targetWidthMm!==undefined&&!(Number.isFinite(targetWidthMm)&&targetWidthMm>0))throw inputError('图案宽度必须大于 0 mm。','SIZE_REQUIRED');
-    const capabilities=await client.capabilities();if(!capabilities.logo?.enabled)throw inputError('后台未启用图片轮廓转换。','CAPABILITY_UNAVAILABLE');
     const asset=await client.upload(file),requestId=crypto.randomUUID();
     const inspectOptions={...(page?{page}:{}),...(isPaged?{pdfJoinToleranceMm:pdfJoinToleranceMm??0,...(targetWidthMm?{targetWidthMm}:{})}:{})};
-    let inspected;try{inspected=await client.wait(await client.submit('logo/inspect',{assetId:asset.assetId,options:inspectOptions},`${requestId}-inspect`));}catch(error){throw logoConversionError(error,{isRaster,raster});}
+    let inspected={result:{pageCount:1},manifest:null};if(!isRaster)try{inspected=await client.wait(await client.submit('logo/inspect',{assetId:asset.assetId,options:inspectOptions},`${requestId}-inspect`));}catch(error){throw logoConversionError(error,{isRaster,raster});}
     if(inspected.result.pageCount>1&&!page)throw inputError(`源文件有 ${inspected.result.pageCount} 页，请指定页码。`,'PAGE_REQUIRED');
     const options={mode:isRaster?'raster':'vector',sizeMode:targetWidthMm?'targetWidth':'sourceUnits',sizeConfirmed:true,toleranceMm:0.005,pdfJoinToleranceMm:isPaged?pdfJoinToleranceMm??0:0,...(page?{page}:{}),...(targetWidthMm?{targetWidthMm}:{}),...((isRaster||isPaged)&&raster?{raster}:{})};
     let converted;
@@ -91,7 +90,7 @@ export async function readBrowserLogo(file,validate,{targetWidthMm,page,sizeConf
     if(!result.geometryValid||!result.logoDocument||!['ready','needsReview'].includes(result.status))throw inputError('后台没有返回有效的闭合轮廓。','CONVERSION_FAILED');
     const logo=validate(result.logoDocument);validateRegions(logo);renderedLogoRaster(logo);
     logo.source={...logo.source,reviewed:false,reviewRequired:result.reviewRequired,conversionReport:result.conversionReport,inspectionReport:inspected.result,servicesEvidence:{jobId:manifest.jobId,inputFingerprint:manifest.inputFingerprint,artifactSha256:manifest.artifactSha256,artifactId:manifest.artifactId,assetId:asset.assetId,sourceSha256:asset.sha256,inspectionJobId:inspected.manifest?.jobId}};
-    return optimizeLogoForMachining(fitLogoWidth(logo,targetWidthMm),machining);
+    return prepare(logo);
   }
   throw inputError('LOGO 支持 SVG、LOGO JSON、PDF、AI、DXF、PNG、JPG、BMP。照片或明暗参考图不能直接当作精确雕刻轮廓。','CAPABILITY_UNAVAILABLE');
 }

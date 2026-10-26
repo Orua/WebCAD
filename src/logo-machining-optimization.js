@@ -1,7 +1,7 @@
 import {validateRegions,inspectLogoMachiningCapacity} from './logo-model.js';
 import {fitRasterRing,contourDeviationBound} from './logo-contour-fit.js';
 
-export const LOGO_MACHINING_SCHEMA={type:'object',additionalProperties:false,properties:{enabled:{type:'boolean',default:false},toleranceMm:{type:'number',minimum:0,maximum:0.1,default:0.05},minDetailMm:{type:'number',minimum:0,maximum:1,default:0.2}}};
+export const LOGO_MACHINING_SCHEMA={type:'object',additionalProperties:false,properties:{enabled:{type:'boolean',default:true},toleranceMm:{type:'number',minimum:0,maximum:0.1,description:'Optional explicit deviation ceiling in mm. Omitted: automatically fit to the machining endpoint within min(0.25 mm, 1% of artwork short side).'},minDetailMm:{type:'number',minimum:0,maximum:1,description:'Legacy explicit-optimizer field; automatic endpoint fitting preserves all regions and holes.'}}};
 export function validateLogoMachining(options){
  if(options===undefined)return;
  const fail=message=>{throw Object.assign(new Error(message),{code:'PARAM_SCHEMA_INVALID',path:'machining'});};
@@ -25,6 +25,35 @@ function simplify(ring,tolerance){
   }
  }
  return {ring:ring.filter((_,i)=>keep.has(i)),bound};
+}
+/** Fit from the original contours, never from the preceding approximation.
+ * RDP's source vertices lie in the convex capsule of each retained segment.
+ * Continuity between its pinned endpoints also covers the reverse distance.
+ * The complete candidate arrangement is independently checked for topology.
+ */
+export function fitLogoToMachining(logo,options){
+ validateLogoMachining(options);
+ const originalCapacity=inspectLogoMachiningCapacity(logo);
+ if(options?.enabled===false)return logo;
+ const original=logo.source?.machiningOriginalContours??logo;
+ validateRegions(original);
+ const originalRegions=structuredClone(original.regions),shortSide=Math.min(...(logo.sizeMm??[35,35]).filter(v=>v>0));
+ const ceiling=options?.toleranceMm??Math.min(.25,shortSide*.01);
+ if(!(ceiling>0))return logo;
+ let accepted=null;
+ // A finite data-only budget. No new conversion or geometry jobs are submitted.
+ for(let i=0;i<6;i++){
+  const tolerance=ceiling/2**(5-i),proposals=originalRegions.map(r=>({outer:simplify(r.outer,tolerance),holes:(r.holes??[]).map(h=>simplify(h,tolerance))}));
+  const candidate={...logo,regions:proposals.map(r=>({outer:r.outer.ring,holes:r.holes.map(h=>h.ring)}))};
+  if(!inspectLogoMachiningCapacity(candidate).supported)continue;
+  try{validateRegions(candidate);}catch{continue;}
+  const bound=Math.max(0,...proposals.flatMap(r=>[r.outer.bound,...r.holes.map(h=>h.bound)]));
+  accepted={...candidate,source:{...(typeof logo.source==='object'?logo.source:{}),reviewed:false,reviewRequired:true,machiningOriginalContours:{type:'webcad-logo',version:1,units:'mm',name:logo.name,sizeMm:logo.sizeMm,regions:originalRegions},endpointAdaptation:{algorithm:'bounded-rdp-extrema-topology-v1',automatic:true,before:inspectLogoMachiningCapacity(original).counts,after:inspectLogoMachiningCapacity(candidate).counts,limits:originalCapacity.limits,maxDeviationMm:bound,allowedDeviationMm:tolerance,ceilingMm:ceiling,regionsPreserved:true,holesPreserved:true,boundsPreserved:true}}};
+  break;
+ }
+ if(accepted)return accepted;
+ if(originalCapacity.supported)return logo;
+ return {...logo,source:{...(typeof logo.source==='object'?logo.source:{}),endpointAdaptation:{automatic:true,status:'unavailable-with-preserved-topology',limits:originalCapacity.limits,counts:originalCapacity.counts,ceilingMm:ceiling}}};
 }
 export function optimizeLogoForMachining(logo,options){
  validateLogoMachining(options);if(options?.enabled!==true)return logo;

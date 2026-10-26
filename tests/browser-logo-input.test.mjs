@@ -30,8 +30,9 @@ test('raster reader preserves omitted defaults and explicit original conversion 
       submit:async(route,request)=>{submitted.push({route,request});return route;},
       wait:async route=>route==='logo/inspect'?{result:{pageCount:1}}:{result:{geometryValid:true,status:'needsReview',logoDocument:structuredClone(packet),reviewRequired:true},manifest:{jobId:'original',inputFingerprint:'same',artifactSha256:'hash'}}};
     const result=await readBrowserLogo(new File(['image'],'tiger.jpg'),x=>x,{targetWidthMm:30,sizeConfirmed:true,allowUpload:true,raster,client});
-    assert.equal(submitted.length,2);
-    const options=submitted[1].request.options;
+    assert.equal(submitted.length,1);
+    assert.equal(submitted[0].route,'logo/convert');
+    const options=submitted[0].request.options;
     assert.equal(Object.hasOwn(options,'raster'),raster!==undefined);
     if(raster!==undefined)assert.deepEqual(options.raster,raster);
     assert.equal(result.source.reviewed,false);assert.equal(result.source.servicesEvidence.jobId,'original');

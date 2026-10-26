@@ -2,7 +2,7 @@
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.57.18",
+  "version": "1.57.19",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -106,5 +106,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:937f44397cd6e32ed54f6f6e84797d0e1f1ca7de7a62d431a71d882586305926"
+  "docsHash": "sha256:f254d220e96594beecab60bbe09e220c6c3ca5f377a3ef7006f8aa8b2ccded04"
 }
