@@ -8,6 +8,8 @@ generated 仅证明字节已生成；download_initiated 仅证明下载开始；
 压缩/重连后，用宿主的项目索引找到原始路径、哈希和最后保存点，再按 fileId 解析；没有保存点的旧对话不能凭文字恢复历史画布。浏览器资源过期时从持久化原件重新登记，不重复计算源几何。详见 recipe.file-workflow、api.file-errors。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+getDebugReport: contextPolicy=none
+setDebugPanel: contextPolicy=identity
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

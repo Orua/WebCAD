@@ -9,6 +9,7 @@
     "fitProfile",
     "getAgentPanel",
     "getBatchReceipt",
+    "getDebugReport",
     "getHistory",
     "getMaterials",
     "getMetalMaterials",
@@ -65,6 +66,7 @@
     "markLocation",
     "redraw",
     "selectRectangle",
+    "setDebugPanel",
     "setDisplayPreferences",
     "setMetalMaterials",
     "setRenderQuality",
@@ -224,6 +226,92 @@
     "notExposed": "当前绑定契约没有开放此方法；有页面文档不等于 MCP 可执行。核对 methodTools 和工具卡 mcpCall；同一版本无新证据时停止换入口/重连/反复查卡。"
   },
   "methodSchemas": {
+    "getDebugReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "enum": [
+            "all",
+            "ui",
+            "api",
+            "agent",
+            "kernel",
+            "services",
+            "runtime"
+          ]
+        },
+        "level": {
+          "enum": [
+            "all",
+            "info",
+            "warn",
+            "error"
+          ]
+        },
+        "query": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "afterSequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1500
+        },
+        "includeState": {
+          "type": "boolean"
+        }
+      },
+      "required": []
+    },
+    "setDebugPanel": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sessionId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "documentInstanceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedRevision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "sessionId",
+            "documentId",
+            "documentInstanceId"
+          ]
+        },
+        "visible": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "context",
+        "visible"
+      ]
+    },
     "getMetalMaterials": {
       "type": "object",
       "additionalProperties": false,
@@ -1472,6 +1560,7 @@
     "inspectRound": "identity",
     "getModelLibrary": "none",
     "resolveModelLibrary": "identity",
+    "getDebugReport": "none",
     "probeBlendRadius": "identity",
     "getServices": "none",
     "getServicesCapabilities": "none",
@@ -1493,6 +1582,7 @@
     "getEvidenceImage": "revision",
     "updateModelLibrary": "revision",
     "markLocation": "revision",
+    "setDebugPanel": "identity",
     "execute": "revision",
     "files.import": "revision",
     "copySelection": "revision",
@@ -1552,6 +1642,7 @@
     "inspectRound": "webcad_read",
     "getModelLibrary": "webcad_read",
     "resolveModelLibrary": "webcad_read",
+    "getDebugReport": "webcad_read",
     "probeBlendRadius": "webcad_read",
     "getServices": "webcad_read",
     "getServicesCapabilities": "webcad_read",
@@ -1573,6 +1664,7 @@
     "getEvidenceImage": "webcad_view",
     "updateModelLibrary": "webcad_view",
     "markLocation": "webcad_view",
+    "setDebugPanel": "webcad_view",
     "files.save": "webcad_artifact",
     "files.export": "webcad_artifact",
     "files.reattach": "webcad_artifact",
@@ -1585,5 +1677,5 @@
     "pasteSelection": "webcad_submit",
     "recoverKernel": "webcad_submit"
   },
-  "contractHash": "sha256:9b189ec9b2acbb74f275fa40ae1ca8f2df0019652811f9d1f7fb29b22097bed6"
+  "contractHash": "sha256:941371d0f24651eb3ebcbf5e0c91a25dc8a4f456708df19ee7e2cbc34958db1d"
 }

@@ -11,3 +11,5 @@
 .agent-control-overlay[hidden]{display:none}
 .agent-control-overlay .control-notice{display:grid;gap:8px;padding:16px 20px;background:var(--ui-surface);border:1px solid var(--ui-border);border-radius:12px;text-align:center;font-size:13px}
 .agent-control-overlay .control-notice small{display:none}
+
+.webcad-app.is-host-locked .ribbon [data-action="debug"]{opacity:1;cursor:pointer}

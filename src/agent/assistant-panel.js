@@ -1,4 +1,5 @@
 import {createHostAdapter} from './host-adapter.js';
+import {debugJournal,traceDebug} from '../debug-journal.js';
 import {workspaceThemeTokens} from '../ui/config/theme-colors.js';
 import {createPanelLayout} from './panel-layout.js';
 import {createFloatingToggle,validateFloatingPosition} from './floating-toggle.js';
@@ -17,7 +18,8 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   let requestSeq=0,handshakeTimer=null,hostResponded=false,activity='idle',activityDetail={},floating=null,channelState={transport:'unavailable',syncStatus:'pending'};const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
   try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)url=validateAssistantUrl(saved);}catch{}
   const state=()=>{const size=external?.getLayout?.()||layout.get();return {version:1,url,configured:Boolean(url),visible,collapsed:visible&&size.collapsed,expanded:visible&&!size.collapsed,layout:size,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external),channelState:{...channelState,configuredOrigin:new URL(url,location.href).origin}};};
-  const notify=()=>{syncFloating();onChange({...state(),floating:floating?.get()||{visible:false,activity:'idle',position:null}});};
+  let diagnosticState='';
+  const notify=()=>{syncFloating();const next=state(),signature=JSON.stringify([next.phase,next.connected,next.locked,next.visible,next.channelState,next.error]);if(signature!==diagnosticState){diagnosticState=signature;debugJournal.record('agent','connection-state',{phase:next.phase,connected:next.connected,locked:next.locked,visible:next.visible,externalHost:next.externalHost,channelState:next.channelState,error:next.error},next.error||next.phase==='agent_offline'?'warn':'info');}onChange({...next,floating:floating?.get()||{visible:false,activity:'idle',position:null}});};
   const layout=createPanelLayout({root:surface,visible:()=>visible&&!external,collapsed:()=>collapsed,collapsedSize:()=>0,onCollapsed:setCollapsed,onChange:notify,widthProperty:'--agent-panel-width',heightProperty:'--agent-panel-height'});
   function ensureFloating(){
     const root=surface.querySelector?.('.canvas-panel');
@@ -49,11 +51,12 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   function removePanelToggle(){panelToggle?.remove();panelToggle=null;collapsed=false;surface.classList.remove('agent-panel-collapsed');layout.sync();}
   function post(data){frame?.contentWindow?.postMessage({protocol:PROTOCOL,channel,...data},origin);}
   function stopRevisionSubscriptions(){for(const stop of revisionSubscriptions.values())try{stop();}catch{}revisionSubscriptions.clear();}
-  function request(method,args){
+  function panelRequest(method,args){
     const id='page-'+(++requestSeq);
     const timeout=['adapter.artifact','project.artifactReady'].includes(method)?900000:35000;
     return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{pending.delete(id);reject(Object.assign(new Error('助手响应超时；原请求结果尚未确定，请查询原任务或重传已有回执。'),{code:'AGENT_PANEL_TIMEOUT',status:'unknown',commitState:'unknown',requestId:id}));},timeout);pending.set(id,{resolve,reject,timer});try{post({kind:'request',id,method,args});}catch(e){clearTimeout(timer);pending.delete(id);reject(e);}});
   }
+  function request(method,args){return traceDebug('agent',method,{requestId:'page-'+(requestSeq+1),method},()=>panelRequest(method,args));}
   function theme(){const tokens=workspaceThemeTokens(getApi().getState().displayPreferences?.themeColor);post({kind:'theme',tokens});external?.setTheme?.(tokens);}
   window.addEventListener('webcad:artifact-ready',event=>{
     if(!visible||!event.detail?.resourceId)return;
@@ -99,13 +102,14 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     if(!frame||event.source!==frame.contentWindow||event.origin!==origin||data?.protocol!==PROTOCOL||data.channel!==channel)return;
     hostResponded=true;
     if(data.kind==='response'){const item=pending.get(data.id);if(!item)return;clearTimeout(item.timer);pending.delete(data.id);if(data.error)item.reject(Object.assign(new Error(data.error.message),{code:data.error.code}));else item.resolve(data.result);return;}
-    if(data.kind==='ready'){clearTimeout(handshakeTimer);phase='connecting';error=null;theme();notify();return;}
+    if(data.kind==='ready'){debugJournal.record('agent','handshake-ready',{origin:event.origin});clearTimeout(handshakeTimer);phase='connecting';error=null;theme();notify();return;}
     if(data.kind==='request'){try{post({kind:'response',id:data.id,result:await handle(data.method,data.args)});}catch(e){post({kind:'response',id:data.id,error:{code:e.code||'AGENT_PANEL_FAILED',message:e.message}});}}
   });
   function closeLocal(){
     clearTimeout(handshakeTimer);stopRevisionSubscriptions();channelState={transport:'unavailable',syncStatus:'stopped'};adapter?.release();visible=false;phase='closed';error=null;hostControl.set({locked:false,connected:false});surface.classList.remove('has-agent-panel');removePanelToggle();if(frame)frame.hidden=true;notify();
   }
   async function exit(){
+    debugJournal.record('agent','disconnect-request',{phase});
     if(exitOperation)return exitOperation;
     if(!external&&!hostResponded&&!adapter&&!adapters.size){closeLocal();return {status:'applied',release:null,releasePending:false,...state()};}
     // Revoke local writes and unlock immediately, retain the iframe until the
@@ -114,6 +118,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     exitOperation=(async()=>{try{const receipt=external?await external.exit():frame?await request('panel.exit'):null;phase=receipt?.pendingRelease?'release_pending':'closed';return {status:'applied',release:receipt,releasePending:Boolean(receipt?.pendingRelease),...state()};}catch(e){phase='release_pending';error=e.message;return {status:'applied',releasePending:true,...state()};}finally{exitOperation=null;notify();}})();return exitOperation;
   }
   async function enter(){
+    debugJournal.record('agent','connect-request',{url,externalHost:!!external});
     if(exitOperation)await exitOperation;
     error=null;visible=true;phase='connecting';notify();
     if(external){await external.enter();theme();return {status:'applied',...state()};}

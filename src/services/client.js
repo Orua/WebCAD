@@ -1,5 +1,6 @@
 import {getServicesConfig,getServicesCredential,normalizeServicesConfig,serviceError} from './settings.js';
 import {binaryHash} from '../contracts/operation-schema.js';
+import {debugJournal,traceDebug} from '../debug-journal.js';
 export async function sha256(bytes){return binaryHash(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes)).slice(7);}
 
 /** Phase-specific Services HTTP timeouts (ms). Upload/result scale with payload size; poll stays ~30s. */
@@ -15,7 +16,7 @@ export function servicesRequestTimeoutMs(phase,{bytes=0}={}){
 export function createServicesClient({config,credential,fetchImpl=globalThis.fetch,now=Date.now,delay=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){
  const read=()=>config?normalizeServicesConfig(config):getServicesConfig();
  let defaultWaitHandler=null;
- async function request(route,{method='GET',body,headers={},binary=false,timeoutMs}={}){
+ async function sendRequest(route,{method='GET',body,headers={},binary=false,timeoutMs}={}){
   const settings=read();if(!settings.enabled||!settings.url)throw serviceError('CAPABILITY_UNAVAILABLE','请先连接后台计算');
   let existing='';if(credential===undefined){const saved=getServicesConfig();if(settings.url===saved.url)existing=getServicesCredential();}
   const auth=credential??existing,siteSession=settings.authMode==='siteSession';if(!auth&&!siteSession)throw serviceError('SERVICES_AUTH_REQUIRED','请在“计算设置”连接后台计算');
@@ -28,6 +29,12 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
   if(!response.ok){let error;try{error=await response.json();}catch{}const fallback=response.status===404?'后台计算接口未找到，请核对当前计算地址':response.status===401?(siteSession?'同域计算版本尚未就绪，请核对 Services 发布':'计算端专用授权无效，请检查设置'):`后台计算请求失败（HTTP ${response.status}）`;throw serviceError(error?.code??'SERVICES_REQUEST_FAILED',error?.message??fallback,{httpStatus:response.status,supportBinding:error?.supportBinding,stage:error?.stage,diagnosticsRef:error?.diagnosticsRef,commitState:error?.commitState??error?.commit,recoveryAction:error?.recoveryAction});}
   return binary?new Uint8Array(await response.arrayBuffer()):await response.json();
   }finally{clearTimeout(timer);}
+ }
+ async function request(route,options={}){
+  if(options.method===undefined&&/^\/v1\/jobs\/[^/]+$/.test(route)){
+   try{return await sendRequest(route,options);}catch(error){debugJournal.record('services','poll-error',{route,error},'error');throw error;}
+  }
+  return traceDebug('services',route,{method:options.method||'GET',timeoutMs:options.timeoutMs,bytes:options.body?.byteLength??options.body?.length??0},()=>sendRequest(route,options));
  }
  async function capabilities(){const value=await request('/v1/capabilities',{timeoutMs:servicesRequestTimeoutMs('capabilities')});if(value.protocolVersion!=='1.0'||!value.supportedClientProtocolRange?.includes('1.0'))throw serviceError('SERVICES_PROTOCOL_MISMATCH','Services 协议版本不兼容');return value;}
  async function handshake(){
@@ -53,8 +60,9 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
  }
  async function wait(job,{signal,onWaitTimeout=defaultWaitHandler,waitTimeoutMs=read().serverWaitMs,pollIntervalMs=250}={}){
   if(!Number.isInteger(waitTimeoutMs)||waitTimeoutMs<1||waitTimeoutMs>900000)throw serviceError('PARAM_SCHEMA_INVALID','等待提醒时间无效');
-  const began=now();let reminderAt=began,current=job;
+  const began=now();let reminderAt=began,current=job,lastPhase='';
   while(['queued','running'].includes(current.execution)){
+   const phase=String(current.execution)+':'+String(current.stage??'');if(phase!==lastPhase){lastPhase=phase;debugJournal.record('services','job-phase',{jobId:current.jobId,execution:current.execution,stage:current.stage,elapsedMs:now()-began});}
    if(signal?.aborted)throw serviceError('OBSERVATION_CANCELLED','已停止等待，任务须另行查询',{jobId:job.jobId,idempotencyKey:job.requestKey,commitState:'unknown'});
    if(now()-reminderAt>=waitTimeoutMs){
     if(!onWaitTimeout)throw serviceError('SERVICES_WAIT_DECISION_REQUIRED','任务仍在进行，请选择继续等待或停止运算',{jobId:job.jobId,idempotencyKey:job.requestKey,commitState:'unknown',requiresDecision:true,execution:current.execution});
@@ -75,6 +83,7 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
     error.jobId=job.jobId;error.idempotencyKey=job.requestKey;error.commitState='unknown';throw error;
    }
   }
+  debugJournal.record('services','job-finished',{jobId:current.jobId,execution:current.execution,elapsedMs:now()-began,error:current.error},current.execution==='succeeded'?'info':'error');
   if(current.execution!=='succeeded'){
    const failure=current.error??{},stage=failure.stage??current.stage;
    const code=failure.code??'SERVICES_JOB_FAILED',commitState=failure.commitState??failure.commit??current.commit??'notCommitted';

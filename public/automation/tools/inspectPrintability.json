@@ -2,7 +2,7 @@
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.57.24",
+  "version": "1.57.25",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -80,5 +80,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:39256e449ccf6afd6b185f14ca5338ae00794fa96dbd49a5a72b8db06b38b608"
+  "docsHash": "sha256:c8b1ab4b9fe694ef71e057065f0fa6d3440db33a454e1ab4e2bb833bd162ad7d"
 }

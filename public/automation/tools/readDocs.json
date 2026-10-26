@@ -2,7 +2,7 @@
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.57.24",
+  "version": "1.57.25",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -81,5 +81,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d24cb51936eefe9f741a67f464da9a7aaf15a17dcfe7c984a387701c7600defb"
+  "docsHash": "sha256:04c96bf9e7492f08b5028575794e3e8c8dd4ba6a8d73a67a804736d4ad8c473a"
 }

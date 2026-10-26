@@ -26,6 +26,7 @@ import {contextPolicy,identityContext} from './page-context-policy.js';
 import {PAGE_METHOD_SCHEMAS,validatePageInput,pageInput} from './page-input-contracts.js';
 import {createPageJobs} from './page-jobs.js';
 import {createPageWait} from './page-wait.js';
+import {traceDebug,makeDebugReport} from './debug-journal.js';
 import {LIMITS} from './limits.js';
 import {renderQuality} from './render-quality.js';
 import {UI_LAYOUT} from './ui-layout.js';
@@ -77,7 +78,7 @@ export function createPageAPI(host){
   const stateObserver=createStateObserver({key:()=>host.revisionKey?host.revisionKey():JSON.stringify(current().context),context:()=>current().context,subscribe:host.subscribeState});
   const failure=e=>withErrorRecovery({status:e.status==='unknown'||e.commitState==='unknown'?'unknown':'failed',commitState:e.commitState==='unknown'||e.status==='unknown'?'unknown':'not_committed',error:{...(e.jobId?{jobId:e.jobId}:{}),...(e.idempotencyKey?{idempotencyKey:e.idempotencyKey}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:e.retryable===true,recoveryAction:e.recoveryAction||((e.commitState==='unknown'||e.status==='unknown')?'RECONCILE_ORIGINAL_REQUEST':null)||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
   const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
-  function check(input,keys,requiredContext=true){
+  function check(input,keys,requiredContext=true,allowBusy=false){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!keys.includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected request fields');
     const s=current();
     if(requiredContext){
@@ -89,14 +90,14 @@ export function createPageAPI(host){
         if(c.expectedRevision!==s.context.revision)fail('REVISION_CONFLICT','Read current state and replan');
       }
     }
-    if(s.summary.busy||!s.summary.kernelReady||s.preview.active||s.preview.computing)fail('CAPABILITY_UNAVAILABLE','Finish computation/preview before this request');
+    if(!allowBusy&&(s.summary.busy||!s.summary.kernelReady||s.preview.active||s.preview.computing))fail('CAPABILITY_UNAVAILABLE','Finish computation/preview before this request');
     return s;
   }
   const guarded=fn=>async(input={})=>{try{const mode=requestPolicies.get(input),request=normalizeRequest(input);if(mode)requestPolicies.set(request,mode);return withErrorRecovery(await fn(request));}catch(e){return failure(e);}};
   const rawFiles=createBrowserFiles({command:input=>host.files(input),confirmSaved:host.confirmSaved});
   const files=Object.fromEntries(Object.entries(FILE_ARGUMENT_KEYS).map(([key,keys])=>[key,explained((input={})=>{
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(name=>!keys.includes(name)))fail('PARAM_SCHEMA_INVALID',`Unexpected files.${key} arguments`);
-    return rawFiles[key](normalizeRequest(input));
+    return traceDebug('api','files.'+key,input,()=>rawFiles[key](normalizeRequest(input)));
   })]));
   const viewKeys=['context','interactionPhase','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels','toolbar','workspace','libraryMode','focus','modelLibraryChange'];
   const pasteReceipts=new Map();
@@ -178,6 +179,8 @@ export function createPageAPI(host){
   const api={
     markLocation:guarded(async input=>{check(input,['context','screen','active']);if(input.screen!==undefined&&input.active!==undefined)fail('PARAM_SCHEMA_INVALID','screen and active are mutually exclusive');if(input.active!==undefined&&typeof input.active!=='boolean')fail('PARAM_SCHEMA_INVALID','active must be boolean');if(input.screen!==undefined&&(!Array.isArray(input.screen)||input.screen.length!==2||input.screen.some(v=>typeof v!=='number'||!Number.isFinite(v)||v<0||v>1)))fail('PARAM_SCHEMA_INVALID','screen must be normalized viewport coordinates [u,v], 0–1');return {...await host.locationMarker(input),context:current().context};}),
     getAgentPanel:()=>window.webcad.assistantPanel.get(),
+    getDebugReport:guarded(input=>{check(input,['source','level','query','afterSequence','limit','includeState'],false,true);return {status:'read',...(host.debugReport?host.debugReport(input):makeDebugReport(null,input))};}),
+    setDebugPanel:guarded(input=>{check(input,['context','visible'],'identity',true);if(!host.setDebugPanel)fail('CAPABILITY_UNAVAILABLE','Debug panel is unavailable in this host');return {status:'applied',open:host.setDebugPanel(input.visible),context:current().context};}),
     configureAgentPanel:guarded(async input=>{check(input,['context','url']);if(typeof input.url!=='string')fail('PARAM_SCHEMA_INVALID','url must be a string');return window.webcad.assistantPanel.configure(input.url);}),
     setAgentPanel:guarded(async input=>{check(input,['context','visible','layout']);if(input.visible!==undefined&&typeof input.visible!=='boolean')fail('PARAM_SCHEMA_INVALID','visible must be boolean');if(input.visible===undefined&&input.layout===undefined)fail('PARAM_SCHEMA_INVALID','visible or layout is required');if(input.layout!==undefined){if(input.visible!==undefined)fail('PARAM_SCHEMA_INVALID','Change visibility and layout in separate requests');return window.webcad.assistantPanel.setLayout(input.layout);}return input.visible?window.webcad.assistantPanel.enter():window.webcad.assistantPanel.exit();}),
     getHistory:()=>host.history(),
@@ -754,7 +757,10 @@ export function createPageAPI(host){
     const original=api[name];api[name]=(...args)=>{try{const request=pageInput(args[0]??{});validatePageInput(name,request);return original(request,...args.slice(1));}catch(error){if(name==='getState')throw error;return failure(error);}};
   }
   api.contextPolicies=Object.freeze(Object.fromEntries([...Object.keys(api).filter(k=>typeof api[k]==='function'),...Object.keys(files).map(k=>'files.'+k)].map(name=>[name,contextPolicy(name)])));
-  for(const name of Object.keys(api))if(typeof api[name]==='function')api[name]=explained(api[name]);
+  const quiet=new Set(['getDebugReport','setDebugPanel','info','getState','getUILayout','getAgentPanel','getJob','waitFor','getBatchReceipt','searchTools','getTools','getTool','readDocs','createRequestContext']);
+  for(const name of Object.keys(api))if(typeof api[name]==='function'){
+    const original=api[name];api[name]=explained(quiet.has(name)?original:(...args)=>traceDebug(name==='connect'?'agent':'api',name,args[0],()=>original(...args)));
+  }
   // Native host mode (in-page only; not callable through invoke/agents and not part of the agent contract):
   // the embedding host is told when document identity, revision or readiness changes so it can push a fresh
   // compact snapshot. The page refresh event coalesces changes; idle subscriptions do not poll state.

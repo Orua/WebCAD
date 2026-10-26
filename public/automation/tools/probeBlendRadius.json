@@ -2,7 +2,7 @@
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.57.24",
+  "version": "1.57.25",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -258,5 +258,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:696bf4f8245d60d386d62effd5931f6ab120f1f485038ba94298b33d37f99130"
+  "docsHash": "sha256:0b7f61c5e228408770d0262d0d0c8d1d18f97699c0026a96ca5ff883eb29c651"
 }

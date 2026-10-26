@@ -23,6 +23,8 @@ LOGO 表示按明确深度的凹刻/凸字，不从照片明暗猜立体高度�
 自动轮廓整理匹配150区域/总点12000/单环2000上限。较密位图共享有双向偏差证书的直线/圆弧拟合；失败保留有效原轮廓/RDP候选，不删除字形或孔洞凑成功。source.endpointAdaptation和machiningOptimization记录真实误差和来源，原始轮廓可读。照片、阴影不是精确矢量或高度图。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+getDebugReport: contextPolicy=none
+setDebugPanel: contextPolicy=identity
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

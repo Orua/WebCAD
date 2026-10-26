@@ -10,7 +10,9 @@ import {loadMaterialSettings,validateMaterialSettings,rememberMaterialSettings,i
 import {createHostAdapter} from './agent/host-adapter.js';
 import {uploadChunked,uploadArtifact,createBrokerUploadClient} from './transfer/chunked-upload.js';
 import {AGENT_CONTRACT} from './agent/protocol.js';
-import {errorRecovery} from './error-recovery.js';
+import {errorRecovery,errorAuditSnapshot} from './error-recovery.js';
+import {debugJournal,traceDebug,makeDebugReport} from './debug-journal.js';
+import {getLogoWizardState} from './browser-logo-input.js';
 import '../public/automation/runtime-uuid.js';
 import tbdCapabilities from '../contracts/services/v1/tbd-capabilities.json' with {type:'json'};
 import {recordTimeline,restoreTimeline,timelineList,validateTimeline} from './document-timeline.js';
@@ -114,7 +116,7 @@ function rejectPending(error){for(const job of pending.values()){clearTimeout(jo
 function createWorker(){
   const instance=new Worker(new URL('./cad-worker.js',import.meta.url),{type:'module'});
   instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;if(result.kind==='progress'){
-    kernelProgress={...result.progress,requestId:result.requestId,updatedAt:Date.now()};job.pulse();
+    kernelProgress={...result.progress,requestId:result.requestId,updatedAt:Date.now()};job.pulse();const progress=result.progress,key=[progress.kind,progress.phase,progress.stage,progress.featureId].join(':');if(job.debugProgressKey!==key||Date.now()-(job.debugProgressAt||0)>2000){job.debugProgressKey=key;job.debugProgressAt=Date.now();debugJournal.record('kernel','progress',{requestId:result.requestId,kind:progress.kind,phase:progress.phase,stage:progress.stage,featureId:progress.featureId,current:progress.current,total:progress.total,index:progress.index,regionIndex:progress.regionIndex});}
     job.progress=kernelProgress;
     if(result.progress.kind==='rebuild'){const p=result.progress;if(p.partial){try{viewport.addProgressiveMesh(p.partial);}catch{}delete p.partial;}const fraction=loadingTracker.update(p);if(busy)ui.setBusyProgress?.(fraction);return;}
     return;
@@ -123,8 +125,9 @@ function createWorker(){
   instance.onmessageerror=()=>{if(instance!==worker)return;const error=Object.assign(new Error('CAD Worker 消息无法解码；已提交工程仍保留，请恢复内核后继续。'),{code:'WORKER_MESSAGE_ERROR',commitState:'not_committed'});rejectPending(error);instance.terminate();kernelReady=false;worker=createWorker();refresh();};
   return instance;
 }
+debugJournal.setContextProvider(()=>({documentId:documentModel.documentId,documentInstanceId,revision}));
 worker=createWorker();
-function request(type,payload={},{hardTimeoutMs}={}){return new Promise((resolve,reject)=>{
+function request(type,payload={},{hardTimeoutMs}={}){return traceDebug('kernel',type,{requestId:requestSequence+1,...payload,document:payload.document?{revision,featureCount:payload.document.features?.length,lastFeature:payload.document.features?.at(-1)}:undefined},()=>new Promise((resolve,reject)=>{
   if(type==='rebuild'&&displayCoarsen>1&&payload.displayCoarsen===undefined)payload={...payload,displayCoarsen};
   const requestId=++requestSequence,instance=worker,started=Date.now(),timeoutMs=type==='ready'?45000:hardTimeoutMs||getServicesConfig().localTimeoutMs;kernelProgress=null;
   const job={resolve,reject,timer:null,pulse:()=>{
@@ -145,7 +148,7 @@ function request(type,payload={},{hardTimeoutMs}={}){return new Promise((resolve
     },Math.max(0,started+timeoutMs-Date.now()));
   }};
   pending.set(requestId,job);job.pulse();try{instance.postMessage({requestId,type,...payload});}catch(error){clearTimeout(job.timer);pending.delete(requestId);reject(Object.assign(error,{code:error.code||'WORKER_SEND_FAILED',commitState:'not_committed'}));}
-});}
+}));}
 function restartWorker(error){
   if(recoveryPromise)return recoveryPromise;
   worker.terminate();rejectPending(error);kernelReady=false;worker=createWorker();
@@ -176,7 +179,7 @@ servicesClient.setWaitHandler(job=>waitForServicesDecision(job));
 
 const ui=createUI(document.getElementById('app'),{
   initialDocumentName:documentModel.name,
-  onAction:(action,params)=>performAction(action,params).catch(error=>{reportError(error);return false;}),
+  onAction:(action,params)=>traceDebug('ui',action,params,()=>performAction(action,params)).catch(error=>{reportError(error);return false;}),
   onRoundGuide:(report,handlers)=>viewport.setRoundGuide(report,handlers),
   onLogoPlacement:async(input,handlers)=>{
     if(!input){viewport.clearLogoPlacement();return null;}
@@ -310,7 +313,7 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  const authoritative=servicesAvailable?await collectRoutingSources(changed,{hasSource:id=>records.has(id),changedSourceIds:affected,readSource:async id=>{const source=await request('sourceComplexity',{featureId:id});checkTransaction(signal,expectedRevision);return source;}}):new Map();
  const sourceSummary=feature=>authoritative.get(feature?.id)??aggregateSourceComplexity((feature?.refs??[]).map(id=>{const body=bodies.find(row=>row.id===id);return {faces:body?.faceGroups?.length,edges:body?.edges?.length,solids:body?.solidCount};}));
  const feature=featureId?next.features.find(row=>row.id===featureId):changed.length===1?changed[0]:null;
- const publish=decision=>{lastReliefDesignReceipt=null;lastServicesDecision={...decision,featureId:feature?.id??null,documentInstanceId,revision};setStatus(decision.reason);};
+ const publish=decision=>{debugJournal.record('runtime','executor-selected',{operation:feature?.op,featureId:feature?.id,decision});lastReliefDesignReceipt=null;lastServicesDecision={...decision,featureId:feature?.id??null,documentInstanceId,revision};setStatus(decision.reason);};
  if(featureId&&changed.some(row=>row.id!==featureId&&classifyComplexity({operation:row.op,params:row.params,source:sourceSummary(row),pattern:patternComplexity(row)}).complex))throw serviceError('COMPLEX_BATCH_REQUIRES_SEQUENTIAL','此编译会使下游复杂运算失效；请先移除下游步骤，完成来源后重新执行复杂操作。');
  if(!feature){
   const pending=changed.find(row=>!row.compiledCheckpoint&&tbdForOperation({operation:row.op,semanticVersion:compiledSemanticVersion(row),params:row.params,source:sourceSummary(row),pattern:patternComplexity(row)}));
@@ -422,6 +425,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     catch(error){await request('rebuild',{document:documentModel});throw error;}
     if(newInstance||documentModel.documentId!==next.documentId){documentInstanceId=crypto.randomUUID();projectFileHandle=null;}
     documentModel=next;bodies=result.bodies;committedFinalSources=result.finalSources;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;committed=true;
+    debugJournal.record('runtime','geometry-committed',{revision,origin,historyLabel,featureCount:next.features.length,bodyCount:bodies.length,bodies:bodies.slice(-12).map(b=>({id:b.id,volume:b.volume,bounds:b.bounds,solidCount:b.solidCount,shellCount:b.shellCount})),displayConfirmation:'separate',fileWriteConfirmation:'separate'});
     kernelPerformance={totalMs:performance.now()-localBegan,...(result.parallelRebuild?{parallelRebuild:result.parallelRebuild}:{}),perFeatureMs:result.perFeatureMs||[],compiledReuse:result.compiledReuse||[],compiledInvalidated:result.compiledInvalidated||[],slowest:(result.perFeatureMs||[]).slice().sort((a,b)=>b.ms-a.ms).slice(0,10)};
     for(const feature of newQuickModels)recordQuickModelUse(feature.params.kind);
     lastWarnings=bodyWarnings(bodies);if(placementWarning)lastWarnings.push(placementWarning);dirty=true;if(save)void autosave(); // selection-origin
@@ -895,7 +899,7 @@ async function rememberOpenedFile(file){const prior=openedFileHandles.get(file),
 async function autosave(){
   const snapshot=clone(documentModel),instance=documentInstanceId,savedRevision=revision;
   persistenceCheckpoint='pending';
-  const update=value=>{if(instance===documentInstanceId&&savedRevision===revision)persistenceCheckpoint=value;};
+  const update=value=>{const current=instance===documentInstanceId&&savedRevision===revision;if(current)persistenceCheckpoint=value;debugJournal.record('runtime','recovery-checkpoint',{documentId:snapshot.documentId,documentInstanceId:instance,revision:savedRevision,status:value,current},value==='failed'?'error':'info');};
   const db=await dbPromise;if(!db){update('failed');return;}
   return new Promise(resolve=>{try{const tx=db.transaction('documents','readwrite');
     const row={document:snapshot,savedAt:Date.now(),instanceId:instance,revision:savedRevision};
@@ -996,6 +1000,16 @@ const ready=(async()=>{
   catch(error){reportError(error);return false;}
 })();
 // Public automation surface also used by reproducible acceptance checks; never runs arbitrary code.
+function debugState(){
+ const safe=fn=>{try{return fn();}catch(error){return {error};}},info=pageAPI.info(),wizard=safe(getLogoWizardState),logo=wizard.review?.logo;
+ return {release:{buildId:info.buildId,pageApiVersion:info.pageApiVersion,catalogHash:info.catalogHash,docsHash:info.docsHash},
+  environment:{page:location.href,userAgent:navigator.userAgent,online:navigator.onLine},
+  document:{documentId:documentModel.documentId,documentInstanceId,revision,name:documentModel.name,dirty,persistenceCheckpoint,featureCount:documentModel.features.length,features:documentModel.features.slice(-50).map(f=>({id:f.id,op:f.op,name:f.name,refs:f.refs,params:f.params})),featureScope:'last 50 features; geometry and arrays are summarized'},
+  runtime:{busy,kernelReady,pendingRequests:pending.size,previewComputing,previewActive:!!previewNext,kernelProgress,kernelPerformance},
+  selection:{selectedIds,selectedTopology},bodies:bodies.slice(-50).map(b=>({id:b.id,name:b.name,bounds:b.bounds,volume:b.volume,area:b.area,faceCount:b.faceCount,edgeCount:b.edgeCount})),
+  ui:ui.debugState(),logoWizard:{open:wizard.open,step:wizard.step,busy:wizard.busy,parameters:wizard.parameters,placement:wizard.placement,errorDetails:wizard.errorDetails,machiningReadiness:wizard.machiningReadiness,review:logo?{revision:wizard.review.revision,reviewRequired:wizard.review.reviewRequired,name:logo.name,sizeMm:logo.sizeMm,source:logo.source,regions:logo.regions.length,holes:logo.regions.reduce((n,r)=>n+(r.holes?.length||0),0)}:null},
+  services:safe(getServicesConfig),agent:safe(()=>window.webcad.assistantPanel.get()),uiErrors:errorAuditSnapshot()};
+}
 function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(bodyState),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
 function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,reliefDesigns:clone(documentModel.reliefDesigns||[]),referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(bodyState),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
 async function executeAI(command,args={},options={}){
@@ -1161,6 +1175,8 @@ const commandService=createCommandService({
   query:args=>request('queryGeometry',args),
 });
 const pageAPI=createPageAPI({
+  debugReport:options=>makeDebugReport(options.includeState===false?null:debugState(),options),
+  setDebugPanel:visible=>ui.setDebugPanel(visible),
   openLogoWizard:()=>ui.openLogoWizard(),
   reliefReferenceRead:(designId,options)=>readReliefDesignReference(documentModel,designId,options),
   reliefReferenceCommit:input=>commandService.execute(input,{fromUI:true,referenceResourceValidated:true}),

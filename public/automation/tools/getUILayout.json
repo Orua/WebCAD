@@ -2,7 +2,7 @@
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.57.24",
+  "version": "1.57.25",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -99,5 +99,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:095120c8a9b71df5002e47c53fdb9698bb16bb6359c8ede60a407bcc6a0a1469"
+  "docsHash": "sha256:7ec5e5e3d10d00a32c21ad787d713d98089edb393a82b5b5233281c838fac954"
 }

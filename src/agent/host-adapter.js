@@ -1,10 +1,14 @@
 import {PROTOCOL, JOB_METHODS, EXPORT_METHODS, editsDocument, assertIdentity, failure, validatePayload} from './protocol.js?v=command-lock-20261010';
 import {withErrorRecovery} from '../error-recovery.js';
+import {debugJournal,traceDebug} from '../debug-journal.js';
 
 /** Host capability is injected. No model-provided code, origins, URLs or disk paths. */
 export function createHostAdapter({api, session, report, artifact, onStateChange=()=>{}, now=()=>Date.now(), wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}) {
   if (!api?.connect || !api?.invoke || !api?.getState || typeof report!=='function') throw failure('host_unavailable','Current public page API and an authorized result channel required');
   const binding={...session.binding}, scopes=[...session.scopes];
+  const log=(action,data,level='info')=>debugJournal.record('agent',action,{cadSessionId:session.cadSessionId,leaseEpoch:session.leaseEpoch,...data},level);
+  const identity=command=>({commandId:command.commandId,taskId:command.taskId,method:command.payload?.method,requestHash:command.requestHash,deadline:command.deadline});
+  log('adapter-created',{binding,scopes});
   let accepting=true, activeTask=null, tail=Promise.resolve();
   const commands=new Map();
   const archived=new Map();
@@ -36,9 +40,11 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
           }
         }
         result={...result,attachment};
+        log('artifact-delivered',{...identity(entry.command),resourceId:result.resourceId,size:result.size,sha256:result.sha256,attachment});
         if(method==='files.save' && attachment?.status==='agent_write_verified' && attachment.size===result.size && attachment.sha256===result.sha256){
           try {
             result.saveConfirmation=await api.files.confirmWritten({resourceId:result.resourceId,size:attachment.size,sha256:attachment.sha256});
+            log('save-confirmed',{...identity(entry.command),resourceId:result.resourceId,confirmation:result.saveConfirmation});
           } catch(error) {
             result.saveConfirmation={status:'failed',error:{code:error.code||'SAVE_CONFIRMATION_FAILED',message:error.message}};
           }
@@ -57,6 +63,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
     onStateChange();
     result=withErrorRecovery(await transferTree(entry,result,entry.command.payload.method));
     entry.result=structuredClone(result);
+    log('command-result',{...identity(entry.command),pageJobId:entry.jobId,status:result?.status,commitState:result?.commitState,error:result?.error},['failed','unknown','partial'].includes(result?.status)?'error':'info');
     if(endedTasks.has(entry.command.taskId)&&![...commands.values()].some(item=>item!==entry&&item.command.taskId===entry.command.taskId&&pending(item)))activeTask=null;
     void sendResult(entry);
     return entry.result;
@@ -84,8 +91,8 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
     if(entry.reported)return true;
     if(entry.resultReportPromise)return entry.resultReportPromise;
     entry.resultReportPromise=(async()=>{
-      try{await report('result',entry.command,{result:entry.result});entry.reported=true;entry.reportError=null;return true;}
-      catch(error){entry.reportError={code:error.code||'RESULT_REPORT_FAILED',message:error.message};return false;}
+      try{await report('result',entry.command,{result:entry.result});entry.reported=true;entry.reportError=null;log('result-delivered',{...identity(entry.command),status:entry.result?.status});return true;}
+      catch(error){entry.reportError={code:error.code||'RESULT_REPORT_FAILED',message:error.message};log('result-delivery-failed',{...identity(entry.command),error},'error');return false;}
       finally{entry.resultReportPromise=null;if(endedTasks.has(entry.command.taskId)&&![...commands.values()].some(item=>item.command.taskId===entry.command.taskId&&pending(item)))activeTask=null;archiveFinished();onStateChange();}
     })();
     return entry.resultReportPromise;
@@ -108,6 +115,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
 
   async function execute(entry) {
     const command=entry.command;
+    log('command-dispatch',identity(command));
     try {
       if (!accepting) throw failure('lease_revoked','Host page control has ended before CAD dispatch');
       if (command.deadline*1000<=now()) throw failure('COMMAND_EXPIRED','Command deadline passed before CAD dispatch; no page job was submitted');
@@ -123,12 +131,16 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
         entry.jobId='wc_'+command.commandId;
         api.submit({jobId:entry.jobId,method:command.payload.method,args:command.payload.args});
         entry.submitted=true;
+        log('page-job-submitted',{...identity(command),pageJobId:entry.jobId});
         await report('ack',command,{pageJobId:entry.jobId});
+        log('command-acknowledged',{...identity(command),pageJobId:entry.jobId});
         return await monitor(entry);
       }
       await report('ack',command,{});
+      log('command-acknowledged',identity(command));
       return await finish(entry,await api.invoke(command.payload));
     } catch(error) {
+      log('command-dispatch-error',{...identity(command),submitted:!!entry.submitted,pageJobId:entry.jobId,error},'error');
       // A lost HTTP acknowledgement may follow a real page submit. Keep its
       // job handle rather than claiming that nothing committed or resubmitting.
       if (entry.submitted && !entry.result) {
@@ -141,6 +153,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
   }
 
   function receive(command) {
+    log('command-received',{...identity(command),binding:command.payload?.args?.context});
     if (command.protocol!==PROTOCOL || command.cadSessionId!==session.cadSessionId || command.leaseEpoch!==session.leaseEpoch || !/^[a-f0-9]{32}$/.test(command.commandId||'') || typeof command.requestHash!=='string') throw failure('INSTANCE_MISMATCH','Invalid command envelope');
     const previous=commands.get(command.commandId);
     const saved=archived.get(command.commandId);
@@ -164,6 +177,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
   }
 
   function endTask(taskId) {
+    log('task-ended',{taskId});
     endedTasks.add(taskId);
     archiveFinished();
     if (taskId!==activeTask) return;
@@ -180,7 +194,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
     }
   }
 
-  return Object.freeze({receive,endTask,release(){accepting=false;endTask(activeTask);},
+  return Object.freeze({receive:command=>traceDebug('agent','command-receive',{commandId:command?.commandId,taskId:command?.taskId,method:command?.payload?.method},()=>receive(command)),endTask,release(){log('adapter-released',{activeTask});accepting=false;endTask(activeTask);},
     reconcilePending,
     async retryReports(){await reconcilePending();await Promise.all([...commands.values()].filter(entry=>entry.result&&!entry.reported).map(sendResult));archiveFinished();},
     state(){return {accepting,activeTask,editing:accepting&&[...commands.values()].some(entry=>entry.editing),pending:[...commands.values()].filter(entry=>pending(entry)||!entry.reported).map(entry=>({commandId:entry.command.commandId,pageJobId:entry.jobId||null,deliveryState:entry.reportError?'retry_pending':entry.result?.status==='unknown'?'unknown':'pending',error:entry.reportError||null}))};},

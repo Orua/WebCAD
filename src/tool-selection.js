@@ -1,6 +1,10 @@
 // Tool-family distinctions belong to the shared CAD catalog, not a host prompt
 // or a product-specific decision branch. These are discovery hints, never gates.
 const groups = [
+  ['debug','运行诊断与日志',{
+    getDebugReport:'只读获取当前状态、操作过程和错误字段，供分析/复制/保存；不是工程导出或服务器磁盘日志。',
+    setDebugPanel:'只打开或关闭独立Debug窗口，不取消编辑草稿、不停止计算、不修改工程。',
+  }],
   ['materials','密度与估算重量',{
     getMaterials:'读取工程密度、默认材料和对象材料，参考值不等于实际合金检测。',
     measureMass:'测量当前对象体积并按密度计算克重；无体积返回null，不是电镀外观设置。',

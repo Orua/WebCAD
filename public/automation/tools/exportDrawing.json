@@ -2,7 +2,7 @@
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.57.24",
+  "version": "1.57.25",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_artifact",
@@ -193,5 +193,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:72cb5cae96b9c11ee4d0cb5e843b0ddbc7d72ec2b8c557c2b2a751f5c8483ba2"
+  "docsHash": "sha256:204b084bd425965d01556cce05436bcd7eba0bdb55cb02ed1eb7d3f49d7758ef"
 }
