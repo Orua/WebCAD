@@ -2,7 +2,7 @@
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.57.18",
+  "version": "1.57.19",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -126,5 +126,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:77e5814112cba3315b4b48aa94a015215d7a924d803ebfa0710c533833739f10"
+  "docsHash": "sha256:8b60756a010dc661b1184544d86bc2af0c09f3aa7f41aefcc09c73d236d2bd20"
 }

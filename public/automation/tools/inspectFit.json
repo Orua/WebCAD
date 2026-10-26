@@ -2,7 +2,7 @@
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.57.18",
+  "version": "1.57.19",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -80,5 +80,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:63104f92f3718a44a3b61cfff65ca0b2f7fad3b38d6f37742f5dc8fc2af9e7da"
+  "docsHash": "sha256:62c2ac842f1324443e993f97643de88791809916d5f5fd43239598bd9b6a23e2"
 }
