@@ -1,4 +1,18 @@
 {
+  "logoHostDirect20261026": {
+    "localImpact": "ReadLogo accepts a validated host packet, defaults to task-authorized automatic acceptance, and returns a live logoId. The page materializes accepted current draft contours before normal logo transactions. Explicit preview blocks engraving and opens the shared large editor. Preserve source millimeters for SVG/JSON; 35mm is only a provisional image draft.",
+    "servicesImpact": "No Gateway/Logo/Native binary change: host transport uses the existing authenticated asset/job/artifact protocol. Credentials remain in existing private IIS configuration/DPAPI; no forged Origin/cookies or model-visible token.",
+    "logoImpact": "Dense raster preparation shares the published line/arc fitter with symmetric deviation/topology checks and original contours; measured same-source data reduces 3992 to2216 points without deleting regions/holes. Geometry speed requires a related real trial, not inferred from point counts.",
+    "contractImpact": "API1.57.22 sessionFileId native source, validated packet source, automatic/preview policy, logoId argument and logoWizard open. Domain workflow and fixed adapter are distributed in the product knowledge, not hardcoded in Agent prompts.",
+    "documentImpact": "Conversion only prepares independent drafts and verified local files. CAD edit still requires the ordinary document-bound edit permission/current target and atomic logo transaction. User-requested preview remains blocked until confirmation.",
+    "cacheImpact": "Finite remote software adds hash-verified logo-preparer; unified ZIP has14 files. Native Agent accepts legacy13/current14 snapshots and legacy3/current4 software files. Publish matching source/Agent runtime and regenerate full archive/routes.",
+    "requiredTests": [
+      "27 targeted page/review/placement/default-vs-preview tests",
+      "Three direct transport/auth/private receipt tests and live local IIS authorized handshake",
+      "Joint native software/knowledge and routing tests against actual candidate",
+      "Actual native Agent direct conversion, local vector SHA256, preview pause and real engraving; separate runtime/geometry/page/save evidence"
+    ]
+  },
   "logoCanvasPlacement20261026": {
     "localImpact": "Keep the original wizard and vector draft while folding to a viewport icon. Exact planar face highlight, display-only orange contours, four projected-bound margins, editable top/left, drag/scale/rotate/center controls; commit via the existing logo transaction.",
     "servicesImpact": "None: no backend/runtime/Native algorithm changes.",
@@ -3654,6 +3668,19 @@
       "Hole islands, rear wall, source identity, thin wall and incomplete projection rejection",
       "Logo schema, kernel operation dispatch, historical single-face tests",
       "One 17674 browser check without replacing user document"
+    ]
+  },
+  "logoFeedback20261026": {
+    "localImpact": "Manual UI and logoId share strict geometry-only operation params; upload/compute indicator; top-right review actions; paired horizontal/vertical align icons",
+    "servicesImpact": "None: status observes existing upload and compute phases; no worker/protocol/binary change",
+    "logoImpact": "Preserve original artwork, holes, scale and depth; strip only file-envelope metadata before CAD",
+    "contractImpact": "pageAPI 1.57.23; logoWizard transferStage readback; existing align horizontal/vertical/center actions",
+    "documentImpact": "No format changes; existing drafts and user projects preserved",
+    "cacheImpact": "Regenerate finite knowledge bundle and matching fixed host software; publish one frontend build",
+    "requiredTests": [
+      "Strict operation schema on materialized logo params",
+      "Upload stage sequence and direct affected UI check",
+      "One actual logo carving receipt; native Agent full flow remains unverified due test transport timeouts"
     ]
   }
 }

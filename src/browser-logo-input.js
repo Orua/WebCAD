@@ -1,3 +1,5 @@
+import {fitLogoWidth} from './logo-width.js';
+export {fitLogoWidth} from './logo-width.js';
 import {validateLogoMachining,fitLogoToMachining} from './logo-machining-optimization.js';
 import {humanError} from './error-recovery.js';
 import { validateRegions,inspectLogoMachiningCapacity } from './logo-model.js';
@@ -34,28 +36,11 @@ export function logoInputKind(name){
  if(['pdf','ai'].includes(ext))return 'paged-vector';
  return ext==='dxf'?'vector':'unsupported';
 }
-export function fitLogoWidth(logo,targetWidthMm){
- if(targetWidthMm===undefined)return logo;
- if(!(Number.isFinite(targetWidthMm)&&targetWidthMm>0))throw inputError('图案宽度必须大于 0 mm。','SIZE_REQUIRED');
- const points=logo.regions.flatMap(r=>r.outer),xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
- let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;for(let i=0;i<xs.length;i++){minX=Math.min(minX,xs[i]);maxX=Math.max(maxX,xs[i]);minY=Math.min(minY,ys[i]);maxY=Math.max(maxY,ys[i]);}
- const width=maxX-minX,factor=targetWidthMm/width;if(!(width>0&&Number.isFinite(factor)))throw inputError('没有可缩放的有效 LOGO 轮廓。','INVALID_CONTOUR');
- const frame=logo.source?.rasterFrame,rasterFrame=frame?{...frame,...Object.fromEntries(['xMm','yMm','widthMm','heightMm','mmPerPixel'].map(key=>[key,frame[key]*factor]))}:undefined;
- const scaledReport=(report,keys)=>report?{...report,...Object.fromEntries(keys.filter(key=>Number.isFinite(report[key])).map(key=>[key,report[key]*factor]))}:report;
- const rasterSmoothing=scaledReport(logo.source?.rasterSmoothing,['requestedToleranceMm','effectiveToleranceMm','curveDistanceUpperBoundMm','coordinateRoundingMm']);
- const rasterTopology=scaledReport(logo.source?.rasterTopology,['curveDistanceUpperBoundMm']);
- const conversionReport=scaledReport(logo.source?.conversionReport,['requestedToleranceMm','approximationBoundMm']);
- const conversion=scaledReport(logo.source?.conversion,['requestedToleranceMm','approximationBoundMm']);
- // Preserve the converter's original contour bytes/frame and hash. Record its
- // explicit transform into the fitted logo instead of silently rewriting proof.
- const rasterOriginalContoursToLogo=logo.source?.rasterOriginalContours?{scale:(logo.source.rasterOriginalContoursToLogo?.scale??1)*factor,translationMm:[0,0],from:'converter-original-mm',to:'logo-mm'}:undefined;
- return {...logo,sizeMm:[targetWidthMm,(maxY-minY)*factor],regions:logo.regions.map(r=>({outer:r.outer.map(p=>p.map(v=>v*factor)),holes:(r.holes||[]).map(h=>h.map(p=>p.map(v=>v*factor)))})),source:{...(typeof logo.source==='object'?logo.source:{original:logo.source}),...(rasterFrame?{rasterFrame}:{}),...(rasterSmoothing?{rasterSmoothing}:{}),...(rasterTopology?{rasterTopology}:{}),...(conversionReport?{conversionReport}:{}),...(conversion?{conversion}:{}),...(rasterOriginalContoursToLogo?{rasterOriginalContoursToLogo}:{}),widthNormalization:{basis:'contour-bounds',convertedWidthMm:width,requestedWidthMm:targetWidthMm,scale:factor}}};
-}
-export async function readBrowserLogo(file,validate,{targetWidthMm,page,sizeConfirmed=false,allowUpload=false,raster,machining,pdfJoinToleranceMm,client=servicesClient}={}){
+export async function readBrowserLogo(file,validate,{targetWidthMm,page,sizeConfirmed=false,allowUpload=false,raster,machining,pdfJoinToleranceMm,client=servicesClient,onProgress}={}){
   if(!file)throw inputError('请选择 LOGO 文件','INVALID_INPUT');
   validateLogoMachining(machining);
   const name=file.name.toLowerCase();
-  const prepare=logo=>fitLogoToMachining(fitLogoWidth(logo,targetWidthMm),machining);
+  const prepare=logo=>{onProgress?.('preparing');return fitLogoToMachining(fitLogoWidth(logo,targetWidthMm),machining);};
   const isPaged=/\.(pdf|ai)$/.test(name);
   if(pdfJoinToleranceMm!==undefined&&(!Number.isFinite(pdfJoinToleranceMm)||pdfJoinToleranceMm<0||pdfJoinToleranceMm>0.1))throw inputError('pdfJoinToleranceMm 须为 0–0.1 mm 数值；PDF / AI 的 0 使用源宽度 × 0.0025 自动线接合规则，其他格式不应用。','PARAM_SCHEMA_INVALID');
   if(name.endsWith('.logo.json')){
@@ -79,7 +64,8 @@ export async function readBrowserLogo(file,validate,{targetWidthMm,page,sizeConf
     validateLogoRasterOptions(raster);
     if(!sizeConfirmed||isRaster&&!(Number.isFinite(targetWidthMm)&&targetWidthMm>0))throw inputError('请填写图案实际宽度（mm）；图片像素不能作为毫米尺寸。','SIZE_REQUIRED');
     if(targetWidthMm!==undefined&&!(Number.isFinite(targetWidthMm)&&targetWidthMm>0))throw inputError('图案宽度必须大于 0 mm。','SIZE_REQUIRED');
-    const asset=await client.upload(file),requestId=crypto.randomUUID();
+    onProgress?.('uploading');
+    const asset=await client.upload(file),requestId=crypto.randomUUID();onProgress?.('processing');
     const inspectOptions={...(page?{page}:{}),...(isPaged?{pdfJoinToleranceMm:pdfJoinToleranceMm??0,...(targetWidthMm?{targetWidthMm}:{})}:{})};
     let inspected={result:{pageCount:1},manifest:null};if(!isRaster)try{inspected=await client.wait(await client.submit('logo/inspect',{assetId:asset.assetId,options:inspectOptions},`${requestId}-inspect`));}catch(error){throw logoConversionError(error,{isRaster,raster});}
     if(inspected.result.pageCount>1&&!page)throw inputError(`源文件有 ${inspected.result.pageCount} 页，请指定页码。`,'PAGE_REQUIRED');
@@ -90,7 +76,7 @@ export async function readBrowserLogo(file,validate,{targetWidthMm,page,sizeConf
     const {result,manifest}=converted;
     if(!result.geometryValid||!result.logoDocument||!['ready','needsReview'].includes(result.status))throw inputError('后台没有返回有效的闭合轮廓。','CONVERSION_FAILED');
     const logo=validate(result.logoDocument);validateRegions(logo);renderedLogoRaster(logo);
-    logo.source={...logo.source,reviewed:false,reviewRequired:result.reviewRequired,conversionReport:result.conversionReport,inspectionReport:inspected.result,servicesEvidence:{jobId:manifest.jobId,inputFingerprint:manifest.inputFingerprint,artifactSha256:manifest.artifactSha256,artifactId:manifest.artifactId,assetId:asset.assetId,sourceSha256:asset.sha256,inspectionJobId:inspected.manifest?.jobId}};
+    logo.source={...logo.source,reviewed:false,reviewRequired:result.reviewRequired,conversionReport:result.conversionReport,inspectionReport:inspected.result,servicesEvidence:{jobId:manifest.jobId,inputFingerprint:manifest.inputFingerprint,artifactSha256:manifest.artifactSha256,artifactId:manifest.artifactId,assetId:asset.assetId,sourceSha256:asset.sha256,...(inspected.manifest?.jobId?{inspectionJobId:inspected.manifest.jobId}:{})}};
     return prepare(logo);
   }
   throw inputError('LOGO 支持 SVG、LOGO JSON、PDF、AI、DXF、PNG、JPG、BMP。照片或明暗参考图不能直接当作精确雕刻轮廓。','CAPABILITY_UNAVAILABLE');
@@ -123,26 +109,28 @@ export function createLogoImportUI({onLogo,onInvalidate,validateLogoDocument,log
  machiningPanel.append(el('p',{class:'property-footnote'},'偏差上限默认 0.05 mm；位图按短边的 2% 限制实际误差，在误差内将直边拉直、曲边拟合顺滑。舍弃整体尺寸小于 0.20 mm 的小区域和小孔；长而细的笔画保留。请按刀具和实物调整，关闭优化可保留全部轮廓。'));machiningPanel.hidden=true;
  const back=el('button',{type:'button',class:'secondary'},'返回来源与识别参数');
  const pdfDetails=el('details'),pdfJoin=el('input',{type:'number',min:'0',max:'0.1',step:'0.001',value:'0','aria-label':'PDF 线接合公差 mm'}),pdfLabel=el('label',{class:'form-field'},'线接合公差 · mm');pdfLabel.append(pdfJoin);pdfDetails.append(el('summary',{},'PDF / AI 线接合参数'),pdfLabel,el('p',{class:'property-footnote'},'0：完整源宽度 × 0.0025 自动接合；正数：毫米覆盖（最大 0.1）。仅整理描边闭环和短折返，不是位图平滑；修复后仍须校对。'));pdfDetails.hidden=true;
- const reviewContent=el('div',{class:'logo-review-content'}),reviewFooter=el('div',{class:'logo-review-footer'});reviewContent.append(editorHost,summary);reviewFooter.append(confirm,download,back);
- sourcePanel.append(label,width,pageField,pdfDetails,rasterDetails,machiningPanel,read,advanced);reviewPanel.append(reviewContent,reviewFooter);reviewPanel.hidden=true;
+ const reviewContent=el('div',{class:'logo-review-content'}),reviewFooter=el('div',{class:'logo-review-footer'});reviewContent.append(editorHost,summary);reviewFooter.append(confirm,back);
+ sourcePanel.append(label,width,pageField,pdfDetails,rasterDetails,machiningPanel,read,advanced);reviewPanel.hidden=true;
  const thumbnail=el('div',{class:'logo-wizard-thumbnail','aria-label':'LOGO 预览'}),enlarge=el('button',{type:'button',class:'secondary'});
  setLogoButtonIcon(enlarge,'expand','打开大窗编辑矢量');setLogoButtonIcon(download,'save','保存轮廓 DXF');setLogoButtonIcon(back,'back','重新选择图片');setLogoButtonIcon(change,'image','更换图片');
- reviewFooter.prepend?.(enlarge);if(!reviewFooter.prepend)reviewFooter.append(enlarge);
+ const reviewActions=el('div',{class:'logo-review-header-actions','aria-label':'轮廓操作'});reviewActions.append(enlarge,download);reviewPanel.append(reviewContent,reviewFooter);reviewActions.hidden=true;const wizardHeader=el('div',{class:'logo-wizard-header'});wizardHeader.append(progress,reviewActions);
+ const transferStatus=el('div',{class:'logo-transfer-status',role:'status','aria-live':'polite',hidden:''});
  editorHost.hidden=true;route.hidden=true;summary.hidden=true;read.hidden=true;
  for(const control of [width,pageField,pdfDetails,rasterDetails,machiningPanel,advanced])control.hidden=true;
- width.value='35';width.title='画布定位时可缩放的初始宽度（mm）';
- host.append(progress,thumbnail,route,change,sourcePanel,error,reviewPanel);
+ width.value='';width.title='画布定位时可缩放的初始宽度（mm）';
+ host.append(wizardHeader,thumbnail,transferStatus,route,change,sourcePanel,error,reviewPanel);
+ let transferStage='idle';const showTransferStage=stage=>{transferStage=stage;transferStatus.hidden=stage==='idle';transferStatus.textContent=({reading:'正在读取图片…',uploading:'正在上传图片…',processing:'图片已上传，正在计算轮廓…',preparing:'轮廓已返回，正在优化…'})[stage]??'';};
  let generation=0,pending=null,busy=false,session=null,editor=null,imageUrl=null,wizardRevision=0,lastError=null,reviewBinding=null,largeEditor=null,machiningOverride,placementController=null;
  const markStep=index=>steps.forEach((step,i)=>{if(i===index)step.setAttribute('aria-current','step');else step.removeAttribute('aria-current');});markStep(0);
  const showConfirmed=value=>{for(const control of [label,read])control.hidden=value;change.hidden=!value;for(const control of [width,pageField,summary,advanced])control.hidden=true;read.hidden=true;};
- const showSummary=logo=>{const full=logoSummary(logo),svg=full.querySelector('svg');if(svg)thumbnail.replaceChildren(svg);thumbnail.title=logo.sizeMm?.map(v=>Number(v).toFixed(2)).join(' × ')+' mm';summary.replaceChildren();};
- const closeLargeEditor=()=>{if(!largeEditor)return;editorHost.append(editor.element);largeEditor.close();largeEditor.remove();largeEditor=null;showSummary(session.get().logo);};
- const openLargeEditor=()=>{if(!session||!editor)return;if(largeEditor)return;largeEditor=el('dialog',{class:'logo-editor-dialog','aria-label':'编辑 LOGO 矢量'});const header=el('div',{class:'logo-editor-header'}),close=el('button',{type:'button',class:'secondary'});setLogoButtonIcon(close,'check','完成编辑');close.addEventListener('click',closeLargeEditor);header.append(el('h3',{},'编辑矢量'),close);largeEditor.append(header,editor.element);largeEditor.addEventListener('cancel',event=>{event.preventDefault();closeLargeEditor();});document.body.append(largeEditor);largeEditor.showModal();editor.render();};
+ const showSummary=logo=>{reviewActions.hidden=false;const full=logoSummary(logo),svg=full.querySelector('svg');if(svg)thumbnail.replaceChildren(svg);thumbnail.title=logo.sizeMm?.map(v=>Number(v).toFixed(2)).join(' × ')+' mm';summary.replaceChildren();};
+ const closeLargeEditor=()=>{if(!largeEditor)return;editorHost.append(editor.element);reviewActions.append(enlarge,download);largeEditor.close();largeEditor.remove();largeEditor=null;showSummary(session.get().logo);};
+ const openLargeEditor=()=>{if(!session||!editor)return;if(largeEditor)return;largeEditor=el('dialog',{class:'logo-editor-dialog','aria-label':'编辑 LOGO 矢量'});const header=el('div',{class:'logo-editor-header'}),close=el('button',{type:'button',class:'secondary'});setLogoButtonIcon(close,'check','完成编辑');close.addEventListener('click',closeLargeEditor);const actions=el('div',{class:'logo-editor-header-actions'});actions.append(download,close);header.append(el('h3',{},'编辑矢量'),actions);largeEditor.append(header,editor.element);largeEditor.addEventListener('cancel',event=>{event.preventDefault();closeLargeEditor();});document.body.append(largeEditor);largeEditor.showModal();editor.render();};
  enlarge.addEventListener('click',openLargeEditor);
  steps.forEach((step,index)=>{const tab=el('button',{type:'button',class:'logo-step-tab'},['选择图片','校对轮廓','定位雕刻'][index]);step.replaceChildren(tab);tab.addEventListener('click',()=>{if(busy||index>0&&!pending||index===2&&session?.get().reviewRequired)return;sourcePanel.hidden=index!==0;reviewPanel.hidden=index!==1;confirm.hidden=false;markStep(index);onLogo(index===2?pending:null);++wizardRevision;});});
  const clearImage=()=>{if(imageUrl)URL.revokeObjectURL(imageUrl);imageUrl=null;};
  const detachReview=()=>{if(reviewBinding)reviewBinding.valid=false;reviewBinding=null;};
- const invalidate=async()=>{closeLargeEditor();thumbnail.replaceChildren();++generation;++wizardRevision;detachReview();pending=null;session=editor=null;clearImage();editorHost.replaceChildren();confirm.hidden=download.hidden=true;summary.replaceChildren();error.textContent='';lastError=null;showConfirmed(false);sourcePanel.hidden=false;reviewPanel.hidden=true;markStep(0);onLogo(null);await onInvalidate?.();};
+ const invalidate=async()=>{closeLargeEditor();reviewActions.hidden=true;thumbnail.replaceChildren();++generation;++wizardRevision;detachReview();pending=null;session=editor=null;clearImage();editorHost.replaceChildren();confirm.hidden=download.hidden=true;summary.replaceChildren();error.textContent='';lastError=null;showConfirmed(false);sourcePanel.hidden=false;reviewPanel.hidden=true;markStep(0);onLogo(null);await onInvalidate?.();};
  const reviewChanged=state=>{pending=state.logo;++wizardRevision;if(state.reviewRequired){onLogo(null);sourcePanel.hidden=true;reviewPanel.hidden=false;markStep(1);confirm.hidden=false;onInvalidate?.();}else{onLogo(pending);confirm.hidden=true;showConfirmed(true);sourcePanel.hidden=reviewPanel.hidden=true;markStep(2);}showSummary(pending);};
  const installReview=(logo,file,sharedSession)=>{
   const rendered=renderedLogoRaster(logo);
@@ -152,14 +140,14 @@ export function createLogoImportUI({onLogo,onInvalidate,validateLogoDocument,log
  const selectedWidth=()=>width.value.trim()?Number(width.value):undefined;
  const inspect=async(loader,{propagate=false,sourceFile=input.files?.[0]??null}={})=>{
   if(busy){if(propagate)throw inputError('正在读取来源，请等待原任务完成。','LOGO_WIZARD_BUSY');return;}
-  busy=true;const token=++generation;detachReview();pending=null;session=editor=null;clearImage();editorHost.replaceChildren();thumbnail.replaceChildren();if(sourceFile instanceof Blob&&logoInputKind(sourceFile.name)==='raster'){imageUrl=URL.createObjectURL(sourceFile);thumbnail.append(el('img',{src:imageUrl,alt:'原始 LOGO 图片'}));}confirm.hidden=download.hidden=true;summary.replaceChildren();error.textContent='';lastError=null;onLogo(null);read.disabled=pasteRead.disabled=true;for(const control of [input,width,page,paste,threshold,alpha,invert,pdfJoin,smoothing,back,change,machiningEnabled,machiningTolerance,minDetail])control.disabled=true;read.textContent='正在识别…';host.setAttribute('aria-busy','true');route.textContent='正在识别轮廓，请等待完成后再上传或修改参数。';
+  busy=true;reviewActions.hidden=true;showTransferStage('reading');const token=++generation;detachReview();pending=null;session=editor=null;clearImage();editorHost.replaceChildren();thumbnail.replaceChildren();if(sourceFile instanceof Blob&&logoInputKind(sourceFile.name)==='raster'){imageUrl=URL.createObjectURL(sourceFile);thumbnail.append(el('img',{src:imageUrl,alt:'原始 LOGO 图片'}));}confirm.hidden=download.hidden=true;summary.replaceChildren();error.textContent='';lastError=null;onLogo(null);read.disabled=pasteRead.disabled=true;for(const control of [input,width,page,paste,threshold,alpha,invert,pdfJoin,smoothing,back,change,machiningEnabled,machiningTolerance,minDetail])control.disabled=true;read.textContent='正在识别…';host.setAttribute('aria-busy','true');route.textContent='正在识别轮廓，请等待完成后再上传或修改参数。';
   try{await onInvalidate?.();const logo=await loader();if(token!==generation||!host.isConnected){if(propagate)throw inputError('向导已关闭或来源已更换；未导入此结果。','LOGO_READ_CANCELLED');return;}installReview(logo,sourceFile);route.textContent='请核对字形、孔洞和毫米尺寸。照片、阴影图不能据明暗推断立体深度。';}
   catch(value){const failure=value instanceof Error?value:inputError(String(value),'LOGO_READ_FAILED');if(!failure.code)failure.code='LOGO_READ_FAILED';if(token===generation){error.textContent=humanError(failure)+(failure.jobId?` 任务编号：${failure.jobId}；错误代码：${failure.code}。`:'');lastError={code:failure.code,message:failure.message,...Object.fromEntries(['jobId','idempotencyKey','details','stage','commitState'].filter(key=>failure[key]!==undefined).map(key=>[key,failure[key]]))};route.textContent='本次未导入轮廓；可查看具体错误后重新识别，或选择其他文件。';}if(propagate)throw failure;}
-  finally{busy=false;for(const control of [input,width,page,paste,threshold,alpha,invert,pdfJoin,smoothing,back,change,machiningEnabled,machiningTolerance,minDetail])control.disabled=false;read.textContent='识别轮廓';host.setAttribute('aria-busy','false');read.disabled=!input.files?.[0];pasteRead.disabled=false;}
+  finally{busy=false;showTransferStage('idle');for(const control of [input,width,page,paste,threshold,alpha,invert,pdfJoin,smoothing,back,change,machiningEnabled,machiningTolerance,minDetail])control.disabled=false;read.textContent='识别轮廓';host.setAttribute('aria-busy','false');read.disabled=!input.files?.[0];pasteRead.disabled=false;}
  };
  const machiningOptions=()=>({enabled:machiningEnabled.checked,toleranceMm:Number(machiningTolerance.value),minDetailMm:Number(minDetail.value)});
  const rasterOptions=()=>({threshold:Number(threshold.value),alphaThreshold:Number(alpha.value),invert:invert.checked,smoothingPx:smoothing.value.trim()===""?NaN:Number(smoothing.value)});
- const readSelected=(allowUpload=false,options)=>{const file=input.files?.[0];if(!file){if(options?.propagate)throw inputError('请先选择来源文件，或用 readLogo 资源载入轮廓。','LOGO_SOURCE_REQUIRED');return;}return inspect(()=>readBrowserLogo(file,validateLogoDocument,{targetWidthMm:selectedWidth(),...(logoInputKind(file.name)==='paged-vector'?{page:Number(page.value),pdfJoinToleranceMm:Number(pdfJoin.value)}:{}),sizeConfirmed:Number.isFinite(selectedWidth())&&selectedWidth()>0,allowUpload:allowUpload===true,...(logoInputKind(file.name)==='raster'?{machining:machiningOverride}:{}),...(['raster','paged-vector'].includes(logoInputKind(file.name))?{raster:rasterOptions()}:{})}),options);};
+ const readSelected=(allowUpload=false,options)=>{const file=input.files?.[0];if(!file){if(options?.propagate)throw inputError('请先选择来源文件，或用 readLogo 资源载入轮廓。','LOGO_SOURCE_REQUIRED');return;}return inspect(()=>readBrowserLogo(file,validateLogoDocument,{onProgress:showTransferStage,targetWidthMm:selectedWidth()??(logoInputKind(file.name)==='raster'?35:undefined),...(logoInputKind(file.name)==='paged-vector'?{page:Number(page.value),pdfJoinToleranceMm:Number(pdfJoin.value)}:{}),sizeConfirmed:true,allowUpload:allowUpload===true,...(logoInputKind(file.name)==='raster'?{machining:machiningOverride}:{}),...(['raster','paged-vector'].includes(logoInputKind(file.name))?{raster:rasterOptions()}:{})}),options);};
  input.addEventListener('change',async()=>{await invalidate();const file=input.files?.[0];read.disabled=!file;for(const control of [width,pageField,pdfDetails,rasterDetails,machiningPanel,advanced])control.hidden=true;if(!file)return;await readSelected(true);});
  read.addEventListener('click',()=>readSelected(true));
  download.addEventListener('click',()=>{if(!pending)return;try{const url=URL.createObjectURL(new Blob([logoDXF(pending)],{type:'application/dxf'})),link=document.createElement('a');link.href=url;link.download='logo.dxf';link.click();setTimeout(()=>URL.revokeObjectURL(url),0);}catch(value){error.textContent=humanError(value);}});
@@ -169,7 +157,7 @@ export function createLogoImportUI({onLogo,onInvalidate,validateLogoDocument,log
  confirm.addEventListener('click',()=>{try{accept();}catch(e){error.textContent=humanError(e);}});
  back.addEventListener('click',async()=>{await invalidate();route.textContent='修改来源或参数后，重新识别。';});
  change.addEventListener('click',async()=>{await invalidate();route.textContent='选择新图片，或修改宽度后重新识别。';});
- const get=()=>({open:true,editorOpen:!!largeEditor,placement:placementController?.get()??null,revision:wizardRevision,step:busy?'reading':sourcePanel.hidden?reviewPanel.hidden?'target':'review':'source',busy,machiningReadiness:pending?inspectLogoMachiningCapacity(pending):null,error:error.textContent||null,errorDetails:lastError?structuredClone(lastError):null,name:reviewBinding?.sourceFile?.name??input.files?.[0]?.name??null,logoId:reviewBinding?.info?.logoId??null,sourceResourceId:reviewBinding?.info?.sourceResourceId??null,sourceStatus:reviewBinding?.info?.sourceStatus??(reviewBinding?.sourceFile?'not-registered':'unavailable-original'),parameters:{targetWidthMm:selectedWidth()??null,page:Number(page.value),pdfJoinToleranceMm:Number(pdfJoin.value),raster:rasterOptions(),machining:machiningOverride},review:session?.get()??null});
+ const get=()=>({open:true,editorOpen:!!largeEditor,placement:placementController?.get()??null,revision:wizardRevision,transferStage,step:busy?'reading':sourcePanel.hidden?reviewPanel.hidden?'target':'review':'source',busy,machiningReadiness:pending?inspectLogoMachiningCapacity(pending):null,error:error.textContent||null,errorDetails:lastError?structuredClone(lastError):null,name:reviewBinding?.sourceFile?.name??input.files?.[0]?.name??null,logoId:reviewBinding?.info?.logoId??null,sourceResourceId:reviewBinding?.info?.sourceResourceId??null,sourceStatus:reviewBinding?.info?.sourceStatus??(reviewBinding?.sourceFile?'not-registered':'unavailable-original'),parameters:{targetWidthMm:selectedWidth()??null,page:Number(page.value),pdfJoinToleranceMm:Number(pdfJoin.value),raster:rasterOptions(),machining:machiningOverride},review:session?.get()??null});
  activeWizard={element:host,get,binding:()=>reviewBinding,refresh:shared=>{if(shared===session){if(!editor){editor=createLogoVectorReview({session,imageUrl,onChange:reviewChanged});editorHost.replaceChildren(editor.element);}editor.render();reviewChanged(session.get());}},act:async request=>{
   if(request.action==='get')return get();if(request.expectedRevision!==wizardRevision)throw inputError('LOGO 向导已变化，请读取最新 revision。','LOGO_REVIEW_STALE');
   if(busy)throw inputError('正在读取来源，请等待原任务完成。','LOGO_WIZARD_BUSY');

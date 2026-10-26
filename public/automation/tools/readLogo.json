@@ -2,14 +2,14 @@
   "id": "readLogo",
   "title": "readLogo",
   "category": "page-method",
-  "version": "1.57.21",
+  "version": "1.57.23",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "readLogo",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "readLogo({context,resourceId,name,targetWidthMm?,page?,pdfJoinToleranceMm?,sizeConfirmed?,allowUpload?,machining?:{enabled,toleranceMm,minDetailMm},raster?:{threshold,invert,alphaThreshold,smoothingPx}})。选定文件先登记资源；默认自动适配150区域/12000总点/2000单环点的加工限制，无需询问用户是否简化。保留原始轮廓、孔洞、区域和物理外形尺寸，source.endpointAdaptation返回前后点数及真实双向偏差上界；默认上界为min(0.25mm,短边1%)，显式toleranceMm可收紧。SVG/LOGO JSON及受支持闭合直线DXF本机读取，其他格式交已配置后台。位图直接一次convert，不做完整能力盘点或多余inspect任务。位图必须提供实际宽度、sizeConfirmed:true、allowUpload:true。raster可省略；threshold/alphaThreshold为0–255整数，默认128/1；invert为布尔值，默认false。LOGO不接受浮雕的0–1阈值，0.5在上传前返回PARAM_SCHEMA_INVALID。默认以亮度<128的深色像素为前景；不得无依据反转或扫描参数重试。",
+  "description": "readLogo({context,sessionFileId,allowUpload:true,targetWidthMm?,reviewPolicy?:automatic|preview})是原生Agent首选。宿主从当前用户会话文件读取原图，使用宿主私有计算授权直连已配置Services，保存原转换回执、矢量JSON和SVG并回读SHA256；只把矢量交给页面，原图不经页面转发，授权值不进入模型。宿主执行已发布总包中固定、哈希验证的logo-preparer适配器，不能执行任意脚本。直接页面脚本可使用已登记resourceId+name或logo对象；sessionFileId只由原生宿主解析。targetWidthMm是放置宽度，位图省略时宿主以35mm作为可继续缩放的初始稿，不冒充源图实测尺寸。公开raster仍用0–255字节阈值，默认128/1。程序自动匹配端点点数，保留原稿/孔洞及真实误差；无需让用户填写精度或询问是否简化。",
   "synonyms": [
     "readLogo",
     "LOGO",
@@ -21,13 +21,11 @@
     "PDF",
     "AI",
     "DXF",
-    "转换",
-    "描摹",
-    "闭合轮廓",
-    "雕刻"
+    "直接Services",
+    "矢量化"
   ],
-  "inputContract": "readLogo({context,resourceId,name,targetWidthMm?,page?,pdfJoinToleranceMm?,sizeConfirmed?,allowUpload?,machining?:{enabled,toleranceMm,minDetailMm},raster?:{threshold,invert,alphaThreshold,smoothingPx}})。选定文件先登记资源；默认自动适配150区域/12000总点/2000单环点的加工限制，无需询问用户是否简化。保留原始轮廓、孔洞、区域和物理外形尺寸，source.endpointAdaptation返回前后点数及真实双向偏差上界；默认上界为min(0.25mm,短边1%)，显式toleranceMm可收紧。SVG/LOGO JSON及受支持闭合直线DXF本机读取，其他格式交已配置后台。位图直接一次convert，不做完整能力盘点或多余inspect任务。位图必须提供实际宽度、sizeConfirmed:true、allowUpload:true。raster可省略；threshold/alphaThreshold为0–255整数，默认128/1；invert为布尔值，默认false。LOGO不接受浮雕的0–1阈值，0.5在上传前返回PARAM_SCHEMA_INVALID。默认以亮度<128的深色像素为前景；不得无依据反转或扫描参数重试。",
-  "outputContract": "status=read、logoId、logo、machiningReadiness、reviewRequired:true；自动适配报告为logo.source.endpointAdaptation，原始轮廓为machiningOriginalContours；导出轮廓用exportDrawing({context,logoId,format:\"dxf\"})并通过Agent输出附件交付，无需写脚本；核对字形/孔洞/毫米尺寸后调用reviewLogo({context,logoId,action:\"confirm\",expectedRevision,confirmed:true})，使用返回的已确认logo交给logo加工。直接提供自有轮廓的调用者仍须明确声明source.reviewed=true。普通照片/阴影参考图不能直接当作精确轮廓或高度图。转换不修改工程；连接或图像不支持时返回明确错误。",
+  "inputContract": "readLogo({context,sessionFileId,allowUpload:true,targetWidthMm?,reviewPolicy?:automatic|preview})是原生Agent首选。宿主从当前用户会话文件读取原图，使用宿主私有计算授权直连已配置Services，保存原转换回执、矢量JSON和SVG并回读SHA256；只把矢量交给页面，原图不经页面转发，授权值不进入模型。宿主执行已发布总包中固定、哈希验证的logo-preparer适配器，不能执行任意脚本。直接页面脚本可使用已登记resourceId+name或logo对象；sessionFileId只由原生宿主解析。targetWidthMm是放置宽度，位图省略时宿主以35mm作为可继续缩放的初始稿，不冒充源图实测尺寸。公开raster仍用0–255字节阈值，默认128/1。程序自动匹配端点点数，保留原稿/孔洞及真实误差；无需让用户填写精度或询问是否简化。",
+  "outputContract": "status=read、logoId、machiningReadiness、reviewPolicy、reviewRequired。默认automatic按当前用户授权任务接受已校验矢量，不弹确认；source.contourReview.acceptance=automatic-policy，不声称人工核对。只有用户说先看/先调整时preview，返回后用logoWizard({action:open,logoId})展示并结束本阶段，等用户确认。默认流程立即向用户输出已完成矢量化，再以logo.params.logoId引用当前草稿雕刻，不把轮廓数组灌进模型或重复上传。原生结果vectorFile含本地路径、会话文件ID/字节数/SHA256；转换不修改CAD工程。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -54,13 +52,87 @@
     "type": "object",
     "additionalProperties": false,
     "required": [
-      "context",
-      "resourceId",
-      "name"
+      "context"
+    ],
+    "oneOf": [
+      {
+        "required": [
+          "resourceId",
+          "name"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "logo"
+              ]
+            },
+            {
+              "required": [
+                "sessionFileId"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "required": [
+          "logo"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "resourceId"
+              ]
+            },
+            {
+              "required": [
+                "sessionFileId"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "required": [
+          "sessionFileId"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "resourceId"
+              ]
+            },
+            {
+              "required": [
+                "logo"
+              ]
+            }
+          ]
+        }
+      }
     ],
     "properties": {
       "context": {
         "type": "object"
+      },
+      "logo": {
+        "type": "object",
+        "description": "Validated host-side LOGO packet, not a script. Native MCP resolves sessionFileId privately."
+      },
+      "sessionFileId": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{32}$",
+        "description": "Owner/conversation-scoped native-host file. Uploads original bytes directly to configured Services, saves verified vectors locally, then injects only vectors into the page."
+      },
+      "reviewPolicy": {
+        "enum": [
+          "automatic",
+          "preview"
+        ],
+        "default": "automatic"
       },
       "resourceId": {
         "type": "string",
@@ -231,5 +303,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:36b58ca581f2bbcf070775b9fbe2a2e916fc37961fabcafbac01b27a3d67309d"
+  "docsHash": "sha256:5187e24e9faa8adb6cb8d72dc76d9fb944e7e7b6b0f737c4b3c38eb6adefe5b7"
 }

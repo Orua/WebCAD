@@ -177,6 +177,15 @@
           "type": "number"
         }
       },
+      "logoId": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Live page draft returned by readLogo; the page materializes its current accepted contours before executing."
+      },
+      "expectedReviewRevision": {
+        "type": "integer",
+        "minimum": 0
+      },
       "schemaVersion": {
         "type": "integer",
         "const": 2
@@ -348,10 +357,31 @@
     "required": [
       "faceId",
       "mode",
-      "depthMm",
-      "regions"
+      "depthMm"
     ],
     "additionalProperties": false,
+    "anyOf": [
+      {
+        "required": [
+          "regions"
+        ],
+        "not": {
+          "required": [
+            "logoId"
+          ]
+        }
+      },
+      {
+        "required": [
+          "logoId"
+        ],
+        "not": {
+          "required": [
+            "regions"
+          ]
+        }
+      }
+    ],
     "$schema": "https://json-schema.org/draft/2020-12/schema"
   },
   "refsSchema": {
@@ -394,7 +424,7 @@
     "LOGO"
   ],
   "description": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
-  "schemaHash": "sha256:4f33879eb1f75337a54e20f26a7bb56c6d39733f14ca39c49863a5994cfcef2e",
+  "schemaHash": "sha256:18e35dddc735534c4e2762ea20ff720cb5889c008d4efdbb4b2f3af905402ef8",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -825,7 +855,10 @@
         "range": [
           1,
           150
-        ]
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       },
       "source": {
         "meaning": "New v2 requires source.reviewed=true after contour/size/hole review; preserve original provenance",
@@ -854,6 +887,28 @@
         "unit": "mm",
         "range": [
           null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "logoId": {
+        "meaning": "Live page draft returned by readLogo; the page materializes its current accepted contours before executing.",
+        "unit": "none",
+        "range": [
+          1,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "expectedReviewRevision": {
+        "meaning": "expectedReviewRevision: Reviewed LOGO: single-face normal depth or connected-face directional projection",
+        "unit": "none",
+        "range": [
+          0,
           null
         ],
         "default": {
@@ -1501,5 +1556,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f945b5cfb9b6c7762c32b6d31bf4ea8c172f48ac2e23b36cf00592afa2029ca7"
+  "docsHash": "sha256:e6af04d80be53fcec07dd7646c06ebf6d095c65c0b673812d6447dfbb1c65c87"
 }

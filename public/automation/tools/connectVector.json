@@ -2,7 +2,7 @@
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.57.21",
+  "version": "1.57.23",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -93,5 +93,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3cde4cc2874f067bc336b10464e5aad8dcb803bcdc5b61d36f8121effaed68d1"
+  "docsHash": "sha256:bf63b2a9524b7bd64ab57c04cc1630494ce3b378f7df3d92a629c3fea24c2476"
 }

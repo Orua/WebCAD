@@ -36,7 +36,7 @@ export class LogoPlacementGuide{
   this.top.addEventListener('change',()=>this.update({topMm:Number(this.top.value)}));this.left.addEventListener('change',()=>this.update({leftMm:Number(this.left.value)}));
   this.toolbar=el('div',{class:'logo-placement-toolbar'});this.dom.append(this.toolbar);
   const button=(icon,title,fn)=>{const b=el('button',{type:'button',title,'aria-label':title});b.append(logoIcon(icon));b.addEventListener('click',fn);this.toolbar.append(b);return b;};
-  button('center','居中',()=>this.align('center'));button('horizontal','水平居中',()=>this.align('horizontal'));button('rotate','旋转 90°',()=>this.update({angleDeg:(this.angle+90)%360}));
+  button('horizontal','水平居中',()=>this.align('horizontal'));button('vertical','垂直居中',()=>this.align('vertical'));button('center','双向居中',()=>this.align('center'));button('rotate','旋转 90°',()=>this.update({angleDeg:(this.angle+90)%360}));
   this.width=el('input',{type:'number',min:'.001',step:'.1',title:'LOGO 宽度（mm）','aria-label':'LOGO 宽度（mm）'});this.toolbar.append(this.width);this.width.addEventListener('change',()=>this.update({scale:Number(this.width.value)/(x1-x0)}));
   const depthIcon=el('span',{title:'雕刻深度（mm）'});depthIcon.append(logoIcon('depth'));this.toolbar.append(depthIcon);
   this.depthInput=el('input',{type:'number',min:'.001',step:'.1',value:this.depth,title:'雕刻深度（mm）','aria-label':'雕刻深度（mm）'});this.toolbar.append(this.depthInput);this.depthInput.addEventListener('change',()=>this.update({depthMm:Number(this.depthInput.value)}));

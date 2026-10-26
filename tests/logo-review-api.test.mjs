@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {createPageAPI} from '../src/page-api.js';
 import {validatePayload} from '../src/agent/protocol.js';
 import {getTool} from '../src/page-api-docs.js';
+import {validateSchema} from '../src/contracts/operation-schema.js';
 import {createLogoImportUI,getLogoWizardState,actLogoWizard} from '../src/browser-logo-input.js';
 
 const packet=()=>({type:'webcad-logo',version:1,units:'mm',name:'ring',sizeMm:[10,10],regions:[{outer:[[-5,-5],[5,-5],[5,5],[-5,5]],holes:[[[-2,-2],[-2,2],[2,2],[2,-2]]]}],source:{kind:'raster',sha256:'original',reviewed:false,inspectionReport:{pageCount:1}}});
@@ -13,7 +14,7 @@ function fixture(){
 }
 async function read(api,context){
  const source=await api.files.register({name:'ring.logo.json',data:new TextEncoder().encode(JSON.stringify(packet()))});
- const result=await api.readLogo({context,resourceId:source.resourceId,name:source.name});
+ const result=await api.readLogo({context,resourceId:source.resourceId,name:source.name,reviewPolicy:'preview'});
  assert.equal(result.status,'read',JSON.stringify(result));return {result,source};
 }
 class LogoNode{
@@ -75,7 +76,7 @@ test('LOGO wizard absence is explicit and independent draft access remains usabl
  assert.deepEqual((await api.logoWizard({context})).wizard,{open:false});
  assert.equal((await api.logoWizard({context,action:'confirm',expectedRevision:0,confirmed:true})).error.code,'LOGO_WIZARD_CLOSED');
  assert.equal((await api.invoke({method:'reviewLogo',args:{context,logoId:result.logoId}})).status,'read');
- const batch=await api.run({context,idempotencyKey:'review-batch',steps:[{id:'get-review',method:'reviewLogo',args:{logoId:result.logoId,action:'get'}}]});
+ const batch=await api.run({context:api.createRequestContext(),idempotencyKey:'review-batch',steps:[{id:'get-review',method:'reviewLogo',args:{logoId:result.logoId,action:'get'}}]});
  assert.equal(batch.status,'completed',JSON.stringify(batch));
 });
 test('Agent LOGO reads, draft edits and artifact generation retain separate scopes',()=>{
@@ -119,7 +120,7 @@ test('UI-first LOGO shares one review with Agent and readable original/derived r
   const args={context,logoId:attached.logoId};
   // Click the actual editor coordinate control, which mutates the shared UI session.
   ui.nodes.findLast(n=>n.attributes['aria-label']==='节点 X 毫米').value='-5.25';
-  ui.nodes.findLast(n=>n.textContent==='更新坐标').listeners.click();
+  ui.nodes.findLast(n=>n.attributes['aria-label']==='应用节点坐标').listeners.click();
   const current=await api.reviewLogo({...args});assert.deepEqual(current.review.logo.regions[0].outer[0],[-5.25,-5]);
   const exported=await api.exportDrawing({...args,format:'json'});assert.equal(exported.status,'generated',JSON.stringify(exported));
   assert.deepEqual(JSON.parse(await(await api.files.read({resourceId:exported.resourceId})).text()).regions[0].outer[0],[-5.25,-5]);
@@ -165,4 +166,18 @@ test('wizard source registration rejects changes during hashing and remains boun
   await assert.rejects(api.files.read({resourceId:previous[0].sourceResourceId}),{code:'RESOURCE_EXPIRED'});
   assert.equal((await api.reviewLogo({context,logoId:previous.at(-1).logoId})).status,'read');
  }finally{ui.restore();}
+});
+
+
+test('automatic LOGO acceptance materializes a live logoId without sending arrays back through the caller',async()=>{
+ const context={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:3};let forwarded;
+ const api=createPageAPI({state:()=>({context:{...context},summary:{kernelReady:true,busy:false},preview:{active:false},bodies:[]}),display:()=>({}),execute:async input=>{forwarded=input;return {status:'applied',context};},files:async()=>{},confirmSaved:()=>({saved:false})});
+ const loaded=await api.readLogo({context,logo:packet()});assert.equal(loaded.status,'read',JSON.stringify(loaded));assert.equal(loaded.reviewRequired,false);assert.equal(loaded.logo.source.contourReview.acceptance,'automatic-policy');
+ const result=await api.execute({context:api.createRequestContext(),idempotencyKey:'logo-reference',action:'feature.add',args:{op:'logo',params:{logoId:loaded.logoId,faceId:0,mode:'engrave',depthMm:.2,placementVersion:2,point:[0,0,0]},refs:['target']}});
+ assert.equal(result.status,'applied',JSON.stringify(result));assert.deepEqual(forwarded.args.params.regions,packet().regions);assert.equal(forwarded.args.params.source.reviewed,true);assert.equal(forwarded.args.params.logoId,undefined);
+ for(const metadata of ['type','version','units'])assert.equal(Object.hasOwn(forwarded.args.params,metadata),false,`file metadata ${metadata} must not reach strict CAD parameters`);
+ assert.doesNotThrow(()=>validateSchema(getTool({id:'logo'}).inputSchema,forwarded.args.params));
+ const preview=await api.readLogo({context,logo:packet(),reviewPolicy:'preview'});assert.equal(preview.reviewRequired,true);forwarded=null;
+ const blocked=await api.execute({context:api.createRequestContext(),idempotencyKey:'logo-preview-blocked',action:'feature.add',args:{op:'logo',params:{logoId:preview.logoId},refs:['target']}});
+ assert.equal(blocked.error.code,'LOGO_REVIEW_REQUIRED');assert.equal(forwarded,null);
 });

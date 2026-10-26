@@ -40,6 +40,13 @@ export function fitLogoToMachining(logo,options){
  const originalRegions=structuredClone(original.regions),shortSide=Math.min(...(logo.sizeMm??[35,35]).filter(v=>v>0));
  const ceiling=options?.toleranceMm??Math.min(.25,shortSide*.01);
  if(!(ceiling>0))return logo;
+ if((logo.source?.kind==='raster'||logo.source?.rasterFrame)&&originalCapacity.counts.vertices>3000){
+  try{
+   const source={...(typeof logo.source==='object'?logo.source:{})};delete source.machiningOptimization;delete source.endpointAdaptation;
+   const fitted=optimizeLogoForMachining({...original,source},{enabled:true,toleranceMm:Math.min(.05,ceiling),minDetailMm:0}),capacity=inspectLogoMachiningCapacity(fitted),report=fitted.source.machiningOptimization;
+   if(capacity.supported)return{...fitted,source:{...fitted.source,endpointAdaptation:{algorithm:'bounded-line-arc-topology-v2',automatic:true,before:inspectLogoMachiningCapacity(original).counts,after:capacity.counts,limits:originalCapacity.limits,maxDeviationMm:report.maxDeviationMm,allowedDeviationMm:report.toleranceMm,ceilingMm:ceiling,regionsPreserved:true,holesPreserved:true,boundsPreserved:false,nominalSizeMm:logo.sizeMm}}};
+  }catch{/* Keep the already validated, source-preserving RDP candidate. */}
+ }
  let accepted=null;
  // A finite data-only budget. No new conversion or geometry jobs are submitted.
  for(let i=0;i<6;i++){

@@ -61,3 +61,10 @@ test('PDF join tolerance validates before routing and stays identical across ins
  await readBrowserLogo(new File(['pdf'],'ring.pdf'),x=>x,{client,allowUpload:true,sizeConfirmed:true,targetWidthMm:10,page:1,pdfJoinToleranceMm:.02});
  assert.equal(routes[0].request.options.pdfJoinToleranceMm,.02);assert.equal(routes[0].request.options.targetWidthMm,10);assert.equal(routes[1].request.options.pdfJoinToleranceMm,.02);
 });
+
+ test('JPG upload exposes uploaded-computing status before conversion and preparation',async()=>{
+ const stages=[],logo=packet();
+ const client={upload:async()=>{assert.deepEqual(stages,['uploading']);return {assetId:'jpg',sha256:'source-original'};},submit:async route=>{assert.deepEqual(stages,['uploading','processing']);assert.equal(route,'logo/convert');return route;},wait:async()=>({result:{geometryValid:true,status:'ready',logoDocument:logo,reviewRequired:true},manifest:{jobId:'jpg-convert',inputFingerprint:'fixture',artifactSha256:'fixture',artifactId:'fixture'}})};
+ const result=await readBrowserLogo(new File(['jpg-source'],'outline.jpg'),x=>x,{client,allowUpload:true,sizeConfirmed:true,targetWidthMm:10,onProgress:stage=>stages.push(stage)});
+ assert.deepEqual(stages,['uploading','processing','preparing']);assert.equal(result.source.servicesEvidence.jobId,'jpg-convert');assert.equal(Object.hasOwn(result.source.servicesEvidence,'inspectionJobId'),false,'raster has no separate inspection job; undefined provenance must not reach strict CAD JSON');
+});

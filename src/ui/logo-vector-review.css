@@ -58,3 +58,15 @@
 .logo-raster-settings label{display:grid;gap:5px;font-size:11px;color:#4c6173}
 .logo-raster-settings .checkbox-field{display:flex;margin-top:0;grid-column:1/-1}
 @media(max-width:480px){.logo-review-actions{display:grid;grid-template-columns:1fr 1fr}.logo-review-actions button:last-child{grid-column:1/-1}.logo-review-canvas{height:160px}.logo-review-step{max-height:calc(100dvh - 220px)}}
+
+.logo-review-header-actions,.logo-editor-header-actions{display:flex;justify-content:flex-end;align-items:center;gap:7px;flex:none}
+.logo-review-header-actions{padding:0 0 8px}
+.logo-review-header-actions button{width:36px;min-width:36px;min-height:36px;display:inline-grid;place-items:center;padding:7px}
+.logo-transfer-status{display:flex;align-items:center;gap:9px;padding:10px 12px;color:var(--primary,#356dac);font-size:13px}
+.logo-transfer-status[hidden]{display:none}
+.logo-transfer-status:before{content:"";width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:logo-transfer-spin .8s linear infinite;flex:none}
+@keyframes logo-transfer-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.logo-transfer-status:before{animation:none}}
+
+.logo-wizard-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.logo-review-header-actions[hidden]{display:none}
