@@ -106,3 +106,6 @@ WebCAD browser code, `services/WebCADServices`, imported LogoVector, native Work
 - The shared heavy-geometry budget is one baseline plus one mechanism-backed alternative per real candidate across all executors/Agents; local acceptance unlocks at most one related full-product trial. No repeat under another jobId.
 - Maintain `contracts/operation-impact-map.json`, joint build/compatibility manifest, public API routes/docs and necessary tests. Compile, execution, page commit, save and production deployment are reported separately.
 - Read `services/WebCADServices/AGENTS.md` for process/ownership/storage/safety rules. Local implementation does not authorize administrator installation, IIS changes, production deployment or Git push.
+## Debug 接口（2026-10-26）
+
+排查人工或 Agent 问题时，优先用 `window.webcad.api.getDebugReport({limit:100,includeState:true})` 读取当前状态、操作与错误；`source:'agent'` 可定位连接、握手、命令派发和回执。设置末尾 Debug 窗口支持复制/下载。接口、容量与脱敏边界见 [Debug 开发说明](docs/DEBUG.zh-CN.md)。不要把诊断日志当作工程备份，不自动重复计算来获取日志。

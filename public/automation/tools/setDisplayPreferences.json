@@ -2,7 +2,7 @@
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.57.24",
+  "version": "1.57.25",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -102,5 +102,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a3ce2ce0ba5076e564f699f660c9a68ffd106f516127a2b2ea7e26fcfbfc018b"
+  "docsHash": "sha256:1572a71103f41ff592723611fb1a61c2d9f930a76d0db445fd2769e8e89ef3cd"
 }

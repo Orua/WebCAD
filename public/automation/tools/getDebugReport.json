@@ -1,0 +1,90 @@
+{
+  "id": "getDebugReport",
+  "title": "getDebugReport",
+  "category": "page-method",
+  "version": "1.57.25",
+  "contextPolicy": "none",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "source": {
+        "enum": [
+          "all",
+          "ui",
+          "api",
+          "agent",
+          "kernel",
+          "services",
+          "runtime"
+        ]
+      },
+      "level": {
+        "enum": [
+          "all",
+          "info",
+          "warn",
+          "error"
+        ]
+      },
+      "query": {
+        "type": "string",
+        "maxLength": 160
+      },
+      "afterSequence": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 1500
+      },
+      "includeState": {
+        "type": "boolean"
+      }
+    },
+    "required": []
+  },
+  "mcpCall": {
+    "tool": "webcad_read",
+    "method": "getDebugReport",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
+  "description": "getDebugReport({source?:all|ui|api|agent|kernel|services|runtime,level?:all|info|warn|error,query?:string,afterSequence?:integer,limit?:1..1500,includeState?:boolean})。默认最近500条与状态。",
+  "synonyms": [
+    "getDebugReport",
+    "Debug",
+    "日志",
+    "错误",
+    "诊断",
+    "复制",
+    "状态",
+    "参数",
+    "Services",
+    "内核"
+  ],
+  "inputContract": "getDebugReport({source?:all|ui|api|agent|kernel|services|runtime,level?:all|info|warn|error,query?:string,afterSequence?:integer,limit?:1..1500,includeState?:boolean})。默认最近500条与状态。",
+  "outputContract": "status=read，format=webcad-debug，capturedAt、coverage、events、state、redaction、limitations。当前标签页最近1500条/1MiB UTF8，单条8KiB，界面最多200条；sessionStorage限额内恢复同标签刷新记录。记录人工/API操作、内核请求、Services阶段和原始错误的code/path/message；undefined和NaN显式标记。过滤凭证、URL查询和原始二进制/大数组。状态含版本/hash、工程修订、选择、忙碌状态、当前LOGO草稿参数和Services/Agent连接摘要；不代表工程文件或已保存，不读取服务器磁盘日志，不上传。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID"
+  ],
+  "selectionGuide": {
+    "groupId": "debug",
+    "groupTitle": "运行诊断与日志",
+    "chooseWhen": "只读获取当前状态、操作过程和错误字段，供分析/复制/保存；不是工程导出或服务器磁盘日志。",
+    "alternatives": [
+      {
+        "id": "setDebugPanel",
+        "chooseWhen": "只打开或关闭独立Debug窗口，不取消编辑草稿、不停止计算、不修改工程。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:748a4394a3fdb6b717c24b695e6ddc73ee54510b44200d74f3bdbfb3558eeb7b"
+}

@@ -1,5 +1,6 @@
 import sourceCodes from '../contracts/error-recovery-codes.json' with {type:'json'};
 import {parameterErrorMessage} from './parameter-error-message.js';
+import {debugJournal} from './debug-journal.js';
 // One recovery contract for UI, page receipts and hosts. This module never executes a retry,
 // changes an argument, clears a guard, commits/undoes geometry, or cancels a job.
 const rule=(id,codes,reason,next,tools=[],options={})=>({id,codes:new Set(codes.split(' ').filter(Boolean)),reason,next,tools,...options});
@@ -125,6 +126,7 @@ const auditText=value=>String(value??'').slice(0,4096).replace(/((?:authorizatio
 export function errorAuditSnapshot(){return structuredClone(uiAudit);}
 export function humanError(error,receipt={}){
   const source=typeof error==='string'?{message:error}:error||{};
+  debugJournal.record('ui','error',{error:source},'error');
   uiAudit.push({at:Date.now(),code:source.code??'UNCLASSIFIED_ERROR',message:auditText(source.message),...(source.path?{path:auditText(source.path)}:{}),...(source.requestId?{requestId:source.requestId}:{}),...(source.jobId?{jobId:source.jobId}:{})});
   if(uiAudit.length>100)uiAudit.shift();
   const recovery=errorRecovery(source,receipt);

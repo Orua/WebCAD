@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.57.24 · 操作目录 sha256:93f08cf3e15b0f89dbbf01a14ced43f1f18af80b5158cd10e7141100bf9f8376
+API 1.57.25 · 操作目录 sha256:1975ef2dcc562bc7d01b63c535939ef3d611f145d6c01598e0b9291ba8a5363a
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -8,6 +8,8 @@ API 1.57.24 · 操作目录 sha256:93f08cf3e15b0f89dbbf01a14ced43f1f18af80b5158c
 
 ## 页面方法
 
+- `getDebugReport`
+- `setDebugPanel`
 - `getMetalMaterials`
 - `setMetalMaterials`
 - `getMaterials`
@@ -260,6 +262,8 @@ API 1.57.24 · 操作目录 sha256:93f08cf3e15b0f89dbbf01a14ced43f1f18af80b5158c
 - `template.uEndHolePlate` · advisory · 半圆冠与两条等宽直腿连成一块平板，直腿末端各有一个贯穿孔；内外冠同心，孔沿厚度方向贯穿。适合源图确认的单片 U 件，不含另一装配件、螺纹或截面圆杆。
 - `template.arcBandPlate` · advisory · 同心圆弧带板，角度、厚度、两端孔距与沉孔独立输入；用于分体环段，螺纹和装配件须另建。
 - `template.gableOpenFrame` · advisory · 两只直腿与屋顶形斜肩组成开口框，端部按指定 R 做两段圆角与短平底。内外宽、内外肩高、内外峰高、板厚分别输入。
+- `getDebugReport` · page-method · getDebugReport({source?:all|ui|api|agent|kernel|services|runtime,level?:all|info|warn|error,query?:string,afterSequence?:integer,limit?:1..1500,includeState?:boolean})。默认最近500条与状态。
+- `setDebugPanel` · page-method · setDebugPanel({context,visible:true|false})；identity context。
 - `getMetalMaterials` · page-method · getMetalMaterials()
 - `setMetalMaterials` · page-method · setMetalMaterials({context,configuration})
 - `getMaterials` · page-method · getMaterials()读取version1配置、常用金属参考密度及默认/对象材料映射。execute({context,idempotencyKey,action:"document.materials",args:{settings}})完整更新；settings={version:1,defaultMaterial,densities,bodyMaterials}。密度g/cm³须0<值≤30，材料编号和默认值从返回materials读取。

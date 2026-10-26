@@ -201,8 +201,8 @@ var LIMITS = freeze({
 });
 
 // src/page-context-policy.js
-var none = /* @__PURE__ */ new Set(["getMetalMaterials", "getMaterials", "getBatchReceipt", "info", "getState", "getUILayout", "getHistory", "createRequestContext", "connect", "connectVector", "searchTools", "getTools", "getTool", "readDocs", "getQuickModelUsage", "getModelLibrary", "getAgentPanel", "getLogoConverter", "getServices", "getServicesCapabilities", "getServicesRouting", "getServicesRequest", "getServicesJob", "getJob", "cancelJob", "waitFor", "invoke", "submit", "decideServicesWait", "recoverServicesJob"]);
-var identity = /* @__PURE__ */ new Set(["setMetalMaterials", "measureMass", "setView", "selectRectangle", "setDisplayPreferences", "setRenderQuality", "capture", "redraw", "measure", "measureRelation", "queryGeometry", "queryReferences", "resolvePlacement", "resolveModelLibrary", "planAlignment", "planPatternMachining", "prepareProfileEdit", "projectProfile", "fitProfile", "traceTwinWindow", "prepareReliefSculpt", "prepareReliefTopologyUpgrade", "readVector", "readRelief"]);
+var none = /* @__PURE__ */ new Set(["getDebugReport", "getMetalMaterials", "getMaterials", "getBatchReceipt", "info", "getState", "getUILayout", "getHistory", "createRequestContext", "connect", "connectVector", "searchTools", "getTools", "getTool", "readDocs", "getQuickModelUsage", "getModelLibrary", "getAgentPanel", "getLogoConverter", "getServices", "getServicesCapabilities", "getServicesRouting", "getServicesRequest", "getServicesJob", "getJob", "cancelJob", "waitFor", "invoke", "submit", "decideServicesWait", "recoverServicesJob"]);
+var identity = /* @__PURE__ */ new Set(["setDebugPanel", "setMetalMaterials", "measureMass", "setView", "selectRectangle", "setDisplayPreferences", "setRenderQuality", "capture", "redraw", "measure", "measureRelation", "queryGeometry", "queryReferences", "resolvePlacement", "resolveModelLibrary", "planAlignment", "planPatternMachining", "prepareProfileEdit", "projectProfile", "fitProfile", "traceTwinWindow", "prepareReliefSculpt", "prepareReliefTopologyUpgrade", "readVector", "readRelief"]);
 function contextPolicy(method) {
   if (["readLogo", "reviewLogo", "logoWizard"].includes(method)) return "identity";
   if (method === "probeBlendRadius") return "identity";
@@ -240,6 +240,8 @@ var STEP_SCHEMA = object2({ id: { type: "string", pattern: "^[a-zA-Z][a-zA-Z0-9_
 var boolean = { type: "boolean" };
 var vector = vectorSchema;
 var PAGE_METHOD_SCHEMAS = {
+  getDebugReport: object2({ source: { enum: ["all", "ui", "api", "agent", "kernel", "services", "runtime"] }, level: { enum: ["all", "info", "warn", "error"] }, query: { type: "string", maxLength: 160 }, afterSequence: { type: "integer", minimum: 0 }, limit: { type: "integer", minimum: 1, maximum: 1500 }, includeState: boolean }),
+  setDebugPanel: object2({ context: IDENTITY_CONTEXT_SCHEMA, visible: boolean }, ["context", "visible"]),
   getMetalMaterials: object2({}),
   getMaterials: object2({}),
   setMetalMaterials: object2({ context: IDENTITY_CONTEXT_SCHEMA, configuration: { type: "object" } }, ["context", "configuration"]),
@@ -333,6 +335,188 @@ function parameterErrorMessage(error = {}) {
   }
   for (const [pattern, text] of [[/^Minimum length is (\d+)\.$/, "\u6587\u5B57\u957F\u5EA6\u81F3\u5C11\u4E3A"], [/^Maximum length is (\d+)\.$/, "\u6587\u5B57\u957F\u5EA6\u6700\u591A\u4E3A"]]) if (match = pattern.exec(message)) reason = `${text} ${match[1]} \u4E2A\u5B57\u7B26\u3002`;
   return reason ? `${field}\uFF1A${reason}` : null;
+}
+
+// src/debug-journal.js
+var SECRET = /(?:authorization|credential|password|secret|cookie|csrf|ticket|api[_-]?key|token|nonce|bearer|jwt|coaKey|privateKey)|^channel$/i;
+var encoder = new TextEncoder();
+var encodedBytes = (value) => encoder.encode(value).byteLength;
+var BINARY = /^(?:base64|dataUrl|binaryAssets|brep|brepData|stepData|triangles|vertices|indices|meshData|pixelData|heights|renderedRaster|rasterOriginalContours|machiningOriginalContours)$/i;
+function debugText(value) {
+  return String(value).replace(/-----BEGIN [^-]*PRIVATE KEY-----[\s\S]*?-----END [^-]*PRIVATE KEY-----/g, "[redacted]").replace(/data:[^,\s]+;base64,[A-Za-z0-9+/=]+/gi, "[binary omitted]").replace(/https?:\/\/[^\s<>"']+/gi, (value2) => {
+    try {
+      const u = new URL(value2);
+      return u.origin + u.pathname;
+    } catch {
+      return "[url]";
+    }
+  }).replace(/\b(Bearer|Basic)\s+[^\s,;]+/gi, "$1 [redacted]").replace(/((?:authorization|set-cookie|cookie)\s*[:=])[^\r\n]*/gi, "$1 [redacted]").replace(/((?:authorization|credential|password|secret|cookie|csrf|ticket|api[_-]?key|access[_-]?token|refresh[_-]?token|token|coaKey|密钥|令牌|密码)\s*[=:]\s*)(?:"[^"\r\n]*"|'[^'\r\n]*'|[^\s,;&]+)/gi, "$1[redacted]").replace(/\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, "[redacted]").replace(/\b[A-Z]:[\\/][^\s"'<>]+/gi, "[local path]").slice(0, 2048);
+}
+function debugValue(value, { maxNodes = 1200, maxChars = 24e3 } = {}) {
+  let nodes = 0, chars = 0;
+  const seen = /* @__PURE__ */ new WeakSet();
+  function visit(v, depth = 0, key = "") {
+    if (typeof v === "boolean" && ["hasCredential", "authorizationRestored"].includes(key)) return v;
+    if (key === "credentialStorage" && ["none", "sessionStorage"].includes(v)) return v;
+    if (SECRET.test(key) || /^token$/i.test(key)) return "[redacted]";
+    if (BINARY.test(key)) return "[binary/geometry omitted]";
+    if (++nodes > maxNodes || chars > maxChars) return "[budget limit]";
+    if (v === void 0) return "[undefined]";
+    if (v === null || typeof v === "boolean") return v;
+    if (typeof v === "number") return Number.isFinite(v) ? v : `[${String(v)}]`;
+    if (typeof v === "string") {
+      const text = debugText(v).slice(0, Math.max(0, maxChars - chars));
+      chars += text.length;
+      return text;
+    }
+    if (typeof v !== "object") return `[${typeof v}]`;
+    if (v instanceof ArrayBuffer || ArrayBuffer.isView(v)) return { type: "binary", bytes: v.byteLength };
+    if (typeof Blob !== "undefined" && v instanceof Blob) return { type: "file", bytes: v.size, mime: v.type };
+    if (seen.has(v)) return "[circular]";
+    if (depth >= 8) return "[depth limit]";
+    seen.add(v);
+    if (v instanceof Error || key === "error") {
+      const result = {};
+      for (const k of ["name", "code", "path", "stage", "jobId", "requestId", "idempotencyKey", "commitState", "serviceCommitState", "diagnosticsRef", "message", "details", "report", "supportBinding", "stack"]) if (v[k] !== void 0) result[k] = visit(v[k], depth + 1, k);
+      seen.delete(v);
+      return result;
+    }
+    if (Array.isArray(v)) {
+      const sample = v.slice(0, 16).map((x) => visit(x, depth + 1, key));
+      return v.length > 16 ? { arrayLength: v.length, sample, truncated: true } : sample;
+    }
+    const out = {};
+    for (const k of Object.keys(v).slice(0, 80)) {
+      const d = Object.getOwnPropertyDescriptor(v, k), name = debugText(k).slice(0, 120);
+      chars += name.length;
+      out[name] = d && "value" in d ? visit(d.value, depth + 1, k) : "[accessor omitted]";
+    }
+    return out;
+  }
+  return visit(value);
+}
+function createDebugJournal({ storage: storage2 = null, now = Date.now, maxEvents = 1500, maxBytes = 1024 * 1024, maxEventBytes = 8192 } = {}) {
+  const key = "webcad.debug.v1";
+  let sequence = 0, events = [], sizes = [], bytes = 0, dropped = 0, persistTimer = null, storageError = null, restored = false, contextProvider = null;
+  const listeners = /* @__PURE__ */ new Set(), startedAt = now();
+  try {
+    const saved = JSON.parse(storage2?.getItem(key) || "null");
+    if (saved?.version === 1 && Array.isArray(saved.events)) {
+      for (const e of saved.events.slice(-maxEvents)) {
+        if (!e || !Number.isSafeInteger(e.sequence) || !Number.isFinite(e.at)) continue;
+        const clean = debugValue(e);
+        if (encodedBytes(JSON.stringify(clean)) > maxEventBytes) continue;
+        events.push(clean);
+        sizes.push(encodedBytes(JSON.stringify(clean)) + 1);
+        sequence = Math.max(sequence, e.sequence);
+      }
+      bytes = sizes.reduce((a, b) => a + b, 0);
+      restored = events.length > 0;
+    }
+  } catch {
+    storageError = "\u5386\u53F2\u65E5\u5FD7\u4E0D\u53EF\u8BFB\u53D6";
+  }
+  const trim = () => {
+    while (events.length && (events.length > maxEvents || bytes > Math.max(0, maxBytes - 512))) {
+      events.shift();
+      bytes -= sizes.shift();
+      dropped++;
+    }
+  };
+  trim();
+  function flush() {
+    if (persistTimer) {
+      clearTimeout(persistTimer);
+      persistTimer = null;
+    }
+    try {
+      storage2?.setItem(key, JSON.stringify({ version: 1, events }));
+    } catch {
+      storageError = "\u4F1A\u8BDD\u5B58\u50A8\u4E0D\u53EF\u7528\uFF0C\u65E5\u5FD7\u4EC5\u4FDD\u7559\u5728\u5185\u5B58";
+    }
+  }
+  function record(source, action, data = {}, level = "info") {
+    try {
+      const event = { sequence: ++sequence, at: now(), source: debugText(source).slice(0, 80), action: debugText(action).slice(0, 160), level, data: debugValue(data) };
+      if (contextProvider) try {
+        event.context = debugValue(contextProvider(), { maxNodes: 20, maxChars: 500 });
+      } catch {
+      }
+      if (encodedBytes(JSON.stringify(event)) > maxEventBytes) {
+        event.data = debugValue(data, { maxNodes: 80, maxChars: 1e3 });
+        event.truncated = true;
+      }
+      if (encodedBytes(JSON.stringify(event)) > maxEventBytes) {
+        event.data = { truncated: true, error: debugValue(data?.error, { maxNodes: 20, maxChars: 300 }) };
+        event.truncated = true;
+      }
+      events.push(event);
+      const size = encodedBytes(JSON.stringify(event)) + 1;
+      sizes.push(size);
+      bytes += size;
+      trim();
+      if (storage2 && !persistTimer) {
+        persistTimer = setTimeout(flush, 250);
+        persistTimer.unref?.();
+      }
+      for (const listener of listeners) try {
+        listener();
+      } catch {
+      }
+      return event.sequence;
+    } catch {
+      return null;
+    }
+  }
+  function read({ source = "all", level = "all", query = "", afterSequence = 0, limit = 500 } = {}) {
+    const needle = String(query).toLowerCase(), matching = events.filter((e) => e.sequence > afterSequence && (source === "all" || e.source === source) && (level === "all" || e.level === level) && (!needle || JSON.stringify(e).toLowerCase().includes(needle)));
+    return { coverage: { startedAt, oldestAt: events[0]?.at ?? null, restored, dropped, retained: events.length, retainedBytes: bytes, maxEvents, maxBytes, maxEventBytes, storage: storage2 ? "sessionStorage" : "memory", storageError, scope: "current tab; bounded recent events; no historical server disk logs" }, matching: matching.length, events: structuredClone(matching.slice(-limit)), lastSequence: sequence };
+  }
+  return { record, read, flush, setContextProvider: (fn) => {
+    contextProvider = fn;
+  }, subscribe: (listener) => {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+  } };
+}
+var storage = null;
+try {
+  storage = globalThis.sessionStorage ?? null;
+} catch {
+}
+var slot = /* @__PURE__ */ Symbol.for("webcad.debug.journal.v1");
+var shared = globalThis[slot] ?? (globalThis[slot] = { journal: createDebugJournal({ storage }), runtimeInstalled: false });
+var debugJournal = shared.journal;
+function debugResult(value) {
+  if (!value || typeof value !== "object") return value;
+  if (ArrayBuffer.isView(value) || value instanceof ArrayBuffer) return { bytes: value.byteLength };
+  const keys = ["requestId", "status", "code", "commitState", "context", "nextContext", "createdBodyIds", "jobId", "pageJobId", "assetId", "requestKey", "execution", "error", "result", "results", "report", "details", "logoId", "sourceResourceId", "sizeMm", "machiningReadiness", "volume", "area", "bounds", "solidCount", "shellCount", "geometryType", "name", "size", "bytes", "sha256", "resourceId", "saved", "dirty", "saveConfirmation", "attachment", "display", "view", "summary", "protocolVersion", "gatewayBuildId", "pageApiVersion", "catalogHash", "docsHash", "elapsedMs"];
+  return Object.fromEntries(keys.filter((key) => value[key] !== void 0).map((key) => [key, value[key]]));
+}
+function traceDebug(source, action, input2, fn) {
+  const at = Date.now(), span = debugJournal.record(source, action, { phase: "start", input: input2 });
+  const finish = (value) => {
+    const status = value === false ? "failed" : value?.status ?? "returned";
+    debugJournal.record(source, action, { phase: "end", span, elapsedMs: Date.now() - at, status, commitState: value?.commitState, error: value?.error, result: debugResult(value) }, ["failed", "unknown", "partial"].includes(status) ? "error" : "info");
+    return value;
+  };
+  const fail = (error) => {
+    debugJournal.record(source, action, { phase: "error", span, elapsedMs: Date.now() - at, error }, "error");
+    throw error;
+  };
+  try {
+    const result = fn();
+    return result && typeof result.then === "function" ? result.then(finish, fail) : finish(result);
+  } catch (error) {
+    return fail(error);
+  }
+}
+if (typeof window !== "undefined" && !shared.runtimeInstalled) {
+  shared.runtimeInstalled = true;
+  debugJournal.record("runtime", "page-start", { url: location.href });
+  window.addEventListener("error", (e) => debugJournal.record("runtime", "error", { error: e.error || e.message, filename: e.filename || e.target?.src || e.target?.href, line: e.lineno, column: e.colno }, "error"), true);
+  window.addEventListener("unhandledrejection", (e) => debugJournal.record("runtime", "unhandled-rejection", { error: e.reason }, "error"));
+  window.addEventListener("pagehide", () => debugJournal.flush());
 }
 
 // src/error-recovery.js
@@ -525,6 +709,8 @@ var READ_METHODS = /* @__PURE__ */ new Set([
   "resolveModelLibrary"
 ]);
 var VIEW_METHODS = /* @__PURE__ */ new Set(["setMetalMaterials", "setView", "setRenderQuality", "setDisplayPreferences", "selectRectangle", "redraw", "capture", "getEvidenceImage", "updateModelLibrary", "markLocation"]);
+READ_METHODS.add("getDebugReport");
+VIEW_METHODS.add("setDebugPanel");
 var DISCOVERY_METHODS = /* @__PURE__ */ new Set(["getBatchReceipt", "connect", "info", "getState", "getAgentPanel", "getHistory", "searchTools", "getTools", "getTool", "readDocs", "files.capabilities", "getUILayout", "getQuickModelUsage", "getModelLibrary"]);
 var EDIT_ACTIONS = /* @__PURE__ */ new Set([
   "feature.add",
@@ -726,6 +912,9 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
 }, now = () => Date.now(), wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms)) }) {
   if (!api?.connect || !api?.invoke || !api?.getState || typeof report !== "function") throw failure("host_unavailable", "Current public page API and an authorized result channel required");
   const binding = { ...session.binding }, scopes = [...session.scopes];
+  const log = (action, data, level = "info") => debugJournal.record("agent", action, { cadSessionId: session.cadSessionId, leaseEpoch: session.leaseEpoch, ...data }, level);
+  const identity2 = (command) => ({ commandId: command.commandId, taskId: command.taskId, method: command.payload?.method, requestHash: command.requestHash, deadline: command.deadline });
+  log("adapter-created", { binding, scopes });
   let accepting = true, activeTask = null, tail = Promise.resolve();
   const commands = /* @__PURE__ */ new Map();
   const archived = /* @__PURE__ */ new Map();
@@ -767,9 +956,11 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
           }
         }
         result = { ...result, attachment };
+        log("artifact-delivered", { ...identity2(entry.command), resourceId: result.resourceId, size: result.size, sha256: result.sha256, attachment });
         if (method === "files.save" && attachment?.status === "agent_write_verified" && attachment.size === result.size && attachment.sha256 === result.sha256) {
           try {
             result.saveConfirmation = await api.files.confirmWritten({ resourceId: result.resourceId, size: attachment.size, sha256: attachment.sha256 });
+            log("save-confirmed", { ...identity2(entry.command), resourceId: result.resourceId, confirmation: result.saveConfirmation });
           } catch (error) {
             result.saveConfirmation = { status: "failed", error: { code: error.code || "SAVE_CONFIRMATION_FAILED", message: error.message } };
           }
@@ -787,6 +978,7 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
     onStateChange();
     result = withErrorRecovery(await transferTree(entry, result, entry.command.payload.method));
     entry.result = structuredClone(result);
+    log("command-result", { ...identity2(entry.command), pageJobId: entry.jobId, status: result?.status, commitState: result?.commitState, error: result?.error }, ["failed", "unknown", "partial"].includes(result?.status) ? "error" : "info");
     if (endedTasks.has(entry.command.taskId) && ![...commands.values()].some((item) => item !== entry && item.command.taskId === entry.command.taskId && pending(item))) activeTask = null;
     void sendResult(entry);
     return entry.result;
@@ -820,9 +1012,11 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
         await report("result", entry.command, { result: entry.result });
         entry.reported = true;
         entry.reportError = null;
+        log("result-delivered", { ...identity2(entry.command), status: entry.result?.status });
         return true;
       } catch (error) {
         entry.reportError = { code: error.code || "RESULT_REPORT_FAILED", message: error.message };
+        log("result-delivery-failed", { ...identity2(entry.command), error }, "error");
         return false;
       } finally {
         entry.resultReportPromise = null;
@@ -848,6 +1042,7 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
   }
   async function execute(entry) {
     const command = entry.command;
+    log("command-dispatch", identity2(command));
     try {
       if (!accepting) throw failure("lease_revoked", "Host page control has ended before CAD dispatch");
       if (command.deadline * 1e3 <= now()) throw failure("COMMAND_EXPIRED", "Command deadline passed before CAD dispatch; no page job was submitted");
@@ -863,12 +1058,16 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
         entry.jobId = "wc_" + command.commandId;
         api.submit({ jobId: entry.jobId, method: command.payload.method, args: command.payload.args });
         entry.submitted = true;
+        log("page-job-submitted", { ...identity2(command), pageJobId: entry.jobId });
         await report("ack", command, { pageJobId: entry.jobId });
+        log("command-acknowledged", { ...identity2(command), pageJobId: entry.jobId });
         return await monitor(entry);
       }
       await report("ack", command, {});
+      log("command-acknowledged", identity2(command));
       return await finish(entry, await api.invoke(command.payload));
     } catch (error) {
+      log("command-dispatch-error", { ...identity2(command), submitted: !!entry.submitted, pageJobId: entry.jobId, error }, "error");
       if (entry.submitted && !entry.result) {
         try {
           return await monitor(entry);
@@ -881,6 +1080,7 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
     }
   }
   function receive(command) {
+    log("command-received", { ...identity2(command), binding: command.payload?.args?.context });
     if (command.protocol !== PROTOCOL || command.cadSessionId !== session.cadSessionId || command.leaseEpoch !== session.leaseEpoch || !/^[a-f0-9]{32}$/.test(command.commandId || "") || typeof command.requestHash !== "string") throw failure("INSTANCE_MISMATCH", "Invalid command envelope");
     const previous = commands.get(command.commandId);
     const saved = archived.get(command.commandId);
@@ -908,6 +1108,7 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
     return entry.promise;
   }
   function endTask(taskId) {
+    log("task-ended", { taskId });
     endedTasks.add(taskId);
     archiveFinished();
     if (taskId !== activeTask) return;
@@ -926,9 +1127,10 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
     }
   }
   return Object.freeze({
-    receive,
+    receive: (command) => traceDebug("agent", "command-receive", { commandId: command?.commandId, taskId: command?.taskId, method: command?.payload?.method }, () => receive(command)),
     endTask,
     release() {
+      log("adapter-released", { activeTask });
       accepting = false;
       endTask(activeTask);
     },

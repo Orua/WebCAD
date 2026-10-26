@@ -1,4 +1,5 @@
 // The same-origin host owns the human-interaction lock. Public CAD commands
+import {debugJournal} from './debug-journal.js';
 // deliberately do not consult this state: the Agent must keep writing the model.
 export function createHostControl(onChange=()=>{}){
   let state={version:1,locked:false,connected:false};
@@ -6,7 +7,7 @@ export function createHostControl(onChange=()=>{}){
   return Object.freeze({get,set(patch={}){
     if(!patch||typeof patch!=='object'||Array.isArray(patch)||Object.keys(patch).some(key=>!['locked','connected'].includes(key))||Object.values(patch).some(value=>typeof value!=='boolean'))throw Object.assign(new Error('hostControl.set requires boolean locked/connected fields'),{code:'HOST_CONTROL_INVALID'});
     const changed=Object.entries(patch).some(([key,value])=>state[key]!==value);
-    if(changed){state={...state,...patch};onChange(get());}return get();
+    if(changed){const before=state;state={...state,...patch};debugJournal.record('agent',state.connected&&!before.connected?'connected':!state.connected&&before.connected?'disconnected':'control-state',{before,after:state});onChange(get());}return get();
   }});
 }
 

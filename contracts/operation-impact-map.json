@@ -1,4 +1,13 @@
 {
+  "debugDiagnostics20261026": {
+    "localImpact": "Append Debug to Settings. Independent diagnostic dialog leaves current tool/LOGO drafts intact; remains readable while busy or Agent-controlled. Bounded tab journal records UI/API transactions, worker phases, Services request/job phases and original field errors. Search/filter, compact AI clipboard with manual fallback, and JSON/JSONL downloads share one report source.",
+    "servicesImpact": "No Gateway/Logo/Native binaries changed. Browser client logs routes, timing, job/asset identifiers and returned error details without headers, credentials or uploaded bytes. Server disk logs are explicitly unavailable, not fabricated.",
+    "logoImpact": "Current wizard source, review/capacity counts, placement and raw form values are included in a redacted diagnostic snapshot. Undefined and non-finite values are represented explicitly; geometry and original images are omitted. No new LOGO compute or parameter modification.",
+    "contractImpact": "API1.57.25 adds getDebugReport and identity-scoped setDebugPanel; matching READ/VIEW classification, strict input schemas, UI routes and documentation. Native Agent uses discovered runtime permissions; no preinstalled skills or program prompt changes.",
+    "documentImpact": "Read-only diagnostic snapshots and independent UI window; no revision/history/dirty changes, automatic retries, task cancellation or external upload. Exported diagnostic data is not an engineering file or saved-geometry acceptance.",
+    "cacheImpact": "Regenerate complete finite knowledge/remote software and ZIP; journal v1 is sanitized before memory/sessionStorage retention and bounded to1500 events/1MiB. Restores only the same tab's recorded history.",
+    "requiredTests": ["Ordered bounded journal, refresh restore, filters and cursor", "Credentials/query/binary redaction and undefined/NaN/error-path fidelity", "Original exception/receipt/unknown commit semantics and no retry", "Strict API read/panel context and busy-document invariance", "One local Debug open, view/filter, copy/export and draft-preservation browser check; same package HTTP verification and GitHub main push"]
+  },
   "logoParameterDiagnostics20261026": {
     "localImpact": "UI schema failures name the actual field and translate bounded validator diagnostics; collection limits report actual and allowed counts. No arbitrary raw messages, values, stack traces or credential paths are exposed.",
     "servicesImpact": "None: this patch changes browser-side diagnostics only; no Gateway, Logo or Native binary or authorization changes.",

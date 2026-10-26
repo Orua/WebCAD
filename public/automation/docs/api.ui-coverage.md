@@ -2,6 +2,21 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "debug": {
+    "tools": [
+      "getDebugReport",
+      "setDebugPanel"
+    ],
+    "method": "setDebugPanel",
+    "usage": "设置最后一项Debug。setDebugPanel({context,visible:true|false})打开或关闭独立诊断窗口，不关闭编辑草稿、不提交工程；getDebugReport({source?,level?,query?,afterSequence?,limit?:1..1500,includeState?:true})读取脱敏日志和当前状态。复制AI数据取最近操作/错误和当前快照，下载支持完整JSON、日志JSONL、错误JSONL和状态JSON；数据由同一只读接口提供。"
+  },
+  "debugReport": {
+    "tools": [
+      "getDebugReport"
+    ],
+    "method": "getDebugReport",
+    "usage": "按source/level/query筛选。复制/下载为宿主clipboard/download动作，API返回相同诊断数据供宿主保存；不宣称已写盘。不读取服务器磁盘日志。"
+  },
   "agentPanelFloating": {
     "tools": [
       "getAgentPanel",
@@ -1498,6 +1513,8 @@
 }
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+getDebugReport: contextPolicy=none
+setDebugPanel: contextPolicy=identity
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

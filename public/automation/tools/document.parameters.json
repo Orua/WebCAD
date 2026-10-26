@@ -2,7 +2,7 @@
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.57.24",
+  "version": "1.57.25",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "execute",
@@ -140,5 +140,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dfce995159039d65638eb4a049e8aece997a0054ba4e26caa4b72cbeb9c995a6"
+  "docsHash": "sha256:9b94d2a57785d28ac5018403e28b191639d4e1d493047db616d187c6604fa589"
 }

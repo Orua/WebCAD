@@ -7,7 +7,7 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.57.24",
+  "version": "1.57.25",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -140,5 +140,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:b3b6cf15e40a9d0df60065054b6e8315680586fcdf7a1dff99ca9088801569d8"
+  "docsHash": "sha256:1dc0b64fc68c994e4020ae117d31320901039804e9be7e493e2f0dca1628fed6"
 }

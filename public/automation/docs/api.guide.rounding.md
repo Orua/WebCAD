@@ -8,6 +8,8 @@
 失败：区分选边过期、半径不可行、内核/服务不可用和未知提交。定位到具体来源/阶段，不自动减小 R，不反复换内核，不删除细节以换取成功。未知结果查询原 job/request；已有部分提交先保留。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+getDebugReport: contextPolicy=none
+setDebugPanel: contextPolicy=identity
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

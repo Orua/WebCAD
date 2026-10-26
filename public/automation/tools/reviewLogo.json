@@ -2,7 +2,7 @@
   "id": "reviewLogo",
   "title": "reviewLogo",
   "category": "page-method",
-  "version": "1.57.24",
+  "version": "1.57.25",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -190,5 +190,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:3fe4e494a3f95e9472d0e0ab04e09d6ac9619e184b152576e41dc4a755f77941"
+  "docsHash": "sha256:7a92474aba7671f32002efd059a46ae0dc364aa00dd038af8953455e390575b6"
 }

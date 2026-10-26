@@ -4,6 +4,8 @@
 facts.activeCreatedBodyIds/removedSinceStartBodyIds比较本批起点与结束时的实际对象集合，objectSet提供前后对象数和scope=this_batch；按coverage判断是否截断。跨批次要另记任务基线。delivery区分geometry/render revision，framing=not_verified、saved=not_asserted不代表已验收或保存。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+getDebugReport: contextPolicy=none
+setDebugPanel: contextPolicy=identity
 getMetalMaterials: contextPolicy=none
 setMetalMaterials: contextPolicy=identity
 getMaterials: contextPolicy=none

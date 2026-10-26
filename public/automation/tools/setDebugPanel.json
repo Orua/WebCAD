@@ -1,0 +1,90 @@
+{
+  "id": "setDebugPanel",
+  "title": "setDebugPanel",
+  "category": "page-method",
+  "version": "1.57.25",
+  "contextPolicy": "identity",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "visible": {
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "context",
+      "visible"
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_view",
+    "method": "setDebugPanel",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
+  "description": "setDebugPanel({context,visible:true|false})；identity context。",
+  "synonyms": [
+    "setDebugPanel",
+    "Debug",
+    "诊断",
+    "窗口",
+    "打开",
+    "关闭"
+  ],
+  "inputContract": "setDebugPanel({context,visible:true|false})；identity context。",
+  "outputContract": "status=applied、open、context；打开独立诊断窗口。不会关闭当前工具草稿、取消预览或提交工程，计算中和Agent控制期间可查看。错误PARAM_SCHEMA_INVALID、INSTANCE_MISMATCH、CAPABILITY_UNAVAILABLE。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "INSTANCE_MISMATCH",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "selectionGuide": {
+    "groupId": "debug",
+    "groupTitle": "运行诊断与日志",
+    "chooseWhen": "只打开或关闭独立Debug窗口，不取消编辑草稿、不停止计算、不修改工程。",
+    "alternatives": [
+      {
+        "id": "getDebugReport",
+        "chooseWhen": "只读获取当前状态、操作过程和错误字段，供分析/复制/保存；不是工程导出或服务器磁盘日志。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:b88caa340fa0f0d3245dcc6f74f9d2ab45b0dfa5cb8bc800f0b501c88415a064"
+}
