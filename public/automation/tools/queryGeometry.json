@@ -2,7 +2,7 @@
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.57.17",
+  "version": "1.57.18",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -154,5 +154,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9b0d2529706056e518837c71d24e4717c1e8ce4503ab120fc1a9541addcc60ee"
+  "docsHash": "sha256:49223764fee912e671f6c6ff352e3cf3165c8e3ade4edbd4aba0fc4fc1badbf6"
 }

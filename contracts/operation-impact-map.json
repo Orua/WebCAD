@@ -1,4 +1,18 @@
 {
+  "servicesQuickConnection20261026": {
+    "localImpact": "Simplify Services settings to one address and optional advanced settings; configured address enables connection and same-origin authorization is inferred. UI and setServices share a bounded lightweight handshake.",
+    "servicesImpact": "Authenticated /v1/hello/{challenge} returns fixed protocol and nonce before IisRuntime initialization, workers, store and queue health. Existing Origin/private-HTTP and constant-time credential checks remain.",
+    "logoImpact": "No Logo conversion or geometry change in this stage.",
+    "contractImpact": "API1.57.18 setServices returns connection receipt and uses 5-second nonce handshake. Full capability discovery remains separate at operation time.",
+    "documentImpact": "No document mutation, save, selection or page refresh required.",
+    "cacheImpact": "Regenerate matching static docs, routing and complete knowledge ZIP with per-file SHA256. Publish same frontend and Gateway candidate to local and production.",
+    "requiredTests": [
+      "Handshake nonce/protocol/error and automatic same-origin settings unit checks",
+      "Affected Gateway Release AnyCPU build",
+      "Local and production authenticated handshake latency; unauthorized/foreign-origin rejection",
+      "One local settings UI/API save check; frontend/knowledge hashes and production workspace embedding"
+    ]
+  },
   "allAgentToolRouting20261026": {
     "localImpact": "Restore published metal-material read/update routes and use contract-owned context/edit policies. Audit every public method/file entry and execute action against callable implementation, MCP route, category, shared schema and context policy during documentation generation/build.",
     "servicesImpact": "None: preserve Services and Native compute, credentials, permission gates and user decisions.",
@@ -6,7 +20,13 @@
     "contractImpact": "Combined API 1.57.17 candidate publishes host-only reasons and generic routing correction guidance; file/command cards show explicit MCP routes. Metal reads need no context; configuration updates require cad.edit and matching document identity. Existing finish presets can be applied directly using body.appearance.",
     "documentImpact": "No original document modified in this source-only task; no automatic wrapper fallback, request rewrite or replay. Global material update remains separate from geometry revision and validates configuration atomically.",
     "cacheImpact": "Regenerate the complete knowledge package and adapter contract. Local tool-category/schema rejections also write bounded structural diagnostics with task/contract/error/commit identity.",
-    "requiredTests": ["All public method and execute-action registrations and card routes", "Build gate rejects omitted registration, wrong category and schema drift", "Real page/adapter metal configuration read/update with edit scope and old-instance rejection", "Generic Agent page-owned context policies and category correction diagnostics", "Knowledge ZIP/hash/member/docs synchronization; no deployment pending user changes"]
+    "requiredTests": [
+      "All public method and execute-action registrations and card routes",
+      "Build gate rejects omitted registration, wrong category and schema drift",
+      "Real page/adapter metal configuration read/update with edit scope and old-instance rejection",
+      "Generic Agent page-owned context policies and category correction diagnostics",
+      "Knowledge ZIP/hash/member/docs synchronization; no deployment pending user changes"
+    ]
   },
   "cadSubmissionDiagnostics20261026": {
     "localImpact": "Publish a complete MCP run envelope example with distinct host requestKey and args.idempotencyKey. Agent forwards structured errors and validates run with the verified page schema; rejected submissions and failed page receipts get bounded structural-only diagnostic records.",
@@ -15,7 +35,13 @@
     "contractImpact": "Page API 1.57.17; run arguments unchanged. Clarify envelope nesting, exact error fields and no-write rejection. Agent retains legacy envelope validation only when no verified schema is published.",
     "documentImpact": "No automatic correction, retry, key substitution, revision update or document mutation on rejected requests. Partial/unknown page receipts retain their original command and commit evidence.",
     "cacheImpact": "Regenerate the complete knowledge ZIP, index/routing/skills and all hashes. Diagnostics rotate in the configured Agent operational log directory; no source geometry, request values, files or credentials are logged.",
-    "requiredTests": ["Published schema controls batch limits and extra/missing fields", "Structured broker errors survive MCP with rejected/not_committed status", "Rejected requests are not enqueued; task-filtered diagnostics retain shape/path/version and redact request values", "Partial and unknown page receipts are recorded without claiming no commit", "Complete knowledge integrity build and one localhost page contract check"]
+    "requiredTests": [
+      "Published schema controls batch limits and extra/missing fields",
+      "Structured broker errors survive MCP with rejected/not_committed status",
+      "Rejected requests are not enqueued; task-filtered diagnostics retain shape/path/version and redact request values",
+      "Partial and unknown page receipts are recorded without claiming no commit",
+      "Complete knowledge integrity build and one localhost page contract check"
+    ]
   },
   "orthographicProjectedFit20261026": {
     "localImpact": "Orthographic fit includes camera-projected box corners and viewport aspect, preserving the former scale when it already contains the object. Fix observed isometric cube clipping in production QA.",
@@ -24,7 +50,11 @@
     "contractImpact": "Page API1.57.16; same setView selection/projection/direction/fit arguments and UI action. No new operation or permission.",
     "documentImpact": "View-only; geometry revision, body IDs/counts, bounds and volumes remain unchanged.",
     "cacheImpact": "Rebuild one frontend and complete matching knowledge archive; existing host and backend DLLs remain the verified same binaries.",
-    "requiredTests": ["Projected-corner invariants reproduce old cube clipping and verify new containment", "Localhost cube isometric and ring/D-buckle top screenshots after one selection+fit call", "Production new host Agent one-call fit screenshot and unchanged geometry readback"]
+    "requiredTests": [
+      "Projected-corner invariants reproduce old cube clipping and verify new containment",
+      "Localhost cube isometric and ring/D-buckle top screenshots after one selection+fit call",
+      "Production new host Agent one-call fit screenshot and unchanged geometry readback"
+    ]
   },
   "sameOriginServicesAndHostIsolation20261026": {
     "localImpact": "Default Services connects directly to same-origin cadservices/api.ashx without cookies or client credentials; legacy website URL migrates. Standalone Agent host source/package lives in this repository.",
@@ -33,7 +63,14 @@
     "contractImpact": "Page API1.57.15 documents siteSession as a legacy configuration name for same-origin unauthenticated compute. Independent Goldenluck.WebCADHost namespace/assembly has no Web.dll reference; Agent authentication remains separate. COMMAND_EXPIRED identifies pre-CAD dispatch expiry; lease/task control errors are separate from authentication.",
     "documentImpact": "No business original, save, export or reopen operation in acceptance. Preserve committed QA document, pending original command identity and locks across authentication recovery.",
     "cacheImpact": "Regenerate complete frontend knowledge package; package matching Gateway and standalone host; production only after local architecture acceptance.",
-    "requiredTests": ["Unauthenticated same-origin compute with cookies omitted", "Cross-origin/missing or wrong bearer rejection and explicit authorized path", "Real IIS persisted compute result/hash/geometry and original-job/idempotency/cancel", "Standalone module metadata excludes Web.dll and legacy namespaces", "Host auth polling stops; formal sign-in resumes original task without replay", "Production Agent ring/D fit, tube undo/redo, boolean total inventory and real screenshots"]
+    "requiredTests": [
+      "Unauthenticated same-origin compute with cookies omitted",
+      "Cross-origin/missing or wrong bearer rejection and explicit authorized path",
+      "Real IIS persisted compute result/hash/geometry and original-job/idempotency/cancel",
+      "Standalone module metadata excludes Web.dll and legacy namespaces",
+      "Host auth polling stops; formal sign-in resumes original task without replay",
+      "Production Agent ring/D fit, tube undo/redo, boolean total inventory and real screenshots"
+    ]
   },
   "qaHostBridgePackaging20261025": {
     "localImpact": "Rebuild scoped host bridge from its existing handler source; reject duplicate WebCadHost/WebCadSettings in bridge metadata. No browser geometry change.",
@@ -42,7 +79,12 @@
     "contractImpact": "None: same host routes, authorization and CSRF checks; remove duplicate assembly types causing production ProjectOpen handler CS0433 before request dispatch.",
     "documentImpact": "Retain current page/document identity, geometry, original command receipts and task state; no save/export/reopen acceptance in this task.",
     "cacheImpact": "Scoped WebCAD.NativeBridge.dll only, same package local/production; browser/knowledge release remains 1.57.14.",
-    "requiredTests": ["Compile against production reference assemblies and inspect defined types", "Original task terminal and lock readback before replacement", "Production handler returns project_open_not_found instead of compiler 500", "Production models and user-Agent-CAD workflow on original QA document"]
+    "requiredTests": [
+      "Compile against production reference assemblies and inspect defined types",
+      "Original task terminal and lock readback before replacement",
+      "Production handler returns project_open_not_found instead of compiler 500",
+      "Production models and user-Agent-CAD workflow on original QA document"
+    ]
   },
   "qaProductionClosureDocs20261025": {
     "localImpact": "Correct existing capacity/save documentation; keep geometry and UI behavior unchanged.",
@@ -51,7 +93,11 @@
     "contractImpact": "Page API 1.57.14; distinguish browser resource budgets, host attachment limits, v4 container/JSON budgets and legacy formats. No capacity widening in code.",
     "documentImpact": "Default final geometry/object persistence has no recipe or timeline; current-session history remains independent. No save/export/reopen tests in this task.",
     "cacheImpact": "Regenerate complete knowledge ZIP/index/routing/skills and all hashes together; retain user projects and settings.",
-    "requiredTests": ["Current docs against executing capacity constants", "Knowledge ZIP byte/member/hash consistency", "Production workflow acceptance recorded separately from builds and unit tests"]
+    "requiredTests": [
+      "Current docs against executing capacity constants",
+      "Knowledge ZIP byte/member/hash consistency",
+      "Production workflow acceptance recorded separately from builds and unit tests"
+    ]
   },
   "qaDeliveryReliability20261025": {
     "localImpact": "Apply selection and temporary visibility before camera fit; compare actual batch object sets and disclose unverified framing/save state.",
@@ -60,21 +106,26 @@
     "contractImpact": "Page API 1.57.13; correct write-context guidance, bounded discovery/recovery and additive batch facts with explicit coverage. Preserve camera/projection/direction/fit precedence.",
     "documentImpact": "View changes do not change geometry revision; no automatic cleanup or replay. Align final-state save and 20-step session history documentation.",
     "cacheImpact": "Regenerate complete agent ZIP, index, routes, knowledge version and all member hashes together. Preserve user data and cookies.",
-    "requiredTests": ["Bidirectional ring/D-buckle selectedOnly fit in localhost browser", "Batch actual set delta, partial commits, idempotency and stale revision", "Host recovery stops at budget and authentication boundary", "Complete knowledge ZIP verification and release endpoint identity"]
+    "requiredTests": [
+      "Bidirectional ring/D-buckle selectedOnly fit in localhost browser",
+      "Batch actual set delta, partial commits, idempotency and stale revision",
+      "Host recovery stops at budget and authentication boundary",
+      "Complete knowledge ZIP verification and release endpoint identity"
+    ]
   },
   "chainTautContact20261025": {
-      "localImpact": "All three quick chains advance rigid links from certified interlocked placement to first inner contact, exact BRep gap <=0.00001 mm; recompute count and length from resolved pitch. Preserve shapes, independent solids and legacy single links.",
-      "servicesImpact": "None: chain quick models remain fixed local WASM; no Services/Native binary or protocol changes.",
-      "logoImpact": "None: source Logo conversion and workers unchanged.",
-      "contractImpact": "Page API 1.57.12, chainReport contact readback; handshake assemblyDocId and task route inject general interlocked/taut/non-penetration guidance. No Agent program rule or generic assembly solver.",
-      "documentImpact": "Existing recipes rebuild tightened assemblies; saved final-state BRep remains frozen until explicit regenerate/edit. Counts/sections/source geometry preserved.",
-      "cacheImpact": "Regenerate complete ZIP, knowledge index, routes, skills and hashes together; release gate compares every ZIP member and current text.",
-      "requiredTests": [
-          "All three real WASM chains: every adjacent gap, nonadjacent separation, independent solids and volume",
-          "Resolved pitch total-length maximum, legacy edit and rebuild persistence",
-          "Localhost one browser round: three chain models, readback and render",
-          "Release ZIP byte/hash/text synchronization and endpoints identity"
-      ]
+    "localImpact": "All three quick chains advance rigid links from certified interlocked placement to first inner contact, exact BRep gap <=0.00001 mm; recompute count and length from resolved pitch. Preserve shapes, independent solids and legacy single links.",
+    "servicesImpact": "None: chain quick models remain fixed local WASM; no Services/Native binary or protocol changes.",
+    "logoImpact": "None: source Logo conversion and workers unchanged.",
+    "contractImpact": "Page API 1.57.12, chainReport contact readback; handshake assemblyDocId and task route inject general interlocked/taut/non-penetration guidance. No Agent program rule or generic assembly solver.",
+    "documentImpact": "Existing recipes rebuild tightened assemblies; saved final-state BRep remains frozen until explicit regenerate/edit. Counts/sections/source geometry preserved.",
+    "cacheImpact": "Regenerate complete ZIP, knowledge index, routes, skills and hashes together; release gate compares every ZIP member and current text.",
+    "requiredTests": [
+      "All three real WASM chains: every adjacent gap, nonadjacent separation, independent solids and volume",
+      "Resolved pitch total-length maximum, legacy edit and rebuild persistence",
+      "Localhost one browser round: three chain models, readback and render",
+      "Release ZIP byte/hash/text synchronization and endpoints identity"
+    ]
   },
   "newProjectHistory20261025": {
     "localImpact": "UI new project uses record:false and clears undo/redo after successful rebuild, matching public file_new; populated documents no longer create a cross-document timeline.",
@@ -83,7 +134,11 @@
     "contractImpact": "Existing UI new and public file_new routes and arguments retained; API unsaved-document protection unchanged.",
     "documentImpact": "Confirmed new project starts empty with a fresh identity and history. Cancel or rebuild failure preserves the committed document and undo stacks.",
     "cacheImpact": "Rebuild frontend and generated knowledge identity; preserve stored projects, cookies and configuration.",
-    "requiredTests": ["Populated UI new action success/cancel/failure regression", "Existing timeline checks", "One localhost browser check of populated-document new and empty canvas"]
+    "requiredTests": [
+      "Populated UI new action success/cancel/failure regression",
+      "Existing timeline checks",
+      "One localhost browser check of populated-document new and empty canvas"
+    ]
   },
   "version": 1,
   "assistantOverlayRefinement20261025": {
@@ -93,7 +148,11 @@
     "contractImpact": "No new operation or argument: existing hostControl, floating position and Agent layout APIs remain shared with UI.",
     "documentImpact": "None: checkpoint persistence, project data and history unchanged.",
     "cacheImpact": "Rebuild frontend and bump linked workspace module version; preserve user data and existing assets.",
-    "requiredTests": ["Existing floating lifecycle and drag checks", "Build contract gates", "One localhost browser check for veil/robot stacking, gap and clean heading"]
+    "requiredTests": [
+      "Existing floating lifecycle and drag checks",
+      "Build contract gates",
+      "One localhost browser check for veil/robot stacking, gap and clean heading"
+    ]
   },
   "configurableMetalMaterials20261024": {
     "localImpact": "User-selected A1 light gold and B2 24K; nickel/gunmetal retain base RGB, share mirror studio style. Safe editable style/material registry, settings list, clone/delete/import/export and browser persistence.",
@@ -102,7 +161,12 @@
     "contractImpact": "Page API1.57.8 getMetalMaterials/setMetalMaterials and docs/routes; source registry drives finish validation/UI. Reject unknown parameters and deletion of in-use/custom-protected entries.",
     "documentImpact": "Saved project embeds renderMaterials definitions so custom finish keys are portable; legacy projects use browser defaults. Geometry/history preserved.",
     "cacheImpact": "Regenerate knowledge, build one package and publish the same localhost-validated bytes to production; preserve user cookies/data and old hashed assets.",
-    "requiredTests": ["Registry schema and atomic invalid update", "Material mirror/color and selection checks", "Local browser list clone/apply/custom finish/save/open", "Local/production/workspace HTTP identities and main push"]
+    "requiredTests": [
+      "Registry schema and atomic invalid update",
+      "Material mirror/color and selection checks",
+      "Local browser list clone/apply/custom finish/save/open",
+      "Local/production/workspace HTTP identities and main push"
+    ]
   },
   "mirrorGoldPreview20261024": {
     "localImpact": "Unpublished browser render candidate: polished light-gold tint/roughness, finite studio card sharpness and readable warm depth-tested BRep edges; existing studio/HDR settings remain selectable.",
@@ -111,7 +175,11 @@
     "contractImpact": "Existing finish, display and display-preferences API arguments retained; behavior documented, no new user operation.",
     "documentImpact": "No topology, import, saved geometry, history or appearance-key changes; only rendering for the existing light-gold finish changes.",
     "cacheImpact": "Shader cache key v11; no deployment or knowledge regeneration in this review-only task.",
-    "requiredTests": ["Focused material and edge-selection checks", "Same source WebCAD render baseline/candidate on nine supplied STEP files", "L125 import validity failure retained separately"]
+    "requiredTests": [
+      "Focused material and edge-selection checks",
+      "Same source WebCAD render baseline/candidate on nine supplied STEP files",
+      "L125 import validity failure retained separately"
+    ]
   },
   "assistantRobotLayout20261024": {
     "localImpact": "Remove viewport object/solid count HUD; restore desktop canvas/chat split columns; collapsed robot shows elapsed seconds, rotating public progress, waiting dots and confirmed terminal state.",
@@ -120,7 +188,11 @@
     "contractImpact": "Page docs1.57.7; getAgentPanel floating adds elapsedSeconds/phase/text and confirmed completed/failed/canceled activity. Existing layout API and authorization channel retained.",
     "documentImpact": "None: no document writes, geometry, revision or history changes.",
     "cacheImpact": "Regenerate static knowledge and frontend build; refresh linked workspace script/style versions; preserve cookies and user data.",
-    "requiredTests": ["Floating drag/click and activity lifecycle", "Desktop split layout and robot waiting/progress/completion in localhost browser", "Build release contracts and endpoint identity"]
+    "requiredTests": [
+      "Floating drag/click and activity lifecycle",
+      "Desktop split layout and robot waiting/progress/completion in localhost browser",
+      "Build release contracts and endpoint identity"
+    ]
   },
   "reliefRoundProduction20261024": {
     "localImpact": "Image auto-conversion and collapsed technical settings; preserve up to65 browser controls and publish the current candidate at the existing work budget; remove obsolete pre-routing dense-design rejection; multi-edge mill cutters bind to one original shape.",
@@ -129,7 +201,14 @@
     "contractImpact": "Page docs1.57.6; candidate is the default quality policy, explicit strict semantics retained; quality verification returns measured withinPrecision/warnings instead of unconditionally vetoing output. No auth/source-identity/rollback checks removed.",
     "documentImpact": "Apply remains one undoable transaction with source unchanged on failure; final-state projects save exact result geometry. Same-tab saved draft recovery retained.",
     "cacheImpact": "Regenerate public knowledge and ship a matching verified Native binary fingerprint; preserve cookies, project/custom settings and Services job storage.",
-    "requiredTests": ["Image dragon/medal/tiger BRep generation, actual browser import/apply/save and visual review", "0.05 vs0.1 dragon result comparison", "Budget-limited browser candidate keeps65 controls", "Actual native bridge and original-feature/offline-save roundtrip", "Three disk STP sources with plane round and fixedR operations, screenshots and preserved originals", "Matched localhost, production static/workspace and server compute identity/output readback"]
+    "requiredTests": [
+      "Image dragon/medal/tiger BRep generation, actual browser import/apply/save and visual review",
+      "0.05 vs0.1 dragon result comparison",
+      "Budget-limited browser candidate keeps65 controls",
+      "Actual native bridge and original-feature/offline-save roundtrip",
+      "Three disk STP sources with plane round and fixedR operations, screenshots and preserved originals",
+      "Matched localhost, production static/workspace and server compute identity/output readback"
+    ]
   },
   "reliefFilletV2Retest20261024": {
     "localImpact": "Apply v2 incremental patch over existing uncommitted v1; localhost browser fit and same-tab IndexedDB draft recovery exercised. Browser fallback reaches 9x9 but remains an inaccurate candidate.",
@@ -138,7 +217,15 @@
     "contractImpact": "Quality acceptance stays strict at machining precision; 769/641/513 capacity ladder; browser default work budget 800e6 with bounded control-net reduction; existing public UI/API routes retained.",
     "documentImpact": "Same-tab recovery restores saved relief drafts and re-solves after reload; final-state exported project still contains final geometry only, not a draft backup.",
     "cacheImpact": "Regenerate knowledge and publish changed frontend files to localhost only; rebuilt worker remains outside verified native allowlist pending actual install/save acceptance.",
-    "requiredTests": ["36 focused JS checks passed", "Native box/hole/spline BRep roundtrip passed", "Dragon quality baseline rejected at max 0.058615 mm", "One bounded maximum-residual alternative rejected at 0.055246 mm and reverted", "Browser dragon 129 field fit completed at 9x9 but max 0.799994 mm", "Same-tab actual reload retained draft and automatically re-solved", "Five-edge kink sample stayed native, mill route remains unaccepted"]
+    "requiredTests": [
+      "36 focused JS checks passed",
+      "Native box/hole/spline BRep roundtrip passed",
+      "Dragon quality baseline rejected at max 0.058615 mm",
+      "One bounded maximum-residual alternative rejected at 0.055246 mm and reverted",
+      "Browser dragon 129 field fit completed at 9x9 but max 0.799994 mm",
+      "Same-tab actual reload retained draft and automatically re-solved",
+      "Five-edge kink sample stayed native, mill route remains unaccepted"
+    ]
   },
   "workspaceComputeTypeOwner20261024": {
     "localImpact": "Rebuild only the existing native Agent bridge handler against Web.dll; localhost Compute ASHX compiles again. No browser frontend change.",
@@ -147,7 +234,12 @@
     "contractImpact": "No public API argument, permission, route or semantic change. Web.dll is the single definition owner of WebCadHost and WebCadSettings.",
     "documentImpact": "None: no document, numerical field, fit or refresh-recovery change.",
     "cacheImpact": "Replacing only WebCAD.NativeBridge.dll triggers the existing local ASP.NET application reload; no frontend/knowledge rebuild or user data replacement.",
-    "requiredTests": ["PE metadata rejects shared host definitions in bridge DLL", "Unsigned Compute request remains 401", "Signed-in Compute health/capabilities return 200", "Workspace loads and bridge method guard remains 405"]
+    "requiredTests": [
+      "PE metadata rejects shared host definitions in bridge DLL",
+      "Unsigned Compute request remains 401",
+      "Signed-in Compute health/capabilities return 200",
+      "Workspace loads and bridge method guard remains 405"
+    ]
   },
   "reliefFilletCandidate20261024": {
     "localImpact": "261024 candidate: phase HTTP timeouts, compressed raster upload, draft-result retention independent of document revision, 25 percent edge-margin cap, finite browser fit budget and mill fallback for fillet/round. Local IIS candidate only; acceptance failed.",
@@ -157,14 +249,14 @@
     "documentImpact": "Same-draft field survives unrelated document revision; refresh of an unsaved project did not restore its draft/results in E2. Browser default image fit rejected its finite work budget.",
     "cacheImpact": "Generated knowledge/build identity changed; verified unified 13-file host cache on G. No document-state cache was installed.",
     "requiredTests": [
-        "A1/A2 identity, health and 1050625-node budget",
-        "Dragon and medal: three Services conversions each; repeated inputs reuse cached job",
-        "C1/E1/F1 numerical field, draft revision recovery and size-18 margin hint",
-        "D1 real dragon BRep one job; fails 0.05mm tolerance and volume consistency",
-        "R1/R3/R4 public-page native fillet, excessive-radius refusal and three-edge scope",
-        "E2 refresh recovery; R2 hard-edge fallback and page LOGO regressions remain incomplete"
+      "A1/A2 identity, health and 1050625-node budget",
+      "Dragon and medal: three Services conversions each; repeated inputs reuse cached job",
+      "C1/E1/F1 numerical field, draft revision recovery and size-18 margin hint",
+      "D1 real dragon BRep one job; fails 0.05mm tolerance and volume consistency",
+      "R1/R3/R4 public-page native fillet, excessive-radius refusal and three-edge scope",
+      "E2 refresh recovery; R2 hard-edge fallback and page LOGO regressions remain incomplete"
     ]
-},
+  },
   "stableCanvasAndScripts20261024": {
     "localImpact": "Chat overlays unchanged canvas dimensions; mobile collapse icon in chat heading; navigation cube stays at visible bottom-left with twelve thin edges",
     "servicesImpact": "CAD Services unchanged; companion CodexAgent scoped script execution capability checked separately",
@@ -172,7 +264,11 @@
     "contractImpact": "Existing setAgentPanel layout and setView operations retained; occlusion event is transient host UI signaling",
     "documentImpact": "Saving retains committed recipe and embedded assets as a recoverable project when final checkpoints are unavailable; codec and picker failures have direct fallbacks; no geometry/revision mutation",
     "cacheImpact": "Rebuild frontend and version companion workspace assets",
-    "requiredTests": ["Mobile and desktop expanded/collapsed pixel scale and model placement", "Visible bottom-left cube and twelve thin edges", "Owner workspace Python script execution"]
+    "requiredTests": [
+      "Mobile and desktop expanded/collapsed pixel scale and model placement",
+      "Visible bottom-left cube and twelve thin edges",
+      "Owner workspace Python script execution"
+    ]
   },
   "mobileCubeLayout20261023": {
     "localImpact": "Canvas fits available height with chat open; mobile collapse handle is 48x20 at canvas bottom; perspective cube and protruding XYZ guides share a fixed negative corner",
@@ -181,21 +277,24 @@
     "contractImpact": "Existing view and assistant layout operations unchanged; positive axis targets stable through camera rotations",
     "documentImpact": "None: view state only; geometry, saved projects and history unchanged",
     "cacheImpact": "Rebuild frontend and knowledge identity; version workspace CSS/JS URLs",
-    "requiredTests": ["Focused assistant layout tests", "Mobile chat expanded/collapsed cube visibility and face interaction; desktop handle dimensions"]
+    "requiredTests": [
+      "Focused assistant layout tests",
+      "Mobile chat expanded/collapsed cube visibility and face interaction; desktop handle dimensions"
+    ]
   },
   "modelingKnowledge20261023": {
-  "localImpact": "Read-only modeling guidance in shared page docs and host knowledge routes; no geometry/UI changes",
-  "servicesImpact": "None: Services runtime and geometry contracts unchanged",
-  "logoImpact": "None: no Logo or Native algorithm changes",
-  "contractImpact": "Additive onboarding.knowledge.modeling and modeling.* doc/route IDs; host route scope filter; operation signatures unchanged",
-  "documentImpact": "None: current document, revision, history, save format and topology untouched",
-  "cacheImpact": "Modeling docs and route changes included in docsHash; regenerate finite three-payload package and optional host kit",
-  "requiredTests": [
-    "Manifest hash and size validation, cache reuse and corruption refresh",
-    "Modeling task/diagnosis routing, selected full docs/cards and budget omission",
-    "Single localhost/webcad handshake/knowledge download and no document mutation"
-  ]
-},
+    "localImpact": "Read-only modeling guidance in shared page docs and host knowledge routes; no geometry/UI changes",
+    "servicesImpact": "None: Services runtime and geometry contracts unchanged",
+    "logoImpact": "None: no Logo or Native algorithm changes",
+    "contractImpact": "Additive onboarding.knowledge.modeling and modeling.* doc/route IDs; host route scope filter; operation signatures unchanged",
+    "documentImpact": "None: current document, revision, history, save format and topology untouched",
+    "cacheImpact": "Modeling docs and route changes included in docsHash; regenerate finite three-payload package and optional host kit",
+    "requiredTests": [
+      "Manifest hash and size validation, cache reuse and corruption refresh",
+      "Modeling task/diagnosis routing, selected full docs/cards and budget omission",
+      "Single localhost/webcad handshake/knowledge download and no document mutation"
+    ]
+  },
   "agentLogTiming20261023": {
     "localImpact": "Host CADAgent logs always show total, model-response, tool-execution and unclassified wall time; receipt diagnostics use closed details elements",
     "servicesImpact": "None: CAD Services, authorization and geometry execution unchanged",
@@ -203,7 +302,12 @@
     "contractImpact": "Additive Agent task requestMetadata.cadMetrics.timingBreakdown and historical-message timingBreakdown v1; existing step, SDK and command receipts retained; no page API operation changes",
     "documentImpact": "None: CAD documents, geometry, undo and saved project data unchanged",
     "cacheImpact": "Bump host JS/CSS URLs; include host turn-timing.js and Agent turn_timing.py together when releasing; no WebCAD static rebuild required",
-    "requiredTests": ["Observed silent model wait, concurrent tool union, cancellation, compaction and unknown phases", "Task persistence and historical timing readback", "Host timing and task-lifecycle regressions", "One 17674 desktop/mobile component render and receipt-fold check"]
+    "requiredTests": [
+      "Observed silent model wait, concurrent tool union, cancellation, compaction and unknown phases",
+      "Task persistence and historical timing readback",
+      "Host timing and task-lifecycle regressions",
+      "One 17674 desktop/mobile component render and receipt-fold check"
+    ]
   },
   "reliefFitFix20261023": {
     "localImpact": "Adaptive numerical field and browser control net; scaled edge margins; selected-face mesh placement; retained dialog results and execution receipts. Browser fit defaults to Worker elapsed-time cancellation instead of a fixed operation-count budget",
@@ -212,7 +316,11 @@
     "contractImpact": "Page API 1.57.4: optional candidate placement; explicit maxWork remains opt-in; candidate volume discrepancies retain consistent:false and visible warning, strict policy still rejects; getServicesRouting lastReliefDesign volume receipt",
     "documentImpact": "Preserve authored height source, draft settings and committed geometry; effective margins reported explicitly",
     "cacheImpact": "Regenerate knowledge snapshot and rebuild frontend; preserve user configuration and operational data",
-    "requiredTests": ["Targeted relief field/source/pipeline/UI regressions", "Managed native parameter checks and Gateway compilation", "17674 adaptive field, fallback, placement, reopening and Services receipt"]
+    "requiredTests": [
+      "Targeted relief field/source/pipeline/UI regressions",
+      "Managed native parameter checks and Gateway compilation",
+      "17674 adaptive field, fallback, placement, reopening and Services receipt"
+    ]
   },
   "agentFloatingToggle20261023": {
     "localImpact": "Collapsed thinking-only robot animation with transparent background, no visible text or shadow; eye/antenna/dot motion and accessible name retained. Preserve task/control lease, drag/reopen and idle hide. Bottom-right controls remain hidden; menu/API retained",
@@ -221,7 +329,11 @@
     "contractImpact": "layout.floatingPosition/getAgentPanel.floating; thinking-only visibility; merged page API1.57.3; host control booleans unchanged",
     "documentImpact": "Transient view state only; no geometry, revision, history or saved-project changes",
     "cacheImpact": "Regenerate page docs, tool cards, routes and host workspace script/CSS cache version",
-    "requiredTests": ["Drag threshold and click suppression; bounds and cancelled pointer", "Existing assistant lifecycle and host lock", "17674 collapse/drag/reopen and activity states"]
+    "requiredTests": [
+      "Drag threshold and click suppression; bounds and cancelled pointer",
+      "Existing assistant lifecycle and host lock",
+      "17674 collapse/drag/reopen and activity states"
+    ]
   },
   "nativeStateSync20261022": {
     "localImpact": "Page-owned event-driven stateSeq and read-only state projection; confirmed direct or authenticated bridge transport",

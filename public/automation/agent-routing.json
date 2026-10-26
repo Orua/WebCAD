@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:c48c43cf1fe0e1e15d8b471f879cf22f767462560cd8a5304d4c485f62ad5388",
-  "docsHash": "sha256:93ac65d4124a9dda6cd8a860f4429becd7558a8b8fe58f59f7afdffe06d7c9ec",
+  "catalogHash": "sha256:39492aff188b813be62d15899e7385dcbf288d8d6b9ea75b790b0701388a74ab",
+  "docsHash": "sha256:147cbbaf9d29288f2f88925d819555503878117b14f6b07eddc12568c5b704c4",
   "bootstrapDocIds": [
     "api.reading-map",
     "api.knowledge-cache",

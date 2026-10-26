@@ -2,7 +2,7 @@
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.57.17",
+  "version": "1.57.18",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -133,5 +133,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d4645623d22ddfeef6d3cf4ce6b77e9d0b36e68b9213d2434ddc56025ce3034d"
+  "docsHash": "sha256:ec546d90642cbff388bd80838d327fcd64c963451dfcc738513967c2480e3d82"
 }

@@ -1087,7 +1087,7 @@
       "clearServicesCredential"
     ],
     "method": "setServices",
-    "usage": "主界面维护统一计算接口地址，可传本站相对路径或带域名/IP/端口的完整URL；显示解析后的实际地址。默认入口使用当前网站登录，自定义端使用专用授权。context、url、authMode、credential、enabled、localTimeoutMs、serverWaitMs；启用时先验证能力，成功才保存，失败明确未保存。所有后台工具共享配置。getServicesRouting读取实际分流原因；不回显授权。"
+    "usage": "主界面维护统一计算接口地址，可传本站相对路径或带域名/IP/端口的完整URL；地址即启用，相对/同域地址自动连接，无额外勾选；说明使用问号title。跨域端使用专用授权。context、url、authMode、credential、enabled、localTimeoutMs、serverWaitMs；人工与API共用5秒限时hello随机挑战握手，仅验证连接、协议及授权，不初始化运行时或查询队列；成功才保存，失败明确未保存。所有后台工具共享配置。getServicesRouting读取实际分流原因；不回显授权。"
   },
   "servicesFeatureCompile": {
     "tools": [

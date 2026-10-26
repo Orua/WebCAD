@@ -2,7 +2,7 @@
   "id": "getMetalMaterials",
   "title": "getMetalMaterials",
   "category": "page-method",
-  "version": "1.57.17",
+  "version": "1.57.18",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -105,5 +105,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:de78b1a52442f010138f3b8f500d47c5415c09cd8fa50c1bbb15fa5e55b8548d"
+  "docsHash": "sha256:1e59c112d65b1f4c1e6963edafdf323fcd3b2cea861fd7e3c5dfb575d7f1234b"
 }

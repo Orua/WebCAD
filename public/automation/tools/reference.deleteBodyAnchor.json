@@ -8,7 +8,7 @@
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.57.17",
+  "version": "1.57.18",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -79,5 +79,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3bc37cb35e38e33cb5e47b99cd93ea7e264cf11aa4bcf6d84b8f2cd6e2adcf4e"
+  "docsHash": "sha256:5938daebf61fec8c440e2fd756ec985099b10e67c123f69ef24f0d71b7f42131"
 }

@@ -2,7 +2,7 @@
   "id": "getBatchReceipt",
   "title": "getBatchReceipt",
   "category": "page-method",
-  "version": "1.57.17",
+  "version": "1.57.18",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -97,5 +97,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:233f49ba2b3e390f21907116dee4f18f16a056e0169bc2bae4b32ee629d35af0"
+  "docsHash": "sha256:b0d648baf4f81ac24ff45a1627cf5aab4155610344c11d66cb18f4b0ef645b0d"
 }

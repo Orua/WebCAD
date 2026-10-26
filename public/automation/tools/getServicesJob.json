@@ -2,7 +2,7 @@
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.57.17",
+  "version": "1.57.18",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -108,5 +108,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:97cc7623c37eadc806ad6f253525dd0640f27af2d57f3b74ff3fd94eae299163"
+  "docsHash": "sha256:c706c883e1ed224fc5d6df4af824a5ba15d01cb2ef1873676e31478d26b0f7ba"
 }
