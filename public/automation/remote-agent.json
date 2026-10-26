@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "adapterVersion": 2,
-  "buildId": "d9b60d84c67f8170756356be8c9af586dbd82ccf-src-d50c70c834e7840b-working",
+  "buildId": "4042308ee2049f4a43c93031270d184952f00460-src-ce411f8f4cf65212-working",
   "catalogHash": "sha256:93f08cf3e15b0f89dbbf01a14ced43f1f18af80b5158cd10e7141100bf9f8376",
   "docsHash": "sha256:b8c774bf4d582847d1a1339d12bb561871b3ecc98e51741a9ece408d1d636a5d",
   "contractHash": "sha256:9b189ec9b2acbb74f275fa40ae1ca8f2df0019652811f9d1f7fb29b22097bed6",
@@ -10,8 +10,8 @@
     {
       "name": "host-adapter.mjs",
       "url": "remote-agent/host-adapter.js",
-      "sizeBytes": 92715,
-      "sha256": "sha256:4f8240dd55a96e176376a78ace091c99ca9f1f46303ff2a3440ea60246308463"
+      "sizeBytes": 92686,
+      "sha256": "sha256:aa833b19992ab354a9640bec870f289b81d342f2b7c0efd3290b888121784aaa"
     },
     {
       "name": "runtime-contract.json",

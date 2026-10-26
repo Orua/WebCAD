@@ -1,5 +1,5 @@
 // Translate bounded validator diagnostics, never arbitrary worker messages or values.
-const labels={depth:'雕刻深度',depthMm:'深度',scale:'LOGO 比例',angle:'旋转角度',offsetX:'水平偏移',offsetY:'垂直偏移',point:'放置点坐标',faceId:'目标面',sizeMm:'图案尺寸',name:'名称',source:'来源记录',regions:'图案区域',placementVersion:'定位版本',mode:'加工方式',projectionMode:'加工范围',draftAngle:'脱模斜度',mirrorX:'镜像设置'};
+const labels={depth:'深度',depthMm:'深度',scale:'比例',angle:'旋转角度',offsetX:'水平偏移',offsetY:'垂直偏移',point:'放置点坐标',faceId:'目标面',sizeMm:'尺寸',name:'名称',source:'来源记录',regions:'图案区域',placementVersion:'定位版本',mode:'加工方式',projectionMode:'加工范围',draftAngle:'脱模斜度',mirrorX:'镜像设置'};
 function fieldName(path){
  if(typeof path!=='string'||path.length>220||!/^params(?:\.(?:[A-Za-z_][A-Za-z_0-9]{0,39}|\d{1,7}))*$/.test(path)||/(?:password|secret|token|cookie|authorization|api_?key)/i.test(path))return null;
  const keys=path.split('.').slice(1);if(!keys.length)return '参数';

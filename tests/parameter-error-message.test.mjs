@@ -19,8 +19,8 @@ test('undefined source metadata is identified as program data rather than blamin
 test('coordinates, numeric range, type and unexpected fields have concrete explanations',()=>{
  for(const [schema,value,path,expected]of [
   [{type:'number'},NaN,'params.point.0',/放置点坐标 X.*有限数值/],
-  [{type:'number',exclusiveMinimum:0},0,'params.depth',/雕刻深度.*必须大于 0/],
-  [{type:'array'},{width:35,height:20},'params.sizeMm',/图案尺寸.*必须是数组/],
+  [{type:'number',exclusiveMinimum:0},0,'params.depth',/深度.*必须大于 0/],
+  [{type:'array'},{width:35,height:20},'params.sizeMm',/尺寸.*必须是数组/],
   [{type:'object',additionalProperties:false},{type:'webcad-logo'},'params',/params.type.*不接受这个字段/],
  ])assert.match(humanError(capture(()=>validateSchema(schema,value,path))),expected);
 });
