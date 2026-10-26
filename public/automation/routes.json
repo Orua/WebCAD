@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.57.19",
-  "buildId": "d2e2a246a08143b99252f09d67ea4c263bfdf618-src-1ebd3e467be36080-working",
-  "catalogHash": "sha256:367aa9c0d5bd2ae2e6c2a46623137e3666277dac2063faeee7854f0a3ce23e8b",
-  "docsHash": "sha256:2e321c3b53a61c41e609d00b0a3cde6d4e9fffcf3fcabcf02ca7ba776db13a50",
+  "pageApiVersion": "1.57.20",
+  "buildId": "7f24cf92f732d0f0e9224fe2d4f701cd5d6ddd07-src-962d3d6e16bf37ce-working",
+  "catalogHash": "sha256:8129d4efcf64d85db069995f9b4f50ff595cc9af55d275cd8782223fa3cf516f",
+  "docsHash": "sha256:9f24c379733e06fbeba203c913bceecc0ed5f2083af7a7dd8f16e7f7bd109491",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -607,7 +607,7 @@
         "files.download"
       ],
       "method": "reviewLogo",
-      "usage": "LOGO紧凑向导：来源→轮廓校对→目标面。位图加工精度由readLogo.machining或logoWizard.parameters.machining设置enabled/toleranceMm/minDetailMm，共享报告和原始轮廓。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。"
+      "usage": "LOGO紧凑向导：选图自动识别→缩略图校对→目标面，各步持续预览，技术参数隐藏。logoWizard action edit打开大窗矢量编辑、closeEditor收回，get.editorOpen读回；保存图标与artifacts/exportDrawing同源。位图加工精度由readLogo.machining或logoWizard.parameters.machining设置enabled/toleranceMm/minDetailMm，共享报告和原始轮廓。reviewLogo在独立logoId草稿中读、选环/点、修改毫米节点、删除、撤销和明确确认；artifacts生成中间文件。logoWizard共享已打开向导的参数、草稿、确认；attach登记UI原件和同一草稿，artifacts导出当前稿；UI编辑后API不能导出旧缓存；load用logoId和原资源加载底图。每次写入需对应expectedRevision，确认不提交CAD几何。"
     },
     "markLocation": {
       "tools": [

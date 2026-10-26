@@ -489,14 +489,14 @@ export function createUI(root,callbacks={}) {
  function logoDialog(action='logo'){
   const curved=action==='curvedLogo',specs=fields[action];
   const saved=logoDraft;logoDraft=null;
-  const d=openDialog('LOGO 雕刻向导',undefined),notice=element('p',{class:'logo-source-notice'},'选择文件 → 核对轮廓与尺寸 → 选面并雕刻'),form=element('form',{class:'parameter-form'});d.classList.add('logo-wizard');let base=saved?.base||null;
+  const d=openDialog('LOGO 雕刻向导',undefined),notice=element('span',{hidden:'',title:'选择图片，校对轮廓，再到画布定位雕刻。'}),form=element('form',{class:'parameter-form'});d.classList.add('logo-wizard');let base=saved?.base||null;
   const importer=createLogoImportUI({initialLogo:base,validateLogoDocument,logoSummary,onLogo(logo){base=logo;refreshTarget();},async onInvalidate(){base=null;form.dispatchEvent(new Event('input',{bubbles:true}));previewActive=false;await emit('cancelPreview',{});}});
   const target=element('div',{class:'logo-target-step'}),targetText=element('p');
   const chooseFace=button('到模型上选面和放置点',async()=>{const values={};for(const spec of specs){const input=form.elements.namedItem(spec[0]);if(input)values[spec[0]]=input.type==='checkbox'?input.checked:input.value;}const hadPreview=previewActive;closeDialog(false);previewActive=false;if(hadPreview)await emit('cancelPreview',{});logoDraft={base,values,action,awaitingFace:true};await emit('selectMode',{mode:'face'});api.setStatus('请在模型目标面上单击放置点；LOGO 设置会自动返回。');},'primary');
   target.append(targetText,chooseFace);
   const refreshTarget=()=>{target.hidden=form.hidden=!base;const selected=state.selectedTopology,valid=selected?.type==='face'&&selected.ids?.length===1&&selected.point?.length===3,kind=selected?.geomType;targetText.textContent=valid?`已选目标面 ${selected.ids[0]}，放置点 ${selected.point.map(n=>Number(n).toFixed(2)).join(', ')} mm${kind?` · ${kind==='PLANE'?'平面':'曲面'}`:''}`:'到模型上单击目标面，点击处就是 LOGO 放置点。';chooseFace.textContent=valid?'更换目标面和放置点':'到模型上选面和放置点';for(const control of form.querySelectorAll('[data-logo-submit]'))control.disabled=!valid||!base;form.dispatchEvent(new Event('input',{bubbles:true}));};
   logoTargetRefresh=refreshTarget;
-  d.append(notice,importer,target,element('p',{class:'dialog-description'},curved?'先选面并点击 LOGO 中心。':'单面模式保持法向等深。跨相连面模式可越过平面与圆角接缝；深度沿放置点的投影方向计算，仅支持凹刻、0°拔模。字样尺寸和孔洞保持不变。'));
+  d.append(notice,importer,target);target.title='选择目标面并放置；曲面及跨面仅凹刻、0°拔模。';
   const extra=element('details',{class:'wide logo-placement-advanced'});extra.append(element('summary',{},'旋转、镜像和精确定位'));form.append(extra);specs.forEach(spec=>{const axis=['pointX','pointY','pointZ'].indexOf(spec[0]);addField(['mode','projectionMode','depth'].includes(spec[0])?form:extra,spec,axis>=0?state.selectedTopology?.point?.[axis]:saved?.values?.[spec[0]]);});
   if(!curved){const choice=element('label',{class:'form-field wide work-frame-choice'}),useFrame=element('input',{type:'checkbox',name:'useWorkFrame'});useFrame.checked=false;useFrame.addEventListener('change',()=>convertFramePointFields(form,useFrame.checked));choice.append(useFrame,element('span',{},'使用当前工作基准：放置点和阅读方向按局部坐标解释'));form.append(choice);}
   if(!curved)extra.append(logoPlacementControls(form,()=>base,element,button));

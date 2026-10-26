@@ -1,10 +1,26 @@
 .logo-import-ui [hidden]{display:none!important}
+.logo-wizard-thumbnail{display:grid;place-items:center;min-height:150px;max-height:230px;background:#f3f6f9;border-radius:8px;overflow:hidden;margin:12px 0}
+.logo-wizard-thumbnail:empty{display:none}
+.logo-wizard-thumbnail :is(img,svg){display:block;width:100%;height:210px;object-fit:contain;margin:0;padding:10px}
+.logo-step-tab{border:0!important;padding:2px!important;min-height:28px!important;font-size:12px!important;background:transparent!important;color:inherit!important}
+.logo-review-footer [data-logo-icon]{width:36px;min-width:36px;min-height:36px;display:inline-grid;place-items:center;padding:7px}
+.logo-review-footer{display:flex;flex-wrap:wrap;align-items:center}
+.logo-review-footer .primary{flex:1;min-width:130px}
+.logo-review-footer [data-logo-icon]{flex:none}
+.logo-editor-dialog{width:min(1100px,94vw);max-width:94vw;height:90dvh;max-height:94dvh;padding:18px;border:0;border-radius:12px;color:var(--text,#243446);background:#fff;box-shadow:0 18px 60px #14213335}
+.logo-editor-dialog::backdrop{background:#14213350}
+.logo-editor-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.logo-editor-header h3{margin:0;font-size:16px}
+.logo-editor-header button{width:36px;min-width:36px;min-height:36px;padding:6px}
+.logo-editor-dialog .logo-vector-review{height:calc(100% - 48px);grid-template-rows:auto minmax(120px,1fr) auto auto auto auto}
+.logo-editor-dialog .logo-review-canvas{height:100%;min-height:120px}
+.logo-review-toolbar [data-logo-icon],.logo-review-actions [data-logo-icon]{flex:none;width:36px;min-width:36px;min-height:36px;padding:6px}
 .logo-wizard-progress{display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:0;list-style:none;font-size:11px;color:#4c6173}
 .logo-wizard-progress li{padding:5px 7px;border-bottom:2px solid var(--line)}
 .logo-wizard-progress li[aria-current=step]{border-color:var(--accent);color:var(--accent);font-weight:650}
 .logo-review-step{display:flex;flex-direction:column;max-height:calc(100dvh - 235px);min-height:0}
 .logo-review-content{min-height:0;overflow:auto;overscroll-behavior:contain;padding-right:3px}
-.logo-review-footer{flex:none;display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--line);background:#fbfdfe}
+.logo-review-footer{flex:none;display:flex;gap:7px;padding:10px 0 2px;margin-top:8px;border-top:1px solid var(--line);background:#fbfdfe}
 .logo-review-footer button{min-width:0;min-height:34px;font-size:11px;white-space:normal}
 .logo-review-footer .primary{grid-column:1/-1}
 .logo-vector-review{display:grid;gap:8px;min-width:0}

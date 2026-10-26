@@ -2,7 +2,7 @@
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.57.19",
+  "version": "1.57.20",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -109,5 +109,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8dee9ac50fe6bdc8eb2572bb449b0f46de2650c112d46303c6c55b3d61c1e54d"
+  "docsHash": "sha256:00c66d45f3fb279cb82dca6fd3e456439e8dc132e9bc633fc20849f1661926f7"
 }

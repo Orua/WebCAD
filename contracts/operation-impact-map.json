@@ -1,4 +1,17 @@
 {
+  "logoCompactReview20261026": {
+    "localImpact": "Source image selection automatically converts with internal defaults. All wizard tabs retain a vector thumbnail; edit opens a separate large modal sharing the exact UI/Agent review session. Save and editor actions use small SVG icons and title help.",
+    "servicesImpact": "None: existing single-conversion endpoint and configuration unchanged.",
+    "logoImpact": "No new geometry algorithm; node edits and undo keep transactional topology checks and shared draft identity.",
+    "contractImpact": "API1.57.20 logoWizard edit/closeEditor and editorOpen match the human large editor; artifacts/exportDrawing use the edited session.",
+    "documentImpact": "Source/review steps only edit an independent vector draft, not current CAD geometry.",
+    "cacheImpact": "Regenerate matching full knowledge archive and routing/contract docs.",
+    "requiredTests": [
+      "21 targeted wizard/review/import tests",
+      "Local actual PNG automatic read, open large editor, edit node, close and verify thumbnail path changed",
+      "Build and complete knowledge ZIP hashes; identical frontend local/production"
+    ]
+  },
   "logoEndpointFit20261026": {
     "localImpact": "UI and AI image import share bounded RDP fitting to actual region/total/ring machining ceilings. Preserve source, holes, topology, extrema and original contours; certify full polyline deviation. Raster uploads submit one conversion without redundant capabilities/inspect.",
     "servicesImpact": "No backend binary change: use the existing accepted raster convert endpoint and original idempotent job.",
