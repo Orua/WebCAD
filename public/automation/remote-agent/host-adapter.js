@@ -282,7 +282,7 @@ function validatePageInput(method, input2, path = "args") {
 }
 
 // src/parameter-error-message.js
-var labels = { depth: "\u96D5\u523B\u6DF1\u5EA6", depthMm: "\u6DF1\u5EA6", scale: "LOGO \u6BD4\u4F8B", angle: "\u65CB\u8F6C\u89D2\u5EA6", offsetX: "\u6C34\u5E73\u504F\u79FB", offsetY: "\u5782\u76F4\u504F\u79FB", point: "\u653E\u7F6E\u70B9\u5750\u6807", faceId: "\u76EE\u6807\u9762", sizeMm: "\u56FE\u6848\u5C3A\u5BF8", name: "\u540D\u79F0", source: "\u6765\u6E90\u8BB0\u5F55", regions: "\u56FE\u6848\u533A\u57DF", placementVersion: "\u5B9A\u4F4D\u7248\u672C", mode: "\u52A0\u5DE5\u65B9\u5F0F", projectionMode: "\u52A0\u5DE5\u8303\u56F4", draftAngle: "\u8131\u6A21\u659C\u5EA6", mirrorX: "\u955C\u50CF\u8BBE\u7F6E" };
+var labels = { depth: "\u6DF1\u5EA6", depthMm: "\u6DF1\u5EA6", scale: "\u6BD4\u4F8B", angle: "\u65CB\u8F6C\u89D2\u5EA6", offsetX: "\u6C34\u5E73\u504F\u79FB", offsetY: "\u5782\u76F4\u504F\u79FB", point: "\u653E\u7F6E\u70B9\u5750\u6807", faceId: "\u76EE\u6807\u9762", sizeMm: "\u5C3A\u5BF8", name: "\u540D\u79F0", source: "\u6765\u6E90\u8BB0\u5F55", regions: "\u56FE\u6848\u533A\u57DF", placementVersion: "\u5B9A\u4F4D\u7248\u672C", mode: "\u52A0\u5DE5\u65B9\u5F0F", projectionMode: "\u52A0\u5DE5\u8303\u56F4", draftAngle: "\u8131\u6A21\u659C\u5EA6", mirrorX: "\u955C\u50CF\u8BBE\u7F6E" };
 function fieldName(path) {
   if (typeof path !== "string" || path.length > 220 || !/^params(?:\.(?:[A-Za-z_][A-Za-z_0-9]{0,39}|\d{1,7}))*$/.test(path) || /(?:password|secret|token|cookie|authorization|api_?key)/i.test(path)) return null;
   const keys = path.split(".").slice(1);
