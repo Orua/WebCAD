@@ -1,4 +1,13 @@
 {
+  "workbenchConversation20261027": {
+    "localImpact": "Offer explicit recovery before restoring a same-tab interrupted project. Workbench new conversation stays available and invalidates old connection/send callbacks. Voice never blocks sending and drops expired or canceled results. Normal project saves show a short status without a file-receipt dialog; internal write verification and dirty-state revision checks remain.",
+    "servicesImpact": "No geometry Services, Gateway or Native binary changes. Agent task input rejects a mismatched optional CAD snapshot without rejecting chat; page commands still require a valid live lease.",
+    "logoImpact": "None: no source geometry, parameters or Logo workflow changes.",
+    "contractImpact": "No page API schema changes. Chat ownership is independent of document identity; tool leases retain owner/document/revision checks.",
+    "documentImpact": "No automatic restore. History selection preserves the canvas. Starting a conversation revokes the old tool lease, retains uncertain receipts and requests cancellation without waiting for the old task.",
+    "cacheImpact": "Host voice/guidance/workspace script versions change. Generate the normal matching knowledge release with the frontend build.",
+    "requiredTests": ["History continuation across documents and foreign-owner rejection", "Mismatched send snapshot permits chat while CAD authority stays blocked", "New conversation during stalled connect/send", "Voice send cancellation and late result/deadline exclusion", "One targeted localhost browser check"]
+  },
   "preparedOperations20261026": {
     "localImpact": "Add read-only prepareOperation and applyPreparedOperation. Technical fields and uniquely verified references are resolved in the page; missing design parameters return structured needs_input questions and resumable plan IDs. Host send repairs STEP attachment registration skipped when selection preceded knowledge readiness; registration/hash/binding must succeed before creating a model task.",
     "servicesImpact": "No Gateway, Logo or Native binary change. Same configured Services source conversion and existing geometry routing.",
