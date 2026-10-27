@@ -1,4 +1,40 @@
 {
+  "autoRasterPostFitStraight20261027": {
+    "localImpact": "The bitmap review UI and manual parameters are unchanged.",
+    "servicesImpact": "The raster worker retains the previously accepted bounded cubic fit, then restores only confirmed straight spans using cubic controls, source residual patterns and join tangents. Curved runs retain their fitted geometry; if line recovery makes a ring unsafe, restore that ring's pre-recovery cubic fit before considering raw pixels.",
+    "logoImpact": "Straightened curves and CAD samples come from one final path. Continuous deviation, exact source bounds, topology and holes are validated before the review artifact is accepted.",
+    "contractImpact": "Automatic raster metadata version 7 retains straightenedLines and reports only rings that still require raw-pixel fallback after fitted-curve recovery; requests and manual behavior remain compatible.",
+    "documentImpact": "Conversion remains a review candidate and does not commit or save the CAD document.",
+    "cacheImpact": "Logo worker fingerprint changes; generated agent documentation and release knowledge must match page API 1.60.7.",
+    "requiredTests": ["Fit then post-fit straight recovery on alternating raster noise", "Smooth circle tangent continuity", "Sharp corners and source bounds", "Unsafe line recovery restores fitted cubic before raw-pixel fallback", "Prada, Saint Laurent and Valentino samples", "SVG/CAD curve sampling", "Manual raster compatibility"]
+  },
+  "autoRasterStraight20261027": {
+    "localImpact": "Existing raster review workflow and manual options remain unchanged; auto SVG previews retain straight strokes.",
+    "servicesImpact": "Logo worker recognizes bounded straight runs and rejects fitted cubics whose continuous contour deviation exceeds the automatic fit tolerance.",
+    "logoImpact": "Preserve raw contours, thin features, region and hole topology; sample SVG curves into the same CAD geometry and retain original contours if validation fails.",
+    "contractImpact": "Automatic raster metadata reports v3 linearSegments and continuousSplits; existing requests and manual modes remain compatible.",
+    "documentImpact": "Conversion remains a review candidate; it does not itself import, commit or save a CAD document.",
+    "cacheImpact": "Changed worker fingerprint and generated knowledge snapshots require matching local release artifacts.",
+    "requiredTests": ["Sparse raster edge cannot bow between vertices", "Straight strokes and corner/topology preservation", "Existing Prada and Saint Laurent samples", "Prior Nike curved-edge regression", "SVG and CAD sample bounds", "Manual raster compatibility"]
+  },
+  "autoRasterWave20261027": {
+    "localImpact": "The existing automatic raster workflow and manual controls are unchanged; previews use smoother SVG curves.",
+    "servicesImpact": "The Logo worker identifies small alternating raster residuals and fits longer bounded cubic curves between protected corners; job and authorization behavior stays unchanged.",
+    "logoImpact": "Retain original pixel contours, corners, region and hole structure; reject invalid fits and report a conservative fitted-curve and CAD-sampling bound.",
+    "contractImpact": "Automatic raster metadata identifies v2 and adds cubic segment, ripple and fitted-bound measurements; existing request options and manual semantics remain compatible.",
+    "documentImpact": "Conversion does not mutate the CAD document; actual import and save remain separate acceptance steps.",
+    "cacheImpact": "Worker fingerprint changes; static page knowledge and client configuration are unchanged.",
+    "requiredTests": ["Pixel-ripple attenuation and true sharp corners", "Hole and small-island topology", "Legacy manual conversion", "SVG curve and CAD sampling bounds", "Existing Nike source local Services comparison"]
+  },
+  "autoRasterLogo20261027": {
+    "localImpact": "Bitmap LOGO wizard defaults to automatic recognition; explicit manual raster fields remain available through the same wizard and page API.",
+    "servicesImpact": "Logo worker chooses polarity and threshold, refines edges and fits protected-corner quadratic curves; legacy explicit raster objects remain manual. Gateway authorization, jobs, Native and configuration are unchanged.",
+    "logoImpact": "Preserve raw contours, regions, holes and bounds. Validate the fitted arrangement and retain original contours if fitting is unsafe. SVG curves and CAD point lists derive from the same fitted path within the reported sampling bound.",
+    "contractImpact": "Page API 1.60.1 supports raster.mode auto/manual; omitted raster selects auto for bitmaps, legacy supplied objects stay manual. PDF fallback remains manual by default.",
+    "documentImpact": "Source image and original contours stay available for review; no CAD document is mutated by conversion.",
+    "cacheImpact": "Regenerate page cards, routing, knowledge manifests and the complete agent bundle; service job fingerprint includes the worker build and request options.",
+    "requiredTests": ["Automatic threshold, inverse and alpha handling", "Sharp corners, holes and tiny islands", "Explicit manual raster compatibility", "Real local Services comparison for Nike, Coca-Cola and Starbucks", "SVG curves and sampled CAD contours", "Local frontend contract and knowledge hashes"]
+  },
   "workbenchConversation20261027": {
     "localImpact": "Offer explicit recovery before restoring a same-tab interrupted project. Workbench new conversation stays available and invalidates old connection/send callbacks. Voice never blocks sending and drops expired or canceled results. Normal project saves show a short status without a file-receipt dialog; internal write verification and dirty-state revision checks remain.",
     "servicesImpact": "No geometry Services, Gateway or Native binary changes. Agent task input rejects a mismatched optional CAD snapshot without rejecting chat; page commands still require a valid live lease.",

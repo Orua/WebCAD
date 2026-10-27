@@ -37,6 +37,9 @@ namespace LogoVector.Contracts
     }
     public sealed class RasterOptions
     {
+        // Missing raster options select the automatic path. A supplied legacy
+        // object without Mode keeps its explicit/manual threshold semantics.
+        public string Mode { get; set; }
         public int Threshold { get; set; } = 128;
         public bool Invert { get; set; }
         public int AlphaThreshold { get; set; } = 1;

@@ -2,7 +2,7 @@
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.60.0",
+  "version": "1.60.7",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -91,5 +91,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9422bbcd364be1bc71876bc446df2fadd558fa99d546282db3c902cab9a9aa76"
+  "docsHash": "sha256:0b91036ebcd05d2c4d1fce557c3d976f1f815dec0dd240fffd7c2d87b808af9e"
 }

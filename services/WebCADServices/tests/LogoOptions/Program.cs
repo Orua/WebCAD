@@ -12,12 +12,12 @@ internal static class Program
     static JObject Options(string raster) => JObject.Parse("{\"sizeConfirmed\":true" + (raster == null ? "" : ",\"raster\":" + raster) + "}");
     static void Main(string[] args)
     {
-        foreach (string raster in new[] { "null", "[]", "128", "{\"threshold\":0.5}", "{\"threshold\":128.0}", "{\"threshold\":\"128\"}", "{\"threshold\":null}", "{\"threshold\":-1}", "{\"threshold\":256}", "{\"threshold\":9999999999999999999999999}", "{\"alphaThreshold\":0.1}", "{\"alphaThreshold\":\"1\"}", "{\"alphaThreshold\":256}", "{\"invert\":1}", "{\"invert\":\"true\"}", "{\"invert\":null}", "{\"smoothing\":true}" })
+        foreach (string raster in new[] { "null", "[]", "128", "{\"mode\":null}", "{\"mode\":\"unknown\"}", "{\"mode\":\"auto\",\"threshold\":128}", "{\"threshold\":0.5}", "{\"threshold\":128.0}", "{\"threshold\":\"128\"}", "{\"threshold\":null}", "{\"threshold\":-1}", "{\"threshold\":256}", "{\"threshold\":9999999999999999999999999}", "{\"alphaThreshold\":0.1}", "{\"alphaThreshold\":\"1\"}", "{\"alphaThreshold\":256}", "{\"invert\":1}", "{\"invert\":\"true\"}", "{\"invert\":null}", "{\"smoothing\":true}" })
         {
             try { LogoAdapter.ValidateOptions(Options(raster), false); throw new Exception("Unexpected accepted raster=" + raster); }
             catch (ServiceError error) { if (error.Code != "PARAM_SCHEMA_INVALID") throw; count++; }
         }
-        foreach (string raster in new[] { null, "{}", "{\"threshold\":0,\"alphaThreshold\":255,\"invert\":false}", "{\"threshold\":255,\"alphaThreshold\":0,\"invert\":true}", "{\"threshold\":128,\"alphaThreshold\":1,\"invert\":false}" })
+        foreach (string raster in new[] { null, "{}", "{\"mode\":\"auto\"}", "{\"mode\":\"manual\",\"threshold\":128}", "{\"threshold\":0,\"alphaThreshold\":255,\"invert\":false}", "{\"threshold\":255,\"alphaThreshold\":0,\"invert\":true}", "{\"threshold\":128,\"alphaThreshold\":1,\"invert\":false}" })
         {
             var input = Options(raster); string before = input.ToString(); var valid = LogoAdapter.ValidateOptions(input, false);
             if (valid.ToString() != before) throw new Exception("Validation mutated request fingerprint");

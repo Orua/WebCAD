@@ -2,14 +2,14 @@
   "id": "readLogo",
   "title": "readLogo",
   "category": "page-method",
-  "version": "1.60.0",
+  "version": "1.60.7",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "readLogo",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "readLogo({context,sessionFileId,allowUpload:true,targetWidthMm?,reviewPolicy?:automatic|preview})是原生Agent首选。宿主从当前用户会话文件读取原图，使用宿主私有计算授权直连已配置Services，保存原转换回执、矢量JSON和SVG并回读SHA256；只把矢量交给页面，原图不经页面转发，授权值不进入模型。宿主执行已发布总包中固定、哈希验证的logo-preparer适配器，不能执行任意脚本。直接页面脚本可使用已登记resourceId+name或logo对象；sessionFileId只由原生宿主解析。targetWidthMm是放置宽度，位图省略时宿主以35mm作为可继续缩放的初始稿，不冒充源图实测尺寸。公开raster仍用0–255字节阈值，默认128/1。程序自动匹配端点点数，保留原稿/孔洞及真实误差；无需让用户填写精度或询问是否简化。",
+  "description": "readLogo({context,sessionFileId,allowUpload:true,targetWidthMm?,reviewPolicy?:automatic|preview})是原生Agent首选。宿主从当前用户会话文件读取原图，使用宿主私有计算授权直连已配置Services，保存原转换回执、矢量JSON和SVG并回读SHA256；只把矢量交给页面，原图不经页面转发，授权值不进入模型。宿主执行已发布总包中固定、哈希验证的logo-preparer适配器，不能执行任意脚本。直接页面脚本可使用已登记resourceId+name或logo对象；sessionFileId只由原生宿主解析。targetWidthMm是放置宽度，位图省略时宿主以35mm作为可继续缩放的初始稿，不冒充源图实测尺寸。位图默认自动识别；显式旧raster对象或mode:manual保持0–255字节手动阈值。自动结果保留原轮廓和孔洞，报告相对二值边界的拟合界限，源稿误差未知。",
   "synonyms": [
     "readLogo",
     "LOGO",
@@ -24,7 +24,7 @@
     "直接Services",
     "矢量化"
   ],
-  "inputContract": "readLogo({context,sessionFileId,allowUpload:true,targetWidthMm?,reviewPolicy?:automatic|preview})是原生Agent首选。宿主从当前用户会话文件读取原图，使用宿主私有计算授权直连已配置Services，保存原转换回执、矢量JSON和SVG并回读SHA256；只把矢量交给页面，原图不经页面转发，授权值不进入模型。宿主执行已发布总包中固定、哈希验证的logo-preparer适配器，不能执行任意脚本。直接页面脚本可使用已登记resourceId+name或logo对象；sessionFileId只由原生宿主解析。targetWidthMm是放置宽度，位图省略时宿主以35mm作为可继续缩放的初始稿，不冒充源图实测尺寸。公开raster仍用0–255字节阈值，默认128/1。程序自动匹配端点点数，保留原稿/孔洞及真实误差；无需让用户填写精度或询问是否简化。",
+  "inputContract": "readLogo({context,sessionFileId,allowUpload:true,targetWidthMm?,reviewPolicy?:automatic|preview})是原生Agent首选。宿主从当前用户会话文件读取原图，使用宿主私有计算授权直连已配置Services，保存原转换回执、矢量JSON和SVG并回读SHA256；只把矢量交给页面，原图不经页面转发，授权值不进入模型。宿主执行已发布总包中固定、哈希验证的logo-preparer适配器，不能执行任意脚本。直接页面脚本可使用已登记resourceId+name或logo对象；sessionFileId只由原生宿主解析。targetWidthMm是放置宽度，位图省略时宿主以35mm作为可继续缩放的初始稿，不冒充源图实测尺寸。位图默认自动识别；显式旧raster对象或mode:manual保持0–255字节手动阈值。自动结果保留原轮廓和孔洞，报告相对二值边界的拟合界限，源稿误差未知。",
   "outputContract": "status=read、logoId、machiningReadiness、reviewPolicy、reviewRequired。默认automatic按当前用户授权任务接受已校验矢量，不弹确认；source.contourReview.acceptance=automatic-policy，不声称人工核对。只有用户说先看/先调整时preview，返回后用logoWizard({action:open,logoId})展示并结束本阶段，等用户确认。默认流程立即向用户输出已完成矢量化，再以logo.params.logoId引用当前草稿雕刻，不把轮廓数组灌进模型或重复上传。原生结果vectorFile含本地路径、会话文件ID/字节数/SHA256；转换不修改CAD工程。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -191,6 +191,14 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "manual"
+            ],
+            "description": "Omitted raster or mode:auto uses automatic bitmap analysis. A supplied legacy raster object without mode keeps manual settings."
+          },
           "threshold": {
             "type": "integer",
             "minimum": 0,
@@ -220,6 +228,9 @@
     }
   },
   "rasterDefaults": {
+    "mode": "auto"
+  },
+  "manualRasterDefaults": {
     "threshold": 128,
     "invert": false,
     "alphaThreshold": 1,
@@ -327,5 +338,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:5bdd89eb5fc93cdc01825d29af07b6537eeaa5bccc009fe060c4c14443305d89"
+  "docsHash": "sha256:6a8a4138b31f450f732a3ad921fa89fa464d227bf3b84bf99b1358596b3c1449"
 }

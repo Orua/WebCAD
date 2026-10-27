@@ -2,7 +2,7 @@
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.60.0",
+  "version": "1.60.7",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -145,5 +145,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:064dc59aab3d8effb3cb69edd933830b9b662292893acc55642a4e93513d363d"
+  "docsHash": "sha256:642b8b3de3cfc5f1193e2cb0caf99cf86b0e60586053b81085df4e3bca338777"
 }
