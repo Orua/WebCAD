@@ -180,14 +180,14 @@ var LIMITS = freeze({
   heightfield: { minSide: 2, maxSide: 2049, maxSamples: 19e5, maxSmoothing: 8, maxHeightMm: 100, maxStrokes: 512, maxStrokePoints: 2e4 },
   meshReliefPlate: { maxTriangles: 2e5 },
   meshReliefEdit: { maxTriangles: 2e5, maxAffectedVertices: 2e4, maxRayTests: 12e6, maxSpatialEntries: 2e6 },
-  mesh: { maxSourceBytes: 128 * 1024 * 1024, maxAssetBytes: 384 * 1024 * 1024, maxProjectBytes: 512 * 1024 * 1024, maxInputTriangles: 2e6, maxResultTriangles: 4e6, maxVertices: 12e6 },
+  mesh: { maxSourceBytes: 256 * 1024 * 1024, maxAssetBytes: 768 * 1024 * 1024, maxProjectBytes: 1024 * 1024 * 1024, maxInputTriangles: 2e6, maxResultTriangles: 4e6, maxVertices: 12e6 },
   meshBoolean: { minRefs: 2, maxRefs: 16, minToleranceMm: 5e-3, maxToleranceMm: 1, defaultToleranceMm: 0.05 },
   document: { maxFeatures: 2e3, maxBytes: 20 * 1024 * 1024 },
   // Agent transport: single source of truth for every host (page, broker, MCP, bridge).
   transport: {
-    maxInputBytes: 100 * 1024 * 1024,
-    maxArtifactBytes: 100 * 1024 * 1024,
-    maxResultBytes: 6 * 1024 * 1024,
+    maxInputBytes: 200 * 1024 * 1024,
+    maxArtifactBytes: 200 * 1024 * 1024,
+    maxResultBytes: 12 * 1024 * 1024,
     commandTimeoutMs: 9e4,
     chunkBytes: 4 * 1024 * 1024,
     chunkConcurrency: 2,
@@ -282,7 +282,7 @@ var PAGE_METHOD_SCHEMAS = {
     modelLibraryChange: { type: "object" }
   }, ["context"]),
   queryGeometry: object2({ context: IDENTITY_CONTEXT_SCHEMA, bodyId: str, kind: { enum: ["face", "edge"] }, filter: { type: "object" }, requireUnique: boolean, expectedCount: { type: "integer", minimum: 1, maximum: 1e5 }, limit: { type: "integer", minimum: 1, maximum: 100 }, cursor: { type: "string", minLength: 1, maxLength: 2048 } }, ["context", "bodyId", "kind"]),
-  getState: object2({ include: { type: "array", items: { enum: ["summary", "features", "bodies", "bodiesLite", "selection", "capabilities", "references", "reliefDesigns"] } }, compact: boolean, fields: { type: "array", minItems: 1, maxItems: 32, items: { type: "string", minLength: 1, maxLength: 40 } }, sinceRevision: { type: "integer", minimum: 0 } })
+  getState: object2({ featureIds: { type: "array", minItems: 1, maxItems: 50, uniqueItems: true, items: str }, featureFields: { type: "array", minItems: 1, maxItems: 50, uniqueItems: true, items: str }, bodyIds: { type: "array", minItems: 1, maxItems: 50, uniqueItems: true, items: str }, bodyFields: { type: "array", minItems: 1, maxItems: 50, uniqueItems: true, items: str }, include: { type: "array", items: { enum: ["summary", "features", "bodies", "bodiesLite", "selection", "capabilities", "references", "reliefDesigns"] } }, compact: boolean, fields: { type: "array", minItems: 1, maxItems: 32, items: { type: "string", minLength: 1, maxLength: 40 } }, sinceRevision: { type: "integer", minimum: 0 } })
 };
 function validatePageInput(method, input2, path = "args") {
   const schema = PAGE_METHOD_SCHEMAS[method];
@@ -946,7 +946,7 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
     visit(steps);
     return methods;
   };
-  const samePage = () => assertIdentity(api.getState().context, binding);
+  const samePage = () => assertIdentity(api.getState({ compact: true, fields: ["context"] }).context, binding);
   samePage();
   function archiveFinished() {
     for (const [id, entry] of commands) if (endedTasks.has(entry.command.taskId) && entry.reported && !pending(entry)) {
@@ -1021,17 +1021,44 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
   }
   async function sendResult(entry) {
     if (entry.reported) return true;
+    if (entry.deliveryBlocked) return false;
     if (entry.resultReportPromise) return entry.resultReportPromise;
     entry.resultReportPromise = (async () => {
+      const deliveryFailure = (error) => ["RESOURCE_LIMIT", "RESULT_TOO_LARGE"].includes(error?.code) || error?.status === 413 || error?.statusCode === 413;
+      const smallReceipt = () => ({
+        status: editsDocument(entry.command.payload) ? "unknown" : "failed",
+        ...editsDocument(entry.command.payload) ? { commitState: "unknown" } : {},
+        context: entry.result?.context,
+        originalStatus: entry.result?.status,
+        originalCommitState: entry.result?.commitState,
+        error: { code: "RESULT_TOO_LARGE", message: "Result delivery exceeded the transport limit. Original execution is retained; query only required IDs/fields. Do not replay CAD.", retryable: false },
+        delivery: { status: "failed", originalResultRetained: true, maxResultBytes: LIMITS.transport.maxResultBytes }
+      });
       try {
-        await report("result", entry.command, { result: entry.result });
+        if (new TextEncoder().encode(JSON.stringify(entry.result)).length > LIMITS.transport.maxResultBytes) {
+          entry.deliveryReceipt = smallReceipt();
+        }
+        await report("result", entry.command, { result: entry.deliveryReceipt || entry.result });
         entry.reported = true;
         entry.reportError = null;
-        log("result-delivered", { ...identity2(entry.command), status: entry.result?.status });
+        log("result-delivered", { ...identity2(entry.command), status: entry.deliveryReceipt?.status || entry.result?.status });
         return true;
       } catch (error) {
         entry.reportError = { code: error.code || "RESULT_REPORT_FAILED", message: error.message };
         log("result-delivery-failed", { ...identity2(entry.command), error }, "error");
+        if (deliveryFailure(error)) {
+          if (!entry.deliveryReceipt) {
+            entry.deliveryReceipt = smallReceipt();
+            try {
+              await report("result", entry.command, { result: entry.deliveryReceipt });
+              entry.reported = true;
+              return true;
+            } catch (noticeError) {
+              entry.reportError = { code: noticeError.code || "RESULT_REPORT_FAILED", message: noticeError.message };
+            }
+          }
+          entry.deliveryBlocked = true;
+        }
         return false;
       } finally {
         entry.resultReportPromise = null;
@@ -1045,7 +1072,7 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
   async function monitor(entry) {
     let job = api.getJob({ jobId: entry.jobId });
     while (job.status === "queued" || job.status === "running") {
-      if (now() >= entry.command.deadline * 1e3) return finish(entry, { status: "unknown", commitState: "unknown", error: { code: "JOB_TIMEOUT", message: "Inspect the original page job; do not replay" }, pageJobId: entry.jobId, context: api.getState().context });
+      if (now() >= entry.command.deadline * 1e3) return finish(entry, { status: "unknown", commitState: "unknown", error: { code: "JOB_TIMEOUT", message: "Inspect the original page job; do not replay" }, pageJobId: entry.jobId, context: api.getState({ compact: true, fields: ["context"] }).context });
       if (!accepting && job.status === "queued") api.cancelJob({ jobId: entry.jobId });
       const budget = Math.floor(Math.max(0, Math.min(25e3, entry.command.deadline * 1e3 - now())));
       if (typeof api.awaitJob === "function") await api.awaitJob({ jobId: entry.jobId, timeoutMs: budget });
@@ -1053,7 +1080,7 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
       else await wait(250);
       job = api.getJob({ jobId: entry.jobId });
     }
-    return finish(entry, job.result || { status: job.status === "cancelled" ? "failed" : "unknown", error: { code: job.status === "cancelled" ? "JOB_CANCELLED" : "JOB_RESULT_UNAVAILABLE" }, context: api.getState().context });
+    return finish(entry, job.result || { status: job.status === "cancelled" ? "failed" : "unknown", error: { code: job.status === "cancelled" ? "JOB_CANCELLED" : "JOB_RESULT_UNAVAILABLE" }, context: api.getState({ compact: true, fields: ["context"] }).context });
   }
   async function execute(entry) {
     const command = entry.command;
@@ -1088,10 +1115,10 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
           return await monitor(entry);
         } catch (_) {
         }
-        if (!entry.result) return finish(entry, { status: "unknown", commitState: "unknown", error: { code: error.code || "JOB_RESULT_UNAVAILABLE", message: error.message }, pageJobId: entry.jobId, context: api.getState().context });
+        if (!entry.result) return finish(entry, { status: "unknown", commitState: "unknown", error: { code: error.code || "JOB_RESULT_UNAVAILABLE", message: error.message }, pageJobId: entry.jobId, context: api.getState({ compact: true, fields: ["context"] }).context });
       }
       if (entry.result) throw error;
-      return finish(entry, { status: "failed", commitState: "not_committed", error: { code: error.code || "HOST_FAILED", message: error.message }, context: api.getState().context });
+      return finish(entry, { status: "failed", commitState: "not_committed", error: { code: error.code || "HOST_FAILED", message: error.message }, context: api.getState({ compact: true, fields: ["context"] }).context });
     }
   }
   function receive(command) {
@@ -1152,17 +1179,17 @@ function createHostAdapter({ api, session, report, artifact, onStateChange = () 
     reconcilePending,
     async retryReports() {
       await reconcilePending();
-      await Promise.all([...commands.values()].filter((entry) => entry.result && !entry.reported).map(sendResult));
+      await Promise.all([...commands.values()].filter((entry) => entry.result && !entry.reported && !entry.deliveryBlocked).map(sendResult));
       archiveFinished();
     },
     state() {
-      return { accepting, activeTask, editing: accepting && [...commands.values()].some((entry) => entry.editing), pending: [...commands.values()].filter((entry) => pending(entry) || !entry.reported).map((entry) => ({ commandId: entry.command.commandId, pageJobId: entry.jobId || null, deliveryState: entry.reportError ? "retry_pending" : entry.result?.status === "unknown" ? "unknown" : "pending", error: entry.reportError || null })) };
+      return { accepting, activeTask, editing: accepting && [...commands.values()].some((entry) => entry.editing), pending: [...commands.values()].filter((entry) => pending(entry) || !entry.reported).map((entry) => ({ commandId: entry.command.commandId, pageJobId: entry.jobId || null, deliveryState: entry.deliveryBlocked ? "blocked" : entry.reportError ? "retry_pending" : entry.result?.status === "unknown" ? "unknown" : "pending", error: entry.reportError || null })) };
     },
     replay: async (commandId) => {
       const entry = commands.get(commandId);
       if (!entry?.result) throw failure("receipt_unavailable", "Original result not known");
-      await report("result", entry.command, { result: entry.result });
-      return entry.result;
+      await sendResult(entry);
+      return entry.deliveryReceipt || entry.result;
     }
   });
 }

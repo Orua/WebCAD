@@ -2,7 +2,7 @@
   "id": "readLogo",
   "title": "readLogo",
   "category": "page-method",
-  "version": "1.60.7",
+  "version": "1.60.8",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -338,5 +338,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:6a8a4138b31f450f732a3ad921fa89fa464d227bf3b84bf99b1358596b3c1449"
+  "docsHash": "sha256:be21a5c46872e1b63f679226f17f5e1e3b6b027df1691c96e9225b96e7660180"
 }

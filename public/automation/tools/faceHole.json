@@ -605,7 +605,7 @@
   "validationMode": "strict-normalization",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 104857600,
+    "maxBytes": 209715200,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -910,5 +910,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3e261f877d3547fddd7d219d8a04e4eda9d031180587d9f6a7d4d02969759aea"
+  "docsHash": "sha256:03374df8caf23143b237f244cc564b2140d6278f6db764d7af91653a0235192b"
 }

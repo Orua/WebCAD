@@ -13,6 +13,7 @@ import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 import {archiveReceiptResult,unresolvedReceipt} from './receipt-archive.js';
 import {withErrorRecovery} from './error-recovery.js';
 import {commitFacts} from './commit-facts.js';
+import {validateStateProjection,projectStateRows} from './state-projection.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
@@ -72,7 +73,7 @@ export function createCommandService(adapter) {
   async function verifyNamedPlacement(placement,s,refs){const a=placement?.sourceAnchor;if(a?.kind!=='named')return;const anchor=s.referenceSystem?.bodyAnchors?.find(item=>item.anchorId===a.anchorId&&item.status==='valid');if(!anchor||!refs.includes(anchor.bodyId)||!s.bodies.some(body=>body.id===anchor.bodyId))fail('STALE_REFERENCE','args.placement.sourceAnchor','Named source anchor is not on the current source body');const current=await adapter.query({bodyId:anchor.bodyId,kind:'edge',filter:{}});if(current.geometryFingerprint!==anchor.geometryFingerprint)fail('STALE_REFERENCE','args.placement.sourceAnchor','Named source anchor geometry changed','QUERY_REFERENCES_AGAIN');}
   function getState(input={}){
     const requestId=uid();let s;
-    try{s=snapshot();object(input,['sessionId','include','compact'],'input');string(input.sessionId,'sessionId');if(input.sessionId!==s.sessionId)fail('INSTANCE_MISMATCH','sessionId','Unknown current session');
+    try{s=snapshot();object(input,['sessionId','include','compact','featureIds','featureFields','bodyIds','bodyFields'],'input');string(input.sessionId,'sessionId');if(input.sessionId!==s.sessionId)fail('INSTANCE_MISMATCH','sessionId','Unknown current session');
       if(input.compact!==undefined&&typeof input.compact!=='boolean')fail('PARAM_SCHEMA_INVALID','compact','Expected boolean');
       // compact=true: identity + summary + body id/name/kind only. Agents reuse requestContext for the next write.
       const include=input.include??(input.compact?['summary','bodiesLite','selection']:['summary','bodies','capabilities']);
@@ -82,13 +83,19 @@ export function createCommandService(adapter) {
       const r={status:'read',context:ctx,requestContext:{sessionId:ctx.sessionId,documentId:ctx.documentId,documentInstanceId:ctx.documentInstanceId,expectedRevision:ctx.revision},persistence:s.persistence,preview:{active:!!s.preview,computing:!!s.previewComputing}};
       if(include.includes('summary'))r.summary={name:s.documentName,featureCount:s.features.length,bodyCount:s.bodies.length,busy:s.busy,kernelReady:s.kernelReady,dirty:!!s.dirty};
       if(include.includes('reliefDesigns'))r.reliefDesigns=clone(s.reliefDesigns||[]);
-      if(include.includes('features'))r.features=clone(s.features);
-      if(include.includes('bodies'))r.bodies=clone(s.bodies);
+      validateStateProjection(input);
+      if(include.includes('features'))r.features=projectStateRows(s.features,input.featureIds,input.featureFields);
+      if(include.includes('bodies'))r.bodies=projectStateRows(s.bodies,input.bodyIds,input.bodyFields);
       if(include.includes('bodiesLite'))r.bodies=(s.bodies||[]).map(({id,name,kind,bounds})=>({id,...(name?{name}:{}),...(kind?{kind}:{}),...(bounds?{bounds:clone(bounds)}:{})}));
       r.coverageDetails={
         bodies:Array.isArray(r.bodies)?{profile:include.includes('bodiesLite')?'lite':'full',complete:true,totalCount:s.bodies.length,returnedCount:r.bodies.length,fields:include.includes('bodiesLite')?['id','name','kind','bounds']:[...new Set(r.bodies.flatMap(body=>Object.keys(body)))]}:{complete:false,reason:'not_requested'},
         features:Array.isArray(r.features)?{profile:'full',complete:true,totalCount:s.features.length,returnedCount:r.features.length,fields:[...new Set(r.features.flatMap(feature=>Object.keys(feature)))]}:{complete:false,reason:'not_requested'}
       };
+      for(const [key,ids,fields] of [['features',input.featureIds,input.featureFields],['bodies',input.bodyIds,input.bodyFields]])if(Array.isArray(r[key])&&(ids||fields)){
+        if(key==='bodies'&&include.includes('bodiesLite'))r.bodies=projectStateRows(r.bodies,ids,fields);
+        r.coverageDetails[key]={profile:fields?'lite':'full',complete:!ids,totalCount:key==='features'?s.features.length:s.bodies.length,returnedCount:r[key].length,fields:fields?['id',...fields]:[...new Set(r[key].flatMap(row=>Object.keys(row)))]};
+        if(ids)r[key+'Read']={requestedIds:ids,missingIds:ids.filter(id=>!r[key].some(row=>row.id===id))};
+      }
       if(include.includes('selection'))r.selection={bodyIds:clone(s.selectedIds),topology:clone(s.selectedTopology)};
       if(include.includes('references'))r.references=clone(s.referenceSystem);
       if(include.includes('capabilities'))r.capabilities={runtimeAvailability:s.kernelReady&&!s.busy&&!s.preview&&!s.previewComputing?'available':'not_ready',executeV2Operations:[...migratedOperationIds],geometryQuery:{faces:['plane'],edges:['line','circle'],loopRole:false,bounds:true,adjacentSurfaceTypes:true,boundaryLoopIndices:true,expectedCount:true},idempotencyGuarantee:'same document runtime instance; memory only; no cross-reload guarantee'};

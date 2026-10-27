@@ -182,9 +182,9 @@
   ],
   "limits": {
     "transport": {
-      "maxInputBytes": 104857600,
-      "maxArtifactBytes": 104857600,
-      "maxResultBytes": 6291456,
+      "maxInputBytes": 209715200,
+      "maxArtifactBytes": 209715200,
+      "maxResultBytes": 12582912,
       "commandTimeoutMs": 90000,
       "chunkBytes": 4194304,
       "chunkConcurrency": 2,
@@ -2010,6 +2010,46 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "featureIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "featureFields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "bodyIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "bodyFields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
         "include": {
           "type": "array",
           "items": {
@@ -2216,5 +2256,5 @@
     "recoverKernel": "webcad_submit",
     "applyPreparedOperation": "webcad_submit"
   },
-  "contractHash": "sha256:d6c42e8174ccd3cb41f17cd369a27f6d26948cec8bd941006ad00f92c03fe29a"
+  "contractHash": "sha256:6694b432bccee45bdcdde756e276bb209d3b8a35ca656902e1448eb1c1193d50"
 }

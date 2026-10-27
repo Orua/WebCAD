@@ -14,7 +14,7 @@ export function createNativeStateView({api,protocols=()=>[],onChange=()=>{},onEr
   async function refresh(){
     if(refreshing){dirty=true;return refreshing;}
     const current=generation;
-    const operation=(async()=>{do{dirty=false;const next=packet(await api().getState({compact:true}));if(current!==generation)return null;
+    const operation=(async()=>{do{dirty=false;const next=packet(await api().getState({compact:true,include:['summary','bodiesLite','selection','references','features'],featureFields:['id','op','name']}));if(current!==generation)return null;
       if(latest&&identity(latest.snapshot.context)===identity(next.snapshot.context)&&Number.isInteger(next.stateSeq)&&Number.isInteger(latest.stateSeq)&&next.stateSeq<latest.stateSeq)continue;
       latest=next;onChange(structuredClone(next));
     }while(dirty&&current===generation);return latest;})().finally(()=>{if(refreshing===operation)refreshing=null;});

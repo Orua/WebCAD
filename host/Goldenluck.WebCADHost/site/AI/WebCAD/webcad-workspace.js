@@ -1,7 +1,8 @@
+import {validateCadFiles} from './cad-file-policy.js?v=20261027-capacity1';
 // The loaded WebCAD build owns its adapter and contract; no copied CAD scripts.
 import {createAssistantBridge,setTheme} from './assistant-bridge.js?v=20261022-state-sync1';
 import {createProjectStorage} from './project-storage.js?v=20261025-stability2';
-import {createNativeStateView} from './native-state.js?v=20261025-coverage2';
+import {createNativeStateView} from './native-state.js?v=20261027-projection3';
 import {timingTotals,createTurnTimeline,timelineLabels} from './turn-timing.js?v=20261023-timeline2';
 import {createLocationDraftInserter} from './location-draft.js?v=20261022-location2';
 import {renderCadFiles,compactUploadNames} from './compact-files.js?v=20261022-compact1';
@@ -16,7 +17,7 @@ const createHostAdapter=options=>{
   return agent.createHostAdapter(options);
 };
 
-import {gatewayFetch,isTransportError,isModelSelectionError,modelSelectionMessage,modelCatalogPlan,createRecoveryLoop,publicProgressText,toolActivityText,renderReply,cadOutcomeText,uploadHostArtifact,durationText,registerHostAttachments,attachmentIdentity,createHostRecoveryJournal,settleIndependent,historyUserText,documentKey,documentChanged,planConversation,isForeignConversationError,PROJECT_SWITCH_NOTICE,PROJECT_REOPEN_NOTICE,FOREIGN_CONVERSATION_NOTICE} from './workspace-transport.js?v=20261025-bounded-recovery';
+import {gatewayFetch,isTransportError,isModelSelectionError,modelSelectionMessage,modelCatalogPlan,createRecoveryLoop,publicProgressText,toolActivityText,renderReply,cadOutcomeText,uploadHostArtifact,durationText,registerHostAttachments,attachmentIdentity,createHostRecoveryJournal,settleIndependent,historyUserText,documentKey,documentChanged,planConversation,isForeignConversationError,PROJECT_SWITCH_NOTICE,PROJECT_REOPEN_NOTICE,FOREIGN_CONVERSATION_NOTICE} from './workspace-transport.js?v=20261027-conversation1';
 import {createProjectOpenController} from './project-open.js?v=20261026-auth-stop';
 import {createAttachmentBytesAPI,ensureCanvasResources} from './attachment-bytes.js?v=20261026-attach-ready2';
 const config=JSON.parse(document.getElementById('webcad-config').textContent);
@@ -61,7 +62,7 @@ const projectOpener=createProjectOpenController({
   settled:async()=>{await retryReports();return !taskId&&!pendingSend&&!sending&&!adapter?.state().pending.length&&![...retiredAdapters].some(item=>item.state().pending.length)&&!rejectedCommands.size;},
   quiesce:async()=>{projectHandoffClaimed=true;clearInterval(heartbeat);stream?.close();stopNativePush();await adapter?.release();knowledgeReady=false;transportReady=false;},
   download:async(id,file)=>{const response=await fetch(endpoint('download',{cadSessionId:id,taskId:file.taskId,fileId:file.fileId}),{credentials:'same-origin'});if(!response.ok)throw Object.assign(Error('原工程下载失败，未打开。'),{code:'PROJECT_DOWNLOAD_FAILED'});const TargetBytes=bridge?Uint8Array:frame.contentWindow.Uint8Array;return new TargetBytes(await response.arrayBuffer());},
-  rebind:async context=>{const state=await api().getState();if(documentKey(state.context)!==documentKey(context))throw Object.assign(Error('工程在重绑定前已变化。'),{code:'INSTANCE_MISMATCH'});if(session&&knowledgeReady&&documentKey(session.binding)===documentKey(context))return session;desiredConversation=null;startNewConversation=true;explicitConversation=false;try{await connect();return session;}finally{startNewConversation=false;}}
+  rebind:async context=>{const state=await api().getState();if(documentKey(state.context)!==documentKey(context))throw Object.assign(Error('工程在重绑定前已变化。'),{code:'INSTANCE_MISMATCH'});if(session&&knowledgeReady&&documentKey(session.binding)===documentKey(context))return session;const conversation=session?.conversationId||desiredConversation;resetConversationConnection();desiredConversation=conversation;explicitConversation=Boolean(conversation);try{await connect();if(session?.agentMode==='native')await connectCanvas();return session;}finally{explicitConversation=false;}}
 });
 let connecting=false, watchingTask=null, sending=false, stopping=false, knowledgeReady=false, overlayDismissed=false, activeReply=null;
 let steeringDelivery=null;
@@ -251,7 +252,7 @@ function connectCanvas(){
     await restoreKernelIfNeeded();
     const current=api(),state=await current.getState();
     if(session!==bound||disposed||manualControl)throw Object.assign(Error('Agent 会话已改变'),{code:'lease_revoked'});
-    if(bound.binding&&documentChanged(state.context,bound.binding))throw Object.assign(Error('画布工程已改变；原工具连接没有改绑或重放，请在新对话中连接当前工程。'),{code:'INSTANCE_MISMATCH'});
+    if(bound.binding&&documentChanged(state.context,bound.binding))throw Object.assign(Error('当前工程与原工具连接不匹配。对话可以继续，重新连接当前工程前不能操作模型。'),{code:'INSTANCE_MISMATCH'});
     const renewed=await rpc('heartbeat',{context:state.context,leaseEpoch:bound.leaseEpoch});
     if(session!==bound||disposed||manualControl)throw Object.assign(Error('Agent 会话已改变'),{code:'lease_revoked'});
     Object.assign(bound,renewed);
@@ -347,7 +348,10 @@ async function heartbeatTick(){
 }
 function message(role,text){const empty=messages.querySelector('.workbench-empty');if(empty)empty.remove();const element=document.createElement('div');element.className='message '+role;element.textContent=text;messages.append(element);messages.scrollTop=messages.scrollHeight;return element;}
 function fileUrl(task,file,inline=false){return endpoint('download',{taskId:task,fileId:file.fileId,inline:String(inline)}).href;}
-function renderTaskFiles(row,id,files){renderCadFiles(row,files,(file,inline)=>fileUrl(id,file,inline),workbench.createIcon);}
+function renderTaskFiles(row,id,files){
+  renderCadFiles(row,files,(file,inline)=>fileUrl(id,file,inline),workbench.createIcon);
+  workbench.linkFilePaths(row,files,(file,inline)=>fileUrl(id,file,inline));
+}
 async function loadTaskFiles(id,userRow,agentRow){
   const files=await rpc('files',{}, {taskId:id});
   if(userRow)renderTaskFiles(userRow,id,files.uploads||[]);
@@ -360,18 +364,38 @@ const newConversationButton=document.createElement('button');newConversationButt
 newConversationButton.innerHTML='<svg class="gl-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 document.querySelector('.assistant-heading nav').prepend(newConversationButton);
 newConversationButton.addEventListener('click',async()=>{
-  if(taskId||sending){message('system','请先完成或停止当前任务，再新建对话。');return;}
   if(pendingSend){
     // Preserve an uncertain send under its original identity; a new conversation
     // neither retries it nor reuses its key against a different conversation.
     try{recoveryStorage?.setItem('webcad.unresolved-send.'+pendingSend.key,JSON.stringify({cadSessionId:session?.cadSessionId,conversationId:session?.conversationId,key:pendingSend.key,taskId:pendingSend.draftTaskId||null}));}
-    catch(error){message('system','原发送标识未能保留：'+error.message);return;}
+    catch(error){message('system','原发送标识暂存失败，请保留原任务记录：'+error.message);}
     pendingSend=null;rememberedRecovery=null;recoveryJournal.write(null);
   }
-  if(adapter?.state().pending.length){retiredAdapters.add(adapter);}
-  try{desiredConversation=null;startNewConversation=true;await connect();messages.textContent='';attachments=[];attachmentPicker.clear();activeReply=null;message('system','已开始新对话（画布保留）');}
-  catch(error){message('system','新建对话失败：'+error.message);}finally{startNewConversation=false;controls();}
+  resetConversationConnection();
+  desiredConversation=null;explicitConversation=false;messages.textContent='';attachments=[];attachmentPicker.clear();activeReply=null;
+  message('system','已开始新对话（画布保留）');
+  const generation=connectionGeneration;
+  try{startNewConversation=true;await connect();}
+  catch(error){if(generation===connectionGeneration)message('system','新建对话连接未完成，可继续输入或重试：'+error.message);}finally{if(generation===connectionGeneration){startNewConversation=false;controls();}}
 });
+function resetConversationConnection(){
+  const previous=session,previousTask=taskId;
+  composer.cancelVoice();
+  if(previousTask)composer.suppress(previousTask);
+  if(adapter?.state().pending.length)retiredAdapters.add(adapter);
+  connectionGeneration++;initializationEpoch++;
+  connectOperation=null;listenOperation=null;canvasConnection=null;recovery.reset();
+  stream?.close();stream=null;clearInterval(heartbeat);stopNativePush();
+  void Promise.resolve(adapter?.release()).catch(()=>{});
+  if(previous){
+    if(previousTask)void rpc('cancel',{}, {cadSessionId:previous.cadSessionId,taskId:previousTask}).catch(error=>message('system','原任务停止待确认：'+error.message));
+    void rpc('release',{}, {cadSessionId:previous.cadSessionId}).catch(error=>message('system','原工程通道释放待确认：'+error.message));
+  }
+  session=null;adapter=null;knowledgeReady=false;transportReady=false;manualControl=false;agentOffline=false;
+  taskId=null;watchingTask=null;pendingSend=null;rememberedRecovery=null;recoveryJournal.write(null);
+  connecting=false;sending=false;stopping=false;attaching=false;lastSeq=0;preparedSendState=null;
+  controls();
+}
 const historyPanel=document.createElement('div');historyPanel.className='workbench-history';historyPanel.hidden=true;
 historyPanel.innerHTML='<section class="workbench-history-panel" role="dialog" aria-modal="true" aria-label="CAD 历史对话"><div class="workbench-history-heading"><strong>CAD 历史对话</strong><button type="button" class="icon-button" aria-label="关闭历史对话">×</button></div><div class="workbench-history-list"></div><button type="button" class="workbench-history-more" hidden>加载更多</button></section>';
 document.body.append(historyPanel);
@@ -392,18 +416,19 @@ historyMore.addEventListener('click',()=>void fetchHistory(true));
 async function selectHistory(item){
   if(taskId||sending||pendingSend)throw new Error('请先完成或停止当前任务，再载入历史。');
   historyButton.disabled=true;prompt.disabled=true;
+  const generation=connectionGeneration;
   try{
     const pages=[];let cursor='';
     do{const page=await rpc('messages',{clientSessionId:item.clientSessionId,cursor});pages.unshift(page.items||[]);cursor=page.nextCursor||'';}while(cursor);
     // Let an in-flight connection settle first so it cannot bind a different
     // conversation while the chosen history is shown.
-    while(connectOperation)await connectOperation.catch(()=>{});
+    if(generation!==connectionGeneration)return;
     const chosen=item.clientSessionId.replace(/^webcad-/,'');
-    if(session)await rpc('release');
-    if(adapter?.state().pending.length)retiredAdapters.add(adapter);
-    void Promise.resolve(adapter?.release()).catch(()=>{});stream?.close();clearInterval(heartbeat);stopNativePush();session=null;knowledgeReady=false;transportReady=false;
+    resetConversationConnection();
+    const selectedGeneration=connectionGeneration;
     desiredConversation=chosen;explicitConversation=true;
     try{await connect();}finally{explicitConversation=false;}
+    if(selectedGeneration!==connectionGeneration)return;
     if(session?.conversationId!==chosen)throw new Error('未能载入所选历史对话，请重试。');
     messages.textContent='';attachments=[];attachmentPicker.clear();activeReply=null;
     for(const entry of pages.flat()){
@@ -412,7 +437,7 @@ async function selectHistory(item){
       if(entry.role==='assistant')renderHistoricalTiming(row,entry);
       const files=(entry.files||[]).filter(file=>(file.kind||'upload')===(entry.role==='user'?'upload':'output'));renderTaskFiles(row,entry.taskId,files);
     }
-    message('system','已载入历史对话，当前画布保留。Agent 可按需读取本会话过程文件。');closeHistory();
+    message('system','已载入历史对话，可以继续聊天。当前画布保留，操作前会读取当前工程。');closeHistory();
   }finally{historyButton.disabled=false;controls();}
 }
 function robotActivityDetail(){
@@ -495,8 +520,8 @@ function controls(){
   prompt.disabled=false;
   document.getElementById('reconnect').disabled=connecting||Boolean(canvasConnection);
   historyButton.disabled=Boolean(taskId||pendingSend||sending)||connecting||attaching;
-  newConversationButton.disabled=connecting||attaching||projectOpening;
-  newConversationButton.title=taskId||sending?'请先完成或停止当前任务，再新建对话。':'新建对话';
+  newConversationButton.disabled=false;
+  newConversationButton.title='新建对话';
   dismissLock.disabled=held&&!viewOnly;
   document.getElementById('connection').textContent='Agent：'+(config.agentTarget||'已配置目标')+(agentOffline?' · 助手已断开':connecting?' · 正在准备':session&&transportReady&&!manualControl?' · 已连接':session&&!manualControl?' · 通道恢复中':' · 未连接');
   updateConnectionIndicator();
@@ -634,7 +659,8 @@ async function upload(command,descriptor,bytes){
 function listen(){
   if(listenOperation)return listenOperation;
   if(stream?.readyState===1&&transportReady)return Promise.resolve();
-  listenOperation=openStream().finally(()=>{listenOperation=null;});return listenOperation;
+  const operation=openStream().finally(()=>{if(listenOperation===operation)listenOperation=null;});
+  listenOperation=operation;return operation;
 }
 async function openStream(){
   if(disposed || manualControl || !session)return;
@@ -708,7 +734,8 @@ async function flushReports(){
 
 function connect(){
   if(connectOperation)return connectOperation;
-  connectOperation=prepareConnection().finally(()=>{connectOperation=null;});return connectOperation;
+  const operation=prepareConnection().finally(()=>{if(connectOperation===operation){connectOperation=null;controls();}});
+  connectOperation=operation;return operation;
 }
 async function createSessionAdapter(bound){
   const created=await createHostAdapter({api:api(),session:bound,onStateChange:controls,report:reportAdapter,artifact:upload});
@@ -724,7 +751,7 @@ async function reportAdapter(kind,command,body){
 async function prepareConnection(){
   const generation=connectionGeneration;
   const stillCurrent=()=>{if(generation!==connectionGeneration||disposed)throw Object.assign(new Error('Agent 已退出，连接已取消'),{code:'lease_revoked'});};
-  if(taskId){await listen();await followTask(taskId);return;}
+  if(taskId){void listen().catch(recoverLater);void followTask(taskId).catch(recoverLater);return;}
   connecting=true;knowledgeReady=false;controls();
   try{
   if(await reconcileRememberedTask())return;
@@ -734,7 +761,7 @@ async function prepareConnection(){
       let attached;
       try{attached=await rpc('attach',{dialogueOnly:true,nativeHost:true,conversationId:desiredConversation,...(startNewConversation?{newConversation:true}:{})});}
       catch(error){if(error.code==='invalid_request'&&/Unbound conversations require/.test(error.message)){nativeConversationSupported=false;return await prepareConnection();}throw error;}
-      stillCurrent();
+      if(generation!==connectionGeneration||disposed){void rpc('release',{}, {cadSessionId:attached.cadSessionId}).catch(()=>{});stillCurrent();}
       if(previous){void rpc('release',{}, {cadSessionId:previous.cadSessionId}).catch(error=>message('system','原工具通道释放待确认：'+error.message));void Promise.resolve(adapter?.release()).catch(()=>{});}
       stream?.close();clearInterval(heartbeat);stopNativePush();lastSeq=0;
       session=attached;desiredConversation=attached.conversationId;
@@ -768,9 +795,7 @@ async function prepareConnection(){
   if(session){await rpc('release');adapter?.release();}
   for(const id of detachedSessions){await rpc('release',{}, {cadSessionId:id});detachedSessions.delete(id);}
   session=null;transportReady=false;stream?.close();clearInterval(heartbeat);stopNativePush();lastSeq=0;
-  // UP-01/06/34: a conversation belongs to the document it was attached for.
-  // Opening another project starts a new conversation; the Agent ownership
-  // check stays strict and an explicit history choice is never replaced.
+  // Replace the page tool lease while keeping the user's conversation.
   const plan=planConversation({desiredConversation,conversationDocument,context:state.context,explicit:explicitConversation,startNew:startNewConversation});
   const hostFlags=nativeSupported(current)?{nativeHost:true}:{};
   let switchNotice=plan.switched?(plan.reopened?PROJECT_REOPEN_NOTICE:PROJECT_SWITCH_NOTICE):null,attached;
@@ -799,6 +824,7 @@ async function prepareConnection(){
   await listen();syncNativePush();announceReady(prepared);status.textContent=prepared.knowledgeStatus?.cacheHit?'绘图工具已就绪，已复用本地版本':'绘图工具已就绪，已更新本地版本';status.title='WebCAD 构建：'+(receipt.buildId||'当前构建');
   if(taskId&&watchingTask!==taskId)void followTask(taskId).catch(recoverLater);
   }catch(error){
+    if(generation!==connectionGeneration)return;
     knowledgeReady=false;
     if(!session&&!rememberedRecovery&&!manualControl&&!disposed&&generation===connectionGeneration&&['page_offline','AGENT_PAGE_TIMEOUT'].includes(error.code)){
       const unbound=await rpc('attach',{dialogueOnly:true,nativeHost:true,newConversation:true});
@@ -808,7 +834,7 @@ async function prepareConnection(){
     }
     status.textContent='连接未就绪：'+error.message;if(isTransportError(error))recoverLater(error);throw error;
   }
-  finally{connecting=false;controls();}
+  finally{if(generation===connectionGeneration){connecting=false;controls();}}
 }
 
 async function followTask(id){
@@ -895,7 +921,26 @@ async function prepareTaskBinding(){
     if(disposed||manualControl)throw Object.assign(Error('对话已主动退出'),{code:'lease_revoked'});
     // Reuse only an already-confirmed mirror; never probe or connect a canvas
     // merely to submit a message or let the Agent diagnose an offline tool.
-    if(!original.dialogueOnly&&nativeState.confirmed())preparedSendState=nativeState.read();
+    if(!original.dialogueOnly&&nativeState.confirmed()){
+      const packet=nativeState.read();
+      const context=packet?.snapshot?.context;
+      if(context&&original.binding&&['sessionId','documentId','documentInstanceId'].some(key=>context[key]!==original.binding[key])){
+        // Keep the conversation and its history; replace only the obsolete CAD
+        // lease with an unbound tool entrance. No model/geometry request is replayed.
+        const attached=await rpc('attach',{dialogueOnly:true,nativeHost:true,conversationId:original.conversationId});
+        if(session!==original||disposed||manualControl){void rpc('release',{}, {cadSessionId:attached.cadSessionId}).catch(()=>{});throw Object.assign(Error('对话已切换，文字已保留。'),{code:'lease_revoked'});}
+        if(adapter?.state().pending.length)retiredAdapters.add(adapter);
+        void Promise.resolve(adapter?.release()).catch(()=>{});
+        void rpc('release',{}, {cadSessionId:original.cadSessionId}).catch(()=>{});
+        stream?.close();stream=null;listenOperation=null;transportReady=false;stopNativePush();lastSeq=0;
+        session=attached;desiredConversation=attached.conversationId;
+        adapter={state:()=>({pending:[],accepting:false,editing:false}),endTask:async()=>{},release:()=>{},retryReports:async()=>{}};
+        knowledgeReady=false;void listen().catch(recoverLater);
+        message('system','工程已切换，对话继续；助手操作模型前会重新读取当前工程。');
+        return attached;
+      }
+      preparedSendState=packet;
+    }
     return original;
   }
   if(original?.dialogueOnly){if(disposed||manualControl)throw Object.assign(Error('对话已主动退出'),{code:'lease_revoked'});return original;}
@@ -915,42 +960,55 @@ async function sendChat(override,onAccepted){
   if(composer.intercept(true))return;
   if(!text||sending||(connecting&&session?.agentMode!=='native')||projectOpening)return;
   sending=true;controls();
+  const sendSessionGeneration=connectionGeneration;
+  const currentSend=()=>sendSessionGeneration===connectionGeneration;
   try{
     await attachmentPicker.ready();
+    if(!currentSend())return;
     if(!modelSendReady())throw Object.assign(new Error('请先选择当前列表中的可用模型。'),{code:'MODEL_SELECTION_REQUIRED'});
     const bound=await prepareTaskBinding();
+    if(!currentSend())return;
     if(!pendingSend&&!bound.dialogueOnly)await ensureCanvasResources(attachments,{
       snapshot:async()=>({ready:knowledgeReady,context:(await api().getState()).context}),
       register:async file=>{const bytes=await file.arrayBuffer();return api().files.register({name:file.name,data:bridge?new Uint8Array(bytes):new frame.contentWindow.Uint8Array(bytes),mime:file.type||'application/octet-stream'});},
       release:resourceId=>api().files.release({resourceId})});
+    if(!currentSend())return;
     if(pendingSend && pendingSend.message!==text)throw new Error('请先重试原请求，确认原任务结果后再发送新指令');
     const attachmentKeys=attachments.map(attachmentIdentity);
     if(pendingSend?.attachmentKeys&&JSON.stringify(pendingSend.attachmentKeys)!==JSON.stringify(attachmentKeys))throw new Error('附件内容已变化，请先停止或核对原任务，再发送新请求');
     if(!pendingSend&&!modelSendReady())throw Object.assign(new Error('请先选择当前列表中的可用模型。'),{code:'MODEL_SELECTION_REQUIRED'});
     const wireText=pendingSend?null:await appendLocationDraft.resolve(text);
+    if(!currentSend())return;
     if(!pendingSend)pendingSend={message:text,wireMessage:(bound.agentMode==='native'?wireText:guidanceFor(bound)+'\n\n【当前用户请求】\n'+wireText)+(attachments.length?'\n\n本轮用户附件（发送后原件在本任务 input 中；resourceId 仅在画布登记成功时存在，不是磁盘路径）：\n'+JSON.stringify(attachments.map(({resourceId,name,size,kind})=>({resourceId,name,size,kind}))):''),reasoningEffort:['low','medium','high'][Number(document.getElementById('effort').value)],key:crypto.randomUUID(),autoStart:attachments.length===0};
     pendingSend.attachmentKeys??=attachmentKeys;
     if(!Object.hasOwn(pendingSend,'cadState'))pendingSend.cadState=preparedSendState&&(bound.stateProtocols||[bound.stateProtocol]).includes(preparedSendState.protocol)?preparedSendState:null;
     controls();if(!pendingSend.model)pendingSend.model=modelSelect.value;const created=await rpc('send',{message:pendingSend.wireMessage,reasoningEffort:pendingSend.reasoningEffort,model:pendingSend.model,autoStart:pendingSend.autoStart===true,...(pendingSend.cadState?{cadState:pendingSend.cadState}:{})},{},{'Idempotency-Key':pendingSend.key});
+    if(!currentSend())return;
     pendingSend.draftTaskId=created.taskId;
     const hasAttachments=attachments.length>0;
     const existing=hasAttachments?await rpc('files',{}, {taskId:created.taskId}):{uploads:[]};
+    if(!currentSend())return;
     const readyFiles=(existing.uploads||[]).filter(file=>file.status==='ready'),uploaded=new Set(readyFiles.map(attachmentIdentity));
     for(const attachment of attachments){
       if(uploaded.has(attachmentIdentity(attachment)))continue;
       if(readyFiles.some(file=>file.originalName===attachment.name))throw Object.assign(new Error('原任务存在同名不同内容的附件，请先核对原任务'),{code:'ATTACHMENT_CONTENT_CHANGED',attachmentName:attachment.name});
       try{await gatewayFetch(window.fetch.bind(window),endpoint('input',{taskId:created.taskId,name:attachment.name}),{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/octet-stream','X-CSRF-Token':config.csrf},body:attachment.file},35000);}
       catch(error){error.attachmentName=attachment.name;error.code=error.code||'ATTACHMENT_UPLOAD_FAILED';throw error;}
+      if(!currentSend())return;
     }
     if(!pendingSend.autoStart||created.status==='draft'){
       const started=await rpc('task',{}, {taskId:created.taskId});
+      if(!currentSend())return;
       if(started.status==='draft')await rpc('start',{}, {taskId:created.taskId});
     }
+    if(!currentSend())return;
     taskId=created.taskId;pendingSend=null;overlayDismissed=false;controls();const userRow=message('user',text);
     if(onAccepted)onAccepted(true);
     if(hasAttachments)try{await loadTaskFiles(taskId,userRow,null);}catch(error){message('system','附件列表读取失败：'+error.message);}
+    if(!currentSend())return;
     attachments=[];attachmentPicker.clear();if(!automatic)prompt.value='';appendLocationDraft.clear();void followTask(taskId).catch(recoverLater);
   }catch(error){
+    if(!currentSend())return;
     if(!taskId&&!pendingSend?.draftTaskId&&error.status>=400&&error.status<500&&![408,429].includes(error.status))pendingSend=null;
     if(['knowledge_required','KNOWLEDGE_HASH_DRIFT'].includes(error.code))knowledgeReady=false;
     if(isModelSelectionError(error)){
@@ -962,7 +1020,7 @@ async function sendChat(override,onAccepted){
     else message('agent','消息发送失败：'+(error.code||'SEND_FAILED')+' · '+error.message+'。输入和原请求标识已保留。');
     if(!isModelSelectionError(error)&&(isTransportError(error)||error.code==='page_offline'))recoverLater(error);
   }
-  finally{sending=false;controls();if(!taskId)prompt.focus();}
+  finally{if(currentSend()){sending=false;controls();if(!taskId)prompt.focus();}}
 }
 document.getElementById('chat').addEventListener('submit',event=>{event.preventDefault();void sendChat();});
 prompt.addEventListener('keydown',event=>{
@@ -979,7 +1037,7 @@ async function acceptFiles(files){
   if(taskId||pendingSend||sending||attaching||projectOpening)throw Object.assign(new Error('当前消息正在发送或处理，请稍后添加附件。'),{code:'ATTACHMENT_HOST_BUSY'});
   attaching=true;controls();
   try{
-    workbench.validateFiles(files,{mode:'webcad'});
+    validateCadFiles(files);
     const bound=session;
     const registered=[];
     for(const file of files){
@@ -1001,7 +1059,7 @@ async function attachmentHostSnapshot(){
     ready:Boolean(!disposed&&!manualControl&&!connecting),
     active:Boolean(taskId||pendingSend||sending||attaching||projectOpening),busy:false,preview:false};
 }
-const byteAttachments=createAttachmentBytesAPI({snapshot:attachmentHostSnapshot,validate:files=>workbench.validateFiles(files,{mode:'webcad'}),
+const byteAttachments=createAttachmentBytesAPI({snapshot:attachmentHostSnapshot,validate:files=>validateCadFiles(files),
   accept:async(file,anchor)=>{
     await attachmentPicker.ready();
     const live=await attachmentHostSnapshot();

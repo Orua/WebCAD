@@ -8,7 +8,7 @@
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.60.7",
+  "version": "1.60.8",
   "contextPolicy": "none",
   "label": "登记文件资源",
   "synonyms": [
@@ -33,19 +33,19 @@
   "unknownFields": "rejected",
   "errorModel": "Direct page file scripts throw or reject with error.code. MCP callers follow mcpCall; invoke is not an Agent method. Page-script invoke({method:\"files.register\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 104857600,
+    "maxBytes": 209715200,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 1073741824,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 268435456,
+    "stp": 268435456,
+    "brep": 268435456,
+    "brp": 268435456,
+    "stl": 268435456,
+    "mesh": 805306368,
+    "webcad": 1073741824
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -53,7 +53,7 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 104857600,
+    "maxBytes": 209715200,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -126,5 +126,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:c0e22f20d6456ee2cbb3a5ceabe8f5814db9c340cc539cd26f05330be45dbee1"
+  "docsHash": "sha256:c9eaab0cbf644cf87cbc8f300be65199c5c1d1c76ec33d0ab5111aa679ef8b4e"
 }

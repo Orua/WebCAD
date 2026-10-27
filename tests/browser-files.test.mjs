@@ -79,7 +79,7 @@ test('register copies bytes, applies basename and size limits, and forwards exac
   await assert.rejects(h.files.import({ context: context(), resourceId: iges.resourceId }), { code: 'CAPABILITY_UNAVAILABLE' });
   await assert.rejects(h.files.register({ name: '../outside.step', data: original }), { code: 'NAME_INVALID' });
   await assert.rejects(h.files.register({ name: 'https:evil.step', data: original }), { code: 'NAME_INVALID' });
-  await assert.rejects(h.files.register({ name: 'big.step', data: {byteLength:128 * 1024 * 1024 + 1} }), { code: 'SIZE_LIMIT' });
+  await assert.rejects(h.files.register({ name: 'big.step', data: {byteLength:256 * 1024 * 1024 + 1} }), { code: 'SIZE_LIMIT' });
   h.files.release({ resourceId: resource.resourceId });
   await assert.rejects(h.files.read({ resourceId: resource.resourceId }), { code: 'RESOURCE_EXPIRED' });
 });
@@ -178,7 +178,7 @@ test('export transfers large binary exactly and releases bounded resources', asy
   const bytes = await h.files.read({ resourceId: artifact.resourceId, as: 'bytes' });
   assert.equal(bytes.length, 100_000);
   assert(bytes.every(byte => byte === 47));
-  assert.equal(h.files.capabilities().maxBytes, 100 * 1024 * 1024); // LIMITS.transport.maxInputBytes
+  assert.equal(h.files.capabilities().maxBytes, 200 * 1024 * 1024); // LIMITS.transport.maxInputBytes
   assert.equal(h.files.capabilities().transport, 'in-page');
   const resources = [];
   for (let i = 0; i < 31; i++) resources.push(await h.files.register({ name: `asset-${i}.step`, data: new Uint8Array([i]) }));
@@ -250,8 +250,8 @@ test('large exact sources use typed import, preview and export without the legac
     files.release({resourceId:output.resourceId});
   }
   for (const ext of ['step','stp','brep','brp']) {
-    assert.equal(files.capabilities().typedByteBudgets[ext],128 * 1024 * 1024);
-    await assert.rejects(files.register({name:`oversized.${ext}`,data:{byteLength:128 * 1024 * 1024 + 1}}),{code:'SIZE_LIMIT'});
+    assert.equal(files.capabilities().typedByteBudgets[ext],256 * 1024 * 1024);
+    await assert.rejects(files.register({name:`oversized.${ext}`,data:{byteLength:256 * 1024 * 1024 + 1}}),{code:'SIZE_LIMIT'});
   }
   files.release({resourceId:resource.resourceId});
 });

@@ -7,8 +7,8 @@
 <form id="chat"><textarea id="prompt" aria-label="操作当前工程" rows="3" placeholder="告诉助手需要怎样修改…"></textarea><small id="attachment-status" hidden></small>
 <footer><label class="attachment-input icon-button" title="添加参考文件" aria-label="添加参考文件"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17 17 9a3 3 0 0 0-4-4L5 13a5 5 0 0 0 7 7l8-8M8 15l8-8"/></svg><input id="attachments" type="file" multiple accept=".step,.stp,.brep,.brp,.svg,.dxf,.dwg,.png,.jpg,.jpeg,.relief.json"></label><div class="effort-control"><input id="effort" type="range" min="0" max="2" step="1" value="1" aria-label="思考强度：快速、标准、深入"><output id="effort-label" for="effort">标准</output></div><button id="send" type="submit" class="icon-button" aria-label="发送" title="发送 · Ctrl+Enter">↑</button></footer></form></aside></main>
 <script id="webcad-config" type="application/json"><%= BootstrapJson %></script>
-<script src="../agent-workbench.js?v=20261021-byte-attach1"></script>
+<script src="../agent-workbench.js?v=20261027-file-links1"></script>
 <script src="runtime-uuid.js?v=20261026-isolated"></script>
 <script src="../agent-voice.js?v=20261024-3"></script>
 <script src="../agent-guidance.js?v=20261024-voice1"></script>
-<script type="module" src="webcad-workspace.js?v=20261026-prepared1"></script></body></html>
+<script type="module" src="webcad-workspace.js?v=20261027-state-file-links2"></script></body></html>
