@@ -36,7 +36,12 @@ namespace WebCADServices.Logo
                 if (options["raster"] != null)
                 {
                     if (!(options["raster"] is JObject raster)) throw new ServiceError("PARAM_SCHEMA_INVALID", "raster must be an object");
-                    Protocol.Keys(raster, "threshold", "invert", "alphaThreshold", "smoothingPx");
+                    Protocol.Keys(raster, "mode", "threshold", "invert", "alphaThreshold", "smoothingPx");
+                    var mode = raster["mode"];
+                    if (mode != null && (mode.Type != JTokenType.String || ((string)mode != "auto" && (string)mode != "manual")))
+                        throw new ServiceError("PARAM_SCHEMA_INVALID", "raster.mode must be auto or manual");
+                    if ((string)mode == "auto" && raster.Properties().Any(p => p.Name != "mode"))
+                        throw new ServiceError("PARAM_SCHEMA_INVALID", "Automatic raster mode cannot contain manual thresholds or smoothing");
                     var smoothing = raster["smoothingPx"];
                     if (smoothing != null && ((smoothing.Type != JTokenType.Integer && smoothing.Type != JTokenType.Float) || double.IsNaN((double)smoothing) || double.IsInfinity((double)smoothing) || (double)smoothing < 0 || (double)smoothing > .5)) throw new ServiceError("PARAM_SCHEMA_INVALID", "raster.smoothingPx must be a finite number 0..0.5 source pixels (default 0)");
                     foreach (var name in new[] { "threshold", "alphaThreshold" })

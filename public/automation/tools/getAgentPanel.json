@@ -2,7 +2,7 @@
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.60.0",
+  "version": "1.60.7",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -61,5 +61,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ee1bccfeebef429363042ded59a8aef61ae2896b37848459afbe94035416032a"
+  "docsHash": "sha256:129baa123a7c831bfc427929b3fe2704777deca728fd3a510c4f730e224880e9"
 }

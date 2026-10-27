@@ -99,6 +99,14 @@ namespace LogoVector.Worker
                 int luma = (image.Data[q] * 299 + image.Data[q + 1] * 587 + image.Data[q + 2] * 114) / 1000;
                 black[i] = options.Invert ? luma >= options.Threshold : luma < options.Threshold;
             }
+            return TraceMask(black, width, height, smoothingPx, out smoothing);
+        }
+        // Shared contour extraction for the explicit legacy mask and the automatic
+        // image-analysis path. The latter retains the same topology limits.
+        internal static Tuple<List<LogoRegion>, double> TraceMask(bool[] black, int width, int height, double smoothingPx, out SmoothingReport smoothing)
+        {
+            if (black == null || width < 1 || height < 1 || (long)width * height != black.Length)
+                throw new LogoVectorException("INVALID_OPTIONS", "位图掩膜尺寸无效。");
             var contacts = new HashSet<long>();
             for (int y = 0; y < height - 1; y++) for (int x = 0; x < width - 1; x++)
             {

@@ -54,7 +54,16 @@ namespace LogoVector.Worker
                 }
                 else if (action == "convert")
                 {
-                    var token = request["options"]?["raster"]?["smoothingPx"];
+                    var rasterToken = request["options"]?["raster"];
+                    var rasterObject = rasterToken as JObject;
+                    if (rasterToken != null && rasterObject == null) throw new LogoVectorException("INVALID_OPTIONS", "raster 必须是对象。");
+                    var rasterModeToken = rasterObject?["mode"];
+                    string rasterMode = (string)rasterModeToken;
+                    if (rasterModeToken != null && (rasterModeToken.Type != JTokenType.String || rasterMode != "auto" && rasterMode != "manual")) throw new LogoVectorException("INVALID_OPTIONS", "raster.mode 必须是 auto 或 manual。");
+                    if (rasterMode == "auto" && rasterObject.Properties().Any(p => p.Name != "mode")) throw new LogoVectorException("INVALID_OPTIONS", "自动识别不能同时指定手动阈值或平滑参数。");
+                    if (rasterMode != null && format != "raster" && format != "pdf" && format != "pdf-ai") throw new LogoVectorException("INVALID_OPTIONS", "raster.mode 仅用于位图或 PDF 栅格回退。");
+                    bool automaticRaster = format == "raster" && (rasterToken == null || rasterMode == "auto") || (format == "pdf" || format == "pdf-ai") && rasterMode == "auto";
+                    var token = rasterObject?["smoothingPx"];
                     double smoothingPx = 0;
                     if (token != null)
                     {
@@ -62,7 +71,7 @@ namespace LogoVector.Worker
                         smoothingPx = (double)token;
                         if (format != "raster" && format != "pdf" && format != "pdf-ai") throw new LogoVectorException("INVALID_OPTIONS", "raster.smoothingPx 仅用于位图或 PDF 栅格回退，不用于矢量线接合。");
                     }
-                    result = Convert(bytes, sourceName, hash, format, request["options"].ToObject<ConversionOptions>(), smoothingPx);
+                    result = Convert(bytes, sourceName, hash, format, request["options"].ToObject<ConversionOptions>(), smoothingPx, automaticRaster);
                 }
                 else throw new LogoVectorException("MALFORMED_FILE", "未知操作。");
                 CheckCancellation(args[0]);
@@ -93,11 +102,11 @@ namespace LogoVector.Worker
             if (new[] { ".png", ".jpg", ".jpeg", ".bmp" }.Contains(ext)) throw new LogoVectorException("TYPE_MISMATCH", "文件签名与扩展名不符。");
             throw new LogoVectorException("UNSUPPORTED_FORMAT", "文件格式尚未启用。");
         }
-        static ConversionResult Convert(byte[] bytes, string name, string hash, string format, ConversionOptions options, double smoothingPx = 0)
+        static ConversionResult Convert(byte[] bytes, string name, string hash, string format, ConversionOptions options, double smoothingPx = 0, bool automaticRaster = false)
         {
             if (options == null || options.Mode != (format == "raster" ? "raster" : "vector") || options.ToleranceMm <= 0 || options.ToleranceMm > 0.1) throw new LogoVectorException("INVALID_OPTIONS", "转换参数无效。");
             if (!options.SizeConfirmed) throw new LogoVectorException("SIZE_REQUIRED", "请先确认实际毫米尺寸。");
-            List<LogoRegion> regions; double nativeWidth; string method; bool pdfCurves = false, reconstructed = false; int repairs = 0, rasterHeight = 0; double joinToleranceMm = 0; double? sourceUnitMm = null; string version = null; RasterTracer.SmoothingReport smoothing = null;
+            List<LogoRegion> regions; double nativeWidth; string method; bool pdfCurves = false, reconstructed = false; int repairs = 0, rasterHeight = 0; double joinToleranceMm = 0; double? sourceUnitMm = null; string version = null; RasterTracer.SmoothingReport smoothing = null; AutoRasterTracer.Result automatic = null; double rasterCx = 0, rasterCy = 0;
             if (format == "logo-json")
             {
                 var token = JObject.Parse(Encoding.UTF8.GetString(bytes));
@@ -116,7 +125,7 @@ namespace LogoVector.Worker
                 {
                     var rendered = PdfRasterizer.Render(bytes, options.Page);
                     var rasterOptions = new ConversionOptions { Mode = "raster", SizeMode = options.SizeMode == "targetWidth" ? "targetWidth" : "mmPerSourceUnit", TargetWidthMm = options.TargetWidthMm, MmPerSourceUnit = rendered.WidthPoints / rendered.Width * (options.SizeMode == "mmPerSourceUnit" ? options.MmPerSourceUnit : 25.4 / 72), SizeConfirmed = true, ToleranceMm = options.ToleranceMm, Raster = options.Raster };
-                    var converted = Convert(rendered.Png, name, hash, "raster", rasterOptions, smoothingPx);
+                    var converted = Convert(rendered.Png, name, hash, "raster", rasterOptions, smoothingPx, automaticRaster);
                     var rasterSource = converted.Logo.Source; rasterSource["kind"] = format; rasterSource["page"] = options.Page ?? 1;
                     if (!rasterSource.ContainsKey("rasterOriginalContours")) rasterSource["rasterOriginalContours"] = new LogoDocument { Name = "original-pixel-contours", SizeMm = converted.Logo.SizeMm, Regions = RasterTracer.CopyRegions(converted.Logo.Regions), Source = new Dictionary<string, object> { ["kind"] = "raster-original-pixel-contours", ["sha256"] = hash, ["reviewRequired"] = true, ["reviewed"] = false } };
                     string imageHash; using (var sha = SHA256.Create()) imageHash = BitConverter.ToString(sha.ComputeHash(rendered.Png)).Replace("-", "").ToLowerInvariant();
@@ -128,6 +137,7 @@ namespace LogoVector.Worker
                 }
             }
             else if (format == "dxf") { var parsed = DxfAdapter.Parse(bytes); regions = parsed.Regions; nativeWidth = parsed.Width; sourceUnitMm = parsed.MmPerUnit; version = parsed.Version; method = "dxf-vector-extraction"; }
+            else if (automaticRaster) { automatic = AutoRasterTracer.Trace(bytes, options); regions = automatic.Regions; nativeWidth = automatic.Width; rasterHeight = automatic.Height; smoothing = automatic.PixelReport; method = "raster-tracing-auto"; }
             else { var parsed = RasterTracer.Trace(bytes, options.Raster, out rasterHeight, smoothingPx, out smoothing); regions = parsed.Item1; nativeWidth = parsed.Item2; method = "raster-tracing"; }
             if (!(nativeWidth > 0)) throw new LogoVectorException("SIZE_REQUIRED", "缺少可靠的物理宽度。");
             double factor;
@@ -140,36 +150,40 @@ namespace LogoVector.Worker
             var source = new Dictionary<string, object> { ["kind"] = format, ["fileName"] = Path.GetFileName(name), ["sha256"] = hash, ["coordinateSystem"] = "x-right-y-up", ["origin"] = "bounds-center" };
             if (format == "raster")
             {
-                double cx = (regions.Min(r => r.Outer.Min(p => p[0])) + regions.Max(r => r.Outer.Max(p => p[0]))) / 2;
-                double cy = (regions.Min(r => r.Outer.Min(p => p[1])) + regions.Max(r => r.Outer.Max(p => p[1]))) / 2;
-                source["rasterFrame"] = new { pixelWidth = nativeWidth, pixelHeight = rasterHeight, mmPerPixel = factor, xMm = -cx, yMm = -rasterHeight * factor - cy, widthMm = nativeWidth * factor, heightMm = rasterHeight * factor };
-                source["rasterOptions"] = new { threshold = options.Raster.Threshold, invert = options.Raster.Invert, alphaThreshold = options.Raster.AlphaThreshold, smoothingPx };
+                rasterCx = (regions.Min(r => r.Outer.Min(p => p[0])) + regions.Max(r => r.Outer.Max(p => p[0]))) / 2;
+                rasterCy = (regions.Min(r => r.Outer.Min(p => p[1])) + regions.Max(r => r.Outer.Max(p => p[1]))) / 2;
+                source["rasterFrame"] = new { pixelWidth = nativeWidth, pixelHeight = rasterHeight, mmPerPixel = factor, xMm = -rasterCx, yMm = -rasterHeight * factor - rasterCy, widthMm = nativeWidth * factor, heightMm = rasterHeight * factor };
+                source["rasterOptions"] = automatic != null ? (object)new { mode = "auto", threshold = automatic.Threshold, invert = automatic.Invert, alphaThreshold = automatic.UsesAlpha ? automatic.Threshold : 1, smoothingPx = automatic.SmoothLimit } : new { threshold = options.Raster.Threshold, invert = options.Raster.Invert, alphaThreshold = options.Raster.AlphaThreshold, smoothingPx };
                 source["rasterTopology"] = new { algorithm = "four-connected-corner-bevel-v1", diagonalContacts = smoothing.DiagonalContacts, cornerTrimPx = smoothing.DiagonalContacts > 0 ? .25 : 0, curveDistanceUpperBoundMm = smoothing.CornerBoundPx * factor, foregroundPixelCentresPreserved = true, reviewRequired = true };
                 string originalGeometryHash = null;
-                if (smoothing.OriginalRegions != null)
+                if (automatic != null || smoothing.OriginalRegions != null)
                 {
-                    var rawRegions = RasterTracer.CopyRegions(smoothing.OriginalRegions);
+                    var rawRegions = RasterTracer.CopyRegions(automatic != null ? automatic.OriginalRegions : smoothing.OriginalRegions);
                     foreach (var r in rawRegions) foreach (var ring in new[] { r.Outer }.Concat(r.Holes)) foreach (var p in ring) { p[0] *= factor; p[1] *= factor; }
                     var rawLogo = LogoGeometry.Normalize(Path.GetFileNameWithoutExtension(name) + "-original-pixel-contours", rawRegions, new Dictionary<string, object> { ["kind"] = "raster-original-pixel-contours", ["sha256"] = hash, ["coordinateSystem"] = "x-right-y-up", ["origin"] = "bounds-center", ["reviewed"] = false, ["reviewRequired"] = true });
                     originalGeometryHash = LogoGeometry.GeometryHash(rawLogo);
                     source["rasterOriginalContours"] = rawLogo;
                 }
-                source["rasterSmoothing"] = new { algorithm = "bounded-neighbor-average-v1", approximationBasis = "thresholded-pixel-contours", status = smoothing.Status, failureCode = smoothing.FailureCode, requestedTolerancePx = smoothing.RequestedPx, effectiveTolerancePx = smoothing.ActualPx, requestedToleranceMm = smoothing.RequestedPx * factor, effectiveToleranceMm = smoothing.ActualPx * factor, curveDistanceUpperBoundMm = smoothing.ActualPx > 0 ? smoothing.ActualPx * factor + Math.Sqrt(2) * 1e-9 : 0, coordinateRoundingMm = 1e-9, pointsBefore = smoothing.PointsBefore, pointsAfter = smoothing.PointsAfter, regionsBefore = smoothing.RegionCount, regionsAfter = regions.Count, holesBefore = smoothing.HoleCount, holesAfter = regions.Sum(r => r.Holes.Count), originalGeometryHash, boundsPreserved = true, passes = smoothingPx > 0 ? 1 : 0, topologyPreserved = true, sourceReconstructionErrorMm = (double?)null };
+                source["rasterSmoothing"] = automatic != null ? (object)new { algorithm = "auto-fit-then-straighten-cubic-v7", approximationBasis = "thresholded-pixel-contours", status = automatic.FitStatus, failureCode = automatic.FailureCode, requestedTolerancePx = 0, effectiveTolerancePx = automatic.ApproximationBoundPx, requestedToleranceMm = 0, effectiveToleranceMm = automatic.ApproximationBoundPx * factor, curveDistanceUpperBoundMm = automatic.ApproximationBoundPx * factor + Math.Sqrt(2) * 1e-9, coordinateRoundingMm = 1e-9, pointsBefore = automatic.PointsBefore, pointsAfter = automatic.PointsAfter, regionsBefore = smoothing.RegionCount, regionsAfter = regions.Count, holesBefore = smoothing.HoleCount, holesAfter = regions.Sum(r => r.Holes.Count), originalGeometryHash, boundsPreserved = true, passes = 1, topologyPreserved = true, sourceReconstructionErrorMm = (double?)null } : new { algorithm = "bounded-neighbor-average-v1", approximationBasis = "thresholded-pixel-contours", status = smoothing.Status, failureCode = smoothing.FailureCode, requestedTolerancePx = smoothing.RequestedPx, effectiveTolerancePx = smoothing.ActualPx, requestedToleranceMm = smoothing.RequestedPx * factor, effectiveToleranceMm = smoothing.ActualPx * factor, curveDistanceUpperBoundMm = smoothing.ActualPx > 0 ? smoothing.ActualPx * factor + Math.Sqrt(2) * 1e-9 : 0, coordinateRoundingMm = 1e-9, pointsBefore = smoothing.PointsBefore, pointsAfter = smoothing.PointsAfter, regionsBefore = smoothing.RegionCount, regionsAfter = regions.Count, holesBefore = smoothing.HoleCount, holesAfter = regions.Sum(r => r.Holes.Count), originalGeometryHash, boundsPreserved = true, passes = smoothingPx > 0 ? 1 : 0, topologyPreserved = true, sourceReconstructionErrorMm = (double?)null };
+                if (automatic != null) source["rasterAuto"] = new { algorithm = "auto-fit-then-straighten-cubic-v7", threshold = automatic.Threshold, invert = automatic.Invert, source = automatic.UsesAlpha ? "alpha-coverage" : "luminance", confidence = automatic.Confidence, contrast = automatic.Contrast, foregroundPixels = automatic.ForegroundPixels, protectedCorners = automatic.ProtectedCorners, quadraticSegments = automatic.QuadraticSegments, cubicSegments = automatic.CubicSegments, linearSegments = automatic.LinearSegments, continuousSplits = automatic.ContinuousSplits, straightenedLines = automatic.StraightenedLines, partialPreservedRings = automatic.PartialPreservedRings, ripplePoints = automatic.RipplePoints, fitTolerancePx = automatic.FitTolerance, fitBoundPx = automatic.FitBound, fitStatus = automatic.FitStatus, failureCode = automatic.FailureCode, selectedTolerancePx = automatic.PixelTolerance, refineLimitPx = automatic.RefineLimit, smoothingLimitPx = automatic.SmoothLimit, simplifyLimitPx = automatic.SimplifyLimit, curveLimitPx = automatic.CurveLimit, curveToPolylineLimitPx = automatic.FlattenLimit };
             }
             if (format == "pdf" || format == "pdf-ai") source["page"] = options.Page ?? 1;
             if (format == "dxf") { source["dxfVersion"] = version; source["mmPerSourceUnit"] = factor; }
             var logo = LogoGeometry.Normalize(Path.GetFileNameWithoutExtension(name), regions, source);
             var geometryHash = LogoGeometry.GeometryHash(logo);
             bool review = format == "raster" || reconstructed;
-            var report = new ConversionReport { Method = method, RequestedToleranceMm = format == "raster" ? smoothing.RequestedPx * factor : options.ToleranceMm, ApproximationBoundMm = format == "svg" ? (double?)null : pdfCurves ? factor * 0.0001 : smoothing != null && smoothing.ActualPx + smoothing.CornerBoundPx > 0 ? (smoothing.ActualPx + smoothing.CornerBoundPx) * factor + Math.Sqrt(2) * 1e-9 : 0, SourceReconstructionErrorMm = null, GeometryHash = geometryHash };
+            var report = new ConversionReport { Method = method, RequestedToleranceMm = format == "raster" ? (automatic != null ? 0 : smoothing.RequestedPx * factor) : options.ToleranceMm, ApproximationBoundMm = format == "svg" ? (double?)null : pdfCurves ? factor * 0.0001 : automatic != null ? automatic.ApproximationBoundPx * factor + Math.Sqrt(2) * 1e-9 : smoothing != null && smoothing.ActualPx + smoothing.CornerBoundPx > 0 ? (smoothing.ActualPx + smoothing.CornerBoundPx) * factor + Math.Sqrt(2) * 1e-9 : 0, SourceReconstructionErrorMm = null, GeometryHash = geometryHash };
             if (smoothing?.DiagonalContacts > 0) report.Warnings.Add("RASTER_DIAGONAL_CONTACTS: 已按前景四连通分离 " + smoothing.DiagonalContacts + " 处角点接触，每条相邻边裁角 0.25 源像素；请叠加原图校对。");
             if (format == "raster") report.Warnings.Add("RASTER_TRACED: 位图重建误差未知，须人工复核。");
+            if (automatic != null && automatic.Confidence == "low") report.Warnings.Add("RASTER_AUTO_LOW_CONFIDENCE: 自动前景判断不确定，请对照原图核对。");
+            if (automatic != null && automatic.FitStatus == "original-preserved") report.Warnings.Add("RASTER_AUTO_ORIGINAL_PRESERVED: 拟合候选未通过轮廓保护，已保留原始像素轮廓。");
+            if (automatic != null && automatic.FitStatus == "partially-preserved") report.Warnings.Add("RASTER_AUTO_PARTIAL_PRESERVED: " + automatic.PartialPreservedRings + " 个细节轮廓保留原像素边界，其余使用平滑拟合；请对照原图复核。");
             if (smoothing?.Status == "rejected-topology") report.Warnings.Add("RASTER_SMOOTHING_REJECTED: 平滑候选未通过拓扑检查（" + smoothing.FailureCode + "），未应用平滑，完整保留原始轮廓；须复核。");
             else if (smoothing?.ActualPx > 0) report.Warnings.Add("RASTER_SMOOTHED: 已显式应用单次有界轮廓平滑；原始像素轮廓可读，原稿重建误差仍未知，须复核。");
             if (reconstructed) { report.Warnings.Add("LINEWORK_RECONSTRUCTED: 按线条中心路径重建闭环；修复 " + repairs + " 处，接合公差 " + joinToleranceMm.ToString("0.######", Invariant) + " mm，须复核。"); source["lineworkRepairs"] = repairs; source["joinToleranceMm"] = joinToleranceMm; }
             source["conversion"] = new { method, normalizationProfile = "webcad-logo-v1", approximationBasis = format == "raster" ? "thresholded-pixel-contours" : "source-vector-contours", requestedToleranceMm = report.RequestedToleranceMm, approximationBoundMm = report.ApproximationBoundMm, sourceReconstructionErrorMm = report.SourceReconstructionErrorMm, reviewRequired = review, reviewReasons = reconstructed ? new[] { "LINEWORK_RECONSTRUCTED" } : review ? new[] { "RASTER_TRACED" } : new string[0], geometryHash };
             logo.Source = source;
-            return new ConversionResult { Status = review ? "needsReview" : "ready", GeometryValid = true, ReviewRequired = review, Logo = logo, Svg = LogoGeometry.ToSvg(logo), Report = report };
+            return new ConversionResult { Status = review ? "needsReview" : "ready", GeometryValid = true, ReviewRequired = review, Logo = logo, Svg = automatic != null ? AutoRasterTracer.ToSvg(logo, automatic, factor, rasterCx, rasterCy) : LogoGeometry.ToSvg(logo), Report = report };
         }
         static Tuple<List<LogoRegion>, double> ParseSvg(byte[] bytes)
         {

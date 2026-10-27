@@ -14,16 +14,16 @@ test('local logo packets retain validation with no converter requests',async()=>
 
 test('raster byte thresholds reject normalized relief values before any upload',async()=>{
   let calls=0;const client={capabilities:async()=>{calls++;throw new Error('must not request');}};
-  for(const raster of [{threshold:0.5},{threshold:'128'},{alphaThreshold:256},{invert:1},{threshold:128,typo:true},null,[]]){
+  for(const raster of [{threshold:0.5},{threshold:'128'},{alphaThreshold:256},{invert:1},{threshold:128,typo:true},{mode:'unknown'},{mode:'auto',threshold:128},null,[]]){
     await assert.rejects(readBrowserLogo(new File(['image'],'tiger.jpg'),()=>{},
       {targetWidthMm:30,sizeConfirmed:true,allowUpload:true,raster,client}),{code:'PARAM_SCHEMA_INVALID'});
   }
   assert.equal(calls,0);
-  for(const raster of [undefined,{}, {threshold:0,invert:false,alphaThreshold:255},{threshold:128,invert:true,alphaThreshold:1}])assert.doesNotThrow(()=>validateLogoRasterOptions(raster));
+  for(const raster of [undefined,{}, {mode:'auto'},{mode:'manual',threshold:0},{threshold:0,invert:false,alphaThreshold:255},{threshold:128,invert:true,alphaThreshold:1}])assert.doesNotThrow(()=>validateLogoRasterOptions(raster));
 });
 
 test('raster reader preserves omitted defaults and explicit original conversion options',async()=>{
-  for(const raster of [undefined,{threshold:128,invert:false,alphaThreshold:1}]){
+  for(const raster of [undefined,{mode:'auto'},{mode:'manual',threshold:128},{threshold:128,invert:false,alphaThreshold:1}]){
     const submitted=[];
     const packet={version:1,regions:[{outer:[[0,0],[30,0],[0,20]],holes:[]}]};
     const client={capabilities:async()=>({logo:{enabled:true}}),upload:async()=>({assetId:'source'}),
@@ -43,8 +43,9 @@ test('public LOGO card exposes byte thresholds and the configured backend route'
   const card=getTool({id:'readLogo'}),raster=card.inputSchema.properties.raster;
   assert.equal(raster.additionalProperties,false);
   assert.deepEqual(raster.properties.threshold,{type:'integer',minimum:0,maximum:255,default:128,description:'8-bit luminance; dark pixels below this value are foreground unless invert is true. Not a 0–1 relief threshold.'});
-  assert.deepEqual(card.rasterDefaults,{threshold:128,invert:false,alphaThreshold:1,smoothingPx:0});
-  assert.match(JSON.stringify(readDocs({docId:'api.logo'})),/启用统一计算接口后/);
+  assert.deepEqual(card.rasterDefaults,{mode:'auto'});
+  assert.deepEqual(card.manualRasterDefaults,{threshold:128,invert:false,alphaThreshold:1,smoothingPx:0});
+  assert.match(readDocs({docId:'api.logo',limitChars:16000}).text,/位图省略raster.*Services/);
   assert.doesNotMatch(JSON.stringify(readDocs({docId:'api.logo'})),/静态版没有位图/);
 });
 
@@ -54,7 +55,7 @@ test('failed raster conversion reports effective options and retains the origina
     wait:async route=>{if(route==='logo/inspect')return {result:{pageCount:1}};throw original;}};
   await assert.rejects(readBrowserLogo(new File(['image'],'tiger.jpg'),x=>x,{targetWidthMm:30,sizeConfirmed:true,allowUpload:true,client}),error=>{
     assert.equal(error,original);assert.equal(error.jobId,'original-failed-job');
-    assert.deepEqual(error.details,{stage:'worker',logoFailure:{reason:'当前黑白阈值下没有识别到图案。',next:'请检查黑白阈值或反转前景后重新识别。'},rasterOptions:{threshold:128,invert:false,alphaThreshold:1,smoothingPx:0},rasterOptionsSupplied:false});return true;
+    assert.deepEqual(error.details,{stage:'worker',logoFailure:{reason:'当前黑白阈值下没有识别到图案。',next:'请检查黑白阈值或反转前景后重新识别。'},rasterOptions:{mode:'auto'},rasterOptionsSupplied:false});return true;
   });
   assert.equal(converts,1);
 });

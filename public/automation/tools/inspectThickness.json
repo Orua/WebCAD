@@ -2,7 +2,7 @@
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.60.0",
+  "version": "1.60.7",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -169,5 +169,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5b47103955c9a6482af2531e897c5eb6d56fadb31204fc0cc56eb776668f6691"
+  "docsHash": "sha256:e35dceba901fdbc45b5157f7bc987b2a0e7ac364ae94cfef36679747635a9c8d"
 }

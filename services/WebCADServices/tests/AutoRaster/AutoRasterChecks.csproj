@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../modules/LogoVector/src/LogoVector.Worker/RasterTracer.cs" Link="RasterTracer.cs" />
+    <Compile Include="../../modules/LogoVector/src/LogoVector.Worker/AutoRasterTracer.cs" Link="AutoRasterTracer.cs" />
+    <Compile Include="../../modules/LogoVector/src/LogoVector.Worker/BezierFitter.cs" Link="BezierFitter.cs" />
+    <ProjectReference Include="../../modules/LogoVector/src/LogoVector.Contracts/LogoVector.Contracts.csproj" />
+    <ProjectReference Include="../../modules/LogoVector/src/LogoVector.Geometry/LogoVector.Geometry.csproj" />
+    <PackageReference Include="StbImageSharp" Version="2.30.16" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="all" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+</Project>

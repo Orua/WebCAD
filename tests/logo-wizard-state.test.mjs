@@ -58,11 +58,14 @@ test('wizard exposes explicit PDF join tolerance and rejects invalid values befo
 
 test('wizard smoothing edits round trip and reject invalid values without changing revision',async()=>{
  const ctx=setup();try{
+  assert.deepEqual(getLogoWizardState().parameters.raster,{mode:'auto'});
   const state=await actLogoWizard({action:'parameters',expectedRevision:getLogoWizardState().revision,parameters:{raster:{smoothingPx:.25}}});
-  assert.equal(state.parameters.raster.smoothingPx,.25);
+  assert.equal(state.parameters.raster.mode,'manual');assert.equal(state.parameters.raster.smoothingPx,.25);
   const slider=ctx.nodes.find(n=>n.attributes['aria-label']==='轮廓平滑源像素');assert.equal(typeof slider.listeners.input,'function');
   await assert.rejects(actLogoWizard({action:'parameters',expectedRevision:state.revision,parameters:{raster:{smoothingPx:.6}}}),{code:'PARAM_SCHEMA_INVALID'});
   assert.equal(getLogoWizardState().revision,state.revision);
+  const automatic=await actLogoWizard({action:'parameters',expectedRevision:state.revision,parameters:{raster:{mode:'auto'}}});
+  assert.deepEqual(automatic.parameters.raster,{mode:'auto'});assert.equal(slider.disabled,true);
  }finally{ctx.restore();}
 });
 test('local Agent reads need no upload consent and closing the mounted wizard revokes bitmap URL once',async()=>{

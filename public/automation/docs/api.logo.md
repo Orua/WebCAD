@@ -8,7 +8,7 @@ planPatternMachining({context,intent})只读规划。intent.version=1；requeste
 
 LOGO 表示按明确深度的凹刻/凸字，不从照片明暗猜立体高度。
 
-人工：选择图片自动识别，技术精度由程序处理；每步保持缩略图。校对可打开大窗编辑，保存图标导出当前稿。确认轮廓后窗口收为画布浮动入口，点击精确平面显示目标面高亮、异色轮廓与四边距离。输入上/左间距、拖动、缩放、旋转、居中后点勾雕刻。定位不重算；最终几何保持真实面、源轮廓与撤销事务。
+人工：选择图片自动识别，技术精度由程序处理；每步保持缩略图。位图省略raster或传{mode:"auto"}时由Services选择前景和阈值并拟合保角曲线，保留原始像素轮廓；显式旧raster对象和{mode:"manual",...}仍按手动字节阈值执行。自动模式不能混入手动字段；选择及误差依据见source.rasterAuto/rasterSmoothing；自动曲线v7沿用已验证的受限曲线拟合，再根据贝塞尔控制点、原始轮廓交替残差和端点切线，仅在拟合之后合并确定的直线跨度；明显弯曲的部分保留原曲线。如果直线回修导致某圈自交或面积偏差过大，先恢复该圈回修前已拟合的曲线；只有拟合曲线本身也不安全时才保留该圈的原始像素边界。source.rasterAuto记录cubicSegments、linearSegments、straightenedLines、continuousSplits、ripplePoints、fitTolerancePx和fitBoundPx。fitBoundPx对应拟合输入轮廓，完整保守界限还要计入前处理和CAD采样，以rasterSmoothing.curveDistanceUpperBoundMm为准。SVG曲线和CAD点列来自同一拟合，点列按回执界限采样；源稿重建误差未知，仍须核对。校对可打开大窗编辑，保存图标导出当前稿。确认轮廓后窗口收为画布浮动入口，点击精确平面显示目标面高亮、异色轮廓与四边距离。输入上/左间距、拖动、缩放、旋转、居中后点勾雕刻。定位不重算；最终几何保持真实面、源轮廓与撤销事务。
 
 原生Agent约定：
 默认优先简化入口：readLogo成功后prepareOperation({context,op:"logo",face:当前面号或"top",params:{mode:"engrave",depthMm:实际深度,widthMm:实际宽度}})。唯一实体/已接受图案、refs、审核版次、machiningIntent和版本/hash由页面解析；prepared后按nextCall应用编号，needs_input按questions/answers续接。先读api.prepare-operation的三个完整案例；下面是底层高级调用说明，不必为简化入口重新拼参数。
