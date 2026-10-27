@@ -11,9 +11,9 @@ const fakeServer=({failOnce=new Set(),dropAfter=Infinity}={})=>{
     async complete(){const all=[...s.parts.entries()].sort((a,b)=>a[0]-b[0]).map(e=>e[1]);const total=all.reduce((n,a)=>n+a.length,0),out=new Uint8Array(total);let o=0;for(const a of all){out.set(a,o);o+=a.length;}
       assert.equal(await sha256Hex(out),s.meta.sha256);return {status:'agent_write_verified',size:total};}};return s;};
 const limits={...LIMITS.transport,chunkBytes:1024};
-test('transport limits are the decided values',()=>{const t=LIMITS.transport;assert.equal(t.maxArtifactBytes,100*1024*1024);assert.equal(t.maxInputBytes,100*1024*1024);assert.equal(t.maxResultBytes,6*1024*1024);assert.equal(t.commandTimeoutMs,90000);assert.equal(t.chunkBytes,4*1024*1024);assert.ok(Object.isFrozen(t));});
+test('transport limits are the decided values',()=>{const t=LIMITS.transport;assert.equal(t.maxArtifactBytes,200*1024*1024);assert.equal(t.maxInputBytes,200*1024*1024);assert.equal(t.maxResultBytes,12*1024*1024);assert.equal(t.commandTimeoutMs,90000);assert.equal(t.chunkBytes,4*1024*1024);assert.ok(Object.isFrozen(t));});
 test('plans 4 MiB chunks covering every byte',()=>{const c=planChunks(10*1024*1024+1);assert.equal(c.length,3);assert.equal(c.at(-1).length,2*1024*1024+1);});
-test('rejects above 100 MiB with a Chinese message, accepts exactly 100 MiB',()=>{assert.doesNotThrow(()=>assertArtifactSize(LIMITS.transport.maxArtifactBytes));assert.throws(()=>assertArtifactSize(LIMITS.transport.maxArtifactBytes+1),e=>e.code==='SIZE_LIMIT'&&/超过 100\.0 MB 上限/.test(e.message));});
+test('rejects above 200 MiB with a Chinese message, accepts exactly 200 MiB',()=>{assert.doesNotThrow(()=>assertArtifactSize(LIMITS.transport.maxArtifactBytes));assert.throws(()=>assertArtifactSize(LIMITS.transport.maxArtifactBytes+1),e=>e.code==='SIZE_LIMIT'&&/超过 200\.0 MB 上限/.test(e.message));});
 test('uploads all chunks with per-chunk and whole-file hashes, retrying transient failures',async()=>{const bytes=new Uint8Array(5000).map((_,i)=>i%251),s=fakeServer({failOnce:new Set([2])});const r=await uploadChunked({bytes,name:'a.stl',client:s,limits});assert.equal(r.chunkCount,5);assert.equal(r.descriptor.size,5000);assert.equal(s.parts.size,5);});
 test('resumes: chunks already on the server are not resent',async()=>{const bytes=new Uint8Array(4096).fill(7),s=fakeServer();s.parts.set(0,bytes.subarray(0,1024));s.parts.set(1,bytes.subarray(1024,2048));const r=await uploadChunked({bytes,name:'a.step',client:s,limits});assert.equal(s.puts,2);assert.equal(r.descriptor.size,4096);});
 test('after a dropped connection only missing chunks are resent',async()=>{const bytes=new Uint8Array(8192).fill(3),s=fakeServer({dropAfter:3});await uploadChunked({bytes,name:'a.step',client:s,limits:{...limits,chunkRetries:0,chunkConcurrency:1}});assert.ok(s.dropped);assert.equal(s.parts.size,8);assert.equal(s.puts,9);});
@@ -36,8 +36,8 @@ test('broker client maps to codexagent upload routes and surfaces Chinese 413 er
   await assert.rejects(c.complete('a'.repeat(32)),e=>e.code==='RESOURCE_LIMIT'&&e.status===413);
   assert.equal(calls[0][1],'https://h/x/api/webcad/sessions/s%201/artifacts/uploads');assert.equal(calls[1][0],'PUT');assert.match(calls[1][1],/chunks\/0\?commandId=c$/);assert.equal(calls[1][2],'e'.repeat(64));});
 
-test('existing per-format artifact budgets are kept; 100 MiB is only the default',async()=>{
+test('per-format artifact budgets are increased; 200 MiB is only the default',async()=>{
   const {artifactByteBudget}=await import('../src/transfer/chunked-upload.js');const M=1024*1024;
-  assert.equal(artifactByteBudget('a.step'),128*M);assert.equal(artifactByteBudget('a.STL'),128*M);
-  assert.equal(artifactByteBudget('p.webcad'),512*M);assert.equal(artifactByteBudget('d.dxf'),100*M);assert.equal(artifactByteBudget('v.png'),100*M);
+  assert.equal(artifactByteBudget('a.step'),256*M);assert.equal(artifactByteBudget('a.STL'),256*M);
+  assert.equal(artifactByteBudget('p.webcad'),1024*M);assert.equal(artifactByteBudget('d.dxf'),200*M);assert.equal(artifactByteBudget('v.png'),200*M);
 });

@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.60.7 · 操作目录 sha256:eb8c9529c5bd412ae01185ca761e7b9cbdda448f073e20fb401a6336d65a77f0
+API 1.60.8 · 操作目录 sha256:fe398ff5eeeef5d9f2678f06b4f8f174a1e96d7e613be1757869f0e5bf467f7c
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -316,7 +316,7 @@ API 1.60.7 · 操作目录 sha256:eb8c9529c5bd412ae01185ca761e7b9cbdda448f073e20
 - `awaitJob` · page-method · awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。
 - `connect` · page-method · connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.
 - `info` · page-method · info() 无参数。
-- `getState` · page-method · getState({include?,compact?,fields?,sinceRevision?}={}); 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:["appearance","colors","renderFinish"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。
+- `getState` · page-method · getState({include?,compact?,fields?,sinceRevision?,featureIds?,featureFields?,bodyIds?,bodyFields?}={}); featureIds/bodyIds 限定1..50个对象，featureFields/bodyFields指定字段路径（如 params.depthMm），只返回这些对象与字段，不带其他LOGO轮廓。原生Agent优先读取有效同步快照，缺失分组才按需读取；compact不会携带全量特征。 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:["appearance","colors","renderFinish"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。
 - `searchTools` · page-method · searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。
 - `getTools` · page-method · getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.
 - `getTool` · page-method · getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。

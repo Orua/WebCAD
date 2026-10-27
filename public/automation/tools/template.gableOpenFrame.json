@@ -209,7 +209,7 @@
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 104857600,
+    "maxBytes": 209715200,
     "preflightReserveBytes": 4096
   },
   "operationId": "quickModel",
@@ -668,5 +668,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5905d673d23b11c46703c71ccfe2606008c55e1ff7fb759c59d371102409783d"
+  "docsHash": "sha256:22bfecd8bf4f4988590d761434d0dc9eb221d6fdc35e9d2e3d43d80d8e789300"
 }

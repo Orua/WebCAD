@@ -8,7 +8,7 @@
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.60.7",
+  "version": "1.60.8",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -18,7 +18,7 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 104857600,
+    "maxBytes": 209715200,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -138,5 +138,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:efe8194c6c6533e0c96d368e027c4f46aa4e7c79a96304b976847a8413e0b651"
+  "docsHash": "sha256:690639a69f66b97d5437a30de8e521ee43671b6c4dfb8d333ebd67677df828ac"
 }

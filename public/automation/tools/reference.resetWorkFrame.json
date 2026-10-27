@@ -8,14 +8,14 @@
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.60.7",
+  "version": "1.60.8",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
   "inputContract": "execute({context,idempotencyKey,action:\"reference.resetWorkFrame\",args}); args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 104857600,
+    "maxBytes": 209715200,
     "preflightReserveBytes": 4096
   },
   "errorCodes": [
@@ -101,5 +101,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c0d8e5cd24f0a661154c11ae2b8e5dd73963b704726049e4da77da403afbe7e3"
+  "docsHash": "sha256:3ddc3d2efc8ec2d1dfd549bedd7372606e10bce311ad5c6e669c6fd6ed783f57"
 }

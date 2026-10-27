@@ -2,7 +2,7 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.60.7",
+  "version": "1.60.8",
   "contextPolicy": "revision",
   "inputSchema": {
     "type": "object",
@@ -594,7 +594,7 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 104857600,
+    "maxBytes": 209715200,
     "preflightReserveBytes": 4096
   },
   "additionalDocs": [
@@ -658,5 +658,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:12de5dfe11135dfb7836ae5db96c64d614c019aed31a10a7e36bb33cf9753895"
+  "docsHash": "sha256:7ff5641535a6bf26c6a0fd356eb6770caf2b97115e7b314af6f666d80a2b9ec1"
 }

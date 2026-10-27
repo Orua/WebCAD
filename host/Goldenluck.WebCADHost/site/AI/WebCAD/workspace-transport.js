@@ -5,29 +5,19 @@ export function historyUserText(value){
   const offset=text.indexOf(marker);
   return offset<0?text:text.slice(offset+marker.length);
 }
-// Cross-project conversation isolation (UP-01/06/34). A conversation stays bound
-// to the document it was attached for; the Agent rejects reuse on another
-// document and that ownership check is never relaxed here. When the page opens
-// another project, the panel forgets the previous selection and asks for a new
-// conversation instead of sending the old conversationId.
+// Conversations belong to users. CAD leases separately belong to page/document
+// instances; changing a document must not replace the user's conversation.
 export const PROJECT_SWITCH_NOTICE='已切换工程，已新建对话（画布保留）';
-export const FOREIGN_CONVERSATION_NOTICE='原对话不属于当前工程，已新建对话（画布保留）';
+export const FOREIGN_CONVERSATION_NOTICE='原对话不可用，已新建对话（画布保留）';
 export const PROJECT_REOPEN_NOTICE='工程已重新打开，已新建对话（画布保留）';
 export function documentKey(context){
   return context&&typeof context.documentId==='string'&&typeof context.documentInstanceId==='string'?context.documentId+'\n'+context.documentInstanceId:null;
 }
-// A remembered conversation is reused only for the exact document identity it
-// was attached for. An unknown current identity is treated as a switch (strict
-// isolation). reopened=true means the same documentId with a new instance.
+// Only an explicit New action changes a valid conversation selection.
 export function planConversation({desiredConversation=null,conversationDocument=null,context=null,explicit=false,startNew=false}={}){
   if(startNew)return {conversationId:null,newConversation:true,switched:false,reopened:false,explicit:false};
   if(!desiredConversation)return {conversationId:null,newConversation:false,switched:false,reopened:false,explicit:false};
   if(explicit)return {conversationId:desiredConversation,newConversation:false,switched:false,reopened:false,explicit:true};
-  const current=documentKey(context);
-  if(conversationDocument&&conversationDocument!==current){
-    const reopened=Boolean(current)&&conversationDocument.split('\n')[0]===current.split('\n')[0];
-    return {conversationId:null,newConversation:true,switched:true,reopened,explicit:false};
-  }
   return {conversationId:desiredConversation,newConversation:false,switched:false,reopened:false,explicit:false};
 }
 // Reconnect before a send only when both identities are known and differ;
@@ -40,7 +30,7 @@ export function documentChanged(pageContext,binding){
 // document". Only an implicitly remembered selection may be replaced by a new
 // conversation; an explicit history choice reports the refusal instead.
 export function isForeignConversationError(error){
-  return error?.code==='CONVERSATION_DOCUMENT_CHANGED'||(error?.code==='session_not_found'&&error?.status===404);
+  return error?.code==='session_not_found'&&error?.status===404;
 }
 export async function readGatewayJson(response) {
   const raw=await response.text();

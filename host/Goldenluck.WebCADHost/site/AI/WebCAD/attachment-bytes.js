@@ -24,7 +24,7 @@ export function createAttachmentBytesAPI({snapshot,accept,validate,FileType=File
   const binding=state=>({cadSessionId:state.cadSessionId,leaseEpoch:state.leaseEpoch,...state.context});
   const blocked=state=>!state.ready||state.active||state.busy||state.preview;
   const same=(a,b)=>['cadSessionId','leaseEpoch','sessionId','documentId','documentInstanceId','revision'].every(key=>a?.[key]===b?.[key]);
-  async function getState(){const state=await snapshot();return {status:'read',binding:binding(state),canAttach:!running&&!blocked(state),maxFiles:5,maxTotalBytes:536870912};}
+  async function getState(){const state=await snapshot();return {status:'read',binding:binding(state),canAttach:!running&&!blocked(state),maxFiles:5,maxTotalBytes:1073741824};}
   async function attach(input){
     if(running)fail('ATTACHMENT_BUSY','附件正在接收，请等待原接收完成。');
     if(!input||typeof input!=='object'||Object.keys(input).some(key=>!['name','mime','data','expectedSize','expectedSha256','binding'].includes(key)))fail('PARAM_SCHEMA_INVALID','请提供文件名、原始字节、大小、SHA256和当前binding。');

@@ -1,6 +1,7 @@
 import {PROTOCOL, JOB_METHODS, EXPORT_METHODS, editsDocument, assertIdentity, failure, validatePayload} from './protocol.js?v=command-lock-20261010';
 import {withErrorRecovery} from '../error-recovery.js';
 import {debugJournal,traceDebug} from '../debug-journal.js';
+import {LIMITS} from '../limits.js';
 
 /** Host capability is injected. No model-provided code, origins, URLs or disk paths. */
 export function createHostAdapter({api, session, report, artifact, onStateChange=()=>{}, now=()=>Date.now(), wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}) {
@@ -15,7 +16,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
   const endedTasks=new Set();
   const pending=entry=>!entry.result || entry.result.status==='unknown';
   const indexSteps=steps=>{const methods=new Map();const visit=items=>{for(const step of items||[]){if(step?.id&&step?.method)methods.set(step.id,step.method);visit(step?.args?.steps);}};visit(steps);return methods;};
-  const samePage=()=>assertIdentity(api.getState().context,binding);
+  const samePage=()=>assertIdentity(api.getState({compact:true,fields:['context']}).context,binding);
   samePage();
 
   function archiveFinished() {
@@ -89,10 +90,32 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
 
   async function sendResult(entry){
     if(entry.reported)return true;
+    if(entry.deliveryBlocked)return false;
     if(entry.resultReportPromise)return entry.resultReportPromise;
     entry.resultReportPromise=(async()=>{
-      try{await report('result',entry.command,{result:entry.result});entry.reported=true;entry.reportError=null;log('result-delivered',{...identity(entry.command),status:entry.result?.status});return true;}
-      catch(error){entry.reportError={code:error.code||'RESULT_REPORT_FAILED',message:error.message};log('result-delivery-failed',{...identity(entry.command),error},'error');return false;}
+      const deliveryFailure=error=>['RESOURCE_LIMIT','RESULT_TOO_LARGE'].includes(error?.code)||error?.status===413||error?.statusCode===413;
+      const smallReceipt=()=>({status:editsDocument(entry.command.payload)?'unknown':'failed',
+        ...(editsDocument(entry.command.payload)?{commitState:'unknown'}:{}),context:entry.result?.context,
+        originalStatus:entry.result?.status,originalCommitState:entry.result?.commitState,
+        error:{code:'RESULT_TOO_LARGE',message:'Result delivery exceeded the transport limit. Original execution is retained; query only required IDs/fields. Do not replay CAD.',retryable:false},
+        delivery:{status:'failed',originalResultRetained:true,maxResultBytes:LIMITS.transport.maxResultBytes}});
+      try{
+        if(new TextEncoder().encode(JSON.stringify(entry.result)).length>LIMITS.transport.maxResultBytes){entry.deliveryReceipt=smallReceipt();}
+        await report('result',entry.command,{result:entry.deliveryReceipt||entry.result});entry.reported=true;entry.reportError=null;log('result-delivered',{...identity(entry.command),status:entry.deliveryReceipt?.status||entry.result?.status});return true;
+      }
+      catch(error){
+        entry.reportError={code:error.code||'RESULT_REPORT_FAILED',message:error.message};log('result-delivery-failed',{...identity(entry.command),error},'error');
+        if(deliveryFailure(error)){
+          // Retry a small terminal notice once, never the oversized result again.
+          if(!entry.deliveryReceipt){
+            entry.deliveryReceipt=smallReceipt();
+            try{await report('result',entry.command,{result:entry.deliveryReceipt});entry.reported=true;return true;}
+            catch(noticeError){entry.reportError={code:noticeError.code||'RESULT_REPORT_FAILED',message:noticeError.message};}
+          }
+          entry.deliveryBlocked=true;
+        }
+        return false;
+      }
       finally{entry.resultReportPromise=null;if(endedTasks.has(entry.command.taskId)&&![...commands.values()].some(item=>item.command.taskId===entry.command.taskId&&pending(item)))activeTask=null;archiveFinished();onStateChange();}
     })();
     return entry.resultReportPromise;
@@ -101,7 +124,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
   async function monitor(entry) {
     let job=api.getJob({jobId:entry.jobId});
     while (job.status==='queued' || job.status==='running') {
-      if (now()>=entry.command.deadline*1000) return finish(entry,{status:'unknown',commitState:'unknown',error:{code:'JOB_TIMEOUT',message:'Inspect the original page job; do not replay'},pageJobId:entry.jobId,context:api.getState().context});
+      if (now()>=entry.command.deadline*1000) return finish(entry,{status:'unknown',commitState:'unknown',error:{code:'JOB_TIMEOUT',message:'Inspect the original page job; do not replay'},pageJobId:entry.jobId,context:api.getState({compact:true,fields:['context']}).context});
       if (!accepting && job.status==='queued') api.cancelJob({jobId:entry.jobId});
       // One bounded in-page long wait (50 ms local tick) instead of 250 ms polling.
       const budget=Math.floor(Math.max(0,Math.min(25000,entry.command.deadline*1000-now())));
@@ -110,7 +133,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
       else if(typeof api.waitFor==='function')await api.waitFor({jobId:entry.jobId,timeoutMs:Math.floor(Math.max(0,Math.min(25000,entry.command.deadline*1000-now())))});else await wait(250);
       job=api.getJob({jobId:entry.jobId});
     }
-    return finish(entry,job.result || {status:job.status==='cancelled'?'failed':'unknown',error:{code:job.status==='cancelled'?'JOB_CANCELLED':'JOB_RESULT_UNAVAILABLE'},context:api.getState().context});
+    return finish(entry,job.result || {status:job.status==='cancelled'?'failed':'unknown',error:{code:job.status==='cancelled'?'JOB_CANCELLED':'JOB_RESULT_UNAVAILABLE'},context:api.getState({compact:true,fields:['context']}).context});
   }
 
   async function execute(entry) {
@@ -145,10 +168,10 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
       // job handle rather than claiming that nothing committed or resubmitting.
       if (entry.submitted && !entry.result) {
         try { return await monitor(entry); } catch (_) { /* recover via retained entry */ }
-        if(!entry.result)return finish(entry,{status:'unknown',commitState:'unknown',error:{code:error.code||'JOB_RESULT_UNAVAILABLE',message:error.message},pageJobId:entry.jobId,context:api.getState().context});
+        if(!entry.result)return finish(entry,{status:'unknown',commitState:'unknown',error:{code:error.code||'JOB_RESULT_UNAVAILABLE',message:error.message},pageJobId:entry.jobId,context:api.getState({compact:true,fields:['context']}).context});
       }
       if (entry.result) throw error;
-      return finish(entry,{status:'failed',commitState:'not_committed',error:{code:error.code||'HOST_FAILED',message:error.message},context:api.getState().context});
+      return finish(entry,{status:'failed',commitState:'not_committed',error:{code:error.code||'HOST_FAILED',message:error.message},context:api.getState({compact:true,fields:['context']}).context});
     }
   }
 
@@ -196,8 +219,8 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
 
   return Object.freeze({receive:command=>traceDebug('agent','command-receive',{commandId:command?.commandId,taskId:command?.taskId,method:command?.payload?.method},()=>receive(command)),endTask,release(){log('adapter-released',{activeTask});accepting=false;endTask(activeTask);},
     reconcilePending,
-    async retryReports(){await reconcilePending();await Promise.all([...commands.values()].filter(entry=>entry.result&&!entry.reported).map(sendResult));archiveFinished();},
-    state(){return {accepting,activeTask,editing:accepting&&[...commands.values()].some(entry=>entry.editing),pending:[...commands.values()].filter(entry=>pending(entry)||!entry.reported).map(entry=>({commandId:entry.command.commandId,pageJobId:entry.jobId||null,deliveryState:entry.reportError?'retry_pending':entry.result?.status==='unknown'?'unknown':'pending',error:entry.reportError||null}))};},
-    replay:async commandId=>{const entry=commands.get(commandId);if(!entry?.result)throw failure('receipt_unavailable','Original result not known');await report('result',entry.command,{result:entry.result});return entry.result;}});
+    async retryReports(){await reconcilePending();await Promise.all([...commands.values()].filter(entry=>entry.result&&!entry.reported&&!entry.deliveryBlocked).map(sendResult));archiveFinished();},
+    state(){return {accepting,activeTask,editing:accepting&&[...commands.values()].some(entry=>entry.editing),pending:[...commands.values()].filter(entry=>pending(entry)||!entry.reported).map(entry=>({commandId:entry.command.commandId,pageJobId:entry.jobId||null,deliveryState:entry.deliveryBlocked?'blocked':entry.reportError?'retry_pending':entry.result?.status==='unknown'?'unknown':'pending',error:entry.reportError||null}))};},
+    replay:async commandId=>{const entry=commands.get(commandId);if(!entry?.result)throw failure('receipt_unavailable','Original result not known');await sendResult(entry);return entry.deliveryReceipt||entry.result;}});
 }
 

@@ -13,7 +13,7 @@ export function assertFeatureCapacity(features,additionalCount=0){
 export function serializeBoundedDocument(doc,{includeTimeline=true,reserveBytes=0}={}){
   assertFeatureCapacity(doc.features);
   const bytes=doc.version===4?encodeProjectV4(doc,{includeTimeline}):doc.version===3?encodeProjectV3(doc,{includeTimeline}):new TextEncoder().encode(JSON.stringify(includeTimeline?doc:{...doc,timeline:undefined}));
-  const maxBytes=doc.version===4?512*1024*1024:DOCUMENT_LIMITS.maxBytes;
+  const maxBytes=doc.version===4?1024*1024*1024:DOCUMENT_LIMITS.maxBytes;
   if(bytes.byteLength>maxBytes-reserveBytes)limit('document',`自包含工程超过 ${maxBytes/1024/1024} MiB 浏览器文件限额；请拆分工程。原工程保留。`);
   return bytes;
 }

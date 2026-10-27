@@ -11,7 +11,7 @@ export function preflightProjectV4(document,{includeTimeline=true,reserveBytes=0
  let size=jsonBytes.length+65536;const entries=2+formats.size+Object.keys(document.compiledArtifacts||{}).length;
  for(const bytes of Object.values(document.binaryAssets||{}))size+=bytes.length;
  for(const bytes of Object.values(document.compiledArtifacts||{})){if(!(bytes instanceof Uint8Array))throw meshError('ARTIFACT_CORRUPT','Typed BRep artifact bytes required.');if(bytes.length>PROJECT_V4_LIMITS.maxArtifactBytes)throw meshError('SIZE_LIMIT','Services BRep checkpoints retain their separate 20 MiB client capacity gate.');size+=bytes.length;}
- if(entries>PROJECT_V4_LIMITS.maxEntries||size>PROJECT_V4_LIMITS.maxBytes-reserveBytes)throw meshError('SIZE_LIMIT','Self-contained project exceeds the 512 MiB unpacked budget; current document is retained.');
+ if(entries>PROJECT_V4_LIMITS.maxEntries||size>PROJECT_V4_LIMITS.maxBytes-reserveBytes)throw meshError('SIZE_LIMIT','Self-contained project exceeds the 1024 MiB unpacked budget; current document is retained.');
  return {bytes:size,entries,formats,jsonBytes};
 }
 export function encodeProjectV4(document,options={}){

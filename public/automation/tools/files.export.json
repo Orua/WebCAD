@@ -7,7 +7,7 @@
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.60.7",
+  "version": "1.60.8",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -33,19 +33,19 @@
   "unknownFields": "rejected",
   "errorModel": "Direct page file scripts throw or reject with error.code. MCP callers follow mcpCall; invoke is not an Agent method. Page-script invoke({method:\"files.export\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
   "limits": {
-    "maxBytes": 104857600,
+    "maxBytes": 209715200,
     "maxResources": 32,
-    "maxTotalBytes": 536870912,
+    "maxTotalBytes": 1073741824,
     "ttlSeconds": 1800
   },
   "typedByteBudgets": {
-    "step": 134217728,
-    "stp": 134217728,
-    "brep": 134217728,
-    "brp": 134217728,
-    "stl": 134217728,
-    "mesh": 402653184,
-    "webcad": 536870912
+    "step": 268435456,
+    "stp": 268435456,
+    "brep": 268435456,
+    "brp": 268435456,
+    "stl": 268435456,
+    "mesh": 805306368,
+    "webcad": 1073741824
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -53,7 +53,7 @@
   ],
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 104857600,
+    "maxBytes": 209715200,
     "preflightReserveBytes": 4096
   },
   "caveats": [],
@@ -187,5 +187,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:6ba17324cb1fa4754f9d57b67cf045933d683e6d6a397c5b300f1929acef3629"
+  "docsHash": "sha256:0448671e1a763c125c5eeba3b1823223d642b5d2dc7175d8c664fd912346d7a7"
 }

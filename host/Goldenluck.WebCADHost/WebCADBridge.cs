@@ -57,7 +57,7 @@ namespace Goldenluck.WebCAD.Hosting
                     HttpRuntime.Cache.Insert("webcad-stream:" + token, new StreamTicket { UserId = host.User.UserID, SessionId = sessionId, AgentKey = host.Target.Key }, null, DateTime.UtcNow.AddSeconds(120), Cache.NoSlidingExpiration);
                     Write(context, 200, new { ticket = token }); return;
                 }
-                int jsonLimit = action == "result" ? 8 * 1024 * 1024 : 3 * 1024 * 1024;
+                int jsonLimit = action == "result" ? 16 * 1024 * 1024 : 3 * 1024 * 1024;
                 if (context.Request.ContentLength > jsonLimit) throw new HttpException(413, "JSON request exceeds its limit.");
                 JObject body;
                 using (var buffer = new MemoryStream())

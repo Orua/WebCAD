@@ -2,7 +2,7 @@
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.60.7",
+  "version": "1.60.8",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -215,5 +215,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:2fe78eb5930eae1c0170c1e201bf3ad86a6c126eef1820e5c3327bd6500bd718"
+  "docsHash": "sha256:844f32df2cf17d81fca17424c160b7eda5877ccd12d325487f057b32e444cc2e"
 }

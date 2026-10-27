@@ -6,7 +6,15 @@
     "contractImpact": "Automatic raster metadata version 7 retains straightenedLines and reports only rings that still require raw-pixel fallback after fitted-curve recovery; requests and manual behavior remain compatible.",
     "documentImpact": "Conversion remains a review candidate and does not commit or save the CAD document.",
     "cacheImpact": "Logo worker fingerprint changes; generated agent documentation and release knowledge must match page API 1.60.7.",
-    "requiredTests": ["Fit then post-fit straight recovery on alternating raster noise", "Smooth circle tangent continuity", "Sharp corners and source bounds", "Unsafe line recovery restores fitted cubic before raw-pixel fallback", "Prada, Saint Laurent and Valentino samples", "SVG/CAD curve sampling", "Manual raster compatibility"]
+    "requiredTests": [
+      "Fit then post-fit straight recovery on alternating raster noise",
+      "Smooth circle tangent continuity",
+      "Sharp corners and source bounds",
+      "Unsafe line recovery restores fitted cubic before raw-pixel fallback",
+      "Prada, Saint Laurent and Valentino samples",
+      "SVG/CAD curve sampling",
+      "Manual raster compatibility"
+    ]
   },
   "autoRasterStraight20261027": {
     "localImpact": "Existing raster review workflow and manual options remain unchanged; auto SVG previews retain straight strokes.",
@@ -15,7 +23,14 @@
     "contractImpact": "Automatic raster metadata reports v3 linearSegments and continuousSplits; existing requests and manual modes remain compatible.",
     "documentImpact": "Conversion remains a review candidate; it does not itself import, commit or save a CAD document.",
     "cacheImpact": "Changed worker fingerprint and generated knowledge snapshots require matching local release artifacts.",
-    "requiredTests": ["Sparse raster edge cannot bow between vertices", "Straight strokes and corner/topology preservation", "Existing Prada and Saint Laurent samples", "Prior Nike curved-edge regression", "SVG and CAD sample bounds", "Manual raster compatibility"]
+    "requiredTests": [
+      "Sparse raster edge cannot bow between vertices",
+      "Straight strokes and corner/topology preservation",
+      "Existing Prada and Saint Laurent samples",
+      "Prior Nike curved-edge regression",
+      "SVG and CAD sample bounds",
+      "Manual raster compatibility"
+    ]
   },
   "autoRasterWave20261027": {
     "localImpact": "The existing automatic raster workflow and manual controls are unchanged; previews use smoother SVG curves.",
@@ -24,7 +39,13 @@
     "contractImpact": "Automatic raster metadata identifies v2 and adds cubic segment, ripple and fitted-bound measurements; existing request options and manual semantics remain compatible.",
     "documentImpact": "Conversion does not mutate the CAD document; actual import and save remain separate acceptance steps.",
     "cacheImpact": "Worker fingerprint changes; static page knowledge and client configuration are unchanged.",
-    "requiredTests": ["Pixel-ripple attenuation and true sharp corners", "Hole and small-island topology", "Legacy manual conversion", "SVG curve and CAD sampling bounds", "Existing Nike source local Services comparison"]
+    "requiredTests": [
+      "Pixel-ripple attenuation and true sharp corners",
+      "Hole and small-island topology",
+      "Legacy manual conversion",
+      "SVG curve and CAD sampling bounds",
+      "Existing Nike source local Services comparison"
+    ]
   },
   "autoRasterLogo20261027": {
     "localImpact": "Bitmap LOGO wizard defaults to automatic recognition; explicit manual raster fields remain available through the same wizard and page API.",
@@ -33,7 +54,14 @@
     "contractImpact": "Page API 1.60.1 supports raster.mode auto/manual; omitted raster selects auto for bitmaps, legacy supplied objects stay manual. PDF fallback remains manual by default.",
     "documentImpact": "Source image and original contours stay available for review; no CAD document is mutated by conversion.",
     "cacheImpact": "Regenerate page cards, routing, knowledge manifests and the complete agent bundle; service job fingerprint includes the worker build and request options.",
-    "requiredTests": ["Automatic threshold, inverse and alpha handling", "Sharp corners, holes and tiny islands", "Explicit manual raster compatibility", "Real local Services comparison for Nike, Coca-Cola and Starbucks", "SVG curves and sampled CAD contours", "Local frontend contract and knowledge hashes"]
+    "requiredTests": [
+      "Automatic threshold, inverse and alpha handling",
+      "Sharp corners, holes and tiny islands",
+      "Explicit manual raster compatibility",
+      "Real local Services comparison for Nike, Coca-Cola and Starbucks",
+      "SVG curves and sampled CAD contours",
+      "Local frontend contract and knowledge hashes"
+    ]
   },
   "workbenchConversation20261027": {
     "localImpact": "Offer explicit recovery before restoring a same-tab interrupted project. Workbench new conversation stays available and invalidates old connection/send callbacks. Voice never blocks sending and drops expired or canceled results. Normal project saves show a short status without a file-receipt dialog; internal write verification and dirty-state revision checks remain.",
@@ -42,7 +70,13 @@
     "contractImpact": "No page API schema changes. Chat ownership is independent of document identity; tool leases retain owner/document/revision checks.",
     "documentImpact": "No automatic restore. History selection preserves the canvas. Starting a conversation revokes the old tool lease, retains uncertain receipts and requests cancellation without waiting for the old task.",
     "cacheImpact": "Host voice/guidance/workspace script versions change. Generate the normal matching knowledge release with the frontend build.",
-    "requiredTests": ["History continuation across documents and foreign-owner rejection", "Mismatched send snapshot permits chat while CAD authority stays blocked", "New conversation during stalled connect/send", "Voice send cancellation and late result/deadline exclusion", "One targeted localhost browser check"]
+    "requiredTests": [
+      "History continuation across documents and foreign-owner rejection",
+      "Mismatched send snapshot permits chat while CAD authority stays blocked",
+      "New conversation during stalled connect/send",
+      "Voice send cancellation and late result/deadline exclusion",
+      "One targeted localhost browser check"
+    ]
   },
   "preparedOperations20261026": {
     "localImpact": "Add read-only prepareOperation and applyPreparedOperation. Technical fields and uniquely verified references are resolved in the page; missing design parameters return structured needs_input questions and resumable plan IDs. Host send repairs STEP attachment registration skipped when selection preceded knowledge readiness; registration/hash/binding must succeed before creating a model task.",
@@ -3783,15 +3817,34 @@
       "Relief immutable original data and holes, curved point, source conflict, ordinary exactly-once apply",
       "Luna localhost real relief and non-modeling preflight with original permissions/readback/save"
     ]
-  }
-,
+  },
   "reliefUsability20261027": {
-    "localImpact":"Compact relief import and image design forms, explicit original-image transition, live height thumbnail/enlarged view and shared LOGO canvas placement with margins, drag, scale, rotate and alignment; stale preview blocked on edits.",
-    "servicesImpact":"No DLL, Native or protocol change. Short references materialize in the page before the existing deterministic executor route; retain original job/receipt and page installation gates.",
-    "logoImpact":"Reuse LogoPlacementGuide via a separate relief adapter; no artwork conversion or LOGO behavior change.",
-    "contractImpact":"API1.60 reliefWizard reads/updates the same UI draft, attaches immutable reliefId, and explicitly creates a persisted image design from the original resource through the existing Services source converter; idempotent design request and edit scope gates. readRelief includeData:false and direct execute reliefId avoid model array transport. Regenerate full finite knowledge.",
-    "documentImpact":"Existing relief recipe and source geometry unchanged; guide is display-only, preview/apply/undo share CommandService.",
-    "cacheImpact":"Full knowledge hashes refreshed; relief source cache remains four document-instance scoped immutable entries.",
-    "requiredTests":["relief reference materialization and compact response","relief placement mapping and source retention","targeted page/Agent contracts and knowledge hashes","one localhost import/place/preview/apply check with actual executor receipt"]
+    "localImpact": "Compact relief import and image design forms, explicit original-image transition, live height thumbnail/enlarged view and shared LOGO canvas placement with margins, drag, scale, rotate and alignment; stale preview blocked on edits.",
+    "servicesImpact": "No DLL, Native or protocol change. Short references materialize in the page before the existing deterministic executor route; retain original job/receipt and page installation gates.",
+    "logoImpact": "Reuse LogoPlacementGuide via a separate relief adapter; no artwork conversion or LOGO behavior change.",
+    "contractImpact": "API1.60 reliefWizard reads/updates the same UI draft, attaches immutable reliefId, and explicitly creates a persisted image design from the original resource through the existing Services source converter; idempotent design request and edit scope gates. readRelief includeData:false and direct execute reliefId avoid model array transport. Regenerate full finite knowledge.",
+    "documentImpact": "Existing relief recipe and source geometry unchanged; guide is display-only, preview/apply/undo share CommandService.",
+    "cacheImpact": "Full knowledge hashes refreshed; relief source cache remains four document-instance scoped immutable entries.",
+    "requiredTests": [
+      "relief reference materialization and compact response",
+      "relief placement mapping and source retention",
+      "targeted page/Agent contracts and knowledge hashes",
+      "one localhost import/place/preview/apply check with actual executor receipt"
+    ]
+  },
+  "nativeStateProjection20261027": {
+    "localImpact": "Compact reads omit full geometry; feature/body ID and field paths provide bounded parameter reads.",
+    "servicesImpact": "none: no Services compute/protocol change",
+    "logoImpact": "LOGO source/geometry unchanged; parameter queries no longer transfer unrelated contours.",
+    "contractImpact": "Page 1.60.8 publishes projections and larger file/result byte capacities; native MCP reuses proven snapshot coverage and reads only missing groups.",
+    "documentImpact": "read-only state; never mutate or replay CAD for delivery repair",
+    "cacheImpact": "regenerate all knowledge bundles; synchronized snapshot identity and stateSeq remain mandatory",
+    "requiredTests": [
+      "snapshot hit/miss and revision mismatch",
+      "targeted feature parameters",
+      "terminal oversize delivery",
+      "typed file byte budgets",
+      "local published page read"
+    ]
   }
 }

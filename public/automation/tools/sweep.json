@@ -616,7 +616,7 @@
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
-    "maxBytes": 104857600,
+    "maxBytes": 209715200,
     "preflightReserveBytes": 4096
   },
   "placementPolicy": {
@@ -889,5 +889,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:61a688a2f86573f936176e264f78c89a89ce1fa70df4b739346c320cdbb73656"
+  "docsHash": "sha256:f52a78b56c75c5396f7fe9175e7fc46e1c58667311eed8bffe7da92c3798e1c3"
 }
