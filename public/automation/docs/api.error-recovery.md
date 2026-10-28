@@ -309,9 +309,9 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 ### reconcile
 
-原任务的执行或提交结果尚未确认。
+原任务的执行或提交结果尚未确认（超时/断线时请读 error.message 中的操作名、请求/幂等键、elapsedMs/timeoutMs、请求体量级）。
 
-按原 jobId、请求键或批次标识查询状态并与当前工程对账；确认前不要重放、换键或另起计算。
+先 getServicesRequest（或 getServicesJob/getJob）按原幂等键/jobId 查询并对账；确认前不要重放、换键或另起计算。勿盲目重算。
 
 代码：`HOST_INTERRUPTED`、`HOST_TIMEOUT`、`JOB_NOT_FOUND`、`JOB_RESULT_UNAVAILABLE`、`JOB_TIMEOUT`、`OBSERVATION_CANCELLED`、`PREVIOUS_ATTEMPT_UNKNOWN`、`receipt_unavailable`、`RECOVERY_RESULT_UNRESOLVED`、`REQUEST_NOT_FOUND`、`RESULT_NOT_READY`、`RESULT_UNKNOWN`、`SERVICE_STOPPING`、`SERVICES_CONNECTION_UNKNOWN`、`TIMEOUT`
 

@@ -28,12 +28,14 @@ export function brepExecutionSummary(routing,{elapsedMs,done=false}={}){
  if(!done)lines.push(`阶段：${w?`Services 作业 ${w.jobId} 运行中（${Math.round((w.elapsedMs??0)/1000)} s，等待结果）`:d?.executor==='remote'?'Services 拟合/裁剪中':d?'浏览器计算中':'路由判定中'}${Number.isFinite(elapsedMs)?`，已用 ${(elapsedMs/1000).toFixed(1)} s`:''}`);
  if(done&&rd&&d?.executor==='remote'){const f=v=>Number.isFinite(v)?v.toFixed(4):'—';const over=Number.isFinite(rd.maxErrorMm)&&Number.isFinite(rd.machiningPrecisionMm)&&rd.maxErrorMm>rd.machiningPrecisionMm+1e-9;lines.push(`最终控制网：${rd.controlNet?.[0]??'—'}×${rd.controlNet?.[1]??'—'}${rd.qualityCapacityRetry?`（容量重试 ${rd.qualityCapacityRetry.fromMaxControlSide}→${rd.qualityCapacityRetry.toMaxControlSide}）`:''}；拟合误差 max ${f(rd.maxErrorMm)} mm，RMS ${f(rd.rmsErrorMm)} mm${rd.jobId?`；作业 ${rd.jobId}`:''}${over?'；超过目标精度，可应用后按效果决定是否保留':''}`);}
  else if(done&&d?.executor==='local')lines.push('最终控制网：使用“拟合”中已有的浏览器控制网（见准备信息）');
+ if(done&&Number.isFinite(rd?.independentMaxMm))lines.push(`独立采样最大偏差 ${rd.independentMaxMm.toFixed(4)} mm（采样值，非制造公差）`);
+ if(done&&rd&&d?.executor==='remote')lines.push('当前是可应用、可撤销的候选。提高精度：展开高级配置，提高最大控制网后重新预览；应用后也可用浮雕精修。');
  if(done&&Number.isFinite(elapsedMs))lines.push(`总用时 ${(elapsedMs/1000).toFixed(1)} s`);
  if(done&&rd?.volumeReview?.consistent===false)lines.push(`⚠ 近似候选（体积未验证）${Number.isFinite(rd.volumeReview.relativeError)?` 体积差 ${(rd.volumeReview.relativeError*100).toFixed(2)}%`:''}：可按预览效果应用、调整或撤销。`);
  return lines.join('\n');
 }
 
-export function createReliefBrepPanel({element,button,request,isBusy,setBusy,getFitBaseline,runPreview,onPlacement,getFootprint=()=>null,ensureSaved=async()=>true,ensureFit=async()=>true,draftGate=()=>({saved:true,reason:''})}){
+export function createReliefBrepPanel({element,button,request,isBusy,setBusy,getFitBaseline,runPreview,onPlacement,onChooseFace=async()=>{},onProgress=()=>{},getFootprint=()=>null,ensureSaved=async()=>true,ensureFit=async()=>true,draftGate=()=>({saved:true,reason:''})}){
  // Preview routes: the host's UI path (fromUI) when provided, so the open design dialog is not an "active task" blocker.
  const route=async(action,args)=>{if(runPreview)return runPreview(action,args);return api().execute({context:api().getState().requestContext,idempotencyKey:crypto.randomUUID(),action,args});};
  const panel=element('details',{});panel.open=true;panel.style.cssText='margin-top:12px;border:1px solid var(--border);padding:8px';
@@ -71,7 +73,7 @@ export function createReliefBrepPanel({element,button,request,isBusy,setBusy,get
   stopGuide();
   const gate=draftGate();if(!gate.saved){info.textContent=gate.reason||'请先保存草稿到工程，再读取选面。';sync();return;}
   prepared=null;const picked=selectedPlanarTarget(api().getState({include:['selection']}).selection);
-  if(picked.error){target=support=null;info.textContent=picked.error;sync();return;}
+  if(picked.error){target=support=null;info.textContent=picked.error;sync();await onChooseFace();return;}
   target=picked.target;
   try{const r=await call({target});support=r.support;holeSel.replaceChildren(...(support?.circularEdges??[]).map(e=>element('option',{value:String(e.edgeIndex)},`边 ${e.edgeIndex}：R${+e.radiusMm.toFixed(3)} 中心 [${e.centerMm.map(v=>+v.toFixed(3)).join(', ')}]`)));info.textContent=support?.planar?`已读取：实体 ${target.bodyId} 面 ${target.faceId}，面心 [${support.centerMm.map(v=>+v.toFixed(4)).join(', ')}]，法向 [${support.normal.map(v=>+v.toFixed(4)).join(', ')}]。请明确填写或确认图案中心与X方向。${support.circularEdges?.length?`面上有 ${support.circularEdges.length} 条圆形边；带孔面的面心会偏离孔/圆心，可用“对齐到圆孔/圆边中心”。`:''}`:'所选面不是平面，不能作为拟合浮雕支撑面。';}
   catch(error){support=null;info.textContent=humanError(error);}
@@ -97,10 +99,10 @@ export function createReliefBrepPanel({element,button,request,isBusy,setBusy,get
   if(!prepared)return;stopGuide();setBusy(true);sync();info.textContent='正在计算精确浮雕预览…';
   const t0=performance.now(),routing=()=>{try{return api().getServicesRouting?.()??null;}catch{return null;}};
   // Poll the routing snapshot so the panel shows which side is executing and the current stage.
-  const timer=setInterval(()=>{info.textContent='正在计算精确浮雕预览…\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0});},1000);
+  const timer=setInterval(()=>{onProgress(Math.round((performance.now()-t0)/1000));info.textContent='正在计算精确浮雕预览…\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0});},1000);
   try{const r=await route('preview.start',prepared.previewArgs);
    if(r.status!=='previewing')throw Object.assign(new Error(r.error?.message||'预览未生成'),{code:r.error?.code});preview=r.preview??{};info.textContent='浮雕预览已生成。可以应用并保存，效果不满意可撤销。偏差与体积估算供参考，可在高级配置调整细节精度。\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0,done:true});}
-  catch(error){preview=null;info.textContent=humanError(error)+'\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0,done:true});}finally{clearInterval(timer);setBusy(false);sync();}
+  catch(error){preview=null;info.textContent=humanError(error)+'\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0,done:true});}finally{clearInterval(timer);onProgress(null);setBusy(false);sync();}
  }
  const identity=()=>preview?.previewId?{previewId:preview.previewId,expectedGeneration:preview.generation}:{};
  async function finish(action){

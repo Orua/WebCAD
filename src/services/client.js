@@ -3,38 +3,61 @@ import {binaryHash} from '../contracts/operation-schema.js';
 import {debugJournal,traceDebug} from '../debug-journal.js';
 export async function sha256(bytes){return binaryHash(bytes instanceof Uint8Array?bytes:new Uint8Array(bytes)).slice(7);}
 
-/** Phase-specific Services HTTP timeouts (ms). Upload/result scale with payload size; poll stays ~30s. */
+/** Body-size class for agent-readable timeout diagnostics (stable labels). */
+export function servicesBodySizeClass(bytes=0){
+ const n=Math.max(0,Number(bytes)||0);
+ if(n<=0)return 'empty';
+ if(n<64*1024)return 'small';
+ if(n<1024*1024)return 'medium';
+ if(n<5*1024*1024)return 'large';
+ return 'xlarge';
+}
+
+/** Agent-readable Chinese message for Services timeout/disconnect (stable code SERVICES_CONNECTION_UNKNOWN). */
+export function servicesConnectionTimeoutMessage({op,elapsedMs,timeoutMs,bytes=0,idempotencyKey}={}){
+ const sizeClass=servicesBodySizeClass(bytes),body=Math.max(0,Number(bytes)||0);
+ // Prefer route labels without a leading "/" so businessReason keeps the Chinese guidance.
+ const label=String(op||'unknown').replace(/^\/+/, '');
+ const key=idempotencyKey?`，请求/幂等键 ${idempotencyKey}`:'';
+ return `SERVICES_CONNECTION_UNKNOWN：后台计算超时或断线，操作 ${label}，已用 ${Math.round(Number(elapsedMs)||0)}ms / 限时 ${Math.round(Number(timeoutMs)||0)}ms，请求体 ${sizeClass}（${body}B）${key}。先 getServicesRequest 查询，勿盲目重算。`;
+}
+
+/** Phase-specific Services HTTP timeouts (ms). Upload/result/submit scale with payload; submit floor matches serverWaitMs (180s). */
 export function servicesRequestTimeoutMs(phase,{bytes=0}={}){
  const n=Math.max(0,Number(bytes)||0);
  if(phase==='upload')return Math.max(120000,Math.min(600000,120000+Math.ceil(n/1024)*25));
  if(phase==='result'||phase==='artifact')return Math.max(120000,Math.min(600000,120000+Math.ceil(n/1024)*15));
- if(phase==='submit')return 30000;
- if(phase==='poll'||phase==='cancel'||phase==='capabilities'||phase==='recover')return 30000;
- return 30000;
+ // Live 2026-10-28: ~3MB POST /v1/compute/jobs aborted at client 30000 while upload already scaled (~209s).
+ if(phase==='submit')return Math.max(180000,Math.min(600000,180000+Math.ceil(n/1024)*25));
+ // Capabilities often 15–19s on goldenfu.cn; give headroom. Poll/cancel/recover aligned to 60s.
+ if(phase==='capabilities'||phase==='poll'||phase==='cancel'||phase==='recover')return 60000;
+ return 60000;
 }
 
 export function createServicesClient({config,credential,fetchImpl=globalThis.fetch,now=Date.now,delay=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){
  const read=()=>config?normalizeServicesConfig(config):getServicesConfig();
  let defaultWaitHandler=null;
- async function sendRequest(route,{method='GET',body,headers={},binary=false,timeoutMs}={}){
+ async function sendRequest(route,{method='GET',body,headers={},binary=false,timeoutMs,idempotencyKey}={}){
   const settings=read();if(!settings.enabled||!settings.url)throw serviceError('CAPABILITY_UNAVAILABLE','请先连接后台计算');
   let existing='';if(credential===undefined){const saved=getServicesConfig();if(settings.url===saved.url)existing=getServicesCredential();}
   const auth=credential??existing,siteSession=settings.authMode==='siteSession';if(!auth&&!siteSession)throw serviceError('SERVICES_AUTH_REQUIRED','请在“计算设置”连接后台计算');
   if(!/^\/v1\/[a-zA-Z0-9/_-]+$/.test(route))throw serviceError('PARAM_SCHEMA_INVALID','Services 路由无效');
   const url=new URL(settings.url);url.searchParams.set('route',route);let response;
-  const limit=Number.isFinite(timeoutMs)&&timeoutMs>0?timeoutMs:30000;
-  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),limit);
-  try{response=await fetchImpl(url.href,{method,body,headers:{...headers,...(siteSession?{'X-WebCAD-Compute':'1'}:{Authorization:`Bearer ${auth}`})},redirect:'error',credentials:'omit',cache:'no-store',signal:controller.signal});}catch{clearTimeout(timer);throw serviceError('SERVICES_CONNECTION_UNKNOWN','后台计算连接中断或请求超时；请查询原任务后再操作',{observation:'unknown'});}
+  const bodyBytes=body?.byteLength??(typeof body==='string'?new TextEncoder().encode(body).length:body?.length??0);
+  const limit=Number.isFinite(timeoutMs)&&timeoutMs>0?timeoutMs:60000;
+  const began=now(),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),limit);
+  try{response=await fetchImpl(url.href,{method,body,headers:{...headers,...(siteSession?{'X-WebCAD-Compute':'1'}:{Authorization:`Bearer ${auth}`})},redirect:'error',credentials:'omit',cache:'no-store',signal:controller.signal});}catch{clearTimeout(timer);const elapsedMs=Math.max(0,now()-began);throw serviceError('SERVICES_CONNECTION_UNKNOWN',servicesConnectionTimeoutMessage({op:route,elapsedMs,timeoutMs:limit,bytes:bodyBytes,idempotencyKey}),{observation:'unknown',op:route,elapsedMs,timeoutMs:limit,bodyBytes,bodySizeClass:servicesBodySizeClass(bodyBytes),...(idempotencyKey?{idempotencyKey}:{})});}
   try{
   if(!response.ok){let error;try{error=await response.json();}catch{}const fallback=response.status===404?'后台计算接口未找到，请核对当前计算地址':response.status===401?(siteSession?'同域计算版本尚未就绪，请核对 Services 发布':'计算端专用授权无效，请检查设置'):`后台计算请求失败（HTTP ${response.status}）`;throw serviceError(error?.code??'SERVICES_REQUEST_FAILED',error?.message??fallback,{httpStatus:response.status,supportBinding:error?.supportBinding,stage:error?.stage,diagnosticsRef:error?.diagnosticsRef,commitState:error?.commitState??error?.commit,recoveryAction:error?.recoveryAction});}
   return binary?new Uint8Array(await response.arrayBuffer()):await response.json();
   }finally{clearTimeout(timer);}
  }
  async function request(route,options={}){
+  const bytes=options.body?.byteLength??(typeof options.body==='string'?options.body.length:options.body?.length??0);
   if(options.method===undefined&&/^\/v1\/jobs\/[^/]+$/.test(route)){
    try{return await sendRequest(route,options);}catch(error){debugJournal.record('services','poll-error',{route,error},'error');throw error;}
   }
-  return traceDebug('services',route,{method:options.method||'GET',timeoutMs:options.timeoutMs,bytes:options.body?.byteLength??options.body?.length??0},()=>sendRequest(route,options));
+  return traceDebug('services',route,{method:options.method||'GET',timeoutMs:options.timeoutMs,bytes},()=>sendRequest(route,options));
  }
  async function capabilities(){const value=await request('/v1/capabilities',{timeoutMs:servicesRequestTimeoutMs('capabilities')});if(value.protocolVersion!=='1.0'||!value.supportedClientProtocolRange?.includes('1.0'))throw serviceError('SERVICES_PROTOCOL_MISMATCH','Services 协议版本不兼容');return value;}
  async function handshake(){
@@ -44,7 +67,7 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
   return {status:'connected',protocolVersion:value.protocolVersion,gatewayBuildId:value.gatewayBuildId,elapsedMs:Math.max(0,now()-started)};
  }
  async function upload(file,{kind='logo'}={}){if(!['logo','brep','mesh','raster'].includes(kind)||file.size<1||file.size>(kind==='mesh'?128:20)*1024*1024)throw serviceError('SIZE_LIMIT','源资产超过当前 Services 的 20 MiB 输入上限');const bytes=new Uint8Array(await file.arrayBuffer()),hash=await sha256(bytes),asset=await request('/v1/assets',{method:'POST',body:bytes,headers:{'Content-Type':'application/octet-stream','X-File-Name':encodeURIComponent(file.name),'X-Asset-Kind':kind},timeoutMs:servicesRequestTimeoutMs('upload',{bytes:bytes.length})});if(asset.sha256!==hash||asset.bytes!==bytes.length)throw serviceError('ARTIFACT_CORRUPT','上传源文件哈希不一致');return asset;}
- async function submit(kind,payload,idempotencyKey){if(!['logo/inspect','logo/convert','compute/jobs'].includes(kind)||!idempotencyKey)throw serviceError('PARAM_SCHEMA_INVALID','请使用明确任务与幂等键');try{return await request(`/v1/${kind}`,{method:'POST',body:JSON.stringify(payload),headers:{'Content-Type':'application/json','Idempotency-Key':idempotencyKey},timeoutMs:servicesRequestTimeoutMs('submit')});}catch(error){error.idempotencyKey=idempotencyKey;throw error;}}
+ async function submit(kind,payload,idempotencyKey){if(!['logo/inspect','logo/convert','compute/jobs'].includes(kind)||!idempotencyKey)throw serviceError('PARAM_SCHEMA_INVALID','请使用明确任务与幂等键');const body=JSON.stringify(payload);try{return await request(`/v1/${kind}`,{method:'POST',body,headers:{'Content-Type':'application/json','Idempotency-Key':idempotencyKey},timeoutMs:servicesRequestTimeoutMs('submit',{bytes:body.length}),idempotencyKey});}catch(error){error.idempotencyKey=idempotencyKey;if(error.code==='SERVICES_CONNECTION_UNKNOWN'&&!String(error.message||'').includes('getServicesRequest'))error.message=servicesConnectionTimeoutMessage({op:`v1/${kind}`,elapsedMs:error.elapsedMs,timeoutMs:error.timeoutMs,bytes:error.bodyBytes??body.length,idempotencyKey});throw error;}}
  const cancelJob=jobId=>request("/v1/jobs/"+jobId+"/cancel",{method:"POST",timeoutMs:servicesRequestTimeoutMs('cancel')});
  const getJob=jobId=>request(`/v1/jobs/${jobId}`,{timeoutMs:servicesRequestTimeoutMs('poll')});
  async function durableGetJob(jobId,{retries=6}={}){

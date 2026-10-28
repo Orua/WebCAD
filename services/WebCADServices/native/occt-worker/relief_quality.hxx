@@ -185,17 +185,22 @@ inline Fit fitQuality(const json& field,const json& domainJson,double baselineMm
  const double envelope=o.contains("controlMaxMm")?o.at("controlMaxMm").get<double>():src.depthMm;if(!(envelope>0&&envelope<=20))fail("FIT_INPUT_INVALID","Control envelope must remain <=20 mm");
  const double upper=baselineMm+std::max(envelope,src.depthMm);
  // Spacing ladder: coarse -> fine; stop at the first spacing whose p99 deviation from the precision-filtered
- // target meets the stop rule; the ladder starts at 2x finest (at most 3 rungs) to bound time. The finest rung is bounded by capacity and source pixels.
+ // target meets the stop rule. Cheaper-first: ladder starts at up to 4× finest (was 2×) so early rungs
+ // are sparse; early rungs also use a reduced iteration budget. No hard quality gate — candidate policy
+ // keeps usable output when precision is not fully met. Finest rung still bounded by capacity/source pixels.
  const double srcPitch=std::max(W/src.columns,H/src.rows),finest=std::max({std::max(W,H)/(maxSide-3),.5*srcPitch,p});
- std::vector<double> ladder;for(double s=std::max(finest,std::min(std::max(W,H)/128,2*finest));s>finest*1.0001;s/=std::sqrt(2.0))ladder.push_back(s);ladder.push_back(finest);
+ std::vector<double> ladder;for(double s=std::max(finest,std::min(std::max(W,H)/64,4*finest));s>finest*1.0001;s/=std::sqrt(2.0))ladder.push_back(s);ladder.push_back(finest);
  Work work{0,std::min(4e12,o.value("maxWork",4e12))};json tried=json::array();Solved best;bool have=false;Target bestT;
  // quality mode owns its solver tolerance (legacy fit.toleranceMm targets the 129-control fit)
  const double tol=std::max(1e-6,p*1e-2);const int maxIter=std::min(20000,o.value("maxIterations",2000));
  // One resolution-independent target (built at the finest admissible spacing); every rung is judged against it.
  const double t0=ms();bestT=buildTarget(src,d,W,H,baselineMm,upper,p,finest);const double targetMs=ms()-t0;
  for(size_t li=0;li<ladder.size();li++){const double s=ladder[li];const int nx=std::max(4,int(std::lround(W/s))+3),ny=std::max(4,int(std::lround(H/s))+3);if(nx>maxSide||ny>maxSide)continue;
-  const double t1=ms();Solved sv=solve(bestT,d,nx,ny,sign,baselineMm,envelope,p,tol,maxIter,work);const double t2=ms();
-  tried.push_back({{"controlSpacingMm",s},{"controls",{nx,ny}},{"trainP99Mm",sv.trainP99},{"trainMaxMm",sv.trainMax},{"trainRmsMm",sv.trainRms},{"fitMs",t2-t1},{"cgIterations",sv.fit.report.value("cgIterations",0)},{"projectedIterations",sv.fit.report.value("projectedIterations",0)}});
+  const bool last=li+1>=ladder.size();
+  // Early rungs: cheaper iteration budget; final rung keeps full maxIter.
+  const int passIter=last?maxIter:std::min(maxIter,std::max(200,maxIter/4));
+  const double t1=ms();Solved sv=solve(bestT,d,nx,ny,sign,baselineMm,envelope,p,tol,passIter,work);const double t2=ms();
+  tried.push_back({{"controlSpacingMm",s},{"controls",{nx,ny}},{"trainP99Mm",sv.trainP99},{"trainMaxMm",sv.trainMax},{"trainRmsMm",sv.trainRms},{"fitMs",t2-t1},{"passIterations",passIter},{"cgIterations",sv.fit.report.value("cgIterations",0)},{"projectedIterations",sv.fit.report.value("projectedIterations",0)}});
   best=std::move(sv);have=true;if(best.trainP99<=.5*p&&best.trainMax<=p)break;
   // far from the stop rule (max > 2p): one sqrt2 step cannot close it, go straight to the finest rung.
   if(best.trainMax>2*p&&li+2<ladder.size())li=ladder.size()-2;}

@@ -119,8 +119,8 @@ int main(int argc,char** argv) {
      const auto designed=[&]{namespace rd=webcad::relief_design;json qp=rd::quality::withQuality(params);const double bv=before.at("volumeMm3").get<double>();auto onStage=[&](const char* name){stage=name;progress();};
       try{return rd::build(input,qp,bv,onStage);}catch(const rd::Failure& e){
        const bool q=qp.contains("fit")&&qp["fit"].contains("quality");const int side=q?qp["fit"]["quality"].value("maxControlSide",1025):0;
-       if(!q||side<=513||(e.code!="RELIEF_DESIGN_NO_CHANGE"&&e.code!="RELIEF_QUALITY_CHECK_FAILED"))throw;
-       rd::Failure last=e;for(int next:{769,641,513}){if(next>=side||next<16)continue;
+       if(!q||side<=385||(e.code!="RELIEF_DESIGN_NO_CHANGE"&&e.code!="RELIEF_QUALITY_CHECK_FAILED"))throw;
+       rd::Failure last=e;for(int next:{769,641,513,385}){if(next>=side||next<16)continue;
         try{qp["fit"]["quality"]["maxControlSide"]=next;auto r=rd::build(input,qp,bv,onStage);r.report["qualityCapacityRetry"]={{"fromMaxControlSide",side},{"toMaxControlSide",next},{"reason",e.code}};return r;}
         catch(const rd::Failure& e2){last=e2;if(e2.code!="RELIEF_DESIGN_NO_CHANGE"&&e2.code!="RELIEF_QUALITY_CHECK_FAILED")throw;}}
        throw last;}}();

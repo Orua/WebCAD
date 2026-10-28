@@ -29,7 +29,7 @@ const rules=[
   rule('dispatch','COMMAND_EXPIRED','命令在进入CAD执行前已超过派发期限，尚未提交页面作业。','保留原命令回执，核对连接和当前工程状态；确认未提交并恢复连接后，才处理尚未执行的步骤。',['getState','getJob','connect'],{hardStop:true}),
   rule('binding','INSTANCE_MISMATCH DOCUMENT_MISMATCH REVISION_CONFLICT LIBRARY_REVISION_CONFLICT STALE_REFERENCE SELECTOR_CONTEXT_STALE SELECTOR_CONTEXT_REQUIRED LOGO_REVIEW_STALE SOURCE_HASH_MISMATCH RECOVERY_INPUT_CHANGED MACHINING_SOURCE_CONFLICT SOURCE_ANCHOR_INVALID COORDINATE_MODE_CONFLICT FRAME_SURFACE_MISMATCH TOPOLOGY_REFERENCE_STALE','请求引用的工程、版本、来源或定位已变化。','读取当前状态与来源，重新查询引用并重规划尚未完成的步骤；不要沿用旧面边编号。',['getState','queryGeometry','queryReferences'],{hardStop:true}),
   rule('idempotency','IDEMPOTENCY_KEY_REUSED idempotency_conflict','请求标识已绑定另一份参数。','先取原回执并核对是否已提交；只有明确修订后的剩余请求才使用新标识。',['getBatchReceipt','getJob','getState'],{hardStop:true}),
-  rule('reconcile','SERVICES_CONNECTION_UNKNOWN OBSERVATION_CANCELLED PREVIOUS_ATTEMPT_UNKNOWN RESULT_UNKNOWN JOB_TIMEOUT JOB_NOT_FOUND REQUEST_NOT_FOUND JOB_RESULT_UNAVAILABLE receipt_unavailable RECOVERY_RESULT_UNRESOLVED HOST_TIMEOUT HOST_INTERRUPTED TIMEOUT SERVICE_STOPPING RESULT_NOT_READY','原任务的执行或提交结果尚未确认。','按原 jobId、请求键或批次标识查询状态并与当前工程对账；确认前不要重放、换键或另起计算。',['getJob','getBatchReceipt','getServicesJob','getServicesRequest','getState'],{hardStop:true,reconcile:true}),
+  rule('reconcile','SERVICES_CONNECTION_UNKNOWN OBSERVATION_CANCELLED PREVIOUS_ATTEMPT_UNKNOWN RESULT_UNKNOWN JOB_TIMEOUT JOB_NOT_FOUND REQUEST_NOT_FOUND JOB_RESULT_UNAVAILABLE receipt_unavailable RECOVERY_RESULT_UNRESOLVED HOST_TIMEOUT HOST_INTERRUPTED TIMEOUT SERVICE_STOPPING RESULT_NOT_READY','原任务的执行或提交结果尚未确认（超时/断线时请读 error.message 中的操作名、请求/幂等键、elapsedMs/timeoutMs、请求体量级）。','先 getServicesRequest（或 getServicesJob/getJob）按原幂等键/jobId 查询并对账；确认前不要重放、换键或另起计算。勿盲目重算。',['getJob','getBatchReceipt','getServicesJob','getServicesRequest','getState'],{hardStop:true,reconcile:true}),
   rule('budget','PREVIOUS_ATTEMPT_FAILED KNOWN_INPUT_FAILED','此前相同输入的任务未成功，本次未重新计算。','查看原任务的具体错误；LOGO 识别任务确认已停止后，可重新点击识别。其他建模任务须先核对失败原因和当前工程。',['getJob','getServicesJob','getServicesRequest'],{hardStop:true}),
   rule('recovery-active','RECOVERY_WORKER_ACTIVE','上一任务的计算进程仍在运行。','等待原任务完成，或停止原任务并确认结束后再操作。',['getServicesJob'],{hardStop:true}),
   rule('recovery-denied','RECOVERY_NOT_ALLOWED','此任务不能从中断位置恢复。','查看原任务状态和失败原因；已完成或已停止的任务不能当作可恢复任务继续。',['getServicesJob'],{hardStop:true}),
@@ -75,6 +75,8 @@ const unknown=rule('unclassified','', '操作未能完成，目前没有足够�
 export const ERROR_RECOVERY_VERSION='1.0.0';
 function businessReason(message){
   const value=String(message||'').trim();
+  // Agent-readable Services timeout guidance (stable code SERVICES_CONNECTION_UNKNOWN) must pass through.
+  if(/getServicesRequest/.test(value)&&/[\u3400-\u9fff]/u.test(value)&&value.length<=400&&!/[\r\n]|https?:|[A-Za-z]:[\\/]|bearer|token|cookie|authorization|password|secret|api.?key|密钥|令牌|密码/i.test(value))return value;
   // Preserve concise Chinese business guidance, but never echo opaque native diagnostics,
   // credentials, paths, stacks, request identifiers or unproven rollback/save claims.
   if(!/[\u3400-\u9fff]/u.test(value)||value.length>300||/(?:^|\s)\/(?:[^\s/]+\/)+[^\s]*/.test(value)||/[\r\n]|https?:|[A-Za-z]:[\\/]|\\\\|(?:\bat\s+.+\(|stack|bearer|token|cookie|authorization|password|secret|api.?key|jobId|requestId|diagnosticsRef|密钥|令牌|密码)|[A-Za-z0-9_-]{24,}|刷新页面|降低精度|已回滚|原工程保留|工程未(?:改变|变化)|已保存到/i.test(value))return null;

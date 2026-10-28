@@ -6,12 +6,16 @@ import {reliefServicesReady} from '../../services/relief-pipeline.js';
 import {createReliefHeightPanel} from './relief-design-height-panel.js';
 import {adaptiveBrowserControlNet,adaptiveFieldResolution,effectiveEdgeMargins} from '../../relief-design-field.js';
 
-export function showReliefDesignDialog({getState,openDialog,element,button,onSave,onGenerate,onPreview,onPlacement,initialDesignId,initialMode,close}){
+export function showReliefDesignDialog({getState,openDialog,element,button,onSave,onGenerate,onPreview,onPlacement,initialDesignId,initialMode,onSelectFace=async()=>{},close}){
  let initial=getState(),loaded=null,busy=false,dirty=false,fieldResult=null,referenceUrl=null,referenceGeneration=0,selectedEdit=-1,editInputsDirty=false,resolutionTouched=false,fitRunning=false,fitBaselineMm=NaN,brep=null;
- const d=openDialog('图片浮雕','选择高度图和尺寸，在选面上定位、预览并应用。',{returnToSelect:true});
+ const d=openDialog('浮雕雕刻向导','选择高度图与最大高度，再到画布定位、预览和应用。');
+ d.classList.add('logo-wizard');
  d.dataset.taskPanel='true';
- d._acceptSelection=true;d.style.cssText='width:100%;max-width:100%;display:flex;flex-direction:column;overflow:hidden';
- const scroller=element('div',{});scroller.style.cssText='min-height:0;overflow:auto';
+ d._acceptSelection=true;d.style.cssText='width:min(640px,calc(100vw - 32px));height:min(820px,calc(100dvh - 32px));max-height:calc(100dvh - 32px);display:flex;flex-direction:column;overflow:hidden';
+ let floating=null;
+ const unfold=()=>{d.style.display='flex';if(!d.open)d.showModal();};
+ const canvasMode=async()=>{if(d.open)d.close();d.style.display='none';if(!floating){floating=button('浮雕设置 / 预览结果',unfold,'secondary logo-floating-toggle');d.parentElement.append(floating);}await onSelectFace();};
+ const scroller=element('div',{});scroller.style.cssText='flex:1;min-height:0;overflow:auto';
  const selector=element('select',{'aria-label':'选择设计草稿'});
  const status=element('p',{'aria-live':'polite',class:'property-callout'});
  const top=element('div',{});top.style.cssText='display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap';
@@ -20,7 +24,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  // 高级配置: everything beyond the essentials (image, size/depth, emboss/engrave, placement, preview/apply)
  // lives in one collapsed section with working defaults; the common case never needs to open it.
  const advanced=element('details',{class:'relief-advanced','data-relief-advanced':'true'});
- advanced.append(element('summary',{},'高级设置'),element('p',{class:'property-footnote'},'采样、精度、局部编辑、拟合与参考图；常用参数已设好。'));
+ advanced.append(element('summary',{},'高级配置'),element('p',{class:'property-footnote'},'采样、精度、局部编辑、拟合与参考图；常用参数已设好，一般无需改动。'));
  const advancedForm=element('div',{class:'parameter-form'});advancedForm.style.cssText='display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px';advanced.append(advancedForm);
  function field(label,el,parent=form){const row=element('label',{class:'form-field'});row.append(element('span',{},label),el);parent.append(row);return el;}
  const name=field('草稿名称',element('input',{type:'text',maxlength:120}));
@@ -29,7 +33,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  const cx=numeric('中心 X mm',-10000,10000),cy=numeric('中心 Y mm',-10000,10000);
  const width=numeric('直径 / 宽度 mm',.002,10000),height=numeric('矩形高度 mm',.001,10000);
  const low=numeric('最低高度 mm',-100,100),high=numeric('最高高度 mm',-100,100);
- for(const input of [name,cx,cy,low,high])advancedForm.append(input.closest('label'));
+ for(const input of [name,cx,cy,low,high,kind])advancedForm.append(input.closest('label'));
  const resolution=numeric('数值场每轴采样（9–129）',9,129,advancedForm);resolution.value='';resolution.placeholder='自动（按高度图与加工精度）';
  const precision=numeric('加工精度 mm（0.01–0.5，小于此值的起伏、噪声和台阶被平滑）',.01,.5,advancedForm);precision.value=.05;
  // Services 高精度拟合: image reliefs fit from the full-resolution height source with an adaptive control net
@@ -42,7 +46,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
   wrap.append(summary,help);const area=field(title,element('textarea',{rows,'aria-label':title}),wrap);area.style.cssText='width:100%;box-sizing:border-box;resize:vertical;min-height:72px';
   advanced.append(wrap);return {wrap,area};
  }
- scroller.append(top,form);
+ advanced.append(top);scroller.append(form);
  const referencePanel=element('details',{}),referenceSummary=element('summary',{},'原始参考图（随工程保存）');
  const referenceInfo=element('p',{class:'property-footnote'},'原图仅作设计参考，不从亮度推断实际高度。');
  const referencePicker=element('input',{type:'file',accept:'image/png,image/jpeg,image/webp','aria-label':'选择浮雕原始参考图'});
@@ -53,8 +57,8 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  // Imported height map: undefined = keep the loaded draft's, null = remove, object = replace.
  let pendingHeight;
  const heightPanel=createReliefHeightPanel({element,button,field,getSizeMm:()=>{const w=Number(width.value),h=kind.value==='circle'?w:Number(height.value);return w>0&&h>0?[w,h]:null;},getPrecision:()=>{const v=Number(precision.value);return v>=.01&&v<=.5?v:.05;},getCurrent:()=>pendingHeight===undefined?loaded?.draft.heightSource:pendingHeight,onApply:value=>{pendingHeight=value;name.dispatchEvent(new Event('input',{bubbles:true}));}});
- scroller.append(heightPanel.panel);
- const points=section('高度点','每行：X Y 高度（mm），用空格或逗号分隔。点必须避开孔和保护区。');points.wrap.open=true;
+ scroller.prepend(heightPanel.panel);
+ const points=section('高度点','每行：X Y 高度（mm），用空格或逗号分隔。点必须避开孔和保护区。');points.wrap.open=false;
  const holes=section('贯穿孔','每行：圆 X Y 半径，或 矩形 X Y 宽 高（mm）。留空表示没有孔。',3);
  const zones=section('保护区','使用与孔相同的格式。区域保持本草稿最低设计高度；不是冻结已有模型的曲面。',3);
  const editsPanel=element('details',{}),editsSummary=element('summary',{},'局部毫米编辑（0笔）');
@@ -79,20 +83,23 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  const fitControls=[fitMode,fitColumns,fitRows,fitMax,fitTolerance];for(const control of fitControls)control.dataset.designFit='true';
  const fitResult=element('p',{class:'property-footnote','aria-live':'polite'},'尚未拟合；需当前草稿的已求解数值场。');fitResult.style.cssText='white-space:pre-line;overflow-wrap:anywhere';
  const fitStart=button('拟合当前数值场',()=>fitPreferServices(),'secondary'),fitBrowser=button('浏览器拟合（回退）',()=>computeFit(),'secondary'),fitStop=button('停止拟合',()=>stopFit(),'secondary');fitStop.disabled=true;
- const fitButtons=element('div',{});fitButtons.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px';fitButtons.append(fitStart,fitBrowser,fitStop);fitPanel.append(fitSummary,fitHint,fitForm,fitButtons,fitResult);fitPanel.open=true;fitSummary.textContent='数值拟合与诊断';advanced.append(fitPanel);form.append(fitMode.closest('label'));
+ const fitButtons=element('div',{});fitButtons.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:10px';fitButtons.append(fitStart,fitBrowser,fitStop);fitPanel.append(fitSummary,fitHint,fitForm,fitButtons,fitResult);fitPanel.open=false;fitSummary.textContent='数值拟合与诊断';advanced.append(fitPanel);advancedForm.append(fitMode.closest('label'));
  let servicesFirstOK=false;reliefServicesReady('reliefDesign').then(v=>{servicesFirstOK=v;brep?.sync?.();});
- brep=createReliefBrepPanel({element,button,runPreview:onPreview,request:()=>({context:window.webcad.api.getState().context,designId:loaded?.id,expectedDraftRevision:loaded?.revision}),isBusy:()=>busy,ensureSaved:async()=>{if(!loaded||dirty||editInputsDirty)await commit(false);return !!loaded&&!dirty&&!editInputsDirty;},onPlacement,getFootprint:()=>({widthMm:Number(width.value),heightMm:kind.value==='circle'?Number(width.value):Number(height.value),depthMm:Number(high.value)-Number(low.value),canvas:heightPanel.panel.querySelector('canvas')}),draftGate:()=>({saved:!!loaded&&!dirty&&!editInputsDirty,reason:!loaded?'请先保存草稿到工程':(dirty||editInputsDirty)?'请先保存当前设计和笔画修改':'已保存'}),ensureFit:()=>ensureFit(),setBusy:value=>{busy=value;},getFitBaseline:()=>fitBaselineMm});scroller.append(brep.panel);
+ brep=createReliefBrepPanel({element,button,runPreview:onPreview,request:()=>({context:window.webcad.api.getState().context,designId:loaded?.id,expectedDraftRevision:loaded?.revision}),isBusy:()=>busy,ensureSaved:async()=>{if(!loaded||dirty||editInputsDirty)await commit(false);return !!loaded&&!dirty&&!editInputsDirty;},onProgress:seconds=>{if(floating)floating.textContent=seconds===null?'浮雕设置 / 预览结果':`浮雕计算 ${seconds}s · 查看进度`;},onChooseFace:canvasMode,onPlacement:async(...args)=>{if(args[0])await canvasMode();return onPlacement?.(...args);},getFootprint:()=>({widthMm:Number(width.value),heightMm:kind.value==='circle'?Number(width.value):Number(height.value),depthMm:Number(high.value)-Number(low.value),canvas:heightPanel.panel.querySelector('canvas')}),draftGate:()=>({saved:!!loaded&&!dirty&&!editInputsDirty,reason:!loaded?'请先保存草稿到工程':(dirty||editInputsDirty)?'请先保存当前设计和笔画修改':'已保存'}),ensureFit:()=>ensureFit(),setBusy:value=>{busy=value;},getFitBaseline:()=>fitBaselineMm});scroller.append(brep.panel);
  const canvas=element('canvas',{width:640,height:240,'aria-label':'支撑范围和人工高度点示意'});
  canvas.style.cssText='width:100%;height:auto;max-height:240px;border:1px solid var(--border);margin-top:12px';
  advanced.append(referencePanel);brep.moveAdvanced?.(advanced);scroller.append(advanced);
  advanced.append(canvas);
  const footer=element('div',{class:'dialog-footer'});footer.style.cssText='flex-shrink:0;display:flex;flex-wrap:wrap;gap:8px;margin-top:10px';
- const save=button('保存设计',()=>commit(false),'secondary'),remove=button('删除当前草稿',()=>commit(true),'secondary');
+ const save=button('保存并到画布定位',async()=>{if(await ensureSavedForPlacement())await brep.readFace();},'primary'),remove=button('删除当前草稿',()=>commit(true),'secondary');
  const solve=button('求解数值场',()=>compute(),'secondary'),cancel=button('停止求解',()=>window.webcad.api.reliefDesignField(request('cancel')),'secondary');
  const generate=button('生成网格',()=>generateMesh(),'primary');generate.disabled=true;cancel.disabled=true;
  const technicalActions=element('div',{});technicalActions.style.cssText=footer.style.cssText;technicalActions.append(solve,cancel,generate);advanced.append(technicalActions);
- advanced.append(remove);footer.append(button('关闭',()=>{if(!busy)close();},'secondary'),save);d.append(scroller,status,footer);
- d._onClose=()=>{brep.dispose?.();if(brep.hasPreview())brep.cancelPreview();clearReferencePreview();if(loaded){window.webcad.api.reliefDesignField(request('cancel'));if(fitRunning)window.webcad.api.reliefDesignFit(request('cancel'));}};
+ const refine=button('提高精度设置',()=>{advanced.open=true;qualitySide.focus();},'secondary');
+ advanced.prepend(element('p',{class:'property-footnote'},'候选可预览、应用和撤销。需要更多细节：将最大控制网由513提高至641/769（最高1025），保存后重新预览；计算会更久。应用后可用浮雕精修在浏览器修改局部起伏。'));
+ footer.append(refine);advanced.append(remove);footer.append(button('关闭',()=>{if(!busy)close();},'secondary'),save);d.append(scroller,status,footer);
+ d._onClose=()=>{floating?.remove();brep.dispose?.();if(brep.hasPreview())brep.cancelPreview();clearReferencePreview();if(loaded){window.webcad.api.reliefDesignField(request('cancel'));if(fitRunning)window.webcad.api.reliefDesignFit(request('cancel'));}};
+ async function ensureSavedForPlacement(){if(!loaded||dirty||editInputsDirty)await commit(false);return !!loaded&&!dirty&&!editInputsDirty;}
  function clearReferencePreview(){referenceGeneration++;if(referenceUrl)URL.revokeObjectURL(referenceUrl);referenceUrl=null;referencePreview.removeAttribute('src');referencePreview.style.display='none';}
  async function showReference(){
   clearReferencePreview();const generation=referenceGeneration,ref=loaded?.draft.reference;
