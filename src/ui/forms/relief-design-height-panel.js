@@ -1,10 +1,11 @@
 // "从图片导入高度" panel for the relief design dialog.
 // Flow: pick image → set 最大凸起高度 → convert (photoRelief auto for shaded photos) → apply to draft (heightmap→fit→BRep).
 // Photo / shaded images use mode=photoRelief (no confirmation checkbox). Authored height maps stay luminance.
-import {convertRgbaToHeightGrid,encodeHeightGrid,RELIEF_CONVERT_LIMITS,autoGridSize,detectPhotoLikeImage,normalizePhotoReliefParams,PHOTO_RELIEF_DEFAULTS} from '../../relief-source/convert.js';
+import {convertRgbaToHeightGrid,encodeHeightGrid,RELIEF_CONVERT_LIMITS,autoGridSize,detectPhotoLikeImage,normalizePhotoReliefParams,PHOTO_RELIEF_DEFAULTS,defaultPhotoReliefParams} from '../../relief-source/convert.js';
+import {convertInBackground,decodeTargetSize,downscaleRgba} from '../../relief-source/convert-client.js';
 import {createReliefHeightSource,PHOTO_HEIGHTMAP_CONFIRMATION} from '../../relief-source/source.js';
 import {humanError} from '../../error-recovery.js';
-import {sourceConvertWorkerParams,sourceConvertLocal,convertSourceOnServices,reliefServicesReady} from '../../services/relief-pipeline.js';
+import {sourceConvertWorkerParams,convertSourceOnServices,reliefServicesReady} from '../../services/relief-pipeline.js';
 
 /** Default max protrusion for high-relief feel (several mm relative to a typical plate). */
 export const DEFAULT_RELIEF_DEPTH_MM=3;
@@ -14,10 +15,18 @@ export async function decodeImageFile(file){
  const bytes=new Uint8Array(await file.arrayBuffer()),sha256=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),v=>v.toString(16).padStart(2,'0')).join('');
  let bitmap;try{bitmap=await createImageBitmap(new Blob([bytes],{type:file.type||'image/png'}),{imageOrientation:'from-image'});}catch{throw Object.assign(new Error('无法解码图片；请使用有效的 PNG、JPG 或 WebP'),{code:'RELIEF_IMAGE_INVALID'});}
  try{
-  if(bitmap.width*bitmap.height>RELIEF_CONVERT_LIMITS.maxSourcePixels)throw Object.assign(new Error('图片超过 16M 像素'),{code:'RELIEF_LIMIT'});
+  if(bitmap.width*bitmap.height>100e6)throw Object.assign(new Error(`图片 ${bitmap.width}×${bitmap.height} 过大（>100M 像素）；请先缩小到 4096 px 以内`),{code:'RELIEF_LIMIT'});
   const canvas=document.createElement('canvas');canvas.width=bitmap.width;canvas.height=bitmap.height;
   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(bitmap,0,0);
-  return {sha256,name:file.name||'image',width:bitmap.width,height:bitmap.height,rgba:ctx.getImageData(0,0,bitmap.width,bitmap.height).data,fileBytes:bytes,mime:file.type||'image/png'};
+  let rgba=ctx.getImageData(0,0,bitmap.width,bitmap.height).data,width=bitmap.width,height=bitmap.height,fileBytes=bytes,mime=file.type||'image/png',downscaledFrom=null;
+  const t=decodeTargetSize(width,height);
+  if(t.downscaled){
+   // Deterministic area-average (not browser canvas resampling) so browser and Services see the same pixels.
+   rgba=downscaleRgba(rgba,width,height,t.width,t.height);downscaledFrom={width,height};width=t.width;height=t.height;
+   canvas.width=width;canvas.height=height;ctx.putImageData(new ImageData(new Uint8ClampedArray(rgba),width,height),0,0);
+   const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));fileBytes=blob?new Uint8Array(await blob.arrayBuffer()):null;mime='image/png';
+  }
+  return {sha256,name:file.name||'image',width,height,rgba,fileBytes,mime,downscaledFrom};
  }finally{bitmap.close?.();}
 }
 /** Pure: panel form values -> {settings, depth/edge options}. Exported for tests.
@@ -30,7 +39,7 @@ export function heightPanelRequest(v,{image,sizeMm,precisionMm}={}){
  const grid=auto?autoGridSize({width:image.width,height:image.height,sizeMm,precisionMm}):image?(()=>{const L=n(v.columns,'网格'),k=L/Math.max(image.width,image.height);return image.width>=image.height?{columns:L,rows:Math.max(2,Math.round(image.height*k))}:{columns:Math.max(2,Math.round(image.width*k)),rows:L};})():{columns:n(v.columns,'网格'),rows:n(v.columns,'网格')};
  const usePhoto=v.mode==='photoRelief'||v.use==='shadedReference'||v.interpretation==='shadedReference';
  const settings={columns:grid.columns,rows:grid.rows,levels:{black:n(v.black??0,'黑点'),white:n(v.white??1,'白点')},gamma:n(v.gamma??1,'Gamma'),blurPx:n(v.blur??0,'模糊'),invert:!!v.invert};
- if(usePhoto){settings.mode='photoRelief';settings.photo=normalizePhotoReliefParams(v.photo??{});}
+ if(usePhoto){settings.mode='photoRelief';settings.photo=v.photo===undefined?defaultPhotoReliefParams():normalizePhotoReliefParams(v.photo);}
  return {settings,depthMm:n(v.depth,'最大凸起高度'),edgeKeepoutMm:n(v.keepout??0,'边缘留空'),edgeFadeMm:n(v.fade??0,'边缘过渡'),interpretation:usePhoto?'shadedReference':'authoredHeightMap'};
 }
 export function createReliefHeightPanel({element,button,field,onApply,getCurrent,getPrecision=()=>.05,getSizeMm=()=>null,servicesReady=()=>reliefServicesReady('reliefSourceConvert'),convertRemote=convertSourceOnServices}){
@@ -45,6 +54,10 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
  const num=(label,value,step='any')=>{const i=element('input',{type:'number',step,value,'aria-label':label});field(label,i,form);return i;};
  field('图像用途',use,form);
  const depth=num('最大凸起高度 mm',DEFAULT_RELIEF_DEPTH_MM);
+ // 立体度 / 丝滑度 (照片浮雕 v2): beside max height; 0–100 %.
+ const V2=defaultPhotoReliefParams();
+ const slider=(label,value)=>{const i=element('input',{type:'range',min:'0',max:'100',step:'1',value:String(Math.round(value*100)),'aria-label':label});field(label,i,form);return i;};
+ const volume=slider('立体度 %',V2.volume),smooth=slider('丝滑度 %',V2.smoothness);
  const columns=num('网格长边（留空=自动：按图像像素与尺寸/精度取 129–1025）','','1'),black=num('黑点 0–1',0),white=num('白点 0–1',1),gamma=num('Gamma',1),blur=num('模糊（网格像素）',0),keepout=num('边缘留空 mm',0),fade=num('边缘过渡 mm',0);
  const invert=element('input',{type:'checkbox','aria-label':'反相'});field('反相（暗色更高）',invert,form);
  // Photo-relief advanced knobs (only meaningful in photo mode)
@@ -59,7 +72,10 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
   ['fineWeight','细层权重','0.05'],
   ['massWeight','体量包络权重','0.05'],
   ['denoisePx','去噪 px','0.1'],
- ]){photoFields[k]=num(label,PHOTO_RELIEF_DEFAULTS[k],step);}
+   ['detailWeight','细节强度','0.05'],
+  ['volumeFrac','包络尺度（相对长边）','0.01'],
+  ['backgroundLevel','背景高度 0–0.3','0.01'],
+ ]){photoFields[k]=num(label,V2[k]??PHOTO_RELIEF_DEFAULTS[k],step);}
  const tuning=element('details',{'data-relief-image-advanced':'true'}),tuningForm=element('div',{});tuningForm.style.cssText=form.style.cssText;
  tuning.append(element('summary',{},'高级配置'),tuningForm);
  for(const input of [columns,black,white,gamma,blur,keepout,fade,invert,...Object.values(photoFields)])tuningForm.append(input.closest('label'));
@@ -68,16 +84,18 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
  const canvas=element('canvas',{width:192,height:192,'aria-label':'高度图预览'});canvas.style.cssText='width:192px;height:192px;border:1px solid var(--border);background:#111';
  const info=element('p',{class:'property-footnote','aria-live':'polite'},'尚未选择图片。');
  const apply=button('应用到草稿',()=>run(),'primary'),remove=button('移除导入高度',()=>{onApply(null);info.textContent='已从草稿移除导入高度；保存草稿后生效。';},'secondary');
- const row=element('div',{});row.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:8px';row.append(picker,apply,remove);
- panel.append(summary,hint,form,tuning,confirmRow,why,canvas,row,info);panel.open=true;
- let image=null,detectedPhoto=false;
+ const cancel=button('取消转换',()=>abort?.abort(),'secondary');cancel.hidden=true;
+ const progress=element('progress',{max:'1',value:'0','aria-label':'转换进度'});progress.hidden=true;progress.style.cssText='width:100%';
+ const row=element('div',{});row.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:8px';row.append(picker,apply,cancel,remove);
+ panel.append(summary,hint,form,tuning,confirmRow,why,canvas,row,progress,info);panel.open=true;
+ let image=null,detectedPhoto=false,abort=null,previewTimer=0;
  const ctx=()=>({image,sizeMm:getSizeMm(),precisionMm:getPrecision()});
  const resolveUse=()=>{
   if(use.value==='authoredHeightMap')return 'authoredHeightMap';
   if(use.value==='shadedReference')return 'shadedReference';
   return detectedPhoto?'shadedReference':'authoredHeightMap';
  };
- const photoParams=()=>{const o={};for(const k of Object.keys(photoFields))o[k]=Number(photoFields[k].value);return o;};
+ const photoParams=()=>{const o={...defaultPhotoReliefParams()};for(const k of Object.keys(photoFields))o[k]=Number(photoFields[k].value);o.volume=Number(volume.value)/100;o.smoothness=Number(smooth.value)/100;return o;};
  const sync=()=>{
   const interpretation=resolveUse();
   const needLegacyConfirm=false;// photoRelief path — no checkbox
@@ -86,7 +104,7 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
   why.textContent=image&&interpretation==='shadedReference'?'将用照片浮雕（多层高度）转换：深形体 + 中层云雾/褶皱 + 细鳞片纹理，再按最大凸起高度生成曲面。':'';
   why.hidden=!why.textContent;
  };
- panel.addEventListener('input',e=>{e.stopPropagation();if(e.target!==picker)preview();sync();});
+ panel.addEventListener('input',e=>{e.stopPropagation();if(e.target!==picker){clearTimeout(previewTimer);previewTimer=setTimeout(preview,120);}sync();});
  panel.addEventListener('change',e=>{if(e.target===use){confirm.checked=false;preview();sync();}});
  picker.addEventListener('change',async()=>{
   image=null;detectedPhoto=false;sync();const f=picker.files?.[0];if(!f)return;info.textContent='正在解码…';
@@ -94,8 +112,9 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
    image=await decodeImageFile(f);
    const det=detectPhotoLikeImage(image.rgba,image.width,image.height);
    detectedPhoto=!!det.photoLike;
-   if(use.value==='auto')info.textContent=`已读取 ${image.name} · ${image.width}×${image.height}${detectedPhoto?` · 已判为照片/光影（score ${det.score.toFixed(2)}），使用照片浮雕`:' · 按作者高度图'}`;
-   else info.textContent=`已读取 ${image.name} · ${image.width}×${image.height}`;
+   const ds=image.downscaledFrom?` · 已由 ${image.downscaledFrom.width}×${image.downscaledFrom.height} 缩小`:'';
+   if(use.value==='auto')info.textContent=`已读取 ${image.name} · ${image.width}×${image.height}${ds}${detectedPhoto?` · 已判为照片/光影（score ${det.score.toFixed(2)}），使用照片浮雕`:' · 按作者高度图'}`;
+   else info.textContent=`已读取 ${image.name} · ${image.width}×${image.height}${ds}`;
    preview();
    // Straight to convert+apply (toward BRep): no wizard steps.
    await run();
@@ -117,8 +136,13 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
    const params=sourceConvertWorkerParams({width:image.width,height:image.height,settings:r.settings,depthMm:r.depthMm,machiningPrecisionMm:getPrecision()});
    let grid,settings=params.settings,where='浏览器转换（Services 不可用）';
    let servicesReason='';
-   if(await servicesReady()){info.textContent='正在 Services 转换高度图…';try{const out=await convertRemote({rgba:image.rgba,params,context:window.webcad.api.getState().context,imageSha256:image.sha256,fileBytes:image.fileBytes,mime:image.mime,fileName:image.name});grid=out.grid;settings=out.settings??params.settings;where='Services 转换';}catch(e){if(e.code==='SERVICES_CONNECTION_UNKNOWN')throw e;servicesReason=humanError(e);where='已改用浏览器转换';info.textContent=`已改用浏览器转换\nServices 原因：${servicesReason}`;}}
-   if(!grid)grid=sourceConvertLocal(image.rgba,params).grid;
+   if(await servicesReady()){info.textContent='正在 Services 转换高度图…';try{abort=new AbortController();cancel.hidden=false;const out=await convertRemote({rgba:image.rgba,params,signal:abort.signal,context:window.webcad.api.getState().context,imageSha256:image.sha256,fileBytes:image.fileBytes,mime:image.mime,fileName:image.name});grid=out.grid;settings=out.settings??params.settings;where='Services 转换';}catch(e){if(e.code==='SERVICES_CONNECTION_UNKNOWN'||e.name==='AbortError'||abort?.signal.aborted)throw e;servicesReason=humanError(e);where='已改用浏览器转换';info.textContent=`已改用浏览器转换\nServices 原因：${servicesReason}`;}}
+   if(!grid){
+    abort=new AbortController();cancel.hidden=false;progress.hidden=false;progress.value=0;
+    const stages={lighting:'光照抑制',bands:'分层',mask:'主体识别',envelope:'体量包络',compose:'合成',done:'完成'};
+    const out=await convertInBackground(image.rgba,params,{signal:abort.signal,onProgress:(f,st)=>{progress.value=f;info.textContent=`正在转换高度图… ${Math.round(f*100)}%${stages[st]?' · '+stages[st]:''}${servicesReason?`\nServices 原因：${servicesReason}`:''}`;}});
+    grid=out.grid;if(out.where==='main')where+='（主线程）';
+   }
    const asked=r.settings,note=asked.columns!==grid.columns||asked.rows!==grid.rows?`，已按节点上限由 ${asked.columns}×${asked.rows} 降采样`:'';
    const source=createReliefHeightSource({original:{sha256:image.sha256,name:image.name.slice(0,255)},interpretation:r.interpretation,settings,grid});
    onApply({source,depthMm:r.depthMm,edgeKeepoutMm:r.edgeKeepoutMm,edgeFadeMm:r.edgeFadeMm});
@@ -126,8 +150,8 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
    const modeNote=settings.mode==='photoRelief'?'，照片浮雕':'';
    info.textContent=`已应用到草稿（${grid.columns}×${grid.rows}${String(columns.value).trim()===''?' 自动':''}${note}，最大凸起 ${r.depthMm} mm${modeNote}，${where}，加工精度 ${params.machiningPrecisionMm} mm）；保存草稿并重新求解后生成 BRep 曲面。${fallbackLine}`;
    preview();
-  }catch(e){info.textContent=humanError(e);}
-  finally{running=false;}
+  }catch(e){info.textContent=e?.code==='RELIEF_CONVERT_CANCELLED'||e?.name==='AbortError'?'已取消转换；草稿未改变。':humanError(e);}
+  finally{running=false;abort=null;cancel.hidden=true;progress.hidden=true;}
   sync();
  }
  sync();
@@ -137,7 +161,7 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
    if(g.encoding==='u16le'&&typeof g.data==='string'){const bytes=Uint8Array.from(atob(g.data),c=>c.charCodeAt(0)),view=new DataView(bytes.buffer);values=Float64Array.from({length:cols*rows},(_,i)=>view.getUint16(i*2,true)/65535);}
    else if(Array.isArray(g.values))values=g.values;else return;
    const settings=heightSource.source.settings;invert.checked=settings.invert;black.value=settings.levels.black;white.value=settings.levels.white;gamma.value=settings.gamma;blur.value=settings.blurPx;
-   if(settings.mode==='photoRelief'){use.value='shadedReference';if(settings.photo)for(const k of Object.keys(photoFields))if(settings.photo[k]!=null)photoFields[k].value=settings.photo[k];}
+   if(settings.mode==='photoRelief'){use.value='shadedReference';if(settings.photo){for(const k of Object.keys(photoFields))if(settings.photo[k]!=null)photoFields[k].value=settings.photo[k];if(settings.photo.volume!=null)volume.value=String(Math.round(settings.photo.volume*100));if(settings.photo.smoothness!=null)smooth.value=String(Math.round(settings.photo.smoothness*100));}}
    else if(heightSource.source.derivedFrom?.kind==='shadedReference')use.value='shadedReference';
    else use.value='authoredHeightMap';
    paintFromGrid({columns:cols,rows,values});depth.value=heightSource.depthMm??depth.value;keepout.value=heightSource.edgeKeepoutMm??keepout.value;fade.value=heightSource.edgeFadeMm??fade.value;

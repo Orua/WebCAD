@@ -2,7 +2,7 @@
 // Every result carries the hash of its normalized settings so the conversion is reproducible.
 import {contractHash,binaryHash} from '../contracts/operation-schema.js';
 import {photoReliefFromLuminance,normalizePhotoReliefParams,PHOTO_RELIEF_VERSION,detectPhotoLikeImage} from './photo-relief.js';
-export {detectPhotoLikeImage,PHOTO_RELIEF_VERSION,PHOTO_RELIEF_DEFAULTS,normalizePhotoReliefParams} from './photo-relief.js';
+export {detectPhotoLikeImage,PHOTO_RELIEF_VERSION,PHOTO_RELIEF_DEFAULTS,PHOTO_RELIEF_V2_DEFAULTS,defaultPhotoReliefParams,normalizePhotoReliefParams} from './photo-relief.js';
 const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
 export const RELIEF_CONVERT_VERSION=1;
 export const RELIEF_CONVERT_LIMITS=Object.freeze({minSide:2,maxSide:2049,maxBlurPx:32,maxSourcePixels:16777216});
@@ -66,22 +66,22 @@ function areaAverageLuminance(rgba,width,height,s){
  return g;
 }
 /** rgba: Uint8(Clamped)Array width*height*4, row 0 = image top. Returns values in [0,1], row 0 = image top. */
-export function convertRgbaToHeightGrid(rgba,width,height,settings){
+export function convertRgbaToHeightGrid(rgba,width,height,settings,opts={}){
  const s=normalizeConvertSettings(settings);
  if(!Number.isInteger(width)||!Number.isInteger(height)||width<1||height<1||width*height>RELIEF_CONVERT_LIMITS.maxSourcePixels)fail('RELIEF_LIMIT','图像尺寸无效或超过 16M 像素');
  if(!rgba||rgba.length!==width*height*4)fail('PARAM_SCHEMA_INVALID','RGBA 数据长度与尺寸不符');
  const {columns:C,rows:R}=s;
- let g=areaAverageLuminance(rgba,width,height,s);
+ let g=areaAverageLuminance(rgba,width,height,s);let prVersion;
  if(s.mode==='photoRelief'){
   // Photo relief operates on the cropped/resampled luminance grid; levels/gamma/blur still apply as post-tone.
-  const pr=photoReliefFromLuminance(g,C,R,s.photo);
+  const pr=photoReliefFromLuminance(g,C,R,s.photo,opts);prVersion=pr.version;
   g=Float64Array.from(pr.values);
  }else{
   g=blur(g,C,R,s.blurPx);
  }
  const out=new Float32Array(C*R);
  for(let k=0;k<g.length;k++){let v=(g[k]-s.levels.black)/(s.levels.white-s.levels.black);v=Math.min(1,Math.max(0,v));v=v**(1/s.gamma);out[k]=s.invert?1-v:v;}
- return {columns:C,rows:R,values:out,settings:s,settingsHash:contractHash(s),...(s.mode==='photoRelief'?{photoReliefVersion:PHOTO_RELIEF_VERSION}:{})};
+ return {columns:C,rows:R,values:out,settings:s,settingsHash:contractHash(s),...(s.mode==='photoRelief'?{photoReliefVersion:prVersion}:{})};
 }
 const b64=bytes=>typeof Buffer!=='undefined'?Buffer.from(bytes).toString('base64'):btoa(Array.from(bytes,c=>String.fromCharCode(c)).join(''));
 const unb64=text=>typeof Buffer!=='undefined'?new Uint8Array(Buffer.from(text,'base64')):Uint8Array.from(atob(text),c=>c.charCodeAt(0));

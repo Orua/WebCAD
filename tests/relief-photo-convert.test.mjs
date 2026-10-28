@@ -48,7 +48,7 @@ test('photoRelief flattens lighting vs raw luminance on side-lit blob',()=>{
  const lum=convertRgbaToHeightGrid(rgba,48,48,{columns:48,rows:48});
  const photo=convertRgbaToHeightGrid(rgba,48,48,{columns:48,rows:48,mode:'photoRelief'});
  assert.equal(photo.settings.mode,'photoRelief');
- assert.equal(photo.photoReliefVersion,PHOTO_RELIEF_VERSION);
+ assert.equal(photo.photoReliefVersion,1);// no photo.algorithm → legacy v1 (hash-stable)
  // Photo result should use more of the [0,1] range in the interior than a left-lit luminance ramp.
  const interior=i=>i%48>8&&i%48<40&&(i/48|0)>8&&(i/48|0)<40;
  const vals=[...photo.values].filter((_,i)=>interior(i));
@@ -72,7 +72,7 @@ test('createReliefHeightSource photoRelief needs no confirmation checkbox',()=>{
  const src=createReliefHeightSource({original:{sha256:sha,name:'blob.png'},interpretation:'shadedReference',settings:g.settings,grid:encodeHeightGrid(g)});
  assert.equal(src.interpretation,'authoredHeightMap');
  assert.equal(src.derivedFrom.kind,'photoRelief');
- assert.equal(src.derivedFrom.photoReliefVersion,PHOTO_RELIEF_VERSION);
+ assert.equal(src.derivedFrom.photoReliefVersion,1);
 });
 
 test('legacy shadedReference luminance still requires confirmation',()=>{

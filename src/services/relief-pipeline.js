@@ -116,8 +116,8 @@ export function sourceConvertWorkerParams({width,height,settings,depthMm,machini
  return params;
 }
 // Browser reference for relief.source-convert-1 (same modules; the golden test compares grid sha256).
-export function sourceConvertLocal(rgba,params){
- const g=convertRgbaToHeightGrid(rgba,params.width,params.height,params.settings);let values=g.values,precision=null;
+export function sourceConvertLocal(rgba,params,opts={}){
+ const g=convertRgbaToHeightGrid(rgba,params.width,params.height,params.settings,opts);let values=g.values,precision=null;
  if(params.depthMm!==undefined){const d=params.depthMm,n=g.columns*g.rows,f={heightsMm:Float64Array.from(values,v=>v*d),active:new Uint8Array(n).fill(1),fixedMask:new Uint8Array(n)};
   precision=precisionSmooth(f,{columns:g.columns,rows:g.rows,lowerMm:0,upperMm:d,precisionMm:params.machiningPrecisionMm});values=Float64Array.from(f.heightsMm,v=>v/d);}
  return {grid:encodeHeightGrid({columns:g.columns,rows:g.rows,values}),precision};
