@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.60.8 · sha256:fe398ff5eeeef5d9f2678f06b4f8f174a1e96d7e613be1757869f0e5bf467f7c
+API 1.60.8 · sha256:abcebb2e817add98942b3f00381cd30643ff771fd1347ce0375ffdca050ef5e3
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -1329,9 +1329,9 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 ### reconcile
 
-原任务的执行或提交结果尚未确认。
+原任务的执行或提交结果尚未确认（超时/断线时请读 error.message 中的操作名、请求/幂等键、elapsedMs/timeoutMs、请求体量级）。
 
-按原 jobId、请求键或批次标识查询状态并与当前工程对账；确认前不要重放、换键或另起计算。
+先 getServicesRequest（或 getServicesJob/getJob）按原幂等键/jobId 查询并对账；确认前不要重放、换键或另起计算。勿盲目重算。
 
 代码：`HOST_INTERRUPTED`、`HOST_TIMEOUT`、`JOB_NOT_FOUND`、`JOB_RESULT_UNAVAILABLE`、`JOB_TIMEOUT`、`OBSERVATION_CANCELLED`、`PREVIOUS_ATTEMPT_UNKNOWN`、`receipt_unavailable`、`RECOVERY_RESULT_UNRESOLVED`、`REQUEST_NOT_FOUND`、`RESULT_NOT_READY`、`RESULT_UNKNOWN`、`SERVICE_STOPPING`、`SERVICES_CONNECTION_UNKNOWN`、`TIMEOUT`
 
@@ -149818,7 +149818,7 @@ files.release: contextPolicy=none
     "method": "reliefDesignFit",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\"|\"servicesFirst\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；servicesFirst（需 Services 提供 relief.design-fit-brep-1）不在浏览器拟合，只保存临时控制网用于准备，首次完整拟合在 Services 预览时完成，Services 不可用时须改用 fit；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave（可选heightInterpretation:signed默认/engraveDepth，engraveDepth仅限engrave，把高于最低基线的作者高度当作下刻深度，边界与保护区仍为基线）、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)作为参考误差；deviationPolicy默认candidate，超差或达到迭代上限返回approximation-candidate并带warnings/withinTolerance/converged，可继续预览保存；strict保留严格拒绝。保护与实体有效性不放宽；候选体积复核不一致时quality.status=candidate-volume-unverified、warnings含RELIEF_VOLUME_UNVERIFIED，不启动耗时网格复核，不宣称加工合格；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认不设固定运算次数上限，显式指定时为正安全整数（最大9007199254740991），保留30秒Worker超时和停止按钮。一次30秒可取消数值Worker，最多4225控制极点。",
+  "description": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\"|\"servicesFirst\",designId,expectedDraftRevision,options?})。UI通过“浮雕雕刻向导”弹窗导入，保存并到画布定位；高级配置默认折叠，提高maxControlSide可精算，应用后可浏览器精修。先保存草稿并reliefDesignField.solve；servicesFirst（需 Services 提供 relief.design-fit-brep-1）不在浏览器拟合，只保存临时控制网用于准备，首次完整拟合在 Services 预览时完成，Services 不可用时须改用 fit；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave（可选heightInterpretation:signed默认/engraveDepth，engraveDepth仅限engrave，把高于最低基线的作者高度当作下刻深度，边界与保护区仍为基线）、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)作为参考误差；deviationPolicy默认candidate，超差或达到迭代上限返回approximation-candidate并带warnings/withinTolerance/converged，可继续预览保存；strict保留严格拒绝。保护与实体有效性不放宽；候选体积复核不一致时quality.status=candidate-volume-unverified、warnings含RELIEF_VOLUME_UNVERIFIED，不启动耗时网格复核，不宣称加工合格；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认不设固定运算次数上限，显式指定时为正安全整数（最大9007199254740991），保留30秒Worker超时和停止按钮。一次30秒可取消数值Worker，最多4225控制极点。",
   "synonyms": [
     "reliefDesignFit",
     "浮雕",
@@ -149829,7 +149829,7 @@ files.release: contextPolicy=none
     "保护",
     "误差"
   ],
-  "inputContract": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\"|\"servicesFirst\",designId,expectedDraftRevision,options?})。先保存草稿并reliefDesignField.solve；servicesFirst（需 Services 提供 relief.design-fit-brep-1）不在浏览器拟合，只保存临时控制网用于准备，首次完整拟合在 Services 预览时完成，Services 不可用时须改用 fit；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave（可选heightInterpretation:signed默认/engraveDepth，engraveDepth仅限engrave，把高于最低基线的作者高度当作下刻深度，边界与保护区仍为基线）、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)作为参考误差；deviationPolicy默认candidate，超差或达到迭代上限返回approximation-candidate并带warnings/withinTolerance/converged，可继续预览保存；strict保留严格拒绝。保护与实体有效性不放宽；候选体积复核不一致时quality.status=candidate-volume-unverified、warnings含RELIEF_VOLUME_UNVERIFIED，不启动耗时网格复核，不宣称加工合格；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认不设固定运算次数上限，显式指定时为正安全整数（最大9007199254740991），保留30秒Worker超时和停止按钮。一次30秒可取消数值Worker，最多4225控制极点。",
+  "inputContract": "reliefDesignFit({context,action:\"fit\"|\"get\"|\"cancel\"|\"servicesFirst\",designId,expectedDraftRevision,options?})。UI通过“浮雕雕刻向导”弹窗导入，保存并到画布定位；高级配置默认折叠，提高maxControlSide可精算，应用后可浏览器精修。先保存草稿并reliefDesignField.solve；servicesFirst（需 Services 提供 relief.design-fit-brep-1）不在浏览器拟合，只保存临时控制网用于准备，首次完整拟合在 Services 预览时完成，Services 不可用时须改用 fit；fit只使用当前修订已解数值场，不能传field/mask/domain/baseline。options必填mode:emboss/engrave（可选heightInterpretation:signed默认/engraveDepth，engraveDepth仅限engrave，把高于最低基线的作者高度当作下刻深度，边界与保护区仍为基线）、controlColumns/controlRows(4–65且不超过场采样数)、acceptanceToleranceMm(0..20开下界)作为参考误差；deviationPolicy默认candidate，超差或达到迭代上限返回approximation-candidate并带warnings/withinTolerance/converged，可继续预览保存；strict保留严格拒绝。保护与实体有效性不放宽；候选体积复核不一致时quality.status=candidate-volume-unverified、warnings含RELIEF_VOLUME_UNVERIFIED，不启动耗时网格复核，不宣称加工合格；controlMaxMm可选(0..20，覆盖原场相对基线幅值，默认实际最大值)，maxIterations默认12000上限50000，toleranceMm默认1e-9范围(0,1]，maxWork默认不设固定运算次数上限，显式指定时为正安全整数（最大9007199254740991），保留30秒Worker超时和停止按钮。一次30秒可取消数值Worker，最多4225控制极点。",
   "outputContract": "get读普通JSON控制高度/增量、原掩码、sourceBinding及训练/独立/保护metrics，fit不修改工程。常值保护由所有相交基函数支撑锁定保证；整体偏差sampled-not-global，不是全域制造公差。最低草稿高度是baseline，不因engrave翻转高度；非零场通常仅emboss兼容。改草稿/工程、重解数值场使旧拟合失效；cancel停止拟合并保留已解原场。结果geometryReady:false、brepComputed:false、notCommitted；不返回feature.add参数，不冒称BRep/STEP，不能绕过后续真实支撑面datum/来源/路由预检。禁止自动加密、调误差或删保护追成功。get需cad.read，fit/cancel需cad.edit。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -150073,7 +150073,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:212132c90e6e4155c161b8e46f019ac46a81a24284e61841a1a3af9ab7e64896"
+  "docsHash": "sha256:14dd7c611b0e2274643f80545e4e70c659eba6080b3a558bd50509b5dcfec622"
 }
 ```
 

@@ -9,14 +9,33 @@ import {dirname,join} from 'node:path';
 
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 
-test('Services timeouts: upload/result ≥120s, poll ~30s',()=>{
+test('Services timeouts: upload/result ≥120s; submit body-aware ≥180s; poll/cancel/capabilities 60s',()=>{
  assert.ok(servicesRequestTimeoutMs('upload',{bytes:0})>=120000);
  assert.ok(servicesRequestTimeoutMs('upload',{bytes:5*1024*1024})>=120000);
  assert.ok(servicesRequestTimeoutMs('result',{bytes:2*1024*1024})>=120000);
  assert.ok(servicesRequestTimeoutMs('artifact',{bytes:1024})>=120000);
- assert.equal(servicesRequestTimeoutMs('poll'),30000);
- assert.equal(servicesRequestTimeoutMs('submit'),30000);
- assert.equal(servicesRequestTimeoutMs('cancel'),30000);
+ assert.equal(servicesRequestTimeoutMs('poll'),60000);
+ assert.ok(servicesRequestTimeoutMs('submit')>=180000);
+ assert.ok(servicesRequestTimeoutMs('submit',{bytes:3*1024*1024})>=180000);
+ assert.ok(servicesRequestTimeoutMs('submit',{bytes:3*1024*1024})>servicesRequestTimeoutMs('submit',{bytes:0}));
+ assert.equal(servicesRequestTimeoutMs('cancel'),60000);
+ assert.equal(servicesRequestTimeoutMs('capabilities'),60000);
+});
+
+test('Services connection timeout message is agent-readable',async()=>{
+ const {servicesBodySizeClass,servicesConnectionTimeoutMessage}=await import('../src/services/client.js');
+ assert.equal(servicesBodySizeClass(0),'empty');
+ assert.equal(servicesBodySizeClass(3*1024*1024),'large');
+ const msg=servicesConnectionTimeoutMessage({op:'/v1/compute/jobs',elapsedMs:30001,timeoutMs:30000,bytes:3057103,idempotencyKey:'req-demo'});
+ assert.match(msg,/超时|断线/);
+ assert.match(msg,/操作 v1\/compute\/jobs/);
+ assert.match(msg,/30001/);
+ assert.match(msg,/30000/);
+ assert.match(msg,/large/);
+ assert.match(msg,/3057103/);
+ assert.match(msg,/req-demo/);
+ assert.match(msg,/getServicesRequest/);
+ assert.match(msg,/勿盲目重算/);
 });
 
 test('restore key omits whole-document revision',()=>{
@@ -101,12 +120,14 @@ test('quality candidate output: target=p, explicit strict still available, capac
  assert.match(src,/acceptanceToleranceMm:quality\.machiningPrecisionMm/);
  assert.match(src,/deviationPolicy:'candidate'/);
  assert.match(src,/qualityStatus:maxMm>p/);
- assert.match(src,/allowedTo=new Set\(\[513,641,769\]\)/);
+ assert.match(src,/allowedTo=new Set\(\[385,513,641,769\]\)/);
  const q=readFileSync(join(root,'services/WebCADServices/native/occt-worker/relief_quality.hxx'),'utf8');
  assert.match(q,/default acceptance = machining precision p/);
  assert.match(q,/deviationPolicy",std::string\("strict"\)/);
+ assert.match(q,/4\*finest/);
+ assert.match(q,/passIter/);
  const w=readFileSync(join(root,'services/WebCADServices/native/occt-worker/worker.cpp'),'utf8');
- assert.match(w,/for\(int next:\{769,641,513\}\)/);
+ assert.match(w,/for\(int next:\{769,641,513,385\}\)/);
  const d=readFileSync(join(root,'services/WebCADServices/native/occt-worker/relief_design.hxx'),'utf8');
  assert.match(d,/meshVolume/);
  assert.match(d,/BRepCheck_Analyzer/);

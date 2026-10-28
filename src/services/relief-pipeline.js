@@ -227,7 +227,7 @@ export function verifyServicesQualityFit(params,report){
  let verificationMaxSide=q.maxControlSide;
  const retry=report.reliefDesign.qualityCapacityRetry;
  if(retry){
-  const allowedTo=new Set([513,641,769]);
+  const allowedTo=new Set([385,513,641,769]);
   if(retry.fromMaxControlSide!==q.maxControlSide||!allowedTo.has(retry.toMaxControlSide)||q.maxControlSide<=retry.toMaxControlSide||!['RELIEF_DESIGN_NO_CHANGE','RELIEF_QUALITY_CHECK_FAILED'].includes(retry.reason)||r.columns>retry.toMaxControlSide||r.rows>retry.toMaxControlSide)
    fail('SERVICES_RESPONSE_INVALID','Services 控制网容量重试记录与请求不符');
   verificationMaxSide=retry.toMaxControlSide;

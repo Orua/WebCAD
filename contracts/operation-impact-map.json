@@ -3846,5 +3846,19 @@
       "typed file byte budgets",
       "local published page read"
     ]
+  },
+  "reliefWizardUsability20261028": {
+    "localImpact": "Modal import wizard with canvas handoff; candidate and refinement guidance.",
+    "servicesImpact": "Submit timeout code and reconciliation; native 513 to 385 retry and adaptive relief volume integration.",
+    "logoImpact": "No Logo behavior change; reuses established modal styling.",
+    "contractImpact": "Same reliefWizard/fit/preview/undo methods; guide text and knowledge regenerated.",
+    "documentImpact": "Same draft and compiled checkpoint schema; no source overwrite.",
+    "cacheImpact": "Frontend and native fingerprints change; preserve saved data.",
+    "requiredTests": [
+      "Medal, dragon, authored flower: import/convert/place/fit/preview/apply/undo",
+      "One actual calculation >30 seconds",
+      "Modal and advanced BEFORE/AFTER",
+      "Targeted native compile and changed behavior only"
+    ]
   }
 }

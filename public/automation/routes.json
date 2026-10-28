@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
   "pageApiVersion": "1.60.8",
-  "buildId": "238b02576628044cfd51d626cbcc2220061f1f5c-src-24cd8620153808a7-working",
-  "catalogHash": "sha256:fe398ff5eeeef5d9f2678f06b4f8f174a1e96d7e613be1757869f0e5bf467f7c",
-  "docsHash": "sha256:11de05444ceda91d352218ee885d76ab14b49d5187573f846463ea0345079f3e",
+  "buildId": "fc4f51a02e9ba9e1944fe9d1b4618dd4dba01a60-src-b8447ac13c517a16-working",
+  "catalogHash": "sha256:abcebb2e817add98942b3f00381cd30643ff771fd1347ce0375ffdca050ef5e3",
+  "docsHash": "sha256:e7c5d131a282e13914ac807b56afbeb20dec663bbd4b5ea5dfc7523624602a6d",
   "routes": {
     "advancedLoft": {
       "tools": [

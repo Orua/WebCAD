@@ -171,6 +171,9 @@ inline DesignResult build(const TopoDS_Shape& input,const json& params,double be
    after={{"volumeMm3",mv},{"volumeBasis","mesh-deflection-0.05"}};
   }else{ShapeFix_Shape fix(result);fix.Perform();result=fix.Shape();after=measure(result);}
  }
+ // Adaptive surface integration resolves dense B-spline spans that fixed quadrature can miss.
+ {GProp_GProps refined;const double err=BRepGProp::VolumeProperties(result,refined,1e-6,true);
+  const double v=std::abs(refined.Mass());if(std::isfinite(err)&&err>=0&&std::isfinite(v)&&v>0){after["volumeMm3"]=v;after["volumeBasis"]="adaptive-surface-integration-1e-6";}}
  const double delta=(after.at("volumeMm3").get<double>()-beforeVolume)*fit.sign;
  stage("quality-check");
  // Target faces as 2D polygons in pattern coords (ordered wire traversal, 48 samples per edge).

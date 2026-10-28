@@ -51,7 +51,7 @@ test('draft wiring: quality block only for pure image reliefs; advanced setting 
   const s=normalizeConvertSettings({columns:8,rows:6}),grid=encodeHeightGrid({columns:8,rows:6,values:new Float32Array(48).fill(.5)});
   hs.source=createReliefHeightSource({original:{sha256:'a'.repeat(64),name:'x.png'},interpretation:'authoredHeightMap',settings:s,grid});
   const d=validateReliefDesign({...base,heightSource:hs});const r=reliefQualityParams(d);
-  assert.equal(r.version,1);assert.equal(r.machiningPrecisionMm,.08);assert.equal(r.maxControlSide,1025);assert.equal(r.source.columns,8);assert.equal(r.depthMm,1.6);
+  assert.equal(r.version,1);assert.equal(r.machiningPrecisionMm,.08);assert.equal(r.maxControlSide,513);assert.equal(r.source.columns,8);assert.equal(r.depthMm,1.6);
   assert.equal(reliefQualityParams({...d,fieldSettings:{...d.fieldSettings,servicesQuality:{mode:'off'}}}),null);
   assert.equal(reliefQualityParams({...d,points:[{id:'p',pointMm:[0,0],heightMm:1}]}),null);
   assert.equal(reliefQualityParams({...d,fieldSettings:{...d.fieldSettings,servicesQuality:{maxControlSide:200}}}).maxControlSide,200);
