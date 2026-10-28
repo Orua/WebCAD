@@ -72,6 +72,17 @@ export function encodeHeightGrid({columns,rows,values}){
  for(let k=0;k<columns*rows;k++){const v=Math.round(Math.min(1,Math.max(0,values[k]))*65535);bytes[k*2]=v&255;bytes[k*2+1]=v>>8;}
  return {columns,rows,encoding:'u16le',data:b64(bytes),sha256:binaryHash(bytes).slice(7)};
 }
+/** Area-average a u16 height grid so its long side is at most maxSide. Identity when already within budget. */
+export function downsampleEncodedGrid(grid,maxSide){
+ const cols=grid?.columns,rows=grid?.rows,long=Math.max(cols||0,rows||0);
+ if(!Number.isInteger(cols)||!Number.isInteger(rows)||!Number.isInteger(maxSide)||maxSide<2||long<=maxSide)return {grid,packed:false,from:null};
+ const values=decodeHeightGrid(grid),k=maxSide/long,C=Math.max(2,Math.round(cols*k)),R=Math.max(2,Math.round(rows*k)),out=new Float32Array(C*R);
+ for(let j=0;j<R;j++){const y0=Math.floor(j*rows/R),y1=Math.min(rows,Math.max(y0+1,Math.ceil((j+1)*rows/R)));
+  for(let i=0;i<C;i++){const x0=Math.floor(i*cols/C),x1=Math.min(cols,Math.max(x0+1,Math.ceil((i+1)*cols/C)));let acc=0,n=0;
+   for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){acc+=values[y*cols+x];n++;}
+   out[j*C+i]=n?acc/n:0;}}
+ return {grid:encodeHeightGrid({columns:C,rows:R,values:out}),packed:true,from:[cols,rows]};
+}
 export function decodeHeightGrid(grid){
  if(!grid||grid.encoding!=='u16le'||!Number.isInteger(grid.columns)||!Number.isInteger(grid.rows))fail('PARAM_SCHEMA_INVALID','高度网格需要 u16le 编码');
  const bytes=unb64(grid.data);

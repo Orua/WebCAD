@@ -29,18 +29,18 @@ export function heightPanelRequest(v,{image,sizeMm,precisionMm}={}){
 }
 export function createReliefHeightPanel({element,button,field,onApply,getCurrent,getPrecision=()=>.05,getSizeMm=()=>null,servicesReady=()=>reliefServicesReady('reliefSourceConvert'),convertRemote=convertSourceOnServices}){
  const panel=element('details',{}),summary=element('summary',{},'从图片导入高度');
- const hint=element('p',{class:'property-footnote'},'图片覆盖支撑范围的外接矩形，亮色更高（可反相）。照片只代表光影，必须由您确认转换结果是自己制作的高度图后才能使用。');
+ const hint=element('p',{class:'property-footnote'},'选择图片并填写最大高度即可。默认按亮度做高度；黑白点、模糊和照片确认在高级配置里。');
  const why=element('p',{class:'property-footnote','aria-live':'polite'});why.style.cssText='color:var(--warning,#b45309)';
  const form=element('div',{});form.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:6px 10px';
  const picker=element('input',{type:'file',accept:'image/png,image/jpeg,image/webp','aria-label':'选择高度图片'});
  const use=element('select',{'aria-label':'图像用途'});for(const [v,t] of [['authoredHeightMap','作者制作的高度图'],['shadedReference','照片 / 光影参考']])use.append(element('option',{value:v},t));
  const num=(label,value,step='any')=>{const i=element('input',{type:'number',step,value,'aria-label':label});field(label,i,form);return i;};
- field('图像用途',use,form);
  const columns=num('网格长边（留空=自动：按图像像素与尺寸/精度取 129–1025）','','1'),black=num('黑点 0–1',0),white=num('白点 0–1',1),gamma=num('Gamma',1),blur=num('模糊（网格像素）',0),depth=num('最大高度 mm',1),keepout=num('边缘留空 mm',2),fade=num('边缘过渡 mm',2);
  const invert=element('input',{type:'checkbox','aria-label':'反相'});field('反相（暗色更高）',invert,form);
  const tuning=element('details',{'data-relief-image-advanced':'true'}),tuningForm=element('div',{});tuningForm.style.cssText=form.style.cssText;
- tuning.append(element('summary',{},'图像调整（可选）'),tuningForm);
- for(const input of [columns,black,white,gamma,blur,keepout,fade])tuningForm.append(input.closest('label'));
+ tuning.append(element('summary',{},'高级配置'),element('p',{class:'property-footnote'},'图像用途、反相、网格和边缘。不打开则按默认高度图导入。'),tuningForm);
+ field('图像用途',use,tuningForm);
+ for(const input of [invert,columns,black,white,gamma,blur,keepout,fade])tuningForm.append(input.closest('label'));
  const confirmRow=element('label',{class:'form-field wide'}),confirm=element('input',{type:'checkbox','aria-label':PHOTO_HEIGHTMAP_CONFIRMATION});confirmRow.append(confirm,element('span',{},PHOTO_HEIGHTMAP_CONFIRMATION));
  const canvas=element('canvas',{width:192,height:192,'aria-label':'高度图预览'});canvas.style.cssText='width:192px;height:192px;border:1px solid var(--border);background:#111';
  const info=element('p',{class:'property-footnote','aria-live':'polite'},'尚未选择图片。');

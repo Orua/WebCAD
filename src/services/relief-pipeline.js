@@ -195,6 +195,7 @@ function contractHashOf(v){return recipeHash(v).replace(/^sha256:/,'');}
 // size and the machining precision (see relief_quality.hxx). Drafts with authored points or local edits keep the
 // legacy field fit, because those edits only exist on the authored field.
 import {decodeQualitySource,buildQualityTarget,finestControlSpacing,evaluateQualitySurface,RELIEF_QUALITY_LIMITS} from '../relief-design-core/quality-target.mjs';
+import {downsampleEncodedGrid} from '../relief-source/convert.js';
 export const RELIEF_QUALITY_DEFAULTS=Object.freeze({mode:'adaptive',maxControlSide:513});
 export function reliefQualityParams(draft){
  const d=validateReliefDesign(draft),q={...RELIEF_QUALITY_DEFAULTS,...d.fieldSettings?.servicesQuality},h=d.heightSource;
@@ -202,13 +203,23 @@ export function reliefQualityParams(draft){
  const g=h.source.grid,p=d.fieldSettings?.machiningPrecisionMm??RELIEF_PRECISION_LIMITS.defaultMm;
  return {version:1,machiningPrecisionMm:p,maxControlSide:q.maxControlSide,source:{columns:g.columns,rows:g.rows,encoding:g.encoding??'u16le',data:g.data,sha256:g.sha256},depthMm:h.depthMm,...(m=>({edgeKeepoutMm:m.keepMm,edgeFadeMm:m.fadeMm}))(effectiveEdgeMargins(d))};
 }
+// The draft keeps the full height grid (up to 1025²). The Services job only needs a source
+// the control net can represent. A 1025² u16 grid is ~2.8 MiB of base64 and was the
+// 3,057,103-byte relief.design-fit-brep-1 body. Packing to maxControlSide removes that
+// upload without lowering an explicitly requested control budget.
+export function packQualitySource(quality){
+ const cap=Math.min(1025,Math.max(16,quality?.maxControlSide||RELIEF_QUALITY_DEFAULTS.maxControlSide));
+ const packed=downsampleEncodedGrid(quality.source,cap);
+ return {quality:{...quality,source:packed.grid},packed:packed.packed,from:packed.from};
+}
 export function reliefDesignServicesPlan(document,feature){
  const plan=legacyReliefDesignServicesPlan(document,feature),entry=(document.reliefDesigns||[]).find(d=>d.id===feature.params.designBinding.audit?.designId);
  const quality=reliefQualityParams(entry.draft);if(!quality)return plan;
  // User-adjustable precision target; valid geometry remains a usable candidate when deviation is larger.
+ const shipped=packQualitySource(quality);
  plan.params.fit={...plan.params.fit,acceptanceToleranceMm:quality.machiningPrecisionMm,deviationPolicy:'candidate'};
- Object.defineProperty(plan.params,'quality',{value:quality,enumerable:true});
- return {...plan,quality:{mode:'adaptive',machiningPrecisionMm:quality.machiningPrecisionMm,maxControlSide:quality.maxControlSide,source:[quality.source.columns,quality.source.rows]}};
+ Object.defineProperty(plan.params,'quality',{value:shipped.quality,enumerable:true});
+ return {...plan,quality:{mode:'adaptive',machiningPrecisionMm:quality.machiningPrecisionMm,maxControlSide:quality.maxControlSide,source:[shipped.quality.source.columns,shipped.quality.source.rows],...(shipped.packed?{sourcePackedFrom:shipped.from}:{})}};
 }
 // Independent browser re-verification: hash + locked zeros + the returned surface, sampled on a sub-grid of the
 // target the browser builds itself from the same source, must agree with the server's reported training deviation.
@@ -227,7 +238,7 @@ export function verifyServicesQualityFit(params,report){
  let verificationMaxSide=q.maxControlSide;
  const retry=report.reliefDesign.qualityCapacityRetry;
  if(retry){
-  const allowedTo=new Set([513,641,769]);
+  const allowedTo=new Set([257,513,641,769]);
   if(retry.fromMaxControlSide!==q.maxControlSide||!allowedTo.has(retry.toMaxControlSide)||q.maxControlSide<=retry.toMaxControlSide||!['RELIEF_DESIGN_NO_CHANGE','RELIEF_QUALITY_CHECK_FAILED'].includes(retry.reason)||r.columns>retry.toMaxControlSide||r.rows>retry.toMaxControlSide)
    fail('SERVICES_RESPONSE_INVALID','Services 控制网容量重试记录与请求不符');
   verificationMaxSide=retry.toMaxControlSide;

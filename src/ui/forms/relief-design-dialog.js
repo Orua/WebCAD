@@ -8,7 +8,7 @@ import {adaptiveBrowserControlNet,adaptiveFieldResolution,effectiveEdgeMargins} 
 
 export function showReliefDesignDialog({getState,openDialog,element,button,onSave,onGenerate,onPreview,onPlacement,initialDesignId,initialMode,close}){
  let initial=getState(),loaded=null,busy=false,dirty=false,fieldResult=null,referenceUrl=null,referenceGeneration=0,selectedEdit=-1,editInputsDirty=false,resolutionTouched=false,fitRunning=false,fitBaselineMm=NaN,brep=null;
- const d=openDialog('图片浮雕','选择高度图和尺寸，在选面上定位、预览并应用。',{returnToSelect:true});
+ const d=openDialog('图片浮雕','选择图片和尺寸，点「预览浮雕」。预览是应用前效果，应用后可撤销对比。',{returnToSelect:true});
  d.dataset.taskPanel='true';
  d._acceptSelection=true;d.style.cssText='width:100%;max-width:100%;display:flex;flex-direction:column;overflow:hidden';
  const scroller=element('div',{});scroller.style.cssText='min-height:0;overflow:auto';
@@ -20,7 +20,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  // 高级配置: everything beyond the essentials (image, size/depth, emboss/engrave, placement, preview/apply)
  // lives in one collapsed section with working defaults; the common case never needs to open it.
  const advanced=element('details',{class:'relief-advanced','data-relief-advanced':'true'});
- advanced.append(element('summary',{},'高级设置'),element('p',{class:'property-footnote'},'采样、精度、局部编辑、拟合与参考图；常用参数已设好。'));
+ advanced.append(element('summary',{},'高级配置'),element('p',{class:'property-footnote'},'采样、精度、局部编辑、拟合与参考图；常用参数已设好。'));
  const advancedForm=element('div',{class:'parameter-form'});advancedForm.style.cssText='display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px';advanced.append(advancedForm);
  function field(label,el,parent=form){const row=element('label',{class:'form-field'});row.append(element('span',{},label),el);parent.append(row);return el;}
  const name=field('草稿名称',element('input',{type:'text',maxlength:120}));
@@ -87,11 +87,12 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  advanced.append(referencePanel);brep.moveAdvanced?.(advanced);scroller.append(advanced);
  advanced.append(canvas);
  const footer=element('div',{class:'dialog-footer'});footer.style.cssText='flex-shrink:0;display:flex;flex-wrap:wrap;gap:8px;margin-top:10px';
+ const quick=button('预览浮雕',()=>quickPreview(),'primary');
  const save=button('保存设计',()=>commit(false),'secondary'),remove=button('删除当前草稿',()=>commit(true),'secondary');
  const solve=button('求解数值场',()=>compute(),'secondary'),cancel=button('停止求解',()=>window.webcad.api.reliefDesignField(request('cancel')),'secondary');
  const generate=button('生成网格',()=>generateMesh(),'primary');generate.disabled=true;cancel.disabled=true;
  const technicalActions=element('div',{});technicalActions.style.cssText=footer.style.cssText;technicalActions.append(solve,cancel,generate);advanced.append(technicalActions);
- advanced.append(remove);footer.append(button('关闭',()=>{if(!busy)close();},'secondary'),save);d.append(scroller,status,footer);
+ advanced.append(remove);footer.append(quick,button('关闭',()=>{if(!busy)close();},'secondary'),save);d.append(scroller,status,footer);
  d._onClose=()=>{brep.dispose?.();if(brep.hasPreview())brep.cancelPreview();clearReferencePreview();if(loaded){window.webcad.api.reliefDesignField(request('cancel'));if(fitRunning)window.webcad.api.reliefDesignFit(request('cancel'));}};
  function clearReferencePreview(){referenceGeneration++;if(referenceUrl)URL.revokeObjectURL(referenceUrl);referenceUrl=null;referencePreview.removeAttribute('src');referencePreview.style.display='none';}
  async function showReference(){
@@ -234,7 +235,17 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
    if(m?.scaled)status.textContent=`⚠ 尺寸变化：边缘留空 ${m.requestedMm[0]} mm / 过渡 ${m.requestedMm[1]} mm 合计超过最小半尺寸的 25%（${m.limitMm.toFixed(2)} mm），将按比例缩小为 ${m.keepMm.toFixed(2)} / ${m.fadeMm.toFixed(2)} mm。60→18 mm 时仍应保留可识别细节。`;
   }catch{}
  }
- function load(entry){fitBaselineMm=NaN;precision.value=.05;brep?.reset();
+ async function quickPreview(){
+  if(busy)return;
+  status.textContent='正在保存并准备预览…预览显示应用前效果，应用后可撤销对比。';
+  if(!loaded||dirty||editInputsDirty||pendingHeight!==undefined){const ok=await commit(false);if(!ok||!loaded)return;}
+  if(!fieldResult)await compute();
+  if(!fieldResult){status.textContent='请先选择图片并填写有效尺寸，再预览。';return;}
+  try{if(!Number.isFinite(fitBaselineMm)){if(servicesFirstOK)await ensureFit();else await computeFit();}}catch(error){status.textContent=humanError(error);return;}
+  if(!Number.isFinite(fitBaselineMm))return;
+  await brep.previewNow?.();
+ }
+ async function load(entry){fitBaselineMm=NaN;precision.value=.05;brep?.reset();
   const sameDraft=!!(loaded&&entry&&loaded.id===entry.id);
   // Same draft reopen must keep decoded image / paint preview from heightSource (do not wipe the panel).
   if(!sameDraft){pendingHeight=undefined;heightPanel?.reset();}
@@ -252,7 +263,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
   status.textContent=entry?'已读取工程草稿。':'新建示例范围为直径60 mm；请按实际设计填写。';draw(draft);showReference();
   if(entry?.draft?.heightSource)heightPanel?.showFromDraft?.(entry.draft.heightSource);
   warnMarginsNow();
-  if(entry)restoreRetained(entry);
+  if(entry)await restoreRetained(entry);
  }
  // Reopen: restore the retained (same session/document/revision/draft) field and fit instead of discarding them.
  async function restoreRetained(entry){
@@ -287,7 +298,7 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
    controls=[...scroller.querySelectorAll('input,select,textarea,button')].map(el=>[el,el.disabled]);for(const [el]of controls)el.disabled=true;
    const result=await onSave({id,expectedDraftRevision:loaded?.revision??0,...(deleting?{remove:true}:{draft})});
    if(!result||!['committed','no_change'].includes(result.status))throw new Error(result?.error?.message||'草稿未保存。');
-   initial=getState();const current=initial.document.reliefDesigns?.find(item=>item.id===id);load(current||null);
+   initial=getState();const current=initial.document.reliefDesigns?.find(item=>item.id===id);await load(current||null);
    if(selectEdit>=0)loadEdit(selectEdit);
    status.textContent=message||(deleting?'已删除；可用工程撤销恢复。':'草稿已写入当前工程；保存工程文件后可重新打开。');return true;
   }catch(error){status.textContent=humanError(error);}

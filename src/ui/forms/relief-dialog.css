@@ -1,4 +1,7 @@
 @import '../logo-vector-review.css';
+.relief-wizard .relief-steps{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:0;list-style:none;font-size:12px}
+.relief-wizard .relief-steps li{padding:4px 8px;border-bottom:2px solid var(--border)}
+.relief-wizard .relief-steps li[aria-current=step]{border-color:var(--accent,#2466a4);font-weight:650;color:var(--accent,#2466a4)}
 .relief-wizard .relief-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
 .relief-wizard .relief-form>.wide{grid-column:1/-1}
 .relief-wizard .form-field{min-width:0;margin:0}

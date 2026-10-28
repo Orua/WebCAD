@@ -3,6 +3,7 @@ import {assertCompilableFeature,compiledSemanticVersion,geometryRecipeFingerprin
 import {binaryHash,contractHash} from '../contracts/operation-schema.js';
 import {serviceError} from './settings.js';
 import {verifyServicesFit,RELIEF_SERVICES_OPERATIONS} from './relief-pipeline.js';
+import {formatServicesTransportFailure} from './transport-error.js';
 export async function compileRemoteFeature(document,featureId,sourceBytes,context,{allowUpload=false,client=servicesClient,plan=null,signal,onWaitTimeout,waitTimeoutMs}={}){
  const began=performance.now();
  if(!allowUpload)throw serviceError('UPLOAD_AUTH_REQUIRED','须明确允许上传当前来源 BRep 到 Services');
@@ -38,5 +39,5 @@ export async function compileRemoteFeature(document,featureId,sourceBytes,contex
  checkBeforeSubmit();
  try{const job=await client.submit('compute/jobs',payload,requestId),result=await client.wait(job,{signal,onWaitTimeout,waitTimeoutMs});if(result.manifest.sourceSha256!==source.sha256||isCut&&(!Array.isArray(result.manifest.inputSha256)||result.manifest.inputSha256.length!==inputs.length||inputs.some((input,i)=>input.sha256!==result.manifest.inputSha256[i])))throw serviceError('RESULT_MISMATCH','原生结果绑定的目标或刀具 BRep 不一致');if(feature.op==='round'&&(!Number.isFinite(result.manifest.roundBoundary?.radiusMm)||Math.abs(result.manifest.roundBoundary.radiusMm-plan.params.radius)>1e-7))throw serviceError('RESULT_MISMATCH','原生圆角半径与当前来源已有 R 不一致');const verification=design?verifyServicesFit(plan.params,result.manifest):undefined;
   return {...result,recipeFingerprint,...(verification?{verification}:{}),executionMeasurements:{totalMs:performance.now()-began,computeMs:result.manifest.timings?.totalMs??null}};}
- catch(error){if(error.code==='SERVICES_CONNECTION_UNKNOWN')error.message+=`（用 getServicesRequest 查询请求键 ${requestId}，勿重算）`;throw error;}
+ catch(error){if(error.code==='SERVICES_CONNECTION_UNKNOWN'){error.operation=error.operation||payload.semanticVersion||payload.operation;error.idempotencyKey=error.idempotencyKey||requestId;error.phase=error.phase||'submit';error.message=formatServicesTransportFailure(error);}throw error;}
 }
