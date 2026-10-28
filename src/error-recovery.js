@@ -1,6 +1,7 @@
 import sourceCodes from '../contracts/error-recovery-codes.json' with {type:'json'};
 import {parameterErrorMessage} from './parameter-error-message.js';
 import {debugJournal} from './debug-journal.js';
+import {formatServicesTransportFailure} from './services/transport-error.js';
 // One recovery contract for UI, page receipts and hosts. This module never executes a retry,
 // changes an argument, clears a guard, commits/undoes geometry, or cancels a job.
 const rule=(id,codes,reason,next,tools=[],options={})=>({id,codes:new Set(codes.split(' ').filter(Boolean)),reason,next,tools,...options});
@@ -100,8 +101,9 @@ export function recoveryRule(code,message=''){
 
 export function errorRecovery(error={},receipt={}){
   const code=String(error.code||'UNCLASSIFIED_ERROR'),base=recoveryRule(code,String(error.message||''));
+  const transport=code==='SERVICES_CONNECTION_UNKNOWN'?formatServicesTransportFailure(error):null;
   const logoFailure=error.details?.logoFailure,logoReason=businessReason(logoFailure?.reason),logoNext=businessReason(logoFailure?.next);
-  const parameterReason=parameterErrorMessage(error),detail=businessReason(error.message),reason=logoReason??parameterReason??(detail?(base===unknown?detail:`${base.reason}${detail}`):base.reason);
+  const parameterReason=parameterErrorMessage(error),detail=transport?null:businessReason(error.message),reason=transport??logoReason??parameterReason??(detail?(base===unknown?detail:`${base.reason}${detail}`):base.reason);
   const commit=receipt.commitState??error.commitState??error.serviceCommitState;
   const uncertain=receipt.status==='unknown'||commit==='unknown'||base.reconcile===true;
   const partial=receipt.status==='partial'||receipt.atomic===false&&receipt.results?.some(step=>['committed','completed'].includes(step.result?.status));
@@ -109,10 +111,10 @@ export function errorRecovery(error={},receipt={}){
   const committed=['committed','applied'].includes(commit);
   const preservation=uncertain?'执行结果尚未确认；请保留当前工程和原任务回执。':partial?'前面已提交的步骤仍保留，后续步骤已经停止；不要重建已成功部分。':notCommitted?'本次失败步骤未提交，先前已提交内容保留。':committed?'已有操作提交，请先核对当前工程与显示状态。':'请保留当前工程；是否已有提交须以原回执和状态为准。';
   const classification=uncertain?'reconcile':base.id;
-  const next=uncertain?'先按原任务或请求标识查询回执并与当前工程对账，确认前不要重放、换键或另起计算。':logoNext??base.next;
+  const next=transport?'用 getServicesRequest 查询原请求键；勿盲目重算，勿更换幂等键。':uncertain?'先按原任务或请求标识查询回执并与当前工程对账，确认前不要重放、换键或另起计算。':logoNext??base.next;
   const candidate=base.candidate===true&&!uncertain&&notCommitted&&error.budgetExhausted!==true;
   return {version:ERROR_RECOVERY_VERSION,code,classification,reason,preservation,next,scope:'failed-operation',agentMayContinue:true,
-    userMessage:logoReason?`${reason}${next}`:`${reason}${preservation}${next}`,automaticRetry:false,
+    userMessage:transport||(logoReason?`${reason}${next}`:`${reason}${preservation}${next}`),automaticRetry:false,
     retry:{allowed:false,condition:base.readRetry&&!uncertain?'仅重试只读画面/截图一次；不重做建模。':'原错误条件已明确修正、状态已对账且共享预算允许；不得自动重放。'},
     candidate:{eligible:candidate,allowed:false,mode:candidate?'evaluate-existing-preview-conditions':'blocked',requires:['known-not-committed','new-mechanism-evidence','shared-budget-available','supported-tool-contract','unchanged-design-intent'],commit:'only-after-valid-preview-and-explicit-task-authorization'},
     alternatives:{mode:'contract-compatible-only',readTools:uncertain?['getJob','getBatchReceipt','getServicesJob','getServicesRequest','getState']:base.tools,automaticFallback:false},
@@ -129,6 +131,7 @@ export function humanError(error,receipt={}){
   debugJournal.record('ui','error',{error:source},'error');
   uiAudit.push({at:Date.now(),code:source.code??'UNCLASSIFIED_ERROR',message:auditText(source.message),...(source.path?{path:auditText(source.path)}:{}),...(source.requestId?{requestId:source.requestId}:{}),...(source.jobId?{jobId:source.jobId}:{})});
   if(uiAudit.length>100)uiAudit.shift();
+  if(source.code==='SERVICES_CONNECTION_UNKNOWN')return formatServicesTransportFailure(source);
   const recovery=errorRecovery(source,receipt);
   // A UI validation message is not evidence of an unknown geometry commit.
   // Keep full recovery/receipt guidance on the API, without repeating it in

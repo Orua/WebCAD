@@ -3832,6 +3832,20 @@
       "one localhost import/place/preview/apply check with actual executor receipt"
     ]
   },
+  "reliefProduction20261028": {
+    "localImpact": "Services submit timeout follows serverWaitMs for bodies ≥256 KiB and stays 60s for small posts. SERVICES_CONNECTION_UNKNOWN toasts and recovery.userMessage include the code, operation, request key, elapsedMs/timeoutMs and body class, and tell the agent to query getServicesRequest before retrying. Relief import keeps essentials visible and folds the rest under 高级配置; 预览浮雕 chains save, solve, Services-first fit and preview. Preview copy states the before-apply view and Undo comparison.",
+    "servicesImpact": "Client transport only, plus native relief fit: quality source packed to maxControlSide before the job body; candidate ladder may stop at a usable net; candidate volume integral capped at 320; capacity retry continues down to 257. No new operation id. Strict 0.05 mm rejection is unchanged and is not the default.",
+    "logoImpact": "none. LOGO wizard is only the UI pattern. Logo submit of small JSON uses the 60s floor, not the relief body budget.",
+    "contractImpact": "No page API version bump. relief.design-fit-brep-1 request quality.source may be area-averaged to maxControlSide; deviationPolicy candidate still applies when residual exceeds machining precision. SERVICES_CONNECTION_UNKNOWN recovery text is structured.",
+    "documentImpact": "Draft height grid on disk stays up to 1025. Only the Services job payload is packed. Undo and saved projects unchanged.",
+    "cacheImpact": "none. Static knowledge text was not regenerated; the agent-facing contract is the error userMessage.",
+    "requiredTests": [
+      "services submit timeout for a 3057103-byte body is at least serverWaitMs 180000",
+      "SERVICES_CONNECTION_UNKNOWN userMessage names relief.design-fit-brep-1, the request key, elapsed/timeout and getServicesRequest",
+      "1025 source packed to maxControlSide 513",
+      "existing relief fit and design dialog suites"
+    ]
+  },
   "nativeStateProjection20261027": {
     "localImpact": "Compact reads omit full geometry; feature/body ID and field paths provide bounded parameter reads.",
     "servicesImpact": "none: no Services compute/protocol change",

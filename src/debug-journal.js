@@ -26,7 +26,7 @@ export function debugValue(value,{maxNodes=1200,maxChars=24000}={}){
   if(v instanceof ArrayBuffer||ArrayBuffer.isView(v))return {type:'binary',bytes:v.byteLength};
   if(typeof Blob!=='undefined'&&v instanceof Blob)return {type:'file',bytes:v.size,mime:v.type};
   if(seen.has(v))return '[circular]';if(depth>=8)return '[depth limit]';seen.add(v);
-  if(v instanceof Error||key==='error'){const result={};for(const k of ['name','code','path','stage','jobId','requestId','idempotencyKey','commitState','serviceCommitState','diagnosticsRef','message','details','report','supportBinding','stack'])if(v[k]!==undefined)result[k]=visit(v[k],depth+1,k);seen.delete(v);return result;}
+  if(v instanceof Error||key==='error'){const result={};for(const k of ['name','code','path','stage','jobId','requestId','idempotencyKey','commitState','serviceCommitState','diagnosticsRef','message','details','report','supportBinding','stack','elapsedMs','timeoutMs','operation','phase','bodyBytes','bodyClass','recoveryAction','aborted'])if(v[k]!==undefined)result[k]=visit(v[k],depth+1,k);seen.delete(v);return result;}
   if(Array.isArray(v)){const sample=v.slice(0,16).map(x=>visit(x,depth+1,key));return v.length>16?{arrayLength:v.length,sample,truncated:true}:sample;}
   const out={};for(const k of Object.keys(v).slice(0,80)){const d=Object.getOwnPropertyDescriptor(v,k),name=debugText(k).slice(0,120);chars+=name.length;out[name]=d&&'value'in d?visit(d.value,depth+1,k):'[accessor omitted]';}return out;
  }
