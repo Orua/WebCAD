@@ -63,16 +63,117 @@ inline double percentileSorted(std::vector<double> a,double p){if(a.empty())retu
 inline json defaultPhoto(){return {{"lightingFrac",0.14},{"bodyFrac",0.07},{"midFrac",0.022},{"fineFrac",0.007},{"denoisePx",1.2},{"bodyWeight",0.5},{"midWeight",0.28},{"fineWeight",0.12},{"edgeFadeFrac",0.05},{"percentileLow",2.0},{"percentileHigh",98.0},{"massWeight",0.45},{"massFrac",0.1}};}
 inline json normalizePhoto(const json& p){
  json d=defaultPhoto();if(p.is_null())return d;if(!p.is_object())fail("PARAM_SCHEMA_INVALID","photo 需要对象");
- static const char* keys[]={"lightingFrac","bodyFrac","midFrac","fineFrac","denoisePx","bodyWeight","midWeight","fineWeight","edgeFadeFrac","percentileLow","percentileHigh","massWeight","massFrac"};
- for(auto it=p.begin();it!=p.end();++it){bool ok=false;for(auto k:keys)if(it.key()==k)ok=true;if(!ok)fail("PARAM_SCHEMA_INVALID","未知照片浮雕参数："+it.key());}
+ static const char* keys[]={"lightingFrac","bodyFrac","midFrac","fineFrac","denoisePx","bodyWeight","midWeight","fineWeight","edgeFadeFrac","percentileLow","percentileHigh","massWeight","massFrac","algorithm"};
+ static const char* keys2[]={"volume","volumeFrac","maskFrac","backgroundLevel","detailWeight","smoothness"};
+ int algorithm=1;
+ if(p.contains("algorithm")){const auto& a=p.at("algorithm");if(!a.is_number_integer()||(a.get<int>()!=1&&a.get<int>()!=2))fail("PARAM_SCHEMA_INVALID","photo.algorithm 仅支持 1 或 2");algorithm=a.get<int>();}
+ for(auto it=p.begin();it!=p.end();++it){bool ok=false;for(auto k:keys)if(it.key()==k)ok=true;if(algorithm==2)for(auto k:keys2)if(it.key()==k)ok=true;if(!ok)fail("PARAM_SCHEMA_INVALID","未知照片浮雕参数："+it.key());}
  auto clamp=[&](const char* k,double lo,double hi){double v=p.value(k,d.at(k).get<double>());if(!(v>=lo&&v<=hi))fail("PARAM_RANGE_INVALID",std::string(k)+" out of range");d[k]=v;};
  clamp("lightingFrac",0.02,0.5);clamp("bodyFrac",0.01,0.4);clamp("midFrac",0.002,0.2);clamp("fineFrac",0.0005,0.1);clamp("denoisePx",0,8);
  clamp("bodyWeight",0,2);clamp("midWeight",0,2);clamp("fineWeight",0,2);clamp("edgeFadeFrac",0,0.25);clamp("percentileLow",0,20);clamp("percentileHigh",80,100);
  clamp("massWeight",0,2);clamp("massFrac",0.01,0.4);if(d.at("percentileHigh").get<double>()<=d.at("percentileLow").get<double>())fail("PARAM_RANGE_INVALID","percentileHigh 须高于 percentileLow");
+ if(algorithm==2){
+  d["algorithm"]=2;d["volume"]=0.8;d["volumeFrac"]=0.25;d["maskFrac"]=0.025;d["backgroundLevel"]=0.06;d["detailWeight"]=0.6;d["smoothness"]=0.6;
+  clamp("volume",0,1);clamp("volumeFrac",0.01,0.3);clamp("maskFrac",0.005,0.15);clamp("backgroundLevel",0,0.3);clamp("detailWeight",0,1.5);clamp("smoothness",0,1);
+ }else if(p.contains("algorithm"))d["algorithm"]=1;
  return d;
+}
+// ---------- photoRelief algorithm 2 (立体 v4) — mirrors photo-relief.js photoReliefV2 ----------
+inline std::vector<double> blurFast(const std::vector<double>& src,int w,int h,double sigma){
+ if(!(sigma>0))return src;if(sigma<2)return blurSep(src,w,h,sigma);
+ const int n=3;double wIdeal=std::sqrt((12*sigma*sigma/n)+1);int wl=int(std::floor(wIdeal));if(wl%2==0)wl--;int wu=wl+2;
+ int m=int(std::floor((12*sigma*sigma-n*wl*wl-4*n*wl-3*n)/(-4.0*wl-4)+0.5));/* JS Math.round */
+ std::vector<double> a=src,b(src.size());
+ for(int pass=0;pass<n;pass++){int r=((pass<m?wl:wu)-1)/2;if(r<1)continue;double inv=1.0/(2*r+1);
+  for(int y=0;y<h;y++){size_t row=size_t(y)*w;double acc=0;for(int t=-r;t<=r;t++)acc+=a[row+std::min(w-1,std::max(0,t))];
+   for(int x=0;x<w;x++){b[row+x]=acc*inv;acc+=a[row+std::min(w-1,x+r+1)]-a[row+std::max(0,x-r)];}}
+  for(int x=0;x<w;x++){double acc=0;for(int t=-r;t<=r;t++)acc+=b[size_t(std::min(h-1,std::max(0,t)))*w+x];
+   for(int y=0;y<h;y++){a[size_t(y)*w+x]=acc*inv;acc+=b[size_t(std::min(h-1,y+r+1))*w+x]-b[size_t(std::max(0,y-r))*w+x];}}}
+ return a;
+}
+inline double smoothstepD(double e0,double e1,double x){double d=e1-e0;double t=(x-e0)/(d!=0?d:1e-12);t=t<0?0:t>1?1:t;return t*t*(3-2*t);}
+inline double softClamp01(double x,double k){
+ if(k<=0)return x<0?0:x>1?1:x;if(x<=-k)return 0;if(x<k)return (x+k)*(x+k)/(4*k);if(x<=1-k)return x;if(x<1+k){double u=1+k-x;return 1-u*u/(4*k);}return 1;
+}
+inline double otsuThreshold(const std::vector<double>& a){
+ double mn=INFINITY,mx=-INFINITY;for(double v:a){if(v<mn)mn=v;if(v>mx)mx=v;}if(!(mx>mn))return mn;
+ std::vector<double> bins(256,0.0);double sc=255/(mx-mn);for(double v:a)bins[std::min(255,int(std::floor((v-mn)*sc)))]++;
+ double total=double(a.size()),sumAll=0;for(int i=0;i<256;i++)sumAll+=i*bins[i];
+ double wB=0,sumB=0,best=-1;int bi=0;
+ for(int i=0;i<256;i++){wB+=bins[i];if(!wB)continue;double wF=total-wB;if(!wF)break;sumB+=i*bins[i];double mB=sumB/wB,mF=(sumAll-sumB)/wF,v=wB*wF*(mB-mF)*(mB-mF);if(v>best){best=v;bi=i;}}
+ return mn+(bi+0.5)/sc;
+}
+inline void edt1d(const std::vector<double>& f,int n,std::vector<double>& d,std::vector<int>& v,std::vector<double>& z){
+ int k=0;v[0]=0;z[0]=-INFINITY;z[1]=INFINITY;
+ for(int q=1;q<n;q++){int r=v[k];double sx=((f[q]+double(q)*q)-(f[r]+double(r)*r))/(2.0*q-2.0*r);
+  while(sx<=z[k]){k--;r=v[k];sx=((f[q]+double(q)*q)-(f[r]+double(r)*r))/(2.0*q-2.0*r);}
+  k++;v[k]=q;z[k]=sx;z[k+1]=INFINITY;}
+ k=0;for(int q=0;q<n;q++){while(z[k+1]<q)k++;int r=v[k];d[q]=double(q-r)*(q-r)+f[r];}
+}
+inline std::vector<double> distanceTransform(const std::vector<uint8_t>& inside,int w,int h){
+ const double INF=1e20;std::vector<double> g(size_t(w)*h);int m=std::max(w,h);std::vector<double> f(m),d(m),z(m+1);std::vector<int> v(m);
+ for(int x=0;x<w;x++){for(int y=0;y<h;y++)f[y]=inside[size_t(y)*w+x]?INF:0;edt1d(f,h,d,v,z);for(int y=0;y<h;y++)g[size_t(y)*w+x]=d[y];}
+ for(int y=0;y<h;y++){for(int x=0;x<w;x++)f[x]=g[size_t(y)*w+x];edt1d(f,w,d,v,z);for(int x=0;x<w;x++)g[size_t(y)*w+x]=std::sqrt(d[x]);}
+ return g;
+}
+inline std::vector<double> photoReliefV2(const std::vector<double>& Lin,int C,int R,const json& p){
+ auto P=[&](const char* k){return p.at(k).get<double>();};
+ size_t n=size_t(C)*R;double side=double(std::max(C,R));
+ std::vector<double> L(n);for(size_t i=0;i<n;i++)L[i]=std::isfinite(Lin[i])?Lin[i]:0;
+ auto lighting=blurFast(L,C,R,P("lightingFrac")*side);
+ std::vector<double> flat(n);for(size_t i=0;i<n;i++)flat[i]=L[i]-lighting[i];
+ double den=std::max(P("denoisePx"),0.0035*side*P("smoothness"));
+ if(den>0)flat=blurFast(flat,C,R,den);
+ std::vector<double> Ld=den>0?blurFast(L,C,R,den):L;
+ auto body=blurFast(flat,C,R,P("bodyFrac")*side);
+ auto midb=blurFast(flat,C,R,P("midFrac")*side);
+ auto fineb=blurFast(flat,C,R,std::max(0.6,P("fineFrac")*side)*(1+0.6*P("smoothness")));
+ bool mass=P("massWeight")>0;std::vector<double> massb;if(mass)massb=blurFast(Ld,C,R,P("massFrac")*side);
+ std::vector<double> D(n),energy(n);
+ for(size_t i=0;i<n;i++){double mid=midb[i]-body[i],fine=fineb[i]-midb[i];
+  D[i]=0.3*P("bodyWeight")*body[i]+P("midWeight")*mid+0.7*P("fineWeight")*fine+(mass?0.3*P("massWeight")*std::abs(Ld[i]-massb[i]):0);
+  energy[i]=std::abs(mid)+0.5*std::abs(fine)+std::abs(Ld[i]-lighting[i])*0.5;}
+ auto E=blurFast(energy,C,R,P("maskFrac")*side);
+ auto Ls=blurFast(L,C,R,P("maskFrac")*side);
+ std::vector<double> border;int bw=std::max(1,int(std::round(0.03*side)));
+ for(int j=0;j<R;j++)for(int i=0;i<C;i++)if(i<bw||j<bw||i>=C-bw||j>=R-bw)border.push_back(Ls[size_t(j)*C+i]);
+ double bgTone=percentileSorted(border,50);
+ std::vector<double> tdist(n);for(size_t i=0;i<n;i++)tdist[i]=std::abs(Ls[i]-bgTone);
+ double T=otsuThreshold(tdist),eT=otsuThreshold(E);
+ std::vector<double> M(n);for(size_t i=0;i<n;i++)M[i]=std::max(smoothstepD(0.6*eT,1.4*eT,E[i])*0.8,smoothstepD(0.6*T,1.4*T,tdist[i]));
+ {auto Mc=blurFast(M,C,R,P("maskFrac")*side*1.5);for(size_t i=0;i<n;i++)M[i]=std::max(M[i],smoothstepD(0.35,0.75,Mc[i]));}
+ M=blurFast(M,C,R,(0.004+0.02*P("smoothness"))*side);
+ std::vector<uint8_t> inside(n);
+ for(int j=0;j<R;j++)for(int i=0;i<C;i++){size_t k=size_t(j)*C+i;inside[k]=(M[k]>=0.5&&i>0&&j>0&&i<C-1&&j<R-1)?1:0;}
+ auto dist=distanceTransform(inside,C,R);double maxD=0;for(double v:dist)if(v>maxD)maxD=v;
+ double cap=std::max(2.0,std::min(P("volumeFrac")*side,0.9*maxD));
+ std::vector<double> B(n);for(size_t i=0;i<n;i++){double d=std::min(1.0,dist[i]/cap);B[i]=std::sqrt(std::max(0.0,1-(1-d)*(1-d)));}
+ B=blurFast(B,C,R,std::max(1.0,cap*(0.15+0.25*P("smoothness"))));
+ for(size_t i=0;i<n;i++)B[i]=0.85*B[i]+0.15*M[i];
+ double pl=P("percentileLow"),ph=P("percentileHigh");
+ double dLo=percentileSorted(D,pl),dHi=percentileSorted(D,ph),dMed=percentileSorted(D,50),dSpan=std::max(1e-12,dHi-dLo);
+ std::vector<double> H(n),Dt(n);
+ for(size_t i=0;i<n;i++)Dt[i]=std::tanh(2*(D[i]-dMed)/dSpan)/2;
+ double feather=(0.004+0.02*P("smoothness"))*side;
+ if(P("smoothness")>0){/* 丝滑: soften detail along large-scale tonal edges (|∇Ls|) */
+  auto Db=blurFast(Dt,C,R,std::max(1.0,1.5*feather));std::vector<double> G(n);
+  for(int j=0;j<R;j++)for(int i=0;i<C;i++){double gx=Ls[size_t(j)*C+std::min(C-1,i+1)]-Ls[size_t(j)*C+std::max(0,i-1)],gy=Ls[size_t(std::min(R-1,j+1))*C+i]-Ls[size_t(std::max(0,j-1))*C+i];G[size_t(j)*C+i]=std::hypot(gx,gy);}
+  auto Gs=blurFast(G,C,R,std::max(1.0,feather));double gsMax=0;for(double v:Gs)if(v>gsMax)gsMax=v;
+  if(gsMax>1e-12)for(size_t i=0;i<n;i++){double w=std::min(1.0,1.6*P("smoothness"))*smoothstepD(0,0.5*gsMax,Gs[i]);Dt[i]=Dt[i]+w*(Db[i]-Dt[i]);}
+ }
+ for(size_t i=0;i<n;i++)H[i]=P("volume")*B[i]+P("detailWeight")*Dt[i]*(0.25+0.75*M[i]);
+ double lo=percentileSorted(H,std::max(0.5,pl/2)),hi=percentileSorted(H,std::min(99.8,(ph+100)/2)),span=hi-lo;
+ std::vector<double> out(n,0.0);if(!(span>1e-12))return out;
+ double knee=0.02+0.1*P("smoothness"),bg=P("backgroundLevel");
+ for(size_t i=0;i<n;i++)out[i]=float(bg+(1-bg)*softClamp01((H[i]-lo)/span,knee));
+ double ef=P("edgeFadeFrac");
+ if(ef>0)for(int j=0;j<R;j++)for(int i=0;i<C;i++){double u=double(i)/std::max(1,C-1),v=double(j)/std::max(1,R-1);out[size_t(j)*C+i]=float(out[size_t(j)*C+i]*smoothstepD(0,1,std::min(std::min(u,1-u),std::min(v,1-v))/ef));}
+ for(double& v:out)if(!std::isfinite(v))v=0;
+ return out;
 }
 inline std::vector<double> photoReliefFromLuminance(const std::vector<double>& L,int C,int R,const json& photo){
  json p=normalizePhoto(photo);double side=double(std::max(C,R));
+ if(p.value("algorithm",1)==2)return photoReliefV2(L,C,R,p);
  auto lighting=blurSep(L,C,R,p.at("lightingFrac").get<double>()*side);
  std::vector<double> flat(L.size());for(size_t i=0;i<L.size();i++)flat[i]=L[i]-lighting[i];
  if(p.at("denoisePx").get<double>()>0)flat=blurSep(flat,C,R,p.at("denoisePx").get<double>());

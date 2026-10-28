@@ -1,6 +1,6 @@
 // Relief height source record: original image identity + conversion settings + (for photos) the
 // user's explicit confirmation that the converted result is their own authored height map.
-import {normalizeConvertSettings,decodeHeightGrid,RELIEF_CONVERT_LIMITS,PHOTO_RELIEF_VERSION} from './convert.js';
+import {normalizeConvertSettings,decodeHeightGrid,RELIEF_CONVERT_LIMITS} from './convert.js';
 import {contractHash} from '../contracts/operation-schema.js';
 import {assertReliefHeightSourceIntent,PHOTO_HEIGHTMAP_CONFIRMATION} from '../machining-intent.js';
 export {PHOTO_HEIGHTMAP_CONFIRMATION};
@@ -18,7 +18,7 @@ export function createReliefHeightSource({original,interpretation,settings,grid,
  if(interpretation==='shadedReference'){
   if(s.mode==='photoRelief'){
    if(confirmation!==undefined)fail('PARAM_SCHEMA_INVALID','照片浮雕转换不需要旧确认勾选','confirmation');
-   derivedFrom={kind:'photoRelief',sourceSha256:original.sha256,settingsHash,photoReliefVersion:PHOTO_RELIEF_VERSION};
+   derivedFrom={kind:'photoRelief',sourceSha256:original.sha256,settingsHash,photoReliefVersion:s.photo?.algorithm===2?2:1};
   }else{
    if(!confirmation||confirmation.text!==PHOTO_HEIGHTMAP_CONFIRMATION)fail('MACHINING_SOURCE_CONFLICT',`照片（光影参考）只有在用户勾选“${PHOTO_HEIGHTMAP_CONFIRMATION}”后才能作为高度图使用，或改用照片浮雕模式`,'confirmation');
    const at=confirmation.confirmedAt;if(typeof at!=='string'||Number.isNaN(Date.parse(at)))fail('PARAM_SCHEMA_INVALID','确认需要 ISO 时间 confirmedAt','confirmation.confirmedAt');

@@ -194,8 +194,12 @@ namespace WebCADServices.Runtime
             if(mode=="photoRelief"){
                 if(s["photo"]!=null&&s["photo"] is not JObject)throw new ServiceError("PARAM_SCHEMA_INVALID","settings.photo must be an object");
                 if(s["photo"] is JObject ph){
-                    Protocol.Keys(ph,"lightingFrac","bodyFrac","midFrac","fineFrac","denoisePx","bodyWeight","midWeight","fineWeight","edgeFadeFrac","percentileLow","percentileHigh","massWeight","massFrac");
-                    foreach(var key in new[]{"lightingFrac","bodyFrac","midFrac","fineFrac","denoisePx","bodyWeight","midWeight","fineWeight","edgeFadeFrac","percentileLow","percentileHigh","massWeight","massFrac"})if(ph[key]!=null)Number(ph[key],100);
+                    int algorithm=1;
+                    if(ph["algorithm"]!=null){if(ph["algorithm"].Type!=JTokenType.Integer||((int)ph["algorithm"]!=1&&(int)ph["algorithm"]!=2))throw new ServiceError("PARAM_SCHEMA_INVALID","photo.algorithm must be 1 or 2");algorithm=(int)ph["algorithm"];}
+                    var v1Keys=new[]{"lightingFrac","bodyFrac","midFrac","fineFrac","denoisePx","bodyWeight","midWeight","fineWeight","edgeFadeFrac","percentileLow","percentileHigh","massWeight","massFrac"};
+                    var v2Keys=new[]{"volume","volumeFrac","maskFrac","backgroundLevel","detailWeight","smoothness"};
+                    if(algorithm==2)Protocol.Keys(ph,v1Keys.Concat(v2Keys).Append("algorithm").ToArray());else Protocol.Keys(ph,v1Keys.Append("algorithm").ToArray());
+                    foreach(var key in algorithm==2?v1Keys.Concat(v2Keys):v1Keys)if(ph[key]!=null)Number(ph[key],100);
                 }
             }
             if(s["version"]?.Type!=JTokenType.Integer||(int)s["version"]!=1)throw new ServiceError("PARAM_SCHEMA_INVALID","settings.version must be 1");

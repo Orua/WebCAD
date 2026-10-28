@@ -131,7 +131,8 @@ export function assertReliefHeightSourceIntent(record){
  if(d.kind==='photoRelief'){
   const allowed=['kind','sourceSha256','settingsHash','photoReliefVersion'];
   if(Object.keys(d).some(k=>!allowed.includes(k)))conflict('照片浮雕派生记录字段无效。');
-  if(d.photoReliefVersion!==1&&d.photoReliefVersion!==undefined)conflict('照片浮雕派生版本无效。');
+  if(d.photoReliefVersion!==1&&d.photoReliefVersion!==2&&d.photoReliefVersion!==undefined)conflict('照片浮雕派生版本无效。');
+  if(d.photoReliefVersion===2&&record.settings?.photo?.algorithm!==2)conflict('照片浮雕 v2 派生要求 photo.algorithm=2。');
   if(record.settings?.mode!=='photoRelief')conflict('照片浮雕派生要求 settings.mode=photoRelief。');
   return;
  }
