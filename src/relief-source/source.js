@@ -1,12 +1,14 @@
 // Relief height source record: original image identity + conversion settings + (for photos) the
 // user's explicit confirmation that the converted result is their own authored height map.
-import {normalizeConvertSettings,decodeHeightGrid,RELIEF_CONVERT_LIMITS} from './convert.js';
+import {normalizeConvertSettings,decodeHeightGrid,RELIEF_CONVERT_LIMITS,PHOTO_RELIEF_VERSION} from './convert.js';
 import {contractHash} from '../contracts/operation-schema.js';
 import {assertReliefHeightSourceIntent,PHOTO_HEIGHTMAP_CONFIRMATION} from '../machining-intent.js';
 export {PHOTO_HEIGHTMAP_CONFIRMATION};
 const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
 const HEX=/^[a-f0-9]{64}$/;
-/** interpretation: 'authoredHeightMap' | 'shadedReference' (photo). Photos need confirmation {text,confirmedAt}. */
+/** interpretation: 'authoredHeightMap' | 'shadedReference' (photo).
+ *  shadedReference + settings.mode=photoRelief → derivedFrom.kind photoRelief (no checkbox).
+ *  shadedReference + luminance → still needs confirmation {text,confirmedAt}. */
 export function createReliefHeightSource({original,interpretation,settings,grid,confirmation}={}){
  if(!original||!HEX.test(original.sha256??'')||typeof original.name!=='string'||!original.name||original.name.length>255)fail('PARAM_SCHEMA_INVALID','需要原图 {sha256,name}','original');
  const s=normalizeConvertSettings(settings),settingsHash=contractHash(s);
@@ -14,10 +16,15 @@ export function createReliefHeightSource({original,interpretation,settings,grid,
  decodeHeightGrid(grid);
  let derivedFrom;
  if(interpretation==='shadedReference'){
-  if(!confirmation||confirmation.text!==PHOTO_HEIGHTMAP_CONFIRMATION)fail('MACHINING_SOURCE_CONFLICT',`照片（光影参考）只有在用户勾选“${PHOTO_HEIGHTMAP_CONFIRMATION}”后才能作为高度图使用`,'confirmation');
-  const at=confirmation.confirmedAt;if(typeof at!=='string'||Number.isNaN(Date.parse(at)))fail('PARAM_SCHEMA_INVALID','确认需要 ISO 时间 confirmedAt','confirmation.confirmedAt');
-  derivedFrom={kind:'shadedReference',sourceSha256:original.sha256,settingsHash,confirmation:{text:PHOTO_HEIGHTMAP_CONFIRMATION,confirmedAt:at}};
- }else if(interpretation!=='authoredHeightMap')fail('MACHINING_SOURCE_CONFLICT','浮雕高度来源只接受作者高度图，或经用户确认转换的照片','interpretation');
+  if(s.mode==='photoRelief'){
+   if(confirmation!==undefined)fail('PARAM_SCHEMA_INVALID','照片浮雕转换不需要旧确认勾选','confirmation');
+   derivedFrom={kind:'photoRelief',sourceSha256:original.sha256,settingsHash,photoReliefVersion:PHOTO_RELIEF_VERSION};
+  }else{
+   if(!confirmation||confirmation.text!==PHOTO_HEIGHTMAP_CONFIRMATION)fail('MACHINING_SOURCE_CONFLICT',`照片（光影参考）只有在用户勾选“${PHOTO_HEIGHTMAP_CONFIRMATION}”后才能作为高度图使用，或改用照片浮雕模式`,'confirmation');
+   const at=confirmation.confirmedAt;if(typeof at!=='string'||Number.isNaN(Date.parse(at)))fail('PARAM_SCHEMA_INVALID','确认需要 ISO 时间 confirmedAt','confirmation.confirmedAt');
+   derivedFrom={kind:'shadedReference',sourceSha256:original.sha256,settingsHash,confirmation:{text:PHOTO_HEIGHTMAP_CONFIRMATION,confirmedAt:at}};
+  }
+ }else if(interpretation!=='authoredHeightMap')fail('MACHINING_SOURCE_CONFLICT','浮雕高度来源只接受作者高度图、照片浮雕转换，或经用户确认的光影参考','interpretation');
  else if(confirmation!==undefined)fail('PARAM_SCHEMA_INVALID','作者高度图不需要照片确认','confirmation');
  return validateReliefHeightSource({version:1,interpretation:'authoredHeightMap',original:{sha256:original.sha256,name:original.name},settings:s,settingsHash,grid:{columns:grid.columns,rows:grid.rows,encoding:grid.encoding,data:grid.data,sha256:grid.sha256},...(derivedFrom?{derivedFrom}:{})});
 }

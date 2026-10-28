@@ -188,7 +188,16 @@ namespace WebCADServices.Runtime
         public static void ValidateSourceConvertParameters(JObject parameters){
             Protocol.Keys(parameters,"width","height","settings","depthMm","machiningPrecisionMm");
             int width=BoundedInt(parameters["width"],1,16384,"width"),height=BoundedInt(parameters["height"],1,16384,"height");if((long)width*height>16777216)throw new ServiceError("SIZE_LIMIT","Raster exceeds 16M pixels");
-            if(parameters["settings"] is not JObject s)throw new ServiceError("PARAM_SCHEMA_INVALID","Normalized convert settings are required");Protocol.Keys(s,"version","columns","rows","crop","levels","gamma","blurPx","invert");
+            if(parameters["settings"] is not JObject s)throw new ServiceError("PARAM_SCHEMA_INVALID","Normalized convert settings are required");Protocol.Keys(s,"version","columns","rows","crop","levels","gamma","blurPx","invert","mode","photo");
+            string mode=(string)s["mode"]??"luminance";if(mode!="luminance"&&mode!="photoRelief")throw new ServiceError("PARAM_SCHEMA_INVALID","mode must be luminance or photoRelief");
+            if(mode=="luminance"&&s["photo"]!=null)throw new ServiceError("PARAM_SCHEMA_INVALID","photo params require mode photoRelief");
+            if(mode=="photoRelief"){
+                if(s["photo"]!=null&&s["photo"] is not JObject)throw new ServiceError("PARAM_SCHEMA_INVALID","settings.photo must be an object");
+                if(s["photo"] is JObject ph){
+                    Protocol.Keys(ph,"lightingFrac","bodyFrac","midFrac","fineFrac","denoisePx","bodyWeight","midWeight","fineWeight","edgeFadeFrac","percentileLow","percentileHigh","massWeight","massFrac");
+                    foreach(var key in new[]{"lightingFrac","bodyFrac","midFrac","fineFrac","denoisePx","bodyWeight","midWeight","fineWeight","edgeFadeFrac","percentileLow","percentileHigh","massWeight","massFrac"})if(ph[key]!=null)Number(ph[key],100);
+                }
+            }
             if(s["version"]?.Type!=JTokenType.Integer||(int)s["version"]!=1)throw new ServiceError("PARAM_SCHEMA_INVALID","settings.version must be 1");
             int c=BoundedInt(s["columns"],2,2049,"settings.columns"),r=BoundedInt(s["rows"],2,2049,"settings.rows");/* over MaxGridNodes is downsampled in Execute (BudgetGrid), never rejected */
             if(s["crop"] is not JObject crop)throw new ServiceError("PARAM_SCHEMA_INVALID","settings.crop required");Protocol.Keys(crop,"x","y","width","height");double cx=Bounded(crop["x"],0,1,"crop.x"),cy=Bounded(crop["y"],0,1,"crop.y"),cw=Bounded(crop["width"],1e-6,1,"crop.width"),ch=Bounded(crop["height"],1e-6,1,"crop.height");if(cx+cw>1+1e-12||cy+ch>1+1e-12)throw new ServiceError("PARAM_SCHEMA_INVALID","Crop exceeds the image");

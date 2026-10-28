@@ -50,21 +50,68 @@ inline json applyMachiningPrecision(std::vector<double>& h,const std::vector<uin
  return {{"machiningPrecisionMm",p},{"method","detail-soft-knee+baseline-dead-band-C1"},{"changedNodeCount",changed},{"maxChangeMm",maxChange}};
 }
 
+// ---------- photoRelief (photo-relief.js) — keep in sync with browser PHOTO_RELIEF_DEFAULTS ----------
+inline std::vector<double> blurSep(const std::vector<double>& src,int w,int h,double sigma){
+ if(!(sigma>0))return src;int r=std::max(1,int(std::ceil(sigma*3)));std::vector<double> k(2*r+1);double sum=0;
+ for(int i=-r;i<=r;i++){k[i+r]=std::exp(-double(i*i)/(2*sigma*sigma));sum+=k[i+r];}for(double& v:k)v/=sum;
+ std::vector<double> tmp(src.size()),out(src.size());
+ for(int y=0;y<h;y++)for(int x=0;x<w;x++){double acc=0;for(int t=-r;t<=r;t++)acc+=k[t+r]*src[size_t(y)*w+std::min(w-1,std::max(0,x+t))];tmp[size_t(y)*w+x]=acc;}
+ for(int y=0;y<h;y++)for(int x=0;x<w;x++){double acc=0;for(int t=-r;t<=r;t++)acc+=k[t+r]*tmp[size_t(std::min(h-1,std::max(0,y+t)))*w+x];out[size_t(y)*w+x]=acc;}
+ return out;
+}
+inline double percentileSorted(std::vector<double> a,double p){if(a.empty())return 0;std::sort(a.begin(),a.end());double i=std::min(double(a.size()-1),std::max(0.0,(p/100.0)*double(a.size()-1)));size_t lo=size_t(std::floor(i)),hi=size_t(std::ceil(i));return lo==hi?a[lo]:a[lo]*(hi-i)+a[hi]*(i-lo);}
+inline json defaultPhoto(){return {{"lightingFrac",0.14},{"bodyFrac",0.07},{"midFrac",0.022},{"fineFrac",0.007},{"denoisePx",1.2},{"bodyWeight",0.5},{"midWeight",0.28},{"fineWeight",0.12},{"edgeFadeFrac",0.05},{"percentileLow",2.0},{"percentileHigh",98.0},{"massWeight",0.45},{"massFrac",0.1}};}
+inline json normalizePhoto(const json& p){
+ json d=defaultPhoto();if(p.is_null())return d;if(!p.is_object())fail("PARAM_SCHEMA_INVALID","photo 需要对象");
+ static const char* keys[]={"lightingFrac","bodyFrac","midFrac","fineFrac","denoisePx","bodyWeight","midWeight","fineWeight","edgeFadeFrac","percentileLow","percentileHigh","massWeight","massFrac"};
+ for(auto it=p.begin();it!=p.end();++it){bool ok=false;for(auto k:keys)if(it.key()==k)ok=true;if(!ok)fail("PARAM_SCHEMA_INVALID","未知照片浮雕参数："+it.key());}
+ auto clamp=[&](const char* k,double lo,double hi){double v=p.value(k,d.at(k).get<double>());if(!(v>=lo&&v<=hi))fail("PARAM_RANGE_INVALID",std::string(k)+" out of range");d[k]=v;};
+ clamp("lightingFrac",0.02,0.5);clamp("bodyFrac",0.01,0.4);clamp("midFrac",0.002,0.2);clamp("fineFrac",0.0005,0.1);clamp("denoisePx",0,8);
+ clamp("bodyWeight",0,2);clamp("midWeight",0,2);clamp("fineWeight",0,2);clamp("edgeFadeFrac",0,0.25);clamp("percentileLow",0,20);clamp("percentileHigh",80,100);
+ clamp("massWeight",0,2);clamp("massFrac",0.01,0.4);if(d.at("percentileHigh").get<double>()<=d.at("percentileLow").get<double>())fail("PARAM_RANGE_INVALID","percentileHigh 须高于 percentileLow");
+ return d;
+}
+inline std::vector<double> photoReliefFromLuminance(const std::vector<double>& L,int C,int R,const json& photo){
+ json p=normalizePhoto(photo);double side=double(std::max(C,R));
+ auto lighting=blurSep(L,C,R,p.at("lightingFrac").get<double>()*side);
+ std::vector<double> flat(L.size());for(size_t i=0;i<L.size();i++)flat[i]=L[i]-lighting[i];
+ if(p.at("denoisePx").get<double>()>0)flat=blurSep(flat,C,R,p.at("denoisePx").get<double>());
+ auto body=blurSep(flat,C,R,p.at("bodyFrac").get<double>()*side);
+ auto midb=blurSep(flat,C,R,p.at("midFrac").get<double>()*side);
+ auto fineb=blurSep(flat,C,R,p.at("fineFrac").get<double>()*side);
+ std::vector<double> h(L.size());
+ for(size_t i=0;i<L.size();i++)h[i]=p.at("bodyWeight").get<double>()*body[i]+p.at("midWeight").get<double>()*(midb[i]-body[i])+p.at("fineWeight").get<double>()*(fineb[i]-midb[i]);
+ if(p.at("massWeight").get<double>()>0){auto mb=blurSep(L,C,R,p.at("massFrac").get<double>()*side);for(size_t i=0;i<L.size();i++)h[i]+=p.at("massWeight").get<double>()*std::abs(L[i]-mb[i]);}
+ double lo=percentileSorted(h,p.at("percentileLow").get<double>()),hi=percentileSorted(h,p.at("percentileHigh").get<double>()),span=hi-lo;
+ std::vector<double> out(h.size(),0.0);
+ if(span>1e-12)for(size_t i=0;i<h.size();i++){double v=(h[i]-lo)/span;out[i]=v<0?0:v>1?1:v;}
+ double ef=p.at("edgeFadeFrac").get<double>();
+ if(ef>0)for(int j=0;j<R;j++)for(int i=0;i<C;i++){double u=C>1?double(i)/(C-1):0,v=R>1?double(j)/(R-1):0;double m=std::min(std::min(u,1-u),std::min(v,1-v))/ef;m=m<0?0:m>1?1:m;m=m*m*(3-2*m);out[size_t(j)*C+i]*=m;}
+ return out;
+}
+
 // ---------- relief.source-convert-1 (convert.js convertRgbaToHeightGrid) ----------
 struct Grid{int columns=0,rows=0;std::vector<double> values;};
 inline Grid convertRgba(const std::vector<uint8_t>& rgba,int width,int height,const json& s){
  if(width<1||height<1||int64_t(width)*height>16777216)fail("RELIEF_LIMIT","图像尺寸无效或超过 16M 像素");
  if(rgba.size()!=size_t(width)*height*4)fail("PARAM_SCHEMA_INVALID","RGBA 数据长度与尺寸不符");
  const int C=s.at("columns"),R=s.at("rows");if(C<2||R<2||C>2049||R>2049)fail("PARAM_RANGE_INVALID","columns/rows 需要 2–2049");
+ const std::string mode=s.value("mode",std::string("luminance"));
+ if(mode!="luminance"&&mode!="photoRelief")fail("PARAM_SCHEMA_INVALID","mode 仅支持 luminance 或 photoRelief");
+ if(mode=="luminance"&&s.contains("photo"))fail("PARAM_SCHEMA_INVALID","luminance 模式不接受 photo 参数");
  const auto& cr=s.at("crop");const double x0=cr.at("x").get<double>()*width,y0=cr.at("y").get<double>()*height,cw=cr.at("width").get<double>()*width,ch=cr.at("height").get<double>()*height;
  std::vector<double> g(size_t(C)*R);
  for(int j=0;j<R;j++){double ya=y0+j*ch/R,yb=y0+(j+1)*ch/R;for(int i=0;i<C;i++){double xa=x0+i*cw/C,xb=x0+(i+1)*cw/C,acc=0,area=0;
-  for(int y=int(std::floor(ya));y<std::ceil(yb)&&y<height;y++){double wy=std::min(yb,double(y+1))-std::max(ya,double(y));if(wy<=0)continue;for(int x=int(std::floor(xa));x<std::ceil(xb)&&x<width;x++){double wx=std::min(xb,double(x+1))-std::max(xa,double(x));if(wx<=0)continue;size_t k=(size_t(y)*width+x)*4;double a=rgba[k+3]/255.0,lum=(.2126*rgba[k]+.7152*rgba[k+1]+.0722*rgba[k+2])/255;acc+=(lum*a+(1-a))*wx*wy;area+=wx*wy;}}
+  for(int y=int(std::floor(ya));y<std::ceil(yb)&&y<height;y++){double wy=std::min(yb,double(y+1))-std::max(ya,double(y));if(wy<=0)continue;for(int x=int(std::floor(xa));x<std::ceil(xb)&&x<width;x++){double wx=std::min(xb,double(x+1))-std::max(xa,double(x));if(wx<=0)continue;size_t k=(size_t(y)*width+x)*4;double a=rgba[k+3]/255.0,lum=(.2126*rgba[k]+.7152*rgba[k+1]+.0722*rgba[k+2])/255.0;acc+=(lum*a+(1-a))*wx*wy;area+=wx*wy;}}
   g[size_t(j)*C+i]=area?acc/area:1;}}
- const double sigma=s.at("blurPx");
- if(sigma>0){int r=int(std::ceil(sigma*3));std::vector<double> k(2*r+1);double sum=0;for(int i=0;i<2*r+1;i++){k[i]=std::exp(-double((i-r)*(i-r))/(2*sigma*sigma));}for(double v:k)sum+=v;for(double& v:k)v/=sum;
-  auto pass=[&](const std::vector<double>& src,bool hz){std::vector<double> out(src.size());for(int y=0;y<R;y++)for(int x=0;x<C;x++){double acc=0;for(int t=-r;t<=r;t++){int xx=hz?std::min(C-1,std::max(0,x+t)):x,yy=hz?y:std::min(R-1,std::max(0,y+t));acc+=k[t+r]*src[size_t(yy)*C+xx];}out[size_t(y)*C+x]=acc;}return out;};
-  g=pass(pass(g,true),false);}
+ if(mode=="photoRelief"){
+  g=photoReliefFromLuminance(g,C,R,s.value("photo",json::object()));
+ }else{
+  const double sigma=s.at("blurPx");
+  if(sigma>0){int r=int(std::ceil(sigma*3));std::vector<double> k(2*r+1);double sum=0;for(int i=0;i<2*r+1;i++){k[i]=std::exp(-double((i-r)*(i-r))/(2*sigma*sigma));}for(double v:k)sum+=v;for(double& v:k)v/=sum;
+   auto pass=[&](const std::vector<double>& src,bool hz){std::vector<double> out(src.size());for(int y=0;y<R;y++)for(int x=0;x<C;x++){double acc=0;for(int t=-r;t<=r;t++){int xx=hz?std::min(C-1,std::max(0,x+t)):x,yy=hz?y:std::min(R-1,std::max(0,y+t));acc+=k[t+r]*src[size_t(yy)*C+xx];}out[size_t(y)*C+x]=acc;}return out;};
+   g=pass(pass(g,true),false);}
+ }
  const double black=s.at("levels").at("black"),white=s.at("levels").at("white"),gamma=s.at("gamma");const bool inv=s.at("invert");
  Grid out;out.columns=C;out.rows=R;out.values.resize(g.size());
  for(size_t k=0;k<g.size();k++){double v=(g[k]-black)/(white-black);v=std::min(1.0,std::max(0.0,v));v=std::pow(v,1/gamma);float f=float(inv?1-v:v);out.values[k]=f;}
