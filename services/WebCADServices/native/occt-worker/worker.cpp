@@ -114,13 +114,13 @@ int main(int argc,char** argv) {
      result=webcad::deform::run(input,params,request.at("operation"),before.at("volumeMm3").get<double>(),deformReport);
      stages.push_back({{"stage","nurbs-control-point-map"},{"kind",params.at("kind")}});
     }else if(reliefDesign){
-     // Quality mode: dense (>513) faces can fail GProp/ShapeFix; retry a capacity ladder (never silently),
-     // then honest-fail if the returned fit still exceeds machining precision (strict acceptance = p).
+     // Quality mode: dense faces can fail GProp/ShapeFix; retry a cheaper control net (769…257)
+     // instead of blocking. Strict acceptance remains machining precision p; candidate output is kept.
      const auto designed=[&]{namespace rd=webcad::relief_design;json qp=rd::quality::withQuality(params);const double bv=before.at("volumeMm3").get<double>();auto onStage=[&](const char* name){stage=name;progress();};
       try{return rd::build(input,qp,bv,onStage);}catch(const rd::Failure& e){
        const bool q=qp.contains("fit")&&qp["fit"].contains("quality");const int side=q?qp["fit"]["quality"].value("maxControlSide",1025):0;
-       if(!q||side<=513||(e.code!="RELIEF_DESIGN_NO_CHANGE"&&e.code!="RELIEF_QUALITY_CHECK_FAILED"))throw;
-       rd::Failure last=e;for(int next:{769,641,513}){if(next>=side||next<16)continue;
+       if(!q||side<=257||(e.code!="RELIEF_DESIGN_NO_CHANGE"&&e.code!="RELIEF_QUALITY_CHECK_FAILED"))throw;
+       rd::Failure last=e;for(int next:{769,641,513,257}){if(next>=side||next<16)continue;
         try{qp["fit"]["quality"]["maxControlSide"]=next;auto r=rd::build(input,qp,bv,onStage);r.report["qualityCapacityRetry"]={{"fromMaxControlSide",side},{"toMaxControlSide",next},{"reason",e.code}};return r;}
         catch(const rd::Failure& e2){last=e2;if(e2.code!="RELIEF_DESIGN_NO_CHANGE"&&e2.code!="RELIEF_QUALITY_CHECK_FAILED")throw;}}
        throw last;}}();

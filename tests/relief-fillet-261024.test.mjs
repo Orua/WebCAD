@@ -9,14 +9,15 @@ import {dirname,join} from 'node:path';
 
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 
-test('Services timeouts: upload/result ≥120s, poll ~30s',()=>{
+test('Services timeouts: upload/result ≥120s, large submit follows serverWaitMs',()=>{
  assert.ok(servicesRequestTimeoutMs('upload',{bytes:0})>=120000);
  assert.ok(servicesRequestTimeoutMs('upload',{bytes:5*1024*1024})>=120000);
  assert.ok(servicesRequestTimeoutMs('result',{bytes:2*1024*1024})>=120000);
  assert.ok(servicesRequestTimeoutMs('artifact',{bytes:1024})>=120000);
- assert.equal(servicesRequestTimeoutMs('poll'),30000);
- assert.equal(servicesRequestTimeoutMs('submit'),30000);
- assert.equal(servicesRequestTimeoutMs('cancel'),30000);
+ assert.equal(servicesRequestTimeoutMs('poll'),60000);
+ assert.equal(servicesRequestTimeoutMs('submit',{bytes:1024}),60000);
+ assert.ok(servicesRequestTimeoutMs('submit',{bytes:3057103,serverWaitMs:180000})>=180000);
+ assert.equal(servicesRequestTimeoutMs('cancel'),60000);
 });
 
 test('restore key omits whole-document revision',()=>{
@@ -101,12 +102,12 @@ test('quality candidate output: target=p, explicit strict still available, capac
  assert.match(src,/acceptanceToleranceMm:quality\.machiningPrecisionMm/);
  assert.match(src,/deviationPolicy:'candidate'/);
  assert.match(src,/qualityStatus:maxMm>p/);
- assert.match(src,/allowedTo=new Set\(\[513,641,769\]\)/);
+ assert.match(src,/allowedTo=new Set\(\[257,513,641,769\]\)/);
  const q=readFileSync(join(root,'services/WebCADServices/native/occt-worker/relief_quality.hxx'),'utf8');
  assert.match(q,/default acceptance = machining precision p/);
  assert.match(q,/deviationPolicy",std::string\("strict"\)/);
  const w=readFileSync(join(root,'services/WebCADServices/native/occt-worker/worker.cpp'),'utf8');
- assert.match(w,/for\(int next:\{769,641,513\}\)/);
+ assert.match(w,/for\(int next:\{769,641,513,257\}\)/);
  const d=readFileSync(join(root,'services/WebCADServices/native/occt-worker/relief_design.hxx'),'utf8');
  assert.match(d,/meshVolume/);
  assert.match(d,/BRepCheck_Analyzer/);

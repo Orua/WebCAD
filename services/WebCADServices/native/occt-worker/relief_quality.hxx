@@ -191,14 +191,18 @@ inline Fit fitQuality(const json& field,const json& domainJson,double baselineMm
  Work work{0,std::min(4e12,o.value("maxWork",4e12))};json tried=json::array();Solved best;bool have=false;Target bestT;
  // quality mode owns its solver tolerance (legacy fit.toleranceMm targets the 129-control fit)
  const double tol=std::max(1e-6,p*1e-2);const int maxIter=std::min(20000,o.value("maxIterations",2000));
+ const std::string policyEarly=o.value("deviationPolicy",std::string("strict"));const bool candidatePass=policyEarly=="candidate";
  // One resolution-independent target (built at the finest admissible spacing); every rung is judged against it.
  const double t0=ms();bestT=buildTarget(src,d,W,H,baselineMm,upper,p,finest);const double targetMs=ms()-t0;
  for(size_t li=0;li<ladder.size();li++){const double s=ladder[li];const int nx=std::max(4,int(std::lround(W/s))+3),ny=std::max(4,int(std::lround(H/s))+3);if(nx>maxSide||ny>maxSide)continue;
   const double t1=ms();Solved sv=solve(bestT,d,nx,ny,sign,baselineMm,envelope,p,tol,maxIter,work);const double t2=ms();
   tried.push_back({{"controlSpacingMm",s},{"controls",{nx,ny}},{"trainP99Mm",sv.trainP99},{"trainMaxMm",sv.trainMax},{"trainRmsMm",sv.trainRms},{"fitMs",t2-t1},{"cgIterations",sv.fit.report.value("cgIterations",0)},{"projectedIterations",sv.fit.report.value("projectedIterations",0)}});
-  best=std::move(sv);have=true;if(best.trainP99<=.5*p&&best.trainMax<=p)break;
+  best=std::move(sv);have=true;
+  // candidate first-pass: stop at a usable net. 0.05 mm stays a hint; the solid is still emitted.
+  if(candidatePass){if(best.trainP99<=2*p||(std::max(nx,ny)<=257&&best.trainMax<=4*p))break;if(best.trainMax>4*p&&li+2<ladder.size())li=ladder.size()-2;}
+  else{if(best.trainP99<=.5*p&&best.trainMax<=p)break;
   // far from the stop rule (max > 2p): one sqrt2 step cannot close it, go straight to the finest rung.
-  if(best.trainMax>2*p&&li+2<ladder.size())li=ladder.size()-2;}
+  if(best.trainMax>2*p&&li+2<ladder.size())li=ladder.size()-2;}}
  if(!have)fail("FIT_CAPACITY","没有满足容量的控制网");
  Fit fit=std::move(best.fit);const Target& t=bestT;
  // Independent checks: 2x2 Gauss points of every fully active target cell vs the bilinear target; protection on rims/zones.

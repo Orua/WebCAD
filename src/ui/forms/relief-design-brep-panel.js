@@ -99,7 +99,7 @@ export function createReliefBrepPanel({element,button,request,isBusy,setBusy,get
   // Poll the routing snapshot so the panel shows which side is executing and the current stage.
   const timer=setInterval(()=>{info.textContent='正在计算精确浮雕预览…\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0});},1000);
   try{const r=await route('preview.start',prepared.previewArgs);
-   if(r.status!=='previewing')throw Object.assign(new Error(r.error?.message||'预览未生成'),{code:r.error?.code});preview=r.preview??{};info.textContent='浮雕预览已生成。可以应用并保存，效果不满意可撤销。偏差与体积估算供参考，可在高级配置调整细节精度。\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0,done:true});}
+   if(r.status!=='previewing')throw Object.assign(new Error(r.error?.message||'预览未生成'),{code:r.error?.code});preview=r.preview??{};info.textContent='浮雕预览已生成（应用前效果）。可以应用并保存；应用后若不满意，用撤销回到应用前，与这次预览对比。偏差与体积估算供参考，可在高级配置调整细节精度。\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0,done:true});}
   catch(error){preview=null;info.textContent=humanError(error)+'\n'+brepExecutionSummary(routing(),{elapsedMs:performance.now()-t0,done:true});}finally{clearInterval(timer);setBusy(false);sync();}
  }
  const identity=()=>preview?.previewId?{previewId:preview.previewId,expectedGeneration:preview.generation}:{};
@@ -115,5 +115,6 @@ export function createReliefBrepPanel({element,button,request,isBusy,setBusy,get
  function moveAdvanced(advanced){advanced.append(advBox);}
  // Selected-face placement for the mesh candidate (same face / centre / X as the BRep path), or null.
  function facePlacement(){const v=a=>a.every(i=>i.value.trim()!==''&&Number.isFinite(Number(i.value)))?a.map(i=>Number(i.value)):null,o=v([ox,oy,oz]),x=v([xx,xy,xz]);return support?.planar&&o&&x?{originMm:o,normal:[...support.normal],xDirection:x}:null;}
- return {panel,sync,moveAdvanced,facePlacement,readFace,reset(){stopGuide();target=support=prepared=null;if(!preview)info.textContent='尚未读取选面。';sync();},hasPreview:()=>!!preview,cancelPreview,dispose:stopGuide};
+ async function previewNow(){await prepare();if(prepared)await startPreview();}
+ return {panel,sync,moveAdvanced,facePlacement,readFace,previewNow,reset(){stopGuide();target=support=prepared=null;if(!preview)info.textContent='尚未读取选面。';sync();},hasPreview:()=>!!preview,cancelPreview,dispose:stopGuide};
 }
