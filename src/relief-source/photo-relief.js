@@ -16,8 +16,8 @@ export const PHOTO_RELIEF_V2_DEFAULTS = Object.freeze({
   volumeFrac: 0.25,     // dome radius: distance (fraction of grid side) at which the envelope reaches full height
   maskFrac: 0.025,      // subject-mask detail energy radius
   backgroundLevel: 0.06,// height of flat background (0..0.3)
-  detailWeight: 0.6,    // carved detail riding on the envelope
-  smoothness: 0.6,      // 丝滑度 0..1: feathering of subject edge + soft-knee clipping
+  detailWeight: 0.45,   // carved detail on envelope (lower = fit-friendlier; volume keeps 立体)
+  smoothness: 0.7,      // 丝滑度 0..1: feathering of subject edge + soft-knee clipping
 });
 export const PHOTO_RELIEF_DEFAULTS = Object.freeze({
   // Fractions of max(grid side) when *SigmaPx omitted (absolute px overrides).
@@ -28,7 +28,7 @@ export const PHOTO_RELIEF_DEFAULTS = Object.freeze({
   denoisePx: 1.2,
   bodyWeight: 0.5,
   midWeight: 0.28,
-  fineWeight: 0.12,
+  fineWeight: 0.08,
   edgeFadeFrac: 0.05,
   percentileLow: 2,
   percentileHigh: 98,

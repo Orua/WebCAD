@@ -61,10 +61,10 @@ internal static class Program
         var done=Wait((string)accepted["jobId"]);Expect((string)done?["execution"]=="succeeded","design job succeeded "+(done?["error"]??""));
         if((string)done?["execution"]=="succeeded"){var result=Call("GET","/v1/jobs/"+accepted["jobId"]+"/result");
             Expect((string)result["geometryArtifact"]["format"]=="occt-text-brep-v1"&&(long)result["geometryArtifact"]["bytes"]>0,"BRep artifact published");
-            Expect((string)result["stepArtifact"]?["format"]=="step-ap214-mm","STEP artifact published");
+            Expect(result["stepArtifact"]==null,"STEP export belongs to the browser");
             Expect(result["reliefDesign"]?["fit"]?["controlDeltasSha256"]!=null&&(string)result["reliefDesign"]["trim"]!=null,"fit controls + trim report returned");
             Expect((bool?)result["reliefDesign"]["quality"]["consistent"]==true,"volume cross-check consistent");
-            var art=runtime.Handle(new WireRequest{Method="GET",Route="/v1/artifacts/"+result["stepArtifact"]["artifactId"],Credential=token});Expect(Encoding.ASCII.GetString(art.Body).Contains("B_SPLINE_SURFACE"),"STEP artifact contains B_SPLINE_SURFACE");
+            var art=runtime.Handle(new WireRequest{Method="GET",Route="/v1/artifacts/"+result["geometryArtifact"]["artifactId"],Credential=token});Expect(art.Body.Length>0,"BRep bytes available");File.WriteAllBytes(Path.Combine(Environment.GetEnvironmentVariable("RELIEF_CHECK_OUT")??root,"design-result.brep"),art.Body);
             File.WriteAllText(Path.Combine(Environment.GetEnvironmentVariable("RELIEF_CHECK_OUT")??root,"design-result.json"),result.ToString());}
         // a conflicting design (relief touching the face boundary) fails with a coded error, never a mock result
         var bad=DesignParams(33,17);for(int k=0;k<33;k++)((JArray)bad["field"]["fixedMask"])[k]=0;((JArray)bad["field"]["heightsMm"])[16]=0.8;

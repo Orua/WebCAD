@@ -584,7 +584,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -637,6 +637,10 @@
     "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。",
     "alternatives": [
       {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
         "id": "template.mountingPlate",
         "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
       },
@@ -668,5 +672,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:96b7dc7188f1e89b6b87cf7ecd7e3984c5279959415f49486321f12c34d91891"
+  "docsHash": "sha256:f7f400dfd4e690eef49557a11c9808c90178c070d8a7cdb98b006af2a5452bc4"
 }

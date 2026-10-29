@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.60.8 · 操作目录 sha256:abcebb2e817add98942b3f00381cd30643ff771fd1347ce0375ffdca050ef5e3
+API 1.60.8 · 操作目录 sha256:745db9039efd1b31f8411469aceb2065bf9843b6fef240049d1e88e25a6257d6
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -238,6 +238,7 @@ API 1.60.8 · 操作目录 sha256:abcebb2e817add98942b3f00381cd30643ff771fd1347c
 - `template.ellipseBar` · advisory · 从内真椭圆外偏线扫掠圆线，再融合居中固定圆杆。圆线外包围须精确回读；接头过渡与源样条仍须对照。
 - `template.archedTwinWindowPlate` · advisory · 圆角双窗平面轮廓沿 Y 方向投影裁切同轴圆筒薄壁，形成侧视圆弧拱弯。适用于薄条一体双窗；径向板厚、外弧半径独立输入。圆线框及独立圆杆须用其它工具。
 - `template.bowedTwinWindowPlate` · advisory · 上下直边、两侧大圆弧鼓边与四角小 R 相切；两个跑道形窗孔及中横条一体成板，可选前后边缘倒圆。左右、上下镜像参数模型，源图有微小非对称时只能近似。
+- `template.rectBadge` · advisory · 牌仔、牌子、方牌：按长 X、宽 Y、厚 Z 生成单一实体。轮廓圆角 R=0 为直角矩形。正面（Z=厚度）和反面（Z=0）分别设置 45° 等距倒角，0 为不倒角；可单面或双面，倒角尺寸可不同。两面倒角之和须小于厚度，每面倒角须小于短边的一半。尺寸均为 mm；不自动添加孔、柱或文字。
 - `template.mountingPlate` · advisory · 孔沿 X 对称，中心距单独定义；孔为贯穿光孔，不含螺纹、沉头或沉孔。
 - `template.fourHolePlate` · advisory · 矩形板四角各一个贯穿光孔，孔中心到左右及前后边的距离分别可调；可选外角 R。不含螺纹或沉孔。
 - `template.bossPlate` · advisory · 圆角板上两根对称空心圆柱凸台，孔贯穿凸台与板。参数化通用实体，不代表螺纹、沉孔或原产品复刻。

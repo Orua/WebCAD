@@ -111,17 +111,23 @@ inline Target buildTarget(const Source& src,const Domain& d,double W,double H,do
      for(int a=-taps;a<=taps;a++){const int x=i+a*step;if(x<0||x>=C)continue;const double val=row[x],d=std::abs(val-c0);if(d>=lmax)continue;const double w=wy*ws[a+taps]*wr[int(d*(LUT/lmax))];acc+=w*val;wsum+=w;}}
     out[k]=acc/wsum;}}}
  int levelled=levelBelowPrecision(out,C,R,0.5*p);{for(double& x:out)x=-x;levelled+=levelBelowPrecision(out,C,R,0.5*p);for(double& x:out)x=-x;}
- out=gauss(out,C,R,0.5); // C1 transitions at levelled rims (sigma = one sample pitch, below the representable band)
+ // Band-limit to what a cubic B-spline can represent (~1 control spacing). Bilateral preserves cliffs ≥2p that
+ // the net cannot fit (1–2 mm rim/interior residuals on photo/luminance); prefer usable smooth surfaces.
+ const double bandMm=std::max(.85*controlSpacing,aaMm);out=gauss(out,C,R,bandMm/pitch);
  double removedSq=0,detailSq=0;for(size_t k=0;k<N;k++){const double dd=v[k]-out[k];removedSq+=dd*dd;detailSq+=v[k]*v[k];}
+ // Locked rim controls sit at baseline; if the author left edges unfaded, auto-descend over ~4 control spacings
+ // so the target never asks the net to carry height into the locked neighbourhood (Codex 0.8–2.3 mm rim errors).
+ double keep=src.keepoutMm,fade=src.fadeMm;bool autoEdgeFade=false;
+ if(keep<=0&&fade<=0){fade=std::max(2.0,4.0*controlSpacing);autoEdgeFade=true;}
  t.h.resize(N);t.active.assign(N,0);t.fixed.assign(N,0);int changed=0;double maxChange=0;
  for(int j=0;j<R;j++)for(int i=0;i<C;i++){const size_t k=size_t(j)*C+i;const double x=i*t.pitchX-W/2,y=j*t.pitchY-H/2;
   bool in=contains(d.support,x,y);for(auto& s:d.holes)in=in&&!contains(s,x,y);if(!in){t.h[k]=baseline;continue;}t.active[k]=1;
   bool zone=false;for(auto& s:d.zones)zone=zone||contains(s,x,y);if(zone){t.fixed[k]=1;t.h[k]=baseline;continue;}
-  double e=1;if(src.keepoutMm>0||src.fadeMm>0){double g=gapTo(d.support,x,y,false);for(auto& s:d.holes)g=std::min(g,gapTo(s,x,y,true));for(auto& s:d.zones)g=std::min(g,gapTo(s,x,y,true));e=g<=src.keepoutMm?0:src.fadeMm>0?smooth01(std::min(1.0,(g-src.keepoutMm)/src.fadeMm)):1;}
+  double e=1;if(keep>0||fade>0){double g=gapTo(d.support,x,y,false);for(auto& s:d.holes)g=std::min(g,gapTo(s,x,y,true));for(auto& s:d.zones)g=std::min(g,gapTo(s,x,y,true));e=g<=keep?0:fade>0?smooth01(std::min(1.0,(g-keep)/fade)):1;}
   double z=out[k]*e;z=softKnee(z,p);z=std::min(upper-baseline,std::max(0.0,z));t.h[k]=baseline+z;
   const double c=std::abs(t.h[k]-t.raw[k]);if(c>1e-12){changed++;maxChange=std::max(maxChange,c);}}
- t.report={{"sampleColumns",C},{"sampleRows",R},{"samplePitchMm",{t.pitchX,t.pitchY}},{"sourcePitchMm",srcPitch},{"antiAliasSigmaMm",aaMm},{"trilateralSigmaSMm",sigmaS},{"trilateralScales",scales},{"levelledComponents",levelled},{"bilateralSigmaRMm",sr},
-  {"removedRmsMm",std::sqrt(removedSq/N)},{"changedSampleCount",changed},{"maxChangeVsSourceMm",maxChange},{"method","aa-gauss+precision-trilateral+h-extrema-levelling+baseline-dead-band-C1"}};
+ t.report={{"sampleColumns",C},{"sampleRows",R},{"samplePitchMm",{t.pitchX,t.pitchY}},{"sourcePitchMm",srcPitch},{"antiAliasSigmaMm",aaMm},{"bandLimitSigmaMm",bandMm},{"trilateralSigmaSMm",sigmaS},{"trilateralScales",scales},{"levelledComponents",levelled},{"bilateralSigmaRMm",sr},
+  {"edgeKeepoutMm",keep},{"edgeFadeMm",fade},{"autoEdgeFade",autoEdgeFade},{"removedRmsMm",std::sqrt(removedSq/N)},{"changedSampleCount",changed},{"maxChangeVsSourceMm",maxChange},{"method","aa-gauss+precision-trilateral+h-extrema-levelling+band-limit+baseline-dead-band-C1"}};
  return t;
 }
 struct Solved{Fit fit;double trainMax,trainP99,trainRms;};

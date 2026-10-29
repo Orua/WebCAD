@@ -72,9 +72,10 @@ test('edge-blend and analytic-round wire mill fallback',()=>{
  assert.match(analytic,/millComplementaryFillet/);
 });
 
-test('height panel fallback copy and draft preview helpers exist',()=>{
+test('configured Services never silently falls back and draft preview helpers exist',()=>{
  const h=readFileSync(join(root,'src/ui/forms/relief-design-height-panel.js'),'utf8');
- assert.match(h,/已改用浏览器转换/);
+ assert.doesNotMatch(h,/已改用浏览器转换/);
+ assert.match(h,/!ready&&getServicesConfig\(\)\.configured/);
  assert.match(h,/showFromDraft/);
  assert.match(h,/fileBytes/);
 });

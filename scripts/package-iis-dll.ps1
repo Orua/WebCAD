@@ -4,7 +4,7 @@ if([IO.Path]::GetFullPath($OutputRoot) -notmatch '^G:[\\/]' -or $ReleaseId -notm
 $root=Join-Path $OutputRoot $ReleaseId
 if(Test-Path -LiteralPath $root){throw 'Choose a fresh immutable package name'}
 if(!$LogoWorkerRoot){$LogoWorkerRoot=if($ParentApplication){Join-Path $BuildRoot 'worker/bin/LogoVector.Worker/Release/net48'}else{Join-Path $BuildRoot 'bin/LogoVector.Worker/Release/net48'}}
-$proof=Get-Content -LiteralPath $NativeAcceptance -Raw|ConvertFrom-Json
+$proof=Get-Content -LiteralPath $NativeAcceptance -Encoding UTF8 -Raw|ConvertFrom-Json
 $nativeHash=(Get-FileHash -LiteralPath $NativeWorker -Algorithm SHA256).Hash.ToLowerInvariant()
 if($proof.status -ne 'passed' -or $proof.producerKernelBuildId -ne ('native-occt@7.8.1:sha256:'+$nativeHash)){throw 'Native binary lacks matching accepted evidence'}
 $gatewayRoot=Join-Path $BuildRoot 'bin/WebCADServices.Gateway/Release/net48'
@@ -69,8 +69,8 @@ New-Item -ItemType Directory -Path "$root/host/AI/WebCAD" -Force|Out-Null
 Copy-Item -LiteralPath "$PSScriptRoot/../services/WebCADServices/deploy/workspace-compute.ashx" -Destination "$root/host/AI/WebCAD/WebCADCompute.ashx"
 if(!$ParentApplication){Copy-Item -LiteralPath "$PSScriptRoot/../services/WebCADServices/deploy/web.config" -Destination "$root/cadservices/web.config"}
 $runtimeDll=if($ParentApplication){"$root/bin/WebCADServices.Runtime.dll"}else{"$root/cadservices/bin/WebCADServices.Runtime.dll"}
-if((Get-Content "$root/cadservices/api.ashx" -Raw) -notmatch 'Gateway.IisHandler' -or !(Test-Path $runtimeDll)){throw 'ASHX/DLL entry is missing'}
-$index=Get-Content "$FrontendRoot/automation/index.json" -Raw|ConvertFrom-Json
+if((Get-Content "$root/cadservices/api.ashx" -Encoding UTF8 -Raw) -notmatch 'Gateway.IisHandler' -or !(Test-Path $runtimeDll)){throw 'ASHX/DLL entry is missing'}
+$index=Get-Content "$FrontendRoot/automation/index.json" -Encoding UTF8 -Raw|ConvertFrom-Json
 @{format='webcad-ashx-dll-v1';releaseId=$ReleaseId;frontendBuildId=$index.metadata.buildId;pageApiVersion=$index.metadata.pageApiVersion;transport='iis-ashx-dll-v1';hostServiceRequired=$false;parentApplication=[bool]$ParentApplication;sharedDependencyReviewRequired=[bool]$ParentApplication;nativeBinarySha256=$nativeHash;dataIncluded=$false;credentialsIncluded=$false}|ConvertTo-Json|Set-Content "$root/release-manifest.json" -Encoding UTF8
 $entries=@(Get-ChildItem -LiteralPath $root -Recurse -File|ForEach-Object {@{path=$_.FullName.Substring($root.Length+1).Replace('\','/');bytes=$_.Length;sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}})
 @{format='webcad-package-hashes-v1';releaseId=$ReleaseId;files=$entries}|ConvertTo-Json -Depth 5|Set-Content "$root/package-hashes.json" -Encoding UTF8

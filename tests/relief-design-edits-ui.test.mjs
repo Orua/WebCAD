@@ -18,18 +18,23 @@ test('persisted stroke list survives v4 reopen and undo deletion without geometr
  const removed={...saved,reliefDesigns:[]};recordTimeline(saved,removed,{label:'删除草稿'});const opened=await decodeProject(encodeProjectV4(removed));assert.deepEqual(restoreTimeline(opened,id).reliefDesigns,saved.reliefDesigns);
 });
 class Node {
- constructor(tag,attrs={},text=''){this.tag=tag;this.attrs=attrs;this.style={};this.dataset={};this.children=[];this.listeners={};this.disabled=false;this._value=attrs.value??'';this.textContent=text;}
+ constructor(tag,attrs={},text=''){this.classList={add:()=>{}};this.tag=tag;this.attrs=attrs;this.style={};this.dataset={};this.children=[];this.listeners={};this.disabled=false;this._value=attrs.value??'';this.textContent=text;}
  set value(v){this._value=String(v);}get value(){return this._value;}
- append(...xs){for(const x of xs){x.parent=this;this.children.push(x);}}
+ append(...xs){for(const x of xs){if(x.parent)x.parent.children=x.parent.children.filter(n=>n!==x);x.parent=this;this.children.push(x);}}
+ closest(tag){for(let n=this;n;n=n.parent)if(n.tag===tag)return n;return null;}
+ prepend(...xs){this.append(...xs);this.children=[...xs,...this.children.filter(n=>!xs.includes(n))];}
+ removeChild(n){this.children=this.children.filter(x=>x!==n);n.parent=null;return n;}
+ get parentElement(){return this.parent;}
  replaceChildren(...xs){this.children=[];this.append(...xs);}
  addEventListener(type,fn){(this.listeners[type]??=[]).push(fn);}
  removeAttribute(k){delete this.attrs[k];}
  querySelectorAll(){return this.children.flatMap(n=>[...(['input','select','textarea','button'].includes(n.tag)?[n]:[]),...n.querySelectorAll()]);}
  getContext(){return new Proxy({},{get:()=>()=>{},set:()=>true});}
- async fire(type){if(this.disabled)return;const e={target:this};await this['on'+type]?.(e);for(const fn of this.listeners[type]??[])await fn(e);if(type==='input')for(let p=this.parent;p;p=p.parent)for(const fn of p.listeners[type]??[])await fn(e);}
+ async fire(type){if(this.disabled)return;const e={target:this,stopPropagation(){this.stopped=true;}};await this['on'+type]?.(e);for(const fn of this.listeners[type]??[])await fn(e);if(type==='input')for(let p=this.parent;p&&!e.stopped;p=p.parent)for(const fn of p.listeners[type]??[])await fn(e);}
 }
 function harness(apiOverrides={}){
  const root=new Node('dialog'),all=[],element=(tag,attrs,text)=>{const n=new Node(tag,attrs,text);all.push(n);return n;};
+ new Node('body').append(root);
  let state={revision:1,document:{documentId:'doc',reliefDesigns:[{id:'design',revision:1,draft:draft()}]}},calls=0,gate=null;
  globalThis.getComputedStyle=()=>({color:'#fff'});globalThis.window={webcad:{api:{getState:()=>({context:{}}),reliefDesignField:()=>{throw Error('no solve allowed');},...apiOverrides}}};
  const onSave=async args=>{calls++;if(gate)await gate;state={...state,revision:state.revision+1,document:{...state.document,reliefDesigns:updateReliefDesigns(state.document.reliefDesigns,args)}};return {status:'committed'};};
@@ -44,9 +49,9 @@ test('dialog merges unsaved form with add/update/remove and preserves asymmetric
  await h.button('移除此笔并保存').fire('click');assert.equal(h.state().document.reliefDesigns[0].draft.fieldSettings.edits.length,1);
 });
 test('unfinished stroke blocks unrelated save/list switch and explicit discard preserves other form input',async()=>{
- const h=harness();h.name().value='未保存名称';await h.name().fire('input');const x=h.byLabel('笔画中心 X mm');x.value=4;await x.fire('input');await h.button('保存草稿到工程').fire('click');assert.equal(h.calls(),0);
+ const h=harness();h.name().value='未保存名称';await h.name().fire('input');const x=h.byLabel('笔画中心 X mm');x.value=4;await x.fire('input');await h.button('保存并到画布定位').fire('click');assert.equal(h.calls(),0);
  const list=h.byLabel('局部编辑笔画列表');list.value='0';await list.fire('change');assert.equal(list.value,'');assert.equal(x.value,'4');
- await h.button('放弃本笔输入').fire('click');assert.equal(h.name().value,'未保存名称');await h.button('保存草稿到工程').fire('click');assert.equal(h.calls(),1);assert.equal(h.state().document.reliefDesigns[0].draft.name,'未保存名称');assert.equal(h.state().document.reliefDesigns[0].draft.fieldSettings.edits.length,1);
+ await h.button('放弃本笔输入').fire('click');assert.equal(h.name().value,'未保存名称');await h.button('保存并到画布定位').fire('click');assert.equal(h.calls(),1);assert.equal(h.state().document.reliefDesigns[0].draft.name,'未保存名称');assert.equal(h.state().document.reliefDesigns[0].draft.fieldSettings.edits.length,1);
 });
 test('in-flight stroke save freezes form controls until transaction settles',async()=>{
  const h=harness();let release;h.gate(new Promise(r=>release=r));const pending=h.button('加入并保存').fire('click');assert.equal(h.name().disabled,true);assert.equal(h.byLabel('笔画中心 X mm').disabled,true);release();await pending;assert.equal(h.name().disabled,false);assert.equal(h.state().document.reliefDesigns[0].draft.fieldSettings.edits.length,2);

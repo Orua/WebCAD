@@ -60,7 +60,7 @@ inline std::vector<double> blurSep(const std::vector<double>& src,int w,int h,do
  return out;
 }
 inline double percentileSorted(std::vector<double> a,double p){if(a.empty())return 0;std::sort(a.begin(),a.end());double i=std::min(double(a.size()-1),std::max(0.0,(p/100.0)*double(a.size()-1)));size_t lo=size_t(std::floor(i)),hi=size_t(std::ceil(i));return lo==hi?a[lo]:a[lo]*(hi-i)+a[hi]*(i-lo);}
-inline json defaultPhoto(){return {{"lightingFrac",0.14},{"bodyFrac",0.07},{"midFrac",0.022},{"fineFrac",0.007},{"denoisePx",1.2},{"bodyWeight",0.5},{"midWeight",0.28},{"fineWeight",0.12},{"edgeFadeFrac",0.05},{"percentileLow",2.0},{"percentileHigh",98.0},{"massWeight",0.45},{"massFrac",0.1}};}
+inline json defaultPhoto(){return {{"lightingFrac",0.14},{"bodyFrac",0.07},{"midFrac",0.022},{"fineFrac",0.007},{"denoisePx",1.2},{"bodyWeight",0.5},{"midWeight",0.28},{"fineWeight",0.08},{"edgeFadeFrac",0.05},{"percentileLow",2.0},{"percentileHigh",98.0},{"massWeight",0.45},{"massFrac",0.1}};}
 inline json normalizePhoto(const json& p){
  json d=defaultPhoto();if(p.is_null())return d;if(!p.is_object())fail("PARAM_SCHEMA_INVALID","photo 需要对象");
  static const char* keys[]={"lightingFrac","bodyFrac","midFrac","fineFrac","denoisePx","bodyWeight","midWeight","fineWeight","edgeFadeFrac","percentileLow","percentileHigh","massWeight","massFrac","algorithm"};
@@ -73,7 +73,7 @@ inline json normalizePhoto(const json& p){
  clamp("bodyWeight",0,2);clamp("midWeight",0,2);clamp("fineWeight",0,2);clamp("edgeFadeFrac",0,0.25);clamp("percentileLow",0,20);clamp("percentileHigh",80,100);
  clamp("massWeight",0,2);clamp("massFrac",0.01,0.4);if(d.at("percentileHigh").get<double>()<=d.at("percentileLow").get<double>())fail("PARAM_RANGE_INVALID","percentileHigh 须高于 percentileLow");
  if(algorithm==2){
-  d["algorithm"]=2;d["volume"]=0.8;d["volumeFrac"]=0.25;d["maskFrac"]=0.025;d["backgroundLevel"]=0.06;d["detailWeight"]=0.6;d["smoothness"]=0.6;
+  d["algorithm"]=2;d["volume"]=0.8;d["volumeFrac"]=0.25;d["maskFrac"]=0.025;d["backgroundLevel"]=0.06;d["detailWeight"]=0.45;d["smoothness"]=0.7;
   clamp("volume",0,1);clamp("volumeFrac",0.01,0.3);clamp("maskFrac",0.005,0.15);clamp("backgroundLevel",0,0.3);clamp("detailWeight",0,1.5);clamp("smoothness",0,1);
  }else if(p.contains("algorithm"))d["algorithm"]=1;
  return d;

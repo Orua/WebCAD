@@ -54,7 +54,7 @@ test('04 wiring: fitted relief compiles as relief.design-fit-brep-1 and stale dr
 
 test('高级配置: design constraints live in one collapsed section with defaults; essentials stay visible',async()=>{
  const fs=await import('node:fs');const src=fs.readFileSync(new URL('../src/ui/forms/relief-design-dialog.js',import.meta.url),'utf8'),brep=fs.readFileSync(new URL('../src/ui/forms/relief-design-brep-panel.js',import.meta.url),'utf8');
- assert.match(src,/element\('details',\{class:'relief-advanced'/);assert.doesNotMatch(src,/advanced\.open=true/);
+ assert.match(src,/element\('details',\{class:'relief-advanced'/);assert.doesNotMatch(src,/const advanced=element[^;]+;\s*advanced\.open=true/);assert.match(src,/提高精度设置.*advanced\.open=true/);
  for(const s of ["numeric('数值场每轴采样（9–129）',9,129,advancedForm)","',.01,.5,advancedForm)","numeric('网格底厚 mm',.001,100,advancedForm)","advanced.append(wrap)","advanced.append(editsPanel)","advanced.append(referencePanel)"])assert.ok(src.includes(s),s);
  assert.ok(src.includes('precision.value=.05'));assert.ok(brep.includes("evidence.value='按当前设计")&&brep.includes('baseCheck.checked=true'));
  assert.ok(brep.includes("xx=num('X方向 x',advGrid)")&&brep.includes('advBox.addEventListener(type,event=>event.stopPropagation())'));

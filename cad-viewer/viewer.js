@@ -695,6 +695,13 @@ function textFromEntity(entity, matrix) {
   const matrixScaleX = matrix ? Math.hypot(matrix.a, matrix.b) : 1;
   const matrixScaleY = matrix ? Math.hypot(matrix.c, matrix.d) : 1;
   const matrixRotation = matrix ? Math.atan2(matrix.b, matrix.a) : 0;
+  // MTEXT's baseline direction is authoritative, including decoder versions
+  // whose converted rotation field is fixed at zero.
+  const direction = entity.type === 'MTEXT' ? entity.direction : null;
+  const rotation = Number.isFinite(direction?.x) && Number.isFinite(direction?.y)
+    && (direction.x !== 0 || direction.y !== 0)
+    ? Math.atan2(direction.y, direction.x)
+    : (entity.rotation || 0);
   return {
     text: cleanCadText(entity.text),
     x: transformed.x,
@@ -711,7 +718,7 @@ function textFromEntity(entity, matrix) {
       ? entity.extentsHeight * matrixScaleY
       : null,
     height: Math.max(Math.abs(entity.textHeight || 1) * matrixScaleY, 1e-9),
-    rotation: (entity.rotation || 0) + matrixRotation,
+    rotation: rotation + matrixRotation,
     type: entity.type,
     halign: entity.halign || 0,
     valign: entity.valign || 0,

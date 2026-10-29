@@ -1,4 +1,17 @@
 {
+  "drawingTextRotation20261029": {
+    "localImpact": "The bundled DWG decoder derives MTEXT rotation from its source direction vector for every consumer. The retained read-only Canvas viewer matches the standalone CADViewer fix and accepts old decoder output. WebCAD's Three.js viewport and analytic contour import are unaffected; contour import does not render annotations.",
+    "servicesImpact": "None: this correction only changes browser Canvas text presentation; no Services, Gateway or Native computation changes.",
+    "logoImpact": "None: no Logo conversion, glyph geometry or source drawing changes.",
+    "contractImpact": "None: no new UI actions, modeling tools, API arguments or discovery text. Existing TEXT/ATTRIB angles and block rotations are preserved.",
+    "documentImpact": "None: the viewer remains read-only and does not commit, modify or save CAD documents.",
+    "cacheImpact": "Bump the retained viewer entry script query version. The decoder is copied by the current WebCAD Vite build and changes the next source build identity. No page API or knowledge contract changes; the retained viewer entry itself is not copied by that build.",
+    "requiredTests": [
+      "gc15779.dwg MTEXT vertical dimensions remain 90 degrees and horizontal dimensions remain zero",
+      "TEXT angle, missing MTEXT direction fallback and block rotation composition",
+      "Retained viewer text conversion agrees with the fixed standalone CADViewer"
+    ]
+  },
   "autoRasterPostFitStraight20261027": {
     "localImpact": "The bitmap review UI and manual parameters are unchanged.",
     "servicesImpact": "The raster worker retains the previously accepted bounded cubic fit, then restores only confirmed straight spans using cubic controls, source residual patterns and join tangents. Curved runs retain their fitted geometry; if line recovery makes a ring unsafe, restore that ring's pre-recovery cubic fit before considering raw pixels.",
@@ -3860,5 +3873,33 @@
       "Modal and advanced BEFORE/AFTER",
       "Targeted native compile and changed behavior only"
     ]
+  },
+  "photoReliefV2_20261029": {
+    "localImpact": "Photo relief algorithm 2, image controls and background preview; configured Services failures do not fall back locally.",
+    "servicesImpact": "Matching Runtime validates algorithm 2; source conversion, cancellation and native BRep fitting.",
+    "logoImpact": "No Logo algorithm changes.",
+    "contractImpact": "Photo algorithm version participates in source settings and fingerprints; native binary identity updated.",
+    "documentImpact": "Existing algorithm 1 sources retain hashes; new image sources carry algorithm 2.",
+    "cacheImpact": "Rebuild complete generated knowledge and immutable release; prior compiled results retain original identities.",
+    "requiredTests": [
+      "All relief Node tests",
+      "Windows Runtime/native source conversion and BRep fit",
+      "Actual WASM BRep import",
+      "Six local image UI cases and cancellation",
+      "Production dragon and medal"
+    ]
+  },
+  "rectBadge20261029": {
+    "localImpact": "New rectBadge quick model: exact rounded/square rectangular plate with independent front/back 45-degree chamfers, fixed local WASM.",
+    "requiredTests": [
+      "Exact single solid, envelope, analytic volume and requested end-face shrink for R0/R2 with zero/front/back/both/asymmetric chamfers",
+      "Invalid geometry parameters preserve last committed BRep",
+      "One localhost browser check: discover, static images, parameter form and create"
+    ],
+    "cacheImpact": "New static preview/guide and regenerated catalog/docs hashes and knowledge ZIP require a matching frontend package.",
+    "documentImpact": "One standard quickModel feature; generic preview, edit, undo and compiled project persistence retained. Bottom-center insertion anchor.",
+    "logoImpact": "None: no artwork or Logo conversion changes.",
+    "contractImpact": "template.rectBadge discovery, same-source parameter schema, UI route, selection guidance and complete generated knowledge bundle.",
+    "servicesImpact": "None: quickModel remains local; no backend protocol or binary changes."
   }
 }

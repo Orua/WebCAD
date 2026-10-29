@@ -168,17 +168,32 @@ export async function reliefServicesReady(operation,{client=servicesClient,confi
 }
 // relief.source-convert-1 on Services: upload JPEG/PNG when available (else RGBA), native conversion with machining
 // precision smoothing; fetch the grid artifact and re-verify encoding hash + dimensions in the browser.
-export async function convertSourceOnServices({rgba,params,context,imageSha256,client=servicesClient,signal,fileBytes,mime,fileName}){
+export async function convertSourceOnServices({rgba,params,context,imageSha256,client=servicesClient,signal,onProgress,fileBytes,mime,fileName}){
  const S=RELIEF_SERVICES_OPERATIONS.sourceConvert;
  // Prefer original JPEG/PNG bytes (much smaller than raw RGBA) when available; NativeAdapter materializes RGBA for the worker.
  const compressed=fileBytes instanceof Uint8Array&&fileBytes.length>0&&fileBytes.length<rgba.length&&/^image\/(jpeg|png|webp|bmp)$/i.test(mime||'');
  const uploadName=compressed?(fileName||('image.'+(mime.includes('png')?'png':mime.includes('webp')?'webp':mime.includes('bmp')?'bmp':'jpg'))):'image.rgba';
  const uploadBytes=compressed?fileBytes:rgba;
+ if(signal?.aborted)throw Object.assign(new Error('已取消转换'),{name:'AbortError'});
  const asset=await client.upload(new File([uploadBytes],uploadName),{kind:'raster'});
+ if(signal?.aborted)throw Object.assign(new Error('已取消转换'),{name:'AbortError'});
  const requestId=crypto.randomUUID(),payload={requestId,documentId:context.documentId,documentInstanceId:context.documentInstanceId,expectedRevision:context.revision??context.expectedRevision,featureId:'relief-source-'+imageSha256.slice(0,16),
   operation:S.operation,schemaVersion:'1.0',semanticVersion:S.semanticVersion,strategy:S.strategy,inputs:[{assetId:asset.assetId,sha256:asset.sha256,role:'source',sourceFeatureId:'image-'+imageSha256.slice(0,16)}],
   placementSnapshot:null,selectionIntent:{kind:'whole-source'},params,requiredResultFormat:'relief-height-grid-u16le-v1',recipeFingerprint:'relief-source:'+contractHashOf({imageSha256,params})};
- const job=await client.submit('compute/jobs',payload,requestId),done=await client.wait(job,{signal});
+ const job=await client.submit('compute/jobs',payload,requestId);let done;
+ try{done=await client.wait(job,{signal,onProgress});}
+ catch(error){
+  if(error?.code!=='OBSERVATION_CANCELLED')throw error;
+  try{
+   await client.cancelJob(job.jobId);
+   const deadline=Date.now()+10000;let current;
+   do{current=await client.getJob(job.jobId);if(!['queued','running'].includes(current.execution))break;await new Promise(resolve=>setTimeout(resolve,250));}while(Date.now()<deadline);
+   if(!current||['queued','running'].includes(current.execution))throw new Error('停止请求已发出，但后台任务状态尚未确认');
+   if(!['cancelled','terminated'].includes(current.execution))throw Object.assign(new Error('任务已结束但停止状态未确认；结果未应用'),{code:'SERVICES_JOB_FINISHED_BEFORE_CANCEL'});
+   throw Object.assign(new Error('已停止转换，草稿未改变'),{code:'SERVICES_JOB_CANCELLED'});
+  }catch(stopError){if(stopError.code==='SERVICES_JOB_CANCELLED'||stopError.code==='SERVICES_JOB_FINISHED_BEFORE_CANCEL')throw stopError;throw Object.assign(new Error('停止请求或任务状态无法确认，请查询原任务'),{code:'SERVICES_CONNECTION_UNKNOWN',jobId:job.jobId,commitState:'unknown'});}
+ }
+ if(signal?.aborted)throw Object.assign(new Error('任务已完成，取消后结果未应用'),{code:'SERVICES_JOB_FINISHED_BEFORE_CANCEL'});
  const grid=done.result?.grid;
  // Services may downsample an over-budget request (downsampledFrom); accept exactly the shared budget rule.
  const ds=done.manifest?.downsampledFrom??done.result?.downsampledFrom,want=ds?budgetGridSize(params.settings.columns,params.settings.rows):params.settings;

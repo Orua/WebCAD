@@ -2623,6 +2623,10 @@ class LibreEntityConverter {
     const styleName = libredwg.dwg_entity_mtext_get_style_name(entity);
     const extrusionDirection = libredwg.dwg_dynapi_entity_data(entity, "extrusion");
     const direction = libredwg.dwg_dynapi_entity_data(entity, "x_axis_dir");
+    const rotation = Number.isFinite(direction?.x) && Number.isFinite(direction?.y)
+      && (direction.x !== 0 || direction.y !== 0)
+      ? Math.atan2(direction.y, direction.x)
+      : 0;
     const lineSpacingStyle = libredwg.dwg_dynapi_entity_data(entity, "linespace_style");
     const lineSpacing = libredwg.dwg_dynapi_entity_data(entity, "linespace_factor");
     const backgroundFill = libredwg.dwg_dynapi_entity_data(entity, "bg_fill_flag");
@@ -2655,8 +2659,7 @@ class LibreEntityConverter {
       styleName,
       extrusionDirection,
       direction,
-      rotation: 0,
-      // TODO: Didn't find the corresponding field in libredwg
+      rotation,
       lineSpacingStyle,
       lineSpacing,
       backgroundFill,

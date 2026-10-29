@@ -81,10 +81,11 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
   }
   throw last;
  }
- async function wait(job,{signal,onWaitTimeout=defaultWaitHandler,waitTimeoutMs=read().serverWaitMs,pollIntervalMs=250}={}){
+ async function wait(job,{signal,onProgress=()=>{},onWaitTimeout=defaultWaitHandler,waitTimeoutMs=read().serverWaitMs,pollIntervalMs=250}={}){
   if(!Number.isInteger(waitTimeoutMs)||waitTimeoutMs<1||waitTimeoutMs>900000)throw serviceError('PARAM_SCHEMA_INVALID','等待提醒时间无效');
   const began=now();let reminderAt=began,current=job,lastPhase='';
   while(['queued','running'].includes(current.execution)){
+   onProgress({execution:current.execution,stage:current.stage??null,elapsedMs:now()-began});
    const phase=String(current.execution)+':'+String(current.stage??'');if(phase!==lastPhase){lastPhase=phase;debugJournal.record('services','job-phase',{jobId:current.jobId,execution:current.execution,stage:current.stage,elapsedMs:now()-began});}
    if(signal?.aborted)throw serviceError('OBSERVATION_CANCELLED','已停止等待，任务须另行查询',{jobId:job.jobId,idempotencyKey:job.requestKey,commitState:'unknown'});
    if(now()-reminderAt>=waitTimeoutMs){
