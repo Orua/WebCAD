@@ -1520,6 +1520,76 @@
           "kind"
         ],
         "additionalProperties": false,
+        "description": "One rectangular badge plate, centered in XY with its back at Z=0. Length X, width Y, thickness Z, and optional planar corner radius (0 = square corners). Independent front (+Z) and back (-Z) 45-degree equal-distance chamfers; 0 disables either side. Chamfer sum must be less than thickness; each must be less than half the shorter side. No holes, posts or lettering.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "rectBadge"
+          },
+          "length": {
+            "type": "number",
+            "default": 40,
+            "description": "Length X",
+            "minimum": 0.1,
+            "maximum": 1000,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "width": {
+            "type": "number",
+            "default": 20,
+            "description": "Width Y",
+            "minimum": 0.1,
+            "maximum": 1000,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "cornerRadius": {
+            "type": "number",
+            "default": 2,
+            "description": "Outline corner radius (0 = square)",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "thickness": {
+            "type": "number",
+            "default": 3,
+            "description": "Thickness Z",
+            "minimum": 0.1,
+            "maximum": 1000,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "frontChamfer": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Front chamfer (0 = none)",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "backChamfer": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Back chamfer (0 = none)",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
         "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
         "properties": {
           "kind": {
@@ -4249,6 +4319,14 @@
       "thickness": 3.7,
       "edgeRadius": 0.8
     },
+    "rectBadge": {
+      "length": 40,
+      "width": 20,
+      "cornerRadius": 2,
+      "thickness": 3,
+      "frontChamfer": 0.5,
+      "backChamfer": 0.5
+    },
     "mountingPlate": {
       "width": 40,
       "depth": 16,
@@ -4589,7 +4667,7 @@
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98",
+  "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -6892,6 +6970,99 @@
         "windowSpacing": 10.35,
         "thickness": 3.7,
         "edgeRadius": 0.8
+      }
+    },
+    {
+      "kind": "rectBadge",
+      "title": "牌仔（牌子／方牌）",
+      "description": "One rectangular badge plate, centered in XY with its back at Z=0. Length X, width Y, thickness Z, and optional planar corner radius (0 = square corners). Independent front (+Z) and back (-Z) 45-degree equal-distance chamfers; 0 disables either side. Chamfer sum must be less than thickness; each must be less than half the shorter side. No holes, posts or lettering.",
+      "visibleInLibrary": true,
+      "category": "plates",
+      "categoryLabel": "底片",
+      "defaults": {
+        "length": 40,
+        "width": 20,
+        "cornerRadius": 2,
+        "thickness": 3,
+        "frontChamfer": 0.5,
+        "backChamfer": 0.5
+      },
+      "fields": [
+        {
+          "key": "length",
+          "label": "长 X",
+          "labelEn": "Length X",
+          "type": "number",
+          "unit": "mm",
+          "min": 0.1,
+          "max": 1000,
+          "step": 0.1
+        },
+        {
+          "key": "width",
+          "label": "宽 Y",
+          "labelEn": "Width Y",
+          "type": "number",
+          "unit": "mm",
+          "min": 0.1,
+          "max": 1000,
+          "step": 0.1
+        },
+        {
+          "key": "cornerRadius",
+          "label": "轮廓圆角 R（0 为直角）",
+          "labelEn": "Outline corner radius (0 = square)",
+          "type": "number",
+          "unit": "mm",
+          "min": 0,
+          "max": 500,
+          "step": 0.1
+        },
+        {
+          "key": "thickness",
+          "label": "厚度 Z",
+          "labelEn": "Thickness Z",
+          "type": "number",
+          "unit": "mm",
+          "min": 0.1,
+          "max": 1000,
+          "step": 0.1
+        },
+        {
+          "key": "frontChamfer",
+          "label": "正面倒角（0 为不倒）",
+          "labelEn": "Front chamfer (0 = none)",
+          "type": "number",
+          "unit": "mm",
+          "min": 0,
+          "max": 500,
+          "step": 0.1
+        },
+        {
+          "key": "backChamfer",
+          "label": "反面倒角（0 为不倒）",
+          "labelEn": "Back chamfer (0 = none)",
+          "type": "number",
+          "unit": "mm",
+          "min": 0,
+          "max": 500,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "rectBadge"
+      },
+      "normalExample": {
+        "kind": "rectBadge",
+        "length": 40,
+        "width": 20,
+        "cornerRadius": 2,
+        "thickness": 3,
+        "frontChamfer": 0.5,
+        "backChamfer": 0.5
       }
     },
     {
@@ -10903,5 +11074,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b01c24b181780439b0304fcb5aa915bdbc43ed3871fc3ed2c74fe859710a5346"
+  "docsHash": "sha256:048a4948afd04ab28abafc8224f99b90157e01a0d8bea1246d78af674a490036"
 }

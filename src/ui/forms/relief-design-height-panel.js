@@ -6,6 +6,7 @@ import {convertInBackground,decodeTargetSize,downscaleRgba} from '../../relief-s
 import {createReliefHeightSource,PHOTO_HEIGHTMAP_CONFIRMATION} from '../../relief-source/source.js';
 import {humanError} from '../../error-recovery.js';
 import {sourceConvertWorkerParams,convertSourceOnServices,reliefServicesReady} from '../../services/relief-pipeline.js';
+import {getServicesConfig} from '../../services/settings.js';
 
 /** Default max protrusion for high-relief feel (several mm relative to a typical plate). */
 export const DEFAULT_RELIEF_DEPTH_MM=3;
@@ -58,7 +59,7 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
  const V2=defaultPhotoReliefParams();
  const slider=(label,value)=>{const i=element('input',{type:'range',min:'0',max:'100',step:'1',value:String(Math.round(value*100)),'aria-label':label});field(label,i,form);return i;};
  const volume=slider('立体度 %',V2.volume),smooth=slider('丝滑度 %',V2.smoothness);
- const columns=num('网格长边（留空=自动：按图像像素与尺寸/精度取 129–1025）','','1'),black=num('黑点 0–1',0),white=num('白点 0–1',1),gamma=num('Gamma',1),blur=num('模糊（网格像素）',0),keepout=num('边缘留空 mm',0),fade=num('边缘过渡 mm',0);
+ const columns=num('网格长边（留空=自动：按图像像素与尺寸/精度取 129–1025）','','1'),black=num('黑点 0–1',0),white=num('白点 0–1',1),gamma=num('Gamma',1),blur=num('模糊（网格像素）',0),keepout=num('边缘留空 mm',0),fade=num('边缘过渡 mm',2);
  const invert=element('input',{type:'checkbox','aria-label':'反相'});field('反相（暗色更高）',invert,form);
  // Photo-relief advanced knobs (only meaningful in photo mode)
  const photoFields={};
@@ -134,23 +135,23 @@ export function createReliefHeightPanel({element,button,field,onApply,getCurrent
    const interpretation=resolveUse();
    const r=heightPanelRequest({columns:columns.value,black:black.value,white:white.value,gamma:gamma.value,blur:blur.value,invert:invert.checked,depth:depth.value,keepout:keepout.value,fade:fade.value,use:interpretation,photo:photoParams()},ctx());
    const params=sourceConvertWorkerParams({width:image.width,height:image.height,settings:r.settings,depthMm:r.depthMm,machiningPrecisionMm:getPrecision()});
-   let grid,settings=params.settings,where='浏览器转换（Services 不可用）';
-   let servicesReason='';
-   if(await servicesReady()){info.textContent='正在 Services 转换高度图…';try{abort=new AbortController();cancel.hidden=false;const out=await convertRemote({rgba:image.rgba,params,signal:abort.signal,context:window.webcad.api.getState().context,imageSha256:image.sha256,fileBytes:image.fileBytes,mime:image.mime,fileName:image.name});grid=out.grid;settings=out.settings??params.settings;where='Services 转换';}catch(e){if(e.code==='SERVICES_CONNECTION_UNKNOWN'||e.name==='AbortError'||abort?.signal.aborted)throw e;servicesReason=humanError(e);where='已改用浏览器转换';info.textContent=`已改用浏览器转换\nServices 原因：${servicesReason}`;}}
+   let grid,settings=params.settings,where='浏览器转换（Services 未启用）';
+   const ready=await servicesReady();
+   if(!ready&&getServicesConfig().configured)throw Object.assign(new Error('Services 未就绪，无法转换图片；请检查连接和转换能力'),{code:'SERVICES_UNAVAILABLE'});
+   if(ready){info.textContent='正在上传图片并等待 Services 转换…';abort=new AbortController();cancel.hidden=false;progress.hidden=false;progress.removeAttribute('value');const out=await convertRemote({rgba:image.rgba,params,signal:abort.signal,onProgress:state=>{info.textContent=`Services 转换：${state.execution==='queued'?'排队中':'计算中'}${state.stage?' · '+state.stage:''}（${Math.round(state.elapsedMs/1000)} 秒）`;},context:window.webcad.api.getState().context,imageSha256:image.sha256,fileBytes:image.fileBytes,mime:image.mime,fileName:image.name});grid=out.grid;settings=out.settings??params.settings;where='Services 转换';}
    if(!grid){
     abort=new AbortController();cancel.hidden=false;progress.hidden=false;progress.value=0;
     const stages={lighting:'光照抑制',bands:'分层',mask:'主体识别',envelope:'体量包络',compose:'合成',done:'完成'};
-    const out=await convertInBackground(image.rgba,params,{signal:abort.signal,onProgress:(f,st)=>{progress.value=f;info.textContent=`正在转换高度图… ${Math.round(f*100)}%${stages[st]?' · '+stages[st]:''}${servicesReason?`\nServices 原因：${servicesReason}`:''}`;}});
+    const out=await convertInBackground(image.rgba,params,{signal:abort.signal,onProgress:(f,st)=>{progress.value=f;info.textContent=`正在转换高度图… ${Math.round(f*100)}%${stages[st]?' · '+stages[st]:''}`;}});
     grid=out.grid;if(out.where==='main')where+='（主线程）';
    }
    const asked=r.settings,note=asked.columns!==grid.columns||asked.rows!==grid.rows?`，已按节点上限由 ${asked.columns}×${asked.rows} 降采样`:'';
    const source=createReliefHeightSource({original:{sha256:image.sha256,name:image.name.slice(0,255)},interpretation:r.interpretation,settings,grid});
    onApply({source,depthMm:r.depthMm,edgeKeepoutMm:r.edgeKeepoutMm,edgeFadeMm:r.edgeFadeMm});
-   const fallbackLine=servicesReason?`\n已改用浏览器转换\nServices 原因：${servicesReason}`:'';
    const modeNote=settings.mode==='photoRelief'?'，照片浮雕':'';
-   info.textContent=`已应用到草稿（${grid.columns}×${grid.rows}${String(columns.value).trim()===''?' 自动':''}${note}，最大凸起 ${r.depthMm} mm${modeNote}，${where}，加工精度 ${params.machiningPrecisionMm} mm）；保存草稿并重新求解后生成 BRep 曲面。${fallbackLine}`;
+   info.textContent=`已应用到草稿（${grid.columns}×${grid.rows}${String(columns.value).trim()===''?' 自动':''}${note}，最大凸起 ${r.depthMm} mm${modeNote}，${where}，加工精度 ${params.machiningPrecisionMm} mm）；保存草稿并重新求解后生成 BRep 曲面。`;
    preview();
-  }catch(e){info.textContent=e?.code==='RELIEF_CONVERT_CANCELLED'||e?.name==='AbortError'?'已取消转换；草稿未改变。':humanError(e);}
+  }catch(e){info.textContent=e?.code==='RELIEF_CONVERT_CANCELLED'||e?.code==='SERVICES_JOB_CANCELLED'||e?.name==='AbortError'?'已取消转换；草稿未改变。':humanError(e);}
   finally{running=false;abort=null;cancel.hidden=true;progress.hidden=true;}
   sync();
  }

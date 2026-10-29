@@ -34,6 +34,7 @@ test('browser re-verification rejects tampered Services results',()=>{
  const g=golden.cases[0],{params}=designCase('box'),base={columns:33,rows:33,widthMm:30,heightMm:30,controlDeltasMm:[...g.controlDeltasMm],lockedControlMask:g.lockedControlMask,controlDeltasSha256:g.controlDeltasSha256};
  const tampered={...base,controlDeltasMm:base.controlDeltasMm.map((v,k)=>k===500?v+.3:v)};
  assert.throws(()=>verifyServicesFit(params,{reliefDesign:{fit:tampered}}),e=>e.code==='SERVICES_RESPONSE_INVALID');
+ params.fit.deviationPolicy='strict';
  const rehashed={...tampered,controlDeltasSha256:controlDeltasSha256(tampered.controlDeltasMm)};
  assert.throws(()=>verifyServicesFit(params,{reliefDesign:{fit:rehashed}}),/复核偏差|锁定/);
  assert.throws(()=>verifyServicesFit(params,{reliefDesign:{fit:{...base,columns:17}}}),e=>e.code==='SERVICES_RESPONSE_INVALID');

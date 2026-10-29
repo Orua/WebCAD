@@ -43,7 +43,7 @@ const groups = {
     'loft-guides', 'loft-profiles', 'loft-spine', 'mirror-variation', 'rebuild-pool', 'legacy-topology-marker',
     'robust-union', 'semantic-blend-integration', 'smooth-transition-semantic',
     'stl-watertight', 'subd-body', 'subd-integration',
-    'quick-chain-foot', 'tap-tool', 'badge-tool', 'eyelet-faces', 'quick-chain-assembly', 'square-arched-bridge',
+    'quick-chain-foot', 'tap-tool', 'badge-tool', 'eyelet-faces', 'quick-chain-assembly', 'square-arched-bridge', 'rect-badge',
     'relief-edit-kernel', 'mesh-kernel', 'mesh-boolean', 'adaptive-exact-display', 'relief-param-migration',
     'services-round-plan',
     'feature-plan',

@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.60.8 · sha256:abcebb2e817add98942b3f00381cd30643ff771fd1347ce0375ffdca050ef5e3
+API 1.60.8 · sha256:745db9039efd1b31f8411469aceb2065bf9843b6fef240049d1e88e25a6257d6
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -1053,7 +1053,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 读取工具卡与实际能力；仅选择输入、输出、孔洞、尺寸和深度语义一致的已支持工具。没有等价工具时说明缺口并停止，不换核兜底。
 
-代码：`ADAPTIVE_FAMILY_UNMATCHED`、`AGENT_COMPOSER_UNAVAILABLE`、`ANALYTIC_FAMILY_UNMATCHED`、`CAPABILITY_UNAVAILABLE`、`CONTINUITY_UNSUPPORTED`、`CONTINUOUS_SCULPT_UNAVAILABLE`、`DESIGN_CHECK_UNSUPPORTED`、`DOMAIN_SHAPE_UNSUPPORTED`、`END_ROUNDING_UNSUPPORTED`、`ENGINE_UNAVAILABLE`、`EVIDENCE_UNAVAILABLE`、`FORMAT_UNSUPPORTED`、`FORMAT_VARIANT_UNSUPPORTED`、`GUIDED_LOFT_BINDING_SHAPE_MISSING`、`GUIDED_LOFT_BINDING_SOURCE_UNSUPPORTED`、`HOST_UNAVAILABLE`、`LOCAL_VECTOR_UNSUPPORTED`、`LOFT_GUIDE_UNSUPPORTED`、`LOFT_POINT_CAP_UNSUPPORTED`、`MESH_BOOLEAN_UNAVAILABLE`、`MESH_BREP_UNAVAILABLE`、`MESH_COMBINATION_UNAVAILABLE`、`MESH_OPERATION_UNAVAILABLE`、`MESH_RECOVERY_UNAVAILABLE`、`MESH_TOOL_UNAVAILABLE`、`MESH_TOPOLOGY_UNAVAILABLE`、`NATIVE_ACCEPTANCE_INVALID`、`NATIVE_POLISHING_NETWORK_UNAVAILABLE`、`OPERATION_TBD`、`OPERATION_UNAVAILABLE`、`PDF_RENDERER_UNAVAILABLE`、`PIPELINE_OPTION_UNSUPPORTED`、`PROFILE_CONSTRAINT_UNSUPPORTED`、`PROJECT_SNAPSHOT_UNAVAILABLE`、`REFINE_UNSUPPORTED`、`RELIEF_PATCH_UNSUPPORTED`、`RELIEF_PLAN_UNSUPPORTED`、`RELIEF_SHOULDER_UNSUPPORTED`、`RELIEF_SOURCE_UNSUPPORTED`、`RELIEF_UNSUPPORTED`、`SCOPE_EXPANSION_REQUIRED`、`SELECTION_UNSUPPORTED`、`SERVICES_OPERATION_UNAVAILABLE`、`TARGET_PEAK_UNAVAILABLE`、`UNKNOWN_OPERATION`、`UNSUPPORTED_CURVE_PROJECTION`、`UNSUPPORTED_FORMAT`、`VARIABLE_FAMILY_UNMATCHED`、`VOLUME_UNAVAILABLE`、`WIDTH_FAMILY_UNMATCHED`
+代码：`ADAPTIVE_FAMILY_UNMATCHED`、`AGENT_COMPOSER_UNAVAILABLE`、`ANALYTIC_FAMILY_UNMATCHED`、`CAPABILITY_UNAVAILABLE`、`CONTINUITY_UNSUPPORTED`、`CONTINUOUS_SCULPT_UNAVAILABLE`、`DESIGN_CHECK_UNSUPPORTED`、`DOMAIN_SHAPE_UNSUPPORTED`、`END_ROUNDING_UNSUPPORTED`、`ENGINE_UNAVAILABLE`、`EVIDENCE_UNAVAILABLE`、`FORMAT_UNSUPPORTED`、`FORMAT_VARIANT_UNSUPPORTED`、`GUIDED_LOFT_BINDING_SHAPE_MISSING`、`GUIDED_LOFT_BINDING_SOURCE_UNSUPPORTED`、`HOST_UNAVAILABLE`、`LOCAL_VECTOR_UNSUPPORTED`、`LOFT_GUIDE_UNSUPPORTED`、`LOFT_POINT_CAP_UNSUPPORTED`、`MESH_BOOLEAN_UNAVAILABLE`、`MESH_BREP_UNAVAILABLE`、`MESH_COMBINATION_UNAVAILABLE`、`MESH_OPERATION_UNAVAILABLE`、`MESH_RECOVERY_UNAVAILABLE`、`MESH_TOOL_UNAVAILABLE`、`MESH_TOPOLOGY_UNAVAILABLE`、`NATIVE_ACCEPTANCE_INVALID`、`NATIVE_POLISHING_NETWORK_UNAVAILABLE`、`OPERATION_TBD`、`OPERATION_UNAVAILABLE`、`PDF_RENDERER_UNAVAILABLE`、`PIPELINE_OPTION_UNSUPPORTED`、`PROFILE_CONSTRAINT_UNSUPPORTED`、`PROJECT_SNAPSHOT_UNAVAILABLE`、`REFINE_UNSUPPORTED`、`RELIEF_PATCH_UNSUPPORTED`、`RELIEF_PLAN_UNSUPPORTED`、`RELIEF_SHOULDER_UNSUPPORTED`、`RELIEF_SOURCE_UNSUPPORTED`、`RELIEF_UNSUPPORTED`、`RELIEF_WORKER_UNAVAILABLE`、`SCOPE_EXPANSION_REQUIRED`、`SELECTION_UNSUPPORTED`、`SERVICES_OPERATION_UNAVAILABLE`、`SERVICES_UNAVAILABLE`、`TARGET_PEAK_UNAVAILABLE`、`UNKNOWN_OPERATION`、`UNSUPPORTED_CURVE_PROJECTION`、`UNSUPPORTED_FORMAT`、`VARIABLE_FAMILY_UNMATCHED`、`VOLUME_UNAVAILABLE`、`WIDTH_FAMILY_UNMATCHED`
 
 ### preview
 
@@ -1165,7 +1165,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
 
-代码：`BUSY`、`EVIDENCE_INVALID`、`EVIDENCE_QUEUE_FULL`、`EVIDENCE_RENDER_FAILED`、`EVIDENCE_SIZE_LIMIT`、`EVIDENCE_SUPERSEDED`、`EXECUTION_UNKNOWN`、`IDEMPOTENCY_CONFLICT`、`MATERIAL_IN_USE`、`MEASUREMENT_FAILED`、`PREPARATION_APPLIED`、`PREPARATION_STALE`、`PROJECT_ENCODING`、`RASTER_AUTO_DETAIL`、`RASTER_AUTO_LIMIT`、`RASTER_AUTO_TOPOLOGY`
+代码：`BUSY`、`EVIDENCE_INVALID`、`EVIDENCE_QUEUE_FULL`、`EVIDENCE_RENDER_FAILED`、`EVIDENCE_SIZE_LIMIT`、`EVIDENCE_SUPERSEDED`、`EXECUTION_UNKNOWN`、`IDEMPOTENCY_CONFLICT`、`MATERIAL_IN_USE`、`MEASUREMENT_FAILED`、`PREPARATION_APPLIED`、`PREPARATION_STALE`、`PROJECT_ENCODING`、`RASTER_AUTO_DETAIL`、`RASTER_AUTO_LIMIT`、`RASTER_AUTO_TOPOLOGY`、`SERVICES_JOB_FINISHED_BEFORE_CANCEL`
 
 ### display
 
@@ -1221,7 +1221,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 读取对应工具卡和报错阶段，复核来源截面、路径、支撑及参数关系；先修正已证实的输入问题，不能用试错改变设计。
 
-代码：`DEGENERATE_PROJECTION`、`FIT_DEGENERATE`、`HEIGHTFIELD_INVALID`、`HEIGHTFIELD_SCULPT_INVALID`、`MESH_CODEC_INVALID`、`MESH_INDEX_INVALID`、`MESH_NONFINITE`、`MESH_NOT_MANIFOLD`、`MESH_REPORT_INVALID`、`MESH_SOURCE_CLASSIFICATION_REQUIRED`、`MESH_SOURCE_INVALID`、`MESH_TRANSFORM_INVALID`、`PROFILE_CAPACITY`、`PROFILE_EDIT_INVALID`、`PROFILE_EXTRUDE_INVALID`、`PROFILE_INVALID`、`PROFILE_LOFT_INVALID`、`PROFILE_OFFSET_INVALID`、`PROFILE_OUTSIDE`、`PROFILE_REPAIR_INVALID`、`PROFILE_REVOLVE_INVALID`、`PROFILE_SWEEP_INVALID`、`PROJECTION_INVALID`、`RELIEF_CURVE_DEVIATION`、`RELIEF_CURVE_TOPOLOGY_INVALID`、`RELIEF_DEFORMATION_INVALID`、`RELIEF_DESIGN_INTENT_REQUIRED`、`RELIEF_DESIGN_PLACEMENT_REQUIRED`、`RELIEF_DESIGN_STALE`、`RELIEF_DESIGN_TARGET_REQUIRED`、`RELIEF_DESIGN_UNSOLVED`、`RELIEF_FIELD_INVALID`、`RELIEF_INVALID`、`RELIEF_LAYERS_INVALID`、`RELIEF_PATCH_INVALID`、`RELIEF_PLATE_INVALID`、`RELIEF_PROFILE_INVALID`、`RELIEF_REGION_INVALID`、`RELIEF_SHOULDER_INVALID`、`RELIEF_SUPPORT_INVALID`
+代码：`DEGENERATE_PROJECTION`、`FIT_DEGENERATE`、`HEIGHTFIELD_INVALID`、`HEIGHTFIELD_SCULPT_INVALID`、`MESH_CODEC_INVALID`、`MESH_INDEX_INVALID`、`MESH_NONFINITE`、`MESH_NOT_MANIFOLD`、`MESH_REPORT_INVALID`、`MESH_SOURCE_CLASSIFICATION_REQUIRED`、`MESH_SOURCE_INVALID`、`MESH_TRANSFORM_INVALID`、`PROFILE_CAPACITY`、`PROFILE_EDIT_INVALID`、`PROFILE_EXTRUDE_INVALID`、`PROFILE_INVALID`、`PROFILE_LOFT_INVALID`、`PROFILE_OFFSET_INVALID`、`PROFILE_OUTSIDE`、`PROFILE_REPAIR_INVALID`、`PROFILE_REVOLVE_INVALID`、`PROFILE_SWEEP_INVALID`、`PROJECTION_INVALID`、`RELIEF_CONVERT_CANCELLED`、`RELIEF_CONVERT_FAILED`、`RELIEF_CONVERT_TIMEOUT`、`RELIEF_CURVE_DEVIATION`、`RELIEF_CURVE_TOPOLOGY_INVALID`、`RELIEF_DEFORMATION_INVALID`、`RELIEF_DESIGN_INTENT_REQUIRED`、`RELIEF_DESIGN_PLACEMENT_REQUIRED`、`RELIEF_DESIGN_STALE`、`RELIEF_DESIGN_TARGET_REQUIRED`、`RELIEF_DESIGN_UNSOLVED`、`RELIEF_FIELD_INVALID`、`RELIEF_INVALID`、`RELIEF_LAYERS_INVALID`、`RELIEF_PATCH_INVALID`、`RELIEF_PLATE_INVALID`、`RELIEF_PROFILE_INVALID`、`RELIEF_REGION_INVALID`、`RELIEF_SHOULDER_INVALID`、`RELIEF_SUPPORT_INVALID`、`RELIEF_WORKER_FAILED`
 
 ### design_check
 
@@ -8566,6 +8566,7 @@ files.release: contextPolicy=none
 - template.bowedTwinWindowPlate：正视鼓弧侧边与跑道形孔的平板双窗；不是侧视圆筒拱弯。
 
 ## 孔板、凸柱板与薄壁壳
+- template.rectBadge：牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。
 - template.mountingPlate：平板上两个对称贯穿光孔；孔中心距独立。
 - template.fourHolePlate：平板四角贯穿光孔；边距与外角 R 独立。
 - template.bossPlate：平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。
@@ -9890,6 +9891,17 @@ files.release: contextPolicy=none
     ],
     "method": "updateModelLibrary",
     "usage": "快捷工具定义由软件内置。getModelLibrary读取revision；updateModelLibrary只允许move（id,index）或restore恢复默认顺序；不修改工具定义或工程。"
+  },
+  "rectBadge": {
+    "tools": [
+      "template.rectBadge",
+      "quickModel",
+      "run",
+      "feature.edit",
+      "measure"
+    ],
+    "method": "run",
+    "usage": "快捷模型→底片→牌仔（牌子／方牌）。run的add步骤：op:quickModel、params.kind:rectBadge；length长X、width宽Y、cornerRadius轮廓R（0直角）、thickness厚Z、frontChamfer正面Z=厚度倒角、backChamfer反面Z=0倒角，单位mm；倒角0关闭，独立控制单/双面。getTool读取同源字段和说明，measure/getState读回实体，feature.edit修改同一历史。"
   },
   "quickModelFavorites": {
     "tools": [
@@ -75572,6 +75584,76 @@ files.release: contextPolicy=none
           "kind"
         ],
         "additionalProperties": false,
+        "description": "One rectangular badge plate, centered in XY with its back at Z=0. Length X, width Y, thickness Z, and optional planar corner radius (0 = square corners). Independent front (+Z) and back (-Z) 45-degree equal-distance chamfers; 0 disables either side. Chamfer sum must be less than thickness; each must be less than half the shorter side. No holes, posts or lettering.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "rectBadge"
+          },
+          "length": {
+            "type": "number",
+            "default": 40,
+            "description": "Length X",
+            "minimum": 0.1,
+            "maximum": 1000,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "width": {
+            "type": "number",
+            "default": 20,
+            "description": "Width Y",
+            "minimum": 0.1,
+            "maximum": 1000,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "cornerRadius": {
+            "type": "number",
+            "default": 2,
+            "description": "Outline corner radius (0 = square)",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "thickness": {
+            "type": "number",
+            "default": 3,
+            "description": "Thickness Z",
+            "minimum": 0.1,
+            "maximum": 1000,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "frontChamfer": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Front chamfer (0 = none)",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          },
+          "backChamfer": {
+            "type": "number",
+            "default": 0.5,
+            "description": "Back chamfer (0 = none)",
+            "minimum": 0,
+            "maximum": 500,
+            "unit": "mm"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
         "description": "Two symmetric X-axis holes with independent center spacing. Plain through holes only; no threads, countersinks or counterbores.",
         "properties": {
           "kind": {
@@ -78301,6 +78383,14 @@ files.release: contextPolicy=none
       "thickness": 3.7,
       "edgeRadius": 0.8
     },
+    "rectBadge": {
+      "length": 40,
+      "width": 20,
+      "cornerRadius": 2,
+      "thickness": 3,
+      "frontChamfer": 0.5,
+      "backChamfer": 0.5
+    },
     "mountingPlate": {
       "width": 40,
       "depth": 16,
@@ -78641,7 +78731,7 @@ files.release: contextPolicy=none
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98",
+  "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -80944,6 +81034,99 @@ files.release: contextPolicy=none
         "windowSpacing": 10.35,
         "thickness": 3.7,
         "edgeRadius": 0.8
+      }
+    },
+    {
+      "kind": "rectBadge",
+      "title": "牌仔（牌子／方牌）",
+      "description": "One rectangular badge plate, centered in XY with its back at Z=0. Length X, width Y, thickness Z, and optional planar corner radius (0 = square corners). Independent front (+Z) and back (-Z) 45-degree equal-distance chamfers; 0 disables either side. Chamfer sum must be less than thickness; each must be less than half the shorter side. No holes, posts or lettering.",
+      "visibleInLibrary": true,
+      "category": "plates",
+      "categoryLabel": "底片",
+      "defaults": {
+        "length": 40,
+        "width": 20,
+        "cornerRadius": 2,
+        "thickness": 3,
+        "frontChamfer": 0.5,
+        "backChamfer": 0.5
+      },
+      "fields": [
+        {
+          "key": "length",
+          "label": "长 X",
+          "labelEn": "Length X",
+          "type": "number",
+          "unit": "mm",
+          "min": 0.1,
+          "max": 1000,
+          "step": 0.1
+        },
+        {
+          "key": "width",
+          "label": "宽 Y",
+          "labelEn": "Width Y",
+          "type": "number",
+          "unit": "mm",
+          "min": 0.1,
+          "max": 1000,
+          "step": 0.1
+        },
+        {
+          "key": "cornerRadius",
+          "label": "轮廓圆角 R（0 为直角）",
+          "labelEn": "Outline corner radius (0 = square)",
+          "type": "number",
+          "unit": "mm",
+          "min": 0,
+          "max": 500,
+          "step": 0.1
+        },
+        {
+          "key": "thickness",
+          "label": "厚度 Z",
+          "labelEn": "Thickness Z",
+          "type": "number",
+          "unit": "mm",
+          "min": 0.1,
+          "max": 1000,
+          "step": 0.1
+        },
+        {
+          "key": "frontChamfer",
+          "label": "正面倒角（0 为不倒）",
+          "labelEn": "Front chamfer (0 = none)",
+          "type": "number",
+          "unit": "mm",
+          "min": 0,
+          "max": 500,
+          "step": 0.1
+        },
+        {
+          "key": "backChamfer",
+          "label": "反面倒角（0 为不倒）",
+          "labelEn": "Back chamfer (0 = none)",
+          "type": "number",
+          "unit": "mm",
+          "min": 0,
+          "max": 500,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "rectBadge"
+      },
+      "normalExample": {
+        "kind": "rectBadge",
+        "length": 40,
+        "width": 20,
+        "cornerRadius": 2,
+        "thickness": 3,
+        "frontChamfer": 0.5,
+        "backChamfer": 0.5
       }
     },
     {
@@ -84955,7 +85138,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b01c24b181780439b0304fcb5aa915bdbc43ed3871fc3ed2c74fe859710a5346"
+  "docsHash": "sha256:048a4948afd04ab28abafc8224f99b90157e01a0d8bea1246d78af674a490036"
 }
 ```
 
@@ -112363,7 +112546,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -112446,7 +112629,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ac8efb27ef8c04bf97a1679a3b35936981276c9b3774dcee8b1c14686e52b1b"
+  "docsHash": "sha256:2e619aef956cbf905ba6d53620b0f4ab92f33d591f512e430140c40ca9b7c559"
 }
 ```
 
@@ -112957,7 +113140,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -113032,7 +113215,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d4e07866eb4804d028fcfafb2c082e9ea96542fed1fa04d59b56e89cf1e97cc4"
+  "docsHash": "sha256:dd8e805a3f21de7caf22d008cbfec2cb4a06d96a7a0eebc49266112145ee61f2"
 }
 ```
 
@@ -113527,7 +113710,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -113597,7 +113780,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b4ddacc5b8f2e22acc0900062a548b01acaeeae22c90f4636532f41fb19d7c28"
+  "docsHash": "sha256:fd03a05c745e6dc45f67bb2e41907553a5e1c5821c4706171fb241ef7b4ecdf4"
 }
 ```
 
@@ -114138,7 +114321,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -114215,7 +114398,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5d98d695d5722409a0474501d1a3686d601a469a5c62cb6e530c0f13f8b6c0ea"
+  "docsHash": "sha256:0c1c8b21ca5dd909875920fbf8fb27ff300f9622f3ee34970ce18b0808573dd9"
 }
 ```
 
@@ -114790,7 +114973,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -114880,7 +115063,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:22ac4ea30074fca38818b70b5554d052ea9c4b3e0c835ca3cd2bb10245cd5c68"
+  "docsHash": "sha256:938e08a2a5e195df175498e2e19243c5a52c53d9f879ed97414211c1960b08ca"
 }
 ```
 
@@ -115405,7 +115588,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -115489,7 +115672,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:068c7bd7c6309518b58369f85ce027fe19d7b8850f455917faa772cc050da650"
+  "docsHash": "sha256:89819be68e7b8eac38a20ab155c7c52813a56e03ffee04aec632aa9a5adfc183"
 }
 ```
 
@@ -116064,7 +116247,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -116150,7 +116333,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6d0f74b1fadc46f5b36931a9a98bb6402370bacc9ae135848aa68937d0536e74"
+  "docsHash": "sha256:d4514184912539661fab5255b7e821674483a48bc5589ac57b1f9fc0592dfd28"
 }
 ```
 
@@ -116659,7 +116842,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -116746,7 +116929,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:52ccc5e3cb060750619d018225d71349a36356c9016d4b233cb05c11868bd098"
+  "docsHash": "sha256:169544f7b77ffe9b9915d8eab8a4ab5436cf6259c77b7f9d46136bd847e8de33"
 }
 ```
 
@@ -117308,7 +117491,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -117402,7 +117585,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:da0e5840d2bd6ac72dd242a7d7c664a211982be17bb0177f8fc522c846388316"
+  "docsHash": "sha256:1f93340b5dca4e9c326761a7b918de6dec41719a10785204ea4f5e6561289c03"
 }
 ```
 
@@ -117977,7 +118160,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -118044,7 +118227,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d68cea4d1db4af1b2c715716cca145a99b842a6d8103bb9b1049a3641c4b35bd"
+  "docsHash": "sha256:2c12177b314c049e752f7482643d4b23397639ae006ceaeeace4a4ad4d874d4a"
 }
 ```
 
@@ -118635,7 +118818,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -118703,7 +118886,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9410d78e36b603ac4a44712a1483caf00353a0a7a2016087c8f86d797b0faa0a"
+  "docsHash": "sha256:5cc3841684bb4f4348dd48218afc524cc094cfb68f2c4e877427bc7f93c94163"
 }
 ```
 
@@ -119310,7 +119493,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -119378,7 +119561,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a6fb670890be125ab1340735f8f93e341e9a9ae7f97bac7bf6b9ad0f5376a031"
+  "docsHash": "sha256:246c289790fc34cc8eedc013cde60ff66648239eb5ce4b71aa4c8b44a403ee3a"
 }
 ```
 
@@ -119919,7 +120102,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -119984,7 +120167,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:789a2a47ac9a6dbced227f30f2987203bb9b47defa690678377cf9d231dc9e32"
+  "docsHash": "sha256:f9b63cd0e3f71ad7e0bb9996d8c999d2c81820cdb424d728bc21a556b8d12977"
 }
 ```
 
@@ -120575,7 +120758,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -120659,7 +120842,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:62868866f6ebd675f054237ab9819cecb0c906a15c047a53c235679ad86076ba"
+  "docsHash": "sha256:171c878c8f5349b330247f4b5ed056c836cb6835d37566765b1d9456f946028d"
 }
 ```
 
@@ -121266,7 +121449,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -121350,7 +121533,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:70a94b2ab2c4ede949aee384f8b96876a377066883f8bd27749db8380c767b62"
+  "docsHash": "sha256:fa6a29769e128f8cb814a410df9e189ed1b38cd0d638450d09b1accba6e1d947"
 }
 ```
 
@@ -121909,7 +122092,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -121993,7 +122176,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:47c7322209473977488a218fec61c47c679b40b63fdc633f0b0d929a258d321f"
+  "docsHash": "sha256:85094592a7c7eec55a6ac29b690c10eb829358ac1f82274f18d641e8e7404f07"
 }
 ```
 
@@ -122600,7 +122783,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -122688,7 +122871,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:49127fe2b8d28a1ef5f05b251873d1661c29a660644c7b9908ad20d8958af4ba"
+  "docsHash": "sha256:171dd8112d7e97ceb92c3b2ca02973eaf74b85641073cec5af3a92f98be1d8ea"
 }
 ```
 
@@ -123197,7 +123380,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -123280,7 +123463,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:76b8a83b782c631b2af3ba197bd8e9d64d591b4079c0ca15bd7e8a77c7faef54"
+  "docsHash": "sha256:1fadeb6e5dfcdd22566a0b8a16f04bcacf81aa5ecac03e64144a68770aca9207"
 }
 ```
 
@@ -123821,7 +124004,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -123906,7 +124089,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:73234d4f686dde858b9770a8016127b9d65bcfb4f73c00f1e7473704cfbdba9d"
+  "docsHash": "sha256:3e3271fefd9a62bd2ecf61f65644c4a1cfff78b9252574cefeb03d7e3b84167b"
 }
 ```
 
@@ -124513,7 +124696,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -124590,7 +124773,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:40ed5fe850349c677fa1144b101aa3e93f48c77d0c2d1ea2b3108b31b9850f7a"
+  "docsHash": "sha256:c926102b32eee570542a91e5ad59b346a2cf0f1b632ec224d772b5f09d690dbe"
 }
 ```
 
@@ -125281,7 +125464,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -125418,7 +125601,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:41181ca84309048f7e8b875ea55dc0b8024abb0d59914e3bb8d1ed39b8b3763d"
+  "docsHash": "sha256:050f56f11975461185ecbd45e929ed9090f1beddcabe21db443b56baac24e501"
 }
 ```
 
@@ -126025,7 +126208,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -126101,7 +126284,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:db71522cd18d3b61676ec816839928a655767e171ea1d13df6b3de3da3d2be62"
+  "docsHash": "sha256:007b0bc02d8a30f31de2eae9a3f6db380560dd5b8ad18abc03a63601d3659500"
 }
 ```
 
@@ -126642,7 +126825,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -126715,7 +126898,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e11474575841dac4ce2afc6a3277b6bf137ebd204f323cefa5cf767221ce4d64"
+  "docsHash": "sha256:5673120f1c1af2f043b6815adc32a5287d206a135a3a6d6bf73ec879eeffb52f"
 }
 ```
 
@@ -127320,7 +127503,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -127397,7 +127580,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cd715407975f21f1b9cfd0c6304631ecb1d0280ba1af4967ef067fa97dc3b78c"
+  "docsHash": "sha256:50edbde404cebbf803af98e9ca92767df59877b7d027af47ba998b8bce6281f4"
 }
 ```
 
@@ -128006,7 +128189,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -128083,7 +128266,676 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:aa912ca11310b4fbbe70ac197eb6310ab87c39990e211cf8accecd68add27913"
+  "docsHash": "sha256:cf411e732d53eb78c30aabb6505c77038ebb3b489f2e86e7fa957e8f3403b0a1"
+}
+```
+
+## 工具 template.rectBadge · 牌仔（牌子／方牌）
+
+```json
+{
+  "id": "template.rectBadge",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "牌仔（牌子／方牌）",
+  "category": "template",
+  "synonyms": [
+    "rectBadge",
+    "牌仔（牌子／方牌）",
+    "Rectangular badge plate"
+  ],
+  "description": "牌仔、牌子、方牌：按长 X、宽 Y、厚 Z 生成单一实体。轮廓圆角 R=0 为直角矩形。正面（Z=厚度）和反面（Z=0）分别设置 45° 等距倒角，0 为不倒角；可单面或双面，倒角尺寸可不同。两面倒角之和须小于厚度，每面倒角须小于短边的一半。尺寸均为 mm；不自动添加孔、柱或文字。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "rectBadge",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "牌仔（牌子／方牌）",
+  "visibleInLibrary": true,
+  "libraryCategory": "plates",
+  "libraryCategoryLabel": "底片",
+  "purpose": "牌仔、牌子、方牌：按长 X、宽 Y、厚 Z 生成单一实体。轮廓圆角 R=0 为直角矩形。正面（Z=厚度）和反面（Z=0）分别设置 45° 等距倒角，0 为不倒角；可单面或双面，倒角尺寸可不同。两面倒角之和须小于厚度，每面倒角须小于短边的一半。尺寸均为 mm；不自动添加孔、柱或文字。",
+  "whenToUse": [
+    "This selected template matches the required structure; its complete parameters and placement contract are in this card."
+  ],
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "One rectangular badge plate, centered in XY with its back at Z=0. Length X, width Y, thickness Z, and optional planar corner radius (0 = square corners). Independent front (+Z) and back (-Z) 45-degree equal-distance chamfers; 0 disables either side. Chamfer sum must be less than thickness; each must be less than half the shorter side. No holes, posts or lettering.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "rectBadge"
+      },
+      "length": {
+        "type": "number",
+        "default": 40,
+        "description": "Length X",
+        "minimum": 0.1,
+        "maximum": 1000,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "width": {
+        "type": "number",
+        "default": 20,
+        "description": "Width Y",
+        "minimum": 0.1,
+        "maximum": 1000,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "cornerRadius": {
+        "type": "number",
+        "default": 2,
+        "description": "Outline corner radius (0 = square)",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "thickness": {
+        "type": "number",
+        "default": 3,
+        "description": "Thickness Z",
+        "minimum": 0.1,
+        "maximum": 1000,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "frontChamfer": {
+        "type": "number",
+        "default": 0.5,
+        "description": "Front chamfer (0 = none)",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm"
+      },
+      "backChamfer": {
+        "type": "number",
+        "default": 0.5,
+        "description": "Back chamfer (0 = none)",
+        "minimum": 0,
+        "maximum": 500,
+        "unit": "mm"
+      }
+    }
+  },
+  "schemaHash": "sha256:866d8ffc1d45710adcc853bc6673da0b365219f1bc0c18bccb8f497fc3008b33",
+  "defaults": {
+    "length": 40,
+    "width": 20,
+    "cornerRadius": 2,
+    "thickness": 3,
+    "frontChamfer": 0.5,
+    "backChamfer": 0.5
+  },
+  "fields": [
+    {
+      "key": "length",
+      "label": "长 X",
+      "labelEn": "Length X",
+      "type": "number",
+      "unit": "mm",
+      "min": 0.1,
+      "max": 1000,
+      "step": 0.1
+    },
+    {
+      "key": "width",
+      "label": "宽 Y",
+      "labelEn": "Width Y",
+      "type": "number",
+      "unit": "mm",
+      "min": 0.1,
+      "max": 1000,
+      "step": 0.1
+    },
+    {
+      "key": "cornerRadius",
+      "label": "轮廓圆角 R（0 为直角）",
+      "labelEn": "Outline corner radius (0 = square)",
+      "type": "number",
+      "unit": "mm",
+      "min": 0,
+      "max": 500,
+      "step": 0.1
+    },
+    {
+      "key": "thickness",
+      "label": "厚度 Z",
+      "labelEn": "Thickness Z",
+      "type": "number",
+      "unit": "mm",
+      "min": 0.1,
+      "max": 1000,
+      "step": 0.1
+    },
+    {
+      "key": "frontChamfer",
+      "label": "正面倒角（0 为不倒）",
+      "labelEn": "Front chamfer (0 = none)",
+      "type": "number",
+      "unit": "mm",
+      "min": 0,
+      "max": 500,
+      "step": 0.1
+    },
+    {
+      "key": "backChamfer",
+      "label": "反面倒角（0 为不倒）",
+      "labelEn": "Back chamfer (0 = none)",
+      "type": "number",
+      "unit": "mm",
+      "min": 0,
+      "max": 500,
+      "step": 0.1
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "bottom-center",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "additionalDocs": [
+    "api.placement"
+  ],
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "quickModel"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "parentContract": {
+    "opVersion": "legacy-1",
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use this callSchema and current context; run supplies the parent version/hash"
+    }
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "rectBadge"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "rectBadge",
+      "length": 40,
+      "width": 20,
+      "cornerRadius": 2,
+      "thickness": 3,
+      "frontChamfer": 0.5,
+      "backChamfer": 0.5
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "example": {
+      "op": "template.rectBadge",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。",
+    "alternatives": [
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:5eaa5693aab1905a44ca8969459ac791e7e3be3f9131f3676c45e022fad817a8"
 }
 ```
 
@@ -128650,7 +129502,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -128701,6 +129553,10 @@ files.release: contextPolicy=none
     "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。",
     "alternatives": [
       {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
         "id": "template.fourHolePlate",
         "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
       },
@@ -128732,7 +129588,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e0bd5305b4e37d763680a02af71e491a796642c42bca706f7ed4acb4aefc50d0"
+  "docsHash": "sha256:d257cf3bf66928f30cedc31a7cb1ae5fc073127476afba664cfaaee1ef974646"
 }
 ```
 
@@ -129315,7 +130171,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -129367,6 +130223,10 @@ files.release: contextPolicy=none
     "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。",
     "alternatives": [
       {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
         "id": "template.mountingPlate",
         "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
       },
@@ -129398,7 +130258,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d6b217271590f365c10274538251327f0da44788425a246b07e2eb87ff6d4952"
+  "docsHash": "sha256:50d5f54bb0ba9fa8e9d097423d70fa76a11aea6a84dac2b554ba2c1a846198ef"
 }
 ```
 
@@ -129995,7 +130855,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -130048,6 +130908,10 @@ files.release: contextPolicy=none
     "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。",
     "alternatives": [
       {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
         "id": "template.mountingPlate",
         "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
       },
@@ -130079,7 +130943,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ba71ca610f23e85af4386379f4770297c4c4a46a4a56375cf7375935674d7e42"
+  "docsHash": "sha256:4ad25b6cc6212c0159511ec24e43b8fa6d04489211ccecf8686a333d3865d18d"
 }
 ```
 
@@ -130763,7 +131627,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -130819,6 +131683,10 @@ files.release: contextPolicy=none
     "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。",
     "alternatives": [
       {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
         "id": "template.mountingPlate",
         "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
       },
@@ -130850,7 +131718,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a3f79fa214135fd7384132223674f0eea79fd4358369bca35c407cd429aabc36"
+  "docsHash": "sha256:8b4bd90a85b14a25e491584ad2de0efab840ae1b45744e10f4e1a7a2652ca3bc"
 }
 ```
 
@@ -131485,7 +132353,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -131540,6 +132408,10 @@ files.release: contextPolicy=none
     "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。",
     "alternatives": [
       {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
         "id": "template.mountingPlate",
         "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
       },
@@ -131571,7 +132443,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:89cc490c14ed2767f03af5f0af1b1b4b25a40af2be07316d861d2153e96ae262"
+  "docsHash": "sha256:4756c72548a3b124a4d5f98f9a84b8976622909e3f468ae143954b343f007ef0"
 }
 ```
 
@@ -132334,7 +133206,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -132407,7 +133279,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:08fda6e2be072c9556fb5f3e02cdb15027dbf5d5977e44c2deb27cada714b3c2"
+  "docsHash": "sha256:800bb61608d9d80474afd095f7f4efc751cadd41b8078a1d8f4efd02c3a0e8eb"
 }
 ```
 
@@ -132959,7 +133831,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -133032,7 +133904,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a2afe08db0e506a9d1f60cd94f53eb357370681b5252efd11924a3f0a3866f3b"
+  "docsHash": "sha256:feed4a2dc9ade317f5ee32dc46103e9199d7b49dc76444485d23ba6e170f76c5"
 }
 ```
 
@@ -133667,7 +134539,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -133745,7 +134617,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8ed8a91d8458496b4358b7756830521523a12da4f4a4f599c1094520d9b8a192"
+  "docsHash": "sha256:3fd4d1fb6de5a8883c0738e7fac59c5644ec08d3a5e04c31e655c96cd1af631f"
 }
 ```
 
@@ -134342,7 +135214,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -134418,7 +135290,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5d06d2edc829f03ed7dbca481bdfe259b40686176eeed06b09775b1068b8d06d"
+  "docsHash": "sha256:f62850d84125385e5b8a7ac7f87cd95d05255ebad8ccb4e1b52e5ee9eeb1388c"
 }
 ```
 
@@ -134964,7 +135836,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -135045,7 +135917,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:276075a9cf24a73705dd5f9c7f1968e9e50f074f279397b69bbd41e6b3d330f3"
+  "docsHash": "sha256:4b76e28f87597094638a0e7bccf56c131ffb0129857698d6ef1155d754fdc080"
 }
 ```
 
@@ -135698,7 +136570,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -135784,7 +136656,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ad253db7389e5ec956988e04fc947fc72734577d63d5831f01c0d35cdc19299c"
+  "docsHash": "sha256:810177d783c9ad90909ffcd4c8622a0f495b05832e035fc30efec1412e6d2a6f"
 }
 ```
 
@@ -136425,7 +137297,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -136507,7 +137379,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5c052ceff962b06964389f6c8a53d7b05524368bf5f16cd685b1054d510f258b"
+  "docsHash": "sha256:f1410505ea9e06944f5da24075214d20e34ae7946e5fea0668d683b286f7ca18"
 }
 ```
 
@@ -137043,7 +137915,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -137128,7 +138000,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:17e011181e2ba8e4442941b8ad6a6fb6c666af62f0860d0da431439b787c0016"
+  "docsHash": "sha256:2d95cd0b7ee01407bd8b0bcd76a967ea70f856996bc06cc29ea5693023bddeea"
 }
 ```
 
@@ -137668,7 +138540,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -137749,7 +138621,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6b0292cbd6d58ecb6440977d68602c5dde9df972ae91d0e64056684f5c0114ed"
+  "docsHash": "sha256:5982e4c59f7f55e3703a958b0d474c0c23069f267a1874bc0ab1763461e941a1"
 }
 ```
 
@@ -138493,7 +139365,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -138565,7 +139437,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8942dbd5e10e78fcc1c4b20cc9c6bdbaead5d6f89f9fc26d0255916fe174352d"
+  "docsHash": "sha256:a19152f231e4b218205197999845976021a176b9f746fb5596cd35c85e155832"
 }
 ```
 
@@ -139275,7 +140147,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -139345,7 +140217,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:75ffcfa0ae6e4db4bb8a1b560b8c2301b18f35580477e1454c66596a29c65d63"
+  "docsHash": "sha256:e2cc3f8d0b74b0ee43cf87319251ab2ba1055cfdf60417a4a7c1f99fc7979b17"
 }
 ```
 
@@ -140180,7 +141052,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -140270,7 +141142,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d283e5b1eae4b90dbbea752bfae5f4ff50c0c3851e74a5b31e9fbd9d9cdcb5e0"
+  "docsHash": "sha256:58bb18dfc16e726a5eadacba327c9cc857cd7cbaeb212d9006dbfbbeae15f2b1"
 }
 ```
 
@@ -141066,7 +141938,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -141154,7 +142026,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2ce82ff138a18b9a0d8c331f700ed016d7bb1c0d337e44a56c01d82a0e3ebc75"
+  "docsHash": "sha256:2ff8e2dbc7293c0b92d153b9d748a9ab7357196ea5be3e5e8233480221845f06"
 }
 ```
 
@@ -141784,7 +142656,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -141847,7 +142719,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:51e9ebf4920afa20a07ebd4c323dc5b98b613df939c6d2ff96b5d67ce9511a42"
+  "docsHash": "sha256:5d87db0a519ab74caaa7d467c3cbbe6c9bb40fbc863f37930d361e08fdd786c1"
 }
 ```
 
@@ -142477,7 +143349,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -142540,7 +143412,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6bb30c8c6309c29b525d90053a53eaddb42bf92ee08d8ac622c8910d2c5beda0"
+  "docsHash": "sha256:bffb6c7382ad8133c1d2bb0a3153fd5a5061fcc2facd53b855afd8458eacc1e9"
 }
 ```
 
@@ -143206,7 +144078,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -143271,7 +144143,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5e3644c9453f68094b426bf8a04151f6aecb657ea679709c2da67b7f8d2fefb9"
+  "docsHash": "sha256:0dc082f1f5aae9cf5e5211413b889ace6c524d608ae3b4a6b01ebc6edd73e632"
 }
 ```
 
@@ -143828,7 +144700,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -143909,7 +144781,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:87ff9934c0734d90e3865c8d21c05e3a90abc1e323a33ce43f40af98c92644b7"
+  "docsHash": "sha256:9945c29efc5b90f93be397fe61f253a4c55bf7e55dbfa113ab98ce2f92c16851"
 }
 ```
 
@@ -144502,7 +145374,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -144555,6 +145427,10 @@ files.release: contextPolicy=none
     "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。",
     "alternatives": [
       {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
         "id": "template.mountingPlate",
         "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
       },
@@ -144586,7 +145462,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:96b7dc7188f1e89b6b87cf7ecd7e3984c5279959415f49486321f12c34d91891"
+  "docsHash": "sha256:f7f400dfd4e690eef49557a11c9808c90178c070d8a7cdb98b006af2a5452bc4"
 }
 ```
 
@@ -145195,7 +146071,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -145249,6 +146125,10 @@ files.release: contextPolicy=none
     "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。",
     "alternatives": [
       {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
         "id": "template.mountingPlate",
         "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
       },
@@ -145288,7 +146168,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e7cd51a5cdd7617e9c3a7464b7fa96789c3ad7dd7494cd26dce0905ab12400d7"
+  "docsHash": "sha256:7d098da9a0dc048dcad6ae8cef2c68b08ca203c18d7b08dc0cbb9e6c51b1a540"
 }
 ```
 
@@ -145915,7 +146795,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -145970,6 +146850,10 @@ files.release: contextPolicy=none
     "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。",
     "alternatives": [
       {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
         "id": "template.mountingPlate",
         "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
       },
@@ -146009,7 +146893,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e2a415238b3c26fae3934e25a172994ab988338ec4b328d0af38c85b7a836472"
+  "docsHash": "sha256:8829b423333f0f42f1c54db576244e3a18ebe0a9db2eb6047f84edb9d3d592c3"
 }
 ```
 
@@ -146570,7 +147454,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -146652,7 +147536,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c8bc1d98cfd9873890d7c74300d3d667241032bd7264de201b065ab5deb3238c"
+  "docsHash": "sha256:f97235e6b9a40c9af33194dd30540a532fdd3a1f1a3f830736b72794c05507f7"
 }
 ```
 
@@ -147261,7 +148145,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -147346,7 +148230,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1339c53fbfe15ed6b22a83d9d127eaebb43a31a482eedbd6ddbf507b1d40b052"
+  "docsHash": "sha256:c69ee9800169f3b8da400b824fce8eba11e4f7a2060b4753f3edc4b32caa21c5"
 }
 ```
 
@@ -147939,7 +148823,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:52d4cba53c019f51f31a9fe4031b1dcd9a1e91d5cb4a99dbca4228fa6dff910f"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -148023,7 +148907,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:22bfecd8bf4f4988590d761434d0dc9eb221d6fdc35e9d2e3d43d80d8e789300"
+  "docsHash": "sha256:a4946d7a1b02d679a3d7c381c3d76f8fbd582181a87f4d2a5dd49573d4398d4f"
 }
 ```
 

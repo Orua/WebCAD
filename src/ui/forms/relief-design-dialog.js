@@ -8,6 +8,7 @@ import {adaptiveBrowserControlNet,adaptiveFieldResolution,effectiveEdgeMargins} 
 
 export function showReliefDesignDialog({getState,openDialog,element,button,onSave,onGenerate,onPreview,onPlacement,initialDesignId,initialMode,onSelectFace=async()=>{},close}){
  let initial=getState(),loaded=null,busy=false,dirty=false,fieldResult=null,referenceUrl=null,referenceGeneration=0,selectedEdit=-1,editInputsDirty=false,resolutionTouched=false,fitRunning=false,fitBaselineMm=NaN,brep=null;
+ let fieldComputation=null;
  const d=openDialog('浮雕雕刻向导','选择高度图与最大高度，再到画布定位、预览和应用。');
  d.classList.add('logo-wizard');
  d.dataset.taskPanel='true';
@@ -168,6 +169,11 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
  // Services-first (261022-05): with Services ready, 准备 needs no browser fit — a provisional net is retained and
  // the first full (high-res) fit runs on Services at preview; the browser fit is only the fallback.
  async function ensureFit(){
+  // Saving a newly imported image starts restoreRetained asynchronously.
+  // Share its solve instead of racing Services preparation against an empty field.
+  if(fieldComputation)await fieldComputation;
+  if(!fieldResult)await compute();
+  if(!fieldResult)throw Object.assign(new Error('数值场尚未求解完成，请检查求解结果'),{code:'RELIEF_DESIGN_UNSOLVED'});
   if(Number.isFinite(fitBaselineMm))return true;
   if(!servicesFirstOK)return false;
   const r=await window.webcad.api.reliefDesignFit(request('servicesFirst',{options:readFitOptions()}));
@@ -188,7 +194,12 @@ export function showReliefDesignDialog({getState,openDialog,element,button,onSav
   finally{busy=false;syncFitControls();}
  }
  async function stopFit(){if(!fitRunning)return;fitStop.disabled=true;try{await window.webcad.api.reliefDesignFit(request('cancel'));fitResult.textContent='拟合已停止；已求解数值场仍保留。';}catch(error){fitResult.textContent=humanError(error);}}
- async function compute(){
+ function compute(){
+  if(fieldComputation)return fieldComputation;
+  fieldComputation=computeField().finally(()=>{fieldComputation=null;});
+  return fieldComputation;
+ }
+ async function computeField(){
   if(busy)return;
   if(!loaded||dirty||editInputsDirty){status.textContent='请先保存当前设计和笔画修改，再求解同工程草稿。';return;}
   busy=true;solve.disabled=save.disabled=true;cancel.disabled=false;generate.disabled=true;status.textContent='正在有界 Worker 中求解…';

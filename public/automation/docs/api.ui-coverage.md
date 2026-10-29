@@ -915,6 +915,17 @@
     "method": "updateModelLibrary",
     "usage": "快捷工具定义由软件内置。getModelLibrary读取revision；updateModelLibrary只允许move（id,index）或restore恢复默认顺序；不修改工具定义或工程。"
   },
+  "rectBadge": {
+    "tools": [
+      "template.rectBadge",
+      "quickModel",
+      "run",
+      "feature.edit",
+      "measure"
+    ],
+    "method": "run",
+    "usage": "快捷模型→底片→牌仔（牌子／方牌）。run的add步骤：op:quickModel、params.kind:rectBadge；length长X、width宽Y、cornerRadius轮廓R（0直角）、thickness厚Z、frontChamfer正面Z=厚度倒角、backChamfer反面Z=0倒角，单位mm；倒角0关闭，独立控制单/双面。getTool读取同源字段和说明，measure/getState读回实体，feature.edit修改同一历史。"
+  },
   "quickModelFavorites": {
     "tools": [
       "setView",

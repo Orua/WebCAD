@@ -8,7 +8,7 @@ export const QUICK_GROUPS=Object.freeze([
  {id:'d-buckles',label:'D扣',kinds:['dFlatFrame','dBuckle','dBarBuckle']},
  {id:'oval-buckles',label:'旦扣',kinds:['ovalBuckle','capsuleWire','profileLoop']},
  {id:'sliders',label:'日字扣',kinds:['twinWindowPlate','sliderBuckle','ringBar','ellipseBar','archedTwinWindowPlate','bowedTwinWindowPlate']},
- {id:'plates',label:'底片',kinds:['mountingPlate','fourHolePlate','bossPlate']},
+ {id:'plates',label:'底片',kinds:['rectBadge','mountingPlate','fourHolePlate','bossPlate']},
  {id:'installation',label:'安装及配件',kinds:['ironFoot','uStrapClip','frameEyelet','buckleTongue','pullCoreBar','hangingRod','archedBridge','squareArchedBridge']},
  {id:'fasteners',label:'连接件',kinds:['screw','threadedSleeve','spring','twoPieceEyelet','alloyEyelet','nippleStud','mushroomRivet']},
  {id:'chains',label:'链条',kinds:['oChain','twistedChain','groundChain']},

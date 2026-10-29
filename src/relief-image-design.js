@@ -16,6 +16,6 @@ export async function readReliefImageDesign(file,options,context){
  const remote=await reliefServicesReady('reliefSourceConvert');
  const converted=remote?await convertSourceOnServices({rgba:image.rgba,params,context,imageSha256:image.sha256,fileBytes:image.fileBytes,mime:image.mime,fileName:image.name}):sourceConvertLocal(image.rgba,params);
  const source=createReliefHeightSource({original:{sha256:image.sha256,name:image.name.slice(0,255)},interpretation:'authoredHeightMap',settings:converted.settings??params.settings,grid:converted.grid});
- const draft=validateReliefDesign({schemaVersion:1,name:name.slice(0,120),support:{kind:'rect',centerMm:[0,0],widthMm,heightMm},throughHoles:[],protectedZones:[],heightRangeMm:[0,depthMm],points:[],heightSource:{source,depthMm,edgeKeepoutMm:0,edgeFadeMm:0},fieldSettings:{machiningPrecisionMm:precisionMm,servicesQuality:{mode:'adaptive',maxControlSide:513}}});
+ const draft=validateReliefDesign({schemaVersion:1,name:name.slice(0,120),support:{kind:'rect',centerMm:[0,0],widthMm,heightMm},throughHoles:[],protectedZones:[],heightRangeMm:[0,depthMm],points:[],heightSource:{source,depthMm,edgeKeepoutMm:0,edgeFadeMm:2},fieldSettings:{machiningPrecisionMm:precisionMm,servicesQuality:{mode:'adaptive',maxControlSide:513}}});
  return {draft,conversion:{executedOn:remote?'services':'browser',sourceSha256:image.sha256,columns:converted.grid.columns,rows:converted.grid.rows}};
 }

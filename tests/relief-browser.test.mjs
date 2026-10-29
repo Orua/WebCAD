@@ -1,12 +1,12 @@
 // Propagate the caller's cache tag so a restarted dev server does not silently
 // test an old module still retained by an unsaved CAD page.
 const sourceVersion=new URL(import.meta.url).search;
-const {readReliefImage,validateReliefSvg}=await import('../src/relief-image.js'+sourceVersion);
-const {showReliefDialog}=await import('../src/ui/forms/relief-dialog.js'+sourceVersion);
 
 // Actual browser DOM/image decoder; uses an isolated offscreen form, no second
 // CAD kernel or document. Run through the authorized page development channel.
 export async function runReliefBrowserTests(){
+ const {readReliefImage,validateReliefSvg}=await import('../src/relief-image.js'+sourceVersion);
+ const {showReliefDialog}=await import('../src/ui/forms/relief-dialog.js'+sourceVersion);
  const checks=[],check=(condition,label)=>{if(!condition)throw Error(label);checks.push(label);};
  const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50"><defs><linearGradient id="g"><stop stop-color="#000"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><rect width="100" height="50" fill="url(#g)"/></svg>';
  const blob=new File([svg],'gradient.svg',{type:'image/svg+xml'});

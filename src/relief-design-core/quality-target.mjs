@@ -64,12 +64,15 @@ export function buildQualityTarget({source:src,domain,widthMm:W,heightMm:H,basel
     for(let a=-taps;a<=taps;a++){const x=i+a*step;if(x<0||x>=C)continue;const val=inp[ro+x],d=Math.abs(val-c0);if(d>=lmax)continue;const w=wy*ws[a+taps]*wr[Math.trunc(d*(LUT/lmax))];acc+=w*val;wsum+=w;}}
    out[k]=acc/wsum;}}
  levelBelowPrecision(out,C,R,0.5*p);for(let k=0;k<N;k++)out[k]=-out[k];levelBelowPrecision(out,C,R,0.5*p);for(let k=0;k<N;k++)out[k]=-out[k];
- out=gauss(out,C,R,.5);
+ // Band-limit to cubic B-spline capacity (~1 control spacing). Bilateral cliffs ≥2p are unfittable otherwise.
+ const aaMm=Math.max(.35*controlSpacingMm,.5*srcPitch),bandMm=Math.max(.85*controlSpacingMm,aaMm);out=gauss(out,C,R,bandMm/pitch);
+ // Auto edge fade when author left 0/0: locked rim controls sit at baseline.
+ let keep=src.keepoutMm,fade=src.fadeMm;if(!(keep>0)&&!(fade>0))fade=Math.max(2,4*controlSpacingMm);
  const h=new Float64Array(N),active=new Uint8Array(N),fixed=new Uint8Array(N),holes=domain.throughHoles??[],zones=domain.protectedZones??[];
  for(let j=0;j<R;j++)for(let i=0;i<C;i++){const k=j*C+i,x=i*px-W/2,y=j*py-H/2;
   if(!contains(domain.support,x,y)||holes.some(s=>contains(s,x,y))){h[k]=baselineMm;continue;}active[k]=1;
   if(zones.some(s=>contains(s,x,y))){fixed[k]=1;h[k]=baselineMm;continue;}
-  let e=1;if(src.keepoutMm>0||src.fadeMm>0){const g=Math.min(gapTo(domain.support,x,y,false),...holes.map(s=>gapTo(s,x,y,true)),...zones.map(s=>gapTo(s,x,y,true)));e=g<=src.keepoutMm?0:src.fadeMm>0?smoothstep(Math.min(1,(g-src.keepoutMm)/src.fadeMm)):1;}
+  let e=1;if(keep>0||fade>0){const g=Math.min(gapTo(domain.support,x,y,false),...holes.map(s=>gapTo(s,x,y,true)),...zones.map(s=>gapTo(s,x,y,true)));e=g<=keep?0:fade>0?smoothstep(Math.min(1,(g-keep)/fade)):1;}
   let z=softKnee(out[k]*e,p);z=Math.min(upperMm-baselineMm,Math.max(0,z));h[k]=baselineMm+z;}
  return {C,R,pitchX:px,pitchY:py,h,active,fixed};
 }

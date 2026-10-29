@@ -18,6 +18,7 @@ import flangedBushing from './flangedBushing/index.js';
 import openArcRing from './openArcRing/index.js';
 import roundedBossTray from './roundedBossTray/index.js';
 import roundBadge from './roundBadge/index.js';
+import rectBadge from './rectBadge/index.js';
 import thinWallTray from './thinWallTray/index.js';
 import tube from './tube/index.js';
 import counterboreTool from './counterboreTool/index.js';
@@ -58,7 +59,7 @@ const installed = [
   ...chainEntries,
   {kind:'ironFoot',definition:ironFootDefinition,build:buildIronFoot,iconUrl:new URL('./uStrapClip/icon.svg',import.meta.url).href},
   ring, washer, tube, domedPin, spring, screw, threadedSleeve, alloyEyelet,
-  roundBadge, mountingPlate, fourHolePlate, flatFrame, roundedFlatFrame,
+  roundBadge, rectBadge, mountingPlate, fourHolePlate, flatFrame, roundedFlatFrame,
   dBuckle, rectBuckle, ovalBuckle, sliderBuckle, dBarBuckle,
   flangedBushing, bossPlate, thinWallTray, roundedBossTray,
   openArcRing, counterboreTool, twinWindowPlate,
