@@ -14,3 +14,13 @@ This repository contains components under different open-source licenses:
 See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for component paths and [`CORRESPONDING_SOURCE.md`](CORRESPONDING_SOURCE.md) for exact source versions, build material and runtime hashes.
 
 No single license in this file overrides the license notices attached to individual third-party files.
+
+## WebCAD 实际构建分发
+
+上文保留的是既有 viewer 的组合分发许可声明及上游权利，不是对本次所有新增源码重新授权。不得删除或改写上游版权，不将新脚本、Services、宿主或独立第三方组件一律标记为 GPL。各文件的原许可继续有效。
+
+WebCAD 的 Vite 构建自动生成根目录 `./open-source-notices.html` 与 `./open-source/`，复制安装包的完整 LICENSE/COPYING/NOTICE，并记录实际构建（包括 Worker）的模块、安装版本、锁文件来源和分发文件 SHA-256。建模使用的 `replicad-opencascadejs` 为 LGPL-2.1-only；`manifold-3d` 为 Apache-2.0，完整文本保留于 `LICENSES/manifold-3d-3.5.4-Apache-2.0.txt`。原有 Open CASCADE exception 原文仍保留，但旧 importer 的版本/exception 不能证明新建模内核的完整来源。
+
+本地 Python 转换器确实在 PDF/AI 分支使用 PyMuPDF。其 1.26.4 安装包的 COPYING 只包含双许可声明；该声明原样保留，另附官方同版本 AGPL-3.0 全文 `LICENSES/PyMuPDF-1.26.4-AGPL-3.0.txt`。未验证商业授权，不把声明理解为已经取得商业使用许可。Python/MuPDF 不随静态 dist 复制，不表示相关服务无需许可评估。
+
+生成物包含精确工作字节的受限源码快照和完整 build identity 输入指纹；基础 Git 提交链接不冒称 dirty working 源码。完整第三方内核对应源、构建工具链闭包与重新链接/复现仍有缺口，见 `CORRESPONDING_SOURCE.md` 和生成的 `open-source/build-source.json`。这些材料是工程记录，不构成法律意见或已法律合规的声明。

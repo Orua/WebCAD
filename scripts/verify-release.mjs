@@ -2,6 +2,7 @@ import {verifyQuickModelPreviews} from './quick-model-preview-contracts.mjs';
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {readBuildIdentity} from './build-identity.mjs';
+import {verifyOpenSource} from './generate-open-source.mjs';
 import { infoMetadata, getTool, readDocs } from '../src/page-api-docs.js';
 import { listOperations } from '../src/operation-registry.js';
 import { assertPlacementCoverage } from '../src/placement-policy.js';
@@ -24,6 +25,7 @@ const [index, manifest, report] = await Promise.all([
   json('agent/output/API_REFERENCE_COVERAGE.json'),
 ]);
 assertPlacementCoverage();
+await verifyOpenSource({root,outputDirectory});
 await verifyQuickModelPreviews(outputDirectory);
 for (const [label, actual] of [['index', index.metadata], ['manifest', manifest], ['coverage', report]]) {
   for (const key of ['catalogHash', 'docsHash']) {
