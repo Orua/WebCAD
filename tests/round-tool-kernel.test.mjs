@@ -16,8 +16,8 @@ function endEdge(s,i,d=1){const edges=s.edges;try{return edges.map((e,id)=>{cons
 test('automatic edge radius and exact override on a cube',()=>{const r=check('cube',cad.makeBox([0,0,0],[10,10,10]),{edgeIds:[0]},'edge');assert.equal(r.radiusMm,.5);assert.equal(check('exact radius',cad.makeBox([0,0,0],[10,10,10]),{edgeIds:[0],radiusMm:.3},'edge').radiusMm,.3);});
 test('automatic end orientation and depth on original-independent rod families',()=>{for(const [name,shape,i,d]of [['cylinder',cad.makeCylinder(2,12),2,1],['flat rod',cad.drawRoundedRectangle(4,2,.4).sketchOnPlane('XZ').extrude(-12),1,1],['negative X',cad.makeCylinder(2,12).rotate(-90,[0,0,0],[0,1,0]).translate([7,3,-2]),0,-1]]){const r=check(name,shape,{edgeIds:[endEdge(shape,i,d)]},'end');assert.equal(r.resolved.axis,'XYZ'[i]);assert.equal(r.resolved.direction,d);}});
 test('failed exact radius, invalid depth mode and stale direction preserve source',()=>{for(const params of [{edgeIds:[0],mode:'edge',radiusMm:20},{edgeIds:[0],mode:'edge',depthMm:2},{edgeIds:[0],mode:'end',directionEdgeId:999}]){const s=cad.makeBox([0,0,0],[10,10,10]),before=s.serialize();try{assert.throws(()=>buildRoundTool(s,params));assert.equal(s.serialize(),before);}finally{s.delete();}}});
-test('EXAMPLE-39C04640 repaired LL planar scope rounds the entire 219-edge real outline at R0.2',()=>{
- const R=270.166666666666,regions=JSON.parse(fs.readFileSync(new URL('./fixtures/rounding/gc15664-ll-clean.json',import.meta.url),'utf8'));
+test('EXAMPLE-39C04640 repaired LL planar scope rounds the entire 219-edge real outline at R0.2',{skip:!process.env.WEBCAD_PRIVATE_ROUNDING_FIXTURE},()=>{
+ const R=270.166666666666,regions=JSON.parse(fs.readFileSync(process.env.WEBCAD_PRIVATE_ROUNDING_FIXTURE,'utf8'));
  let points=regions[0].outer.map(([x,y])=>[R*Math.sin(x*48/R),y*54,0]);
  const area=points.reduce((s,p,i)=>{const q=points[(i+1)%points.length];return s+p[0]*q[1]-p[1]*q[0];},0);if(area<0)points.reverse();
  const face=cad.makePolygon(points),v=new cad.Vector([0,0,3]),source=cad.basicFaceExtrusion(face,v),faces=source.faces;

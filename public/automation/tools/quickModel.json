@@ -4589,7 +4589,7 @@
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98",
+  "schemaHash": "sha256:cdb89a2a61e436800c69670318336827b7a40e7d2d0d0527d2ad865a60527b8c",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -10903,5 +10903,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b01c24b181780439b0304fcb5aa915bdbc43ed3871fc3ed2c74fe859710a5346"
+  "docsHash": "sha256:80442d31e42a759eb1af195c9ce85e946464238cd7969131931fff355852daf0"
 }

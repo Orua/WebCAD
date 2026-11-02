@@ -317,7 +317,7 @@
       }
     }
   },
-  "schemaHash": "sha256:06c19a74f2c10b3f522f53c928ec9250959c04df8f819c0918eb7182298c3b0e",
+  "schemaHash": "sha256:7409b4186232caff030a478b22638f40c8dd3fd6e67f9cf3d83ec4abe38821ce",
   "defaults": {
     "outerWidthMm": 35.5,
     "outerHeightMm": 11.5,
@@ -644,7 +644,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:8f79382823580efe88b269f1fa0ea85371105aa42c1e14f9ff6c3ff5f937dd98"
+    "schemaHash": "sha256:cdb89a2a61e436800c69670318336827b7a40e7d2d0d0527d2ad865a60527b8c"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -730,5 +730,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ad253db7389e5ec956988e04fc947fc72734577d63d5831f01c0d35cdc19299c"
+  "docsHash": "sha256:044ed4e3b22a2de9d56ade537d0650f8401d505a633538ebded5411ae90c0c5f"
 }

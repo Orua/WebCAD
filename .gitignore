@@ -66,3 +66,19 @@ services/**/obj/
 
 # Generated finite Agent runtime assets are built from canonical src/agent.
 public/automation/remote-agent/
+
+# Private maintainer instructions, history evidence and real product fixtures
+AGENTS.md
+services/**/AGENTS.md
+docs/rounding-upgrade/
+docs/upgrade-backlog-20261018.md
+tests/fixtures/rounding/
+.secrets/
+.workbuddy/
+.codex-remote-attachments/
+.wbapp_*.genie
+*.pfx
+*.p12
+*.pem
+id_rsa
+id_ed25519

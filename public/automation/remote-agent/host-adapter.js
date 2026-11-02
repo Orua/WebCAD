@@ -383,7 +383,7 @@ function debugValue(value, { maxNodes = 1200, maxChars = 24e3 } = {}) {
     seen.add(v);
     if (v instanceof Error || key === "error") {
       const result = {};
-      for (const k of ["name", "code", "path", "stage", "jobId", "requestId", "idempotencyKey", "commitState", "serviceCommitState", "diagnosticsRef", "message", "details", "report", "supportBinding", "stack"]) if (v[k] !== void 0) result[k] = visit(v[k], depth + 1, k);
+      for (const k of ["name", "code", "path", "stage", "jobId", "requestId", "idempotencyKey", "commitState", "serviceCommitState", "diagnosticsRef", "message", "details", "report", "supportBinding", "stack", "elapsedMs", "timeoutMs", "operation", "phase", "bodyBytes", "bodyClass", "recoveryAction", "aborted"]) if (v[k] !== void 0) result[k] = visit(v[k], depth + 1, k);
       seen.delete(v);
       return result;
     }
@@ -526,6 +526,28 @@ if (typeof window !== "undefined" && !shared.runtimeInstalled) {
   window.addEventListener("pagehide", () => debugJournal.flush());
 }
 
+// src/services/transport-error.js
+var BODY_LABEL = { small: "\u5C0F", medium: "\u4E2D", large: "\u5927\uFF08\u22651 MiB\uFF09", xl: "\u8D85\u5927\uFF08\u22654 MiB\uFF09" };
+var PHASE_LABEL = { submit: "\u63D0\u4EA4\u4F5C\u4E1A", poll: "\u67E5\u8BE2\u4F5C\u4E1A", upload: "\u4E0A\u4F20", capabilities: "\u8BFB\u53D6\u80FD\u529B", result: "\u4E0B\u8F7D\u7ED3\u679C", artifact: "\u4E0B\u8F7D\u4EA7\u7269", cancel: "\u505C\u6B62\u4F5C\u4E1A", recover: "\u6062\u590D\u4F5C\u4E1A", request: "\u8BF7\u6C42" };
+function formatServicesTransportFailure(error = {}) {
+  const code = String(error.code || "SERVICES_CONNECTION_UNKNOWN");
+  const details = error.details && typeof error.details === "object" ? error.details : {};
+  const phase = error.phase || details.phase || "request";
+  const operation = error.operation || details.operation;
+  const key = error.idempotencyKey || error.requestKey || details.idempotencyKey || details.requestKey;
+  const elapsed = Number.isFinite(error.elapsedMs) ? error.elapsedMs : details.elapsedMs;
+  const timeout = Number.isFinite(error.timeoutMs) ? error.timeoutMs : details.timeoutMs;
+  const bodyClass = error.bodyClass || details.bodyClass;
+  const bytes = Number.isFinite(error.bodyBytes) ? error.bodyBytes : details.bodyBytes;
+  const parts = [`\u539F\u4EFB\u52A1\u7684\u6267\u884C\u6216\u63D0\u4EA4\u7ED3\u679C\u5C1A\u672A\u786E\u8BA4\uFF08${code}\uFF09\u3002${PHASE_LABEL[phase] || "\u8BF7\u6C42"}\u8D85\u65F6\u6216\u8FDE\u63A5\u4E2D\u65AD\u3002`];
+  if (operation) parts.push(`\u64CD\u4F5C\uFF1A${operation}\u3002`);
+  if (key) parts.push(`\u8BF7\u6C42\u952E\uFF1A${key}\u3002`);
+  if (Number.isFinite(elapsed) || Number.isFinite(timeout)) parts.push(`\u5DF2\u7B49\u5F85 ${Number.isFinite(elapsed) ? Math.round(elapsed) : "\u672A\u77E5"} ms\uFF0C\u65F6\u9650 ${Number.isFinite(timeout) ? Math.round(timeout) : "\u672A\u77E5"} ms\u3002`);
+  if (bodyClass) parts.push(`\u8BF7\u6C42\u4F53${BODY_LABEL[bodyClass] || bodyClass}${Number.isFinite(bytes) ? `\uFF0C${Math.round(bytes)} \u5B57\u8282` : ""}\u3002`);
+  parts.push(key ? "\u8BF7\u5148\u7528 getServicesRequest \u67E5\u8BE2\u8BE5\u8BF7\u6C42\u952E\uFF0C\u786E\u8BA4\u539F\u4EFB\u52A1\u662F\u5426\u5DF2\u53D7\u7406\uFF1B\u52FF\u76F2\u76EE\u91CD\u7B97\uFF0C\u52FF\u66F4\u6362\u5E42\u7B49\u952E\u3002" : "\u8BF7\u5148\u7528 getServicesRequest \u67E5\u8BE2\u539F\u8BF7\u6C42\u952E\uFF0C\u786E\u8BA4\u539F\u4EFB\u52A1\u662F\u5426\u5DF2\u53D7\u7406\uFF1B\u52FF\u76F2\u76EE\u91CD\u7B97\uFF0C\u52FF\u66F4\u6362\u5E42\u7B49\u952E\u3002");
+  return parts.join("");
+}
+
 // src/error-recovery.js
 var rule = (id, codes, reason, next, tools = [], options = {}) => ({ id, codes: new Set(codes.split(" ").filter(Boolean)), reason, next, tools, ...options });
 var rules = [
@@ -620,8 +642,9 @@ function recoveryRule(code, message = "") {
 }
 function errorRecovery(error = {}, receipt = {}) {
   const code = String(error.code || "UNCLASSIFIED_ERROR"), base = recoveryRule(code, String(error.message || ""));
+  const transport = code === "SERVICES_CONNECTION_UNKNOWN" ? formatServicesTransportFailure(error) : null;
   const logoFailure = error.details?.logoFailure, logoReason = businessReason(logoFailure?.reason), logoNext = businessReason(logoFailure?.next);
-  const parameterReason = parameterErrorMessage(error), detail = businessReason(error.message), reason = logoReason ?? parameterReason ?? (detail ? base === unknown ? detail : `${base.reason}${detail}` : base.reason);
+  const parameterReason = parameterErrorMessage(error), detail = transport ? null : businessReason(error.message), reason = transport ?? logoReason ?? parameterReason ?? (detail ? base === unknown ? detail : `${base.reason}${detail}` : base.reason);
   const commit = receipt.commitState ?? error.commitState ?? error.serviceCommitState;
   const uncertain = receipt.status === "unknown" || commit === "unknown" || base.reconcile === true;
   const partial = receipt.status === "partial" || receipt.atomic === false && receipt.results?.some((step) => ["committed", "completed"].includes(step.result?.status));
@@ -629,7 +652,7 @@ function errorRecovery(error = {}, receipt = {}) {
   const committed = ["committed", "applied"].includes(commit);
   const preservation = uncertain ? "\u6267\u884C\u7ED3\u679C\u5C1A\u672A\u786E\u8BA4\uFF1B\u8BF7\u4FDD\u7559\u5F53\u524D\u5DE5\u7A0B\u548C\u539F\u4EFB\u52A1\u56DE\u6267\u3002" : partial ? "\u524D\u9762\u5DF2\u63D0\u4EA4\u7684\u6B65\u9AA4\u4ECD\u4FDD\u7559\uFF0C\u540E\u7EED\u6B65\u9AA4\u5DF2\u7ECF\u505C\u6B62\uFF1B\u4E0D\u8981\u91CD\u5EFA\u5DF2\u6210\u529F\u90E8\u5206\u3002" : notCommitted ? "\u672C\u6B21\u5931\u8D25\u6B65\u9AA4\u672A\u63D0\u4EA4\uFF0C\u5148\u524D\u5DF2\u63D0\u4EA4\u5185\u5BB9\u4FDD\u7559\u3002" : committed ? "\u5DF2\u6709\u64CD\u4F5C\u63D0\u4EA4\uFF0C\u8BF7\u5148\u6838\u5BF9\u5F53\u524D\u5DE5\u7A0B\u4E0E\u663E\u793A\u72B6\u6001\u3002" : "\u8BF7\u4FDD\u7559\u5F53\u524D\u5DE5\u7A0B\uFF1B\u662F\u5426\u5DF2\u6709\u63D0\u4EA4\u987B\u4EE5\u539F\u56DE\u6267\u548C\u72B6\u6001\u4E3A\u51C6\u3002";
   const classification = uncertain ? "reconcile" : base.id;
-  const next = uncertain ? "\u5148\u6309\u539F\u4EFB\u52A1\u6216\u8BF7\u6C42\u6807\u8BC6\u67E5\u8BE2\u56DE\u6267\u5E76\u4E0E\u5F53\u524D\u5DE5\u7A0B\u5BF9\u8D26\uFF0C\u786E\u8BA4\u524D\u4E0D\u8981\u91CD\u653E\u3001\u6362\u952E\u6216\u53E6\u8D77\u8BA1\u7B97\u3002" : logoNext ?? base.next;
+  const next = transport ? "\u7528 getServicesRequest \u67E5\u8BE2\u539F\u8BF7\u6C42\u952E\uFF1B\u52FF\u76F2\u76EE\u91CD\u7B97\uFF0C\u52FF\u66F4\u6362\u5E42\u7B49\u952E\u3002" : uncertain ? "\u5148\u6309\u539F\u4EFB\u52A1\u6216\u8BF7\u6C42\u6807\u8BC6\u67E5\u8BE2\u56DE\u6267\u5E76\u4E0E\u5F53\u524D\u5DE5\u7A0B\u5BF9\u8D26\uFF0C\u786E\u8BA4\u524D\u4E0D\u8981\u91CD\u653E\u3001\u6362\u952E\u6216\u53E6\u8D77\u8BA1\u7B97\u3002" : logoNext ?? base.next;
   const candidate = base.candidate === true && !uncertain && notCommitted && error.budgetExhausted !== true;
   return {
     version: ERROR_RECOVERY_VERSION,
@@ -640,7 +663,7 @@ function errorRecovery(error = {}, receipt = {}) {
     next,
     scope: "failed-operation",
     agentMayContinue: true,
-    userMessage: logoReason ? `${reason}${next}` : `${reason}${preservation}${next}`,
+    userMessage: transport || (logoReason ? `${reason}${next}` : `${reason}${preservation}${next}`),
     automaticRetry: false,
     retry: { allowed: false, condition: base.readRetry && !uncertain ? "\u4EC5\u91CD\u8BD5\u53EA\u8BFB\u753B\u9762/\u622A\u56FE\u4E00\u6B21\uFF1B\u4E0D\u91CD\u505A\u5EFA\u6A21\u3002" : "\u539F\u9519\u8BEF\u6761\u4EF6\u5DF2\u660E\u786E\u4FEE\u6B63\u3001\u72B6\u6001\u5DF2\u5BF9\u8D26\u4E14\u5171\u4EAB\u9884\u7B97\u5141\u8BB8\uFF1B\u4E0D\u5F97\u81EA\u52A8\u91CD\u653E\u3002" },
     candidate: { eligible: candidate, allowed: false, mode: candidate ? "evaluate-existing-preview-conditions" : "blocked", requires: ["known-not-committed", "new-mechanism-evidence", "shared-budget-available", "supported-tool-contract", "unchanged-design-intent"], commit: "only-after-valid-preview-and-explicit-task-authorization" },
