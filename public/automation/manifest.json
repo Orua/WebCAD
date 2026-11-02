@@ -1,9 +1,9 @@
 {
   "version": "1.60.8",
-  "buildId": "d07160f00407c287080969719f7e5bea828afd7a-src-d9e1034cf9eca57b-working",
+  "buildId": "c6e4f748641a10c6e8846056b981990eb7e62afa-src-8edabe6aca575268-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:745db9039efd1b31f8411469aceb2065bf9843b6fef240049d1e88e25a6257d6",
-  "docsHash": "sha256:4f4876167f852b43078bc70e9ceda979079c8b0644b809ce6a0a84088d31b296",
+  "catalogHash": "sha256:d67101f1094746c73865f9997821813fdb2c560c7d4b13ed79795be433e12bdc",
+  "docsHash": "sha256:7417dc932c51fe9808b4925b4e887174149815c33cec6bdbf9c230b82ca0815b",
   "apiMethods": [
     "reliefWizard",
     "prepareToolCall",
@@ -632,7 +632,7 @@
       "label": "快捷模型",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:048a4948afd04ab28abafc8224f99b90157e01a0d8bea1246d78af674a490036",
+      "docsHash": "sha256:f6174e7c06d85b0c5be8b12ca1e7425ee1d3a4f44198868dbdb5716b6b083ee8",
       "url": "tools/quickModel.json"
     },
     {
@@ -911,7 +911,7 @@
       "label": "平垫圈",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:2e619aef956cbf905ba6d53620b0f4ab92f33d591f512e430140c40ca9b7c559",
+      "docsHash": "sha256:51db22bf35b0fa32511cbf4e4153351607bd5a0ce70a23a176a4c4fbf76835bc",
       "url": "tools/template.washer.json"
     },
     {
@@ -920,7 +920,7 @@
       "label": "圆筒（C件默认）",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:dd8e805a3f21de7caf22d008cbfec2cb4a06d96a7a0eebc49266112145ee61f2",
+      "docsHash": "sha256:ca915163a5b9604f114d4d311bd12d8e5034c1482e7079a9fb1cea375b60b3ab",
       "url": "tools/template.tube.json"
     },
     {
@@ -929,7 +929,7 @@
       "label": "半圆钉",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:fd03a05c745e6dc45f67bb2e41907553a5e1c5821c4706171fb241ef7b4ecdf4",
+      "docsHash": "sha256:106db9d4e23e63daa9866c7e076c5168976dd831e9ccd39655a9b52b4b20c41b",
       "url": "tools/template.domedPin.json"
     },
     {
@@ -938,7 +938,7 @@
       "label": "圆柱轴套",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:0c1c8b21ca5dd909875920fbf8fb27ff300f9622f3ee34970ce18b0808573dd9",
+      "docsHash": "sha256:47ac757ce3ec82b7e9b44e7f61ba46d1124ddae12fcfeb92c44bbe0c06a382f6",
       "url": "tools/template.flangedBushing.json"
     },
     {
@@ -947,7 +947,7 @@
       "label": "圆圈",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:938e08a2a5e195df175498e2e19243c5a52c53d9f879ed97414211c1960b08ca",
+      "docsHash": "sha256:ec05d8a50ec03ac1bf981f1b17f8e1abe8df17a92f26c25e0e646e7c1e158589",
       "url": "tools/template.ring.json"
     },
     {
@@ -956,7 +956,7 @@
       "label": "椭圆开口圈",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:89819be68e7b8eac38a20ab155c7c52813a56e03ffee04aec632aa9a5adfc183",
+      "docsHash": "sha256:fc5362dfa9b35e5235bdcc1941ad386e7fb7902d6c5ca8e8d45043fbffa81f42",
       "url": "tools/template.ellipseOpenWire.json"
     },
     {
@@ -965,7 +965,7 @@
       "label": "大开口 C 环",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:d4514184912539661fab5255b7e821674483a48bc5589ac57b1f9fc0592dfd28",
+      "docsHash": "sha256:a90abb7d2dd6baa94dd660a3cb2b78c022f268722425590bea882ca1cadd3caa",
       "url": "tools/template.openArcRing.json"
     },
     {
@@ -974,7 +974,7 @@
       "label": "椭圆截面圆圈",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:169544f7b77ffe9b9915d8eab8a4ab5436cf6259c77b7f9d46136bd847e8de33",
+      "docsHash": "sha256:71d3d997a99bbba14c806bf53f45dcf9c264ffe11121a9d9c91eeaca6ba45de6",
       "url": "tools/template.ellipseSectionRing.json"
     },
     {
@@ -983,7 +983,7 @@
       "label": "匙圈",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:1f93340b5dca4e9c326761a7b918de6dec41719a10785204ea4f5e6561289c03",
+      "docsHash": "sha256:aea2bd85e39095568c2e428dc7e76d2f8728246b0534601285c105078de169ac",
       "url": "tools/template.keyRing.json"
     },
     {
@@ -992,7 +992,7 @@
       "label": "扁线方扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:2c12177b314c049e752f7482643d4b23397639ae006ceaeeace4a4ad4d874d4a",
+      "docsHash": "sha256:b3cc60b883795396408b0ff9b6f91d5a2455124813c0c61e8b02f80358c57505",
       "url": "tools/template.flatFrame.json"
     },
     {
@@ -1001,7 +1001,7 @@
       "label": "方线方扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:5cc3841684bb4f4348dd48218afc524cc094cfb68f2c4e877427bc7f93c94163",
+      "docsHash": "sha256:b78ffc9c14c90bcf58437e9f8426ae711382aafa32ba7c855bc89aa42b432aa7",
       "url": "tools/template.roundedFlatFrame.json"
     },
     {
@@ -1010,7 +1010,7 @@
       "label": "圆线方扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:246c289790fc34cc8eedc013cde60ff66648239eb5ce4b71aa4c8b44a403ee3a",
+      "docsHash": "sha256:5e21adcce642c43063e8a6bc78129b19047064c3782dd6548fc4e02dc5654530",
       "url": "tools/template.rectBuckle.json"
     },
     {
@@ -1019,7 +1019,7 @@
       "label": "椭圆截面方扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:f9b63cd0e3f71ad7e0bb9996d8c999d2c81820cdb424d728bc21a556b8d12977",
+      "docsHash": "sha256:c0de5ed240ea3cafe4c4003ddf962f105e76598fb61d10c2bf39c548cee288e0",
       "url": "tools/template.ellipseSectionRectFrame.json"
     },
     {
@@ -1028,7 +1028,7 @@
       "label": "方线D扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:171c878c8f5349b330247f4b5ed056c836cb6835d37566765b1d9456f946028d",
+      "docsHash": "sha256:1e0ab19cdc2056f836f7769cbfb85e91e66d5f7e1f0c07af5b5ac818d215451a",
       "url": "tools/template.dFlatFrame.json"
     },
     {
@@ -1037,7 +1037,7 @@
       "label": "圆线D扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:fa6a29769e128f8cb814a410df9e189ed1b38cd0d638450d09b1accba6e1d947",
+      "docsHash": "sha256:f64ac148278578053431d63003040d54d8199958fe580512e762cd689dcdf195",
       "url": "tools/template.dBuckle.json"
     },
     {
@@ -1046,7 +1046,7 @@
       "label": "方线D扣圆横杆",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:85094592a7c7eec55a6ac29b690c10eb829358ac1f82274f18d641e8e7404f07",
+      "docsHash": "sha256:aa6561e91442cc6e5f2071e68b2e3785319ad269ef0f9483a289e3da67adf279",
       "url": "tools/template.dBarBuckle.json"
     },
     {
@@ -1055,7 +1055,7 @@
       "label": "椭圆旦扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:171dd8112d7e97ceb92c3b2ca02973eaf74b85641073cec5af3a92f98be1d8ea",
+      "docsHash": "sha256:7300a363ffb3ad864fdabd01a4c13d5bba8d38a4c75648e279810d46f1e2d89c",
       "url": "tools/template.ovalBuckle.json"
     },
     {
@@ -1064,7 +1064,7 @@
       "label": "圆线直边旦扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:1fadeb6e5dfcdd22566a0b8a16f04bcacf81aa5ecac03e64144a68770aca9207",
+      "docsHash": "sha256:5be27b5881b7ca21cbf6a0aa7d95eb994821e88295fd6b3c43cdf6543bee4a61",
       "url": "tools/template.capsuleWire.json"
     },
     {
@@ -1073,7 +1073,7 @@
       "label": "方线直边旦扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:3e3271fefd9a62bd2ecf61f65644c4a1cfff78b9252574cefeb03d7e3b84167b",
+      "docsHash": "sha256:ec1769b89b87447c5bc20e1c361f7a291f631fe72862c732a0d87e316fc5b03e",
       "url": "tools/template.profileLoop.json"
     },
     {
@@ -1082,7 +1082,7 @@
       "label": "扁线日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:c926102b32eee570542a91e5ad59b346a2cf0f1b632ec224d772b5f09d690dbe",
+      "docsHash": "sha256:17cb011852f7008e05d5a93c0f40160fa674317e34d8aaf2f902d837cfb9b4ad",
       "url": "tools/template.twinWindowPlate.json"
     },
     {
@@ -1091,7 +1091,7 @@
       "label": "圆线日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:050f56f11975461185ecbd45e929ed9090f1beddcabe21db443b56baac24e501",
+      "docsHash": "sha256:b3448c0aeecbece5331f6eac8d6cbbde1c0a4d63b0ad8dd1eafa879fbe59af99",
       "url": "tools/template.sliderBuckle.json"
     },
     {
@@ -1100,7 +1100,7 @@
       "label": "圆圈日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:007b0bc02d8a30f31de2eae9a3f6db380560dd5b8ad18abc03a63601d3659500",
+      "docsHash": "sha256:7e4870933a52bf475ddc05e62657aa8664c84db52602138566dca0aabe5491e2",
       "url": "tools/template.ringBar.json"
     },
     {
@@ -1109,7 +1109,7 @@
       "label": "椭圆日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:5673120f1c1af2f043b6815adc32a5287d206a135a3a6d6bf73ec879eeffb52f",
+      "docsHash": "sha256:47c1aba9c503bbc2d2b2da1409f55dc775e26d3529fa0db7617ef7d52c4a5c8e",
       "url": "tools/template.ellipseBar.json"
     },
     {
@@ -1118,7 +1118,7 @@
       "label": "弧面扁线日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:50edbde404cebbf803af98e9ca92767df59877b7d027af47ba998b8bce6281f4",
+      "docsHash": "sha256:c044a117eccb9d00895d853c06597f8d70beabe9cd4af56c94f260902e3ce36b",
       "url": "tools/template.archedTwinWindowPlate.json"
     },
     {
@@ -1127,7 +1127,7 @@
       "label": "椭圆孔扁线日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:cf411e732d53eb78c30aabb6505c77038ebb3b489f2e86e7fa957e8f3403b0a1",
+      "docsHash": "sha256:adaf8047a843a5fc8cfef5e4ec382b8527ce784b845f6d355defcd39ed1e8477",
       "url": "tools/template.bowedTwinWindowPlate.json"
     },
     {
@@ -1136,7 +1136,7 @@
       "label": "牌仔（牌子／方牌）",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:5eaa5693aab1905a44ca8969459ac791e7e3be3f9131f3676c45e022fad817a8",
+      "docsHash": "sha256:b20d31b0cafa552533162cdd1babf2ce745ca2cf9ef330917512d61c937c69f3",
       "url": "tools/template.rectBadge.json"
     },
     {
@@ -1145,7 +1145,7 @@
       "label": "双孔底片",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:d257cf3bf66928f30cedc31a7cb1ae5fc073127476afba664cfaaee1ef974646",
+      "docsHash": "sha256:2c2cecec4304323c4264b4dc092e34086e431c258c802a55a146fdcc47896d3d",
       "url": "tools/template.mountingPlate.json"
     },
     {
@@ -1154,7 +1154,7 @@
       "label": "四孔底片",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:50d5f54bb0ba9fa8e9d097423d70fa76a11aea6a84dac2b554ba2c1a846198ef",
+      "docsHash": "sha256:db5a482cf4e0a20265033cb50bba90ba5dab5e3eac1473d02876b8448d707797",
       "url": "tools/template.fourHolePlate.json"
     },
     {
@@ -1163,7 +1163,7 @@
       "label": "双圆柱底片",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:4ad25b6cc6212c0159511ec24e43b8fa6d04489211ccecf8686a333d3865d18d",
+      "docsHash": "sha256:682e67196a437c94249d75b1a2b9ad4b8da06baaace067718f680ffb10216fb2",
       "url": "tools/template.bossPlate.json"
     },
     {
@@ -1172,7 +1172,7 @@
       "label": "铁脚仔",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:8b4bd90a85b14a25e491584ad2de0efab840ae1b45744e10f4e1a7a2652ca3bc",
+      "docsHash": "sha256:44f5e212faa0eaa46efebcab166cab5ec8c449363633f2bc85f789a885bd2f61",
       "url": "tools/template.ironFoot.json"
     },
     {
@@ -1181,7 +1181,7 @@
       "label": "U型尾夹",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:4756c72548a3b124a4d5f98f9a84b8976622909e3f468ae143954b343f007ef0",
+      "docsHash": "sha256:3ca8ddd5fab3dcef656e558451cdc0b43f7924cb9b1a7f4d475f6d80a0932f41",
       "url": "tools/template.uStrapClip.json"
     },
     {
@@ -1190,7 +1190,7 @@
       "label": "合金螺丝鸡眼面",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:800bb61608d9d80474afd095f7f4efc751cadd41b8078a1d8f4efd02c3a0e8eb",
+      "docsHash": "sha256:e559d880065f2ff563c3628ee2ff72370da1c69ab6fa311d20c518e1e7361e77",
       "url": "tools/template.frameEyelet.json"
     },
     {
@@ -1199,7 +1199,7 @@
       "label": "针扣的针",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:feed4a2dc9ade317f5ee32dc46103e9199d7b49dc76444485d23ba6e170f76c5",
+      "docsHash": "sha256:4903ce2ced49fa9f540d11466aeca2b3b52b100769545646d2009167ea72551e",
       "url": "tools/template.buckleTongue.json"
     },
     {
@@ -1208,7 +1208,7 @@
       "label": "拉芯扣的芯",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:3fd4d1fb6de5a8883c0738e7fac59c5644ec08d3a5e04c31e655c96cd1af631f",
+      "docsHash": "sha256:dbe8ac07c97bb520663602a728bdc55aa490b41cf5e981761f0db4fc42fe02a8",
       "url": "tools/template.pullCoreBar.json"
     },
     {
@@ -1217,7 +1217,7 @@
       "label": "吊杆",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:f62850d84125385e5b8a7ac7f87cd95d05255ebad8ccb4e1b52e5ee9eeb1388c",
+      "docsHash": "sha256:c8b966c6a4d185934a3c7f30c782dbb7751a745c74be213d15ed79d3866d7ba5",
       "url": "tools/template.hangingRod.json"
     },
     {
@@ -1226,7 +1226,7 @@
       "label": "圆线拱桥（可选双底孔）",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:4b76e28f87597094638a0e7bccf56c131ffb0129857698d6ef1155d754fdc080",
+      "docsHash": "sha256:f53f0d64fcba902557f612adcde3b43f4ab1d6da5d661d77100216cd9b686367",
       "url": "tools/template.archedBridge.json"
     },
     {
@@ -1235,7 +1235,7 @@
       "label": "方线拱桥",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:810177d783c9ad90909ffcd4c8622a0f495b05832e035fc30efec1412e6d2a6f",
+      "docsHash": "sha256:140fd8c732f2c016f8f312221a3f8e28a1db7e20f454deaedee4461d7ee419b4",
       "url": "tools/template.squareArchedBridge.json"
     },
     {
@@ -1244,7 +1244,7 @@
       "label": "螺丝",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:f1410505ea9e06944f5da24075214d20e34ae7946e5fea0668d683b286f7ca18",
+      "docsHash": "sha256:4a691ae4c809334d4bb91dcb60e95c4314b79cf9e5760c0c6646789a80b94de0",
       "url": "tools/template.screw.json"
     },
     {
@@ -1253,7 +1253,7 @@
       "label": "丝筒",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:2d95cd0b7ee01407bd8b0bcd76a967ea70f856996bc06cc29ea5693023bddeea",
+      "docsHash": "sha256:57d7522955772652b64457a338471c688b4a705e72a31ba7e81f02007e715719",
       "url": "tools/template.threadedSleeve.json"
     },
     {
@@ -1262,7 +1262,7 @@
       "label": "弹簧",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:5982e4c59f7f55e3703a958b0d474c0c23069f267a1874bc0ab1763461e941a1",
+      "docsHash": "sha256:7a66013f85bd38c5f903805b8ae6de07d9a2ba0de13cef62018f992c2f4ad34c",
       "url": "tools/template.spring.json"
     },
     {
@@ -1271,7 +1271,7 @@
       "label": "铜皮鸡眼",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:a19152f231e4b218205197999845976021a176b9f746fb5596cd35c85e155832",
+      "docsHash": "sha256:fa73feeb1e7b209853cd221e63f365a53e40226764828ec5fcf645524b7c2317",
       "url": "tools/template.twoPieceEyelet.json"
     },
     {
@@ -1280,7 +1280,7 @@
       "label": "合金鸡眼",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:e2cc3f8d0b74b0ee43cf87319251ab2ba1055cfdf60417a4a7c1f99fc7979b17",
+      "docsHash": "sha256:c87d94867796eb57c4b19e11b1f0103f56bc4c72e6b3e172805aedc3de540f05",
       "url": "tools/template.alloyEyelet.json"
     },
     {
@@ -1289,7 +1289,7 @@
       "label": "奶嘴钉",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:58bb18dfc16e726a5eadacba327c9cc857cd7cbaeb212d9006dbfbbeae15f2b1",
+      "docsHash": "sha256:f81b3b96b856b868c8faa0f4a71e94b4ec75d33a4ec32e17ce49a9c0adb0c945",
       "url": "tools/template.nippleStud.json"
     },
     {
@@ -1298,7 +1298,7 @@
       "label": "单面蘑菇撞钉",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:2ff8e2dbc7293c0b92d153b9d748a9ab7357196ea5be3e5e8233480221845f06",
+      "docsHash": "sha256:3fd43ed69e2df276e7d21e38fd14b25dad8620348ec89ea8b0554565391b2ecc",
       "url": "tools/template.mushroomRivet.json"
     },
     {
@@ -1307,7 +1307,7 @@
       "label": "O字链",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:5d87db0a519ab74caaa7d467c3cbbe6c9bb40fbc863f37930d361e08fdd786c1",
+      "docsHash": "sha256:278139f3bbbb6f08c32866d10c509ece863e4a5f4682beb78516c5812d0b300d",
       "url": "tools/template.oChain.json"
     },
     {
@@ -1316,7 +1316,7 @@
       "label": "钮链",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:bffb6c7382ad8133c1d2bb0a3153fd5a5061fcc2facd53b855afd8458eacc1e9",
+      "docsHash": "sha256:c0d154793e62164c3d5b3e6cc23f8071cd7944bb7bb71a49422eb39a98ffc06c",
       "url": "tools/template.twistedChain.json"
     },
     {
@@ -1325,7 +1325,7 @@
       "label": "磨链",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:0dc082f1f5aae9cf5e5211413b889ace6c524d608ae3b4a6b01ebc6edd73e632",
+      "docsHash": "sha256:7eef139469d1571da39c254240c8eaa8c302d32ec40151c74132a5891cdfa402",
       "url": "tools/template.groundChain.json"
     },
     {
@@ -1334,7 +1334,7 @@
       "label": "沉孔／沉头孔刀具",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:9945c29efc5b90f93be397fe61f253a4c55bf7e55dbfa113ab98ce2f92c16851",
+      "docsHash": "sha256:6685567294e8d24a14910d7cf4d7da9c73c9a4a0edd43b6559baf9838118e074",
       "url": "tools/template.counterboreTool.json"
     },
     {
@@ -1343,7 +1343,7 @@
       "label": "双柱圆牌底座",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:f7f400dfd4e690eef49557a11c9808c90178c070d8a7cdb98b006af2a5452bc4",
+      "docsHash": "sha256:4be7cd49a3dfd9c3cfa661258cbcc2d60b52960728484786aceb92a35e99f9f7",
       "url": "tools/template.roundBadge.json"
     },
     {
@@ -1352,7 +1352,7 @@
       "label": "双空心柱薄壁壳",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:7d098da9a0dc048dcad6ae8cef2c68b08ca203c18d7b08dc0cbb9e6c51b1a540",
+      "docsHash": "sha256:46e7732a4369fc806ce631e60bf6fa7d0fc34a5b036b3a7f68c869693090dc51",
       "url": "tools/template.thinWallTray.json"
     },
     {
@@ -1361,7 +1361,7 @@
       "label": "圆角双柱薄壁壳",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:8829b423333f0f42f1c54db576244e3a18ebe0a9db2eb6047f84edb9d3d592c3",
+      "docsHash": "sha256:2d9dea45d24b0842de3c6833ff0d36cbe0d498c4f600ad4f89b044dc4c63a9bf",
       "url": "tools/template.roundedBossTray.json"
     },
     {
@@ -1370,7 +1370,7 @@
       "label": "半圆冠双端孔 U 板",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:f97235e6b9a40c9af33194dd30540a532fdd3a1f1a3f830736b72794c05507f7",
+      "docsHash": "sha256:0127d60deb0d016556ffbac93dbdaf48a0c7329e18dc7d6482a4c248acd9a250",
       "url": "tools/template.uEndHolePlate.json"
     },
     {
@@ -1379,7 +1379,7 @@
       "label": "双孔弧形带板",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:c69ee9800169f3b8da400b824fce8eba11e4f7a2060b4753f3edc4b32caa21c5",
+      "docsHash": "sha256:48ea160ac7f352eb64f9a659c8141d2ce8baf351bec6665aef484354390d270a",
       "url": "tools/template.arcBandPlate.json"
     },
     {
@@ -1388,7 +1388,7 @@
       "label": "斜肩开口框",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:a4946d7a1b02d679a3d7c381c3d76f8fbd582181a87f4d2a5dd49573d4398d4f",
+      "docsHash": "sha256:161c1e4c81efaf89ca5afc02699e0f249b3bbfeb64b236712811b7c70e2f35a6",
       "url": "tools/template.gableOpenFrame.json"
     },
     {
@@ -2590,7 +2590,7 @@
     },
     {
       "id": "api.dwg-spline-twin-window",
-      "docsHash": "sha256:00b3d139dd3d97666c6e9a06c75649fc19157adfb27b4c0685d3b95258fbd5a9",
+      "docsHash": "sha256:1fc3910ec183c7b4bd3ca81f62643f47e795f6ce09d930df3b77b9e5a93049ea",
       "url": "docs/api.dwg-spline-twin-window.md"
     },
     {
@@ -3270,37 +3270,37 @@
     },
     {
       "id": "recipes.analytic-arc-profile",
-      "docsHash": "sha256:568a0eb6b89649615da9ff5a7814737d9c447ce90256387dd99c1b81d674d1e1",
+      "docsHash": "sha256:d92d61e272ca3b3a3def5de8220b5942413c1212670a05c370dccb7bb6b1827c",
       "url": "docs/recipes.analytic-arc-profile.md"
     },
     {
       "id": "recipes.analytic-root-revolve",
-      "docsHash": "sha256:87c2f0a00d59fdc1ebb17d076a56cebb61f204a997b30d9632bd3a00dc84747e",
+      "docsHash": "sha256:c4275dae26c0dd681b70944ad2a30a2079aef823a41697c05419baaa0a8631aa",
       "url": "docs/recipes.analytic-root-revolve.md"
     },
     {
       "id": "recipes.arc-band-plate",
-      "docsHash": "sha256:62092b1e5717257e6d7f2ff353ba9fe104df840483b7203236adfcf2c2a1f4ba",
+      "docsHash": "sha256:f91e7c9debb900a61f8886f7f56f81a1c555cc310bd01e5f7eafcedb67e40004",
       "url": "docs/recipes.arc-band-plate.md"
     },
     {
       "id": "recipes.arched-twin-window",
-      "docsHash": "sha256:42319d942cc626ae31415a3b3918495c1d5f6c723e792ec43dd53577495cd99a",
+      "docsHash": "sha256:c2199720ee6aaf7fd983f8f7694aac03331635e088dbfc9c6fe5aa240c0ecfcd",
       "url": "docs/recipes.arched-twin-window.md"
     },
     {
       "id": "recipes.bowed-twin-window",
-      "docsHash": "sha256:6542e970cc048e286e1a1671418871cb3a661385f639af8e8ba5241c229c0945",
+      "docsHash": "sha256:4b9541564aad2b86343805263653a456306a83abe21d64f48b06547e6f89a81e",
       "url": "docs/recipes.bowed-twin-window.md"
     },
     {
       "id": "recipes.capsule-wire",
-      "docsHash": "sha256:c2f83e56d79428ceba8ee55dbc4e1707d6616dda688c8e416d28478a3e4ad8d1",
+      "docsHash": "sha256:ce5a39deb593cefdfaa7b806d1893a7bf4f976accf3bfd8bcb20428cf6ceb623",
       "url": "docs/recipes.capsule-wire.md"
     },
     {
       "id": "recipes.chamfered-wire-frame",
-      "docsHash": "sha256:1e1bb20d5133a46779cc0b62f2967d09017521fab87f91c2485cea45af1db984",
+      "docsHash": "sha256:acfbb994fea7565ade327801fe8f18b15a12d5fee4540bbda7ead2f087110d30",
       "url": "docs/recipes.chamfered-wire-frame.md"
     },
     {
@@ -3315,72 +3315,72 @@
     },
     {
       "id": "recipes.compact-rect-buckle",
-      "docsHash": "sha256:83016b735f20b34defc91e730c1796bc07d4621543a8b234a303c48be8b0801c",
+      "docsHash": "sha256:d9d1f260e57e545daf7ba1ed17b74c50d9c6d36db24c549697988e9a11294182",
       "url": "docs/recipes.compact-rect-buckle.md"
     },
     {
       "id": "recipes.compact-slider-buckle",
-      "docsHash": "sha256:505c76cfe6217fcd3163408e82918f246d338f3e88a179b6ea63fa89e81b38b9",
+      "docsHash": "sha256:9051d2f04a2e0079e51c2f27344690b31168edb36ac2e7501d424a9db486a61a",
       "url": "docs/recipes.compact-slider-buckle.md"
     },
     {
       "id": "recipes.d-flat-frame",
-      "docsHash": "sha256:b6ebe28cda6c31ec2f8fba08cf2205a03420a1d7aea1caaff5251eca4aaa51bc",
+      "docsHash": "sha256:3434739391011d1a2d67cbd43cb647129ae9f8cb552cf6efdb22d96f0629ba75",
       "url": "docs/recipes.d-flat-frame.md"
     },
     {
       "id": "recipes.dxf-arc-profile",
-      "docsHash": "sha256:c6c8799e391187547db85fe3958441a0cf03e0919dd9a6278593cd77486d7dc6",
+      "docsHash": "sha256:afb15ec65fa894fe4c265c1f8eecee8d5fa3f43c1e524b9969046a08f608a3bc",
       "url": "docs/recipes.dxf-arc-profile.md"
     },
     {
       "id": "recipes.dxf-bulge-analytic-profile",
-      "docsHash": "sha256:8e53c7256cb1a5ffde5464e137803b4dc2494a23672b640ba81b79b1b8639e63",
+      "docsHash": "sha256:f440f67facbb7e2bf3f3eddc40cbee7464fffbd9489dd00c54cae4ea8518eb84",
       "url": "docs/recipes.dxf-bulge-analytic-profile.md"
     },
     {
       "id": "recipes.dxf-paired-midline",
-      "docsHash": "sha256:80059dc49e0a674d74e49b641566ebe67e638bb305f73a1edd13f5afed66c8c6",
+      "docsHash": "sha256:a7760852bd24ba91ab38e7c7b0ef22be9b24374f6216e5b1a4f2f4c8717ce9b3",
       "url": "docs/recipes.dxf-paired-midline.md"
     },
     {
       "id": "recipes.ellipse-bar",
-      "docsHash": "sha256:cf3dc42b9b5122f32115c7b69a86d91d24b36c0ed401a8ddeaddb313674627ab",
+      "docsHash": "sha256:2f6393a1e887b5ec02d52df6a180c6fe7156eebc3e55937baedacaafcc6b07a8",
       "url": "docs/recipes.ellipse-bar.md"
     },
     {
       "id": "recipes.ellipse-open-wire",
-      "docsHash": "sha256:a3e4c8d730bec2b053f5846f17ece4e790eed6ec2a44d8a44ff642785c5665c0",
+      "docsHash": "sha256:f621b38af0e5233807faed11441621496026be6b4f319f387f76f1199cc47bb0",
       "url": "docs/recipes.ellipse-open-wire.md"
     },
     {
       "id": "recipes.ellipse-section-rect",
-      "docsHash": "sha256:bd8fa2f7797d2c15a15fb75c1c5488fa3d2490443708a0b1661477ca1904754f",
+      "docsHash": "sha256:9b9358dc0ea60e36ac17b7cd098f7c91fb307fbf35cf157935dc77eb4c3be4bd",
       "url": "docs/recipes.ellipse-section-rect.md"
     },
     {
       "id": "recipes.ellipse-section-ring",
-      "docsHash": "sha256:48612760c161fac36340cd708ecbc97277f91dc02fe73b582579074a1b12b6ff",
+      "docsHash": "sha256:4b693a0d1639e891c0dbb5c4a33a4f59b4f8e6c6fc47379c1ec303c8872d89e0",
       "url": "docs/recipes.ellipse-section-ring.md"
     },
     {
       "id": "recipes.ellipse-u-wire",
-      "docsHash": "sha256:823e7fe2f277d6d1f38b349c4dc3f1dac25de91ec714b8bab25191efdb5ca11e",
+      "docsHash": "sha256:7f26e9d0d94ffb7da84eb174fc2877ff2384ec33d035c071ae3a88986ca92807",
       "url": "docs/recipes.ellipse-u-wire.md"
     },
     {
       "id": "recipes.figure-eight-capsule",
-      "docsHash": "sha256:cd4a3dd5e18b2987a1514640c25d2db4755cbd2cd4467a441b37a3079015aeae",
+      "docsHash": "sha256:6f716887ad35248ad62f35ac329452bfaa4cc31d58b77efc8321a0f7c6b5a794",
       "url": "docs/recipes.figure-eight-capsule.md"
     },
     {
       "id": "recipes.flat-washer",
-      "docsHash": "sha256:6039d6fd9d8afdc496c4202a3238c759b9e8c42990d10084a739293aa8028aed",
+      "docsHash": "sha256:c30a177f6c818e0374e946895cfc4c7079909c5136a98a3375073dee4c2cd1ed",
       "url": "docs/recipes.flat-washer.md"
     },
     {
       "id": "recipes.gable-open-frame",
-      "docsHash": "sha256:d527e218adfb2c64a9b693e818d68c8dc0bb3f2afe7ad23f933b16b825c7ec06",
+      "docsHash": "sha256:170d271307bb03364c3074db09c3319b75066d4308f1123272c5f3a6b0d15e42",
       "url": "docs/recipes.gable-open-frame.md"
     },
     {
@@ -3410,27 +3410,27 @@
     },
     {
       "id": "recipes.pg11419-analytic-profile",
-      "docsHash": "sha256:f66e49d96fcbc61109efae8f9f4781886ba0ddc8f7f594c4a2c3053dc3544570",
+      "docsHash": "sha256:976e58de4f54f412b01980bb04fee3c62b61ca866ca1bb961dca11d812366e95",
       "url": "docs/recipes.pg11419-analytic-profile.md"
     },
     {
       "id": "recipes.pg5752-two-source-parts",
-      "docsHash": "sha256:dc25edbf05e49cb70b0650b79bf88ea3a78d80850d1124b8e29b4819b5a5e4b3",
+      "docsHash": "sha256:8a170412a78036861db680079adb432e87e286e96a893f5a6e37c97bc3d546ee",
       "url": "docs/recipes.pg5752-two-source-parts.md"
     },
     {
       "id": "recipes.pg8091-analytic-profile",
-      "docsHash": "sha256:1de5adf67b60e6aff0b82a52d0660bfc51099acbf73c634dda1114278a5a6d79",
+      "docsHash": "sha256:2eb6b73e73fa7cd636bb4f944ce1bfcac51668bf335a658a4840d6252b832488",
       "url": "docs/recipes.pg8091-analytic-profile.md"
     },
     {
       "id": "recipes.polar-hole-ring",
-      "docsHash": "sha256:eaf5db84fe62509c5ed52ad114700ec8c21b9bf3dfadd857ba1d46ecd2210e0d",
+      "docsHash": "sha256:115b3cce676f1b7b2aad4b68afcb3ed87e196ffdbd2088f9d24f013f4c14fe84",
       "url": "docs/recipes.polar-hole-ring.md"
     },
     {
       "id": "recipes.profile-loop",
-      "docsHash": "sha256:147d25466a4db991c3fbc1b74c835f7cbd639a3fda83bb88c9b3253e94890a37",
+      "docsHash": "sha256:3a7b1b08ac127451b88c08d97cdc04b045a8e3a88436854b3511a1f24d809a32",
       "url": "docs/recipes.profile-loop.md"
     },
     {
@@ -3445,37 +3445,37 @@
     },
     {
       "id": "recipes.ring-bar",
-      "docsHash": "sha256:072671103d80160c5ec0dec9829301cb47c5c6618e013084c79db8ff7586863d",
+      "docsHash": "sha256:ace79ae701fb97c23994b7e24b7abafbeb2e718e7fdc8227df6abac5ffb150b4",
       "url": "docs/recipes.ring-bar.md"
     },
     {
       "id": "recipes.round-wire-slider",
-      "docsHash": "sha256:5756f823969381d22125cc7a74d02dcbee93aca0dd6c24203b682598de417c44",
+      "docsHash": "sha256:30d432bb92c7c6e0f37db783fbc7c1565be3c8969e34ed34be13f5f75dec366d",
       "url": "docs/recipes.round-wire-slider.md"
     },
     {
       "id": "recipes.rounded-flat-frame",
-      "docsHash": "sha256:28c1d88aecb6c03b2a5071c1f61ac93d3398404575cabb47a4e0dc928067dea7",
+      "docsHash": "sha256:e815141074b80b68aac7fc39aad53a4257f242116f543aff49756d97665fb4af",
       "url": "docs/recipes.rounded-flat-frame.md"
     },
     {
       "id": "recipes.segmented-curve-sweep",
-      "docsHash": "sha256:8bd78cc62a4ce898696fa9ef1f95eef8619edfea9acda687e65e9e1b4bb88ac3",
+      "docsHash": "sha256:2451b3726d46513eb2bb2a05451c1b77671cabc1bce82c84ba363784b699c360",
       "url": "docs/recipes.segmented-curve-sweep.md"
     },
     {
       "id": "recipes.small-twin-window",
-      "docsHash": "sha256:be6be2a5d1ee7cbf45e13a15406bb862618bef5fc4a34bf1ab2c6ad78862b033",
+      "docsHash": "sha256:0e60d5dbe3765895974b0c3ac4955d41648961538c76a9ec72a6fb1d138dc1db",
       "url": "docs/recipes.small-twin-window.md"
     },
     {
       "id": "recipes.source-analytic-round",
-      "docsHash": "sha256:b59cdd7551fbf83809d1f999c549ff88b1beba9a5372663da5eb37fc791d597f",
+      "docsHash": "sha256:88c7c2729a175fec41f17fb0f511d6fbeaab94a23d52a45a8d06190bcc7b3190",
       "url": "docs/recipes.source-analytic-round.md"
     },
     {
       "id": "recipes.source-arc-band-profile",
-      "docsHash": "sha256:dd77394c3aa0d5e7d337569b453e59cf031cbfbec3458ef170a075b07cf75521",
+      "docsHash": "sha256:b5bb6c00f668179ad060f159f4974ebb1ca9ef9c9d3288001f831899b881381f",
       "url": "docs/recipes.source-arc-band-profile.md"
     },
     {
@@ -3485,17 +3485,17 @@
     },
     {
       "id": "recipes.source-round-rect",
-      "docsHash": "sha256:69217a7d7a667b1dd9a812272bc7eec2665b245a94e03dc12727a6e6dfb3b89c",
+      "docsHash": "sha256:3310dc8b41130dcb036a1810b66afc20f7856e70d92b0ac8dab202efdbf4483b",
       "url": "docs/recipes.source-round-rect.md"
     },
     {
       "id": "recipes.twin-window-plate",
-      "docsHash": "sha256:df1d4b8c512121ac5c887a713786b21a34b865ec338bd54dce1089602d5f6740",
+      "docsHash": "sha256:2456435742b486b33957a71a5b692ad87e2fbcb2b0b24dbe8579f73e2ced154e",
       "url": "docs/recipes.twin-window-plate.md"
     },
     {
       "id": "recipes.u-end-hole-plate",
-      "docsHash": "sha256:00f4699e33f32d4acabf7d8a05cd3ef57ad5bf5b1b2a79720267b8ff9a3c41e4",
+      "docsHash": "sha256:32d4b9e68661f38812a11f92e5c23ff0bb4ff3176d28ff1208ea5b67f62ca01f",
       "url": "docs/recipes.u-end-hole-plate.md"
     },
     {
