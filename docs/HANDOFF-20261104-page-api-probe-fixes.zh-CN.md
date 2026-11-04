@@ -46,34 +46,31 @@
 - 椭圆日字扣 / 开口圈的显示体积在自适应显示下是 `null`（`metricsDeferred`）。精确体积和包围盒改走 `kernel.measure()`，数值门槛没放宽。实测约 2870 mm³ 与 635.52 mm³，仍落在原断言范围内。
 - 铣削回退：单边半径大于相邻面时仍可给出有效铣削候选（`edge-blend` 的 10×4×1、R2 长边）。整包圆角（`allEdges`）和圆润工具要求的精确半径放不进相邻面时，不再把铣削结果当成成功；失败信息仍含「失败边」和「原模型保留」。
 
-## 测试现状
+## 测试现状（最终）
 
-| 跑法 | 结果 |
-|---|---|
-| 补清单后的第一轮 `npm test` | 1355 项里 1313 通过、36 失败、1 取消、5 跳过 |
-| 修完大部分断言后、收窄铣削之前的整包 | 1355 项，**1349 通过，1 失败，0 取消，5 跳过**，约 860 秒，退出码 1 |
-| 那 1 个失败 | `tests/edge-blend.test.mjs` → `large requested radius may produce a valid mill candidate without a box-size veto` |
-| 收窄铣削之后的针对性重跑 | `edge-blend`、`mill-fillet-fallback`、`relief-fillet-261024-v2`、`round-tool-kernel`、`rounding-modes`：21 通过，0 失败，1 跳过（私有圆角夹具） |
-| 确认用的第二次整包 | **2026-11-04 09:16 UTC 已启动，写本文件时尚未结束**。日志：`/tmp/npm-test-portable-2.log`（进程若还在，就是 `node scripts/test.mjs portable`）。结束前不要把「全绿」写进升级说明。 |
+2026-11-04 09:31 UTC，对着已推送的 `605f5fee`（产品代码与测试；本段数字是之后补记的）跑完 `npm test`（`node scripts/test.mjs portable`）：
 
-5 个跳过是原有的环境跳过（例如没有私有圆角夹具），不是这次加的。
+- 333 个测试文件，串行
+- **1355 项，1350 通过，0 失败，0 取消，5 跳过**
+- 耗时约 894 秒，退出码 0
+- `[PASS] portable`
+
+没有剩余失败。5 个跳过是原来就有的环境条件，这次没有新增 `skip`：
+
+- `PowerShell installs and updates in isolation...`（非 Windows）
+- `controlled PDF renderer: text/image fallback...`（没有受控 PDF 渲染器）
+- `live native worker re-run @33 (skipped without WEBCAD_SERVICES_OCCT_WORKER)`
+- `EXAMPLE-39C04640 repaired LL planar scope...`（没有 `WEBCAD_PRIVATE_ROUNDING_FIXTURE`）
+- `authorized local STEP: outer junctions smooth...`（没有授权的本机 STEP）
 
 ## 接着做
 
-1. 看第二次整包是否还在跑。在则等它结束，读日志末尾的 `# pass` / `# fail`。不在或日志不完整，就在仓库根重新执行：
+便携套件已经全绿。不要为了再刷一遍而改代码。下一步只剩所有者决定：
 
-   ```bash
-   node scripts/generate-page-docs.mjs
-   npm test
-   ```
+1. 是否把 PR #4 合并进 `main`。本交接不合并。
+2. 确认之后，再按升级说明把同一提交升到 `F:\Project\WebCAD`。不要提前动 Teacher-O。
 
-   `generate-page-docs` 会写出未入库的 `public/automation/agent-bundle.zip`。不要把这个 zip 加进 git。
-
-2. 若全绿：把通过/失败/跳过数字写进本文件和 `docs/UPGRADE-20261104-page-api-probe-fixes.zh-CN.md` 的「测试」一节，提交并推到 `cursor/page-api-probe-fixes-a435`。用 `ManagePullRequest` 更新 PR #4 的说明。不要合并。告诉协调人：可以请曾智鹏决定是否合并，以及何时升到 Teacher-O。
-
-3. 若仍有失败：只修产品代码、和已发布契约不一致的断言、或确实无法在云端合成的夹具。每条失败记下文件名、测试名和原因。需要真实浏览器、原生宿主或不能合成的源图时，留在失败列表里，写明原因，不要 `skip`。
-
-4. 契约或配方文档有改动时，再跑一次 `node scripts/generate-page-docs.mjs`，把 `public/automation` 里除 zip 以外的生成文件一起提交。
+若重置后续跑，先 `node scripts/generate-page-docs.mjs`（生成不入库的 `agent-bundle.zip`），再 `npm test`。数字应仍是 1350 / 0 / 5。契约或配方文档若再改，重新生成 `public/automation`（除 zip）并提交。
 
 ## 本机升级（等所有者点头之后）
 

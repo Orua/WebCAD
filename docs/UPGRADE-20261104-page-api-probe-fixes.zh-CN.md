@@ -132,8 +132,8 @@
 - `tests/operation-registry.test.mjs` 中除下面这一项以外的用例
 - `tests/projected-logo.test.mjs`
 
-`npm test`（portable）第一次补齐测试清单后是 1313 通过、36 失败。随后按已发布契约修了产品代码和过时断言，没有删测试。
+`npm test`（portable，333 个文件）在 2026-11-04 09:31 UTC 跑完：**1355 项，1350 通过，0 失败，5 跳过**，约 894 秒，退出码 0。第一轮补清单后是 1313 通过、36 失败；中间一轮在收窄铣削之前是 1349 通过、1 失败。失败都按已发布契约修了，没有删测试，也没有把失败改成跳过。
 
-最近一次**已经跑完**的整包（修铣削范围之前）：1355 项，1349 通过，1 失败，5 跳过。那 1 个失败是 `tests/edge-blend.test.mjs` 的 `large requested radius may produce a valid mill candidate without a box-size veto`：整包圆角和圆润工具不能用铣削回退冒充放不进相邻面的精确半径，但单边过大半径仍应给出有效铣削候选。范围收窄后，`edge-blend`、`mill-fillet-fallback`、`round-tool-kernel`、`rounding-modes`、`relief-fillet-261024-v2` 已单独通过。确认用的第二次整包在写这份说明时还在跑；最终数字以交接说明为准。
+5 个跳过是原有环境条件：非 Windows 的 PowerShell 安装、没有受控 PDF 渲染器、没有 `WEBCAD_SERVICES_OCCT_WORKER`、没有私有圆角夹具 `EXAMPLE-39C04640`、没有授权本机 STEP。
 
-云端没有浏览器，不能对 `http://localhost/webcad/` 或生产页做端到端。柱面落点和平面圆截面中心是用仓库里的 OCCT WASM 测的。`public/automation/agent-bundle.zip` 是发布产物，不入库；跑知识包测试前要先 `node scripts/generate-page-docs.mjs`，让磁盘上的压缩包和已提交的 `agent-knowledge.json` 哈希一致。
+云端没有浏览器，不能对 `http://localhost/webcad/` 或生产页做端到端。柱面落点和平面圆截面中心是用仓库里的 OCCT WASM 测的。`public/automation/agent-bundle.zip` 是发布产物，不入库；跑知识包测试前要先 `node scripts/generate-page-docs.mjs`，让磁盘上的压缩包和已提交的 `agent-knowledge.json` 哈希一致。交接见 `docs/HANDOFF-20261104-page-api-probe-fixes.zh-CN.md`。
