@@ -24,8 +24,8 @@ function exact(shape,solidCount){
 }
 const draft=(faceIds,angleDeg=5,extra={})=>({faceIds,neutralPoint:[0,0,0],neutralNormal:[0,0,1],pullDirection:[0,0,1],angleDeg,...extra});
 
-test('three direct tools share executable strict schemas; no unsupported shell thickening is advertised',()=>{
-  assert.deepEqual(Object.keys(directModelingOperations),['offsetSolid','offsetSurface','draftByPlane']);
+test('direct tools share executable strict schemas; no unsupported shell thickening is advertised',()=>{
+  assert.deepEqual(Object.keys(directModelingOperations),['rodJunction','offsetSolid','offsetSurface','draftByPlane']);
   for(const [id,definition] of Object.entries(directModelingOperations)){
     assert.equal(definition.refs,1);validateSchema(definition.paramsSchema,directModelingExamples[id]);
     assert.deepEqual(directModelingStrictDefinitions[id].paramsSchema,definition.paramsSchema);

@@ -54,7 +54,7 @@ test('main.js no longer renders step names, counts or triangles',()=>{
   assert.doesNotMatch(main,/ui\.setBusy\(true,text\)/);
   assert.match(main,/kernelProgress=\{\.\.\.result\.progress/,'agents keep detailed kernelProgress');
   assert.match(main,/withLoading\(\(\)=>openDocumentLoaded/);
-  assert.match(main,/withLoading\(async\(\)=>\{await request\('ready'\)/);
+  assert.match(main,/withLoading\(async\(\)=>\{\s*await request\('ready'\)/);
 });
 
 test('overlay markup: 载入中 + hidden progressbar',()=>{

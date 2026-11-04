@@ -132,11 +132,8 @@
 - `tests/operation-registry.test.mjs` 中除下面这一项以外的用例
 - `tests/projected-logo.test.mjs`
 
-`npm test`（portable，333 个文件）在这台云端环境里 **不能算全绿**。基线 `7ee215ae` 的 `scripts/test.mjs` 本来就没有登记约 23 个已存在的 `tests/*.test.mjs`，一启动就报 manifest mismatch。补登记之后整包跑完：1313 通过，36 失败。失败里和本次契约有关、已修好的是 `machiningIntent` 必填导致的 relief 示例。其余失败在改这些文件之前就会出现，例如：
+`npm test`（portable）第一次补齐测试清单后是 1313 通过、36 失败。随后按已发布契约修了产品代码和过时断言，没有删测试。
 
-- `operation-registry` / 发现测试期望 `runtimeAvailability==='available'`，当前实现在 `browserReady:true` 时返回 `page_ready`
-- `agent/temp/relief-waves.jpg` 等本机夹具不在云端
-- `debugJournal` / `connectionGeneration` / `validateReliefDesigns` 在部分用 `eval` 截取 `main.js` 的测试里未注入
-- 若干 DWG 快捷模型说明字符串与断言不一致
+最近一次**已经跑完**的整包（修铣削范围之前）：1355 项，1349 通过，1 失败，5 跳过。那 1 个失败是 `tests/edge-blend.test.mjs` 的 `large requested radius may produce a valid mill candidate without a box-size veto`：整包圆角和圆润工具不能用铣削回退冒充放不进相邻面的精确半径，但单边过大半径仍应给出有效铣削候选。范围收窄后，`edge-blend`、`mill-fillet-fallback`、`round-tool-kernel`、`rounding-modes`、`relief-fillet-261024-v2` 已单独通过。确认用的第二次整包在写这份说明时还在跑；最终数字以交接说明为准。
 
-云端没有浏览器，不能对 `http://localhost/webcad/` 或生产页做端到端。柱面落点和平面圆截面中心是用仓库里的 OCCT WASM 测的。
+云端没有浏览器，不能对 `http://localhost/webcad/` 或生产页做端到端。柱面落点和平面圆截面中心是用仓库里的 OCCT WASM 测的。`public/automation/agent-bundle.zip` 是发布产物，不入库；跑知识包测试前要先 `node scripts/generate-page-docs.mjs`，让磁盘上的压缩包和已提交的 `agent-knowledge.json` 哈希一致。

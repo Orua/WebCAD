@@ -37,7 +37,7 @@
     "圆线日字扣",
     "Slider buckle"
   ],
-  "description": "按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。原比例接头仅用于旧工程兼容。",
+  "description": "按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。紧凑圆线的内短边至少为线径的 2.5 倍。原比例接头仅用于旧工程兼容。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -218,7 +218,7 @@
   "visibleInLibrary": true,
   "libraryCategory": "sliders",
   "libraryCategoryLabel": "日字扣",
-  "purpose": "按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。原比例接头仅用于旧工程兼容。",
+  "purpose": "按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。紧凑圆线的内短边至少为线径的 2.5 倍。原比例接头仅用于旧工程兼容。",
   "whenToUse": [
     "This selected template matches the required structure; its complete parameters and placement contract are in this card."
   ],
@@ -821,5 +821,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2886f11dbb27b712468d77a27b88ea19433a7bfe3d9e398328535dab9b233180"
+  "docsHash": "sha256:eb87ca52bc5ee261ff6282892c0bccef05143d090f62bbc352e88fc975fd1909"
 }

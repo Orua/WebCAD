@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.60.11 · sha256:1e3d0a24a692a71387e108784885ebe0c86231485ff942a91be3c93d1912dc4d
+API 1.60.11 · sha256:cf9c8c6abda16462a36a2abd995e4c183aba3ed5145ac94b1dcdcafd44ea1f0e
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -18662,7 +18662,7 @@ files.release: contextPolicy=none
 
 ## recipes.polar-hole-ring
 
-圆周重复孔位：复用 quickModel/washer 和 multiHole 两个现有脚本工具，无需专用固定孔数模型。先 getTool({id:"quickModel"})、getTool({id:"multiHole"}) 查当前参数卡。历史周向圆位环 源图主视同心圆内 R10/外 R14.5，侧厚3.6；16个 R1.5 圆位均匀分布在中心半径12.25上，首孔90°，角步22.5°。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const points=Array.from({length:16},(_,i)=>{const a=(90+i*360/16)*Math.PI/180;return [12.25*Math.cos(a),12.25*Math.sin(a),1.8]});const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"ring",method:"add",args:{op:"quickModel",refs:[],params:{kind:"washer",innerDiameter:20,sectionSize:4.5,innerHeight:3.6}}},{id:"holes",method:"add",args:{op:"multiHole",refs:[{$ref:"ring.createdBodyIds.0"}],params:{radius:1.5,depth:0.5,axis:"Z",direction:-1,points}}},{id:"size",method:"measure",args:{bodyId:{$ref:"holes.createdBodyIds.0"}}}]}); 浅圆座深0.5 mm仅是可见试拟；源图文字说明为镶钻，未给出石座深度和宝石形状。外观试建为一个29×29×3.6 mm实体，体积=π(14.5²−10²)×3.6−16π1.5²×0.5。通用时改变 count、中心半径、起始角和半径，并检查每个孔完全在环带内、不互交；depth 从上表面向下切，历史周向圆位环 的0.5只是试拟。读 status、measure、rendered revision；参数变化用 feature.edit 改完整 points 数组。
+圆周重复孔位：复用 quickModel/washer 和 multiHole 两个现有脚本工具，无需专用固定孔数模型。先 getTool({id:"quickModel"})、getTool({id:"multiHole"}) 查当前参数卡。历史周向圆位环 源图主视同心圆内 R10/外 R14.5，侧厚3.6；16个 R1.5 圆位均匀分布在中心半径12.25上，首孔90°，角步22.5°。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const points=Array.from({length:16},(_,i)=>{const a=(90+i*360/16)*Math.PI/180;return [12.25*Math.cos(a),12.25*Math.sin(a),1.8]});const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"ring",method:"add",args:{op:"quickModel",refs:[],params:{kind:"washer",innerDiameter:20,sectionSize:4.5,innerHeight:3.6}}},{id:"holes",method:"add",args:{op:"multiHole",refs:[{$ref:"ring.createdBodyIds.0"}],params:{radius:1.5,depth:0.5,axis:"Z",direction:-1,points}}},{id:"size",method:"measure",args:{bodyId:{$ref:"holes.createdBodyIds.0"}}}]}); 浅圆座深0.5 mm仅是可见试拟；源图文字说明为镶钻，未给出石座深度和宝石形状。外观试建为一个29×29×3.6 mm实体，体积=π(14.5²−10²)×3.6−16π1.5²×0.5。通用时改变 count、中心半径、起始角和半径，并检查每个孔完全在环带内、不互交；depth 从上表面向下切，历史周向圆位环 的0.5只是试拟。读 status、measure、rendered revision；参数变化用 feature.edit 改完整 points 数组。案例编号 EXAMPLE-6D43D757。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 reliefWizard: contextPolicy=identity
@@ -19592,7 +19592,7 @@ files.release: contextPolicy=none
 
 ## recipes.small-twin-window
 
-小双窗扣外观候选：UI 选“快捷模型 → 平板双窗扣”，AI 先 getTool({id:"quickModel"}) 查 kind=twinWindowPlate 的当前参数卡。历史样条双窗案例 页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"plate",method:"add",args:{op:"quickModel",refs:[],params:{kind:"twinWindowPlate",outerWidth:24,outerHeight:21,outerRadius:6,windowWidth:17,totalInnerHeight:14,windowRadius:2,barWidth:3,thickness:3.5,edgeRadius:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"plate.createdBodyIds.0"}}}]})。源图外廓标24×21、横条3、侧厚3.5；产品栏17×14作为名义内孔总范围。外R6、窗R2是从图面选择的圆角矩形试拟，源实体含 SPLINE，不能宣称与源曲线重合；真实双窗也可能有局部过渡或侧面变化。工具给一实体24×21×3.5 mm，正视双窗+横条可见；不自动添加未标边缘R。历史可 feature.edit 修改；下一步若要求更高保真，应引入源样条拟合后的闭合轮廓并核验偏差，而非继续猜圆角。读批次 status、measure、rendered revision；失败回滚。
+小双窗扣外观候选：UI 选“快捷模型 → 平板双窗扣”，AI 先 getTool({id:"quickModel"}) 查 kind=twinWindowPlate 的当前参数卡。历史样条双窗案例 页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:"plate",method:"add",args:{op:"quickModel",refs:[],params:{kind:"twinWindowPlate",outerWidth:24,outerHeight:21,outerRadius:6,windowWidth:17,totalInnerHeight:14,windowRadius:2,barWidth:3,thickness:3.5,edgeRadius:0}}},{id:"size",method:"measure",args:{bodyId:{$ref:"plate.createdBodyIds.0"}}}]})。源图外廓标24×21、横条3、侧厚3.5；产品栏17×14作为名义内孔总范围。外R6、窗R2是从图面选择的圆角矩形试拟，源实体含 SPLINE，不能宣称与源曲线重合；真实双窗也可能有局部过渡或侧面变化。工具给一实体24×21×3.5 mm，正视双窗+横条可见；不自动添加未标边缘R。历史可 feature.edit 修改；下一步若要求更高保真，应引入源样条拟合后的闭合轮廓并核验偏差，而非继续猜圆角。读批次 status、measure、rendered revision；失败回滚。案例编号 EXAMPLE-073EEC4E。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 reliefWizard: contextPolicy=identity
@@ -20056,7 +20056,7 @@ files.release: contextPolicy=none
 
 ## recipes.source-round-rect
 
-源图内外角可校验的圆线方框：UI 选择“快捷模型 → 方扣”，AI 先读 getTool({id:'quickModel'}) 的 kind=rectBuckle 参数卡。对任一图，先核外宽-内宽=外高-内高=2×线径，外角R-内角R=线径，侧视截面为同一圆线且闭合；不满足任一条件时不要套此配方。历史圆线方框案例 的有效正视闭合多段线给外33×23、内25×15、外角R4.5、内角R0.5，侧视圆端R2，故可取线径4。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'frame',method:'add',args:{op:'quickModel',refs:[],params:{kind:'rectBuckle',section:'round',innerWidth:25,innerHeight:15,innerRadius:0.5,sectionSize:4,gapWidth:0}}},{id:'size',method:'measure',args:{bodyId:{$ref:'frame.createdBodyIds.0'}}}]});检查 status、solidCount、bounds、volume，再核 getState().display.rendered.revision。实测单实体33×23×4 mm，1152.436255 mm³；体积与圆截面积 π×2² 乘圆角中心路径长度 76+5π 一致。该几何复现正视理想圆弧与圆截面；图面未说明的接缝、局部表面和制造过渡仍须单独核验。历史用 feature.edit 修订，失败不提交。
+源图内外角可校验的圆线方框：UI 选择“快捷模型 → 方扣”，AI 先读 getTool({id:'quickModel'}) 的 kind=rectBuckle 参数卡。对任一图，先核外宽-内宽=外高-内高=2×线径，外角R-内角R=线径，侧视截面为同一圆线且闭合；不满足任一条件时不要套此配方。历史圆线方框案例 的有效正视闭合多段线给外33×23、内25×15、外角R4.5、内角R0.5，侧视圆端R2，故可取线径4。页面脚本：const api=window.webcad.api;const {revision,...identity}=api.getState().context;const result=await api.run({context:{...identity,expectedRevision:revision},idempotencyKey:crypto.randomUUID(),steps:[{id:'frame',method:'add',args:{op:'quickModel',refs:[],params:{kind:'rectBuckle',section:'round',innerWidth:25,innerHeight:15,innerRadius:0.5,sectionSize:4,gapWidth:0}}},{id:'size',method:'measure',args:{bodyId:{$ref:'frame.createdBodyIds.0'}}}]});检查 status、solidCount、bounds、volume，再核 getState().display.rendered.revision。实测单实体33×23×4 mm，1152.436255 mm³；体积与圆截面积 π×2² 乘圆角中心路径长度 76+5π 一致。该几何复现正视理想圆弧与圆截面；图面未说明的接缝、局部表面和制造过渡仍须单独核验。历史用 feature.edit 修订，失败不提交。案例编号 EXAMPLE-A60C9272。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 reliefWizard: contextPolicy=identity
@@ -54842,6 +54842,12 @@ files.release: contextPolicy=none
           "kind": "reviewed-contours",
           "reviewed": true
         },
+        "machiningIntent": {
+          "version": 1,
+          "requestedGeometry": "constantDepthContours",
+          "sourceInterpretation": "reviewedVectors",
+          "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+        },
         "__unknownField": true
       },
       "errorCode": "PARAM_SCHEMA_INVALID",
@@ -55369,6 +55375,12 @@ files.release: contextPolicy=none
               "kind": "reviewed-contours",
               "reviewed": true
             },
+            "machiningIntent": {
+              "version": 1,
+              "requestedGeometry": "constantDepthContours",
+              "sourceInterpretation": "reviewedVectors",
+              "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+            },
             "__unknownField": true
           },
           "errorCode": "PARAM_SCHEMA_INVALID",
@@ -55793,7 +55805,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:23f2ae000881f2ef622170d74a4277ea9194f7abbb5d8d90131abe869666aa62"
+  "docsHash": "sha256:a47f34b230b0453a4a008007012ebada59a64eee515f6fcd3bb565c3eee22698"
 }
 ```
 
@@ -89032,6 +89044,12 @@ files.release: contextPolicy=none
             0
           ]
         ],
+        "machiningIntent": {
+          "version": 1,
+          "requestedGeometry": "continuousRelief",
+          "sourceInterpretation": "authoredHeightMap",
+          "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+        },
         "__unknownField": true
       },
       "errorCode": "PARAM_SCHEMA_INVALID",
@@ -89728,6 +89746,12 @@ files.release: contextPolicy=none
                 0
               ]
             ],
+            "machiningIntent": {
+              "version": 1,
+              "requestedGeometry": "continuousRelief",
+              "sourceInterpretation": "authoredHeightMap",
+              "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+            },
             "__unknownField": true
           },
           "errorCode": "PARAM_SCHEMA_INVALID",
@@ -90263,7 +90287,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:bfbfbbe9ea07ba9fa2f646062041e5d6647b4c34a5d5b38e4c21d83695013a48"
+  "docsHash": "sha256:f77a38cea49af45fde7fbf495b9d78b8027707e5e46a186395a5c39418e23b69"
 }
 ```
 
@@ -125172,7 +125196,7 @@ files.release: contextPolicy=none
     "圆线日字扣",
     "Slider buckle"
   ],
-  "description": "按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。原比例接头仅用于旧工程兼容。",
+  "description": "按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。紧凑圆线的内短边至少为线径的 2.5 倍。原比例接头仅用于旧工程兼容。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -125353,7 +125377,7 @@ files.release: contextPolicy=none
   "visibleInLibrary": true,
   "libraryCategory": "sliders",
   "libraryCategoryLabel": "日字扣",
-  "purpose": "按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。原比例接头仅用于旧工程兼容。",
+  "purpose": "按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。紧凑圆线的内短边至少为线径的 2.5 倍。原比例接头仅用于旧工程兼容。",
   "whenToUse": [
     "This selected template matches the required structure; its complete parameters and placement contract are in this card."
   ],
@@ -125956,7 +125980,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2886f11dbb27b712468d77a27b88ea19433a7bfe3d9e398328535dab9b233180"
+  "docsHash": "sha256:eb87ca52bc5ee261ff6282892c0bccef05143d090f62bbc352e88fc975fd1909"
 }
 ```
 

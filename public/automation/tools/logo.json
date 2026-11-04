@@ -611,6 +611,12 @@
           "kind": "reviewed-contours",
           "reviewed": true
         },
+        "machiningIntent": {
+          "version": 1,
+          "requestedGeometry": "constantDepthContours",
+          "sourceInterpretation": "reviewedVectors",
+          "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+        },
         "__unknownField": true
       },
       "errorCode": "PARAM_SCHEMA_INVALID",
@@ -1138,6 +1144,12 @@
               "kind": "reviewed-contours",
               "reviewed": true
             },
+            "machiningIntent": {
+              "version": 1,
+              "requestedGeometry": "constantDepthContours",
+              "sourceInterpretation": "reviewedVectors",
+              "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+            },
             "__unknownField": true
           },
           "errorCode": "PARAM_SCHEMA_INVALID",
@@ -1562,5 +1574,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:23f2ae000881f2ef622170d74a4277ea9194f7abbb5d8d90131abe869666aa62"
+  "docsHash": "sha256:a47f34b230b0453a4a008007012ebada59a64eee515f6fcd3bb565c3eee22698"
 }

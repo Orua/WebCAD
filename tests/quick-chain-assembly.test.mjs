@@ -27,7 +27,7 @@ for(const kind of ['oChain','twistedChain','groundChain']){
   validateOperationExample('quickModel',params);assert.throws(()=>validateOperationExample('quickModel',{...params,sizeMode:'length',maxLengthMm:50}));
  }finally{shape.delete();single.delete();}
 }
-const lib=createModelLibrary(()=>({getItem:()=>null}));assert.equal(lib.read().entries.length,47);assert.ok(QUICK_MODEL_VISIBLE_KINDS.includes('ironFoot'));assert.equal(lib.resolve({id:'oChain',expectedLibraryRevision:0,params:{sizeMode:'length',maxLengthMm:50}}).params.linkCount,0);
+const lib=createModelLibrary(()=>({getItem:()=>null}));assert.equal(lib.read().entries.length,48);assert.ok(QUICK_MODEL_VISIBLE_KINDS.includes('ironFoot'));assert.equal(lib.resolve({id:'oChain',expectedLibraryRevision:0,params:{sizeMode:'length',maxLengthMm:50}}).params.linkCount,0);
 const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:0,kernelReady:true,busy:false,features:[{id:'old',op:'quickModel',params:{kind:'oChain'},refs:[]}],bodies:[{id:'old'}],referenceSystem:createReferenceSystem()},commands=[];
 const service=createCommandService({allowAdvisory:true,snapshot:()=>structuredClone(s),execute:async(command,args)=>{commands.push({command,args});s.revision++;}}),contract=getOperation('quickModel');
 async function execute(action,args){const result=await service.execute({context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:s.revision},idempotencyKey:crypto.randomUUID(),action,args:{opVersion:contract.version,schemaHash:contract.schemaHash,...args}});assert.equal(result.status,'committed',JSON.stringify(result));}

@@ -8,7 +8,6 @@ import {geometryRecipeFingerprint} from '../src/services/geometry-exchange.js';
 import {normalizeOperationParams,getOperation} from '../src/operation-registry.js';
 import {reliefExample} from '../src/modeling/manufacturing/relief-contracts.js';
 import {heightValuesFromRgba,rasterDimensions} from '../src/relief-image.js';
-import fs from 'node:fs';
 import {UI_LAYOUT} from '../src/ui/config/ui-layout.js';
 import {toolDisabledReason} from '../src/tool-state.js';
 import {reliefContours} from '../src/relief-contours.js';
@@ -40,8 +39,14 @@ test('rounded silhouette has continuously changing height controls instead of a 
  assert.throws(()=>heightValuesFromRgba(pixels,size,size,{threshold:2}),/参数/);
 });
 
+function syntheticJpeg(width,height){
+ const bytes=new Uint8Array(40),view=new DataView(bytes.buffer);
+ bytes[0]=0xff;bytes[1]=0xd8;bytes[2]=0xff;bytes[3]=0xe0;view.setUint16(4,20);
+ bytes[24]=0xff;bytes[25]=0xc0;view.setUint16(26,11);bytes[28]=8;view.setUint16(29,height);view.setUint16(31,width);bytes[33]=1;
+ return bytes;
+}
 test('raster dimensions are bounded before decoder allocation and malformed headers reject',()=>{
- const jpg=fs.readFileSync(new URL('../agent/temp/relief-waves.jpg',import.meta.url));
+ const jpg=syntheticJpeg(129,129);
  assert.deepEqual(rasterDimensions(jpg,'jpg'),{width:129,height:129});
  assert.throws(()=>rasterDimensions(jpg.subarray(0,20),'jpg'),e=>e.code==='RELIEF_IMAGE_INVALID');
  const png=new Uint8Array(33),view=new DataView(png.buffer);png.set([137,80,78,71,13,10,26,10]);view.setUint32(8,13);view.setUint32(12,0x49484452);view.setUint32(16,300);view.setUint32(20,200);

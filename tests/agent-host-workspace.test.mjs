@@ -78,7 +78,7 @@ function sendHarness(error,{pending=null,ready=true}={}){
  let submit,refreshes=0,recoveries=0,sendCalls=0;
  const handlerSource=sendSource(modelWorkspace);
  const run=Function('document','rpc','isModelSelectionError','modelSelectionMessage','isTransportError','initialPending','ready','ensureCanvasResources',`
-  let taskId=null,sending=false,connecting=false,projectOpening=false,attaching=false,disposed=false,manualControl=false,knowledgeReady=true,pendingSend=initialPending,attachments=[];
+  let taskId=null,sending=false,connecting=false,projectOpening=false,attaching=false,disposed=false,manualControl=false,knowledgeReady=true,pendingSend=initialPending,attachments=[],connectionGeneration=0;
   const session={agentMode:'native',binding:{},leaseEpoch:1},adapter={state:()=>({pending:[]})},modelSelect={value:'a'},prompt={value:'测量现有模型',focus(){}},notices=[],modelNotice={},modelNoticeText={};
   const attachmentPicker={ready:async()=>{},clear(){}},api=()=>({getState:async()=>({context:{}})});
   const composer={intercept:()=>false},handleChatCommand=()=>false,appendLocationDraft={resolve:async text=>text,clear(){}};let preparedSendState=null;
@@ -185,7 +185,7 @@ test('UP-11 empty requests start once immediately; attached requests upload befo
   const workspace=await readFile(new URL('../host/Goldenluck.WebCADHost/site/AI/WebCAD/webcad-workspace.js',import.meta.url),'utf8');
   const submit=sendSource(workspace);
   const makeFactory=new Function('isModelSelectionError','modelSelectionMessage','ensureCanvasResources',`return function(attachments,failFirstSend,agentMode){
-    let taskId=null,sending=false,connecting=false,projectOpening=false,session={leaseEpoch:1,agentMode:agentMode||'native'},manualControl=false,disposed=false,pendingSend=null,overlayDismissed=false,lastHeartbeatAt=0,knowledgeReady=true;
+    let taskId=null,sending=false,connecting=false,projectOpening=false,session={leaseEpoch:1,agentMode:agentMode||'native'},manualControl=false,disposed=false,pendingSend=null,overlayDismissed=false,lastHeartbeatAt=0,knowledgeReady=true,connectionGeneration=0;
     let handler;const actions=[],sendKeys=[],sendPayloads=[],prompt={value:'测试请求',focus(){}},modelSelect={value:'test-model'};
     const modelSendReady=()=>true,modelNotice={},modelNoticeText={},refreshModels=()=>{},adapter={state:()=>({pending:[]})},documentChanged=()=>false,attachmentIdentity=item=>item.resourceId;
     const document={getElementById:id=>id==='chat'?{addEventListener:(_,callback)=>{handler=callback;}}:{value:'1'}};

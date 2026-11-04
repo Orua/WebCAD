@@ -1,9 +1,9 @@
 {
   "version": "1.60.11",
-  "buildId": "7ee215aeeff3dcf24a3ed00a2010a717ac16cd5a-src-30a7d1b9cb8e97b0-working",
+  "buildId": "2471b843dcf019f4575da3fd5f34fdc8d2a7b0a0-src-294cb406875f1da5-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:1e3d0a24a692a71387e108784885ebe0c86231485ff942a91be3c93d1912dc4d",
-  "docsHash": "sha256:a5d6072bc8fa0d613f8cc9f99b25b1aa0652e03161e1ba8f24834c77d64adb92",
+  "catalogHash": "sha256:cf9c8c6abda16462a36a2abd995e4c183aba3ed5145ac94b1dcdcafd44ea1f0e",
+  "docsHash": "sha256:bd9094a0df0b9423ee25a72ba396726c5f3f1c0927fe6edf2b119b4b14a84b85",
   "apiMethods": [
     "reliefWizard",
     "prepareToolCall",
@@ -452,7 +452,7 @@
       "label": "LOGO",
       "category": "modification",
       "version": "2.0.0",
-      "docsHash": "sha256:23f2ae000881f2ef622170d74a4277ea9194f7abbb5d8d90131abe869666aa62",
+      "docsHash": "sha256:a47f34b230b0453a4a008007012ebada59a64eee515f6fcd3bb565c3eee22698",
       "url": "tools/logo.json"
     },
     {
@@ -668,7 +668,7 @@
       "label": "精确浮雕（矢量/小图）",
       "category": "modification",
       "version": "2.0.0",
-      "docsHash": "sha256:bfbfbbe9ea07ba9fa2f646062041e5d6647b4c34a5d5b38e4c21d83695013a48",
+      "docsHash": "sha256:f77a38cea49af45fde7fbf495b9d78b8027707e5e46a186395a5c39418e23b69",
       "url": "tools/relief.json"
     },
     {
@@ -1091,7 +1091,7 @@
       "label": "圆线日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:2886f11dbb27b712468d77a27b88ea19433a7bfe3d9e398328535dab9b233180",
+      "docsHash": "sha256:eb87ca52bc5ee261ff6282892c0bccef05143d090f62bbc352e88fc975fd1909",
       "url": "tools/template.sliderBuckle.json"
     },
     {
@@ -3430,7 +3430,7 @@
     },
     {
       "id": "recipes.polar-hole-ring",
-      "docsHash": "sha256:e6cfb3069672df50c7e7ef0a89b418eec8e0e23b5e01ef5870afa365aaabbf3b",
+      "docsHash": "sha256:4c2cc1bfce4dc59a6a417c11392dac82bc55990a80b099648f4c506e84b437fe",
       "url": "docs/recipes.polar-hole-ring.md"
     },
     {
@@ -3470,7 +3470,7 @@
     },
     {
       "id": "recipes.small-twin-window",
-      "docsHash": "sha256:c1f39ebc500a1f3fc54184d82ffa038798fd20242659595f3d4ad5ccbd889d96",
+      "docsHash": "sha256:bce0de97453821d5440129f2de3897aee9353ca5c00f2bd2e2f3d3002164369b",
       "url": "docs/recipes.small-twin-window.md"
     },
     {
@@ -3490,7 +3490,7 @@
     },
     {
       "id": "recipes.source-round-rect",
-      "docsHash": "sha256:c5a92941f8ee9adfb7ac0712352303763f27101221e60582e0060b65ab7e5703",
+      "docsHash": "sha256:12a1d9f0c54de1450db1d76348311ab84b9918447025d34f76bc9d2d8653ae20",
       "url": "docs/recipes.source-round-rect.md"
     },
     {

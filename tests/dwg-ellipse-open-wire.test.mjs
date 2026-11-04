@@ -14,12 +14,14 @@ const run=params=>kernel.rebuild({version:1,features:[{id:'open',op:'quickModel'
 const input={kind:'ellipseOpenWire',innerWidth:15,innerHeight:20,sectionSize:3.5,gapWidth:0.2};
 const result=await run(input);
 assert.equal(result.stats.solids,1);
+assert.equal(result.bodies[0].metricsDeferred,true);assert.equal(result.stats.volume,null);
 // Independent text-to-cad STEP used adaptive integration and read 635.5139
 // mm³. Replicad's default non-adaptive value for this WebCAD solid is
 // 634.3985 mm³, so this check catches a misleading but plausible result.
-assert.ok(Math.abs(result.stats.volume-635.5139)<0.05,`adaptive volume ${result.stats.volume}`);
-assert.ok(Math.abs(kernel.measure(result.bodies[0].id).volume-result.stats.volume)<1e-6);
-const bounds=result.bodies[0].bounds,size=bounds.max.map((v,i)=>v-bounds.min[i]);
+// Adaptive spline display defers body.volume; measure() is the exact integral.
+const measured=kernel.measure(result.bodies[0].id);
+assert.ok(Math.abs(measured.volume-635.5139)<0.05,`adaptive volume ${measured.volume}`);
+const bounds=measured.bounds,size=bounds.max.map((v,i)=>v-bounds.min[i]);
 assert.ok(Math.abs(size[0]-22)<1e-3,`width ${size[0]}`);
 assert.ok(Math.abs(size[1]-27)<1e-3,`height ${size[1]}`);
 assert.ok(Math.abs(size[2]-3.5)<1e-3,`depth ${size[2]}`);

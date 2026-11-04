@@ -31,7 +31,7 @@ function sectionAt(faceA,faceB,P,T,R){
   if(theta<Math.PI/36||theta>Math.PI*35/36||sinHalf<1e-6)fail('夹角不适合铣削回退');
   const td=R/Math.tan(theta/2),bisector=unit(add(dA,dB));
   const center=mul(bisector,R/sinHalf),ta=mul(dA,td),tb=mul(dB,td),arcMid=sub(center,mul(bisector,R));
-  return {material,dA,ta,tb,arcMid,theta};
+  return {material,dA,dB,ta,tb,arcMid,theta};
 }
 
 function extrudeSection(P,T,sec,length){
@@ -42,6 +42,35 @@ function extrudeSection(P,T,sec,length){
 }
 
 /** Build one complementary-R solid along a single sharp edge and boolean it. */
+function faceReach(face,origin,direction){
+  const oc=cad.getOC();let reach=0;
+  for(const vertex of cad.iterTopo(face.wrapped,'vertex')){
+    let point;
+    try{
+      point=oc.BRep_Tool.Pnt(vertex);
+      const along=(point.X()-origin[0])*direction[0]+(point.Y()-origin[1])*direction[1]+(point.Z()-origin[2])*direction[2];
+      if(along>reach)reach=along;
+    }finally{dispose(point);dispose(vertex);}
+  }
+  return reach;
+}
+function planarEdgeFits(edges,faces,row,radiusMm){
+  const edge=edges[row.edgeId],[faceA,faceB]=row.adjacentFaceIds.map(id=>faces[id]);
+  if(!edge||edge.geomType!=='LINE'||faceA?.geomType!=='PLANE'||faceB?.geomType!=='PLANE'||!row.midpoint)return true;
+  let section;
+  try{section=sectionAt(faceA,faceB,row.midpoint,unit(sub(row.endPoint,row.startPoint)),radiusMm);}catch{return false;}
+  const tangent=radiusMm/Math.tan(section.theta/2);
+  const reach=Math.min(faceReach(faceA,row.midpoint,section.dA),faceReach(faceB,row.midpoint,section.dB));
+  return tangent<reach-1e-4;
+}
+// Exact all-edge fillets and explicit round radii must stay inside both adjacent faces.
+// A single requested edge may still mill a larger complementary cutter.
+export function radiusFitsAdjacentFaces(shape,edgeIds,radiusMm){
+  if(!Array.isArray(edgeIds)||!edgeIds.length||!(radiusMm>0))return true;
+  const rows=topologyDetails(shape),edges=shape.edges,faces=shape.faces;
+  try{return edgeIds.every(edgeId=>{const row=rows.find(item=>item.edgeId===edgeId);return !row?.sharp||row.adjacentFaceIds.length!==2||planarEdgeFits(edges,faces,row,radiusMm);});}
+  finally{edges.forEach(dispose);faces.forEach(dispose);}
+}
 function localHalfExtent(shape){
   const box=shape.boundingBox;
   try{

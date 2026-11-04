@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.60.11 · 操作目录 sha256:1e3d0a24a692a71387e108784885ebe0c86231485ff942a91be3c93d1912dc4d
+API 1.60.11 · 操作目录 sha256:cf9c8c6abda16462a36a2abd995e4c183aba3ed5145ac94b1dcdcafd44ea1f0e
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -233,7 +233,7 @@ API 1.60.11 · 操作目录 sha256:1e3d0a24a692a71387e108784885ebe0c86231485ff94
 - `template.capsuleWire` · advisory · 闭合圆线长圈：两端精确半圆、上下直段，内宽高与圆线直径独立输入。未标缝宽时不猜接缝。
 - `template.profileLoop` · advisory · 两端半圆、上下直段的闭合长圈；正面料宽、侧面厚度和截面 R 独立。R 可等于截面短边一半，形成两圆端加直段的截面。
 - `template.twinWindowPlate` · advisory · 独立外 R 和孔 R 的平板双窗，中间是板体一部分；整件前后尖边按指定 R 倒圆。两个孔等宽等高且上下对称，不含圆杆、偏置孔或侧向拱弯。
-- `template.sliderBuckle` · advisory · 按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。原比例接头仅用于旧工程兼容。
+- `template.sliderBuckle` · advisory · 按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。紧凑圆线的内短边至少为线径的 2.5 倍。原比例接头仅用于旧工程兼容。
 - `template.ringBar` · advisory · 同心圆恒截面框与一根沿 X 的圆杆融合为单一实体。横杆可沿 Y 及厚度 Z 微调；不包含活动杆、铰链或精确接头过渡。
 - `template.ellipseBar` · advisory · 从内真椭圆外偏线扫掠圆线，再融合居中固定圆杆。圆线外包围须精确回读；接头过渡与源样条仍须对照。
 - `template.archedTwinWindowPlate` · advisory · 圆角双窗平面轮廓沿 Y 方向投影裁切同轴圆筒薄壁，形成侧视圆弧拱弯。适用于薄条一体双窗；径向板厚、外弧半径独立输入。圆线框及独立圆杆须用其它工具。

@@ -4,6 +4,7 @@
 - queryGeometry 面结果增加 surfaceClass、pointOnFace/closestPoint；cylinder 与 cylindre/CYLINDRE 视为同一面类型。logo/relief 的 machiningIntent 写入 inputSchema.required。
 - userMessage 在内核原句和恢复说明之间补句号。步骤 id 拒绝中文时写明原因。mode:rotate 说明须带 placement，世界旋转用 rx/ry/rz。
 - 闭合非平面扫掠、变截面 D 扣和曲面刻字稳健性仍待内核，见升级说明。
+- 便携测试：有会话且内核就绪时 `runtimeAvailability` 为 `available`；页面任务方法与 `JOB_METHODS` 对齐。精确圆角在半径放不进相邻面时不再用铣削回退冒充成功；单边过大半径仍允许铣削候选。交接说明见 `docs/HANDOFF-20261104-page-api-probe-fixes.zh-CN.md`。
 
 ## 浮雕拟合转精确BRep接入页面（未改版本号）
 

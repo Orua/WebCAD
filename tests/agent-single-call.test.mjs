@@ -13,14 +13,14 @@ test('batch step cap is 40 and published in the agent contract',()=>{
   assert.equal(AGENT_CONTRACT.limits.batch.maxSteps,40);
   assert.equal(AGENT_CONTRACT.limits.transport.waitMaxMs,25000);
 });
-test('existing per-format capacities are kept; 100 MiB is only the default for untyped inputs',()=>{
+test('published per-format capacities stay above the untyped transport default',()=>{
   const M=1024*1024;
-  assert.deepEqual({...FILE_TYPED_BYTE_BUDGETS},{step:128*M,stp:128*M,brep:128*M,brp:128*M,stl:128*M,mesh:384*M,webcad:512*M});
-  assert.equal(LIMITS.mesh.maxSourceBytes,128*M);assert.equal(LIMITS.mesh.maxAssetBytes,384*M);assert.equal(LIMITS.mesh.maxProjectBytes,512*M);
-  assert.equal(FILE_LIMITS.maxBytes,100*M);assert.equal(FILE_LIMITS.maxTotalBytes,512*M);
-  assert.equal(fileByteBudget('a.step'),128*M);assert.equal(fileByteBudget('a.webcad'),512*M);assert.equal(fileByteBudget('a.dxf'),100*M);
-  assert.equal(LIMITS.transport.maxArtifactBytes,100*M);assert.equal(LIMITS.transport.chunkBytes,4*M);
-  assert.equal(LIMITS.transport.maxResultBytes,6*M);assert.equal(LIMITS.transport.commandTimeoutMs,90000);
+  assert.deepEqual({...FILE_TYPED_BYTE_BUDGETS},{step:256*M,stp:256*M,brep:256*M,brp:256*M,stl:256*M,mesh:768*M,webcad:1024*M});
+  assert.equal(LIMITS.mesh.maxSourceBytes,256*M);assert.equal(LIMITS.mesh.maxAssetBytes,768*M);assert.equal(LIMITS.mesh.maxProjectBytes,1024*M);
+  assert.equal(FILE_LIMITS.maxBytes,LIMITS.transport.maxInputBytes);assert.equal(FILE_LIMITS.maxBytes,200*M);assert.equal(FILE_LIMITS.maxTotalBytes,1024*M);
+  assert.equal(fileByteBudget('a.step'),256*M);assert.equal(fileByteBudget('a.webcad'),1024*M);assert.equal(fileByteBudget('a.dxf'),FILE_LIMITS.maxBytes);
+  assert.equal(LIMITS.transport.maxArtifactBytes,LIMITS.transport.maxInputBytes);assert.equal(LIMITS.transport.maxArtifactBytes,200*M);assert.equal(LIMITS.transport.chunkBytes,4*M);
+  assert.equal(LIMITS.transport.maxResultBytes,12*M);assert.equal(LIMITS.transport.commandTimeoutMs,90000);
 });
 test('page-batch reads the published cap rather than a literal 20',()=>{
   const src=readFileSync(new URL('../src/page-batch.js',import.meta.url),'utf8');

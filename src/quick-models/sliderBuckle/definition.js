@@ -2,7 +2,7 @@
 export default Object.freeze({
   "label": "日字扣",
   "labelEn": "Slider buckle",
-  "description": "按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。原比例接头仅用于旧工程兼容。",
+  "description": "按图片选择接头，生成日字扣时一起完成。定 R 接头的三维滚球半径与线径分别设置；轮廓圆润接头调整平面 R；顺滑接头保留模型3的偏置和鼓起。新接头要求等径圆线、不开缝，并在横杆与框角之间留出完整接头空间。紧凑圆线的内短边至少为线径的 2.5 倍。原比例接头仅用于旧工程兼容。",
   "descriptionEn": "The inner height spans the full frame; the fused round bar has an editable vertical offset and no opening. Compact round-wire frames require an inner short side at least 2.5 wire diameters and each window at least one wire diameter high.",
   "defaults": {
     "section": "round",

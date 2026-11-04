@@ -2,6 +2,7 @@ import test from 'node:test';
 import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {readFile,mkdtemp,rm,mkdir} from 'node:fs/promises';
+import {zipSync} from 'three/addons/libs/fflate.module.js';
 import {syncKnowledge,routeKnowledge} from '../skills/webcad-page-api/scripts/knowledge-cache.mjs';
 import {discoveryMetadata,getTool,getTools,readDocs} from '../src/page-api-docs.js';
 
@@ -40,6 +41,17 @@ test('knowledge packages above former file and total limits remain hash verified
       file.sha256='sha256:'+createHash('sha256').update(bytes).digest('hex');
     }
     manifest.totalBytes=manifest.files.reduce((sum,file)=>sum+file.sizeBytes,0);
+    if(manifest.archive){
+      const entries={};
+      for(const file of manifest.archive.files){
+        const bytes=file.name==='index.json'?payloads.get('index.json'):await readFile('public/automation/'+file.name);
+        file.sizeBytes=bytes.length;file.sha256='sha256:'+createHash('sha256').update(bytes).digest('hex');
+        entries[file.name]=[bytes,{mtime:new Date('2020-01-01T00:00:00Z')}];
+      }
+      const zip=Buffer.from(zipSync(entries,{level:6}));
+      manifest.archive.sizeBytes=zip.length;manifest.archive.sha256='sha256:'+createHash('sha256').update(zip).digest('hex');
+      payloads.set('agent-bundle.zip',zip);
+    }
     const options={baseUrl:'https://example.invalid/',directory,fetchImpl:async url=>{
       const name=new URL(url).pathname.split('/').at(-1);
       return new Response(name==='agent-knowledge.json'?JSON.stringify(manifest):payloads.get(name));
