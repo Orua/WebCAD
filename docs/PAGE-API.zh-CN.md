@@ -8,6 +8,8 @@
 
 新追加的独立创建特征（工具卡 `placementPolicy.mode='creation-frame'`）省略 `placement` 时冻结当前工作锚点，包括单项创建、创建预览、`addMany` 和模型导入。`addMany` 共用事务开始的工作锚点。长方体以底面中心插入，其余默认模型原点；需要源世界坐标时显式传 `placement:{version:1,frame:{kind:'world'},sourceAnchor:{kind:'model-origin'}}`。既有无定位历史、旧工程重建及编辑不会应用新默认值，已定位历史使用原快照。
 
+Agent 与 UI 创建均遵守冻结定位，不再向已有模型右侧隐式排布。工作基准的 Z 避让仍独立生效；精确组合建模请归零后锁定基准，或显式指定 world/snapshot。工具卡 experimental 是成熟度，不能据此判定不可执行；须检查 canExecute/blockers。自定义截面 points2d 默认保留毫米坐标及旧折线，coordinateMode:normalized 按站点宽深缩放，interpolation:periodicSpline 使用真正的周期样条。
+
 金属显示新默认与 CADViewer 使用同一 HDR、线性颜色、参考输出曲线及基色补光；已保存的个人渲染设置优先。Three PMREM、BRDF 和 CAD 相机仍独立，因此不保证逐像素相同。此改动只影响显示，不改变精确几何。
 
 `inspectRound({context,bodyId,params})` 只读复用 `round` 规划器；参数、选区与限制见 `readDocs({topic:'api.round-preflight'})`。返回 `attemptCount:0`、实际范围与支撑面，推荐值不代表圆角可行。

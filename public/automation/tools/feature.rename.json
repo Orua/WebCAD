@@ -8,7 +8,7 @@
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.9",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -142,5 +142,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3d24d7108b77f0d4ac715b4656c9bd69010f91edfd519585ae51acf9a7b66bde"
+  "docsHash": "sha256:696d9d57ba4631e40f5fb383c8b4996f41fef7bcbb4ba7439a86a1bdb033131e"
 }

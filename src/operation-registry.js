@@ -186,6 +186,7 @@ function buildCard(id, source) {
   details.errors=[...new Set([...card.errorCodes,...details.errors.map(e=>e.code),...(operationSourceErrors[id]?.codes||[])])].map(code=>details.errors.find(e=>e.code===code)||{code,when:'该操作源码或共享执行流程拒绝输入；核对来源与参数限制',recovery:'读取当前工具卡并修正参数或来源'});
   details.sourcePaths=operationSourceErrors[id]?.sourcePaths||[];
   Object.assign(card,{contract:details,purpose:details.purpose,whenToUse:details.whenToUse,whenNotToUse:details.whenNotToUse,limits:details.limits,outputs:details.outputs,errors:details.errors,routing:details.routing,status:details.status,relatedTools:details.related,synonyms:[...new Set([...details.synonyms,...card.synonyms])],errorCodes:details.errors.map(e=>e.code),testIds:card.testIds.length?card.testIds:['tests/operation-contract.test.mjs']});
+  card.availabilityGuidance='implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.';
   if(id==='curvedLogo')Object.assign(card,{deprecated:true,replacement:'logo',status:'deprecated',contract:{...details,status:'deprecated',replacement:'logo'}});
   return card;
 }

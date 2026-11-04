@@ -30,9 +30,42 @@ function profilePoints(station,count=64){
  }
  if(kind==='spline'){
   if(!Array.isArray(p.points2d)||p.points2d.length<3||p.points2d.length>128||p.closed!==true||!p.points2d.every(a=>Array.isArray(a)&&a.length===2&&a.every(Number.isFinite)))throw new Error('spline 截面需要 3–128 个有限 points2d 且 closed:true');
-  return resampleClosed(p.points2d,count);
+  if(!['millimeters','normalized',undefined].includes(p.coordinateMode))throw new Error('spline coordinateMode 须为 millimeters 或 normalized');
+  if(!['polyline','periodicSpline',undefined].includes(p.interpolation))throw new Error('spline interpolation 须为 polyline 或 periodicSpline');
+  let points=p.points2d;
+  if(p.coordinateMode==='normalized')points=fitProfileBounds(points,w,d);
+  return resampleClosed(points,count);
  }
  throw new Error(`不支持的截面类型：${kind}`);
+}
+function fitProfileBounds(points,width,depth){
+ const min=[0,1].map(k=>Math.min(...points.map(p=>p[k]))),max=[0,1].map(k=>Math.max(...points.map(p=>p[k])));
+ if(max.some((v,k)=>v-min[k]<1e-10))throw new Error('normalized spline 截面两轴范围必须大于零');
+ return points.map(p=>p.map((v,k)=>(v-(min[k]+max[k])/2)/(max[k]-min[k])*[width,depth][k]));
+}
+function makePeriodicWire(station,cad,hold){
+ const oc=cad.getOC(),profile=station.profile;
+ let points=profile.points2d.slice();
+ if(Math.hypot(...points[0].map((v,k)=>v-points.at(-1)[k]))<1e-10)points.pop();
+ const array=hold(new oc.NCollection_Array1_gp_Pnt(1,points.length));
+ points.forEach((p,i)=>array.SetValue(i+1,hold(new oc.gp_Pnt(p[0],p[1],0))));
+ const interpolate=hold(new oc.GeomAPI_Interpolate(hold(new oc.NCollection_HArray1_gp_Pnt(array)),true,1e-7));
+ interpolate.Perform();if(!interpolate.IsDone())throw new Error('闭合周期样条插值失败');
+ const curve=hold(interpolate.Curve());
+ const makeWire=()=>{const edge=hold(new oc.BRepBuilderAPI_MakeEdge(curve)),wire=hold(new oc.BRepBuilderAPI_MakeWire(hold(edge.Edge())));return hold(cad.cast(wire.Wire()));};
+ const wire=makeWire(),bounds=hold(wire.boundingBox).bounds,min=bounds[0],max=bounds[1];
+ const normalized=profile.coordinateMode==='normalized';
+ if(normalized&&[0,1].some(k=>max[k]-min[k]<1e-10))throw new Error('normalized spline 截面两轴范围必须大于零');
+ const y=cross(station.normal,station.widthDirection);
+ // Affine-transform poles, not interpolation points: chord-length reparameterization
+ // after anisotropic scaling would change the source curve and its requested size.
+ for(let i=1;i<=curve.NbPoles();i++){
+  const p=hold(curve.Pole(i));let xy=[p.X(),p.Y()];
+  if(normalized)xy=xy.map((v,k)=>(v-(min[k]+max[k])/2)/(max[k]-min[k])*[station.widthMm,station.depthMm][k]);
+  const v=station.centerMm.map((c,k)=>c+xy[0]*station.widthDirection[k]+xy[1]*y[k]);
+  curve.SetPole(i,hold(new oc.gp_Pnt(...v)));
+ }
+ return makeWire();
 }
 function resampleClosed(points,count){
  const pts=points.slice();if(pts.length>1&&Math.hypot(pts[0][0]-pts.at(-1)[0],pts[0][1]-pts.at(-1)[1])<1e-10)pts.pop();
@@ -90,7 +123,7 @@ export function buildSectionCurveLoft(params,cad){
  const held=[],hold=v=>{held.push(v);return v;};let result;
  try{
   const sampled=resolved.map(s=>profilePoints(s));
-  const wires=resolved.map((s,i)=>(s.profile?.kind??'ellipse')==='ellipse'?makeEllipseWire(s,cad,hold):makeWire(s,sampled[i],cad,hold));
+  const wires=resolved.map((s,i)=>(s.profile?.kind??'ellipse')==='ellipse'?makeEllipseWire(s,cad,hold):s.profile?.kind==='spline'&&s.profile.interpolation==='periodicSpline'?makePeriodicWire(s,cad,hold):makeWire(s,sampled[i],cad,hold));
   const builder=hold(new (cad.getOC().BRepOffsetAPI_ThruSections)(true,false,1e-6));builder.SetMaxDegree(degree);
   if(typeof builder.CheckCompatibility==='function')builder.CheckCompatibility(params.autoAlign!==false);
   const addPoint=(side)=>{

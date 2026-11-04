@@ -1,4 +1,17 @@
 {
+  "creationPlacementAndSpline20261104": {
+    "localImpact": "Agent creation uses the same frozen insertion frame as UI without implicit X layout; custom section profiles support explicit normalized sizing and periodic B-spline interpolation.",
+    "servicesImpact": "None: affected creation and section tools execute in the browser kernel; backend protocol and artifacts unchanged.",
+    "logoImpact": "None: no Logo algorithms or glyph inputs changed.",
+    "contractImpact": "Page API 1.60.9; spline coordinateMode/interpolation are opt-in; experimental maturity is independent from current canExecute/blockers.",
+    "documentImpact": "Existing committed placements and default millimetre/polyline recipes retain their geometry. New creations do not shift in X. Unlocked work-frame Z clearance remains unchanged.",
+    "cacheImpact": "Regenerate complete knowledge snapshot, routing, cards and hashes from the same release source.",
+    "requiredTests": [
+      "Default creation placement and locked frame repeated creation in localhost page",
+      "Normalized profile dimensions, legacy millimetre compatibility and periodic spline BRep/STEP",
+      "Affected operation contracts and release knowledge hash verification"
+    ]
+  },
   "drawingTextRotation20261029": {
     "localImpact": "The bundled DWG decoder derives MTEXT rotation from its source direction vector for every consumer. The retained read-only Canvas viewer matches the standalone CADViewer fix and accepts old decoder output. WebCAD's Three.js viewport and analytic contour import are unaffected; contour import does not render annotations.",
     "servicesImpact": "None: this correction only changes browser Canvas text presentation; no Services, Gateway or Native computation changes.",

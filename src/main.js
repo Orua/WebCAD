@@ -70,7 +70,6 @@ import {synchronizeBodyAnchors} from './anchor-lineage.js';
 import {frameOnPlane} from './frame-orientation.js';
 import {applyReferenceAction} from './reference-contracts.js';
 import {clearOccupiedAnchor} from './anchor-clearance.js';
-import {placePendingFeature} from './free-placement.js';
 import {formatBodyCount} from './count-summary.js';
 import {bodyState,bodyWarnings} from './body-state.js';
 import {webcadShortcut} from './webcad-shortcuts.js';
@@ -382,7 +381,7 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
   error.routingDecision=decision;throw error;}
 }
 
-async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false,restoring=false,historyLabel,hardTimeoutMs,origin='user',autoPlaceFeatureId}={}){
+async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false,restoring=false,historyLabel,hardTimeoutMs,origin='user'}={}){
   if(busy)throw new Error('当前操作尚未完成，请稍候。');
   if(!kernelReady)throw new Error('建模内核尚未就绪。');
   setBusy(true,'正在计算精确实体…');
@@ -401,15 +400,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
     if(record&&!newInstance&&!restoring&&next.documentId===documentModel.documentId){routed=await routeChangedFeature(next,{signal,expectedRevision:expectedRevision??revision});next=routed.next;}
     localBegan=performance.now();
-    let result=await request('rebuild',{document:next},{hardTimeoutMs}),placementWarning;
-    if(autoPlaceFeatureId){
-      try{
-        checkTransaction(signal,expectedRevision);
-        const placed=await placePendingFeature({document:next,result,existingBodies:bodies,featureId:autoPlaceFeatureId,
-          rebuild:document=>request('rebuild',{document},{hardTimeoutMs})});
-        next=placed.document;result=placed.result;placementWarning=placed.warning;
-      }catch(error){await request('rebuild',{document:documentModel});throw error;}
-    }
+    let result=await request('rebuild',{document:next},{hardTimeoutMs});
     if(result.stats.checkpointCandidates?.length){
       // Pending features are not in the committed timeline yet. Bake their
       // geometry first; pushUndo records the complete transaction exactly once.
@@ -436,7 +427,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     debugJournal.record('runtime','geometry-committed',{revision,origin,historyLabel,featureCount:next.features.length,bodyCount:bodies.length,bodies:bodies.slice(-12).map(b=>({id:b.id,volume:b.volume,bounds:b.bounds,solidCount:b.solidCount,shellCount:b.shellCount})),displayConfirmation:'separate',fileWriteConfirmation:'separate'});
     kernelPerformance={totalMs:performance.now()-localBegan,...(result.parallelRebuild?{parallelRebuild:result.parallelRebuild}:{}),perFeatureMs:result.perFeatureMs||[],compiledReuse:result.compiledReuse||[],compiledInvalidated:result.compiledInvalidated||[],slowest:(result.perFeatureMs||[]).slice().sort((a,b)=>b.ms-a.ms).slice(0,10)};
     for(const feature of newQuickModels)recordQuickModelUse(feature.params.kind);
-    lastWarnings=bodyWarnings(bodies);if(placementWarning)lastWarnings.push(placementWarning);dirty=true;if(save)void autosave(); // selection-origin
+    lastWarnings=bodyWarnings(bodies);dirty=true;if(save)void autosave(); // selection-origin
     // Agent writes never replace the user's selection. Only ids that no longer
     // exist are dropped; the user's own insert/edit path keeps its old select
     // behaviour (including clearing after an independent insertion).
@@ -519,8 +510,8 @@ async function addFeature(op,params={},options={}){
   const {next,id}=featureDocument(op,params,refs,options.name,options.placement);
   const insertOps=['vectorProfile','box','sphere','cylinder','cone','torus','extrude','revolve','copy','mirror','linearPattern','circularPattern','quickModel','sweep','loft'];
   const select=options.origin==='agent'?undefined:Object.hasOwn(options,'select')?options.select:insertOps.includes(op)?undefined:id;
-  const autoPlace=options.origin==='agent'&&(placementPolicy(op)==='C'||insertOps.includes(op))&&options.placementExplicit!==true&&!(op==='guidedLoft'&&params.matchTo);
-  const result=await rebuild(next,{...options,select,fit:!bodies.length||insertOps.includes(op),...(autoPlace?{autoPlaceFeatureId:id}:{})});
+  // Agent and UI creation share the frozen placement; overlap is meaningful in CAD.
+  const result=await rebuild(next,{...options,select,fit:!bodies.length||insertOps.includes(op)});
   const diagnostic=bodies.find(body=>body.id===id)?.surfaceDiagnostics;
   if(diagnostic)ui.showInfo('缝合检查',`${diagnostic.faces} 面，${diagnostic.solids} 实体。以 ${diagnostic.tolerance} mm 再检查：${diagnostic.freeEdges} 条自由边，${diagnostic.multipleEdges} 条非流形边。未自动补洞。`);
   return result;

@@ -635,6 +635,7 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "旋转成型",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -652,6 +653,7 @@
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -904,5 +906,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:53efa4dc836bf3f21ebb87a0ce9b8122b2dfa2dd26b43b63fc2e6f9e0597a536"
+  "docsHash": "sha256:aace6a529e1108bfd89b2e50c13fceb54b547d6f24145a9c7d9f175b6c48b290"
 }

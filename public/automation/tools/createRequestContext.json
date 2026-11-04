@@ -2,7 +2,7 @@
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.9",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -99,5 +99,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8c5016346a356a785a3e9ce3e2e5b72105e09a84b61c42f930bc7744956d09a7"
+  "docsHash": "sha256:9b410ab7f7466810bb59e97c5a4c8fa2fbfae3c91fa89031dfcbdbb23a0a6078"
 }
