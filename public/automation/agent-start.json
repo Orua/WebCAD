@@ -1,9 +1,9 @@
 {
   "product": "WebCAD",
-  "pageApiVersion": "1.60.10",
-  "buildId": "9b00c63d4fe1e2bfb6b19d07ff99e06532fb9517-src-3a6109530c55096c-working",
-  "catalogHash": "sha256:dc62b48ccdf38b5e392316d28f4c389f651a5d977fe8a4b75b1dc8e396eaf679",
-  "docsHash": "sha256:75829e0d9f3fa3307b5200262a6d0151861909bb51d819b2668e756c328fd077",
+  "pageApiVersion": "1.60.8",
+  "buildId": "60a65cd87b57fa8799e83f38926b1f1a2c9447a1-src-12d0cbad1dd1eeca-working",
+  "catalogHash": "sha256:89602af8d7c31c5d1ac9bd13b472e841003757e1fa3d972972015f0b595adc58",
+  "docsHash": "sha256:dc7bb58d5c92acadf9b32c3a0324805e6b26cec44cf3e3857d370a6e3388c84f",
   "version": 1,
   "entrypoint": "window.webcad.api.connect",
   "startUrl": "automation/agent-start.html",
@@ -76,7 +76,7 @@
     {
       "id": "knowledge-cache",
       "action": "Install the unified package: fetch automation/agent-knowledge.json, then its single agent-bundle.zip containing the complete manual, modeling guidance, host skill, routing and adapter. Verify ZIP and every extracted file on host storage. Compare the live build/catalog/docs versions at each connection; refresh mismatched or corrupt caches, reuse a matching verified cache without another download.",
-      "check": "Report the complete-library installation receipt, not a claim that every chapter was read. For modeling read api.modeling.start, then one modeling.* workflow and selected complete cards. Only route to company knowledge for business/source facts. Keep full contents on disk, never bulk context. Report missing storage/download capability."
+      "check": "Report the complete-library installation receipt, not a claim that every chapter was read. For modeling read api.modeling.start, then one modeling.* workflow and selected complete cards. For source facts, use only user-provided material or an explicitly authorized source; no company knowledge service is required. Keep full contents on disk, never bulk context. Report missing storage/download capability."
     },
     {
       "id": "contracts",
@@ -95,6 +95,7 @@
     }
   ],
   "constraints": [
+    "WebCAD is standalone small-hardware CAD software; Agent automation and Services are optional extensions, not prerequisites for manual local modeling.",
     "Current host documentation takes priority over examples in this metadata.",
     "A host transport failure does not prove that the WebCAD page API is unavailable.",
     "Do not reload or replace an existing document to establish a connection.",
@@ -123,7 +124,7 @@
   },
   "entrypoints": {
     "script": "window.webcad.api (page script / CDP Runtime.evaluate)",
-    "broker": "Goldenluck codexagent /api/webcad (adapter v2)",
+    "broker": "optional authenticated host broker /api/webcad (adapter v2)",
     "mcp": "not in production yet"
   },
   "fileIntent": {

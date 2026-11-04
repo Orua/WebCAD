@@ -7,17 +7,19 @@ import {createFloatingToggle,validateFloatingPosition} from './floating-toggle.j
 const PROTOCOL='webcad.assistant-panel/1';
 const fail=(code,message)=>{throw Object.assign(new Error(message),{code});};
 export function validateAssistantUrl(value,base=location.href){
-  const url=new URL(value,base);
+  if(typeof value!=='string'||!value.trim())fail('AGENT_URL_INVALID','请填写助手页面地址。');
+  let url;try{url=new URL(value,base);}catch{fail('AGENT_URL_INVALID','助手页面地址无效。');}
   if(!['http:','https:'].includes(url.protocol)||url.username||url.password||url.hash||url.search)fail('AGENT_URL_INVALID','请填写不带参数、凭据的助手页面 HTTP/HTTPS 地址。');
   if(new URL(base).protocol==='https:'&&url.protocol!=='https:')fail('AGENT_URL_INVALID','HTTPS 页面须使用 HTTPS 助手地址。');
   return url.href;
 }
 export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface=document.body}){
-  const defaultUrl=new URL('/AI/WebCAD/WebCADWorkspace.aspx',location.hostname==='127.0.0.1'&&location.port==='17674'?'http://127.0.0.1/':location.href).href;
-  let url=defaultUrl,frame=null,channel=null,origin=null,adapter=null,visible=false,collapsed=false,panelToggle=null,phase='closed',error=null,external=null,exitOperation=null;
+  let url='',frame=null,channel=null,origin=null,adapter=null,visible=false,collapsed=false,panelToggle=null,phase='closed',error=null,external=null,exitOperation=null;
   let requestSeq=0,handshakeTimer=null,hostResponded=false,activity='idle',activityDetail={},floating=null,channelState={transport:'unavailable',syncStatus:'pending'};const pending=new Map(),adapters=new Map(),revisionSubscriptions=new Map();
-  try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)url=validateAssistantUrl(saved);}catch{}
-  const state=()=>{const size=external?.getLayout?.()||layout.get();return {version:1,url,configured:Boolean(url),visible,collapsed:visible&&size.collapsed,expanded:visible&&!size.collapsed,layout:size,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external),channelState:{...channelState,configuredOrigin:new URL(url,location.href).origin}};};
+  let configured=globalThis.WEBCAD_DEPLOYMENT_CONFIG?.assistantUrl;
+  try{const saved=localStorage.getItem('webcad.assistant-url.v1');if(saved)configured=saved;}catch{}
+  try{if(configured)url=validateAssistantUrl(configured);}catch{}
+  const state=()=>{const size=external?.getLayout?.()||layout.get();return {version:1,url,configured:Boolean(url||external),visible,collapsed:visible&&size.collapsed,expanded:visible&&!size.collapsed,layout:size,phase:external&&visible&&external.agentState?.()==='offline'?'agent_offline':external&&visible&&hostControl.get().connected?'connected':phase,error,connected:hostControl.get().connected,locked:hostControl.get().locked,externalHost:Boolean(external),channelState:{...channelState,configuredOrigin:url?new URL(url,location.href).origin:null}};};
   let diagnosticState='';
   const notify=()=>{syncFloating();const next=state(),signature=JSON.stringify([next.phase,next.connected,next.locked,next.visible,next.channelState,next.error]);if(signature!==diagnosticState){diagnosticState=signature;debugJournal.record('agent','connection-state',{phase:next.phase,connected:next.connected,locked:next.locked,visible:next.visible,externalHost:next.externalHost,channelState:next.channelState,error:next.error},next.error||next.phase==='agent_offline'?'warn':'info');}onChange({...next,floating:floating?.get()||{visible:false,activity:'idle',position:null}});};
   const layout=createPanelLayout({root:surface,visible:()=>visible&&!external,collapsed:()=>collapsed,collapsedSize:()=>0,onCollapsed:setCollapsed,onChange:notify,widthProperty:'--agent-panel-width',heightProperty:'--agent-panel-height'});
@@ -120,6 +122,7 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
   async function enter(){
     debugJournal.record('agent','connect-request',{url,externalHost:!!external});
     if(exitOperation)await exitOperation;
+    if(!external&&!url){phase='error';error='尚未配置 Agent 助手。请在“设置 → Agent 配置”保存助手页面地址，或由外部宿主显式绑定；未配置时可继续独立作图。';notify();fail('AGENT_NOT_CONFIGURED',error);}
     error=null;visible=true;phase='connecting';notify();
     if(external){await external.enter();theme();return {status:'applied',...state()};}
     surface.classList.add('has-agent-panel');setCollapsed(false);ensurePanelToggle();
@@ -144,5 +147,5 @@ export function createAssistantPanel({getApi,hostControl,onChange=()=>{},surface
     if(frame&&hostResponded){if(frame.hidden)frame.hidden=false;visible=true;surface.classList.add('has-agent-panel');setCollapsed(false);return request('composer.insertLocation',marker);}
     fail('AGENT_COMPOSER_UNAVAILABLE','AI 输入框尚未连接。');
   }
-  return Object.freeze({get:()=>({...state(),floating:floating?.get()||{visible:false,activity:'idle',position:null}}),enter,exit,theme,insertLocation,localChannel,setLayout(input){if(!input||typeof input!=='object'||Array.isArray(input))fail('PARAM_SCHEMA_INVALID','无效的助手布局字段');const {floatingPosition,...size}=input;if(floatingPosition!==undefined)validateFloatingPosition(floatingPosition);const result=external?external.setLayout(size):layout.set(size);syncFloating();if(floatingPosition!==undefined){ensureFloating();floating?.setPosition(floatingPosition);}notify();return {status:'applied',layout:result,floating:floating?.get()};},configure(value){if(visible||phase==='releasing'||phase==='release_pending')fail('AGENT_PANEL_ACTIVE','先退出并确认原连接释放，再修改助手地址。');url=validateAssistantUrl(value);frame?.remove();frame=null;try{localStorage.setItem('webcad.assistant-url.v1',url);}catch{return {status:'applied',persisted:false,...state()};}notify();return {status:'applied',persisted:true,...state()};},bindExternal(controller){external=controller;visible=true;phase='connecting';layout.sync();notify();theme();return state();},sync(){theme();layout.sync();notify();}});
+  return Object.freeze({get:()=>({...state(),floating:floating?.get()||{visible:false,activity:'idle',position:null}}),enter,exit,theme,insertLocation,localChannel,setLayout(input){if(!input||typeof input!=='object'||Array.isArray(input))fail('PARAM_SCHEMA_INVALID','无效的助手布局字段');const {floatingPosition,...size}=input;if(floatingPosition!==undefined)validateFloatingPosition(floatingPosition);const result=external?external.setLayout(size):layout.set(size);syncFloating();if(floatingPosition!==undefined){ensureFloating();floating?.setPosition(floatingPosition);}notify();return {status:'applied',layout:result,floating:floating?.get()};},configure(value){if(visible||phase==='releasing'||phase==='release_pending')fail('AGENT_PANEL_ACTIVE','先退出并确认原连接释放，再修改助手地址。');url=validateAssistantUrl(value);phase='closed';error=null;frame?.remove();frame=null;try{localStorage.setItem('webcad.assistant-url.v1',url);}catch{return {status:'applied',persisted:false,...state()};}notify();return {status:'applied',persisted:true,...state()};},bindExternal(controller){external=controller;visible=true;phase='connecting';error=null;layout.sync();notify();theme();return state();},sync(){theme();layout.sync();notify();}});
 }

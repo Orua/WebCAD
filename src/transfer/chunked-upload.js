@@ -1,4 +1,4 @@
-// Chunked, resumable artifact upload used by hosts (Goldenluck broker, future MCP).
+// Chunked, resumable artifact upload used by hosts (optional host broker, future MCP).
 // The page keeps ONE copy of the bytes and sends subarray views; no per-chunk copies.
 // Transport is injected so the page never owns host URLs or credentials.
 import {LIMITS} from '../limits.js';
@@ -89,7 +89,7 @@ export async function uploadArtifact({bytes,name,client,limits=T,onProgress=()=>
   return {...await uploadChunked({bytes,name,client,limits,onProgress,signal}),mode:'chunked'};
 }
 
-// Client for the Goldenluck broker routes (codexagent app/webcad/api.py). The host
+// Client for the optional host broker routes (codexagent app/webcad/api.py). The host
 // supplies fetch with its own credentials; WebCAD never stores tokens.
 export function createBrokerUploadClient({apiBase,sessionId,commandId,fetchImpl=fetch,headers={}}){
   const artifacts=`${String(apiBase).replace(/\/$/,'')}/api/webcad/sessions/${encodeURIComponent(sessionId)}/artifacts`,root=`${artifacts}/uploads`,q=`commandId=${encodeURIComponent(commandId)}`;

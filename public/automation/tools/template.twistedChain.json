@@ -37,7 +37,7 @@
     "钮链",
     "Twisted chain link"
   ],
-  "description": "多节同向嵌接并按内口受拉贴紧；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
+  "description": "多节同向嵌接并按内口受拉贴紧；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节沿用历史 STEP 来源，不是自主源几何：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -206,7 +206,6 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -218,7 +217,7 @@
   "visibleInLibrary": true,
   "libraryCategory": "chains",
   "libraryCategoryLabel": "链条",
-  "purpose": "多节同向嵌接并按内口受拉贴紧；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
+  "purpose": "多节同向嵌接并按内口受拉贴紧；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节沿用历史 STEP 来源，不是自主源几何：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
   "whenToUse": [
     "This selected template matches the required structure; its complete parameters and placement contract are in this card."
   ],
@@ -260,7 +259,7 @@
         }
       }
     ],
-    "description": "多节同向嵌接并按内口受拉贴紧；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
+    "description": "多节同向嵌接并按内口受拉贴紧；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节沿用历史 STEP 来源，不是自主源几何：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
     "properties": {
       "kind": {
         "type": "string",
@@ -329,7 +328,7 @@
       }
     }
   },
-  "schemaHash": "sha256:a65f1a3b0fb0e7de2f7a12ee0d54b19a888bc67eaeaf8e0870ee630987f558d6",
+  "schemaHash": "sha256:556fa85cba9c7932c60bcb5cd46354cce319446910d00bf56494cda0090d4d63",
   "defaults": {
     "outerWidthMm": 11,
     "outerLengthMm": 15,
@@ -420,7 +419,6 @@
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
-    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -623,7 +621,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:e8ba0871ea202f1bb823b150836ef8b04d707f914f8b3f87f2d0d7a94499fa23"
+    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -686,5 +684,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1cabe3d4923c0e9c8065f735b71d6309eaf456bba34baa4f22de66ef17b11fb4"
+  "docsHash": "sha256:94fc0e89292fd519b37c6d095cc374c1dcfeaac717579194d605f183e43b35f5"
 }

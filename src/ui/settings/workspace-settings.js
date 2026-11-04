@@ -16,12 +16,12 @@ export function showWorkspaceSettings(action,{openDialog,element,button,state,em
     d.dataset.agentSettings='true';
     const page=window.webcad.api,panel=page.getAgentPanel();
     const addressLabel=element('label',{class:'form-field wide'}),address=element('input',{type:'url','aria-label':'Agent 助手页面地址',required:''});address.value=panel.url;address.style.width='100%';addressLabel.append(element('span',{},'Agent 助手页面地址'),address);form.append(addressLabel);
-    note('保存助手页面地址后，点击顶栏的立方体 Agent 按钮，助手将接入当前工程；再次点击即可退出并恢复编辑。助手使用已有登录与授权。');
+    note('Agent 是可选扩展，未配置也可独立作图。填写并保存实际部署的助手页面地址，或由外部宿主显式绑定；软件不预设助手服务。点击顶栏的立方体 Agent 按钮接入当前工程，再次点击退出并恢复编辑。助手沿用其已有登录与授权。');
     const connection=element('dl',{class:'wide','aria-live':'polite'});
     const readConnection=()=>{
       const current=page.getAgentPanel(),channel=current.channelState||{},runtime=page.getState({compact:true});
       connection.replaceChildren();
-      const entries=[['助手来源',channel.actualOrigin||'尚未验证'],['页面通道',({direct:'直接共享',bridge:'本地桥接',unavailable:'不可用'})[channel.transport]||'待检测'],['状态同步',({confirmed:'已确认',pending:'待同步',stopped:'已停止',unavailable:'不可用'})[channel.syncStatus]||'待同步'],['对话服务',current.phase==='agent_offline'?'不可用':channel.conversation?'可用':'待连接'],['CAD 执行',!current.visible?'已主动退出':runtime.summary?.busy?'计算中':current.connected?'可用':'待恢复']];
+      const entries=[['助手配置',current.externalHost?'外部宿主已绑定':current.configured?'已配置助手地址':'未配置（可独立作图）'],['助手来源',channel.actualOrigin||'尚未验证'],['页面通道',({direct:'直接共享',bridge:'本地桥接',unavailable:'不可用'})[channel.transport]||'待检测'],['状态同步',({confirmed:'已确认',pending:'待同步',stopped:'已停止',unavailable:'不可用'})[channel.syncStatus]||'待同步'],['对话服务',current.phase==='agent_offline'?'不可用':channel.conversation?'可用':'待连接'],['CAD 执行',!current.visible?'已主动退出':runtime.summary?.busy?'计算中':current.connected?'可用':'待恢复']];
       for(const [label,value]of entries)connection.append(element('dt',{},label),element('dd',{},value));
       if(current.error||channel.syncError)connection.append(element('dd',{},current.error||channel.syncError));
     };

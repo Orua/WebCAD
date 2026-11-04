@@ -127,10 +127,12 @@ acceptance artifacts under `agent/output/m1/`.
 
 Local fixture locations can be overridden without editing assertions:
 
-- `WEBCAD_IGES_IMPORT_FIXTURE`: default
-  `G:/TEXT-TO-CAD/工程图3D_20260914/0/gc15372.igs`.
-- `WEBCAD_IGES_ROUNDTRIP_FIXTURE`: default
-  `G:/TEXT-TO-CAD/工程图3D_20260914/GC/HS13006.igs`.
+- `WEBCAD_IGES_IMPORT_FIXTURE`: point to the authorized original import sample.
+- `WEBCAD_IGES_ROUNDTRIP_FIXTURE`: point to the authorized original roundtrip sample.
+
+Private default paths and real part numbers are intentionally not published here.
+These are historical source fixtures, not independently authored generic geometry;
+this documentation change does not alter fixtures or their assertions.
 
 Overrides must point to the corresponding original samples, not arbitrary IGES
 geometry: the roundtrip test deliberately keeps its 70 faces / 0 solids assertion.

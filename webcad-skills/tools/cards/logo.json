@@ -1,0 +1,1302 @@
+{
+  "id": "logo",
+  "version": "2.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "faceId": {
+        "type": "integer",
+        "description": "Current selected face index",
+        "minimum": 0,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "point": {
+        "type": "array",
+        "items": {
+          "type": "number",
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm",
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "placementVersion": {
+        "type": "integer",
+        "const": 2
+      },
+      "targetSurfaceType": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 40
+      },
+      "targetFaceArea": {
+        "type": "number",
+        "description": "Area of target face at placement (mm^2)",
+        "exclusiveMinimum": 0
+      },
+      "targetFaceCenter": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "World coordinate [x,y,z] in mm"
+      },
+      "targetFaceSignature": {
+        "type": "string",
+        "minLength": 12,
+        "maxLength": 100
+      },
+      "targetGeometryFingerprint": {
+        "type": "string",
+        "minLength": 12,
+        "maxLength": 100
+      },
+      "projectionMode": {
+        "type": "string",
+        "description": "singleFace preserves original normal depth; connectedFaces projects onto adjacent front faces and subtracts exact fused cutters; depth measured along inward anchor normal",
+        "enum": [
+          "singleFace",
+          "connectedFaces"
+        ]
+      },
+      "mode": {
+        "type": "string",
+        "description": "Material operation",
+        "enum": [
+          "engrave",
+          "emboss"
+        ]
+      },
+      "depthMm": {
+        "type": "number",
+        "description": "恒深LOGO加工深度 (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "draftAngle": {
+        "type": "number",
+        "description": "Draft angle degrees; legacy missing value means 0; unified UI initially 0",
+        "minimum": 0,
+        "exclusiveMaximum": 45,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
+      },
+      "scale": {
+        "type": "number",
+        "description": "Uniform outline scale",
+        "exclusiveMinimum": 0,
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
+      },
+      "angle": {
+        "type": "number",
+        "description": "Local rotation in degrees",
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
+      },
+      "offsetXMm": {
+        "type": "number",
+        "description": "图案平面内X方向偏移 (mm)",
+        "unit": "mm"
+      },
+      "offsetYMm": {
+        "type": "number",
+        "description": "图案平面内Y方向偏移 (mm)",
+        "unit": "mm"
+      },
+      "mirrorX": {
+        "type": "boolean",
+        "description": "Mirror outline local X before rotation"
+      },
+      "regions": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 150,
+        "items": {
+          "type": "object",
+          "required": [
+            "outer"
+          ],
+          "properties": {
+            "outer": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 2000,
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "holes": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 2000,
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "source": {
+        "type": "object",
+        "description": "New v2 requires source.reviewed=true after contour/size/hole review; preserve original provenance"
+      },
+      "name": {
+        "type": "string"
+      },
+      "sizeMm": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      },
+      "schemaVersion": {
+        "type": "integer",
+        "const": 2
+      },
+      "machiningIntent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "requestedGeometry",
+          "sourceInterpretation",
+          "userIntentEvidence"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "const": 1
+          },
+          "requestedGeometry": {
+            "type": "string",
+            "enum": [
+              "constantDepthContours",
+              "layeredRelief",
+              "continuousRelief",
+              "mixed",
+              "unspecified"
+            ]
+          },
+          "sourceInterpretation": {
+            "type": "string",
+            "enum": [
+              "reviewedVectors",
+              "rasterArtwork",
+              "authoredHeightMap",
+              "shadedReference",
+              "sculptMesh"
+            ]
+          },
+          "userIntentEvidence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1200
+          },
+          "sourceHash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "emboss",
+              "engrave"
+            ],
+            "unit": "1",
+            "quantityKind": "direction",
+            "quantizationPolicy": "none"
+          },
+          "dimensionsMm": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "width",
+              "height"
+            ],
+            "properties": {
+              "width": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100000,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "height": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100000,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              }
+            }
+          },
+          "specifiedDepthsMm": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 32,
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 100000
+            }
+          },
+          "targetPeakMm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 100000
+          },
+          "preserve": {
+            "type": "array",
+            "maxItems": 32,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          "supportBinding": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "bodyId",
+              "geometryFingerprint"
+            ],
+            "properties": {
+              "bodyId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "geometryFingerprint": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            }
+          },
+          "placementSnapshot": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "origin",
+              "quaternion"
+            ],
+            "properties": {
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number",
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number",
+                  "unit": "1",
+                  "quantityKind": "direction",
+                  "quantizationPolicy": "none"
+                },
+                "unit": "1",
+                "quantityKind": "direction",
+                "quantizationPolicy": "none"
+              }
+            }
+          }
+        }
+      }
+    },
+    "required": [
+      "faceId",
+      "mode",
+      "depthMm",
+      "regions"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. singleFace (default/missing) rejects face boundaries and seams. Explicit projectionMode:connectedFaces requires placementVersion:2, mode:engrave and draftAngle:0. It crosses connected front-facing plane/round/periodic seams with one projection direction (inward normal at point); depth is along that direction, not surface-normal depth. Preserves outline scale/holes; rejects incomplete projection, overlap, grazing/back faces, thin walls, disconnected solids, invalid geometry or stale face. Read getState().bodies[].logoProjectionReport for crossed source face IDs, direction, depth and actual removedVolumeMm3.",
+  "title": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
+  "category": "modification",
+  "synonyms": [
+    "恒深LOGO",
+    "文字刻字",
+    "logo engraving",
+    "logo",
+    "LOGO"
+  ],
+  "description": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
+  "schemaHash": "sha256:4f33879eb1f75337a54e20f26a7bb56c6d39733f14ca39c49863a5994cfcef2e",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. singleFace (default/missing) rejects face boundaries and seams. Explicit projectionMode:connectedFaces requires placementVersion:2, mode:engrave and draftAngle:0. It crosses connected front-facing plane/round/periodic seams with one projection direction (inward normal at point); depth is along that direction, not surface-normal depth. Preserves outline scale/holes; rejects incomplete projection, overlap, grazing/back faces, thin walls, disconnected solids, invalid geometry or stale face. Read getState().bodies[].logoProjectionReport for crossed source face IDs, direction, depth and actual removedVolumeMm3."
+  ],
+  "minimalExample": {
+    "op": "logo",
+    "params": {
+      "placementVersion": 2,
+      "projectionMode": "singleFace",
+      "faceId": 0,
+      "point": [
+        5,
+        5,
+        3
+      ],
+      "mode": "engrave",
+      "draftAngle": 0,
+      "regions": [
+        {
+          "outer": [
+            [
+              -1,
+              -1
+            ],
+            [
+              1,
+              -1
+            ],
+            [
+              0,
+              1
+            ]
+          ]
+        }
+      ],
+      "source": {
+        "kind": "reviewed-contours",
+        "reviewed": true
+      },
+      "machiningIntent": {
+        "version": 1,
+        "requestedGeometry": "constantDepthContours",
+        "sourceInterpretation": "reviewedVectors",
+        "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+      },
+      "depthMm": 0.2,
+      "schemaVersion": 2
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "logo",
+    "params": {
+      "placementVersion": 2,
+      "projectionMode": "singleFace",
+      "faceId": 0,
+      "point": [
+        5,
+        5,
+        3
+      ],
+      "mode": "engrave",
+      "draftAngle": 0,
+      "regions": [
+        {
+          "outer": [
+            [
+              -1,
+              -1
+            ],
+            [
+              1,
+              -1
+            ],
+            [
+              0,
+              1
+            ]
+          ]
+        }
+      ],
+      "source": {
+        "kind": "reviewed-contours",
+        "reviewed": true
+      },
+      "machiningIntent": {
+        "version": 1,
+        "requestedGeometry": "constantDepthContours",
+        "sourceInterpretation": "reviewedVectors",
+        "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+      },
+      "depthMm": 0.2,
+      "schemaVersion": 2
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "placementVersion": 2,
+        "projectionMode": "singleFace",
+        "faceId": 0,
+        "point": [
+          5,
+          5,
+          3
+        ],
+        "mode": "engrave",
+        "depth": 0.2,
+        "draftAngle": 0,
+        "regions": [
+          {
+            "outer": [
+              [
+                -1,
+                -1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                0,
+                1
+              ]
+            ]
+          }
+        ],
+        "source": {
+          "kind": "reviewed-contours",
+          "reviewed": true
+        },
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
+    "whenToUse": [
+      "明确矢量LOGO或文字；单面等深凹凸，或跨相连面投影凹刻（深度沿投影方向）"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "目标为连续起伏或分层高度",
+        "use": "relief"
+      }
+    ],
+    "params": {
+      "faceId": {
+        "meaning": "Current selected face index",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "point": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "mm",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "placementVersion": {
+        "meaning": "placementVersion: Reviewed LOGO: single-face normal depth or connected-face directional projection",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetSurfaceType": {
+        "meaning": "targetSurfaceType: Reviewed LOGO: single-face normal depth or connected-face directional projection",
+        "unit": "none",
+        "range": [
+          1,
+          40
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetFaceArea": {
+        "meaning": "Area of target face at placement (mm^2)",
+        "unit": "dimensionless",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetFaceCenter": {
+        "meaning": "World coordinate [x,y,z] in mm",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetFaceSignature": {
+        "meaning": "targetFaceSignature: Reviewed LOGO: single-face normal depth or connected-face directional projection",
+        "unit": "none",
+        "range": [
+          12,
+          100
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetGeometryFingerprint": {
+        "meaning": "targetGeometryFingerprint: Reviewed LOGO: single-face normal depth or connected-face directional projection",
+        "unit": "none",
+        "range": [
+          12,
+          100
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "projectionMode": {
+        "meaning": "singleFace preserves original normal depth; connectedFaces projects onto adjacent front faces and subtracts exact fused cutters; depth measured along inward anchor normal",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "mode": {
+        "meaning": "Material operation",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "depthMm": {
+        "meaning": "恒深LOGO加工深度 (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "draftAngle": {
+        "meaning": "Draft angle degrees; legacy missing value means 0; unified UI initially 0",
+        "unit": "deg",
+        "range": [
+          0,
+          45
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "scale": {
+        "meaning": "Uniform outline scale",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "angle": {
+        "meaning": "Local rotation in degrees",
+        "unit": "deg",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "offsetXMm": {
+        "meaning": "图案平面内X方向偏移 (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "offsetYMm": {
+        "meaning": "图案平面内Y方向偏移 (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "mirrorX": {
+        "meaning": "Mirror outline local X before rotation",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "regions": {
+        "meaning": "regions: Reviewed LOGO: single-face normal depth or connected-face directional projection",
+        "unit": "none",
+        "range": [
+          1,
+          150
+        ]
+      },
+      "source": {
+        "meaning": "New v2 requires source.reviewed=true after contour/size/hole review; preserve original provenance",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "name": {
+        "meaning": "name: Reviewed LOGO: single-face normal depth or connected-face directional projection",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sizeMm": {
+        "meaning": "sizeMm: Reviewed LOGO: single-face normal depth or connected-face directional projection",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "schemaVersion": {
+        "meaning": "schemaVersion: Reviewed LOGO: single-face normal depth or connected-face directional projection",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "machiningIntent": {
+        "meaning": "machiningIntent",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "logo",
+        "params": {
+          "placementVersion": 2,
+          "projectionMode": "singleFace",
+          "faceId": 0,
+          "point": [
+            5,
+            5,
+            3
+          ],
+          "mode": "engrave",
+          "draftAngle": 0,
+          "regions": [
+            {
+              "outer": [
+                [
+                  -1,
+                  -1
+                ],
+                [
+                  1,
+                  -1
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            }
+          ],
+          "source": {
+            "kind": "reviewed-contours",
+            "reviewed": true
+          },
+          "machiningIntent": {
+            "version": 1,
+            "requestedGeometry": "constantDepthContours",
+            "sourceInterpretation": "reviewedVectors",
+            "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+          },
+          "depthMm": 0.2,
+          "schemaVersion": 2
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "logo",
+        "params": {
+          "placementVersion": 2,
+          "projectionMode": "singleFace",
+          "faceId": 0,
+          "point": [
+            5,
+            5,
+            3
+          ],
+          "mode": "engrave",
+          "draftAngle": 0,
+          "regions": [
+            {
+              "outer": [
+                [
+                  -1,
+                  -1
+                ],
+                [
+                  1,
+                  -1
+                ],
+                [
+                  0,
+                  1
+                ]
+              ]
+            }
+          ],
+          "source": {
+            "kind": "reviewed-contours",
+            "reviewed": true
+          },
+          "machiningIntent": {
+            "version": 1,
+            "requestedGeometry": "constantDepthContours",
+            "sourceInterpretation": "reviewedVectors",
+            "userIntentEvidence": "Example only: replace with the actual confirmed user request and source identity"
+          },
+          "depthMm": 0.2,
+          "schemaVersion": 2
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "placementVersion": 2,
+            "projectionMode": "singleFace",
+            "faceId": 0,
+            "point": [
+              5,
+              5,
+              3
+            ],
+            "mode": "engrave",
+            "depth": 0.2,
+            "draftAngle": 0,
+            "regions": [
+              {
+                "outer": [
+                  [
+                    -1,
+                    -1
+                  ],
+                  [
+                    1,
+                    -1
+                  ],
+                  [
+                    0,
+                    1
+                  ]
+                ]
+              }
+            ],
+            "source": {
+              "kind": "reviewed-contours",
+              "reviewed": true
+            },
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "readVector",
+      "relief",
+      "files.export"
+    ],
+    "synonyms": [
+      "恒深LOGO",
+      "文字刻字",
+      "logo engraving"
+    ],
+    "status": "experimental",
+    "sourcePaths": [
+      "src/logo-model.js"
+    ]
+  },
+  "purpose": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
+  "whenToUse": [
+    "明确矢量LOGO或文字；单面等深凹凸，或跨相连面投影凹刻（深度沿投影方向）"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "目标为连续起伏或分层高度",
+      "use": "relief"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "label": "LOGO",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "target-face",
+    "placementSupported": true,
+    "originUsage": "target-face-point",
+    "orientationUsage": "face-compatible-direction",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "selectionGuide": {
+    "groupId": "relief",
+    "groupTitle": "LOGO、矢量浮雕与网格精修",
+    "chooseWhen": "已审阅矢量LOGO：单面法向等深，或跨相连面投影凹刻；后者depth沿投影方向，保持轮廓、尺寸和孔。",
+    "alternatives": [
+      {
+        "id": "curvedLogo",
+        "chooseWhen": "旧曲面 LOGO 兼容入口，新建用统一 logo 的定位合同。"
+      },
+      {
+        "id": "relief",
+        "chooseWhen": "精确分层矢量/开放刻线/平滑高度曲面浮雕；不同于三角网格成品。"
+      },
+      {
+        "id": "meshHeightfieldRelief",
+        "chooseWhen": "高度图生成三角网格浮雕；图像亮度须先解释成设计高度。"
+      },
+      {
+        "id": "meshReliefPlate",
+        "chooseWhen": "创建网格浮雕底板，不是修高既有浮雕。"
+      },
+      {
+        "id": "meshReliefEdit",
+        "chooseWhen": "对已有网格浮雕局部修高；不生成精确 BRep 曲面。"
+      },
+      {
+        "id": "reliefShoulder",
+        "chooseWhen": "已登记的浮雕肩部过渡几何；不是任意倒圆或整体造型。"
+      },
+      {
+        "id": "reliefSculpt",
+        "chooseWhen": "精确浮雕精修发现入口；用 feature.edit 更新原浮雕，不是独立 add。"
+      },
+      {
+        "id": "heightfieldSculpt",
+        "chooseWhen": "高度图精修发现入口；用 feature.edit 更新原特征。"
+      },
+      {
+        "id": "prepareReliefSculpt",
+        "chooseWhen": "准备有明确 domain/mask 的精修草稿，尚未应用。"
+      },
+      {
+        "id": "prepareReliefTopologyUpgrade",
+        "chooseWhen": "评估/准备浮雕拓扑升级；不等同已提交升级成功。"
+      },
+      {
+        "id": "reliefDesignReference",
+        "chooseWhen": "绑定已登记原图的真实字节到当前设计草稿，完整解码校验并随工程持久化；原图不是高度。get读元数据，resource读实际原件，attach/detach需当前草稿修订。"
+      },
+      {
+        "id": "prepareReliefDesignRelief",
+        "chooseWhen": "把当前拟合结果绑定到当前选中的真实平面、明确放置与基线，只读生成relief预览参数；预览/应用仍走preview.start/commit，不自动提交。"
+      },
+      {
+        "id": "reliefDesignFit",
+        "chooseWhen": "将当前已解毫米设计场拟合为保留常值边缘、孔缘与保护区的B样条控制高度；明确控制数和采样误差，只返回数值候选与证书，不生成BRep或修改工程。"
+      },
+      {
+        "id": "reliefDesignField",
+        "chooseWhen": "从当前工程人工毫米约束求解有界可取消数值场，读回真实残差和保守孔/保护掩码；只为支持范围生成显式网格候选，不从原图猜高度。"
+      },
+      {
+        "id": "sampleReliefHeight",
+        "chooseWhen": "读取浮雕参数/草稿指定点的控制高度，不是修改高度。"
+      },
+      {
+        "id": "sampleMeshRelief",
+        "chooseWhen": "按输入网格指纹及支撑条件采样来源高度；不是直接套用照片灰度。"
+      },
+      {
+        "id": "readRelief",
+        "chooseWhen": "读取已登记高度图资源及采样定义，尚未创建浮雕实体。"
+      },
+      {
+        "id": "planPatternMachining",
+        "chooseWhen": "根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.guide.pattern",
+  "docsHash": "sha256:47c17609735a170ea6a9979e4f080c74c2530469af4dbf63aa8729034fb0121e"
+}

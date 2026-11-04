@@ -29,7 +29,7 @@ export function servicesRequestTimeoutMs(phase,{bytes=0}={}){
  if(phase==='result'||phase==='artifact')return Math.max(120000,Math.min(600000,120000+Math.ceil(n/1024)*15));
  // Live 2026-10-28: ~3MB POST /v1/compute/jobs aborted at client 30000 while upload already scaled (~209s).
  if(phase==='submit')return Math.max(180000,Math.min(600000,180000+Math.ceil(n/1024)*25));
- // Capabilities often 15–19s on goldenfu.cn; give headroom. Poll/cancel/recover aligned to 60s.
+ // Remote capabilities may take 15–19s; give headroom. Poll/cancel/recover aligned to 60s.
  if(phase==='capabilities'||phase==='poll'||phase==='cancel'||phase==='recover')return 60000;
  return 60000;
 }

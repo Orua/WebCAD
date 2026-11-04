@@ -16,14 +16,16 @@ WebCAD 的“加工 → LOGO”是一个入口。浏览器直接读取 `.logo.js
 
 直接导入只需当前 WebCAD 静态页面；不要求 Node/Python 转换服务在生产运行。`scripts/serve.mjs` 可用于开发与本地预览，不能把它当作格式转换能力的证明。
 
-## 本批图纸带来的规则
+## 历史来源案例提炼的通用规则
 
-- EXAMPLE-C5CFDBC5：产品侧视图有 LANCEL 轮廓和“凹字”批注，不能只读取标题栏的客户名。
-- EXAMPLE-EFBE5EE6：同一 DWG 上下两个产品视图中的 CHAVARRIA 字体不同；“双面凸字、凹位留细沙底”要求两面分别加工，凹底质感与凸字几何分开处理。不能仅凭同货号共用一份字形。
-- EXAMPLE-F934C01E：单侧面凹字 CHARLES & KEITH。此轮转换轮廓存在微小断口/重叠，未自动补线。
-- EXAMPLE-161E4AAB：同时有凹字凹线条、凸边凸字；字形和菱形边框组合，不能把所有封闭区域当成同一种深度。
-- EXAMPLE-C91407F0、EXAMPLE-0CE38652、EXAMPLE-067837BC 等 IGS 可见沿弯曲主体分布的字标；需判断承载面及投影/包覆方法，不能把平面拉伸强行当作曲面包字。
-- EXAMPLE-60D5F6E3 的 0.2 mm 是滴胶高度，不能当作凹字深度；EXAMPLE-067837BC 的抹油、EXAMPLE-C66C1313 的凹位亮面属于表面工艺。当前工具不生成填油、细沙底或电镀工艺。
+以下沿用历史图纸中的结构判断与失败边界，不是自主源几何、品牌授权或完整产品验收；公开说明不分发真实品牌、货号或原始图元句柄。
+
+- 侧视凹字案例：应读实际字形轮廓和“凹字”批注，不能只读标题栏名称。
+- 双面凸字案例：同一 DWG 的上下视图可能使用不同字形；两面分别加工，凹底质感与凸字几何分开，不能按零件名称共用一份字形。
+- 单侧凹字案例：历史转换轮廓存在微小断口/重叠，未自动补线，仍非通过。
+- 多层图案案例：凹字凹线条、凸边凸字及菱形边框应分别表达，不能把所有闭合区域当成同一种深度。
+- 弯曲主体案例：沿曲面分布的字形需判断承载面及投影/包覆方法，平面拉伸不能冒充曲面包字。
+- 表面工艺案例：0.2 mm 若表示滴胶高度，不能当凹字深度；抹油、凹位亮面也不是几何深度。当前工具不生成填油、细沙底或电镀工艺。
 
 没有核定字深时保留为未知。统一工具不自动填入 0.2 mm；必须明确填写深度或高度。
 
@@ -33,13 +35,13 @@ WebCAD 的“加工 → LOGO”是一个入口。浏览器直接读取 `.logo.js
 
 先核对标题栏/部件/修订，把 INSERT 展开后的产品视图和 LOGO 放大检查。选择包含该货号标题的图框 `--frame`，再选择只包含目标字形的窗口 `--bounds`，坐标顺序都是 xmin ymin xmax ymax。`--mm-per-unit` 必须显式给出；按尺寸标注确认，不能只靠屏幕观感。可用 `--layer` 限定轮廓层。
 
-示例（本批 EXAMPLE-C5CFDBC5 的已核对窗口；路径请替换为自己的转换文件和输出目录）：
+通用命令形式如下。尖括号均为待替换的输入，不是原公司源文件、真实图框坐标或已验收夹具；必须先取得用户授权并核对实际图纸，不能直接照抄窗口。
 
 ```text
-python tools/logo-extract.py agent/temp/logo-dwg/EXAMPLE-C5CFDBC5/gc15763.dxf --product EXAMPLE-C5CFDBC5 --frame -561 590 -368 875 --bounds -442.8 722.8 -440.2 735.1 --mm-per-unit 1 --tolerance-mm 0.005 --source-dwg G:/TEXT-TO-CAD/drawings/DWG/GC/gc15763.dwg --output <输出目录>/EXAMPLE-C5CFDBC5.logo.json
+python tools/logo-extract.py <授权输入.dxf> --product <用户自定义标签> --frame <xmin> <ymin> <xmax> <ymax> --bounds <xmin> <ymin> <xmax> <ymax> --mm-per-unit <已核对比例> --tolerance-mm 0.005 --source-dwg <授权原图.dwg> --output <输出目录>/lettering.logo.json
 ```
 
-本工作区的 AI 在 Windows 执行 CAD Python 时，通过 text-to-cad 的 `agent/tools/cad-learning/run-silent.ps1` 启动工作区内包装脚本，避免弹出窗口；此次包装脚本在 `C:/src/cad-tools/agent/temp/cad-learning/`。
+离线轮廓准备由用户授权的实际工具完成，不要求相邻项目、私有技能或固定工作区路径。WebCAD 独立读取已支持的矢量格式；额外转换服务和 Agent 均为可选扩展。
 
 输出 `.logo.json` 和轮廓预览 `.logo.svg`。JSON 内为 mm 坐标，原点归一到字形包围盒中心，区域结构是 `regions:[{outer:[[x,y],...],holes:[[[x,y],...],...]}]`，最后一条边隐式闭合。浏览器可导入安全子集 SVG，但不执行其中脚本或外部资源。
 
@@ -64,13 +66,13 @@ python tools/logo-extract.py agent/temp/logo-dwg/EXAMPLE-C5CFDBC5/gc15763.dxf --
 
 ## 已验证范围
 
-本轮查看 25 份 GC IGS 和 25 份对应 DWG。只有 4 份转换后的 DXF 可完整解析，另 21 份保留原始 JSON 批注作为有限证据，未用破损转换结果生成字形。
+历史记录查看25份 IGS 和25份对应 DWG，不随公开知识分发原件。只有 4 份转换后的 DXF 可完整解析，另 21 份保留原始 JSON 批注作为有限证据，未用破损转换结果生成字形。
 
-成功提取并在测试板验证了 3 组轮廓：EXAMPLE-C5CFDBC5 LANCEL、EXAMPLE-EFBE5EE6 上方字体、EXAMPLE-EFBE5EE6 下方衬线字体。它们是 2 份 DWG 中的 3 组字形，不是 3 个完整产品。测试板深度、板厚及位置均为验证参数，不冒充原件尺寸。3 组均通过实心体有效性、体积及 STEP 导出回读；具体误差、浏览器与 MCP 测试见 [本轮记录](../agent/output/logo-study/REVIEW.md)。
+历史记录成功提取并在测试板验证了3组来源轮廓：侧视凹字、双面案例的上方字形和下方衬线字形；它们不是重新创作的自主轮廓。它们是 2 份 DWG 中的 3 组字形，不是 3 个完整产品。测试板深度、板厚及位置均为验证参数，不冒充原件尺寸。3 组均通过实心体有效性、体积及 STEP 导出回读；具体误差、浏览器与 MCP 测试见 [本轮记录](../agent/output/logo-study/REVIEW.md)。
 
 ## 矢量导入验收（2026-09-21）
 
-SVG、真实 EXAMPLE-C5CFDBC5 DWG、多页矢量 PDF 和 PDF 兼容 AI 已通过转换，保留内孔；扫描 PDF、未转曲文字和损坏 DWG 被拒绝。
+SVG、历史来源的真实 DWG、多页矢量 PDF 和 PDF 兼容 AI 已通过转换，保留内孔；扫描 PDF、未转曲文字和损坏 DWG 被拒绝。
 
 浏览器验证了 PDF 换页、切换 SVG、提取轮廓、凹刻预览并应用，以及 24K 金渲染。20 × 12 mm 带孔图案面积 168 mm²，深度 0.2 mm；基体体积由 3600 降到 3566.4 mm³。
 

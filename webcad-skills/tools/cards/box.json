@@ -1,0 +1,508 @@
+{
+  "id": "box",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "width": {
+        "type": "number",
+        "description": "Width (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "depth": {
+        "type": "number",
+        "description": "Depth (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "height": {
+        "type": "number",
+        "description": "Height (mm)",
+        "exclusiveMinimum": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    },
+    "required": [
+      "width",
+      "depth",
+      "height"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "World [0,0,0] to [width,depth,height], all in mm.",
+  "title": "Box from [0,0,0] to [width,depth,height]",
+  "category": "creation",
+  "synonyms": [
+    "box",
+    "Box from [0,0,0] to [width,depth,height]",
+    "box operation",
+    "长方体",
+    "安装板",
+    "plate"
+  ],
+  "description": "Box from [0,0,0] to [width,depth,height]",
+  "schemaHash": "sha256:d082303b846c478cc1d8b09298f7bb401e917a0e4859bb8fcc62832cdd1ba85c",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
+  ],
+  "minimalExample": {
+    "op": "box",
+    "params": {
+      "width": 50,
+      "depth": 30,
+      "height": 3
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "box",
+    "params": {
+      "width": 50,
+      "depth": 30,
+      "height": 3
+    },
+    "refs": [],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "width": -1,
+        "depth": 30,
+        "height": 3
+      },
+      "errorCode": "PARAM_RANGE_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [
+    "recipes.mounting-plate"
+  ],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Box from [0,0,0] to [width,depth,height]",
+    "whenToUse": [
+      "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "width": {
+        "meaning": "Width (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "depth": {
+        "meaning": "Depth (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "height": {
+        "meaning": "Height (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ]
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 0,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "box",
+        "params": {
+          "width": 50,
+          "depth": 30,
+          "height": 3
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "box",
+        "params": {
+          "width": 50,
+          "depth": 30,
+          "height": 3
+        },
+        "refs": [],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "width": -1,
+            "depth": 30,
+            "height": 3
+          },
+          "errorCode": "PARAM_RANGE_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "cylinder",
+      "sphere",
+      "cone",
+      "torus",
+      "quickModel",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "box",
+      "Box from [0,0,0] to [width,depth,height]",
+      "Box from [0,0,0] to [width,depth,height]",
+      "box operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Box from [0,0,0] to [width,depth,height]",
+  "whenToUse": [
+    "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "label": "长方体",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "bottom-center",
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "selectionGuide": {
+    "groupId": "primitives",
+    "groupTitle": "基础实体与参数模型",
+    "chooseWhen": "用宽、深、高创建长方体；不是空壳或带孔板。",
+    "alternatives": [
+      {
+        "id": "cylinder",
+        "chooseWhen": "用半径、高度创建实心直圆柱；圆筒用内外径模板。"
+      },
+      {
+        "id": "cone",
+        "chooseWhen": "用两端半径和高度创建圆锥或圆台。"
+      },
+      {
+        "id": "sphere",
+        "chooseWhen": "单一半径的球；三轴半径独立时用 ellipsoid。"
+      },
+      {
+        "id": "ellipsoid",
+        "chooseWhen": "三个独立半轴的精确椭球；不是球的显示拉伸。"
+      },
+      {
+        "id": "torus",
+        "chooseWhen": "中心线大半径与截面小半径定义的圆截面闭环。"
+      },
+      {
+        "id": "quickModel",
+        "chooseWhen": "参数模板的执行入口；先比较 template.* 具体结构，再传 kind；不是任意形状生成器。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:4b03bf9fe830c4974992a244b016561de514b355ce7250bb6ea32ab58b7d0c2e"
+}

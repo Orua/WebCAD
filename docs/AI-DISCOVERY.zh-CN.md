@@ -77,7 +77,7 @@ const current = library.isCurrent(connected);
 
 首次使用从 `automation/agent-start.html` 或机器入口 `automation/agent-start.json` 开始；页面 HTML 元数据、`llms.txt`、既有「设置 → AGENT 接口」和 `connect().onboarding` 都指向同一入口。先绑定用户指定的标签页并检查宿主 capabilities，再读取 CDP 等脚本能力的当前文档；不能把 DOM 只读或标签页会话占用误判为 API 缺失。
 
-握手的 `onboarding.localKit` 提供 `agent-kit.json`、`install-agent.ps1`、技能、连接助手和真实操作路由 URL（相对 CAD 页面部署根地址）。有文件权限的 Windows 宿主查看下载的安装脚本后，可使用 `-BaseUrl` 和可选 `-Destination` 安装操作包；默认目录为 `~/.codex/skills/webcad-page-api`。安装器逐文件验证哈希、更新前备份；网页不自动安装或启动服务。包内 `scripts/page-client.mjs` 接收获授权的 CDP send adapter，只封装公开 API 调用，不增加宿主权限。
+握手的 `onboarding.localKit` 提供 `agent-kit.json`、`install-agent.ps1`、技能、连接助手和真实操作路由 URL（相对 CAD 页面部署根地址）。有文件权限的 Windows 宿主查看下载的安装脚本后，可使用 `-BaseUrl` 和可选 `-Destination` 安装操作包；目标目录由宿主/用户选择，不要求固定的私有技能路径；实际默认值以所下载安装器为准。安装器逐文件验证哈希、更新前备份；网页不自动安装或启动服务。包内 `scripts/page-client.mjs` 接收获授权的 CDP send adapter，只封装公开 API 调用，不增加宿主权限。
 
 ## 快捷五金模型与面加工（页面 API 1.13.0）
 

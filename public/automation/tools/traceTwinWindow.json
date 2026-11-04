@@ -2,7 +2,7 @@
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.60.10",
+  "version": "1.60.8",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -156,5 +156,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b6b4975f96d2f6c1fab9a62241ac5c976286960f616cfad7750542c280a43556"
+  "docsHash": "sha256:5eaa1f1230fc5fddad857361018999201da8be70698d89f1361c260cf807ec96"
 }

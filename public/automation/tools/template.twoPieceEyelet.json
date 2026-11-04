@@ -37,7 +37,7 @@
     "铜皮鸡眼",
     "Two-piece eyelet"
   ],
-  "description": "参数化铜皮鸡眼，A长脚件在上、B底片在下，默认同轴相向，两侧外观面朝外，内侧套管相向。平面或弧面共用一个工具；弧面为精确圆弧旋转，板厚按轴向保持。轴向分开距离0为静态套接，正值拉开；横向距离0保持同轴。翻边内外弯按薄壁截面生成，不模拟压铆变形、LOGO或压字。装配朝向参考PG15211，具体尺寸自行输入。",
+  "description": "参数化铜皮鸡眼，A长脚件在上、B底片在下，默认同轴相向，两侧外观面朝外，内侧套管相向。平面或弧面共用一个工具；弧面为精确圆弧旋转，板厚按轴向保持。轴向分开距离0为静态套接，正值拉开；横向距离0保持同轴。翻边内外弯按薄壁截面生成，不模拟压铆变形、LOGO或压字。装配朝向沿用历史来源的结构参考，不宣称自主源几何或原件验收；具体尺寸自行输入。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -206,7 +206,6 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -218,7 +217,7 @@
   "visibleInLibrary": true,
   "libraryCategory": "fasteners",
   "libraryCategoryLabel": "连接件",
-  "purpose": "参数化铜皮鸡眼，A长脚件在上、B底片在下，默认同轴相向，两侧外观面朝外，内侧套管相向。平面或弧面共用一个工具；弧面为精确圆弧旋转，板厚按轴向保持。轴向分开距离0为静态套接，正值拉开；横向距离0保持同轴。翻边内外弯按薄壁截面生成，不模拟压铆变形、LOGO或压字。装配朝向参考PG15211，具体尺寸自行输入。",
+  "purpose": "参数化铜皮鸡眼，A长脚件在上、B底片在下，默认同轴相向，两侧外观面朝外，内侧套管相向。平面或弧面共用一个工具；弧面为精确圆弧旋转，板厚按轴向保持。轴向分开距离0为静态套接，正值拉开；横向距离0保持同轴。翻边内外弯按薄壁截面生成，不模拟压铆变形、LOGO或压字。装配朝向沿用历史来源的结构参考，不宣称自主源几何或原件验收；具体尺寸自行输入。",
   "whenToUse": [
     "This selected template matches the required structure; its complete parameters and placement contract are in this card."
   ],
@@ -534,7 +533,6 @@
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
-    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -737,7 +735,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:e8ba0871ea202f1bb823b150836ef8b04d707f914f8b3f87f2d0d7a94499fa23"
+    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -809,5 +807,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dd68f4ac194cc310497459060eb16730396577c2042109b5db4eab1223121f3b"
+  "docsHash": "sha256:6fc651b799d2fda7dd31b3ebcee9188308670a4e8f450775d84902e29d9901be"
 }

@@ -1,5 +1,7 @@
 # 快捷模型目录
 
+面向小五金作图的通用参数模板，人工使用不要求 Agent 或 Services。说明中的历史来源结构与默认尺寸不因去标识而成为自主源几何，不构成原件逐面复刻或制造验收。公开知识不分发原公司图纸、货号、句柄和私有路径；既有几何与夹具本次保持不变。
+
 每个 `definition.js` 应声明稳定的 `defaultInsertionAnchor`（`model-origin`、`bottom-center` 或 `bounds-center`）。未声明的既有模板目前按 `model-origin` 兼容。工具卡 `template.*.placementPolicy.defaultInsertionAnchor` 会暴露该规则。改变模板参数时保持来源局部坐标和基点定义稳定；若尺寸变化导致已命名来源点移动，应在历史重建中重算该点，无法证明旧锚点映射时标记过期。不要为通过定位测试暗中把所有模板居中。
 
 每个快捷模型有一个独立目录，目录名就是持久的 `kind`。已保存工程和页面 API 都依赖这个值，不要随显示名称一起改名。
@@ -22,6 +24,6 @@
 安装结构快捷入口：`twoPieceEyelet` 是双件薄壁翻边鸡眼；`frameEyelet` 是圆/圆角方形安装面框、恒壁厚颈口、对称柱和普通孔，可零颈口/零柱作背片；`uStrapClip` 是恒厚开口U夹、不同高前后片及后片普通孔。后两者一次创建一个可编辑实体，真实螺纹、锥口、三维边圆角和饰面须另按原图加工；封闭帽套不能套U夹。AI读单张 `template.<kind>` 和 `api.quick-installation`，用 `op:quickModel`、`params.kind` 创建。
 
 
-2026-10-16 固定工具目录：运行时只接受参数及显示顺序；新增/改写/导入脚本不再开放。旧工程已冻结的脚本仍可重建。oChain/twistedChain/groundChain 共用 chain-models.js，扭链有限构造数据 chain-source.js 来自只读 NL.stp；ironFoot 由同仓 iron-foot.js 精确生成三种源件结构。工具说明见公开 api.quick-chains。
+2026-10-16 固定工具目录：运行时只接受参数及显示顺序；新增/改写/导入脚本不再开放。旧工程已冻结的脚本仍可重建。oChain/twistedChain/groundChain 共用 chain-models.js，扭链有限构造数据 chain-source.js 沿用只读历史 STEP 来源；ironFoot 由同仓 iron-foot.js 生成三种历史来源结构，不宣称自主源几何或完整源件验收。工具说明见公开 api.quick-chains。
 
 缩略图由工具作者预生成：先运行 `node scripts/generate-quick-model-previews.mjs <G盘中间目录>`，再运行 `python scripts/render-quick-model-previews.py <中间目录> public/quick-model-previews src/quick-models/preview-assets.js`（仅作者环境需 vtk/Pillow；发布与正常构建无此依赖）。提交工具所需的静态图片及 manifest，不提交中间网格。发布门验证51种工具的默认参数、图片覆盖、PNG签名和SHA-256。丝筒使用真实内核边线和半透明实体；尺寸图与缩略图都来自相同默认几何，非运行时Worker计算。修改默认参数必须重生成相关图片。

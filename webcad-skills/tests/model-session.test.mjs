@@ -1,0 +1,4 @@
+import assert from 'node:assert/strict';
+import {modelSession} from '../scripts/model-session.mjs';
+for(const group of ['A','B']){let requests=[],records=[],n=0;const r=await modelSession({task:'在板上打两个通孔',group,modelId:'fake-adapter-only',toolIdentity:'fixture-tool-hash',initialStateId:'independent-fixture-'+group,record:async x=>records.push(x),model:async req=>{requests.push(req);return n++===0?{toolCalls:[{id:'read',name:'getState',arguments:{}}],usage:null}:{text:'done',usage:null};},execute:async()=>({status:'read',fixture:true}),judge:async x=>({status:'adapter-test-only',calls:x.calls})});assert.equal(r.calls,1);assert.equal(requests.length,2);assert.equal(requests[0].messages[0].content.includes('workflows/cut-features.md'),group==='B');assert.ok(requests[1].messages.some(m=>m.role==='tool'));}
+console.log('PASS: selective knowledge and tool result reach injected fake model messages; real model A/B not executed');

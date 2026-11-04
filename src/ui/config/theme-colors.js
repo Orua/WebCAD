@@ -1,4 +1,4 @@
-// Goldenluck Web default; persisted themeColor continues to take precedence.
+// WebCAD default; persisted themeColor continues to take precedence.
 export const DEFAULT_THEME_COLOR='#3a6eba';
 const rgb=color=>[1,3,5].map(offset=>parseInt(color.slice(offset,offset+2),16));
 const luminance=color=>rgb(color).map(value=>{const channel=value/255;return channel<=.04045?channel/12.92:((channel+.055)/1.055)**2.4;}).reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index],0);

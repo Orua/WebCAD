@@ -73,7 +73,7 @@
 .right-panel .profile-canvas svg{height:180px}
 .right-panel .profile-canvas .property-footnote{margin:5px 0;font-size:11px;line-height:1.4}
 
-/* Shared Goldenluck Web surface roles; themeColor supplies all action colours. */
+/* Shared WebCAD surface roles; themeColor supplies all action colours. */
 :root,.webcad-app{--ui-surface:#fff;--ui-subtle:#f8fafc;--ui-text:#1f2937;--ui-muted:#54677d;--ui-border:#c9d7e6;--ui-danger:#b42318;--ui-warning:#684b15;--ui-warning-soft:#fff4df;--ui-success:#166534;--ui-success-soft:#eaf7ef;--accent-ink:var(--accent);--accent-contrast:#fff;font-family:"Microsoft YaHei","Segoe UI",Arial,sans-serif;color:var(--ui-text)}
 .webcad-app .primary{color:var(--accent-contrast)}
 .webcad-app .brand-mark{background:var(--accent);color:var(--accent-contrast)}

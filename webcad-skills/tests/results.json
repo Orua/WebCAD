@@ -1,0 +1,66 @@
+{
+  "version": "0.3.0",
+  "static": {
+    "status": "passed",
+    "coreNaturalLanguageTasks": 27,
+    "wholeLibraryNaturalLanguageTasks": 15,
+    "problemTasks": 5,
+    "methodRoutes": 18,
+    "toolCards": 54,
+    "relatedUIRoutes": 102,
+    "installedFilesDisposed": 106,
+    "skillFiles": 92,
+    "skillGroups": 14,
+    "repositoryFilesDisposed": 2895,
+    "maxTestedPlanChars": 7479,
+    "normalSchemaExamples": 7,
+    "sourceFingerprintCheck": "all 106 installed files matched sizes/SHA256"
+  },
+  "geometry": {
+    "status": "passed",
+    "representativeTasks": 5,
+    "tasks": [
+      "plate-two-holes",
+      "blind-hole",
+      "chamfer",
+      "edit",
+      "export"
+    ],
+    "topologyChecks": 3,
+    "negativeParamsNoCommit": true,
+    "originalReceiptRead": true,
+    "rawEvidence": "runtime-raw.json",
+    "rawRequestsAndReceipts": 8,
+    "stepByteSize": 15818,
+    "stepDiskWritten": false,
+    "method": "primary-agent deterministic page calls; independently verified by verify-runtime.mjs",
+    "provenance": "Historical raw page execution retained from 0.2 method work; no new runtime geometry/API change and no unrelated geometry rerun in full-library documentation pass",
+    "sourceBuildId": "8d1c754325e80cbfd546a9dcb4f17616e76c4ea5-src-503e8072eab56536-working",
+    "rawSHA256": "2993c2ab7c1d8616a28a0a9f80d398ba949d856275382aa7d55d816e731b7146",
+    "newMethodE2E": "not-run; schemas and methodology mapping verified, not all tool executions"
+  },
+  "modelLoading": {
+    "pipeline": "fake adapter test only",
+    "realModel": "not-run"
+  },
+  "AB": {
+    "status": "not-run",
+    "reason": "No configured real model adapter in this package; no inference about environmental impossibility",
+    "firstCorrectRate": null,
+    "completionWithinBudget": null,
+    "wrongToolOrParameters": null,
+    "toolCalls": null,
+    "elapsedMs": null,
+    "tokenUsage": null
+  },
+  "pending": [
+    "LOGO source geometry E2E",
+    "sweep/loft source-product acceptance",
+    "fixed-radius fillet E2E",
+    "STEP reimport",
+    "manufacturing approval",
+    "engineering drawing source-specific acceptance",
+    "manufacturing/printing process-specific measurements",
+    "standard part host download/import acceptance"
+  ]
+}

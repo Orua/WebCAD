@@ -100,7 +100,7 @@ function validateSchema(schema, value, path = "params") {
       if (s.items) v.forEach((item, index) => visit(s.items, item, `${p}.${index}`));
     }
     if (v !== null && typeof v === "object" && !Array.isArray(v)) {
-      for (const key of s.required || []) if (!Object.hasOwn(v, key)) contractError("PARAM_SCHEMA_INVALID", `${p}.${key}`, `Required field is missing: ${p}.${key}.`);
+      for (const key of s.required || []) if (!Object.hasOwn(v, key)) contractError("PARAM_SCHEMA_INVALID", `${p}.${key}`, "Required field is missing.");
       for (const key of Object.keys(v)) {
         if (Object.hasOwn(s.properties || {}, key)) visit(s.properties[key], v[key], `${p}.${key}`);
         else if (s.additionalProperties === false) contractError("PARAM_SCHEMA_INVALID", `${p}.${key}`, "Unknown field.");

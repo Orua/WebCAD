@@ -26,6 +26,20 @@
       "Affected operation contracts and release knowledge hash verification"
     ]
   },
+  "publicHardwarePositioning20261030": {
+    "localImpact": "仅统一小五金独立作图定位、公开文档和快捷模型说明；Agent 与 Services 均为可选扩展，几何算法、默认尺寸、参数校验结构和工具 ID 不变。",
+    "servicesImpact": "无运行代码或部署影响；Services 配置、鉴权、分流和能力边界保持，未配置不承诺服务专属能力。",
+    "logoImpact": "仅清理公开案例中的客户品牌、货号和私有来源句柄；原始图案与真实几何夹具不变，不改称自主源几何。",
+    "contractImpact": "旧 recipes.pg 前缀 docId 与原生状态协议仅保留兼容别名；工具契约 ID、参数结构、范围和错误语义不变。快捷模型 schema 的 description 注解随公开说明更新，关联 schemaHash/catalogHash/docsHash 按既有算法变化，调用者必须重新发现当前契约，不沿用旧哈希。",
+    "documentImpact": "不修改用户工程或历史 Agent 记录；保留历史量测差异、失败、未验收结论及第三方版权/源码归属。",
+    "cacheImpact": "本次仅修改知识源，不构建、不生成发布产物、不部署；下次获授权发布前须统一重生成并核验知识包、docsHash/catalogHash 和包内哈希，旧发布包不代表本次文案已生效。",
+    "requiredTests": [
+      "修改文件语法及 JSON 结构检查",
+      "公开 docId、工具 ID、参数 schema 与快捷模型非文案定义基线对照",
+      "指定公开范围内公司品牌、真实货号、源句柄和私有路径残留检查；排除 DEPLOY、Services 部署文档及未改动真实来源数据",
+      "确认未触碰既有修改、几何夹具、历史 Agent、法定版权和源码归属记录"
+    ]
+  },
   "drawingTextRotation20261029": {
     "localImpact": "The bundled DWG decoder derives MTEXT rotation from its source direction vector for every consumer. The retained read-only Canvas viewer matches the standalone CADViewer fix and accepts old decoder output. WebCAD's Three.js viewport and analytic contour import are unaffected; contour import does not render annotations.",
     "servicesImpact": "None: this correction only changes browser Canvas text presentation; no Services, Gateway or Native computation changes.",
@@ -34,7 +48,7 @@
     "documentImpact": "None: the viewer remains read-only and does not commit, modify or save CAD documents.",
     "cacheImpact": "Bump the retained viewer entry script query version. The decoder is copied by the current WebCAD Vite build and changes the next source build identity. No page API or knowledge contract changes; the retained viewer entry itself is not copied by that build.",
     "requiredTests": [
-      "gc15779.dwg MTEXT vertical dimensions remain 90 degrees and horizontal dimensions remain zero",
+      "Historical drawing MTEXT vertical dimensions remain 90 degrees and horizontal dimensions remain zero; source fixture identity retained privately, not newly authored geometry",
       "TEXT angle, missing MTEXT direction fallback and block rotation composition",
       "Retained viewer text conversion agrees with the fixed standalone CADViewer"
     ]
@@ -51,7 +65,7 @@
       "Smooth circle tangent continuity",
       "Sharp corners and source bounds",
       "Unsafe line recovery restores fitted cubic before raw-pixel fallback",
-      "Prada, Saint Laurent and Valentino samples",
+      "Historical serif, thin-stroke and cornered glyph reference samples; not newly authored source contours",
       "SVG/CAD curve sampling",
       "Manual raster compatibility"
     ]
@@ -66,8 +80,8 @@
     "requiredTests": [
       "Sparse raster edge cannot bow between vertices",
       "Straight strokes and corner/topology preservation",
-      "Existing Prada and Saint Laurent samples",
-      "Prior Nike curved-edge regression",
+      "Existing historical serif and thin-stroke glyph reference samples",
+      "Prior curved-mark source regression",
       "SVG and CAD sample bounds",
       "Manual raster compatibility"
     ]
@@ -84,7 +98,7 @@
       "Hole and small-island topology",
       "Legacy manual conversion",
       "SVG curve and CAD sampling bounds",
-      "Existing Nike source local Services comparison"
+      "Existing historical curved-mark source local Services comparison"
     ]
   },
   "autoRasterLogo20261027": {
@@ -98,7 +112,7 @@
       "Automatic threshold, inverse and alpha handling",
       "Sharp corners, holes and tiny islands",
       "Explicit manual raster compatibility",
-      "Real local Services comparison for Nike, Coca-Cola and Starbucks",
+      "Real local Services comparison for historical curved-mark, cursive-lettering and circular-emblem references; no source-ownership claim",
       "SVG curves and sampled CAD contours",
       "Local frontend contract and knowledge hashes"
     ]
@@ -274,7 +288,7 @@
     "localImpact": "Default Services connects directly to same-origin cadservices/api.ashx without cookies or client credentials; legacy website URL migrates. Standalone Agent host source/package lives in this repository.",
     "servicesImpact": "IIS same-origin requests use the existing internal job principal without website authentication. Cross-origin dedicated authorization, worker supervision, storage, job identities, input/result validation and cancellation remain enforced.",
     "logoImpact": "None: Logo/native algorithms and source geometry unchanged.",
-    "contractImpact": "Page API1.57.15 documents siteSession as a legacy configuration name for same-origin unauthenticated compute. Independent Goldenluck.WebCADHost namespace/assembly has no Web.dll reference; Agent authentication remains separate. COMMAND_EXPIRED identifies pre-CAD dispatch expiry; lease/task control errors are separate from authentication.",
+    "contractImpact": "Page API1.57.15 documents siteSession as a legacy configuration name for same-origin unauthenticated compute. The optional independent host namespace/assembly has no business Web.dll reference; Agent authentication remains separate. COMMAND_EXPIRED identifies pre-CAD dispatch expiry; lease/task control errors are separate from authentication.",
     "documentImpact": "No business original, save, export or reopen operation in acceptance. Preserve committed QA document, pending original command identity and locks across authentication recovery.",
     "cacheImpact": "Regenerate complete frontend knowledge package; package matching Gateway and standalone host; production only after local architecture acceptance.",
     "requiredTests": [
@@ -553,9 +567,9 @@
     "localImpact": "Page-owned event-driven stateSeq and read-only state projection; confirmed direct or authenticated bridge transport",
     "servicesImpact": "No Services geometry or binary change; companion CodexAgent task and receipt transport changes are required for state/1",
     "logoImpact": "None: no Logo operation or worker changes",
-    "contractImpact": "Additive stateSeq/channelState and independent goldenluck.webcad.state/1; legacy pages and brokers retain compatibility",
+    "contractImpact": "Additive stateSeq/channelState and independent goldenluck.webcad.state/1 (legacy compatibility alias only, not a company or account dependency); legacy pages and brokers retain compatibility",
     "documentImpact": "No geometry/history/save-format changes; send selection is pinned; all execution still checks current authority",
-    "cacheImpact": "Regenerate affected readable API documentation and host adapter bundle; no tool algorithm or company knowledge changes",
+    "cacheImpact": "Regenerate affected readable API documentation and host adapter bundle; no tool algorithm or external source-data changes",
     "requiredTests": [
       "State subscription acknowledgement and idle no polling",
       "Pinned state reaches actual model turn",
@@ -607,7 +621,7 @@
   },
   "agentComposerCompact20261022": {
     "localImpact": "Viewport P labels and short composer location tokens; temporary marker data expands on send only. CADAgent attachments and replies use scoped compact styling",
-    "servicesImpact": "Goldenluck workspace JS/CSS/module cache only; no Services/Native binaries or compute protocol changes",
+    "servicesImpact": "Optional host workspace JS/CSS/module cache only; no Services/Native binaries or compute protocol changes",
     "logoImpact": "None: attachment bytes, names and hashes remain original",
     "contractImpact": "Page API1.56.1 marker text token and tooltip; point/revision binding unchanged; host resolves referenced tokens and rejects stale positions",
     "documentImpact": "Markers are transient, never geometry/history/dirty; session data discarded after accepted send",
@@ -633,7 +647,7 @@
   },
   "aiLocationMarkers20261021": {
     "localImpact": "Read-only point marker tool and selection-mode double click; normalized screen pick returns world-mm mesh position bound to current document/revision",
-    "servicesImpact": "No compute service change; Goldenluck workspace composer receives validated text drafts through existing host/iframe channel",
+    "servicesImpact": "No compute service change; Optional host workspace composer receives validated text drafts through existing host/iframe channel",
     "logoImpact": "None: source geometry and Logo workflows unchanged",
     "contractImpact": "Page API 1.55.7 markLocation screen/active/state with explicit no-hit and active-task errors; UI route and Agent view method registered",
     "documentImpact": "Transient marker, no geometry/history/dirty change; user draft preserved, never automatically sent",
@@ -1883,7 +1897,7 @@
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "Fixed tools in groups; three interconnected chain assemblies with exclusive count/maximum-length sizing and authored four-link previews; squareArchedBridge adds a flat-top rectangular-section U bridge with independent inner/outer dimensions, corner/edge radii and optional paired blind end bores, structurally referenced to EXAMPLE-8AE0A3CA/EXAMPLE-1F534684",
+      "localImpact": "Fixed tools in groups; three interconnected chain assemblies with exclusive count/maximum-length sizing and authored four-link previews; squareArchedBridge adds a flat-top rectangular-section U bridge with independent inner/outer dimensions, corner/edge radii and optional paired blind end bores, structurally derived from historical reference cases; not newly authored source geometry or complete source reconstruction",
       "servicesImpact": "none; all quickModel templates remain local-only",
       "logoImpact": "none; unchanged",
       "contractImpact": "page API 1.52; exclusive chain sizing schemas, categories and chainReport readback; source kind IDs preserved; squareArchedBridge shares the quickModel schema, units/ranges, template card, generic UI mapping and normal body measurements",
@@ -2579,7 +2593,7 @@
       "documentVersion": 3,
       "localSupported": true,
       "remoteSupported": "isolated prototype proof only; uniform cylindrical exact open-stroke masks and engraving; no 3D weaving substitute",
-      "acceptanceStatus": "small dual-depth native/core and original-click support binding regression passed; EXAMPLE-9B9044D7 first native binding failed before Boolean; additional real attempt deferred by user; real project acceptance pending",
+      "acceptanceStatus": "small dual-depth native/core and original-click support binding regression passed; the historical source project's first native binding failed before Boolean; additional real attempt deferred by user; real project acceptance pending",
       "targetedTests": [
         "tests/relief-contract.test.mjs",
         "tests/relief-kernel.test.mjs",
@@ -3079,7 +3093,7 @@
         "tests/page-api.test.mjs"
       ],
       "externalChecks": [
-        "Goldenluck.CodexAgent: tests/unit/test_webcad_software.py"
+        "Optional host Agent regression: tests/unit/test_webcad_software.py"
       ],
       "manualChecks": [
         "original rev98 project cold open/save"
@@ -3157,7 +3171,7 @@
       "documentVersion": 2,
       "localSupported": "logo-json/svg-restricted",
       "remoteSupported": "explicit-upload; inspect/convert; documented parser restrictions",
-      "acceptanceStatus": "real JSON and FURLA PDF local protocol/UI/API passed; IIS and account gates pending",
+      "acceptanceStatus": "real JSON and historical-source PDF local protocol/UI/API passed; IIS and account gates pending",
       "targetedTests": [
         "tests/browser-logo-input.test.mjs",
         "tests/services-runtime.test.mjs"
@@ -3719,7 +3733,7 @@
     "cacheImpact": "Rebuild matching static docs and frontend; preserve projects and backend jobs",
     "requiredTests": [
       "Noisy straight edges, circular contours, two-sided bound rejection, holes, zero tolerance",
-      "Actual MARC raster contour topology and successful 17674 BRep engraving with visible comparison",
+      "Actual historical-source lettering raster contour topology and successful 17674 BRep engraving with visible comparison",
       "Actual 30mm tiger: retain 148 regions/5 holes, same 0.05mm bound, conservative fallback and one BRep engraving comparison"
     ]
   },

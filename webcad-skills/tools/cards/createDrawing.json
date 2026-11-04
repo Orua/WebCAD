@@ -1,0 +1,74 @@
+{
+  "id": "createDrawing",
+  "title": "createDrawing",
+  "category": "page-method",
+  "version": "1.57.3",
+  "contextPolicy": "revision",
+  "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
+  "synonyms": [
+    "createDrawing",
+    "三视图",
+    "工程图",
+    "自动尺寸",
+    "截面"
+  ],
+  "inputContract": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
+  "outputContract": "status=generated、drawingId、drawing{views,dimensions,limitations}、svg、formats。OCCT隐藏线投影及精确截线；自动候选为外形、圆直径和圆心坐标，不推断工艺/公差。原件只读。默认第一角法。缓存仅保留最近4份。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_LIMIT",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "GEOMETRY_INVALID"
+  ],
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.read",
+        "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.confirmWritten",
+        "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有drawingId工程图，或readLogo返回的logoId原轮廓DXF/JSON；不必创建三维实体或写脚本。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:a29a827751bc79f9546101f3cbdcec8007426de3c11eebb7b661e24f9a7d5868"
+}

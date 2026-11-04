@@ -1,0 +1,68 @@
+{
+  "id": "getHistory",
+  "title": "getHistory",
+  "category": "page-method",
+  "version": "1.57.3",
+  "contextPolicy": "none",
+  "description": "getHistory()。会话最多20状态/512KiB，磁盘新保存文件不保留timeline。",
+  "synonyms": [
+    "getHistory",
+    "历史",
+    "状态",
+    "退回",
+    "检查点"
+  ],
+  "inputContract": "getHistory()。会话最多20状态/512KiB，磁盘新保存文件不保留timeline。",
+  "outputContract": "entries:{id,label,at,featureId?}、storedSteps、prunedSteps、bytes、maxSteps、maxBytes；撤销最多20次。旧工程历史读取兼容，下一次记录收紧上限。execute action=history.restore,args:{stateId}恢复当前仍保留的状态。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。",
+    "alternatives": [
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:cddb640eff3a553e5270f7e65984fdf6df5d5e9e150e0980e1b25c5d5667b20e"
+}

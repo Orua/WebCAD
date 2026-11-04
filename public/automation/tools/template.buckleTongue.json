@@ -206,7 +206,6 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -342,7 +341,6 @@
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
-    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -545,7 +543,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:e8ba0871ea202f1bb823b150836ef8b04d707f914f8b3f87f2d0d7a94499fa23"
+    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -618,5 +616,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:00f85473a7057c8209616a2f0ce504a049cfa87490504edc143cc884ed52b6df"
+  "docsHash": "sha256:228c18cf09a99e427d25ba44dc71d0f4d535a4957624e3d020eaa8f6f45033a6"
 }

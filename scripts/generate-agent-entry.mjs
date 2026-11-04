@@ -13,7 +13,7 @@ export async function generateAgentEntry({root,target,metadata}){
     firstCall:'window.webcad.api.connect({queries:["本次任务能力"],limit:2,includeContracts:true})',
     // Hosts must read timeouts/byte limits from here (or connect().limits); WebCAD is the single source.
     limits:{transport:{...LIMITS.transport},batch:{...LIMITS.batch}},
-    entrypoints:{script:'window.webcad.api (page script / CDP Runtime.evaluate)',broker:'Goldenluck codexagent /api/webcad (adapter v2)',mcp:'not in production yet'},
+    entrypoints:{script:'window.webcad.api (page script / CDP Runtime.evaluate)',broker:'optional authenticated host broker /api/webcad (adapter v2)',mcp:'not in production yet'},
     fileIntent:{open:'files.open({context,resourceId,unsaved:"fail"|"discard"}) replaces the document and never merges',insert:'files.import({context,resourceId,idempotencyKey,...}) adds into the current document'},
     domFallback:{when:'No script channel: operate only through visible UI and report the limitation.',
       open:`文件 → ${FILE_MENU_LABELS.open}; unsaved prompt: 保存 / 不保存 / 取消`,insert:`文件 → ${FILE_MENU_LABELS.importAtFrame}`,

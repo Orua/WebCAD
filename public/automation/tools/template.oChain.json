@@ -37,7 +37,7 @@
     "O字链",
     "O chain link"
   ],
-  "description": "多节按内口受拉贴紧，保留独立链节。来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+  "description": "多节按内口受拉贴紧，保留独立链节。历史只读 STEP 结构参考（非自主源几何）：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -206,7 +206,6 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -218,7 +217,7 @@
   "visibleInLibrary": true,
   "libraryCategory": "chains",
   "libraryCategoryLabel": "链条",
-  "purpose": "多节按内口受拉贴紧，保留独立链节。来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+  "purpose": "多节按内口受拉贴紧，保留独立链节。历史只读 STEP 结构参考（非自主源几何）：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
   "whenToUse": [
     "This selected template matches the required structure; its complete parameters and placement contract are in this card."
   ],
@@ -260,7 +259,7 @@
         }
       }
     ],
-    "description": "多节按内口受拉贴紧，保留独立链节。来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+    "description": "多节按内口受拉贴紧，保留独立链节。历史只读 STEP 结构参考（非自主源几何）：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
     "properties": {
       "kind": {
         "type": "string",
@@ -329,7 +328,7 @@
       }
     }
   },
-  "schemaHash": "sha256:b84ee0b73a90125230a026131ec502a937df7ccd7fcbdac6767671410adbf464",
+  "schemaHash": "sha256:5e517b410c1d57692959974ebfe437b617f9f40285a50926fd5c4dd62ccf2a12",
   "defaults": {
     "outerWidthMm": 7.2,
     "outerLengthMm": 9.2,
@@ -420,7 +419,6 @@
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
-    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -623,7 +621,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:e8ba0871ea202f1bb823b150836ef8b04d707f914f8b3f87f2d0d7a94499fa23"
+    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -686,5 +684,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0fc775993208a8a4c3ace0fe24f6cd42ba07666332d81ec00f326f577747ce17"
+  "docsHash": "sha256:392eecd890caeac64c620c60aa618bf5a420f13e865ad5a7107b31743756cc11"
 }

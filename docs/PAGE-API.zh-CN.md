@@ -1,14 +1,16 @@
 # WebCAD 页面 API
 
+WebCAD 面向小五金作图，可独立人工使用；Agent 和 Services 均为可选扩展。以下历史配方保留参数意义、量测差异和未验收结论，去标识不等于自主源几何。真实公司图纸、货号、原图句柄、私有工具路径不在公开说明中分发。旧 `recipes.pg` 前缀的 docId 仅作兼容别名，不表示业务身份；复用时需读取当前工具卡，并由用户授权资料重新确认来源。
+
 ## 宿主控制与默认新建定位（2026-10-10）
 
 同源宿主调用 `iframe.contentWindow.webcad.hostControl.set({locked:true,connected:true})`；部分字段可省略。`get()` 与 `set()` 同步返回 `{version:1,locked,connected,mouseMode:'view'|'editable',pageApiWritable:true}`，重复设置相同值不触发 UI 变化。释放控制用 `set({locked:false})`。此状态不写工程、不改变 revision；页面重载后宿主须重新设置，跨源页面不能直接调用。
 
 控制期间人工操作仅保留视口鼠标旋转、缩放、平移。菜单、属性、快捷键、文件拖入、锚点和实体手柄暂停，顶栏右侧显示连接/控制状态。`window.webcad.api` 的工程写入和查询继续工作；`getState().hostControl` 读回状态。启动默认编辑菜单、查看鼠标模式、透视投影；释放后保持查看模式。
 
-新追加的独立创建特征（工具卡 `placementPolicy.mode='creation-frame'`）省略 `placement` 时冻结当前工作锚点，包括单项创建、创建预览、`addMany` 和模型导入。`addMany` 共用事务开始的工作锚点。长方体以底面中心插入，其余默认模型原点；需要源世界坐标时显式传 `placement:{version:1,frame:{kind:'world'},sourceAnchor:{kind:'model-origin'}}`。既有无定位历史、旧工程重建及编辑不会应用新默认值，已定位历史使用原快照。
-
 Agent 与 UI 创建均遵守冻结定位，不再向已有模型右侧隐式排布。工作基准的 Z 避让仍独立生效；精确组合建模请归零后锁定基准，或显式指定 world/snapshot。工具卡 experimental 是成熟度，不能据此判定不可执行；须检查 canExecute/blockers。自定义截面 points2d 默认保留毫米坐标及旧折线，coordinateMode:normalized 按站点宽深缩放，interpolation:periodicSpline 使用真正的周期样条。
+
+新追加的独立创建特征（工具卡 `placementPolicy.mode='creation-frame'`）省略 `placement` 时冻结当前工作锚点，包括单项创建、创建预览、`addMany` 和模型导入。`addMany` 共用事务开始的工作锚点。长方体以底面中心插入，其余默认模型原点；需要源世界坐标时显式传 `placement:{version:1,frame:{kind:'world'},sourceAnchor:{kind:'model-origin'}}`。既有无定位历史、旧工程重建及编辑不会应用新默认值，已定位历史使用原快照。
 
 金属显示新默认与 CADViewer 使用同一 HDR、线性颜色、参考输出曲线及基色补光；已保存的个人渲染设置优先。Three PMREM、BRDF 和 CAD 相机仍独立，因此不保证逐像素相同。此改动只影响显示，不改变精确几何。
 
@@ -99,14 +101,7 @@ await api.execute({context,idempotencyKey:crypto.randomUUID(),action:'feature.ed
 
 ## 从 DXF 正视与侧视校验圆线圈
 
-对有效产品正视的内外 `CIRCLE` 和侧视圆截面 `CIRCLE` 已确定 handle 时，可用 `text-to-cad/agent/tools/cad-learning/export_dxf_round_ring.py` 导出 `quickModel.ring` 参数。脚本检验前视同心、前视材料宽等于侧视圆截面直径；不自动判定产品视图、接头和制造细节。Windows 在 text-to-cad 项目根目录下执行：
-
-```powershell
-$argsList=@('--dxf','models/jindafu-learning/real-products-survey-20260909/EXAMPLE-81BC76EC/EXAMPLE-81BC76EC.dxf',
-  '--output','agent/temp/pg3784-ring.json',
-  '--inner','AE2','--outer','AE3','--side','AE8')
-& agent/tools/cad-learning/run-silent.ps1 -Script agent/tools/cad-learning/export_dxf_round_ring.py -ScriptArguments $argsList -LogName export-pg3784-ring
-```
+对用户授权图纸，先通过当前 `readVector` 或受支持的解析器取得正视内外 `CIRCLE` 和侧视圆截面。核对前视同心、径向材料宽与侧视圆直径一致，再计算 `quickModel.ring` 参数。不发布历史原图句柄，不要求私有脚本；读取与参数换算不能自动判定接头和制造细节。将核对后的数据作为 `exported.params`，不得把历史来源当作自主源几何。
 
 JSON 中 `params` 可直接传给页面 `quickModel`；页面工具卡来自 `getTool({id:'quickModel'})`，历史参数可 `feature.edit`：
 
@@ -119,11 +114,11 @@ const result=await api.run({context:{...identity,expectedRevision:revision},idem
 ]});
 ```
 
-检查 `result.status`、单实体、体积、尺寸和显示 revision。EXAMPLE-81BC76EC 的源前视内 R12.5、外 R19.5、侧截面 R3.5；实测模型约 39×39×7 mm、3868.884925 mm³。第二份独立图 EXAMPLE-2D26CDA9 用内/外 `F7/F8`、侧视 `FB` 复跑，导出内径34.9、圆线径6.4；页面实测单实体约47.7×47.7×6.4 mm、4173.974136 mm³，模型/渲染 revision 均为2。若前视有开缝、侧视截面不是圆或尺寸不一致，此脚本拒绝或不适用，不能把平垫圈 `washer` 混作圆线圈。
+检查 `result.status`、单实体、体积、尺寸和显示 revision。历史厚圆线圈 的源前视内 R12.5、外 R19.5、侧截面 R3.5；实测模型约 39×39×7 mm、3868.884925 mm³。另一历史圆线圈案例以其独立图纸复核，导出内径34.9、圆线径6.4；页面实测单实体约47.7×47.7×6.4 mm、4173.974136 mm³，模型/渲染 revision 均为2。若前视有开缝、侧视截面不是圆或尺寸不一致，此脚本拒绝或不适用，不能把平垫圈 `washer` 混作圆线圈。
 
 ## 双孔葫芦形圆线组合
 
-对两个同尺寸、上下并列、材料在中腰相交的长圆孔，复用 `quickModel.capsuleWire`、`transform` 和 `union`。AI 先读这三张 `getTool` 参数卡及 `readDocs({docId:'recipes.figure-eight-capsule'})`。输入每孔内宽 `innerWidth`、内高 `innerHoleHeight`、圆线直径 `wireDiameter` 和两孔中心距 `centerSpacing`；需 `innerWidth>innerHoleHeight>0`、`wireDiameter>0` 且 `innerHoleHeight<centerSpacing<innerHoleHeight+2*wireDiameter`。最后一个条件使两孔不交叉、两圈材料实际相交。通用页面调用（此例使用 EXAMPLE-23D169B8 源线中心距）：
+对两个同尺寸、上下并列、材料在中腰相交的长圆孔，复用 `quickModel.capsuleWire`、`transform` 和 `union`。AI 先读这三张 `getTool` 参数卡及 `readDocs({docId:'recipes.figure-eight-capsule'})`。输入每孔内宽 `innerWidth`、内高 `innerHoleHeight`、圆线直径 `wireDiameter` 和两孔中心距 `centerSpacing`；需 `innerWidth>innerHoleHeight>0`、`wireDiameter>0` 且 `innerHoleHeight<centerSpacing<innerHoleHeight+2*wireDiameter`。最后一个条件使两孔不交叉、两圈材料实际相交。通用页面调用（此例使用 历史双孔圆线案例 源线中心距）：
 
 ```js
 const api=window.webcad.api;
@@ -140,36 +135,19 @@ const result=await api.run({context:{...identity,expectedRevision:revision},idem
 ]});
 ```
 
-核对每步回执、`size.result.solidCount===1`、精确体积、包围及 `getState().display.rendered.revision`。包围名义宽=`innerWidth+2×wireDiameter`，高=`innerHoleHeight+2×wireDiameter+centerSpacing`，厚=`wireDiameter`。EXAMPLE-23D169B8 源图内/外端 R4.15/R9.65、中心距11.4；此组合在页面形成可辨认的双孔圆线单实体 **45.7×30.7×5.5 mm、4037.572771 mm³**。源图标注外高30.6，比源弧推得及模型高少0.1 mm；源中腰 R0.6 圆滑连接也尚未复刻。本配方留下两圈、两次位移、一次合并共五个可编辑历史特征，修改尺寸时须同步更新两圈和对称位移；若多款产品复用并确认相同接头规则，再考虑合并为一个快捷模型。
+核对每步回执、`size.result.solidCount===1`、精确体积、包围及 `getState().display.rendered.revision`。包围名义宽=`innerWidth+2×wireDiameter`，高=`innerHoleHeight+2×wireDiameter+centerSpacing`，厚=`wireDiameter`。历史双孔圆线案例 源图内/外端 R4.15/R9.65、中心距11.4；此组合在页面形成可辨认的双孔圆线单实体 **45.7×30.7×5.5 mm、4037.572771 mm³**。源图标注外高30.6，比源弧推得及模型高少0.1 mm；源中腰 R0.6 圆滑连接也尚未复刻。本配方留下两圈、两次位移、一次合并共五个可编辑历史特征，修改尺寸时须同步更新两圈和对称位移；若多款产品复用并确认相同接头规则，再考虑合并为一个快捷模型。
 
 ## 从 DXF 解析线弧生成精确实体
 
 `arcProfile` 将有序、闭合的二维 `LINE`/`ARC` 轮廓直接做成面并沿 Z 拉伸，圆弧侧面保持解析曲面。AI 先读 `getTool({id:'arcProfile'})` 和 `readDocs({docId:'recipes.analytic-arc-profile'})`。`outer` 和 `holes` 中的每段是 `{type:'line',points:[[x,y],[x,y]]}` 或 `{type:'arc',points:[[起点],[弧中],[终点]]}`；相邻端点及闭环误差须小于 0.000001 mm。`height` 是有符号等深厚度（mm）。历史可用 `feature.edit` 修改轮廓或厚度。脚本不自动判断源图哪条线属于产品，不支持样条、变深截面或曲面投影。
 
-DXF 导出器也接受单个 `CIRCLE` 作为一个完整外轮廓或孔，并将其拆成两条精确半圆弧。EXAMPLE-307B871C 改模版可指定外 `F6,FE,FF,F8,F7,FB,F9,FA,FD,FC`、圆孔 `F5`、弧槽孔 `100,102,103,101,105,104`，厚度5 mm；见 `readDocs({docId:'recipes.pg8091-analytic-profile'})`。图面标外宽40.6 mm，与解析源线约41.208906 mm有约0.608906 mm差，暂不强制缩放。
+单个 `CIRCLE` 可作为完整外轮廓或孔，也可表达为两条精确半圆弧。历史带孔弧槽平板候选厚度5 mm，外环与孔环必须从本次授权文件取得，不照抄原图句柄；见 `readDocs({docId:'recipes.pg8091-analytic-profile'})`。图面标外宽40.6 mm，与解析源线约41.208906 mm有约0.608906 mm差，暂不强制缩放。
 
-同一导出器还接受单个**闭合 `LWPOLYLINE`** 作为一个轮廓，把正负 bulge 精确转为三点圆弧；源实体必须处于 XY 平面，非零 Z 或非默认挤出方向会拒绝，避免错误投影。EXAMPLE-A60C9272 外 `BCA1`、孔 `BCA0` 的正视外包围 33×23 mm 可作交叉核验：
+闭合 `LWPOLYLINE` 可形成一个轮廓，正负 bulge 应精确转为三点圆弧。源实体必须处于 XY 平面，非零 Z 或非默认挤出方向不能被错误投影。历史圆线方框的正视外包围 33×23 mm 仅作历史交叉核验；通过本次 `readVector` 结果确认外环和孔环，不提供公司原图句柄或私有导出脚本。
 
-```powershell
-$argsList=@('--dxf','agent/temp/cad-learning/pg7440-round53/pg7440.dxf',
-  '--output','agent/temp/cad-learning/pg7440-round53/analytic.json',
-  '--outer','BCA1','--hole','BCA0','--height','4')
-& agent/tools/cad-learning/run-silent.ps1 -Script agent/tools/cad-learning/export_dxf_arc_profile.py -ScriptArguments $argsList -LogName pg7440-arc-profile
-```
+`arcProfile` 生成等深平板，历史圆线方框案例 侧视却给出 Ø4 圆线，故该正视校验**不能**代替该件已有的 `quickModel.rectBuckle` 圆截面模型。适用判断与页面脚本见 `readDocs({docId:'recipes.dxf-bulge-analytic-profile'})`；实物建模必须继续对照侧视。
 
-`arcProfile` 生成等深平板，EXAMPLE-A60C9272 侧视却给出 Ø4 圆线，故该正视校验**不能**代替该件已有的 `quickModel.rectBuckle` 圆截面模型。适用判断与页面脚本见 `readDocs({docId:'recipes.dxf-bulge-analytic-profile'})`；实物建模必须继续对照侧视。
-
-EXAMPLE-4DB36DB3 是适合解析轮廓加圆边的平板双窗实例。先核对有效正视：外四线 `97E2,97E3,97E7,97EB` 加四弧 `9A99,9AA3,9AB6,9AC0`；上孔四线 `97F0,97F1,97F2,97F8` 加四弧 `97F4,97F5,97FE,97FF`；下孔四线 `97F9,97FA,97FB,97F3` 加四弧 `97FC,97FD,97F6,97F7`。侧厚3.5、前后边 R0.5。Windows 在 text-to-cad 项目根目录下：
-
-```powershell
-$argsList=@('--dxf','models/jindafu-learning/real-products-survey-20260909/EXAMPLE-4DB36DB3/pg6217.dxf',
-  '--output','agent/temp/cad-learning/pg6217-profile.json',
-  '--outer','97E2,97E3,97E7,97EB,9A99,9AA3,9AB6,9AC0',
-  '--hole','97F0,97F1,97F2,97F8,97F4,97F5,97FE,97FF',
-  '--hole','97F9,97FA,97FB,97F3,97FC,97FD,97F6,97F7',
-  '--height','3.5','--join','0.01')
-& agent/tools/cad-learning/run-silent.ps1 -Script agent/tools/cad-learning/export_dxf_arc_profile.py -ScriptArguments $argsList -LogName pg6217-source-profile
-```
+历史平板双窗案例适合解析轮廓加圆边：在授权图纸的有效正视中，分别核对外环和上下孔环的直线/圆弧。候选侧厚3.5 mm、前后边 R0.5。使用当前 `readVector`、`connectVector` 或已有授权解析器准备轮廓，不公开原图句柄或依赖私有脚本。沿用的尺寸和历史测量不代表自主源几何或本轮验收。
 
 将已核对 JSON 作为页面变量 `data`，读取两张工具卡 `getTool({id:'arcProfile'})`、`getTool({id:'autoRound'})`，再执行：
 
@@ -185,19 +163,11 @@ const result=await api.run({context:{...identity,expectedRevision:revision},idem
 
 检查逐步回执、单实体和渲染修订。源画线高度 26.646181 mm，比名义标注26.6高约0.046181 mm，不强改源线；浏览器试件为44.8×26.646181×3.5 mm、1995.497578 mm³。圆边失败时复核局部空间，不能无声减小源 R。完整 AI 配方见 `readDocs({docId:'recipes.source-analytic-round'})`。
 
-EXAMPLE-561E64A5 B 件弧形带板展示原 DXF **小缺口**的处理：外弧 `52E` R20、内弧 `532` R15、端线 `52F/530`，通孔圆 `579/57A` R1.15，侧厚5 mm。内弧与两条端线约有0.040002 mm 接缝；默认 `--join 0.01` 会拒绝。经核对图面后可明确使用 `--join 0.05`，导出器保持 ARC 三点与半径，只吸附相接 LINE 端点，并在 JSON 及模型 `params.source` 记录修缝量和方法。Windows 在 text-to-cad 项目根目录下：
-
-```powershell
-$argsList=@('--dxf','models/jindafu-learning/real-products-survey-20260909/EXAMPLE-561E64A5/pg5752.dxf',
-  '--output','agent/temp/cad-learning/pg5752-b-profile.json',
-  '--outer','52E,532,52F,530','--hole','579','--hole','57A',
-  '--height','5','--join','0.05')
-& agent/tools/cad-learning/run-silent.ps1 -Script agent/tools/cad-learning/export_dxf_arc_profile.py -ScriptArguments $argsList -LogName pg5752-b-profile
-```
+历史双孔弧带板的 B 件展示源 DXF **小缺口**的处理：外弧 R20、内弧 R15、两条端线、两通孔 R1.15，侧厚5 mm。原内弧与端线约有0.040002 mm 接缝，0.01 mm 接合容差应拒绝。核对图面且获得修缝授权后才明确使用0.05 mm，保持 ARC 三点与半径，仅移动相接 LINE 端点，并在 JSON 及 `params.source` 记录真实修缝量和方法。不发布公司原图句柄，也不把修缝后的历史案例声称为自主源几何或制造级复刻。
 
 把 JSON 放进页面变量 `data` 后，用本节 `arcProfile` 的 `api.run(add + measure)` 调用。读 `readDocs({docId:'recipes.source-arc-band-profile'})` 获取完整护栏。两只 R1.65 同心大圆的沉孔深度未标，不能从正视圆环自动生成沉孔；A 件也不包含在 B 件中。
 
-EXAMPLE-561E64A5 A 件可用同一导出器与 DXF，传 `--outer 3D2,3D6,3D8,3D9 --hole 3DD --hole 3E1 --height 5 --join 0.01`，指定独立的 `--output`。源图的两个小圆 R0.85 标为 2-M2；解析圆孔模型不表示螺纹。页面分别载入 A/B JSON 为 `dataA`、`dataB`，先查 `arcProfile`、`transform` 工具卡，再逐步建模与测量：
+双件案例的 A 件需从授权 DXF 单独确认外环与两孔，等深候选5 mm、接合容差0.01 mm，输出与 B 件分开；不得照抄其他来源句柄。源图的两个小圆 R0.85 标为 2-M2；解析圆孔模型不表示螺纹。页面分别载入 A/B JSON 为 `dataA`、`dataB`，先查 `arcProfile`、`transform` 工具卡，再逐步建模与测量：
 
 ```js
 const api=window.webcad.api;
@@ -213,17 +183,9 @@ const result=await api.run({context:{...identity,expectedRevision:revision},idem
 
 检查每步回执、两个实体及渲染修订。实测 A 为 40×35.725769605×5 mm、2156.407441 mm³；B 为 33.020453×11.534217×5 mm、808.171586 mm³。`x:60` 只用于同屏看外形，未表示装配关系或配合位置。完整源件使用说明见 `readDocs({docId:'recipes.pg5752-two-source-parts'})`。
 
-对已核定 handle 的 DXF，可在 text-to-cad 项目根目录下通过静默 Python 导出直接可用的 `params`。EXAMPLE-E8C8876E 的 DXF 是对源 DWG 作只读转换后放在 `agent/temp/` 的临时文件；每次先核对原图与句柄：
+倒置 D 框历史来源案例：从只读授权图纸取得已核对的外环、孔环、单位与侧视厚度，通过实际支持的矢量解析准备 `params`。等深候选3.5 mm、接合容差0.01 mm；这些是历史试拟条件，不是通用默认或自主源几何。私有转换目录和原图句柄不在公开文档中分发。
 
-```powershell
-$argsList=@('--dxf','agent/temp/cad-learning/pg11419-round51/pg11419.dxf',
-  '--output','agent/temp/cad-learning/pg11419-round51/analytic.json',
-  '--outer','62BF,62CC,62D0,62C3,62C5,62C8,62C9,62BB',
-  '--hole','62F5,676A,6774,62F2','--height','3.5','--join','0.01')
-& agent/tools/cad-learning/run-silent.ps1 -Script agent/tools/cad-learning/export_dxf_arc_profile.py -ScriptArguments $argsList -LogName pg11419-arc-profile
-```
-
-输出记录 `source_bounds`、`origin_xy`、`max_join_gap_mm`、handle 和 `params`。`--height 3.5` 仅为侧视 3.4/3.7 mm 之间的等深候选。把已复核 JSON 传入页面变量 `data`：
+授权解析结果应保留源坐标包围、局部原点、实际最大接缝和源图元标识，并将已核对轮廓整理为 `params`。厚度3.5 mm 仅为侧视 3.4/3.7 mm 之间的等深候选；页面不自动生成这些来源证据。把已复核 JSON 传入页面变量 `data`：
 
 ```js
 const api=window.webcad.api;
@@ -238,18 +200,9 @@ const result=await api.run({context:{...identity,expectedRevision:revision},idem
 
 ## 从 DXF 直线、圆弧和样条导出闭合轮廓
 
-有效产品视图的实体 handle 经人工核对后，可在 `text-to-cad` 工作区调用可复用 `agent/tools/cad-learning/export_dxf_profile.py`。Windows 按该项目规定经 `run-silent.ps1` 运行。例如 EXAMPLE-307B871C 有效改模版：
+有效视图的外环与孔环须由人工核对。当前 `readVector` 能解析的直线、圆弧和圆优先保留解析几何；样条采样使用用户授权且实际可用的解析器，不依赖特定私有技能或目录。以下历史采样条件为展平距离0.01 mm、端点接合容差0.01 mm，数据作为 `sampled`；不是新生成的自主源几何。
 
-```powershell
-$argsList=@('--dxf','models/jindafu-learning/real-products-survey-20260909/EXAMPLE-307B871C/pg8091.dxf',
-  '--output','agent/temp/pg8091-profile.json',
-  '--outer','F6,FE,FF,F8,F7,FB,F9,FA,FD,FC',
-  '--hole','F5','--hole','100,102,103,101,105,104',
-  '--distance','0.01','--join','0.01')
-& agent/tools/cad-learning/run-silent.ps1 -Script agent/tools/cad-learning/export_dxf_profile.py -ScriptArguments $argsList -LogName export-pg8091-profile
-```
-
-`--outer` 给出外轮廓的 LINE/ARC handle；每个 `--hole` 是一个独立孔的 handle 列表，单个 CIRCLE 也可作为一孔。工具按端点连接并必要时反向边，拒绝断链、分叉、非闭合或重复 handle；`--distance` 是圆弧折线的最大弦高，`--join` 是原端点接合容差。JSON 输出已居中的 `regions`、源坐标包围、handle、点数和实际最大接缝。脚本不能判断哪一组实体才是产品，不直接读取 DWG，不代表原样条、截面或利角处理。
+历史离线导出流程以 `--outer` 指定外轮廓的 LINE/ARC 标识，每个 `--hole` 指定独立孔的图元列表，单个 CIRCLE 也可作为一孔。该流程按端点连接并必要时反向边，拒绝断链、分叉、非闭合或重复图元；`--distance` 表示圆弧折线的最大弦高，`--join` 表示原端点接合容差。以上是历史数据准备语义，不是当前页面方法或必须安装的脚本。当前授权解析器应提供经复核、已居中的 `regions`，保留源坐标包围、图元标识、点数和实际最大接缝；不能自动判断哪组实体才是产品，也不能据此证明原样条、截面或利角处理。
 
 AI 将复核后的 JSON 数据作为 `sampled` 传到页面脚本，经已有的 `vectorProfile` 工具生成实体：
 
@@ -265,29 +218,15 @@ const result=await api.run({context:{...identity,expectedRevision:revision},idem
 ]});
 ```
 
-EXAMPLE-307B871C 的外轮廓与两孔得到 112/87/60 个折线点，端点最大接缝约 0.000001 mm。以侧视 5 mm 拉伸得到单实体约 41.202×52.181×5 mm、4146.667412 mm³；图面外宽标 40.6、高标 52.2 mm，宽度比采样外形少约 0.602 mm。差值来源未确认前，只作为源线外观候选。完整调用及限制见 `readDocs({docId:'recipes.dxf-arc-profile'})`。
+历史圆孔弧槽板案例 的外轮廓与两孔得到 112/87/60 个折线点，端点最大接缝约 0.000001 mm。以侧视 5 mm 拉伸得到单实体约 41.202×52.181×5 mm、4146.667412 mm³；图面外宽标 40.6、高标 52.2 mm，宽度比采样外形少约 0.602 mm。差值来源未确认前，只作为源线外观候选。完整调用及限制见 `readDocs({docId:'recipes.dxf-arc-profile'})`。
 
-同一导出器也接受 SPLINE：EXAMPLE-073EEC4E 以 `--outer 7F45,7F47,7F46,7F48` 连接两条直线和两条源样条，采样 146 点，得到 24.006007×21 mm 外轮廓，最大接缝约 0.0000000023 mm。`--distance` 对圆弧是弦高，对样条是 ezdxf 展平距离。EXAMPLE-073EEC4E 的内轮廓样条端点与图中邻近直线并不直接重合，不能用放大 `--join` 强制闭合；双窗内孔继续用 `traceTwinWindow` 的图纸专用拼接流程。开放圆线中心路径也不属于本闭合轮廓导出器的适用范围。
+历史双窗源线案例由两条直线和两条 SPLINE 组成外环，采样 146 点，得到 24.006007×21 mm 外轮廓，最大接缝约 0.0000000023 mm。`--distance` 对圆弧是弦高，对样条是 ezdxf 展平距离。历史样条双窗案例 的内轮廓样条端点与图中邻近直线并不直接重合，不能用放大 `--join` 强制闭合；双窗内孔继续用 `traceTwinWindow` 的图纸专用拼接流程。开放圆线中心路径也不属于本闭合轮廓导出器的适用范围。
 
 ## 连续线弧圆线扫掠
 
-成对的 DXF 内外 LINE/ARC 可先用 `text-to-cad/agent/tools/cad-learning/export_dxf_midline.py` 生成页面参数。AI 须先确认产品有效视图、按路径顺序选内外实体 handle，并从侧视确认圆截面直径；脚本不会自动选择产品或推断截面。Windows 在 text-to-cad 项目根目录下运行：
+成对 DXF 内外 LINE/ARC 可以按几何关系推导中心路径。先确认有效视图、内外边界行进顺序，并由侧视确认圆截面直径；不能自动选择产品或推断截面。历史开口圆线案例使用直径5 mm、接合容差0.05 mm；原图句柄和私有脚本不公开。通过当前受支持的矢量读取或授权解析器核对每对边界，再准备 `curveSweep` 参数。
 
-```powershell
-$argsList=@('--dxf','models/jindafu-learning/real-products-survey-20260909/EXAMPLE-E4C87944/pg8061.dxf',
-  '--output','agent/temp/pg8061-midline.json','--diameter','5','--join','0.05',
-  '--segment','line:E380:E36C:forward',
-  '--segment','arc:E37F:E36B:reverse',
-  '--segment','arc:E37E:E36A:reverse',
-  '--segment','arc:E37D:E369:reverse',
-  '--segment','arc:E37C:E368:reverse',
-  '--segment','arc:E383:E371:reverse',
-  '--segment','arc:E382:E370:reverse',
-  '--segment','line:E381:E36E:reverse')
-& agent/tools/cad-learning/run-silent.ps1 -Script agent/tools/cad-learning/export_dxf_midline.py -ScriptArguments $argsList -LogName export-pg8061-midline
-```
-
-导出器验证每对同类、同向、恒定 5 mm 间隔的线或同心等角弧，拒绝重复 handle、断链、闭链及超出 `--join` 的接缝；输出的 `params` 已居中并把接缝端点取平均至完全相合。默认线/半径差容差 0.02 mm、弧圆心容差 0.01 mm，可用 `--offset-tolerance`、`--center-tolerance` 调整（上限 0.1 mm）。结果保留源 handle、原点和原始最大接缝供核查。EXAMPLE-E4C87944 最大接缝约 0.017787 mm；内核生成有效单实体约 28.029784×23.373244×5 mm、1187.871376 mm³。该提取只适用于可验证的平面等宽圆线，不能复原局部端头或三维折弯。
+历史离线导出器验证每对同类、同向、恒定 5 mm 间隔的线或同心等角弧，拒绝重复图元、断链、闭链及超出接合容差的接缝；输出的 `params` 已居中，并明确记录接缝端点取平均的修正。其历史默认线/半径差容差为 0.02 mm、弧圆心容差为 0.01 mm，可调上限 0.1 mm；这些不是当前页面参数或通用默认。当前数据准备须核对同样的几何条件，修缝需用户授权，并保留源图元标识、原点、原始最大接缝和实际移动量。历史开口线弧件案例 最大接缝约 0.017787 mm；内核生成有效单实体约 28.029784×23.373244×5 mm、1187.871376 mm³。该提取只适用于可验证的平面等宽圆线，不能复原局部端头或三维折弯。
 
 AI 读取 `getTool({id:'curveSweep'})` 和 `readDocs({docId:'recipes.segmented-curve-sweep'})`。`pathType:'segments'` 允许 2–64 个连续段，默认开放；显式 `closed:true` 时首尾也须相接。直线用起终两点，圆弧用起点、弧中点、终点，坐标均为 XYZ 毫米。相邻端点必须在 0.000001 mm 内重合，圆截面半径独立指定。页面调用：
 
@@ -305,23 +244,15 @@ const result=await api.run({context:{...identity,expectedRevision:revision},idem
 ]});
 ```
 
-实际 DXF 数据可先读取导出 JSON 为 `exported`，把上例的 `params:{pathType:'segments',segments,radius:0.2}` 换成 `params:exported.params`。检查 `result.status`、`size.result.solidCount`、体积及 `getState().display.rendered.revision`。分段模式使用内核的 transformed 过渡并检查拓扑；`right` 模式在 EXAMPLE-E4C87944 的近相切复合弧上生成了无效实体，不能仅凭 `solidCount:1` 放行。源 EXAMPLE-E4C87944 同心内外弧可计算开口圆线中心路径，圆截面扫掠已形成有效实体；端部 R0.8 的平面收口和侧视细节仍需另验，不能把此脚本直接视作完整产品复刻。参数可经 `feature.edit` 修改整段路径或半径。
+实际 DXF 数据可先读取导出 JSON 为 `exported`，把上例的 `params:{pathType:'segments',segments,radius:0.2}` 换成 `params:exported.params`。检查 `result.status`、`size.result.solidCount`、体积及 `getState().display.rendered.revision`。分段模式使用内核的 transformed 过渡并检查拓扑；`right` 模式在 历史开口线弧件案例 的近相切复合弧上生成了无效实体，不能仅凭 `solidCount:1` 放行。源 历史开口线弧件案例 同心内外弧可计算开口圆线中心路径，圆截面扫掠已形成有效实体；端部 R0.8 的平面收口和侧视细节仍需另验，不能把此脚本直接视作完整产品复刻。参数可经 `feature.edit` 修改整段路径或半径。
 
 ## DWG 样条双窗扣闭合轮廓
 
 `traceTwinWindow` 是只读计算端口。输入可靠 CAD 解析器采样出的四条侧边曲线，每条按 Y 从上到下排列；同时明确横条的上下 Y 坐标。工具用源侧曲线和直线闭合一个外轮廓、两个窗孔，返回以外轮廓中心为原点的 `vectorProfile.regions`。先读取 `getTool({id:'traceTwinWindow'})` 和 `readDocs({docId:'api.dwg-spline-twin-window'})`：
 
-在当前本机的 `text-to-cad` 工作区，可先由已有 LibreDWG 路线取得 DXF，再调用可复用采样脚本（`--handles` 由源 DWG 实体核对后填写；输出放在 `agent/temp/`）：
+由宿主实际提供且用户授权的 CAD 解析器读取四条源样条；保留单位、图框、修订、源哈希和采样距离。这里不提供公司源图元句柄或私有采样脚本路径。页面端口只接收已核对的数据，不代表具备任意 DWG 样条构造能力。
 
-```powershell
-& 'agent/tools/cad-learning/run-silent.ps1' `
-  -Script 'agent/tools/cad-learning/export_spline_samples.py' `
-  -ScriptArguments @('--dxf','models/jindafu-learning/real-products-survey-20260909/EXAMPLE-073EEC4E/pg4307.dxf',
-    '--output','agent/temp/pg4307-spline-samples.json',
-    '--handles','7F47','7F48','7F49','7F4A')
-```
-
-JSON 的 `splines` 数组提供 `handle` 和 `points`；AI 按已核对的四个 handle 分配 `outerLeft`、`outerRight`、`innerLeft`、`innerRight`，并将来源、原 DWG 哈希、采样距离写入下步 `source`。这个本机采样脚本是输入准备工具，WebCAD 页面计算端口也可接受其他可信 DXF 解析器提供的同格式数组。
+授权解析器可用 `splines` 数组记录源图元标识和 `points`；AI 按已核对的四条曲线分配 `outerLeft`、`outerRight`、`innerLeft`、`innerRight`，并将来源、原 DWG 哈希、采样距离写入下步 `source`。页面计算端口接收核对后的坐标数组，不要求特定本机采样脚本；解析器是否支持该来源格式须单独确认。
 
 ```js
 const api=window.webcad.api;
@@ -334,16 +265,16 @@ const built=await api.run({context:{...identity,expectedRevision:revision},
   idempotencyKey:crypto.randomUUID(),steps:[
     {id:'source',method:'add',args:{op:'vectorProfile',refs:[],params:{
       regions:traced.regions,output:'solid',height:3.5,
-      source:{kind:'dwg-spline-samples',product:'EXAMPLE-073EEC4E',distanceMm:0.01}}}},
+      source:{kind:'dwg-spline-samples',product:'历史样条双窗案例',distanceMm:0.01}}}},
     {id:'size',method:'measure',args:{bodyId:{$ref:'source.createdBodyIds.0'}}}
   ]});
 ```
 
-EXAMPLE-073EEC4E 的原 DWG 经过 LibreDWG 转 DXF，再由 `ezdxf` 对四条样条以 `flattening(distance=0.01,segments=8)` 采样；源图横条上下边为 Y=980.692393162788/977.692393162788 mm。完整采样路径得到正面约 24.006×21 mm、厚 3.5 mm、983.047 mm³ 的单实体。可选 `simplifyToleranceMm:0.01` 把四条侧曲线总点数从 628 降至 162，实测相对**采样折线**最大偏差 0.00963 mm，实体体积约 983.074 mm³；外尺寸保持不变。相比固定圆角矩形候选的 1025.376 mm³，这两种源线近似更有依据。采样参数和简化偏差都不能证明对原始连续样条的总误差上界；应回读源图、检查曲线闭合与 STEP。四条曲线每条 3–2000 点，必须严格递减 Y、左右端高差≤0.01 mm、内外和横条边界有真实间隔。简化容差限 0..0.2 mm，省略或设0表示保留全部采样点。工具不会自己打开 DWG，也不会猜截面或倒边；失败不提交。
+历史样条双窗案例 的原 DWG 经过 LibreDWG 转 DXF，再由 `ezdxf` 对四条样条以 `flattening(distance=0.01,segments=8)` 采样；横条边界须从本次来源核对，并与侧曲线使用同一基准；不照抄历史图纸世界坐标。完整采样路径得到正面约 24.006×21 mm、厚 3.5 mm、983.047 mm³ 的单实体。可选 `simplifyToleranceMm:0.01` 把四条侧曲线总点数从 628 降至 162，实测相对**采样折线**最大偏差 0.00963 mm，实体体积约 983.074 mm³；外尺寸保持不变。相比固定圆角矩形候选的 1025.376 mm³，这两种源线近似更有依据。采样参数和简化偏差都不能证明对原始连续样条的总误差上界；应回读源图、检查曲线闭合与 STEP。四条曲线每条 3–2000 点，必须严格递减 Y、左右端高差≤0.01 mm、内外和横条边界有真实间隔。简化容差限 0..0.2 mm，省略或设0表示保留全部采样点。工具不会自己打开 DWG，也不会猜截面或倒边；失败不提交。
 
 ## 小双窗扣外观候选
 
-EXAMPLE-073EEC4E 用现有“快捷模型 → 平板双窗扣”建立可编辑的名义外观。AI 先读取 `getTool({id:'quickModel'})`，再调用：
+历史样条双窗案例 用现有“快捷模型 → 平板双窗扣”建立可编辑的名义外观。AI 先读取 `getTool({id:'quickModel'})`，再调用：
 
 ```js
 const api=window.webcad.api;
@@ -362,7 +293,7 @@ const result=await api.run({context:{...identity,expectedRevision:revision},
 
 ## 圆弧拱弯平板双窗扣
 
-“快捷模型 → 圆弧拱弯平板双窗扣”使用 `quickModel` 的 `archedTwinWindowPlate`。AI 从 `getTool({id:'quickModel'})` 读取当前参数卡；下面是 EXAMPLE-72C8281D 薄条双窗的**外观试建**：
+“快捷模型 → 圆弧拱弯平板双窗扣”使用 `quickModel` 的 `archedTwinWindowPlate`。AI 从 `getTool({id:'quickModel'})` 读取当前参数卡；下面是历史薄条拱弯双窗案例的**外观试建**：
 
 ```js
 const api=window.webcad.api;
@@ -377,7 +308,7 @@ const result=await api.run({
 });
 ```
 
-正视圆角双窗轮廓裁切同轴圆筒薄壁，外弧半径 `bendRadius`，径向厚度 `radialThickness`；弯曲沿 Y，圆筒轴沿 X。EXAMPLE-72C8281D 的模型约 **32.9×25.5×4.302 mm**，图面侧深 **4.2 mm**，尚未通过源截面及未知边缘过渡验收。输入要求内弧半径大于外高一半，双孔完全在外轮廓内；失败整步回滚。读 `status`、`measure`、渲染修订，历史可用 `feature.edit` 调参。本工具只适用于薄条一体双窗。EXAMPLE-38563597 侧视有两端 Ø5 圆截面和中部 Ø4 圆杆，属于弯曲圆线框加横杆，不能套平板工具。详见 `readDocs({docId:'recipes.arched-twin-window'})`。
+正视圆角双窗轮廓裁切同轴圆筒薄壁，外弧半径 `bendRadius`，径向厚度 `radialThickness`；弯曲沿 Y，圆筒轴沿 X。历史薄条拱弯双窗案例 的模型约 **32.9×25.5×4.302 mm**，图面侧深 **4.2 mm**，尚未通过源截面及未知边缘过渡验收。输入要求内弧半径大于外高一半，双孔完全在外轮廓内；失败整步回滚。读 `status`、`measure`、渲染修订，历史可用 `feature.edit` 调参。本工具只适用于薄条一体双窗。历史变截面圆线双窗框 侧视有两端 Ø5 圆截面和中部 Ø4 圆杆，属于弯曲圆线框加横杆，不能套平板工具。详见 `readDocs({docId:'recipes.arched-twin-window'})`。
 
 ## 鼓侧边平板双窗扣
 
@@ -396,7 +327,7 @@ const result=await api.run({
 });
 ```
 
-上下直段、四角小 R 与两侧大 R 相切；两孔各有两个半圆端，`windowSpacing` 是孔中心距，`edgeRadius` 是实体前后边的三维倒 R。名义参数得到约 **43.58336×24.5×3.7 mm、2204.792137 mm³**；EXAMPLE-FA850E15 已核源圆弧 STEP 为 **43.597847×24.5×3.7 mm、2206.094501 mm³**。源外圆弧及四角存在微小非对称；此工具是可编辑的镜像对称近似，不能称为源弧完全重合。参数要求侧 R 大于角 R 且可相切、两孔分离并完全位于板内、边 R 小于板厚和最窄壁厚的一半。检查批次状态、`measure` 和渲染修订；失败整步回滚，历史可用 `feature.edit` 改参数。详见 `readDocs({docId:'recipes.bowed-twin-window'})`。
+上下直段、四角小 R 与两侧大 R 相切；两孔各有两个半圆端，`windowSpacing` 是孔中心距，`edgeRadius` 是实体前后边的三维倒 R。名义参数得到约 **43.58336×24.5×3.7 mm、2204.792137 mm³**；历史鼓侧非对称双窗案例 已核源圆弧 STEP 为 **43.597847×24.5×3.7 mm、2206.094501 mm³**。源外圆弧及四角存在微小非对称；此工具是可编辑的镜像对称近似，不能称为源弧完全重合。参数要求侧 R 大于角 R 且可相切、两孔分离并完全位于板内、边 R 小于板厚和最窄壁厚的一半。检查批次状态、`measure` 和渲染修订；失败整步回滚，历史可用 `feature.edit` 改参数。详见 `readDocs({docId:'recipes.bowed-twin-window'})`。
 
 ## 平垫圈
 
@@ -413,11 +344,11 @@ const result=await api.run({
 });
 ```
 
-`sectionSize` 在此是**径向壁宽**，`innerHeight` 是**轴向厚度**；外径=内径+2×径向壁宽。EXAMPLE-AB0E9EAC 得外 Ø50.2、内 Ø36.2、厚 3.2 mm，体积约 3040.056379 mm³；EXAMPLE-24D1AD8C 改为内 Ø25、壁宽 4.4、厚 3.8，得外 Ø33.8、体积约 1544.306418 mm³。三项必须大于 0。原图均未标边 R/C，因此名义模型保持锐边；如有倒边标注，须再依据标注建特征。检查批次状态、`measure`、渲染修订；失败整步回滚，历史参数可用 `feature.edit` 改。详见 `readDocs({docId:'recipes.flat-washer'})`。
+`sectionSize` 在此是**径向壁宽**，`innerHeight` 是**轴向厚度**；外径=内径+2×径向壁宽。历史宽环垫圈 得外 Ø50.2、内 Ø36.2、厚 3.2 mm，体积约 3040.056379 mm³；历史窄环垫圈 改为内 Ø25、壁宽 4.4、厚 3.8，得外 Ø33.8、体积约 1544.306418 mm³。三项必须大于 0。原图均未标边 R/C，因此名义模型保持锐边；如有倒边标注，须再依据标注建特征。检查批次状态、`measure`、渲染修订；失败整步回滚，历史参数可用 `feature.edit` 改。详见 `readDocs({docId:'recipes.flat-washer'})`。
 
 ## 圆周重复孔位
 
-沿圆周排列的孔位直接组合 `quickModel` 的 `washer` 与 `multiHole`，AI 先分别读取两张工具卡。EXAMPLE-6D43D757 的主视源图给出内 R10、外 R14.5、16 个 R1.5 圆位，圆位中心半径 12.25，首孔在 90°，侧厚 3.6 mm。计算孔心后在同一批次建模：
+沿圆周排列的孔位直接组合 `quickModel` 的 `washer` 与 `multiHole`，AI 先分别读取两张工具卡。历史周向圆位环 的主视源图给出内 R10、外 R14.5、16 个 R1.5 圆位，圆位中心半径 12.25，首孔在 90°，侧厚 3.6 mm。计算孔心后在同一批次建模：
 
 ```js
 const api=window.webcad.api;
@@ -454,11 +385,11 @@ const result=await api.run({
 });
 ```
 
-沿圆角矩形中心线扫掠椭圆截面。`sectionWidth` 决定正面带宽与内外宽高差；`sectionDepth` 独立决定侧深。EXAMPLE-2EA0B793 的图面给出内 25×19、外 36×30、侧视 Ø6，因此此例得到 36×30×6 mm 的外观候选；内 R2.5 与椭圆截面是试拟，原图未证实，不能把模型体积当源件体积。EXAMPLE-269804EB 的另一方向示例可输入内宽17.7、内高19.7、正面料宽5.25、侧深4、试拟内R2.5，形成28.2×30.2×4 mm候选；来源未证实截面必为椭圆。圆截面方框用 `rectBuckle`。查看批次状态、精确测量和渲染修订；失败整步回滚，调参用 `feature.edit`。完整限制见 `readDocs({docId:'recipes.ellipse-section-rect'})`。
+沿圆角矩形中心线扫掠椭圆截面。`sectionWidth` 决定正面带宽与内外宽高差；`sectionDepth` 独立决定侧深。历史椭圆截面宽框 的图面给出内 25×19、外 36×30、侧视 Ø6，因此此例得到 36×30×6 mm 的外观候选；内 R2.5 与椭圆截面是试拟，原图未证实，不能把模型体积当源件体积。历史椭圆截面窄框 的另一方向示例可输入内宽17.7、内高19.7、正面料宽5.25、侧深4、试拟内R2.5，形成28.2×30.2×4 mm候选；来源未证实截面必为椭圆。圆截面方框用 `rectBuckle`。查看批次状态、精确测量和渲染修订；失败整步回滚，调参用 `feature.edit`。完整限制见 `readDocs({docId:'recipes.ellipse-section-rect'})`。
 
 ## 开口 U 形椭圆截面线
 
-`curveSweep` 接受 `section:'ellipse'`、`sectionWidth`（正面料宽）和 `sectionDepth`（侧面深度）。非圆截面路径须同处 XY 平面，宽深须为不相等的正数。由源图明确的外宽、内宽、外高及外冠 R 计算五段中心路径，脚本范例与 EXAMPLE-1AD41245 的尺寸推导见 `readDocs({docId:'recipes.ellipse-u-wire'})`。AI 先 `getTool({id:'curveSweep'})`，再以当前 `context` 用 `api.run` 提交 `{op:'curveSweep',refs:[],params:{pathType:'segments',segments,section:'ellipse',sectionWidth:2.9,sectionDepth:4.3}}`，随后 `measure` 并读回渲染 revision。EXAMPLE-1AD41245 的外26.8、内21、外高36、侧深4.3 可产生开口 U 外观候选；内冠计算 R8.1 与图面 R8 相差0.1，椭圆截面和端部 M2.5 的实际几何未证实。该工具不生成螺纹、局部打磨或可直接生产的成品。
+`curveSweep` 接受 `section:'ellipse'`、`sectionWidth`（正面料宽）和 `sectionDepth`（侧面深度）。非圆截面路径须同处 XY 平面，宽深须为不相等的正数。由源图明确的外宽、内宽、外高及外冠 R 计算五段中心路径，脚本范例与 历史开口椭圆截面 U 件 的尺寸推导见 `readDocs({docId:'recipes.ellipse-u-wire'})`。AI 先 `getTool({id:'curveSweep'})`，再以当前 `context` 用 `api.run` 提交 `{op:'curveSweep',refs:[],params:{pathType:'segments',segments,section:'ellipse',sectionWidth:2.9,sectionDepth:4.3}}`，随后 `measure` 并读回渲染 revision。历史开口椭圆截面 U 件 的外26.8、内21、外高36、侧深4.3 可产生开口 U 外观候选；内冠计算 R8.1 与图面 R8 相差0.1，椭圆截面和端部 M2.5 的实际几何未证实。该工具不生成螺纹、局部打磨或可直接生产的成品。
 
 ## 半圆冠双端孔 U 板
 
@@ -476,7 +407,7 @@ const result=await api.run({
 });
 ```
 
-EXAMPLE-27D3A3B9 A 件源图支持外宽22、内宽10、总高31.7、侧深3 mm，孔位文字标 2-Ø3.3，另有 2-M2 标注；`holeInset:2.7` 为位置试拟，通孔不代表真实攻牙。B 件、装配关系和局部圆润截面未建，不能用 A 件试算代替完整产品。工具要求孔完整落在直腿内、与端面和冠有净距；失败整步回滚。读 `status`、精确 `measure` 与渲染版本，修改历史可用 `feature.edit`。详见 `readDocs({docId:'recipes.u-end-hole-plate'})`。
+历史双端孔 U 板 A 件源图支持外宽22、内宽10、总高31.7、侧深3 mm，孔位文字标 2-Ø3.3，另有 2-M2 标注；`holeInset:2.7` 为位置试拟，通孔不代表真实攻牙。B 件、装配关系和局部圆润截面未建，不能用 A 件试算代替完整产品。工具要求孔完整落在直腿内、与端面和冠有净距；失败整步回滚。读 `status`、精确 `measure` 与渲染版本，修改历史可用 `feature.edit`。详见 `readDocs({docId:'recipes.u-end-hole-plate'})`。
 
 ## 斜肩开口框
 
@@ -496,7 +427,7 @@ const result=await api.run({
 });
 ```
 
-两只直腿上接斜肩屋顶，脚端用真实圆弧和短平底保持外高，生成 25×16×4 mm 的单实体。EXAMPLE-B9D26F42 的内峰 13.5 和内肩 10.5 是按图面轮廓试拟；未逐边回读源曲线，也未构造侧视全部圆端截面。不能把外廓尺寸吻合当成完整复刻。读批次 `status`、`measure` 和渲染修订；失败整步回滚，参数可用 `feature.edit` 调整。约束详见 `readDocs({docId:'recipes.gable-open-frame'})`。
+两只直腿上接斜肩屋顶，脚端用真实圆弧和短平底保持外高，生成 25×16×4 mm 的单实体。历史斜肩开口框 的内峰 13.5 和内肩 10.5 是按图面轮廓试拟；未逐边回读源曲线，也未构造侧视全部圆端截面。不能把外廓尺寸吻合当成完整复刻。读批次 `status`、`measure` 和渲染修订；失败整步回滚，参数可用 `feature.edit` 调整。约束详见 `readDocs({docId:'recipes.gable-open-frame'})`。
 
 ## 倒角方线恒截面框
 
@@ -515,7 +446,7 @@ const result=await api.run({context:{...identity,expectedRevision:revision},
   ]});
 ```
 
-EXAMPLE-71EF44F8 的正视标外 37×28.5、内 25×16.5，侧剖总深 6、顶面平段 3；平倒角截面对应边长 6、单边倒角 1.5 mm。该例的 `innerRadius:2` 和半圆冠中心路径是可编辑外观试拟，源图冠部由多段不同 R 圆弧组成，不能凭包围尺寸认定逐线复刻。检查返回 `status`、单实体、精确测量和渲染修订；非法倒角或内核无效会拒绝提交。完整脚本与其它框类适用边界见 `readDocs({docId:'recipes.chamfered-wire-frame'})`。
+历史多弧冠倒角线框案例 的正视标外 37×28.5、内 25×16.5，侧剖总深 6、顶面平段 3；平倒角截面对应边长 6、单边倒角 1.5 mm。该例的 `innerRadius:2` 和半圆冠中心路径是可编辑外观试拟，源图冠部由多段不同 R 圆弧组成，不能凭包围尺寸认定逐线复刻。检查返回 `status`、单实体、精确测量和渲染修订；非法倒角或内核无效会拒绝提交。完整脚本与其它框类适用边界见 `readDocs({docId:'recipes.chamfered-wire-frame'})`。
 
 ## 独立底角 R 平板 D 框
 
@@ -533,7 +464,7 @@ const result=await api.run({
 });
 ```
 
-半圆冠、直腿和底部圆角各自由参数确定。内外底角 R 独立，`thickness` 是平板深度；`gapWidth:0` 保持闭合，正数在底中切出平行缝。上述 1 mm 缝宽仅演示工具：EXAMPLE-E66668FA 原图没有确认此数值，不能据试算宣称复刻。检查 `status`、测量结果和渲染修订；失败整步回滚，历史调整用 `feature.edit`。完整限制见 `readDocs({docId:'recipes.d-flat-frame'})`。
+半圆冠、直腿和底部圆角各自由参数确定。内外底角 R 独立，`thickness` 是平板深度；`gapWidth:0` 保持闭合，正数在底中切出平行缝。上述 1 mm 缝宽仅演示工具：历史独立底角 D 框 原图没有确认此数值，不能据试算宣称复刻。检查 `status`、测量结果和渲染修订；失败整步回滚，历史调整用 `feature.edit`。完整限制见 `readDocs({docId:'recipes.d-flat-frame'})`。
 
 ## 圆线直段长圈
 
@@ -550,7 +481,7 @@ const result=await api.run({
 });
 ```
 
-两端精确半圆、上下直段，圆截面直径为 `sectionSize`；要求内宽>内高>0、线径>0。闭合模型没有猜测的缝。外宽=内宽+2×线径，外高=内高+2×线径。EXAMPLE-D609C6BE 名义参数得到 **47.1×26.1×6.1 mm、约 3063.675857 mm³**；EXAMPLE-D5459AF0 用内 12.3×8.4、Ø3 得 **18.3×14.4×3 mm、约 308.290304 mm³**。两款都与原 text-to-cad STEP 的体积回读一致，但 EXAMPLE-D5459AF0 孤立无标注轮廓的语义未定，当前只表示有完整尺寸的主侧视主体。EXAMPLE-3F8F6FED 的接缝语义未定，不能借用闭合结果断言无缝。`rectBuckle` 的内角 R 不能取短边一半；该工具直接构造半圆端部。读 `status`、`measure` 与 `renderedRevision`；失败整步回滚，历史调参用 `feature.edit`。详见 `readDocs({docId:'recipes.capsule-wire'})`。
+两端精确半圆、上下直段，圆截面直径为 `sectionSize`；要求内宽>内高>0、线径>0。闭合模型没有猜测的缝。外宽=内宽+2×线径，外高=内高+2×线径。历史大圆线长圈 名义参数得到 **47.1×26.1×6.1 mm、约 3063.675857 mm³**；历史小圆线长圈 用内 12.3×8.4、Ø3 得 **18.3×14.4×3 mm、约 308.290304 mm³**。两款都与原 text-to-cad STEP 的体积回读一致，但 历史小圆线长圈 孤立无标注轮廓的语义未定，当前只表示有完整尺寸的主侧视主体。历史底缝未定长圈 的接缝语义未定，不能借用闭合结果断言无缝。`rectBuckle` 的内角 R 不能取短边一半；该工具直接构造半圆端部。读 `status`、`measure` 与 `renderedRevision`；失败整步回滚，历史调参用 `feature.edit`。详见 `readDocs({docId:'recipes.capsule-wire'})`。
 
 ## 椭圆截面圆环
 
@@ -567,7 +498,7 @@ const result=await api.run({
 });
 ```
 
-沿圆形中心线扫掠精确椭圆截面，正面内径、正面带宽、侧深分别输入，外径=内径+2×带宽。要求内径≥2.5×带宽、宽深均正且不等。EXAMPLE-EB8CC821 原 DWG 的同心圆内 Ø37.4、外 Ø45.6，侧深 5 mm；若误用 Ø5 圆线，外径会错成 47.4 mm。椭圆截面是符合两投影的试拟，不等于源曲面已证实。名义候选为 45.6×45.6×5 mm 单实体。读 `status`、`measure`、`renderedRevision`；失败回滚，历史可 `feature.edit`。详见 `readDocs({docId:'recipes.ellipse-section-ring'})`。
+沿圆形中心线扫掠精确椭圆截面，正面内径、正面带宽、侧深分别输入，外径=内径+2×带宽。要求内径≥2.5×带宽、宽深均正且不等。历史椭圆截面圆环 原 DWG 的同心圆内 Ø37.4、外 Ø45.6，侧深 5 mm；若误用 Ø5 圆线，外径会错成 47.4 mm。椭圆截面是符合两投影的试拟，不等于源曲面已证实。名义候选为 45.6×45.6×5 mm 单实体。读 `status`、`measure`、`renderedRevision`；失败回滚，历史可 `feature.edit`。详见 `readDocs({docId:'recipes.ellipse-section-ring'})`。
 
 ## 双孔弧形带板
 
@@ -586,7 +517,7 @@ const result=await api.run({
 });
 ```
 
-同心弧间形成恒宽平板；两孔在中半径上，按 `holeInsetAngle` 从两弧端对称退让。角度单位为度，尺寸为 mm；`recessDepth:0` 不切沉孔。要求外 R>内 R>0、0<弧跨度<350°、两孔及沉孔完整落在带板上且不相交、0≤沉孔深<板厚。EXAMPLE-561E64A5 的 B 件源几何回读 R20/R15、弧跨度 111.2807338°、两孔中心距约25.6757 mm，Ø2.3 和 Ø3.3 两级轮廓；示例沉孔深 0.7 mm 是试拟，图纸尚未证实此深度。螺纹、A 件和完整装配另行建模。检查批次 `status`、测量与 `renderedRevision`，失败回滚；`feature.edit` 可改历史参数。完整限制见 `readDocs({docId:'recipes.arc-band-plate'})`。
+同心弧间形成恒宽平板；两孔在中半径上，按 `holeInsetAngle` 从两弧端对称退让。角度单位为度，尺寸为 mm；`recessDepth:0` 不切沉孔。要求外 R>内 R>0、0<弧跨度<350°、两孔及沉孔完整落在带板上且不相交、0≤沉孔深<板厚。历史双件弧带板案例 的 B 件源几何回读 R20/R15、弧跨度 111.2807338°、两孔中心距约25.6757 mm，Ø2.3 和 Ø3.3 两级轮廓；示例沉孔深 0.7 mm 是试拟，图纸尚未证实此深度。螺纹、A 件和完整装配另行建模。检查批次 `status`、测量与 `renderedRevision`，失败回滚；`feature.edit` 可改历史参数。完整限制见 `readDocs({docId:'recipes.arc-band-plate'})`。
 
 ## 圆角扁方截面直段长圈
 
@@ -604,7 +535,7 @@ const result=await api.run({
 });
 ```
 
-两端半圆、上下直段为中心路径，扫掠独立的圆角矩形截面。`sectionWidth` 是正面料宽，`sectionDepth` 是侧面厚度，`sectionRadius` 是截面 R；内宽须大于内高且均为正，截面宽厚须为正，`0<R≤min(宽,厚)/2`。R 等于短边一半时截面为精确的两半圆加直段，不使用会在此边界退化的圆角矩形草图。输出外宽=内宽+2×料宽、外高=内高+2×料宽。EXAMPLE-EED512C6 名义尺寸得到单实体 **46.2×25.6×6 mm**、约 **2883.597260 mm³**，与解析体积和原 text-to-cad STEP 约 2883.597257 mm³ 一致。EXAMPLE-55C7688D 可输入 `innerWidth:51,innerHeight:15,sectionWidth:4,sectionDepth:8,sectionRadius:2`，得到名义 **59×23×8 mm** 单实体；其细部及源件逐线一致性仍待核对。原 DWG 画线与标注可能有偏差，名义几何不能冒充全部源曲面验收。不能把侧厚 6 当作 Ø6 圆线，也不能把直段长圈套入真椭圆或四圆弧旦扣工具。检查 `status`、`measure`、`renderedRevision`；失败整步回滚，同一历史特征可用 `feature.edit` 调参。详见 `readDocs({docId:'recipes.profile-loop'})`。
+两端半圆、上下直段为中心路径，扫掠独立的圆角矩形截面。`sectionWidth` 是正面料宽，`sectionDepth` 是侧面厚度，`sectionRadius` 是截面 R；内宽须大于内高且均为正，截面宽厚须为正，`0<R≤min(宽,厚)/2`。R 等于短边一半时截面为精确的两半圆加直段，不使用会在此边界退化的圆角矩形草图。输出外宽=内宽+2×料宽、外高=内高+2×料宽。历史扁方截面长圈 名义尺寸得到单实体 **46.2×25.6×6 mm**、约 **2883.597260 mm³**，与解析体积和原 text-to-cad STEP 约 2883.597257 mm³ 一致。历史窄厚截面长圈 可输入 `innerWidth:51,innerHeight:15,sectionWidth:4,sectionDepth:8,sectionRadius:2`，得到名义 **59×23×8 mm** 单实体；其细部及源件逐线一致性仍待核对。原 DWG 画线与标注可能有偏差，名义几何不能冒充全部源曲面验收。不能把侧厚 6 当作 Ø6 圆线，也不能把直段长圈套入真椭圆或四圆弧旦扣工具。检查 `status`、`measure`、`renderedRevision`；失败整步回滚，同一历史特征可用 `feature.edit` 调参。详见 `readDocs({docId:'recipes.profile-loop'})`。
 
 ## 内真椭圆开缝圆线圈
 
@@ -621,9 +552,9 @@ const result=await api.run({
 });
 ```
 
-输入的是**内孔**真椭圆宽、高，外轮廓由半线径等距偏移产生，不能用 EXAMPLE-3CC27F74 那类**外轮廓**真椭圆图纸的外宽高代填。两轴须不等，短轴至少为线径四倍，`0<gapWidth<sectionSize`；缝在底部中心，两端为 X=±缝宽/2 的平行平切面。EXAMPLE-118F5B44 名义尺寸的内核验证为单实体、约 22×26.999563×3.5 mm、两端面实际距离 0.2 mm；切缝后总高会比闭环名义 27 mm 稍短。回执还须核 `status`、逐步测量与当前 `renderedRevision`。失败整步回滚，历史修改用 `feature.edit`。目前 EXAMPLE-3CC27F74 外真椭圆基准的切口会得到无效拓扑，已拒绝纳入此工具。完整说明见 `readDocs({docId:'recipes.ellipse-open-wire'})`。
+输入的是**内孔**真椭圆宽、高，外轮廓由半线径等距偏移产生，不能用 历史外椭圆基准环 那类**外轮廓**真椭圆图纸的外宽高代填。两轴须不等，短轴至少为线径四倍，`0<gapWidth<sectionSize`；缝在底部中心，两端为 X=±缝宽/2 的平行平切面。历史内椭圆开缝环 名义尺寸的内核验证为单实体、约 22×26.999563×3.5 mm、两端面实际距离 0.2 mm；切缝后总高会比闭环名义 27 mm 稍短。回执还须核 `status`、逐步测量与当前 `renderedRevision`。失败整步回滚，历史修改用 `feature.edit`。目前 历史外椭圆基准环 外真椭圆基准的切口会得到无效拓扑，已拒绝纳入此工具。完整说明见 `readDocs({docId:'recipes.ellipse-open-wire'})`。
 
-实体体积由 OCCT 自适应 Gauss–Kronrod 积分测量。EXAMPLE-118F5B44 这组 WebCAD 几何约 635.523 mm³；独立 text-to-cad STEP 为约 635.514 mm³。两者接近仍不能代替与原 DWG 的完整曲面和轮廓验收。旧的普通非自适应体积值约 634.399 mm³，会误导尺寸核对，已从实体元数据及 `measure` 中替换。
+实体体积由 OCCT 自适应 Gauss–Kronrod 积分测量。历史内椭圆开缝环 这组 WebCAD 几何约 635.523 mm³；独立 text-to-cad STEP 为约 635.514 mm³。两者接近仍不能代替与原 DWG 的完整曲面和轮廓验收。旧的普通非自适应体积值约 634.399 mm³，会误导尺寸核对，已从实体元数据及 `measure` 中替换。
 
 ## 椭圆圈固定横杆
 
@@ -641,7 +572,7 @@ const result=await api.run({
 });
 ```
 
-内轮廓是真椭圆；中心路径由其向外偏置半线径，扫掠圆线后与沿 X 的固定圆杆融合。`barDepthOffset` 沿 Z 调整杆轴。尺寸须满足长径>短径≥4×线径、杆径不大于线径，且错层保持实体交叠；失败整步不提交，历史修改用 `feature.edit`。EXAMPLE-26992854 图面的内椭圆 35×25 和 Ø5 侧截面可作候选输入，但当前内核回读包围为约 **45.058424×35×5 mm**，X 比名义 45 多 0.058424 mm；源 DWG 外样条与杆端过渡尚未逐曲面对照。以实际 `measure` 和渲染修订为准，不能把候选写成精确产品验收。完整说明见 `readDocs({docId:'recipes.ellipse-bar'})`。
+内轮廓是真椭圆；中心路径由其向外偏置半线径，扫掠圆线后与沿 X 的固定圆杆融合。`barDepthOffset` 沿 Z 调整杆轴。尺寸须满足长径>短径≥4×线径、杆径不大于线径，且错层保持实体交叠；失败整步不提交，历史修改用 `feature.edit`。历史真椭圆固定横杆环 图面的内椭圆 35×25 和 Ø5 侧截面可作候选输入，但当前内核回读包围为约 **45.058424×35×5 mm**，X 比名义 45 多 0.058424 mm；源 DWG 外样条与杆端过渡尚未逐曲面对照。以实际 `measure` 和渲染修订为准，不能把候选写成精确产品验收。完整说明见 `readDocs({docId:'recipes.ellipse-bar'})`。
 
 ## 平板双窗扣
 
@@ -660,7 +591,7 @@ const result=await api.run({
 });
 ```
 
-单孔净高 `(totalInnerHeight-barWidth)/2`，孔中心 Y 为 `±(totalInnerHeight+barWidth)/4`；中横条属于整板。`outerRadius`、`windowRadius` 为平面角 R，`edgeRadius` 为前后截面 R。尺寸不合法或任一切孔、倒圆失败时整步不提交；R 不会被自动缩小。用回执、精确测量与显示修订号核对结果，历史修改用 `feature.edit`。完整限制见 `readDocs({docId:'recipes.twin-window-plate'})`。示例取自 EXAMPLE-4DB36DB3 DWG 名义尺寸，官方照片的外角与该图 R3.5 外观有差异，产品版本尚待确认。
+单孔净高 `(totalInnerHeight-barWidth)/2`，孔中心 Y 为 `±(totalInnerHeight+barWidth)/4`；中横条属于整板。`outerRadius`、`windowRadius` 为平面角 R，`edgeRadius` 为前后截面 R。尺寸不合法或任一切孔、倒圆失败时整步不提交；R 不会被自动缩小。用回执、精确测量与显示修订号核对结果，历史修改用 `feature.edit`。完整限制见 `readDocs({docId:'recipes.twin-window-plate'})`。示例取自 历史等厚双窗板案例 DWG 名义尺寸，官方照片的外角与该图 R3.5 外观有差异，产品版本尚待确认。
 
 ## 紧凑圆线方扣
 
@@ -678,13 +609,13 @@ const result=await api.run({
 });
 ```
 
-这个 EXAMPLE-1A9D71B3 图面参数候选得到外 17×32 mm、深 3.5 mm 的单实体；原图只有回退预览可用，尚未完成其它表面特征核验。读取回执、精确测量与显示修订，失败则保留旧模型。完整约束及历史修改方法见 `readDocs({docId:'recipes.compact-rect-buckle'})`。
+这个 历史紧凑圆线方扣 图面参数候选得到外 17×32 mm、深 3.5 mm 的单实体；原图只有回退预览可用，尚未完成其它表面特征核验。读取回执、精确测量与显示修订，失败则保留旧模型。完整约束及历史修改方法见 `readDocs({docId:'recipes.compact-rect-buckle'})`。
 
-EXAMPLE-A60C9272 提供了一种更严格的源图选择法：原 DXF 的两条闭合多段线直接给出外 33×23、内 25×15，四个外角 R4.5、四个内角 R0.5；侧视两端圆弧 R2。宽高各相差 8 mm、角 R 相差 4 mm，与 Ø4 圆线的统一偏置吻合。AI 先核这些关系，再把上方 `params` 换成 `{kind:'rectBuckle',section:'round',innerWidth:25,innerHeight:15,innerRadius:0.5,sectionSize:4,gapWidth:0}`。浏览器得到单实体 33×23×4 mm、1152.436255 mm³；这验证了正视理想轮廓和圆截面候选，不推断图面未说明的接缝或局部表面。完整页面脚本及适用条件见 `readDocs({docId:'recipes.source-round-rect'})`。
+历史圆线方框案例 提供了一种更严格的源图选择法：原 DXF 的两条闭合多段线直接给出外 33×23、内 25×15，四个外角 R4.5、四个内角 R0.5；侧视两端圆弧 R2。宽高各相差 8 mm、角 R 相差 4 mm，与 Ø4 圆线的统一偏置吻合。AI 先核这些关系，再把上方 `params` 换成 `{kind:'rectBuckle',section:'round',innerWidth:25,innerHeight:15,innerRadius:0.5,sectionSize:4,gapWidth:0}`。浏览器得到单实体 33×23×4 mm、1152.436255 mm³；这验证了正视理想轮廓和圆截面候选，不推断图面未说明的接缝或局部表面。完整页面脚本及适用条件见 `readDocs({docId:'recipes.source-round-rect'})`。
 
-EXAMPLE-8C44CC88 的紧凑圆线日字扣使用同一个 `quickModel`，`kind:'sliderBuckle'`，取图面内宽 19.9、内高 20.5、框线 Ø5.8、中杆 Ø3.5 mm；`innerRadius:3` 和 `barOffset:0` 是试拟。把上面 `params` 换为 `{kind:'sliderBuckle',section:'round',innerWidth:19.9,innerHeight:20.5,innerRadius:3,sectionSize:5.8,barDiameter:3.5,barOffset:0,gapWidth:0}` 即可经相同的 `api.run` 建模并测量。内核外廓 31.5×32.1×5.8 mm，比原图标注外廓 31.7×32.3 mm 各少 0.2 mm；不要擅自改 Ø5.8 消除这个差值。图上的局部细节仍待核验。完整脚本和限制见 `readDocs({docId:'recipes.compact-slider-buckle'})`。
+历史紧凑日字扣 的紧凑圆线日字扣使用同一个 `quickModel`，`kind:'sliderBuckle'`，取图面内宽 19.9、内高 20.5、框线 Ø5.8、中杆 Ø3.5 mm；`innerRadius:3` 和 `barOffset:0` 是试拟。把上面 `params` 换为 `{kind:'sliderBuckle',section:'round',innerWidth:19.9,innerHeight:20.5,innerRadius:3,sectionSize:5.8,barDiameter:3.5,barOffset:0,gapWidth:0}` 即可经相同的 `api.run` 建模并测量。内核外廓 31.5×32.1×5.8 mm，比原图标注外廓 31.7×32.3 mm 各少 0.2 mm；不要擅自改 Ø5.8 消除这个差值。图上的局部细节仍待核验。完整脚本和限制见 `readDocs({docId:'recipes.compact-slider-buckle'})`。
 
-EXAMPLE-5C36C362 经正视和侧视核对属于圆线外框加中横杆，不是平板双窗。继续复用同一 `sliderBuckle` 页面工具：`{kind:'sliderBuckle',section:'round',innerWidth:45,innerHeight:20,innerRadius:7,sectionSize:5,barDiameter:5,barOffset:0,gapWidth:0}`。浏览器试建得到一个有效实体，精确包围 55×30×5 mm、体积 3523.416492 mm³，渲染修订与模型修订一致。源图标出内 45×20、外 55×30、框 Ø5，但 `innerRadius:7` 仅是可见外形的试拟；源图上下边略鼓，中杆侧视的 4.3 标注尚需解释，当前恒截面圆线和圆杆未逐线复原。把内 R 提到 8 会让横杆接在弯角区，工具按几何约束拒绝且保留旧模型。完整可调用脚本见 `readDocs({docId:'recipes.round-wire-slider'})`。
+历史鼓弧日字扣 经正视和侧视核对属于圆线外框加中横杆，不是平板双窗。继续复用同一 `sliderBuckle` 页面工具：`{kind:'sliderBuckle',section:'round',innerWidth:45,innerHeight:20,innerRadius:7,sectionSize:5,barDiameter:5,barOffset:0,gapWidth:0}`。浏览器试建得到一个有效实体，精确包围 55×30×5 mm、体积 3523.416492 mm³，渲染修订与模型修订一致。源图标出内 45×20、外 55×30、框 Ø5，但 `innerRadius:7` 仅是可见外形的试拟；源图上下边略鼓，中杆侧视的 4.3 标注尚需解释，当前恒截面圆线和圆杆未逐线复原。把内 R 提到 8 会让横杆接在弯角区，工具按几何约束拒绝且保留旧模型。完整可调用脚本见 `readDocs({docId:'recipes.round-wire-slider'})`。
 
 ## 圆边独立 R 平面框
 
@@ -705,7 +636,7 @@ const result=await api.run({
 
 整件尖边须全部按指定 R 成功；失败则此步骤不提交，也不会自动缩小 R。示例 R1.9 mm 对同类两张源图的参数试算通过，R2 mm 失败，所以这不是精确半圆截面的证明。读取精确测量、画面修订和限制见 `readDocs({docId:'recipes.rounded-flat-frame'})`。
 
-EXAMPLE-810CD4EC 同类迁移可输入 `outerWidth:42,outerHeight:23,innerWidth:30,innerHeight:11,outerRadius:6,innerRadius:1.5,thickness:6,edgeRadius:2.9`：一个封闭实体，实测 42×23×6 mm、2923.414344 mm³。源图侧视写 Ø6，但精确半厚圆边 R3 被当前内核拒绝，R2.9 只提供相近外观。这里直边料宽 `(42−30)/2=6`，而外角 R6 与内角 R1.5 相差 4.5；角部不是恒定圆截面扫掠的同心偏置，不能改用 `ellipseSectionRectFrame` 来保持全部源尺寸。若要精确源角部及截面，需变量截面或源面重建。
+历史厚框参考 同类迁移可输入 `outerWidth:42,outerHeight:23,innerWidth:30,innerHeight:11,outerRadius:6,innerRadius:1.5,thickness:6,edgeRadius:2.9`：一个封闭实体，实测 42×23×6 mm、2923.414344 mm³。源图侧视写 Ø6，但精确半厚圆边 R3 被当前内核拒绝，R2.9 只提供相近外观。这里直边料宽 `(42−30)/2=6`，而外角 R6 与内角 R1.5 相差 4.5；角部不是恒定圆截面扫掠的同心偏置，不能改用 `ellipseSectionRectFrame` 来保持全部源尺寸。若要精确源角部及截面，需变量截面或源面重建。
 
 ## 圆环内接横杆快捷模型
 
@@ -723,7 +654,7 @@ const result=await api.run({
 });
 ```
 
-成功后读回新实体、精确测量值和显示修订号。`innerDiameter` 是孔径，外径为 `innerDiameter+2*sectionSize`；横杆沿 X，`barOffset` 沿 Y，`barDepthOffset` 沿 Z 相对环中面错层，默认 0。要求 `abs(barDepthOffset)<(sectionSize+barDiameter)/2`，保证横杆与环有实体交叠。EXAMPLE-C5F24FB2/EXAMPLE-CBECFF85 的 Ø5 环和 Ø5 杆按侧视错层 4 mm 可形成 31/36 mm 外径、9 mm 总深的单实体候选；接头 R1.5 和端部曲线尚未复刻，不能当成原件通过。只适合固定单横杆，源图没有给出的尺寸不要猜成产品规格。完整约束和修改方法见 `readDocs({docId:'recipes.ring-bar'})`。
+成功后读回新实体、精确测量值和显示修订号。`innerDiameter` 是孔径，外径为 `innerDiameter+2*sectionSize`；横杆沿 X，`barOffset` 沿 Y，`barDepthOffset` 沿 Z 相对环中面错层，默认 0。要求 `abs(barDepthOffset)<(sectionSize+barDiameter)/2`，保证横杆与环有实体交叠。历史错层横杆环两款参考 的 Ø5 环和 Ø5 杆按侧视错层 4 mm 可形成 31/36 mm 外径、9 mm 总深的单实体候选；接头 R1.5 和端部曲线尚未复刻，不能当成原件通过。只适合固定单横杆，源图没有给出的尺寸不要猜成产品规格。完整约束和修改方法见 `readDocs({docId:'recipes.ring-bar'})`。
 
 ## 竖向底部开口四圆弧圈
 
@@ -970,7 +901,7 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 
 先用 `preview.start`；参数变化后用 `preview.update`，核对同一预览回执中的 `roundingReport.region`：`sourceBodyId` 是当前上游来源实体，`requestedEdgeIds` 是本次原选边，`expandedEdgeIds` 是新增跟随边，`affectedFaceIds` 是实际影响的来源面。上述边与面号均属于同一上游实体；不能把结果体的拓扑号混入。原有 `requestedSelection`、`expandedSelection`、`processedEdgeIds` 保留，供现有预览高亮与范围读回使用。预览缺失完整范围或与锁定目标不一致时 UI 不允许确认。核对实际范围及新鲜预览身份后，`preview.commit` 提交同一份结果；`preview.cancel` 取消且不增加模型修订。
 
-成功结果及 `getState().bodies[].roundingReport` 同样提供该 `region`、有效强度、实测局部尺寸与质量证据。接触缝、片间缝和所有端部边界仍须通过原有严格 G0/G1、材料变化与局部保留区检查；允许范围跟随不等于免检。`feature.edit` 对 v3 修改 `strength`，从保存的上游来源重新求解并重建后续历史。失败保持原工程；工具卡和参数文档不能证明任意曲边或原始 EXAMPLE-39AB8844 针尖已完成验收。
+成功结果及 `getState().bodies[].roundingReport` 同样提供该 `region`、有效强度、实测局部尺寸与质量证据。接触缝、片间缝和所有端部边界仍须通过原有严格 G0/G1、材料变化与局部保留区检查；允许范围跟随不等于免检。`feature.edit` 对 v3 修改 `strength`，从保存的上游来源重新求解并重建后续历史。失败保持原工程；工具卡和参数文档不能证明任意曲边或原始 历史原始针尖案例 针尖已完成验收。
 
 ### 历史 specVersion:2：请求圆润大小
 
@@ -980,7 +911,7 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 
 `roundingReport` 区分实际构造类型、请求尺度、实测尺度范围及 `candidateAttempts`；同时提供全部接触缝、端部／片间缝、材料方向、局部影响区和保留区的检查证据。开口链也需要这些质量证据，不能因未自动扩边而免检；端点附近不能一概作为例外。凸圆润与凹圆润分别核对适用的减料／加料方向。仅有有效实体、内核完成或接触边中段采样不能替代完整结果验收；`not_yet_verified` 的接缝或端部不得视为通过。
 
-未支持的边、支撑面或端部几何族，以及构造或质量门槛失败的结果会带尝试记录拒绝并保持来源与工程修订。版本 2.1.0 不承诺任意曲边和任意大小均可成功。旧局部裁剪／稀疏填面失败记录不构成通过证据；原始 EXAMPLE-39AB8844、独立案例和完整产品验收以本轮真实输入、输出、量测与截图报告为准，不能由工具卡版本或测试数量推断。
+未支持的边、支撑面或端部几何族，以及构造或质量门槛失败的结果会带尝试记录拒绝并保持来源与工程修订。版本 2.1.0 不承诺任意曲边和任意大小均可成功。旧局部裁剪／稀疏填面失败记录不构成通过证据；原始 历史原始针尖案例、独立案例和完整产品验收以本轮真实输入、输出、量测与截图报告为准，不能由工具卡版本或测试数量推断。
 
 ### 历史 specVersion:1：尺寸、模式与传播
 

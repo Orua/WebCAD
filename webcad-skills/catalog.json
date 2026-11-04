@@ -1,0 +1,547 @@
+{
+  "version": "0.3.0",
+  "purpose": "modeling reasoning routes; candidates require geometry and source confirmation",
+  "globalEntry": "SKILL.md",
+  "routes": [
+    {
+      "id": "solid-section",
+      "purpose": "板件与固定截面",
+      "entry": "workflows/solid-section.md",
+      "methodDependencies": [
+        "methods/construction-choice.md",
+        "methods/feature-order.md"
+      ],
+      "branches": [
+        {
+          "id": "box",
+          "tools": [
+            "box",
+            "measure"
+          ]
+        },
+        {
+          "id": "profile",
+          "tools": [
+            "sketchProfile",
+            "inspectProfile",
+            "profileExtrude",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "see tests/results.json"
+    },
+    {
+      "id": "axisymmetric",
+      "purpose": "柱件、轴套与旋转体",
+      "entry": "workflows/axisymmetric.md",
+      "methodDependencies": [
+        "methods/construction-choice.md",
+        "methods/feature-order.md"
+      ],
+      "branches": [
+        {
+          "id": "cylinder",
+          "tools": [
+            "cylinder",
+            "measure"
+          ]
+        },
+        {
+          "id": "tube",
+          "tools": [
+            "template.tube",
+            "measure"
+          ]
+        },
+        {
+          "id": "revolve",
+          "tools": [
+            "sketchProfile",
+            "profileRevolve",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "see tests/results.json"
+    },
+    {
+      "id": "path-section",
+      "purpose": "沿路径的线材或型材",
+      "entry": "workflows/path-section.md",
+      "methodDependencies": [
+        "methods/construction-choice.md",
+        "methods/feature-order.md"
+      ],
+      "branches": [
+        {
+          "id": "sweep",
+          "tools": [
+            "sketchProfile",
+            "inspectProfile",
+            "profileSweep",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "see tests/results.json"
+    },
+    {
+      "id": "transition",
+      "purpose": "多截面过渡",
+      "entry": "workflows/transition.md",
+      "methodDependencies": [
+        "methods/construction-choice.md",
+        "methods/feature-order.md"
+      ],
+      "branches": [
+        {
+          "id": "loft",
+          "tools": [
+            "inspectProfile",
+            "profileLoft",
+            "measure"
+          ]
+        },
+        {
+          "id": "guided",
+          "tools": [
+            "guidedLoft",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "see tests/results.json"
+    },
+    {
+      "id": "cut-features",
+      "purpose": "开孔、挖槽与布尔去料",
+      "entry": "workflows/cut-features.md",
+      "methodDependencies": [
+        "methods/construction-choice.md",
+        "methods/selection-and-placement.md"
+      ],
+      "branches": [
+        {
+          "id": "plain-hole",
+          "tools": [
+            "hole",
+            "queryGeometry",
+            "measure"
+          ]
+        },
+        {
+          "id": "multi-hole",
+          "tools": [
+            "multiHole",
+            "queryGeometry",
+            "measure"
+          ]
+        },
+        {
+          "id": "wizard",
+          "tools": [
+            "holeWizard",
+            "queryGeometry",
+            "measure"
+          ]
+        },
+        {
+          "id": "boolean",
+          "tools": [
+            "cut",
+            "inspectFit",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "see tests/results.json"
+    },
+    {
+      "id": "placement",
+      "purpose": "部件定位与组合",
+      "entry": "workflows/placement.md",
+      "methodDependencies": [
+        "methods/construction-choice.md",
+        "methods/selection-and-placement.md",
+        "methods/representations-units-and-mass.md"
+      ],
+      "branches": [
+        {
+          "id": "align",
+          "tools": [
+            "queryReferences",
+            "planAlignment",
+            "transform",
+            "measureRelation"
+          ]
+        },
+        {
+          "id": "join",
+          "tools": [
+            "union",
+            "inspectFit",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "see tests/results.json"
+    },
+    {
+      "id": "finishing",
+      "purpose": "圆角与倒角",
+      "entry": "workflows/finishing.md",
+      "methodDependencies": [
+        "methods/construction-choice.md",
+        "methods/selection-and-placement.md"
+      ],
+      "branches": [
+        {
+          "id": "fillet",
+          "tools": [
+            "queryGeometry",
+            "fillet",
+            "probeBlendRadius",
+            "measure"
+          ]
+        },
+        {
+          "id": "chamfer",
+          "tools": [
+            "queryGeometry",
+            "chamfer",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "see tests/results.json"
+    },
+    {
+      "id": "logo",
+      "purpose": "字母LOGO与图案加工",
+      "entry": "workflows/logo.md",
+      "methodDependencies": [
+        "methods/construction-choice.md",
+        "methods/selection-and-placement.md"
+      ],
+      "branches": [
+        {
+          "id": "contours",
+          "tools": [
+            "readLogo",
+            "reviewLogo",
+            "queryGeometry",
+            "logo",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "see tests/results.json"
+    },
+    {
+      "id": "editing",
+      "purpose": "修改已有模型与恢复",
+      "entry": "workflows/editing.md",
+      "methodDependencies": [
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/artifacts-and-dependencies.md"
+      ],
+      "branches": [
+        {
+          "id": "edit",
+          "tools": [
+            "feature.edit",
+            "getHistory",
+            "getState",
+            "measure"
+          ]
+        },
+        {
+          "id": "unknown",
+          "tools": [
+            "getBatchReceipt",
+            "getState"
+          ]
+        },
+        {
+          "id": "undo",
+          "tools": [
+            "history.undo",
+            "getHistory",
+            "getState"
+          ]
+        },
+        {
+          "id": "import",
+          "tools": [
+            "files.import",
+            "getState",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "see tests/results.json"
+    },
+    {
+      "id": "inspection",
+      "purpose": "检查、保存与导出",
+      "entry": "workflows/inspection.md",
+      "methodDependencies": [
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/visual-review.md",
+        "methods/output-quality-and-process.md"
+      ],
+      "branches": [
+        {
+          "id": "measure",
+          "tools": [
+            "measure",
+            "measureRelation",
+            "inspectDesign"
+          ]
+        },
+        {
+          "id": "step",
+          "tools": [
+            "measure",
+            "files.export",
+            "files.read"
+          ]
+        },
+        {
+          "id": "stl",
+          "tools": [
+            "files.export",
+            "files.read"
+          ]
+        },
+        {
+          "id": "save",
+          "tools": [
+            "files.save",
+            "files.read"
+          ]
+        },
+        {
+          "id": "visual",
+          "tools": [
+            "setView",
+            "capture",
+            "setRenderQuality"
+          ]
+        }
+      ],
+      "validation": "see tests/results.json"
+    },
+    {
+      "id": "source-reconstruction",
+      "purpose": "源图/实物复刻",
+      "entry": "workflows/source-reconstruction.md",
+      "methodDependencies": [
+        "methods/source-reconstruction.md"
+      ],
+      "branches": [
+        {
+          "id": "source",
+          "tools": [
+            "readVector",
+            "inspectProfile",
+            "sketchProfile",
+            "queryGeometry",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "method and contract mapping; see tests/results.json for execution scope"
+    },
+    {
+      "id": "profiles-2d",
+      "purpose": "解析轮廓与二维建模",
+      "entry": "workflows/profiles-2d.md",
+      "methodDependencies": [
+        "methods/profiles-and-drawings.md"
+      ],
+      "branches": [
+        {
+          "id": "read",
+          "tools": [
+            "readVector",
+            "sketchProfile",
+            "inspectProfile"
+          ]
+        },
+        {
+          "id": "repair",
+          "tools": [
+            "inspectProfile",
+            "profileRepair"
+          ]
+        },
+        {
+          "id": "offset",
+          "tools": [
+            "profileOffset",
+            "inspectProfile"
+          ]
+        }
+      ],
+      "validation": "method and contract mapping; see tests/results.json for execution scope"
+    },
+    {
+      "id": "drawings",
+      "purpose": "工程图与三视图",
+      "entry": "workflows/drawings.md",
+      "methodDependencies": [
+        "methods/profiles-and-drawings.md"
+      ],
+      "branches": [
+        {
+          "id": "drawing",
+          "tools": [
+            "createDrawing",
+            "exportDrawing",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "method and contract mapping; see tests/results.json for execution scope"
+    },
+    {
+      "id": "manufacturing",
+      "purpose": "工艺条件下的几何检查",
+      "entry": "workflows/manufacturing.md",
+      "methodDependencies": [
+        "methods/process-aware-modeling.md"
+      ],
+      "branches": [
+        {
+          "id": "cnc",
+          "tools": [
+            "queryGeometry",
+            "measure",
+            "inspectThickness",
+            "inspectFit"
+          ]
+        },
+        {
+          "id": "molding",
+          "tools": [
+            "inspectDraft",
+            "queryGeometry",
+            "inspectThickness"
+          ]
+        },
+        {
+          "id": "sheet",
+          "tools": [
+            "inspectThickness",
+            "inspectProfile",
+            "measureRelation"
+          ]
+        }
+      ],
+      "validation": "method and contract mapping; see tests/results.json for execution scope"
+    },
+    {
+      "id": "printability",
+      "purpose": "网格打印检查",
+      "entry": "workflows/printability.md",
+      "methodDependencies": [
+        "methods/process-aware-modeling.md"
+      ],
+      "branches": [
+        {
+          "id": "inspect",
+          "tools": [
+            "inspectPrintability",
+            "inspectThickness",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "method and contract mapping; see tests/results.json for execution scope"
+    },
+    {
+      "id": "part-reuse",
+      "purpose": "标准件、模板与重复结构",
+      "entry": "workflows/part-reuse.md",
+      "methodDependencies": [
+        "methods/parts-and-repetition.md"
+      ],
+      "branches": [
+        {
+          "id": "import",
+          "tools": [
+            "files.import",
+            "measure"
+          ]
+        },
+        {
+          "id": "linear",
+          "tools": [
+            "linearPattern",
+            "copy",
+            "measureRelation"
+          ]
+        },
+        {
+          "id": "circular",
+          "tools": [
+            "circularPattern",
+            "copy",
+            "measureRelation"
+          ]
+        }
+      ],
+      "validation": "method and contract mapping; see tests/results.json for execution scope"
+    },
+    {
+      "id": "material-properties",
+      "purpose": "物理材料与估重",
+      "entry": "workflows/material-properties.md",
+      "methodDependencies": [
+        "methods/representations-units-and-mass.md"
+      ],
+      "branches": [
+        {
+          "id": "mass",
+          "tools": [
+            "getMaterials",
+            "measureMass",
+            "measure"
+          ]
+        }
+      ],
+      "validation": "method and contract mapping; see tests/results.json for execution scope"
+    },
+    {
+      "id": "handoff",
+      "purpose": "切片制造等外部交接",
+      "entry": "workflows/handoff.md",
+      "methodDependencies": [
+        "methods/external-handoff.md"
+      ],
+      "branches": [
+        {
+          "id": "artifacts",
+          "tools": [
+            "files.export",
+            "files.read"
+          ]
+        }
+      ],
+      "validation": "method and contract mapping; see tests/results.json for execution scope"
+    }
+  ],
+  "problemEntry": "problems/diagnosis.md",
+  "loading": {
+    "phase1": "GUIDE + selected workflow and methods; no complete tool catalogue",
+    "phase2": "explicit branch complete cards only",
+    "maxContextChars": 24000,
+    "overflow": "reject with file sizes; never truncate schemas",
+    "quickModel": "parent API adapter via current api.run; never auto load all template catalog"
+  },
+  "guide": "GUIDE.md"
+}

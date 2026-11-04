@@ -1,0 +1,7 @@
+{
+  "version": "0.3.0",
+  "source": "installed text-to-cad 0.7.19",
+  "allFiles": "source-coverage.json",
+  "repository": "repository-survey.json",
+  "scope": "all plugin files fingerprinted; per-file method dispositions and counterpart guides available"
+}

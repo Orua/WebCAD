@@ -30,7 +30,7 @@
 ```js
 const client = createPageClient({
   send: (method, params) => cdp.send(method, params), // 已授权宿主通道
-  knowledge: { baseUrl: await tab.url() } // 默认 ~/.codex/cache/webcad
+  knowledge: { baseUrl: await tab.url() } // 缓存位置由获授权宿主选择
 });
 const connection = await client.connect(); // 自动下载/验证，只返回缓存回执
 const route = await client.route('DWG图纸重建');

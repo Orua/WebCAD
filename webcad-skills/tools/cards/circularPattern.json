@@ -1,0 +1,610 @@
+{
+  "id": "circularPattern",
+  "version": "1.1.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "count": {
+        "type": "integer",
+        "description": "Count including original",
+        "minimum": 2,
+        "maximum": 100,
+        "default": 3,
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
+      },
+      "angle": {
+        "type": "number",
+        "description": "Degrees",
+        "exclusiveMinimum": 0,
+        "maximum": 360,
+        "default": 360,
+        "unit": "deg",
+        "quantityKind": "angle",
+        "quantizationPolicy": "none"
+      },
+      "axis": {
+        "type": "string",
+        "description": "Global axis",
+        "enum": [
+          "X",
+          "Y",
+          "Z"
+        ],
+        "default": "Z"
+      },
+      "cx": {
+        "type": "number",
+        "description": "Axis center X (mm)",
+        "default": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "cy": {
+        "type": "number",
+        "description": "Axis center Y (mm)",
+        "default": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "cz": {
+        "type": "number",
+        "description": "Axis center Z (mm)",
+        "default": 0,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "outputMode": {
+        "type": "string",
+        "description": "Output type",
+        "enum": [
+          "compound",
+          "fuse"
+        ],
+        "default": "compound"
+      }
+    },
+    "required": [],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {
+    "count": 3,
+    "angle": 360,
+    "axis": "Z",
+    "cx": 0,
+    "cy": 0,
+    "cz": 0,
+    "outputMode": "compound"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults count=3,angle=360,axis=Z,center=origin,outputMode=compound. Full circle excludes duplicate endpoint; partial angle includes both endpoints. Fuse requires one connected solid. Placement transforms local axis and center.",
+  "title": "Rotated copies as a compound or explicitly fused solid",
+  "category": "organization",
+  "synonyms": [
+    "circularPattern",
+    "Rotated copies as a compound or explicitly fused solid",
+    "circular Pattern operation",
+    "环形阵列"
+  ],
+  "description": "Rotated copies as a compound or explicitly fused solid",
+  "schemaHash": "sha256:cea5a6fb12486d19d1494116475d1579c6a3212b2964ec92bd38ad75e782b95a",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Defaults count=3,angle=360,axis=Z,center=origin,outputMode=compound. Full circle excludes duplicate endpoint; partial angle includes both endpoints. Fuse requires one connected solid. Placement transforms local axis and center."
+  ],
+  "minimalExample": {
+    "op": "circularPattern",
+    "params": {
+      "count": 3,
+      "angle": 360,
+      "axis": "Z"
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "circularPattern",
+    "params": {
+      "count": 3,
+      "angle": 360,
+      "axis": "Z"
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "count": 3,
+        "angle": 360,
+        "axis": "Z",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Rotated copies as a compound or explicitly fused solid",
+    "whenToUse": [
+      "Defaults count=3,angle=360,axis=Z,center=origin,outputMode=compound. Full circle excludes duplicate endpoint; partial angle includes both endpoints. Fuse requires one connected solid. Placement transforms local axis and center."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "count": {
+        "meaning": "Count including original",
+        "unit": "1",
+        "range": [
+          2,
+          100
+        ],
+        "default": 3
+      },
+      "angle": {
+        "meaning": "Degrees",
+        "unit": "deg",
+        "range": [
+          0,
+          360
+        ],
+        "default": 360
+      },
+      "axis": {
+        "meaning": "Global axis",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "Z"
+      },
+      "cx": {
+        "meaning": "Axis center X (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": 0
+      },
+      "cy": {
+        "meaning": "Axis center Y (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": 0
+      },
+      "cz": {
+        "meaning": "Axis center Z (mm)",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": 0
+      },
+      "outputMode": {
+        "meaning": "Output type",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "compound"
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "circularPattern",
+        "params": {
+          "count": 3,
+          "angle": 360,
+          "axis": "Z"
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "circularPattern",
+        "params": {
+          "count": 3,
+          "angle": 360,
+          "axis": "Z"
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "count": 3,
+            "angle": 360,
+            "axis": "Z",
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "transform",
+      "copy",
+      "mirror",
+      "linearPattern",
+      "group",
+      "extractSolid",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "circularPattern",
+      "Rotated copies as a compound or explicitly fused solid",
+      "Rotated copies as a compound or explicitly fused solid",
+      "circular Pattern operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Rotated copies as a compound or explicitly fused solid",
+  "whenToUse": [
+    "Defaults count=3,angle=360,axis=Z,center=origin,outputMode=compound. Full circle excludes duplicate endpoint; partial angle includes both endpoints. Fuse requires one connected solid. Placement transforms local axis and center."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "label": "环形阵列",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "spatial-operation",
+    "placementSupported": true,
+    "originUsage": "axis-plane-pivot-or-vector",
+    "orientationUsage": "declared-transform-or-direction",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "selectionGuide": {
+    "groupId": "transform",
+    "groupTitle": "实体、相机与对齐",
+    "chooseWhen": "按中心轴和角度圆周阵列，显式复合或融合。",
+    "alternatives": [
+      {
+        "id": "transform",
+        "chooseWhen": "按约定顺序缩放/绕原点旋转/平移已有实体；不是移动相机或插入锚点。"
+      },
+      {
+        "id": "copy",
+        "chooseWhen": "复制实体后施加变换，原件保留；不是直接移动。"
+      },
+      {
+        "id": "mirror",
+        "chooseWhen": "关于指定坐标平面及偏置镜像；不是绕轴旋转。"
+      },
+      {
+        "id": "linearPattern",
+        "chooseWhen": "按直线方向和间距阵列，显式复合或融合。"
+      },
+      {
+        "id": "body.align",
+        "chooseWhen": "执行沿世界轴的实体平移对齐，提交几何历史。"
+      },
+      {
+        "id": "planAlignment",
+        "chooseWhen": "只计算对齐位移方案；需 body.align 才执行。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      },
+      {
+        "id": "pasteSelection",
+        "chooseWhen": "将页面剪贴板实体粘贴进当前工程；不是读取磁盘文件。"
+      },
+      {
+        "id": "resolvePlacement",
+        "chooseWhen": "只解析来源锚点到目标定位的变换；尚未添加或移动实体。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:d37c443127fda1137829f46ca8e3b2b4eceff528ec63c59f2c6cc543b4d01b04"
+}

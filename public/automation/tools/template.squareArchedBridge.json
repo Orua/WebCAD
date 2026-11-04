@@ -37,7 +37,7 @@
     "方线拱桥",
     "Square-section U bridge"
   ],
-  "description": "平顶方线 U 形桥身，内外宽高、前后厚度、内外转角及棱边 R 独立可调；可选两端底孔。结构参考 EXAMPLE-8AE0A3CA、EXAMPLE-1F534684，默认采用 EXAMPLE-8AE0A3CA 主体包络。底孔为光孔，不生成螺纹、螺丝或底片；不复刻源件微拱顶面。XY 为正面，开口朝 -Y，底端 Y=0，厚度沿 Z 居中。",
+  "description": "平顶方线 U 形桥身，内外宽高、前后厚度、内外转角及棱边 R 独立可调；可选两端底孔。结构和默认包络沿用历史来源的桥身案例，不宣称自主源几何或完整复刻。底孔为光孔，不生成螺纹、螺丝或底片；不复刻源件微拱顶面。XY 为正面，开口朝 -Y，底端 Y=0，厚度沿 Z 居中。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -206,7 +206,6 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -218,7 +217,7 @@
   "visibleInLibrary": true,
   "libraryCategory": "installation",
   "libraryCategoryLabel": "安装及配件",
-  "purpose": "平顶方线 U 形桥身，内外宽高、前后厚度、内外转角及棱边 R 独立可调；可选两端底孔。结构参考 EXAMPLE-8AE0A3CA、EXAMPLE-1F534684，默认采用 EXAMPLE-8AE0A3CA 主体包络。底孔为光孔，不生成螺纹、螺丝或底片；不复刻源件微拱顶面。XY 为正面，开口朝 -Y，底端 Y=0，厚度沿 Z 居中。",
+  "purpose": "平顶方线 U 形桥身，内外宽高、前后厚度、内外转角及棱边 R 独立可调；可选两端底孔。结构和默认包络沿用历史来源的桥身案例，不宣称自主源几何或完整复刻。底孔为光孔，不生成螺纹、螺丝或底片；不复刻源件微拱顶面。XY 为正面，开口朝 -Y，底端 Y=0，厚度沿 Z 居中。",
   "whenToUse": [
     "This selected template matches the required structure; its complete parameters and placement contract are in this card."
   ],
@@ -228,7 +227,7 @@
       "kind"
     ],
     "additionalProperties": false,
-    "description": "Flat-top rectangular-section U bridge with independent inner/outer size, depth, corner and edge radii, and optional paired blind end bores. Structural references EXAMPLE-8AE0A3CA/EXAMPLE-1F534684; plain bores only, no threads, screws, backing plate or subtle source crown.",
+    "description": "Flat-top rectangular-section U bridge with independent inner/outer size, depth, corner and edge radii, and optional paired blind end bores. Structure and defaults derived from historical references, not newly authored source geometry; plain bores only, no threads, screws, backing plate or subtle source crown.",
     "properties": {
       "kind": {
         "type": "string",
@@ -318,7 +317,7 @@
       }
     }
   },
-  "schemaHash": "sha256:7409b4186232caff030a478b22638f40c8dd3fd6e67f9cf3d83ec4abe38821ce",
+  "schemaHash": "sha256:4402f8c6ee512897509699f85d5637a562f941e130689857a60ace55a90ca919",
   "defaults": {
     "outerWidthMm": 35.5,
     "outerHeightMm": 11.5,
@@ -443,7 +442,6 @@
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
-    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -646,7 +644,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:e8ba0871ea202f1bb823b150836ef8b04d707f914f8b3f87f2d0d7a94499fa23"
+    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -732,5 +730,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:06573d7da9f81f355bc12e2a1392c70b6d9b0977d50bc55ff6797b0c446e608b"
+  "docsHash": "sha256:e1a095047adbb7ac4ce18ccfcedfa7baf1445c33866c8bf4db7c2a8ded4125c2"
 }

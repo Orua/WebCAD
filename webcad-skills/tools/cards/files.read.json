@@ -1,0 +1,103 @@
+{
+  "id": "files.read",
+  "title": "files.read",
+  "category": "file",
+  "version": "1.57.3",
+  "contextPolicy": "none",
+  "label": "读取文件字节",
+  "synonyms": [
+    "读取文件字节",
+    "read"
+  ],
+  "description": "read({resourceId,as?}); as is blob (default) or bytes.",
+  "inputContract": "read({resourceId,as?}); as is blob (default) or bytes.",
+  "outputContract": "Actual Blob or Uint8Array; host JSON boundaries may need bounded transfer.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees"
+  },
+  "implementationStatus": "page-adapter",
+  "contractStatus": "browser-file-adapter",
+  "runtimeAvailability": "requires_page",
+  "argumentKeys": [
+    "resourceId",
+    "as"
+  ],
+  "unknownFields": "rejected",
+  "errorModel": "Direct files calls throw or reject with error.code. invoke({method:\"files.read\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
+  "limits": {
+    "maxBytes": 104857600,
+    "maxResources": 32,
+    "maxTotalBytes": 536870912,
+    "ttlSeconds": 1800
+  },
+  "typedByteBudgets": {
+    "step": 134217728,
+    "stp": 134217728,
+    "brep": 134217728,
+    "brp": 134217728,
+    "stl": 134217728,
+    "mesh": 402653184,
+    "webcad": 536870912
+  },
+  "additionalDocs": [
+    "api.exact-source-assets",
+    "api.mesh-assets"
+  ],
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "caveats": [],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_EXPIRED"
+  ],
+  "selectionGuide": {
+    "groupId": "file-output",
+    "groupTitle": "工程保存、导出与送达",
+    "chooseWhen": "读取现有资源字节/Blob，不重新计算或证明磁盘写入。",
+    "alternatives": [
+      {
+        "id": "files.save",
+        "chooseWhen": "生成保留配方/历史/源资产的原生工程；生成资源不等于写盘。"
+      },
+      {
+        "id": "files.export",
+        "chooseWhen": "生成指定 STEP/STL/BREP/PNG 交换产物，不保存全部原生历史。"
+      },
+      {
+        "id": "files.download",
+        "chooseWhen": "发起浏览器下载生成资源，只证明下载动作已启动。"
+      },
+      {
+        "id": "files.write",
+        "chooseWhen": "通过已授权文件句柄写盘；结果仍须按合同回读核验。"
+      },
+      {
+        "id": "files.confirmWritten",
+        "chooseWhen": "核验客户端实际写入并回读的大小/hash确认，不是让页面代写磁盘。"
+      },
+      {
+        "id": "files.reattach",
+        "chooseWhen": "把尚未过期的同一产物重新附加送达，不重算几何。"
+      },
+      {
+        "id": "files.release",
+        "chooseWhen": "释放临时资源；不删除工程实体或已下载磁盘文件。"
+      },
+      {
+        "id": "createDrawing",
+        "chooseWhen": "按当前几何创建投影、剖视和尺寸工程图定义。"
+      },
+      {
+        "id": "exportDrawing",
+        "chooseWhen": "导出已有drawingId工程图，或readLogo返回的logoId原轮廓DXF/JSON；不必创建三维实体或写脚本。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.guide.files",
+  "docsHash": "sha256:1ba69e0579be77c02421562adaf328d54669087f0fd2c6520d3f2c51ca710f7c"
+}

@@ -956,7 +956,6 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "deprecated",
-  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "deprecated": true,
   "replacement": "logo",
   "label": "曲面 LOGO",
@@ -977,7 +976,6 @@
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
-    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -1286,5 +1284,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:8a389ac2281bda27758f16d7cc5d61d9bb3a787697baba5bb0cdbb39b94d3f9f"
+  "docsHash": "sha256:090fd603e9c23d91d3f373b94ec08c51bffc1eb7ee7b2fbf925dfda0ee76b40d"
 }

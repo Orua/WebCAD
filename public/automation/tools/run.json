@@ -2,7 +2,7 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.60.10",
+  "version": "1.60.8",
   "contextPolicy": "revision",
   "inputSchema": {
     "type": "object",
@@ -524,7 +524,7 @@
       ]
     }
   },
-  "transportGuide": "Goldenluck MCP 调用 webcad_submit：method、requestKey、args 在外层；完整 run 请求放在 args 内。外层 requestKey 不会代替 args.idempotencyKey，run 不接受 key 字段；不要把 method、requestKey 或第二层 args 放进 run 请求。页面直接调用 api.run 时只传 args 的内容。替换示例 context 为当前 requestContext，保留两个层次，不自动改写 revision 或重试未知结果。参数拒绝先读 error.details.path/missingFields/allowedFields/commitState，按已读契约修正；不要把报错的简称当成字段，也不要输出全量 index。",
+  "transportGuide": "兼容 MCP 宿主 调用 webcad_submit：method、requestKey、args 在外层；完整 run 请求放在 args 内。外层 requestKey 不会代替 args.idempotencyKey，run 不接受 key 字段；不要把 method、requestKey 或第二层 args 放进 run 请求。页面直接调用 api.run 时只传 args 的内容。替换示例 context 为当前 requestContext，保留两个层次，不自动改写 revision 或重试未知结果。参数拒绝先读 error.details.path/missingFields/allowedFields/commitState，按已读契约修正；不要把报错的简称当成字段，也不要输出全量 index。",
   "docs": "api.run",
   "minimalExample": {
     "context": {
@@ -658,5 +658,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e0cbc0b1bda789d83cd92e4d257017887e61c420765c8e5d6c2b4909dda5d889"
+  "docsHash": "sha256:6d29635c2c57a2a0e5f103d2c520df8196049f8125e898de2bc454e28beb9c25"
 }

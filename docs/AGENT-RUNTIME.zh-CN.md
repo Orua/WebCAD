@@ -9,7 +9,9 @@ WebCAD 维护 CAD 适配器、方法契约和有限数值规划器；Agent 保�
 3. 有限软件包为 host-adapter.mjs、runtime-contract.json、layout-planner.py。后者以 .py.txt 作为静态下载资源，避免 IIS 将其当服务器脚本。Agent 在私有缓存中保存 .py；它仅接受声明的数值布局，不执行模型给出的代码、命令、URL 或路径。
 4. 新工具的准入与 MCP 分类读已验证 runtime-contract；旧后端常量只服务旧页面。协议主版本不兼容明确阻断。版本改变暂停新写入，先核对原回执，再重新 prepare；工程和未知作业不得刷新、替换或重放。
 
-## 原生状态同步（goldenluck.webcad.state/1）
+## 原生状态同步（兼容协议标识）
+
+`goldenluck.webcad.state/1` 仅保留为已有宿主的兼容别名，不表示公司归属、业务账号依赖或独立运行前置条件。
 
 页面仍是工程权威。宿主只保存有界只读投影，协议见 `contracts/native-state-sync.json`。精确同源（含端口）、实际窗口、路径和通道均验证后可使用 direct；其他情况继续使用已有的认证 postMessage bridge。必须收到 subscribed 回执后才显示同步已确认；订阅先于首次摘要读取，退出和文档切换释放旧订阅。
 

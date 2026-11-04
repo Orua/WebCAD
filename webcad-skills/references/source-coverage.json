@@ -1,0 +1,1609 @@
+{
+  "sourceVersion": "installed 0.7.19",
+  "sourceFiles": 106,
+  "skillFiles": 92,
+  "skillGroups": 14,
+  "claimBoundary": "full inventory and method/section disposition; not line-by-line kernel security audit",
+  "files": [
+    {
+      "source": "installed",
+      "path": ".claude-plugin/icon.png",
+      "bytes": 34614,
+      "sha256": "8c44d41c85e0131a3daf2ae58ec1bef6eb54f8731db665dea5dc7c19524aacbe",
+      "group": ".claude-plugin",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": ".claude-plugin/marketplace.json",
+      "bytes": 1004,
+      "sha256": "59c5c1b9fbcbf7263cc09c6e2f9f018e4c522bd1dc4be678648e5480b2733f34",
+      "group": ".claude-plugin",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": ".claude-plugin/plugin.json",
+      "bytes": 1033,
+      "sha256": "a36b7b7eb820e153ea03de3fcfaab022c38417595b551220dabc062a8d9ce30b",
+      "group": ".claude-plugin",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": ".codex-plugin/logo.png",
+      "bytes": 34614,
+      "sha256": "8c44d41c85e0131a3daf2ae58ec1bef6eb54f8731db665dea5dc7c19524aacbe",
+      "group": ".codex-plugin",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": ".codex-plugin/plugin.json",
+      "bytes": 1914,
+      "sha256": "03c57043fd268a88189796b3f17cfea754e97c9d23e9920f1b2bf07ed825363c",
+      "group": ".codex-plugin",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": ".cursor-plugin/plugin.json",
+      "bytes": 1071,
+      "sha256": "78d42fbe812ad215eb899e58eab4721d425e546bf8e0bc37783fdbaf66868913",
+      "group": ".cursor-plugin",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "claude.mcp.json",
+      "bytes": 350,
+      "sha256": "2719521740dfe6c11fad087fb905ab34d6f218e7859b0dc1f6f0723a9d808761",
+      "group": "claude.mcp.json",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "codex.mcp.json",
+      "bytes": 384,
+      "sha256": "e95eae54c67b4e8e133e717bb57e81ae97f53ec4f224950b66af75eccdb7d459",
+      "group": "codex.mcp.json",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "cursor.mcp.json",
+      "bytes": 350,
+      "sha256": "f61642ba73b3b1ff12ae54a296b398112bc5abcf743fbb42fb5bb58b9e5bcb9d",
+      "group": "cursor.mcp.json",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "gemini-extension.json",
+      "bytes": 728,
+      "sha256": "86216428441f6c49e82f51ce6c3161d77974518f8340d2307e2fc3cbf7fd0913",
+      "group": "gemini-extension.json",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "LICENSE",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "mcp.json",
+      "bytes": 447,
+      "sha256": "9e5466c15923f3e35997abbb2c49a308bf75ee722d67dcc7da417543e5b14055",
+      "group": "mcp.json",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "plugin.json",
+      "bytes": 782,
+      "sha256": "b34f404ad01922bb9d80323e950649baf9973d7dce5f7cbdbaff9ed6300c6a88",
+      "group": "plugin.json",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "README.md",
+      "bytes": 18363,
+      "sha256": "1ee1cf7a86d7cbd188abef856ea7107df7cb2e12ce2335a475fdaa32b21af992",
+      "group": "README.md",
+      "review": "plugin-boundary-reviewed",
+      "reason": "Installation/runtime entry or metadata; preserve host boundary, do not migrate transport",
+      "skillGroup": "plugin",
+      "disposition": "non-method-plugin-entry",
+      "destinations": [
+        "references/full-library-review.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/bambu-labs/agents/openai.yaml",
+      "bytes": 222,
+      "sha256": "bc51e71a9576324df9ed20eb19f087d6b85638be7b5be9b0936a4257ef15528c",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "bambu-labs",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/bambu-labs/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "bambu-labs",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/bambu-labs/SKILL.md",
+      "bytes": 3512,
+      "sha256": "d57960d0a267a900eea37e110ac3d008a2e6610a1a8de257185e56eea3a37b48",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "File/type and human app execution boundaries; no printer API or access-code collection",
+      "skillGroup": "bambu-labs",
+      "disposition": "handoff-only",
+      "destinations": [
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/agents/openai.yaml",
+      "bytes": 291,
+      "sha256": "c9aa75189fd81080326ffadd6b62b33c74cdd46161d9f8c89d302f3c4b35efda",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "cad",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "cad",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/animation-deformation.md",
+      "bytes": 3702,
+      "sha256": "2149c19052f419e8f077beeafa9fd38c2a90c09b8787f5e06415411a03c35a36",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/build123d-modeling.md",
+      "bytes": 11342,
+      "sha256": "26a4177e1d001bb5f9b54b3791c556fa7fbb87993450d15cc1e8cffaa9b80b63",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/cad-brief.md",
+      "bytes": 2122,
+      "sha256": "bf881d7ef65e1b61a7c9de7750a35adeb8495208808f97ba53f77c1605d0c740",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/inspection-and-validation.md",
+      "bytes": 11791,
+      "sha256": "6b440b1ec4c19fe996e5959acf1cb3cd798938f02fffe86bc803d634af881090",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/kinematics.md",
+      "bytes": 20364,
+      "sha256": "47838cca5e0ead96dec04c6455fa2d73de6f9663767162350a419b50d208f4c7",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/migrations.md",
+      "bytes": 4538,
+      "sha256": "20944ea87bfa01ab3c3211239f4184f494d6554131fdad875ad9f1509c6ea36c",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/positioning.md",
+      "bytes": 5949,
+      "sha256": "e0f80bd4bbf85232f562f1543f45ac36900088490a9055a97f7829381d0f4ba3",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/project-layout.md",
+      "bytes": 9189,
+      "sha256": "8f9f3949e94c2b71ee660b566f4a81376de005537da16f5d4f82f0c858fb8cf8",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/project-template.md",
+      "bytes": 4788,
+      "sha256": "6ad7b20addd6f66f507dcf6a5f69062a86ff6df4f624feb8b276b9afe88249f9",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/repair-loop.md",
+      "bytes": 3856,
+      "sha256": "e53dea6aa63836e6acbf37a7890bf6aa21d6518fd08d2d01c34ffe7130664b09",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/snapshot-review.md",
+      "bytes": 14788,
+      "sha256": "29807a111677dbe4c14626ddcfc44f0575e498090b4c8339bb8b6b882a008a8b",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/step-generation.md",
+      "bytes": 27299,
+      "sha256": "19eee409f62661e666bc18c1a0df4ff3c009391d70af0b8aeae2ca8940082b0f",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/references/supported-exports.md",
+      "bytes": 10273,
+      "sha256": "e3f7ebb8938c07133f78548c85367d81414db63fb8db94f3ab24dc96e451db8d",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/cad/SKILL.md",
+      "bytes": 11268,
+      "sha256": "3221dca1055234618d425c20ece054d7920cd326a580112fdabf9294fdc3bec5",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Model choice, datums, artifacts, inspection, repair; do not port cadgen runtime or motion APIs",
+      "skillGroup": "cad",
+      "disposition": "adopted",
+      "destinations": [
+        "GUIDE.md",
+        "methods/construction-choice.md",
+        "methods/feature-order.md",
+        "methods/verification.md",
+        "problems/diagnosis.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfam-check/agents/openai.yaml",
+      "bytes": 213,
+      "sha256": "d113d2611cfba9f175aebcb4519d987fb681664d1dd3236ce9cb6ce831e178fa",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "dfam-check",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfam-check/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "dfam-check",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfam-check/references/process-limits.md",
+      "bytes": 3147,
+      "sha256": "876031c81c1c63f39cf44807a10fdb9f4bb6520be1931f1a8d888ba9e2fdd08f",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Mesh units, per-body and partial-report semantics; expose only actual WebCAD checks",
+      "skillGroup": "dfam-check",
+      "disposition": "adapted-with-limits",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfam-check/requirements.txt",
+      "bytes": 378,
+      "sha256": "06e7a1962d0e584662791f363051d1a9293f59887d0afc8749e7ce77d04afa6e",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "dfam-check",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfam-check/scripts/dfam_tool.py",
+      "bytes": 15676,
+      "sha256": "ff4ebf37642579a16040d79483ddcbcd84e33968d3da14df8770072201ee706b",
+      "group": "skills",
+      "review": "script-interface-and-algorithm-boundaries-reviewed",
+      "reason": "Mesh units, per-body and partial-report semantics; expose only actual WebCAD checks",
+      "skillGroup": "dfam-check",
+      "disposition": "adapted-with-limits",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfam-check/SKILL.md",
+      "bytes": 6086,
+      "sha256": "70fcbd647b5e875671fb692bedf914dab93bc39127d3eef457c252e66445e798",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Mesh units, per-body and partial-report semantics; expose only actual WebCAD checks",
+      "skillGroup": "dfam-check",
+      "disposition": "adapted-with-limits",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfm/agents/openai.yaml",
+      "bytes": 336,
+      "sha256": "924b85581ada05e90666a65dcb800b100bc51d06ee985d11f92e5e67a315c4c6",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "dfm",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfm/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "dfm",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfm/references/cnc.md",
+      "bytes": 3193,
+      "sha256": "628f53c1005991b053b473c546439d8074b9de140e3d317bbc8a0759cc6a1bf5",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "CNC/sheet/mold reasoning and fact/threshold separation; no factory defaults or imported measurement engine",
+      "skillGroup": "dfm",
+      "disposition": "adapted-with-limits",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfm/references/injection-molding.md",
+      "bytes": 10173,
+      "sha256": "18eb35e77748adccec914b6e8c488d42f503620a973edc5ee743d7b259bb38f0",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "CNC/sheet/mold reasoning and fact/threshold separation; no factory defaults or imported measurement engine",
+      "skillGroup": "dfm",
+      "disposition": "adapted-with-limits",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfm/references/sheet-metal.md",
+      "bytes": 3006,
+      "sha256": "2b9154bc8ab67b543d9047b36e072cb3d2897c0800ad9befcb9190875a3d0e1a",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "CNC/sheet/mold reasoning and fact/threshold separation; no factory defaults or imported measurement engine",
+      "skillGroup": "dfm",
+      "disposition": "adapted-with-limits",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfm/requirements.txt",
+      "bytes": 279,
+      "sha256": "2b9c23ca28b06adae33dc794200491c6c8ba2dd306c46405332fbaa48b00b3f8",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "dfm",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfm/scripts/mold_tool.py",
+      "bytes": 51482,
+      "sha256": "2a714660c952610cccc382cd5f1dd630ce2975c3711f7a250de10f6146587f9a",
+      "group": "skills",
+      "review": "script-interface-and-algorithm-boundaries-reviewed",
+      "reason": "CNC/sheet/mold reasoning and fact/threshold separation; no factory defaults or imported measurement engine",
+      "skillGroup": "dfm",
+      "disposition": "adapted-with-limits",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dfm/SKILL.md",
+      "bytes": 5843,
+      "sha256": "fbed01fab92368d884048eb8bd79669d57bde931d0b1cb935229662b68ce7a81",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "CNC/sheet/mold reasoning and fact/threshold separation; no factory defaults or imported measurement engine",
+      "skillGroup": "dfm",
+      "disposition": "adapted-with-limits",
+      "destinations": [
+        "methods/process-aware-modeling.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dxf/agents/openai.yaml",
+      "bytes": 304,
+      "sha256": "e78cbeb0671c2f418d21843fcf649b03c18656bc1353009739e3d578475992dc",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "dxf",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/profiles-and-drawings.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dxf/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "dxf",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/profiles-and-drawings.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dxf/references/generator-templates.md",
+      "bytes": 6403,
+      "sha256": "bf92c497da60e180d4657c9714ee0fab139cd8822a7dc76e09341b4157337ccc",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Closedness, layers/intent, analytic curves, actual serialized geometry; WebCAD profile/drawing APIs only",
+      "skillGroup": "dxf",
+      "disposition": "adapted",
+      "destinations": [
+        "methods/profiles-and-drawings.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/dxf/SKILL.md",
+      "bytes": 17593,
+      "sha256": "76afb74573e2bc69c557b980279ffe23b274f2e80936909ed8ba86bb41b65913",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Closedness, layers/intent, analytic curves, actual serialized geometry; WebCAD profile/drawing APIs only",
+      "skillGroup": "dxf",
+      "disposition": "adapted",
+      "destinations": [
+        "methods/profiles-and-drawings.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/engineering-drawing/agents/openai.yaml",
+      "bytes": 301,
+      "sha256": "8c637e3a1b763f675ee0490961b944c6d7e54044ce51a14c9e6c53d7ab4fc76b",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "engineering-drawing",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/profiles-and-drawings.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/engineering-drawing/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "engineering-drawing",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/profiles-and-drawings.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/engineering-drawing/references/sheet-api.md",
+      "bytes": 7105,
+      "sha256": "3a0b0d7ef3f926d1e87862e97ad8af6756aab94b9b77f6c8752286e686788fe3",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Geometric projection and dimension provenance; use current createDrawing/exportDrawing and limits",
+      "skillGroup": "engineering-drawing",
+      "disposition": "adapted",
+      "destinations": [
+        "methods/profiles-and-drawings.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/engineering-drawing/SKILL.md",
+      "bytes": 7939,
+      "sha256": "062e413f788ca26c27ea2215ff8e378b509039d2aeea2f2f62b1330b6140916e",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Geometric projection and dimension provenance; use current createDrawing/exportDrawing and limits",
+      "skillGroup": "engineering-drawing",
+      "disposition": "adapted",
+      "destinations": [
+        "methods/profiles-and-drawings.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/gcode/agents/openai.yaml",
+      "bytes": 187,
+      "sha256": "4fd423789a2a818b11e5d050bcd215a9b2235edc11e078d9399417a18e627f73",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "gcode",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/external-handoff.md",
+        "methods/parts-and-repetition.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/gcode/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "gcode",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/external-handoff.md",
+        "methods/parts-and-repetition.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/gcode/scripts/orca_presets.py",
+      "bytes": 6698,
+      "sha256": "ce18cc4870d1cfd7a69ef4f7f8b386de4264d7bc5222a9bfbe63f33ba67e44a4",
+      "group": "skills",
+      "review": "script-interface-and-algorithm-boundaries-reviewed",
+      "reason": "Printer/material/preset identity and resolved effective values; no built-in slicer claimed",
+      "skillGroup": "gcode",
+      "disposition": "handoff-only",
+      "destinations": [
+        "methods/external-handoff.md",
+        "methods/parts-and-repetition.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/gcode/SKILL.md",
+      "bytes": 4046,
+      "sha256": "da63118cc19a229431e3463918e9781767daa51aab43b06f1128be86249a6923",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Printer/material/preset identity and resolved effective values; no built-in slicer claimed",
+      "skillGroup": "gcode",
+      "disposition": "handoff-only",
+      "destinations": [
+        "methods/external-handoff.md",
+        "methods/parts-and-repetition.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/jindafu-cad/SKILL.md",
+      "bytes": 1270,
+      "sha256": "97715d346deeb963d130f037313218cca6a68438f4b25b599aee267381ce4702",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Formal source over visual guess; no external private knowledge copied",
+      "skillGroup": "jindafu-cad",
+      "disposition": "local-custom-methods",
+      "destinations": [
+        "methods/source-reconstruction.md",
+        "domain/hardware.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/jindafu-d-buckle/references/planar-round-wire-projection.md",
+      "bytes": 3028,
+      "sha256": "c2ee5ff7a923908ae5e1376c2628eb4eac20f6e4b5d9ae592ebca81e3c3fdb51",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "View correspondence, real section, source-path repair, independent positive/negative geometry tests; ignore stale CLI commands and product-specific sizes",
+      "skillGroup": "jindafu-d-buckle",
+      "disposition": "local-custom-methods",
+      "destinations": [
+        "methods/source-reconstruction.md",
+        "methods/profiles-and-drawings.md",
+        "examples/whole-library-cases.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/jindafu-d-buckle/references/round-wire-source-path.md",
+      "bytes": 3592,
+      "sha256": "c355f2a5240e5981ee6638171dd8d27fa5dbef4176665687770e6d7c5a5203a7",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "View correspondence, real section, source-path repair, independent positive/negative geometry tests; ignore stale CLI commands and product-specific sizes",
+      "skillGroup": "jindafu-d-buckle",
+      "disposition": "local-custom-methods",
+      "destinations": [
+        "methods/source-reconstruction.md",
+        "methods/profiles-and-drawings.md",
+        "examples/whole-library-cases.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/jindafu-d-buckle/references/view-mapping-and-dimensions.md",
+      "bytes": 2286,
+      "sha256": "0a61e5e5002c304e40eff8bc615b6a3ba1109ef73b4914710b8bf6d78bbac8ce",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "View correspondence, real section, source-path repair, independent positive/negative geometry tests; ignore stale CLI commands and product-specific sizes",
+      "skillGroup": "jindafu-d-buckle",
+      "disposition": "local-custom-methods",
+      "destinations": [
+        "methods/source-reconstruction.md",
+        "methods/profiles-and-drawings.md",
+        "examples/whole-library-cases.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/jindafu-d-buckle/scripts/__pycache__/coverage_intervals.cpython-312.pyc",
+      "bytes": 4701,
+      "sha256": "e260f6dbb271d251bbf7a1da5155a3a1b91224a92ad8aafb88b62cb25b239297",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "View correspondence, real section, source-path repair, independent positive/negative geometry tests; ignore stale CLI commands and product-specific sizes",
+      "skillGroup": "jindafu-d-buckle",
+      "disposition": "local-custom-methods",
+      "destinations": [
+        "methods/source-reconstruction.md",
+        "methods/profiles-and-drawings.md",
+        "examples/whole-library-cases.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/jindafu-d-buckle/scripts/coverage_intervals.py",
+      "bytes": 2804,
+      "sha256": "e68c12364813dfa90726bc8a8bfabf53c68345a9e6726a9e82ed9f0822ba12af",
+      "group": "skills",
+      "review": "script-interface-and-algorithm-boundaries-reviewed",
+      "reason": "View correspondence, real section, source-path repair, independent positive/negative geometry tests; ignore stale CLI commands and product-specific sizes",
+      "skillGroup": "jindafu-d-buckle",
+      "disposition": "local-custom-methods",
+      "destinations": [
+        "methods/source-reconstruction.md",
+        "methods/profiles-and-drawings.md",
+        "examples/whole-library-cases.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/jindafu-d-buckle/SKILL.md",
+      "bytes": 12628,
+      "sha256": "21a0b05bcaff96b800923e7c6cf44a017f5c7c5b770542f6a469572837920b61",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "View correspondence, real section, source-path repair, independent positive/negative geometry tests; ignore stale CLI commands and product-specific sizes",
+      "skillGroup": "jindafu-d-buckle",
+      "disposition": "local-custom-methods",
+      "destinations": [
+        "methods/source-reconstruction.md",
+        "methods/profiles-and-drawings.md",
+        "examples/whole-library-cases.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sdf/agents/openai.yaml",
+      "bytes": 300,
+      "sha256": "b44d83f01695934800c1d2e44f42f739c61d981e6ad8bea7b5b4bc87f5697ef2",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "sdf",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sdf/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "sdf",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sdf/references/design-ledger.md",
+      "bytes": 4302,
+      "sha256": "d534c3ea38fb66833593f68de7cca853973651bc825ca7347e41774b7460cf31",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Explicit frames, assumption ledger, target-consumer and structural/behavioral proof split; no simulator/plugin APIs claimed",
+      "skillGroup": "sdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sdf/references/examples.md",
+      "bytes": 4546,
+      "sha256": "5f676a4cbfe7bb64988bb364d842ad34437b0e3b2a82c12a648bd9a2121157f1",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Explicit frames, assumption ledger, target-consumer and structural/behavioral proof split; no simulator/plugin APIs claimed",
+      "skillGroup": "sdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sdf/references/frame-semantics.md",
+      "bytes": 3724,
+      "sha256": "5eb4fde0f827d8f63d7b70617ace53df2a8086c9462d6bdb8a32df4b4b000eb8",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Explicit frames, assumption ledger, target-consumer and structural/behavioral proof split; no simulator/plugin APIs claimed",
+      "skillGroup": "sdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sdf/references/interoperability.md",
+      "bytes": 3689,
+      "sha256": "8a47581c70da01631db372142427c7e09241492542c20c38b2b024991fd57f61",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Explicit frames, assumption ledger, target-consumer and structural/behavioral proof split; no simulator/plugin APIs claimed",
+      "skillGroup": "sdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sdf/references/llm-guardrails.md",
+      "bytes": 4641,
+      "sha256": "150efd66df2565dab6e4a5c3174dc1e46e2a51994469384da18b3fdb0f0ca6e3",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Explicit frames, assumption ledger, target-consumer and structural/behavioral proof split; no simulator/plugin APIs claimed",
+      "skillGroup": "sdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sdf/references/sdf-workflow.md",
+      "bytes": 4380,
+      "sha256": "102376e1908094bb7710a2ec17958cdf7ab2e599ebbe1f2cd0a2560a49fb657c",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Explicit frames, assumption ledger, target-consumer and structural/behavioral proof split; no simulator/plugin APIs claimed",
+      "skillGroup": "sdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sdf/references/smoke-tests.md",
+      "bytes": 3469,
+      "sha256": "6360b4e15f40fcb229b382d3345f23fe278f30120992764d375257fcfb998392",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Explicit frames, assumption ledger, target-consumer and structural/behavioral proof split; no simulator/plugin APIs claimed",
+      "skillGroup": "sdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sdf/references/validation.md",
+      "bytes": 8274,
+      "sha256": "aa9de8d3ea435d67217269bc3c0edb1716a658ac72dc5403665485d984a4b9c4",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Explicit frames, assumption ledger, target-consumer and structural/behavioral proof split; no simulator/plugin APIs claimed",
+      "skillGroup": "sdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sdf/SKILL.md",
+      "bytes": 10463,
+      "sha256": "9248b891c3adfc9a75fdacf81779eefb5b0cc5831c378ccc226e065bd09239f0",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Explicit frames, assumption ledger, target-consumer and structural/behavioral proof split; no simulator/plugin APIs claimed",
+      "skillGroup": "sdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sendcutsend/agents/openai.yaml",
+      "bytes": 214,
+      "sha256": "3ba362d319e71a95cd6015d36be2831e3de9bf9fd85a3ab9c528563f818b0ad2",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "sendcutsend",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/process-aware-modeling.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sendcutsend/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "sendcutsend",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/process-aware-modeling.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sendcutsend/references/official-sources.md",
+      "bytes": 2252,
+      "sha256": "45a7a1e356df59fc67c3345ca172b8ff4039fae3a7c42bd17cc93f5de0f3c002",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Exact specification identity, local geometry, trustworthy comparisons; no vendor-specific thresholds/orders inherited",
+      "skillGroup": "sendcutsend",
+      "disposition": "adapted-with-limits",
+      "destinations": [
+        "methods/process-aware-modeling.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sendcutsend/references/report-template.md",
+      "bytes": 3038,
+      "sha256": "e63fddbd6f7720f234cb1f6e6ba40b479e21e554c87e5cf83d098716ede89b5b",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Exact specification identity, local geometry, trustworthy comparisons; no vendor-specific thresholds/orders inherited",
+      "skillGroup": "sendcutsend",
+      "disposition": "adapted-with-limits",
+      "destinations": [
+        "methods/process-aware-modeling.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/sendcutsend/SKILL.md",
+      "bytes": 12971,
+      "sha256": "c134d40697a07dda3dde85d51a3c7343514167734120c6c8e6580a401b4aed42",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Exact specification identity, local geometry, trustworthy comparisons; no vendor-specific thresholds/orders inherited",
+      "skillGroup": "sendcutsend",
+      "disposition": "adapted-with-limits",
+      "destinations": [
+        "methods/process-aware-modeling.md",
+        "methods/external-handoff.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/srdf/agents/openai.yaml",
+      "bytes": 321,
+      "sha256": "42913b6b12b34136f51aaa9dd3dcb52640397deaa8c7bcab4096a378e2728507",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "srdf",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/artifacts-and-dependencies.md",
+        "methods/representations-units-and-mass.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/srdf/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "srdf",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/artifacts-and-dependencies.md",
+        "methods/representations-units-and-mass.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/srdf/references/authoring-contract.md",
+      "bytes": 4681,
+      "sha256": "8b58ed74382e4247da83d20b447735139cb46e8ec21c125f5c2fb122e4ad010c",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Actual object-name tables, cross-file identity, stale dependent semantics, evidence exclusions; no MoveIt/IK claimed",
+      "skillGroup": "srdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/artifacts-and-dependencies.md",
+        "methods/representations-units-and-mass.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/srdf/references/disabled-collisions.md",
+      "bytes": 1925,
+      "sha256": "34508601f674e0f092f8f712737004167a02f2c407a24aaec41db396934ff894",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Actual object-name tables, cross-file identity, stale dependent semantics, evidence exclusions; no MoveIt/IK claimed",
+      "skillGroup": "srdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/artifacts-and-dependencies.md",
+        "methods/representations-units-and-mass.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/srdf/references/end-effectors.md",
+      "bytes": 1643,
+      "sha256": "87ab7d01d042e03ba66b03a10dc91de201415bf2392cf0d37673946a8bb4ba33",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Actual object-name tables, cross-file identity, stale dependent semantics, evidence exclusions; no MoveIt/IK claimed",
+      "skillGroup": "srdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/artifacts-and-dependencies.md",
+        "methods/representations-units-and-mass.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/srdf/references/planning-ledger.md",
+      "bytes": 3456,
+      "sha256": "e15d70ae413dad342ab24e96ca37f615beeab48908c4e6a2d538b760e2a1469a",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Actual object-name tables, cross-file identity, stale dependent semantics, evidence exclusions; no MoveIt/IK claimed",
+      "skillGroup": "srdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/artifacts-and-dependencies.md",
+        "methods/representations-units-and-mass.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/srdf/references/srdf-workflow.md",
+      "bytes": 2957,
+      "sha256": "4e4defc674b3b945a2ab3ca4e2be7158d32d3aba300478262ac5c8426075ab8a",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Actual object-name tables, cross-file identity, stale dependent semantics, evidence exclusions; no MoveIt/IK claimed",
+      "skillGroup": "srdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/artifacts-and-dependencies.md",
+        "methods/representations-units-and-mass.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/srdf/references/validation.md",
+      "bytes": 3982,
+      "sha256": "5b118017e3b46f8fd7fd4c39219ca079e84893f1b7bc1537abc6961d7539b624",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Actual object-name tables, cross-file identity, stale dependent semantics, evidence exclusions; no MoveIt/IK claimed",
+      "skillGroup": "srdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/artifacts-and-dependencies.md",
+        "methods/representations-units-and-mass.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/srdf/SKILL.md",
+      "bytes": 11500,
+      "sha256": "5b7a9188c83e875dfc170cc10ab06d5c12838987c0d41e66d995d038e3b5628a",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Actual object-name tables, cross-file identity, stale dependent semantics, evidence exclusions; no MoveIt/IK claimed",
+      "skillGroup": "srdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/artifacts-and-dependencies.md",
+        "methods/representations-units-and-mass.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/step-parts/agents/openai.yaml",
+      "bytes": 198,
+      "sha256": "657bf64cb20efb9c3d7ff48841ffc4e3008b9d7111aef7837e466afadf0faa7b",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "step-parts",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/parts-and-repetition.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/step-parts/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "step-parts",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/parts-and-repetition.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/step-parts/references/step-parts-api.md",
+      "bytes": 3690,
+      "sha256": "5d609015c0b1461cf739795ca9d8901e37a6b1995b0994e8189f6667ae37819a",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Exact model selection, aliases, download integrity, origin; search/download requires actual host tools",
+      "skillGroup": "step-parts",
+      "disposition": "host-assisted",
+      "destinations": [
+        "methods/parts-and-repetition.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/step-parts/scripts/download_step_part.py",
+      "bytes": 8233,
+      "sha256": "6e9d70132e014c1478ded1ef131a8d2610e2f70399f314ef9ae306fd934592bb",
+      "group": "skills",
+      "review": "script-interface-and-algorithm-boundaries-reviewed",
+      "reason": "Exact model selection, aliases, download integrity, origin; search/download requires actual host tools",
+      "skillGroup": "step-parts",
+      "disposition": "host-assisted",
+      "destinations": [
+        "methods/parts-and-repetition.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/step-parts/SKILL.md",
+      "bytes": 6106,
+      "sha256": "62e4e1f406a30b0053904e648966e075a63913a198e16fc857d92d779cec2a52",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Exact model selection, aliases, download integrity, origin; search/download requires actual host tools",
+      "skillGroup": "step-parts",
+      "disposition": "host-assisted",
+      "destinations": [
+        "methods/parts-and-repetition.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/urdf/agents/openai.yaml",
+      "bytes": 289,
+      "sha256": "3734ff2fd7f06d4b2411f5a9d74c6b9e14ac9aea15834e51b6346ae5a1587b2a",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "urdf",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/selection-and-placement.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/urdf/LICENSE",
+      "bytes": 1095,
+      "sha256": "63c6c5ccfa97f435d20718e7810ffcb8840409c29ec58ce25e9dccd1f75e9825",
+      "group": "skills",
+      "review": "metadata-and-license-reviewed",
+      "reason": "License, host descriptor or dependency declaration; no new modeling guidance from this file",
+      "skillGroup": "urdf",
+      "disposition": "non-method-metadata",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/selection-and-placement.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/urdf/references/authoring-contract.md",
+      "bytes": 9230,
+      "sha256": "b00ea1a4916f6309ecb3e6b0b62e124f117e68b9f3227e3c08dd2aa63d9d0160",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Frames, unit conversions, distinct geometry roles, computed physical values; no URDF validator or dynamics claimed",
+      "skillGroup": "urdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/selection-and-placement.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/urdf/references/design-ledger.md",
+      "bytes": 5510,
+      "sha256": "487383363d3c4c57531762136e30567b92d5ff48275a2326ffc7e084c43b69f8",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Frames, unit conversions, distinct geometry roles, computed physical values; no URDF validator or dynamics claimed",
+      "skillGroup": "urdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/selection-and-placement.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/urdf/references/frame-semantics.md",
+      "bytes": 3701,
+      "sha256": "fcd6fcbe82a91abec723d1b12ec1b33063a9eedff7e771688cda42828eb43a63",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Frames, unit conversions, distinct geometry roles, computed physical values; no URDF validator or dynamics claimed",
+      "skillGroup": "urdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/selection-and-placement.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/urdf/references/inertials.md",
+      "bytes": 5079,
+      "sha256": "2539b987e2219ee8ff3aa017d970b5a4592dccc3c661051f7838f8afc2068868",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Frames, unit conversions, distinct geometry roles, computed physical values; no URDF validator or dynamics claimed",
+      "skillGroup": "urdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/selection-and-placement.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/urdf/references/meshes.md",
+      "bytes": 3950,
+      "sha256": "32f557940b87d5991127776cdbe0691caa71aba4141cae6b2c162dd1b09da18c",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Frames, unit conversions, distinct geometry roles, computed physical values; no URDF validator or dynamics claimed",
+      "skillGroup": "urdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/selection-and-placement.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/urdf/references/urdf-workflow.md",
+      "bytes": 5858,
+      "sha256": "0eabc51cce57145e20fff060fd0c649df8889234316196f6f3b0694708f75b84",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Frames, unit conversions, distinct geometry roles, computed physical values; no URDF validator or dynamics claimed",
+      "skillGroup": "urdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/selection-and-placement.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/urdf/references/validation.md",
+      "bytes": 4900,
+      "sha256": "16dd5294412f0d1a65832d72ac452580e6553255a09c6f64db70a2bb5fc98e55",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Frames, unit conversions, distinct geometry roles, computed physical values; no URDF validator or dynamics claimed",
+      "skillGroup": "urdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/selection-and-placement.md"
+      ]
+    },
+    {
+      "source": "installed",
+      "path": "skills/urdf/SKILL.md",
+      "bytes": 9495,
+      "sha256": "1de1fcddbce654e4dd3d8261f4a827b6ca9ca0b3144d476adec5eac9574e30d9",
+      "group": "skills",
+      "review": "modeling-method-sections-reviewed",
+      "reason": "Frames, unit conversions, distinct geometry roles, computed physical values; no URDF validator or dynamics claimed",
+      "skillGroup": "urdf",
+      "disposition": "cross-domain-methods",
+      "destinations": [
+        "methods/representations-units-and-mass.md",
+        "methods/selection-and-placement.md"
+      ]
+    }
+  ]
+}

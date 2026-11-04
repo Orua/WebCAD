@@ -1,0 +1,12 @@
+{
+  "source": "generated from current getTool(quickModel)",
+  "id": "quickModel",
+  "version": "legacy-1",
+  "schemaHash": "sha256:e1f812382dc2c0dc47a24399b708cef72551ace7c6fb8e6cb07c810f290daaaa",
+  "docsHash": "sha256:79e61e9141d7273191f2ba5b4723af7261880b2c3b6d4bd3428e698ed72aa788",
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "templates": [
+    "template.tube"
+  ],
+  "policy": "run add fills current parent version/hash; load full selected template card, never all-template parent catalogue by default"
+}

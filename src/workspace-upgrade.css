@@ -87,7 +87,7 @@
 
 .cad-dialog a{color:var(--accent-ink);text-underline-offset:3px}
 
-/* CADViewer-style icon chrome, with Goldenluck configurable colour roles. */
+/* CADViewer-style icon chrome, with user-configurable colour roles. */
 .webcad-app .app-header{height:48px;min-height:48px;flex-wrap:nowrap;gap:8px;padding:0 12px}
 .webcad-app .app-header .brand{position:static;transform:none;margin:0;order:0;min-width:0;gap:7px;flex:0 0 auto;justify-content:flex-start;font-size:14px;color:var(--accent)}
 .webcad-app .app-header .brand>div{display:block}.webcad-app .app-header .brand small{display:none}

@@ -1,0 +1,554 @@
+{
+  "id": "profileSweep",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "operation": {
+        "type": "string",
+        "enum": [
+          "newBody",
+          "join",
+          "cut",
+          "intersect"
+        ],
+        "default": "newBody",
+        "description": "New body, or explicit material operation on the last target ref"
+      },
+      "transitionMode": {
+        "type": "string",
+        "enum": [
+          "transformed",
+          "right",
+          "round"
+        ],
+        "default": "transformed"
+      },
+      "frenet": {
+        "type": "boolean",
+        "default": false
+      }
+    },
+    "required": [],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 2,
+    "maxItems": 3
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {
+    "operation": "newBody",
+    "transitionMode": "transformed",
+    "frenet": false
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。",
+  "title": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+  "category": "modification",
+  "synonyms": [
+    "profileSweep",
+    "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+    "profile Sweep operation",
+    "轮廓扫掠"
+  ],
+  "description": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+  "schemaHash": "sha256:5b2c3992cfb18372cf8f591eb2f18e8cf2653478740d5bfe51c520c51c4b8b2b",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "conditionalRefs": {
+    "min": 2,
+    "max": 3,
+    "newBody": {
+      "min": 2,
+      "max": 2
+    },
+    "modification": {
+      "min": 3,
+      "max": 3
+    },
+    "sourceCount": 2
+  },
+  "consumesInputs": true,
+  "preservesInputs": "Preserves section/path sources; replaces only the last target for join/cut/intersect.",
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
+  ],
+  "minimalExample": {
+    "op": "profileSweep",
+    "params": {
+      "operation": "newBody",
+      "transitionMode": "transformed",
+      "frenet": false
+    },
+    "refs": [
+      "<current-bodyId-1>",
+      "<current-bodyId-2>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "profileSweep",
+    "params": {
+      "operation": "newBody",
+      "transitionMode": "transformed",
+      "frenet": false
+    },
+    "refs": [
+      "<current-bodyId-1>",
+      "<current-bodyId-2>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "operation": "newBody",
+        "transitionMode": "transformed",
+        "frenet": false,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "PROFILE_SWEEP_INVALID"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+    "whenToUse": [
+      "refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "operation": {
+        "meaning": "New body, or explicit material operation on the last target ref",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "newBody"
+      },
+      "transitionMode": {
+        "meaning": "transitionMode: Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "transformed"
+      },
+      "frenet": {
+        "meaning": "frenet: Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": false
+      }
+    },
+    "refs": {
+      "min": 2,
+      "max": null,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "PROFILE_SWEEP_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "profileSweep",
+        "params": {
+          "operation": "newBody",
+          "transitionMode": "transformed",
+          "frenet": false
+        },
+        "refs": [
+          "<current-bodyId-1>",
+          "<current-bodyId-2>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "profileSweep",
+        "params": {
+          "operation": "newBody",
+          "transitionMode": "transformed",
+          "frenet": false
+        },
+        "refs": [
+          "<current-bodyId-1>",
+          "<current-bodyId-2>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "operation": "newBody",
+            "transitionMode": "transformed",
+            "frenet": false,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "services-eligible",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileOffset",
+      "profileRepair",
+      "profileExtrude",
+      "profileLoft",
+      "profileRevolve",
+      "profileConstraints",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "profileSweep",
+      "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+      "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+      "profile Sweep operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
+  "whenToUse": [
+    "refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "PROFILE_SWEEP_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "services-eligible",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "label": "轮廓扫掠",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "docs": "api.mechanical",
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "selectionGuide": {
+    "groupId": "sweep-loft",
+    "groupTitle": "扫掠、放样及导向曲面",
+    "chooseWhen": "复用已保存截面及精确路径；保留面孔，显式决定新建/加减料。",
+    "alternatives": [
+      {
+        "id": "sweep",
+        "chooseWhen": "参数截面沿显式三维折线路径扫掠；折线路径不同于精确曲线来源。"
+      },
+      {
+        "id": "curveSweep",
+        "chooseWhen": "沿解析/曲线脊线扫掠恒截面或有序自定义截面，可用旋转最小标架。"
+      },
+      {
+        "id": "loft",
+        "chooseWhen": "平行 XY 参数轮廓间的直纹放样。"
+      },
+      {
+        "id": "referenceLoft",
+        "chooseWhen": "复用 2–12 个有序精确单外环截面，保留来源；不支持截面内孔。"
+      },
+      {
+        "id": "profileLoft",
+        "chooseWhen": "2–12 个已保存精确截面依次成型，明确新建/材料运算。"
+      },
+      {
+        "id": "advancedLoft",
+        "chooseWhen": "手工定义 XY 截面序列，生成实体或开放壳。"
+      },
+      {
+        "id": "guidedLoft",
+        "chooseWhen": "显式截面标架、边界导向与来源 G1/G2 信息；不是仅靠截面插值。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.guide.sweep-loft",
+  "docsHash": "sha256:3d465dd2e5377880f33866f9f19250a88e7a258e837cc1a86f3c7c331e8ef944"
+}

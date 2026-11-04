@@ -872,7 +872,6 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "高度图浮雕（网格）",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -890,7 +889,6 @@
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
-    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -1199,5 +1197,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:2dd3d7bced993b963ec07b3e2d749aac518d2fda63f0e5646ca64922ff022525"
+  "docsHash": "sha256:888fc60f52d0bd68c81112b887d4396e7f7491070291f365adfeeabfda7fedcc"
 }

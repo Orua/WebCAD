@@ -1,0 +1,589 @@
+{
+  "id": "union",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "keepTools": {
+        "type": "boolean",
+        "description": "Keep original tools"
+      },
+      "fuzzyMm": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 0.1,
+        "description": "Explicit Boolean fuzzy tolerance in mm; default 0, never raised automatically."
+      },
+      "glue": {
+        "type": "string",
+        "enum": [
+          "off",
+          "shift",
+          "full"
+        ],
+        "description": "Explicit OCCT glue mode; default off."
+      },
+      "blendRadiusMm": {
+        "type": "number",
+        "description": "Requested seam radius (mm)",
+        "exclusiveMinimum": 0
+      },
+      "blendMode": {
+        "type": "string",
+        "enum": [
+          "fillet",
+          "variable"
+        ]
+      },
+      "blendLaw": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "startRadiusMm",
+          "endRadiusMm"
+        ],
+        "properties": {
+          "startRadiusMm": {
+            "type": "number",
+            "description": "Edge start radius (mm)",
+            "exclusiveMinimum": 0
+          },
+          "endRadiusMm": {
+            "type": "number",
+            "description": "Edge end radius (mm)",
+            "exclusiveMinimum": 0
+          }
+        }
+      }
+    },
+    "required": [],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 2
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers.",
+  "title": "Fuse bodies",
+  "category": "modification",
+  "synonyms": [
+    "union",
+    "Fuse bodies",
+    "union operation",
+    "合并",
+    "并集",
+    "布尔合并",
+    "布尔相加",
+    "boolean union"
+  ],
+  "description": "Fuse bodies",
+  "schemaHash": "sha256:0afca952356208fcc49b8df34e475eefcd8363536d6ba4b859a3ea71cb665c57",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
+  ],
+  "minimalExample": {
+    "op": "union",
+    "params": {},
+    "refs": [
+      "<current-bodyId-1>",
+      "<current-bodyId-2>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "union",
+    "params": {},
+    "refs": [
+      "<current-bodyId-1>",
+      "<current-bodyId-2>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Fuse bodies",
+    "whenToUse": [
+      "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "keepTools": {
+        "meaning": "Keep original tools",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "fuzzyMm": {
+        "meaning": "Explicit Boolean fuzzy tolerance in mm; default 0, never raised automatically.",
+        "unit": "mm",
+        "range": [
+          0,
+          0.1
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "glue": {
+        "meaning": "Explicit OCCT glue mode; default off.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendRadiusMm": {
+        "meaning": "Requested seam radius (mm)",
+        "unit": "mm",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendMode": {
+        "meaning": "blendMode: Fuse bodies",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendLaw": {
+        "meaning": "blendLaw: Fuse bodies",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 2,
+      "max": null,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "union",
+        "params": {},
+        "refs": [
+          "<current-bodyId-1>",
+          "<current-bodyId-2>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "union",
+        "params": {},
+        "refs": [
+          "<current-bodyId-1>",
+          "<current-bodyId-2>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "services-eligible",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "cut",
+      "intersect",
+      "split",
+      "meshBoolean",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "union",
+      "Fuse bodies",
+      "Fuse bodies",
+      "union operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Fuse bodies",
+  "whenToUse": [
+    "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "services-eligible",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "label": "合并",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "selectionGuide": {
+    "groupId": "booleans-organize",
+    "groupTitle": "布尔、分割与组合",
+    "chooseWhen": "融合实体并去除重叠内部；与只分组不同。",
+    "alternatives": [
+      {
+        "id": "cut",
+        "chooseWhen": "从首个目标实体减去后续刀具；目标/刀具顺序有意义。"
+      },
+      {
+        "id": "intersect",
+        "chooseWhen": "保留输入实体公共体积，不是切除或分组。"
+      },
+      {
+        "id": "meshBoolean",
+        "chooseWhen": "三角网格布尔；不能冒充精确 BRep 布尔或精确 STEP。"
+      },
+      {
+        "id": "group",
+        "chooseWhen": "组合为复合体但不融合；各实体重叠不会消除。"
+      },
+      {
+        "id": "split",
+        "chooseWhen": "用显式世界平面分割实体；不是拆出已有独立 solid。"
+      },
+      {
+        "id": "extractSolid",
+        "chooseWhen": "从复合体按索引提取一个已有实心体。"
+      },
+      {
+        "id": "body.explode",
+        "chooseWhen": "将多实心体组合一次拆为独立对象；不是布尔分割。"
+      },
+      {
+        "id": "refineShape",
+        "chooseWhen": "合并同域面和冗余分割边；不改变成型目标或修补任意坏体。"
+      },
+      {
+        "id": "remove",
+        "chooseWhen": "兼容发现入口；当前页面删除用 feature.remove 的明确 bodyIds，不通过 add 创建。"
+      },
+      {
+        "id": "feature.remove",
+        "chooseWhen": "删除指定当前实体的历史操作；不是隐藏，也不是取消未提交预览。"
+      },
+      {
+        "id": "body.visibility",
+        "chooseWhen": "仅改显隐，几何与依赖保留；不是删除。"
+      },
+      {
+        "id": "copySelection",
+        "chooseWhen": "复制当前明确实体到页面剪贴板；尚未新增对象。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.guide.boolean",
+  "docsHash": "sha256:550e70ce881d6cb1b9b27f7003026ab0eedbae8fb4cc4a1e6e982748d6d46c20"
+}

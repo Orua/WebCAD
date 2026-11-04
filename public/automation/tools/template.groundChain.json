@@ -37,7 +37,7 @@
     "磨链",
     "Ground curb chain link"
   ],
-  "description": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+  "description": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节沿用历史扭链/磨链 STEP 来源，不是自主源几何：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -206,7 +206,6 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -218,7 +217,7 @@
   "visibleInLibrary": true,
   "libraryCategory": "chains",
   "libraryCategoryLabel": "链条",
-  "purpose": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+  "purpose": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节沿用历史扭链/磨链 STEP 来源，不是自主源几何：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
   "whenToUse": [
     "This selected template matches the required structure; its complete parameters and placement contract are in this card."
   ],
@@ -260,7 +259,7 @@
         }
       }
     ],
-    "description": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+    "description": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节沿用历史扭链/磨链 STEP 来源，不是自主源几何：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
     "properties": {
       "kind": {
         "type": "string",
@@ -345,7 +344,7 @@
       }
     }
   },
-  "schemaHash": "sha256:cb7c222e29d4e655c7938c21282bcbaadda584c64de9ad80b46dfa94c22b5c83",
+  "schemaHash": "sha256:5093c382b404865f676deab1596a808cc0347d1321bafdbd1752004dada78087",
   "defaults": {
     "outerWidthMm": 11,
     "outerLengthMm": 15,
@@ -456,7 +455,6 @@
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
-    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -659,7 +657,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:e8ba0871ea202f1bb823b150836ef8b04d707f914f8b3f87f2d0d7a94499fa23"
+    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -724,5 +722,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ba456da0c8766f2dd5121612ff69d3b1212ebd9211b3ee8bd56fa2de535fc8d5"
+  "docsHash": "sha256:1e722012698d7796c4462482ed2f35ea730a1befc5f3584a80d0b5efae0ee18b"
 }

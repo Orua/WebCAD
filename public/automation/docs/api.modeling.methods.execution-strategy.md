@@ -24,7 +24,7 @@
 
 run 无循环、条件、eval 或任意文件读写；使用完整 api.run 卡及 $ref。addMany 使用 {feature:"earlierKey"}，这是另一层引用。选择性圆角和需要当前拓扑的加工在主体提交后查询再执行；变换后沿 replacements/新 bodyId。上限取当前握手 limits 与 Agent 安全上限较小值；run 步数、addMany 特征数、逻辑配件数、请求字节数分别约束。上限不是建议批量大小，不能通过嵌套规避工作量边界。
 
-同文档写入保持顺序，禁止 Promise.all 并发写工程。独立本地计算或契约允许的只读查询可并行。确定 not_committed 且未入队的格式错误可据回执修正；queued/running/unknown 查原 commandId/jobId，不换 key 重放。局部失败保留 completed/unattempted，只规划剩余部分；不静默改变尺寸或造型。画布离线只阻塞依赖画布的部分，公司知识、文件与本地计算仍按各自能力工作。
+同文档写入保持顺序，禁止 Promise.all 并发写工程。独立本地计算或契约允许的只读查询可并行。确定 not_committed 且未入队的格式错误可据回执修正；queued/running/unknown 查原 commandId/jobId，不换 key 重放。局部失败保留 completed/unattempted，只规划剩余部分；不静默改变尺寸或造型。画布离线只阻塞依赖画布的部分，用户授权资料、文件与本地计算仍按各自能力工作。
 
 多配件授权与交付见[分批建模](api.modeling.methods.staged-assembly)；重复件见[配件与重复](api.modeling.methods.parts-and-repetition)。已有连续授权直接沿用；不增加全库预读或每次固定审批。
 

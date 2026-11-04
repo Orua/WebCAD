@@ -3,11 +3,11 @@ export const serviceError=(code,message,extra={})=>Object.assign(new Error(messa
 function storage(){try{if(!globalThis.localStorage)throw 0;return globalThis.localStorage;}catch{throw serviceError('CAPABILITY_UNAVAILABLE','浏览器本地存储不可用');}}
 function credentials(){try{return globalThis.sessionStorage;}catch{return null;}}
 export function defaultServicesConfig(){
- const location=globalThis.location;
- if(!location||!['goldenfu.cn','localhost','127.0.0.1','10.0.0.8','10.0.0.223'].includes(location.hostname))return {enabled:false,url:''};
- const origin=location.origin;
- const mount=location.pathname?.match(/^(.*)\/webcad(?:\/|$)/i)?.[1]??'';
- return {enabled:true,url:new URL(mount+'/cadservices/api.ashx',origin).href,authMode:'siteSession'};
+ // 部署方可在页面初始化前注入 WEBCAD_DEPLOYMENT_CONFIG.services；启用须显式声明。
+ const config=globalThis.WEBCAD_DEPLOYMENT_CONFIG?.services;
+ if(config===undefined)return {enabled:false,url:''};
+ if(!config||typeof config!=='object'||Array.isArray(config))throw serviceError('PARAM_SCHEMA_INVALID','Services 部署配置无效');
+ return normalizeServicesConfig({...config,enabled:config.enabled??false});
 }
 export function normalizeServicesConfig(input){
  if(!input||Object.keys(input).some(k=>!['version','enabled','url','authMode','computeMode','allowGeometryUploads','authProfileId','credential','localTimeoutMs','serverWaitMs'].includes(k)))throw serviceError('PARAM_SCHEMA_INVALID','计算设置字段无效');
@@ -25,8 +25,6 @@ export function normalizeServicesConfig(input){
  if(enabled&&!url)throw serviceError('PARAM_SCHEMA_INVALID','启用 Services 须填写地址');
  if(authMode===undefined)authMode=url&&globalThis.location&&new URL(url).origin===globalThis.location.origin?'siteSession':'bearer';
  if(authMode==='siteSession'&&url){
-  const expected=defaultServicesConfig().url;
-  if(expected&&url===expected.replace('/cadservices/api.ashx','/AI/WebCAD/WebCADCompute.ashx'))url=expected;
   if(!globalThis.location||new URL(url).origin!==globalThis.location.origin)throw serviceError('PARAM_SCHEMA_INVALID','免鉴权连接仅限当前同域计算入口');
  }
  return {version:1,enabled,url,authMode,computeMode:'auto',localTimeoutMs,serverWaitMs,allowGeometryUploads:enabled,authProfileId:authMode==='siteSession'?'same-origin':'dedicated-services'};
@@ -36,14 +34,17 @@ export function getServicesConfig(){
  const raw=storage().getItem(KEY);let saved;try{saved=JSON.parse(raw||'null');}catch{throw serviceError('SERVICES_CONFIG_INVALID','Services 配置损坏，请重新设置');}
  let config=saved?normalizeServicesConfig(saved):normalizeServicesConfig(defaultServicesConfig());
  let auth;try{auth=JSON.parse(credentials()?.getItem(AUTH)||'null');}catch{}
- // Known former deployment endpoints were saved per origin, but their bearer
- // authorization disappeared on every new tab. Restore them through the site's
- // same-origin entrance; keep custom endpoints, explicit off, timers and old data.
- let authorizationRestored=false;const defaults=defaultServicesConfig();
- if(config.enabled&&config.authMode==='bearer'&&!(auth?.url===config.url&&auth.credential)&&defaults.enabled){
-  const previous=new URL(config.url);
-  if(previous.pathname.toLowerCase()==='/cadservices/api.ashx'&&!previous.search&&!previous.port&&['goldenfu.cn','localhost','127.0.0.1','10.0.0.8','10.0.0.223'].includes(previous.hostname)){
-   config=normalizeServicesConfig({...config,url:defaults.url,authMode:'siteSession',authProfileId:'same-origin'});authorizationRestored=true;
+ // 旧址仅按部署方显式名单迁移至受校验的同源入口；不改写存储、有效凭据或停用选择。
+ let authorizationRestored=false;
+ const migrationUrls=globalThis.WEBCAD_DEPLOYMENT_CONFIG?.servicesMigrationUrls;
+ if(config.enabled&&migrationUrls!==undefined&&!(auth?.url===config.url&&auth.credential)){
+  if(!Array.isArray(migrationUrls)||migrationUrls.some(value=>typeof value!=='string'||!value.trim()))throw serviceError('PARAM_SCHEMA_INVALID','Services 迁移地址名单无效');
+  const previousUrls=migrationUrls.map(url=>normalizeServicesConfig({enabled:false,url,authMode:'bearer'}).url);
+  if(previousUrls.includes(config.url)){
+   const defaults=defaultServicesConfig();
+   if(defaults.enabled&&defaults.authMode==='siteSession'&&defaults.url!==config.url){
+    config=normalizeServicesConfig({...config,url:defaults.url,authMode:'siteSession',authProfileId:'same-origin'});authorizationRestored=true;
+   }
   }
  }
  return {...config,configured:!!(config.enabled&&config.url),hasCredential:!!(auth?.url===config.url&&auth.credential),authorizationRestored,migrationRequired:!saved&&!!storage().getItem(OLD),credentialStorage:config.authMode==='siteSession'?'none':'sessionStorage',storage:saved?'localStorage':'deployment-default'};

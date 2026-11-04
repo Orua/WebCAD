@@ -7,7 +7,7 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.60.10",
+  "version": "1.60.8",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -67,7 +67,6 @@
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
-    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": "registered-file-only"
   },
@@ -198,5 +197,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:f7d3faca4f6378b043229e3fea60c1eb661cacf4cac8d8ae559fcf47a2685a06"
+  "docsHash": "sha256:c6408960663ddbee33b2ca573022c4e1b5890d927d191c1eaae84f5208488ab6"
 }

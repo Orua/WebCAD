@@ -1,0 +1,488 @@
+[
+  {
+    "id": "box",
+    "version": "1.0.0",
+    "schemaHash": "sha256:d082303b846c478cc1d8b09298f7bb401e917a0e4859bb8fcc62832cdd1ba85c",
+    "docsHash": "sha256:4b03bf9fe830c4974992a244b016561de514b355ce7250bb6ea32ab58b7d0c2e",
+    "file": "tools/cards/box.json",
+    "sizeBytes": 15079,
+    "sha256": "e1346d1dbca1f2215227bdf7c16f98832d2a63d975e9721480d975c70a601007"
+  },
+  {
+    "id": "capture",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:d04beb9c97ba369d2280e3dbc0248a91aebb61b95d7b07a519264cc666387dec",
+    "file": "tools/cards/capture.json",
+    "sizeBytes": 4553,
+    "sha256": "51ad278eae210d3df3d6f0efa5f4fe8e367055c4a770c521a2581662006f915b"
+  },
+  {
+    "id": "chamfer",
+    "version": "1.1.0",
+    "schemaHash": "sha256:2e9b6af05ecf5bff6571194b7fd660fcd5df4e9fc53ac1b9d18ca2dd4ebe5af1",
+    "docsHash": "sha256:8d5a4c6e0d7f7751d2404f89cdf063092cad88e452351e2838a4bb3a2a040b26",
+    "file": "tools/cards/chamfer.json",
+    "sizeBytes": 26675,
+    "sha256": "c82730921bfd753ae7f8192616af1828976e39bf2071149ccba96912ba049c00"
+  },
+  {
+    "id": "circularPattern",
+    "version": "1.1.0",
+    "schemaHash": "sha256:cea5a6fb12486d19d1494116475d1579c6a3212b2964ec92bd38ad75e782b95a",
+    "docsHash": "sha256:d37c443127fda1137829f46ca8e3b2b4eceff528ec63c59f2c6cc543b4d01b04",
+    "file": "tools/cards/circularPattern.json",
+    "sizeBytes": 18942,
+    "sha256": "a29349f4b487c4bb0207600461911aac1659d5dd46f8888e1ffb0b160650dff1"
+  },
+  {
+    "id": "copy",
+    "version": "1.0.0",
+    "schemaHash": "sha256:07d1200eb4ade75590917bd88c6d44a01cca5ed663298d2630982b1439157244",
+    "docsHash": "sha256:196d8fc234538023b0225d6139ce18c791b9510bd5dae5b23ca37e62b69f4fa2",
+    "file": "tools/cards/copy.json",
+    "sizeBytes": 26840,
+    "sha256": "fd4194cb55593599baeeb09c48b6bb0b395127599687faf6bf850d3aa6f4d794"
+  },
+  {
+    "id": "createDrawing",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:a29a827751bc79f9546101f3cbdcec8007426de3c11eebb7b661e24f9a7d5868",
+    "file": "tools/cards/createDrawing.json",
+    "sizeBytes": 3231,
+    "sha256": "a7c33dbc3ce2c2b15d107fb5d6f83b6e04a7f77ad6211755b6780d3936d89824"
+  },
+  {
+    "id": "cut",
+    "version": "1.0.0",
+    "schemaHash": "sha256:64b268221ad330f566b1f2e17b4df47312337c8e1e1ffbf9d74e5bd055190a07",
+    "docsHash": "sha256:bd3c95b96dac6bff544d6082e97b6e3d440acd7970d38f438a8b34c3326309f3",
+    "file": "tools/cards/cut.json",
+    "sizeBytes": 18201,
+    "sha256": "e590a7d51ffbcfc60a5d84c2bd4f57e5c59cc3f7d9dd79d5daec43116ff4fefb"
+  },
+  {
+    "id": "cylinder",
+    "version": "1.0.0",
+    "schemaHash": "sha256:a220f2281b98d86c1c56c176c29af7d5c6a39f60edfb18e10495fd284df60b2e",
+    "docsHash": "sha256:8a734945b1bd27fac5b831f9155545b1269faeed8c10e74ac04c999a25dbd9d9",
+    "file": "tools/cards/cylinder.json",
+    "sizeBytes": 15057,
+    "sha256": "93231e51a84d4e51831fbf810e6ea7ca5ee8c9a3c532d8f5de9c9bf32610f498"
+  },
+  {
+    "id": "exportDrawing",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:92892fb8829e7c11f50fea9af158d228f44a1d0f2086991500983818fa714081",
+    "file": "tools/cards/exportDrawing.json",
+    "sizeBytes": 6133,
+    "sha256": "bccef8fe607a9429290a0ea5c8c40b8edb482dafec99dd68cdf3e36026927400"
+  },
+  {
+    "id": "feature.edit",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:2ec63ee86d123f0e52b08483a2767b1755d3d9079223783b06bec6de1826644f",
+    "file": "tools/cards/feature.edit.json",
+    "sizeBytes": 3513,
+    "sha256": "7a92b30c91152228a453d9866a4d458aff1adae8145f2a2f0b8c723a2a38131a"
+  },
+  {
+    "id": "files.export",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:fe5c9aada6deda0a5250cc76edd1047ada0d9202ed0270821e940106091786be",
+    "file": "tools/cards/files.export.json",
+    "sizeBytes": 4145,
+    "sha256": "e8ae697b7e528099867f0f860dbcb8dafb54cc3375990af920db77e54b9cf000"
+  },
+  {
+    "id": "files.import",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:c7db76235177e213490b695000599d2100fc656bbc9509d9b136aaffa0622468",
+    "file": "tools/cards/files.import.json",
+    "sizeBytes": 5551,
+    "sha256": "4d8769d9c6ce385475c8348f52e76920709b0fb1f51d871d9bf10ddea1ddce2f"
+  },
+  {
+    "id": "files.read",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:1ba69e0579be77c02421562adaf328d54669087f0fd2c6520d3f2c51ca710f7c",
+    "file": "tools/cards/files.read.json",
+    "sizeBytes": 3515,
+    "sha256": "bd725fd7d9ad8036bc33daa26a795ddb906534c9598753cf35c1bcf76e359b48"
+  },
+  {
+    "id": "files.save",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:0f906867a4f13733c742f5433d164566cadbfb50356774bc59cc2aee53a78dbc",
+    "file": "tools/cards/files.save.json",
+    "sizeBytes": 4288,
+    "sha256": "b6b678ecfd9fae36b3959ccb58f4940c8943d00516585ffb8eb4e24086cd1e63"
+  },
+  {
+    "id": "fillet",
+    "version": "1.0.0",
+    "schemaHash": "sha256:ac92b6d61d49f22dc8a989da548d4c513a11dd8f09bcf7ebbb3a4e13eaf7904b",
+    "docsHash": "sha256:45045ddc85daf71ca056bd1812cb3332d52af5a5c96546c07ca29f5e8c405377",
+    "file": "tools/cards/fillet.json",
+    "sizeBytes": 29945,
+    "sha256": "c617f74dbb056845c46de7dc81bc8ed5dd773e46ebe3e65d34bc7125ca7b3465"
+  },
+  {
+    "id": "getBatchReceipt",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:45b2706c32bec050befb3fc96685e519eb07661286192620c318079e99952efc",
+    "file": "tools/cards/getBatchReceipt.json",
+    "sizeBytes": 3604,
+    "sha256": "69f4a03634f34b736011847e1f3f57f661c180f3ee18e3f1564bded6eaf6dd63"
+  },
+  {
+    "id": "getHistory",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:cddb640eff3a553e5270f7e65984fdf6df5d5e9e150e0980e1b25c5d5667b20e",
+    "file": "tools/cards/getHistory.json",
+    "sizeBytes": 2928,
+    "sha256": "0478d9ff04c0c1ec175872f59ba60abfc55920bb874a445fc32ac673d4614175"
+  },
+  {
+    "id": "getMaterials",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:cdc7efd1a8812624bd9d379032ead170fac14b390278566cecd3a901dd0eafea",
+    "file": "tools/cards/getMaterials.json",
+    "sizeBytes": 2475,
+    "sha256": "7e32206d2e5d4fabd69e71bc5045f53c049fb9a1b7f63de2f7e1bb7eb3782bab"
+  },
+  {
+    "id": "getState",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:ed5c77eb447a8fca0e3928b83ccde6e1c503c1247b9baf838e840d004c12aaad",
+    "file": "tools/cards/getState.json",
+    "sizeBytes": 5421,
+    "sha256": "28e3c0accc5a49646c441f41ee0eabe09103fa9d1ee798c89774354af32d871c"
+  },
+  {
+    "id": "guidedLoft",
+    "version": "1.0.0",
+    "schemaHash": "sha256:d8e43d8c52b2fe9c12095fed0bd0efc7a98e8c8dfd53012a18a2897c9c70e3dc",
+    "docsHash": "sha256:42e06d646fb91b031972c84930d455987fa5adb170f853355fbd127191842734",
+    "file": "tools/cards/guidedLoft.json",
+    "sizeBytes": 35746,
+    "sha256": "64297b40920995498ad3fbd5279b86a3326577b632599beb32a6d04fed01d8c0"
+  },
+  {
+    "id": "history.undo",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:affe995a45007d0637005fcdf96bf4206bfd4000391e21e2489b0f4b78aee0d2",
+    "file": "tools/cards/history.undo.json",
+    "sizeBytes": 3173,
+    "sha256": "d922435e31da5d18a91bbd2ef2f5c61dd9e65645313251c7396856e0f40e8285"
+  },
+  {
+    "id": "hole",
+    "version": "1.0.0",
+    "schemaHash": "sha256:42c43c2ab8df379086862a5a77b153781cb94310caa6a4b2a0947d4f3c509624",
+    "docsHash": "sha256:9a5339ff074d26e446015349371f1a9255a276cd80189cdef1466966dabdb801",
+    "file": "tools/cards/hole.json",
+    "sizeBytes": 19155,
+    "sha256": "7dd1634540aca4cd39a119f2a06d45d8e7b9a70aa4cce774876efc955f61da85"
+  },
+  {
+    "id": "holeWizard",
+    "version": "1.1.0",
+    "schemaHash": "sha256:df530ec2084a8f172eccd25604cfc58e23234a1c29cbd8e4156a180f102c928f",
+    "docsHash": "sha256:8bfd0c6d74c55223130fcccbb1e2ac41b6d9f8e6b2c776bfabfffb45c37165bf",
+    "file": "tools/cards/holeWizard.json",
+    "sizeBytes": 26771,
+    "sha256": "9a26ed436fcc3eb4bf049554e3f2d39f4fd711fd5fa13ad5e8ff336968f9b7d7"
+  },
+  {
+    "id": "inspectDesign",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:a166756599cd03f0c64fd4c3848f18448c832fbac53220479d7b7dc5293b6a1f",
+    "file": "tools/cards/inspectDesign.json",
+    "sizeBytes": 10932,
+    "sha256": "1c80ab564a79855cb9733fe13dd298c30c646c8e1263b5ee52f34025cf9bfa1c"
+  },
+  {
+    "id": "inspectDraft",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:fd3a417af7b1febd40a4acb4693c41840f82ea02b40a03222652ecd5f886d2cb",
+    "file": "tools/cards/inspectDraft.json",
+    "sizeBytes": 3344,
+    "sha256": "8550141ecb84086ae2dda0f31908572dcb7ae725b9b313e88077c3557fe27bb8"
+  },
+  {
+    "id": "inspectFit",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:9ad2c73f99cd3c62924115fff17c44ee43b3ae060cef2f9d74dd569c5b9f18e2",
+    "file": "tools/cards/inspectFit.json",
+    "sizeBytes": 3277,
+    "sha256": "e1c0a54917a791376f91fdbbcce4f0c80c13b376b8fa6b3360a5c988a6765942"
+  },
+  {
+    "id": "inspectPrintability",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:8e720df9828c44eebc56285e51a963189648ca7352723441df4f21e816cda48f",
+    "file": "tools/cards/inspectPrintability.json",
+    "sizeBytes": 3147,
+    "sha256": "6d4d2f5e79051e7c2eb766c407ce0ec065a54376252f13f44445273ebd992fe8"
+  },
+  {
+    "id": "inspectProfile",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:57696cd7f77dd0dd0e287e82ec8ecd6604f3405eaa439ea52d92641faf3c6123",
+    "file": "tools/cards/inspectProfile.json",
+    "sizeBytes": 3567,
+    "sha256": "45e6b98b00803551e9acd2e123bafe4ed83fb8dfc81edd0820e1816d78500ab1"
+  },
+  {
+    "id": "inspectThickness",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:1a2d4f397a89a63e85588aa4a7749f3bbb219874eb5a83e41c365c4771210128",
+    "file": "tools/cards/inspectThickness.json",
+    "sizeBytes": 3221,
+    "sha256": "542d3a63568b0341e32c138ab5da9a55c08069e68928c2821013ac0a7a6cca7f"
+  },
+  {
+    "id": "linearPattern",
+    "version": "1.1.0",
+    "schemaHash": "sha256:5635e1346b3ed2f78820350d44d2be713c0275b76414b743e9f8118ae850a590",
+    "docsHash": "sha256:f91795aad3f2125842e863ef0f5146302c4c82f00638e23a3e88aea57d5a3661",
+    "file": "tools/cards/linearPattern.json",
+    "sizeBytes": 17927,
+    "sha256": "d5cdafb52dd2fabbd9a912c4c17a20f0e8a4fa132e35b8083f1713a8d6b98469"
+  },
+  {
+    "id": "logo",
+    "version": "2.0.0",
+    "schemaHash": "sha256:4f33879eb1f75337a54e20f26a7bb56c6d39733f14ca39c49863a5994cfcef2e",
+    "docsHash": "sha256:47c17609735a170ea6a9979e4f080c74c2530469af4dbf63aa8729034fb0121e",
+    "file": "tools/cards/logo.json",
+    "sizeBytes": 40248,
+    "sha256": "a4cc271757468e461c096baff93a37e437209075176065d17b5d25211fba3674"
+  },
+  {
+    "id": "measure",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:2a7b09d3c78b3b9b83b6d53e91b30680662a4bb317bce362f4255e9d0dc4031c",
+    "file": "tools/cards/measure.json",
+    "sizeBytes": 3814,
+    "sha256": "ddcafb7ef7560fa90409ef4949a29fb39d35a66fef8857462e3d78f33664fcbe"
+  },
+  {
+    "id": "measureMass",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:32168802be25552dd8434336a2b86955fe6d03ba6555151c63968493ccd180a6",
+    "file": "tools/cards/measureMass.json",
+    "sizeBytes": 2653,
+    "sha256": "63745e6962dcbfd72392341e32f246b7aa386233adde6cc6b0db687b836e882f"
+  },
+  {
+    "id": "measureRelation",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:7ee1ae0423739d54423117231be10a761279a577b05778f40897a0cdfd038824",
+    "file": "tools/cards/measureRelation.json",
+    "sizeBytes": 3388,
+    "sha256": "d2df01cf0dd817e6e77c1ebd70da1180e417a8b273bc2078eb660c24f13f250e"
+  },
+  {
+    "id": "multiHole",
+    "version": "1.0.0",
+    "schemaHash": "sha256:f7293b65022d29119baf4c66d0faf4b1629a0c7cef7e337281a98ec54fc4641e",
+    "docsHash": "sha256:34e90d3c2d48e56956fe51dc09a568c750f91a942543c8ddd750374ae71fa29a",
+    "file": "tools/cards/multiHole.json",
+    "sizeBytes": 21542,
+    "sha256": "8a5797282338e9309da8c0cdd54b3abcc457a3abc165786fe66e6af1cc2b1462"
+  },
+  {
+    "id": "planAlignment",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:1b209478855011d3cd521e62bfae86aab9a4dcacca6a1b7bfb2f3e1e9e535a20",
+    "file": "tools/cards/planAlignment.json",
+    "sizeBytes": 3258,
+    "sha256": "b206946da209aedab79163e65515fc839011e003e171ec58933b88632904306b"
+  },
+  {
+    "id": "probeBlendRadius",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:11f4e1f3c5e90200f9263426231958406275079790a467883442bc949ef87699",
+    "file": "tools/cards/probeBlendRadius.json",
+    "sizeBytes": 7243,
+    "sha256": "bed281022b812e083899465e2034d1dea48cdb2ef585c8f31d0949d45da8d850"
+  },
+  {
+    "id": "profileExtrude",
+    "version": "1.0.0",
+    "schemaHash": "sha256:99b07e77b0ddb43513a66ce969f974cf519a6e98585cce0fb329fe861a482cff",
+    "docsHash": "sha256:0e6d682ee6804d7f9ad4015d0da926b44d36fa984e30f9d7a1ee1b3e33fdc511",
+    "file": "tools/cards/profileExtrude.json",
+    "sizeBytes": 21561,
+    "sha256": "b9c400bdf5d7f4dbff96e102eda08f7e3e7b57f4de1c028cfd6fa8e1215a8524"
+  },
+  {
+    "id": "profileLoft",
+    "version": "1.0.0",
+    "schemaHash": "sha256:538ad26cffd48d1e5e7f92ff0f60581115a8c8d0e5a641abc442ff0ea082b8b4",
+    "docsHash": "sha256:bba2fd48f2803ababfd925274e84926554fc16eb466778daf5cc915ab0edf711",
+    "file": "tools/cards/profileLoft.json",
+    "sizeBytes": 20026,
+    "sha256": "96315b34b8aff898f31a36d9de47bb2b2d3dc24ce775fbef740a8a278565ac6b"
+  },
+  {
+    "id": "profileOffset",
+    "version": "1.0.0",
+    "schemaHash": "sha256:6fe9936e7f32a9228849bddca41a28a25adea6d67d40aa7b8307d6ceb33e9162",
+    "docsHash": "sha256:3d2cece078664dcea5467c936727fe7dbfe22d1f5b862307f29fd426de4c376a",
+    "file": "tools/cards/profileOffset.json",
+    "sizeBytes": 18524,
+    "sha256": "83353ff266c76be6d0c77b715a23fb0132264ef5f8c6a1372afdbf92273355fb"
+  },
+  {
+    "id": "profileRepair",
+    "version": "1.0.0",
+    "schemaHash": "sha256:8e5efceb4f0ef0a5be78a701c0adeba00dbcc62fed69df30bdfc70da0615374a",
+    "docsHash": "sha256:0114a0eb201514569d2006d8dca2b9ebcf44a1e47e834be173e937b28308da7b",
+    "file": "tools/cards/profileRepair.json",
+    "sizeBytes": 18601,
+    "sha256": "35c602dca5b2e9917b297291819da712023fabd203ff078a162b249228832498"
+  },
+  {
+    "id": "profileRevolve",
+    "version": "1.0.0",
+    "schemaHash": "sha256:ebf3075e274c3c3b4f463425045f35e3391b31fe9b66baa4b0cd0e470dcb5931",
+    "docsHash": "sha256:03ca61b50619861bacce214d377ef7a46131510b87f5021cba2ccb7a922fe047",
+    "file": "tools/cards/profileRevolve.json",
+    "sizeBytes": 21763,
+    "sha256": "feccd7fc402a81eae85bf1e26e29bd2916a27bd8f0afd82ef1754fdc77a56078"
+  },
+  {
+    "id": "profileSweep",
+    "version": "1.0.0",
+    "schemaHash": "sha256:5b2c3992cfb18372cf8f591eb2f18e8cf2653478740d5bfe51c520c51c4b8b2b",
+    "docsHash": "sha256:3d465dd2e5377880f33866f9f19250a88e7a258e837cc1a86f3c7c331e8ef944",
+    "file": "tools/cards/profileSweep.json",
+    "sizeBytes": 23693,
+    "sha256": "4c30e0bd3afce3625806771bf46f0f08a7c593db58b0d4f0a8c823b71658bcf0"
+  },
+  {
+    "id": "queryGeometry",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:3cd7f9469686f9bf8111e107ab0972bb1c46ad95b7f8d778d27dc2d79eb4ec66",
+    "file": "tools/cards/queryGeometry.json",
+    "sizeBytes": 3376,
+    "sha256": "df950ca1482926ead77460e90a1591b4492f32e9b53595a80f44191903f92093"
+  },
+  {
+    "id": "queryReferences",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:793da7efe679b59a5287ca7439935f93e0fb978e1cc61eb0deeb31beeb3dc2d5",
+    "file": "tools/cards/queryReferences.json",
+    "sizeBytes": 3336,
+    "sha256": "bfe6d73a2680e3f52226c9b4b638359ce1bdd3054ad193c152cf3ee74c269a6a"
+  },
+  {
+    "id": "readLogo",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:ef4b8aa29ab84cebd3bfc8b9718b474ee2838f0243df4503606f04c32b73d650",
+    "file": "tools/cards/readLogo.json",
+    "sizeBytes": 9046,
+    "sha256": "a30da407c44e86622ab69ea3c62f751e75838d63723270e2dd1057eec417f038"
+  },
+  {
+    "id": "readVector",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:b0c5899646672b5adddfca473d95c5fb8b24455a0c54baec196c5808163fbbca",
+    "file": "tools/cards/readVector.json",
+    "sizeBytes": 4046,
+    "sha256": "0b6835d05d743e7bf360195021dab423063aa034dafa4b6f835047f424d752fe"
+  },
+  {
+    "id": "reviewLogo",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:d8fe738826d28800654f2edd01b4c2cbe89d2bb7c03a74d980034dfa6f942293",
+    "file": "tools/cards/reviewLogo.json",
+    "sizeBytes": 6590,
+    "sha256": "d84e739fd114ce1ebf27d9f12a68976572c3c7b15c2ee004b02c4e4fd19a2d15"
+  },
+  {
+    "id": "setRenderQuality",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:b7eb776e60331a2243f47d1a3b90c721ea47d9e3f2c8937dec7314f19666a704",
+    "file": "tools/cards/setRenderQuality.json",
+    "sizeBytes": 3376,
+    "sha256": "60824467f75bda4a95e0d071b9f7ad763815257efb8d6423e33764f1bb2b4266"
+  },
+  {
+    "id": "setView",
+    "version": "1.57.3",
+    "schemaHash": null,
+    "docsHash": "sha256:2603c1e1b902e69e8cbd0025b40207b422aabd2e1dd46613c7344bd32538d460",
+    "file": "tools/cards/setView.json",
+    "sizeBytes": 7825,
+    "sha256": "fc6b3abc9a5dd44d5501580b62ba9803f1f3fbfa4543ce4da56ff747bf2e94ba"
+  },
+  {
+    "id": "sketchProfile",
+    "version": "1.0.0",
+    "schemaHash": "sha256:ff427964bf4d4bab73f0c55b1389e09ded059ef4544b9f834cab3bb19aa26d63",
+    "docsHash": "sha256:9279ac10eee5021fef270426965e2a6141650d7254fa315f0d851f0689dc6da6",
+    "file": "tools/cards/sketchProfile.json",
+    "sizeBytes": 31978,
+    "sha256": "72585b7c8444ea348a7cb2b94e2f1b01defe8c1190a10888037a12f01abf721f"
+  },
+  {
+    "id": "template.tube",
+    "version": "legacy-1",
+    "schemaHash": "sha256:f21e96af8a538c8d628e50d0dae69d13864c32a1a48d714d614cc1dc1b911983",
+    "docsHash": "sha256:f4381de7ca8eb53ac5fff3c2b322425bf68810e28c333949a42fc36eb2ba38ca",
+    "file": "tools/cards/template.tube.json",
+    "sizeBytes": 16235,
+    "sha256": "24f56839b1e3df1e3c2fcb15d4a4e97265c501815c0cba003093392b8ad3bea8"
+  },
+  {
+    "id": "transform",
+    "version": "1.0.0",
+    "schemaHash": "sha256:2878fcd5076e6011f2cb3bfe2710a515d6de65b2db2bd58413d8522de705d884",
+    "docsHash": "sha256:c551bd19f94e1e2cd05a05f4a610011cf228e80d34a92df3af2c25b4e9bf347a",
+    "file": "tools/cards/transform.json",
+    "sizeBytes": 28895,
+    "sha256": "2520c51009151ceb37512514ec0edc829a44b55625103ce9828da6c2279b0e2e"
+  },
+  {
+    "id": "union",
+    "version": "1.0.0",
+    "schemaHash": "sha256:0afca952356208fcc49b8df34e475eefcd8363536d6ba4b859a3ea71cb665c57",
+    "docsHash": "sha256:550e70ce881d6cb1b9b27f7003026ab0eedbae8fb4cc4a1e6e982748d6d46c20",
+    "file": "tools/cards/union.json",
+    "sizeBytes": 20440,
+    "sha256": "d74e0c1f8cc09fb9d6ccee13d2ed4ea11c7d453aa97b8b5551536a08745a7360"
+  }
+]

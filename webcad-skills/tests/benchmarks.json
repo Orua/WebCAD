@@ -1,0 +1,1052 @@
+[
+  {
+    "id": "plate",
+    "input": "创建30×20×3矩形板",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "solid-section",
+      "branch": "box",
+      "size": [
+        30,
+        20,
+        3
+      ],
+      "volume": 1800
+    },
+    "assertions": [
+      {
+        "requirement": "size",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "volume",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "solidCount",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "two-holes",
+    "input": "40×20×3板在(10,10)(30,10)开两个Ø4通孔",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 40,
+            "depth": 20,
+            "height": 3
+          }
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "cut-features",
+      "branch": "multi-hole",
+      "centers": [
+        [
+          10,
+          10
+        ],
+        [
+          30,
+          10
+        ]
+      ],
+      "radius": 2,
+      "through": true
+    },
+    "assertions": [
+      {
+        "requirement": "hole count=2",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "centers",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "through",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "unchanged envelope",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "blind",
+    "input": "顶面Z3在(15,10)钻Ø4平底盲孔深1",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 30,
+            "depth": 20,
+            "height": 3
+          },
+          "frame": "world/model-origin"
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "cut-features",
+      "branch": "plain-hole",
+      "bottomZ": 2,
+      "volume": 1787.4336293856409
+    },
+    "assertions": [
+      {
+        "requirement": "bottomZ",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "hole center",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "retained bottom material",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "tube",
+    "input": "同轴轴套外径12内径8高3",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "axisymmetric",
+      "branch": "tube",
+      "size": [
+        12,
+        12,
+        3
+      ],
+      "volume": 188.49555921538757
+    },
+    "assertions": [
+      {
+        "requirement": "inner radius4",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "through bore",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "size",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "chamfer",
+    "input": "只将板的四条竖边倒角C0.5",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 30,
+            "depth": 20,
+            "height": 3
+          },
+          "frame": "world/model-origin"
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "finishing",
+      "branch": "chamfer",
+      "distance": 0.5,
+      "edges": 4
+    },
+    "assertions": [
+      {
+        "requirement": "op=chamfer",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "diagonal length=sqrt(0.5)",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "size unchanged",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "fillet",
+    "input": "四条竖边固定圆角R0.5",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 30,
+            "depth": 20,
+            "height": 3
+          },
+          "frame": "world/model-origin"
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "finishing",
+      "branch": "fillet",
+      "radius": 0.5,
+      "edges": 4
+    },
+    "assertions": [
+      {
+        "requirement": "op=fillet",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "fixed radius unchanged",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "unselected geometry preserved",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "edit",
+    "input": "将现有板厚度从3改成4，长宽不变",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 30,
+            "depth": 20,
+            "height": 3
+          },
+          "frame": "world/model-origin"
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "editing",
+      "branch": "edit",
+      "size": [
+        30,
+        20,
+        4
+      ],
+      "volume": 2400
+    },
+    "assertions": [
+      {
+        "requirement": "existing feature identified",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "width/depth unchanged",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "height4",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "step",
+    "input": "导出该板精确STEP",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 30,
+            "depth": 20,
+            "height": 3
+          },
+          "frame": "world/model-origin"
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "inspection",
+      "branch": "step",
+      "header": "ISO-10303-21;"
+    },
+    "assertions": [
+      {
+        "requirement": "exact BRep",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "resource bytes match descriptor",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "disk status separated",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "stl",
+    "input": "导出该板STL网格",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 30,
+            "depth": 20,
+            "height": 3
+          },
+          "frame": "world/model-origin"
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "inspection",
+      "branch": "stl",
+      "format": "stl"
+    },
+    "assertions": [
+      {
+        "requirement": "not step",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "actual bytes identified",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "mesh precision reported",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "missing-thickness",
+    "input": "做30×20的板，厚度没给",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "decision": "clarify",
+      "missing": [
+        "thickness"
+      ]
+    },
+    "assertions": [
+      {
+        "requirement": "no geometry before thickness",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "do not take test default",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "negative-radius",
+    "input": "建立半径-2高8圆柱",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "decision": "reject",
+      "error": "PARAM_RANGE_INVALID"
+    },
+    "assertions": [
+      {
+        "requirement": "revision unchanged",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "no body created",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "ambiguous-edge",
+    "input": "选所有圆孔边做圆角",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "template": "mountingPlate",
+          "testValues": {
+            "width": 40,
+            "depth": 16,
+            "thickness": 3,
+            "cornerRadius": 2,
+            "holeDiameter": 4,
+            "holeSpacing": 24
+          }
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "decision": "refine selection",
+      "circleRadius": 2,
+      "expectedFullCircleEdges": 4
+    },
+    "assertions": [
+      {
+        "requirement": "separate corner arcs and full circles",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "no first-match selection",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "stale",
+    "input": "布尔后沿用旧revision边号圆角",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 30,
+            "depth": 20,
+            "height": 3
+          },
+          "frame": "world/model-origin"
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "decision": "refresh current geometry",
+      "error": "STALE_REFERENCE"
+    },
+    "assertions": [
+      {
+        "requirement": "no reuse of stale topology",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "no silent edge widening",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "unknown",
+    "input": "孔提交后断线，结果未知",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 30,
+            "depth": 20,
+            "height": 3
+          },
+          "frame": "world/model-origin"
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "decision": "reconcile",
+      "originalKey": "supplied-by-fixture"
+    },
+    "assertions": [
+      {
+        "requirement": "get original receipt before replay",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "no new key duplicate geometry",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "freeform",
+    "input": "根据一张无尺寸照片精确复刻任意自由曲面",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "decision": "clarify source and report unverified capability"
+    },
+    "assertions": [
+      {
+        "requirement": "do not invent scale",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "do not claim exact surface reconstructed",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "conflict",
+    "input": "图正视宽30，尺寸表同版本宽32",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "decision": "resolve conflict",
+      "values": [
+        30,
+        32
+      ]
+    },
+    "assertions": [
+      {
+        "requirement": "do not silently choose one",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "no dimension certification",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "square-wire",
+    "input": "按明确中心路径做5×5方线框",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "path-section",
+      "branch": "sweep",
+      "section": [
+        5,
+        5
+      ],
+      "path": "source required"
+    },
+    "assertions": [
+      {
+        "requirement": "no round-wire substitution",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "path source requested if absent",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "loft-failure",
+    "input": "截面放样扭转失败",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "profiles": [
+            {
+              "stationZ": 0,
+              "shape": "rectangle",
+              "size": [
+                10,
+                10
+              ]
+            },
+            {
+              "stationZ": 20,
+              "shape": "rectangle",
+              "size": [
+                15,
+                8
+              ]
+            }
+          ]
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "decision": "inspect orientation/correspondence"
+    },
+    "assertions": [
+      {
+        "requirement": "no arbitrary smoothing",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "pair success not full success",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "assembly",
+    "input": "两个独立零件装配对齐但不能融合",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 30,
+            "depth": 20,
+            "height": 3
+          },
+          "frame": "world/model-origin"
+        },
+        {
+          "op": "cylinder",
+          "params": {
+            "radius": 2,
+            "height": 8
+          }
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "placement",
+      "branch": "align",
+      "bodies": 2
+    },
+    "assertions": [
+      {
+        "requirement": "do not union",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "check axis gap and orientation",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "logo",
+    "input": "审核字形含内孔，凹刻0.2在板顶",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 30,
+            "depth": 20,
+            "height": 3
+          },
+          "frame": "world/model-origin"
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "logo",
+      "branch": "contours",
+      "depth": 0.2,
+      "source": "reviewed contour required"
+    },
+    "assertions": [
+      {
+        "requirement": "preserve holes and source glyph",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "no invented font",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "factory",
+    "input": "保证0.2壁厚压铸强度合格",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "decision": "missing approved manufacturing data",
+      "wallMm": 0.2
+    },
+    "assertions": [
+      {
+        "requirement": "no invented threshold",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "geometry pass not manufacturing approval",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "final-body-edit",
+    "input": "导入最终实体后改孔，源配方不存在",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "format": "brep",
+          "source": "fixture final plate with hole",
+          "history": false
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "editing",
+      "decision": "supported new machining or report gap"
+    },
+    "assertions": [
+      {
+        "requirement": "no nonexistent feature.edit",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "preserve source geometry",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "diameter",
+    "input": "柱脚直径4高8",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "route": "axisymmetric",
+      "branch": "cylinder",
+      "radius": 2,
+      "height": 8
+    },
+    "assertions": [
+      {
+        "requirement": "radius=diameter/2",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "size4x4x8",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  },
+  {
+    "id": "tangent-boolean",
+    "input": "两体相切时融合失败",
+    "fixture": {
+      "newIndependentSession": true,
+      "units": "mm",
+      "features": [
+        {
+          "op": "box",
+          "params": {
+            "width": 10,
+            "depth": 10,
+            "height": 3
+          }
+        },
+        {
+          "op": "cylinder",
+          "params": {
+            "radius": 2,
+            "height": 3
+          },
+          "origin": [
+            12,
+            5,
+            0
+          ]
+        }
+      ],
+      "liveReferences": "resolve at runtime, never fixture topology IDs"
+    },
+    "expected": {
+      "decision": "inspect true overlap/zero thickness"
+    },
+    "assertions": [
+      {
+        "requirement": "no hidden support",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "no enlarged radius",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      },
+      {
+        "requirement": "no repeated job IDs",
+        "verdictSource": "independent geometry or externally judged decision",
+        "unavailableVerdict": "manual_review"
+      }
+    ],
+    "forbidden": [
+      "silent source changes",
+      "unbounded retries",
+      "self-declared success"
+    ],
+    "modelStatus": "not-run"
+  }
+]

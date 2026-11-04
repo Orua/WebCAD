@@ -2404,7 +2404,7 @@
           "kind"
         ],
         "additionalProperties": false,
-        "description": "Flat-top rectangular-section U bridge with independent inner/outer size, depth, corner and edge radii, and optional paired blind end bores. Structural references EXAMPLE-8AE0A3CA/EXAMPLE-1F534684; plain bores only, no threads, screws, backing plate or subtle source crown.",
+        "description": "Flat-top rectangular-section U bridge with independent inner/outer size, depth, corner and edge radii, and optional paired blind end bores. Structure and defaults derived from historical references, not newly authored source geometry; plain bores only, no threads, screws, backing plate or subtle source crown.",
         "properties": {
           "kind": {
             "type": "string",
@@ -2806,7 +2806,7 @@
           "kind"
         ],
         "additionalProperties": false,
-        "description": "Two coaxial opposed alloy eyelet parts inspired by EXAMPLE-D0F60C13, without pins. Flat or curved outward faces, chamfered edges and mating collars. Static geometry, no pressing or deformation.",
+        "description": "Two coaxial opposed alloy eyelet parts derived from a historical reference, without pins; not newly authored source geometry or a complete reconstruction. Flat or curved outward faces, chamfered edges and mating collars. Static geometry, no pressing or deformation.",
         "properties": {
           "kind": {
             "type": "string",
@@ -3272,7 +3272,7 @@
             }
           }
         ],
-        "description": "多节按内口受拉贴紧，保留独立链节。来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+        "description": "多节按内口受拉贴紧，保留独立链节。历史只读 STEP 结构参考（非自主源几何）：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
         "properties": {
           "kind": {
             "type": "string",
@@ -3379,7 +3379,7 @@
             }
           }
         ],
-        "description": "多节同向嵌接并按内口受拉贴紧；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
+        "description": "多节同向嵌接并按内口受拉贴紧；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节沿用历史 STEP 来源，不是自主源几何：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
         "properties": {
           "kind": {
             "type": "string",
@@ -3486,7 +3486,7 @@
             }
           }
         ],
-        "description": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+        "description": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节沿用历史扭链/磨链 STEP 来源，不是自主源几何：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
         "properties": {
           "kind": {
             "type": "string",
@@ -4667,7 +4667,7 @@
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:e8ba0871ea202f1bb823b150836ef8b04d707f914f8b3f87f2d0d7a94499fa23",
+  "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -8240,7 +8240,7 @@
     {
       "kind": "squareArchedBridge",
       "title": "方线拱桥",
-      "description": "Flat-top rectangular-section U bridge with independent inner/outer size, depth, corner and edge radii, and optional paired blind end bores. Structural references EXAMPLE-8AE0A3CA/EXAMPLE-1F534684; plain bores only, no threads, screws, backing plate or subtle source crown.",
+      "description": "Flat-top rectangular-section U bridge with independent inner/outer size, depth, corner and edge radii, and optional paired blind end bores. Structure and defaults derived from historical references, not newly authored source geometry; plain bores only, no threads, screws, backing plate or subtle source crown.",
       "visibleInLibrary": true,
       "category": "installation",
       "categoryLabel": "安装及配件",
@@ -8864,7 +8864,7 @@
     {
       "kind": "alloyEyelet",
       "title": "合金鸡眼",
-      "description": "Two coaxial opposed alloy eyelet parts inspired by EXAMPLE-D0F60C13, without pins. Flat or curved outward faces, chamfered edges and mating collars. Static geometry, no pressing or deformation.",
+      "description": "Two coaxial opposed alloy eyelet parts derived from a historical reference, without pins; not newly authored source geometry or a complete reconstruction. Flat or curved outward faces, chamfered edges and mating collars. Static geometry, no pressing or deformation.",
       "visibleInLibrary": true,
       "category": "fasteners",
       "categoryLabel": "连接件",
@@ -9549,7 +9549,7 @@
     {
       "kind": "oChain",
       "title": "O字链",
-      "description": "多节按内口受拉贴紧，保留独立链节。来源 OZL.stp：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
+      "description": "多节按内口受拉贴紧，保留独立链节。历史只读 STEP 结构参考（非自主源几何）：平面椭圆内孔、圆线截面、底部接缝。W/L 为外轮廓尺寸，线径独立；g=0 为闭环。底面 Z=0，长轴 Y。",
       "visibleInLibrary": true,
       "category": "chains",
       "categoryLabel": "链条",
@@ -9653,7 +9653,7 @@
     {
       "kind": "twistedChain",
       "title": "钮链",
-      "description": "多节同向嵌接并按内口受拉贴紧；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节来源 NL.stp：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
+      "description": "多节同向嵌接并按内口受拉贴紧；成链时按线径加深中心线起伏，保持外宽、外长和径向线径。原单节沿用历史 STEP 来源，不是自主源几何：椭圆链环呈对角高低起伏，保持来源的扭转曲面。W/L/线径独立调整，不是平面圈整体旋转；接缝位于 -Y 端，g=0 闭合。底面 Z=0。",
       "visibleInLibrary": true,
       "category": "chains",
       "categoryLabel": "链条",
@@ -9757,7 +9757,7 @@
     {
       "kind": "groundChain",
       "title": "磨链",
-      "description": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节来源 ML.stp/NL.stp：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
+      "description": "多节同向嵌接并按内口受拉贴紧，磨面共面；成链时按线径加深中心线起伏，再平磨到设定总厚。原单节沿用历史扭链/磨链 STEP 来源，不是自主源几何：扭链上下平磨并保留圆线侧面、底部接缝。磨后总厚控制两侧平面间距；磨边R为固定半径圆角，0 保留锐边。不是把扭链压扁。底面 Z=0。",
       "visibleInLibrary": true,
       "category": "chains",
       "categoryLabel": "链条",
@@ -10801,7 +10801,6 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
-  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "快捷模型",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -10819,7 +10818,6 @@
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
-    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -11076,5 +11074,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c3cac6f65864fb004bafb47c96ab272ffb4b0cd27660698c6bd3075f2acaae50"
+  "docsHash": "sha256:3eaab1930f91dd624623555df532ca95238c9009c637fe83078a784a02e6c1a3"
 }

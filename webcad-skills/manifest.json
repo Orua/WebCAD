@@ -1,0 +1,18 @@
+{
+  "name": "webcad-modeling-methods",
+  "version": "0.3.0",
+  "entry": "SKILL.md",
+  "catalog": "catalog.json",
+  "sourceCommit": "febfaad5666582c45de5831645949f4887edf641",
+  "trackedChanges": true,
+  "compatibility": {
+    "pageApiVersion": "1.57.3",
+    "catalogHash": "sha256:7ee73a9790f4288e445e55a92a5f5df0478205909fa28c74a3c53aaac95d4180",
+    "docsHash": "sha256:5e3d11c410e25b36d1497b90ac7b92d9b0c84b92a2eb33ec5925ee9cf6d8adfc",
+    "basis": "current worktree fingerprints; verify actual page before execution"
+  },
+  "dependencyPolicy": "static methods on disk; live authorized WebCAD page; no second engine",
+  "integration": "not installed or wired into production model requests",
+  "validation": "tests/results.json",
+  "toolCount": 54
+}

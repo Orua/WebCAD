@@ -1,0 +1,892 @@
+{
+  "id": "fillet",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "radius": {
+        "oneOf": [
+          {
+            "type": "number",
+            "description": "Exact radius in mm (mm)",
+            "exclusiveMinimum": 0,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxMm",
+              "minMm"
+            ],
+            "properties": {
+              "maxMm": {
+                "type": "number",
+                "description": "Maximum sampled radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "minMm": {
+                "type": "number",
+                "description": "Minimum radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "stepRatio": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            },
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        ],
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "edgeIds": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "description": "Zero-based topology index",
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 1,
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "faceIds": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "description": "Zero-based topology index",
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 1,
+        "uniqueItems": true,
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "sharedFaces": {
+        "type": "boolean",
+        "description": "With at least two faceIds, process only their common sharp edges; omitted/false preserves historical face-boundary scope"
+      },
+      "allEdges": {
+        "type": "boolean",
+        "description": "Explicitly process every sharp edge of the body"
+      },
+      "blendLaw": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "startRadiusMm",
+          "endRadiusMm"
+        ],
+        "properties": {
+          "startRadiusMm": {
+            "type": "number",
+            "description": "Edge start radius (mm)",
+            "exclusiveMinimum": 0
+          },
+          "endRadiusMm": {
+            "type": "number",
+            "description": "Edge end radius (mm)",
+            "exclusiveMinimum": 0
+          }
+        }
+      },
+      "selector": {
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "faceIds"
+            ]
+          },
+          {
+            "required": [
+              "edgeIds"
+            ]
+          },
+          {
+            "required": [
+              "allEdges"
+            ]
+          },
+          {
+            "required": [
+              "seamBetween"
+            ]
+          },
+          {
+            "required": [
+              "edgesNear"
+            ]
+          },
+          {
+            "required": [
+              "facesFromFeature"
+            ]
+          }
+        ],
+        "properties": {
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "edgeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "allEdges": {
+            "const": true
+          },
+          "seamBetween": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a",
+              "b"
+            ],
+            "properties": {
+              "a": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "b": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              }
+            }
+          },
+          "edgesNear": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pointMm",
+              "radiusMm"
+            ],
+            "properties": {
+              "pointMm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "radiusMm": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "sharpOnly": {
+                "type": "boolean"
+              }
+            }
+          },
+          "facesFromFeature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "featureId"
+            ],
+            "properties": {
+              "featureId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "side",
+                  "cap"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "required": [
+      "radius"
+    ],
+    "additionalProperties": false,
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      {
+        "required": [
+          "edgeIds"
+        ]
+      },
+      {
+        "required": [
+          "faceIds"
+        ]
+      },
+      {
+        "required": [
+          "allEdges"
+        ],
+        "properties": {
+          "allEdges": {
+            "const": true
+          }
+        }
+      },
+      {
+        "required": [
+          "selector"
+        ]
+      }
+    ]
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": true,
+    "kind": "edge",
+    "location": "args.selectionToken",
+    "featureAddOnly": true,
+    "conflictsWith": [
+      "faceId",
+      "faceIds",
+      "edgeIds",
+      "allEdges"
+    ],
+    "phases": "Validate user params with phase=input and selectionToken, resolve against current snapshot, then validate complete params with phase=resolved."
+  },
+  "editRule": "On edit, patch edgeIds or faceIds selects that exact current topology scope and removes the other scope. Patch allEdges=true selects all body edges. Supplying multiple scopes in one patch conflicts. Amount is merged from existing params.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Choose exactly one scope: edgeIds, faceIds, or allEdges=true. For two or more faces use sharedFaces:true to round only shared edges. UI multi-face selection uses sharedFaces:true; one face selects its boundary including holes. Tangent seams, periodic seams and degenerate edges are excluded. Exact BRep p-curves determine surface normals. Failure reports target/failing edge IDs and commits nothing. For up to eight target edges, a failed radius can trigger bounded read-only trials of smaller radii; the error may report one sampled radius that produced a valid solid. It is not a maximum and is never silently applied. Convex corners remove material; concave corners add a blend inside the recess. getState().bodies[].blendReport returns processed/skipped edges.",
+  "title": "Round sharp edges, shared face edges, face boundaries or the whole solid",
+  "category": "modification",
+  "synonyms": [
+    "fillet",
+    "Round sharp edges, shared face edges, face boundaries or the whole solid",
+    "fillet operation",
+    "圆角",
+    "标准圆角",
+    "倒圆",
+    "半径"
+  ],
+  "description": "Round sharp edges, shared face edges, face boundaries or the whole solid",
+  "schemaHash": "sha256:ac92b6d61d49f22dc8a989da548d4c513a11dd8f09bcf7ebbb3a4e13eaf7904b",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision.",
+    "Resolve topology against the current snapshot; do not reuse indices across revisions."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. For two or more faces use sharedFaces:true to round only shared edges. UI multi-face selection uses sharedFaces:true; one face selects its boundary including holes. Tangent seams, periodic seams and degenerate edges are excluded. Exact BRep p-curves determine surface normals. Failure reports target/failing edge IDs and commits nothing. For up to eight target edges, a failed radius can trigger bounded read-only trials of smaller radii; the error may report one sampled radius that produced a valid solid. It is not a maximum and is never silently applied. Convex corners remove material; concave corners add a blend inside the recess. getState().bodies[].blendReport returns processed/skipped edges."
+  ],
+  "minimalExample": {
+    "op": "fillet",
+    "params": {
+      "radius": 0.5,
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "normalExample": {
+    "op": "fillet",
+    "params": {
+      "radius": 0.5,
+      "edgeIds": [
+        0
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ],
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "radius": 0.5,
+        "edgeIds": [
+          0
+        ],
+        "allEdges": true
+      },
+      "errorCode": "SELECTION_CONFLICT",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "SELECTION_CONFLICT",
+    "STALE_REFERENCE",
+    "UNSAFE_LEGACY_REFERENCE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTool",
+    "queryGeometry",
+    "execute"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "Round sharp edges, shared face edges, face boundaries or the whole solid",
+    "whenToUse": [
+      "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. For two or more faces use sharedFaces:true to round only shared edges. UI multi-face selection uses sharedFaces:true; one face selects its boundary including holes. Tangent seams, periodic seams and degenerate edges are excluded. Exact BRep p-curves determine surface normals. Failure reports target/failing edge IDs and commits nothing. For up to eight target edges, a failed radius can trigger bounded read-only trials of smaller radii; the error may report one sampled radius that produced a valid solid. It is not a maximum and is never silently applied. Convex corners remove material; concave corners add a blend inside the recess. getState().bodies[].blendReport returns processed/skipped edges."
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "radius": {
+        "meaning": "radius: Round sharp edges, shared face edges, face boundaries or the whole solid",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "edgeIds": {
+        "meaning": "edgeIds: Round sharp edges, shared face edges, face boundaries or the whole solid",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "faceIds": {
+        "meaning": "faceIds: Round sharp edges, shared face edges, face boundaries or the whole solid",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "sharedFaces": {
+        "meaning": "With at least two faceIds, process only their common sharp edges; omitted/false preserves historical face-boundary scope",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "allEdges": {
+        "meaning": "Explicitly process every sharp edge of the body",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendLaw": {
+        "meaning": "blendLaw: Round sharp edges, shared face edges, face boundaries or the whole solid",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "selector": {
+        "meaning": "selector: Round sharp edges, shared face edges, face boundaries or the whole solid",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SELECTION_CONFLICT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "STALE_REFERENCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNSAFE_LEGACY_REFERENCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "fillet",
+        "params": {
+          "radius": 0.5,
+          "edgeIds": [
+            0
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "normal": {
+        "op": "fillet",
+        "params": {
+          "radius": 0.5,
+          "edgeIds": [
+            0
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ],
+        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+        "validation": "strict-parameter-schema"
+      },
+      "invalid": [
+        {
+          "params": {
+            "radius": 0.5,
+            "edgeIds": [
+              0
+            ],
+            "allEdges": true
+          },
+          "errorCode": "SELECTION_CONFLICT",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "services-eligible",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "chamfer",
+      "round",
+      "roundEnd",
+      "rounding",
+      "autoRound",
+      "smoothTransition",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "fillet",
+      "Round sharp edges, shared face edges, face boundaries or the whole solid",
+      "Round sharp edges, shared face edges, face boundaries or the whole solid",
+      "fillet operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "Round sharp edges, shared face edges, face boundaries or the whole solid",
+  "whenToUse": [
+    "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. For two or more faces use sharedFaces:true to round only shared edges. UI multi-face selection uses sharedFaces:true; one face selects its boundary including holes. Tangent seams, periodic seams and degenerate edges are excluded. Exact BRep p-curves determine surface normals. Failure reports target/failing edge IDs and commits nothing. For up to eight target edges, a failed radius can trigger bounded read-only trials of smaller radii; the error may report one sampled radius that produced a valid solid. It is not a maximum and is never silently applied. Convex corners remove material; concave corners add a blend inside the recess. getState().bodies[].blendReport returns processed/skipped edges."
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SELECTION_CONFLICT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "STALE_REFERENCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNSAFE_LEGACY_REFERENCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "services-eligible",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "label": "圆角",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 104857600,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。",
+    "alternatives": [
+      {
+        "id": "rodJunction",
+        "chooseWhen": "对等径直圆杆的垂直 T 接头设置独立三维 R；与日字扣定 R 共用滚球算法。不是任意面圆角，不支持异径、斜交或 X 接头。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "probeBlendRadius",
+        "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.guide.rounding",
+  "docsHash": "sha256:45045ddc85daf71ca056bd1812cb3332d52af5a5c96546c07ca29f5e8c405377"
+}

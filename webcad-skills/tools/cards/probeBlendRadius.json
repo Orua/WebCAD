@@ -1,0 +1,257 @@
+{
+  "id": "probeBlendRadius",
+  "title": "probeBlendRadius",
+  "category": "page-method",
+  "version": "1.57.3",
+  "contextPolicy": "identity",
+  "description": "probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。",
+  "synonyms": [
+    "probeBlendRadius",
+    "圆角",
+    "半径",
+    "可行区间",
+    "只读",
+    "探测",
+    "语义",
+    "接缝"
+  ],
+  "inputContract": "probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。",
+  "outputContract": "status=read；feasibility=feasible|infeasible，feasibleMaxMm、limitingEdgeIds、tried、elapsedMs、readOnly；无几何提交、无历史变动。仅有界离散采样，不是数学全局最大半径。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "docs": "api.blend-radius",
+  "relatedTools": [
+    "smoothTransition",
+    "fillet",
+    "queryGeometry"
+  ],
+  "units": {
+    "length": "mm"
+  },
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "context",
+      "bodyId",
+      "selector",
+      "maxMm",
+      "minMm"
+    ],
+    "properties": {
+      "context": {
+        "type": "object"
+      },
+      "bodyId": {
+        "type": "string"
+      },
+      "selector": {
+        "type": "object",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "faceIds"
+            ]
+          },
+          {
+            "required": [
+              "edgeIds"
+            ]
+          },
+          {
+            "required": [
+              "allEdges"
+            ]
+          },
+          {
+            "required": [
+              "seamBetween"
+            ]
+          },
+          {
+            "required": [
+              "edgesNear"
+            ]
+          },
+          {
+            "required": [
+              "facesFromFeature"
+            ]
+          }
+        ],
+        "properties": {
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true
+          },
+          "edgeIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 128,
+            "uniqueItems": true
+          },
+          "allEdges": {
+            "const": true
+          },
+          "seamBetween": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "a",
+              "b"
+            ],
+            "properties": {
+              "a": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "b": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              }
+            }
+          },
+          "edgesNear": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "pointMm",
+              "radiusMm"
+            ],
+            "properties": {
+              "pointMm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "radiusMm": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "sharpOnly": {
+                "type": "boolean"
+              }
+            }
+          },
+          "facesFromFeature": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "featureId"
+            ],
+            "properties": {
+              "featureId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 150
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "side",
+                  "cap"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "maxMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "minMm": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "stepRatio": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "exclusiveMaximum": 1
+      },
+      "maxAttempts": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 6
+      }
+    }
+  },
+  "executionPolicy": {
+    "readOnly": true,
+    "maxAttempts": 6,
+    "source": "independent-current-brep"
+  },
+  "selectionGuide": {
+    "groupId": "rounding",
+    "groupTitle": "圆角、端头与平滑过渡",
+    "chooseWhen": "只探测指定范围内可行半径并返回证据；不提交倒圆。",
+    "alternatives": [
+      {
+        "id": "fillet",
+        "chooseWhen": "按精确 R 对选边、面边界或整件尖边倒圆。"
+      },
+      {
+        "id": "rodJunction",
+        "chooseWhen": "对等径直圆杆的垂直 T 接头设置独立三维 R；与日字扣定 R 共用滚球算法。不是任意面圆角，不支持异径、斜交或 X 接头。"
+      },
+      {
+        "id": "autoRound",
+        "chooseWhen": "按明确 R 一次处理整件所有尖边；失败不自动缩小或跳过目标。"
+      },
+      {
+        "id": "round",
+        "chooseWhen": "统一圆润入口，区分边缘与杆件端头；先读识别结果及明确范围。"
+      },
+      {
+        "id": "roundEnd",
+        "chooseWhen": "按杆件截面重建自由端头；不等于普通固定 R 倒圆。"
+      },
+      {
+        "id": "rounding",
+        "chooseWhen": "既有自动打磨操作，选边及半径策略以当前合同为准，不等同端头重建。"
+      },
+      {
+        "id": "smoothTransition",
+        "chooseWhen": "多相邻面联合处理公共尖缝，生成真实过渡面。"
+      },
+      {
+        "id": "chamfer",
+        "chooseWhen": "直线切角，支持等距/双距/角度；不是弧形圆角。"
+      },
+      {
+        "id": "inspectRound",
+        "chooseWhen": "只读检查当前倒圆选择/范围；不是执行或自动缩小半径。"
+      },
+      {
+        "id": "badge",
+        "chooseWhen": "把指定平面面加厚成带边缘圆角的牌体。"
+      },
+      {
+        "id": "bumpSet",
+        "chooseWhen": "向目标加球形/椭球形凸点并处理接缝；不是高度图整体浮雕。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.guide.rounding",
+  "docsHash": "sha256:11f4e1f3c5e90200f9263426231958406275079790a467883442bc949ef87699"
+}

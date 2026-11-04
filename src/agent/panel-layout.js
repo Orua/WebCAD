@@ -1,4 +1,4 @@
-// Keep Goldenluck Web/AI/WebCAD/panel-layout.js identical; each repo imports its own copy.
+// Keep the optional host panel-layout implementation compatible; each host imports its own copy.
 export function isMobileLayout(win=window){
   // Honor Chrome's desktop-site UA independently of the phone's physical input.
   const mobile=win.navigator.userAgentData?.mobile;
