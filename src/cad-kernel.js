@@ -510,9 +510,18 @@ export class CadKernel {
       case 'revolve': {
         const angle = positive(p, 'angle', 360); if (angle > 360) throw new Error('旋转角度不能大于 360°');
         const plane = planeName(p), drawing = profile(p).translate(finite(p, 'offset', 10), 0);
-        const sketch = drawing.sketchOnPlane(plane);
-        const axis = plane === 'XY' ? [0, 1, 0] : [0, 0, 1];
-        try { return sketch.revolve(axis, { origin: [0, 0, 0], angle }); } finally { dispose(sketch); dispose(drawing); }
+        let sketch;
+        try {
+          const bounds=drawing.boundingBox;
+          try {
+            const min=bounds.bounds[0][0],max=bounds.bounds[1][0];
+            // Drawing bounds include a 1e-6 mm OCCT margin; touching the axis is valid.
+            if(min < -1.0001e-6 && max > 1.0001e-6)throw Object.assign(new Error('旋转截面跨过旋转轴；请调整 offset，使轮廓完全位于轴的一侧。矩形截面须满足 |offset| ≥ width/2；不要盲目缩小设计尺寸。'),{code:'REVOLVE_AXIS_CROSSING',path:'params.offset',details:{radialMinMm:min,radialMaxMm:max,offsetMm:finite(p,'offset',10)}});
+          } finally {dispose(bounds);}
+          sketch=drawing.sketchOnPlane(plane);
+          const axis=plane==='XY'?[0,1,0]:[0,0,1];
+          return sketch.revolve(axis,{origin:[0,0,0],angle});
+        } finally {dispose(sketch);dispose(drawing);}
       }
       case 'import': {
         const item = imports[p.key];
@@ -996,7 +1005,7 @@ export class CadKernel {
       next.forEach((shape, id) => { if (!reused.has(id)) dispose(shape); });
       const raw=String(error?.message||error||'');
       const descriptive=raw.replace(/\s*\[object WebAssembly\.Exception\]\s*$/,'').trim();
-      const message=descriptive||'几何内核未能生成有效实体；请减小加工尺寸或缩小目标范围。原模型保持。';
+      const message=descriptive||'几何内核未能生成有效实体；请核对当前操作的输入几何与参数。原模型保持。';
       throw Object.assign(new Error(message,{cause:error}), { featureId: current, code:error?.code||'GEOMETRY_INVALID', path:error?.path, recoveryAction:error?.recoveryAction||'CORRECT_PARAMETERS',report:error?.report,details:error?.details });
     } finally {this.rebuildStarted=undefined;}
   }

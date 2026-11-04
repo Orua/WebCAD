@@ -102,7 +102,7 @@
       },
       "offset": {
         "type": "number",
-        "description": "Horizontal in-plane offset from rotation axis (mm)",
+        "description": "Signed distance from the profile local origin/center to the rotation axis; not an inner radius (mm)",
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -150,7 +150,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. XY revolves about local Y; XZ/YZ about local Z before feature placement. Defaults angle=360,offset=10. offset translates the centered profile horizontally in its sketch plane; it is not an inner radius. For a centered rectangle of width w with |offset|>=w/2: outer radius=|offset|+w/2, inner radius=|offset|-w/2; outer diameter=2*|offset|+w, inner diameter=2*|offset|-w. Example width=4,depth=5,offset=10 gives outer diameter 24, inner diameter 16 and axial length 5. A contour crossing the axis fails REVOLVE_AXIS_CROSSING at params.offset without committing. An axis-touching rectangle can form a solid cylinder. For a cylinder along +X use extrude with profile:circle,radius:r,height:L,plane:YZ, or explicitly rotate the creation placement; do not invent revolve.axis. General saved-profile rotation supports profileRevolve axisPoint/axisDirection.",
   "title": "Revolve a closed profile",
   "category": "creation",
   "synonyms": [
@@ -160,7 +160,7 @@
     "旋转成型"
   ],
   "description": "Revolve a closed profile",
-  "schemaHash": "sha256:d509e5b503652a41ac5580a5d6d519191a4f2c23866756e39127c5223cfe4f6c",
+  "schemaHash": "sha256:f5fe891ace05c609ace02f52c207288fd0536399e838046e8562369995d235f6",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -221,7 +221,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis.",
+    "XY revolves about local Y; XZ/YZ about local Z before feature placement. Defaults angle=360,offset=10. offset translates the centered profile horizontally in its sketch plane; it is not an inner radius. For a centered rectangle of width w with |offset|>=w/2: outer radius=|offset|+w/2, inner radius=|offset|-w/2; outer diameter=2*|offset|+w, inner diameter=2*|offset|-w. Example width=4,depth=5,offset=10 gives outer diameter 24, inner diameter 16 and axial length 5. A contour crossing the axis fails REVOLVE_AXIS_CROSSING at params.offset without committing. An axis-touching rectangle can form a solid cylinder. For a cylinder along +X use extrude with profile:circle,radius:r,height:L,plane:YZ, or explicitly rotate the creation placement; do not invent revolve.axis. General saved-profile rotation supports profileRevolve axisPoint/axisDirection.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -291,7 +291,7 @@
   "contract": {
     "purpose": "Revolve a closed profile",
     "whenToUse": [
-      "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis."
+      "XY revolves about local Y; XZ/YZ about local Z before feature placement. Defaults angle=360,offset=10. offset translates the centered profile horizontally in its sketch plane; it is not an inner radius. For a centered rectangle of width w with |offset|>=w/2: outer radius=|offset|+w/2, inner radius=|offset|-w/2; outer diameter=2*|offset|+w, inner diameter=2*|offset|-w. Example width=4,depth=5,offset=10 gives outer diameter 24, inner diameter 16 and axial length 5. A contour crossing the axis fails REVOLVE_AXIS_CROSSING at params.offset without committing. An axis-touching rectangle can form a solid cylinder. For a cylinder along +X use extrude with profile:circle,radius:r,height:L,plane:YZ, or explicitly rotate the creation placement; do not invent revolve.axis. General saved-profile rotation supports profileRevolve axisPoint/axisDirection."
     ],
     "whenNotToUse": [
       {
@@ -411,7 +411,7 @@
         }
       },
       "offset": {
-        "meaning": "Horizontal in-plane offset from rotation axis (mm)",
+        "meaning": "Signed distance from the profile local origin/center to the rotation axis; not an inner radius (mm)",
         "unit": "mm",
         "range": [
           null,
@@ -566,7 +566,7 @@
   },
   "purpose": "Revolve a closed profile",
   "whenToUse": [
-    "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis."
+    "XY revolves about local Y; XZ/YZ about local Z before feature placement. Defaults angle=360,offset=10. offset translates the centered profile horizontally in its sketch plane; it is not an inner radius. For a centered rectangle of width w with |offset|>=w/2: outer radius=|offset|+w/2, inner radius=|offset|-w/2; outer diameter=2*|offset|+w, inner diameter=2*|offset|-w. Example width=4,depth=5,offset=10 gives outer diameter 24, inner diameter 16 and axial length 5. A contour crossing the axis fails REVOLVE_AXIS_CROSSING at params.offset without committing. An axis-touching rectangle can form a solid cylinder. For a cylinder along +X use extrude with profile:circle,radius:r,height:L,plane:YZ, or explicitly rotate the creation placement; do not invent revolve.axis. General saved-profile rotation supports profileRevolve axisPoint/axisDirection."
   ],
   "whenNotToUse": [
     {
@@ -906,5 +906,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:aace6a529e1108bfd89b2e50c13fceb54b547d6f24145a9c7d9f175b6c48b290"
+  "docsHash": "sha256:569a95cdfc9572c401609cb77f92f514d5b808037235030a7676b156165a7023"
 }

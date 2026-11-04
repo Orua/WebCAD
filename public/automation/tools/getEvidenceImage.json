@@ -2,7 +2,7 @@
   "id": "getEvidenceImage",
   "title": "getEvidenceImage",
   "category": "page-method",
-  "version": "1.60.9",
+  "version": "1.60.10",
   "contextPolicy": "revision",
   "inputSchema": {
     "type": "object",
@@ -215,5 +215,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2e87ada5f4d859d9365f1bb8d15de13c598545622394a1c97ff197697ed22c89"
+  "docsHash": "sha256:f5791be3413fd16ab93058c9deb7603ca36b84178d18bf95595d760c9648f19b"
 }

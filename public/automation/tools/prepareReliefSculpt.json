@@ -2,7 +2,7 @@
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.60.9",
+  "version": "1.60.10",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -191,5 +191,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:e3268a5663c3465cf0618b051e7f0672041667c235f2cf8bcf7d62e5a0d5d0e1"
+  "docsHash": "sha256:68ba3f0808eb550607fb0dae67c89ded9ad90ca9bf452584e880359352e9f472"
 }

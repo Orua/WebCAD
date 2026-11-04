@@ -1,4 +1,18 @@
 {
+  "revolveDiagnostics20261104": {
+    "localImpact": "Reject revolve axis-crossing contours with a specific actionable diagnostic. Required-field messages identify their full schema path.",
+    "servicesImpact": "None: browser revolve and schema diagnostics only; no backend change.",
+    "logoImpact": "None: no Logo computation or source geometry changes.",
+    "contractImpact": "Page API 1.60.10; document centered-profile offset/radius/diameter semantics and the existing X-axis extrusion route.",
+    "documentImpact": "Invalid revolve commits nothing. Existing successful geometry and rotation axes remain unchanged.",
+    "cacheImpact": "Regenerate the full knowledge archive, index and routes; refresh the local host cache and its current pointer after handshake.",
+    "requiredTests": [
+      "Axis-crossing revolve fails with code/path and preserves the existing document",
+      "Axis-touching/positive/negative-offset rectangle revolutions retain expected volumes",
+      "Required kind field appears in error.message",
+      "Live page diagnostics and local knowledge pointer match release hashes"
+    ]
+  },
   "creationPlacementAndSpline20261104": {
     "localImpact": "Agent creation uses the same frozen insertion frame as UI without implicit X layout; custom section profiles support explicit normalized sizing and periodic B-spline interpolation.",
     "servicesImpact": "None: affected creation and section tools execute in the browser kernel; backend protocol and artifacts unchanged.",

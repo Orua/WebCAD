@@ -2,7 +2,7 @@
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.60.9",
+  "version": "1.60.10",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -169,5 +169,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:387954265882b46794046ac18bbc9f7a619d3ac600a4e000797d6469416cacc1"
+  "docsHash": "sha256:90cb266e19bcd3d3aa6946285270111c324c17d646721a603863f7693e9d7bea"
 }

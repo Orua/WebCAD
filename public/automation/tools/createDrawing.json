@@ -2,7 +2,7 @@
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.60.9",
+  "version": "1.60.10",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_artifact",
@@ -171,5 +171,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:26cab31ff79b15fa2b78260f6faa6a3eba8f871065a2c605458e8ecd8af8c985"
+  "docsHash": "sha256:64d3d147592515389a0b741cbfa45cdc3af8843ca181a109ae2585bf4bbc1768"
 }
