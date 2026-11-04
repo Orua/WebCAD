@@ -47,6 +47,14 @@ test('candidate evaluation cannot grant execution, change intent or reset the sh
  assert.equal(errorRecovery({code:'GEOMETRY_INVALID'}).candidate.eligible,false);
 });
 
+test('userMessage separates the kernel sentence from the recovery sentence',()=>{
+ const recovery=errorRecovery({code:'STALE_REFERENCE',message:'目标面类型已改变，请重新选面'},{status:'failed',commitState:'not_committed'});
+ assert.match(recovery.userMessage,/请重新选面。本次失败步骤未提交/);
+ assert.doesNotMatch(recovery.userMessage,/请重新选面本次/);
+ const geometry=errorRecovery({code:'GEOMETRY_INVALID',message:'曲面等深刻字失败：LOGO 跨越所选面的边界、孔洞或接缝'},{status:'failed',commitState:'not_committed'});
+ assert.match(geometry.userMessage,/接缝。本次失败步骤未提交/);
+});
+
 test('concise actionable Chinese survives while stack, path and credentials do not reach users',()=>{
  const friendly='请选择一个平面，再检查孔的深度。';assert.ok(errorRecovery({message:friendly}).userMessage.includes(friendly));
  for(const message of ['执行失败 F:\\private\\secret.txt','连接错误 Authorization: Bearer privatevalue','错误\n at worker (private.js:8)','处理失败 token=privatevalue','后台失败 jobId: aabbccdd']){

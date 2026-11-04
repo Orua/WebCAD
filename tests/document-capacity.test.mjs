@@ -7,7 +7,11 @@ import {DOCUMENT_LIMITS,assertFeatureCapacity,serializeBoundedDocument,assertDoc
 import {recordTimeline,validateTimeline} from '../src/document-timeline.js';
 import {createCommandService} from '../src/command-service.js';
 import {getOperation} from '../src/operation-registry.js';
-import {createReferenceSystem} from '../src/work-frame.js';
+import {createReferenceSystem,validateReferenceSystem,validateResolvedPlacement} from '../src/work-frame.js';
+import {debugJournal} from '../src/debug-journal.js';
+import {validateReliefDesigns} from '../src/relief-design-drafts.js';
+import {loadMaterialSettings,validateMaterialSettings,inheritBodyMaterials} from '../src/material-density.js';
+import {validateMetalMaterials} from '../src/metal-presets.js';
 import {getTool} from '../src/page-api-docs.js';
 import {bodyWarnings} from '../src/body-state.js';
 import {binaryHash} from '../src/contracts/operation-schema.js';
@@ -18,7 +22,7 @@ function mainHarness(){
  const source=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
  const slice=(start,end)=>{const a=source.indexOf(start),b=source.indexOf(end,a);assert.ok(a>=0&&b>a);return source.slice(a,b);};
  const calls=[];
- const c={bodyWarnings,placementPolicy,performance,lastServicesDecision:null,selectedTopology:null,TextEncoder,structuredClone,clone:structuredClone,crypto,DOCUMENT_LIMITS,serializeBoundedDocument,assertDocumentCapacity,recordTimeline,validateTimeline,createReferenceSystem,documentModel:empty(),revision:7,documentInstanceId:'instance',kernelReady:true,busy:false,bodies:[],selectedIds:[],lastWarnings:[],undoStack:[{sentinel:'undo'}],redoStack:[{sentinel:'redo'}],previewNext:null,previewIdentity:null,previewScopeReport:null,dirty:false,
+ const c={bodyWarnings,placementPolicy,performance,debugJournal,validateReliefDesigns,loadMaterialSettings,validateMaterialSettings,inheritBodyMaterials,validateMetalMaterials,validateResolvedPlacement,validateReferenceSystem,lastServicesDecision:null,selectedTopology:null,TextEncoder,structuredClone,clone:structuredClone,crypto,DOCUMENT_LIMITS,serializeBoundedDocument,assertDocumentCapacity,recordTimeline,validateTimeline,createReferenceSystem,documentModel:empty(),revision:7,documentInstanceId:'instance',kernelReady:true,busy:false,bodies:[],selectedIds:[],lastWarnings:[],undoStack:[{sentinel:'undo'}],redoStack:[{sentinel:'redo'}],previewNext:null,previewIdentity:null,previewScopeReport:null,dirty:false,
   routeChangedFeature:async next=>({next}),setBusy:v=>c.busy=v,checkTransaction:()=>{},assertHistoryEditSafe:()=>{},request:async(command,{document})=>{calls.push(structuredClone(document));return {bodies:[],stats:{checkpointCandidates:[]},perFeatureMs:[]};},synchronizeBodyAnchors:async()=>{},viewport:{cancelTask(){},setBodies(){},setWorkFrame(){},setSelection(){},markModel(){}},ui:{clearErrors(){}},applyAppearance(){},setStatus(){},recordQuickModelUse(){},validateReferenceSystem:x=>x};
  vm.createContext(c);vm.runInContext(source.match(/^const kernelFailure=.*$/m)[0]+slice('// Agent batch display deferral','function refresh(')+slice('function pushUndo(','function setBusy(')+slice('async function rebuild(','function featureDocument(')+slice('function validateDocument(','function checkInputFile(')+'\nthis.rebuild=rebuild;this.validateDocument=validateDocument;this.pushUndo=pushUndo;',c);
  return {c,calls};

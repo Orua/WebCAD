@@ -13,8 +13,11 @@ export const AGENT_KNOWLEDGE = Object.freeze({
 export const KNOWLEDGE_TOOL_SYNONYMS = Object.freeze({
   'template.keyRing':['钥匙圈','钥匙环','匙圈','双层钥匙圈','双层扁线匙圈','split key ring'],
   cut:['差集','减法','布尔相减','布尔差集','布尔切削','布尔切除','boolean cut','subtract'],
-  curveSweep:['截面站','stations','sections','截面扫掠'],
-  union:['并集','布尔合并','布尔相加','boolean union'],
+  curveSweep:['截面站','stations','sections','截面扫掠','pipe','圆管','沿路径圆管'],
+  thickenFace:['thicken','加厚','单面加厚'],
+  meshHeightfieldRelief:['heightfield','高度场','高度图'],
+  shell:['thicken','抽壳'],
+  union:['并集','布尔合并','布尔相加','boolean union','boolean'],
   intersect:['交集','布尔交集','布尔相交','boolean intersection'],
   transform:['平移','移动实体','移动模型','translate','translation','move','move body','rotate','rotation'],
   setView:['视角','移动视角','旋转视角','平移视图','旋转画面','移动画面','调整视角','隐藏锚点','显示锚点','move camera','rotate camera','pan view','orbit view'],

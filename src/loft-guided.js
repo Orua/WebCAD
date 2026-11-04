@@ -91,7 +91,7 @@ function validate(params) {
         const candidate = worldEdges[i][edge][pole], distance = norm(sub(candidate, points[i]));
         if (distance < best.distance) best = { distance, edge, pole };
       }
-      if (best.distance > guideToleranceMm) throw coded('GUIDED_LOFT_GUIDE_OFF_PROFILE', `guide ${gi} section ${i} misses the actual profile boundary by ${best.distance.toFixed(6)} mm`, { deviationMm: best.distance, limitMm: guideToleranceMm });
+      if (best.distance > guideToleranceMm) throw coded('GUIDED_LOFT_GUIDE_OFF_PROFILE', `guide ${gi} section ${i} misses the actual profile boundary by ${best.distance.toFixed(6)} mm`, { deviationMm: best.distance, limitMm: guideToleranceMm, nearestBoundaryPointMm: worldEdges[i][best.edge][best.pole].slice(), nearestCorner: { edge: best.edge, pole: best.pole } });
       const candidateKey = `${best.edge}:${best.pole}`;
       if (key !== null && key !== candidateKey) throw coded('GUIDED_LOFT_GUIDE_REORDERED', `guide ${gi} changes profile boundary corner between sections`);
       key = candidateKey;

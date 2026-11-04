@@ -109,7 +109,7 @@ export function createPageBatch(api,{display}={}){
         if(step.stage!==undefined&&(typeof step.stage!=='string'||!step.stage.trim()||step.stage.length>80))bad('PARAM_SCHEMA_INVALID','stage must be a short descriptive name');
         const idPath=`steps[${index}].id`;
         if(step.id===undefined)bad('PARAM_SCHEMA_INVALID',`第 ${index+1} 步缺少 id；请为每一步填写本批次内唯一的步骤名。`,idPath);
-        if(typeof step.id!=='string'||!/^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/.test(step.id))bad('PARAM_SCHEMA_INVALID',`第 ${index+1} 步的 id 格式无效；请使用字母开头的 1–40 位字母、数字、下划线或连字符。`,idPath);
+        if(typeof step.id!=='string'||!/^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/.test(step.id))bad('PARAM_SCHEMA_INVALID',`第 ${index+1} 步的 id 格式无效；不能使用中文、空格或标点。请改用字母开头的 1–40 位英文标识（可含数字、下划线、连字符），例如 buckle 或 wave1。`,idPath);
         if(names.has(step.id))bad('PARAM_SCHEMA_INVALID',`第 ${index+1} 步的 id 在本批次中重复；请明确改为唯一名称，并同步核对引用该步骤的 $ref。`,idPath);
         if(!methods.has(step.method))bad('CAPABILITY_UNAVAILABLE',`Unsupported batch method: ${step.method}`);
         if(step.args!==undefined&&!plain(step.args))bad('PARAM_SCHEMA_INVALID','args must be an object');

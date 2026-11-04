@@ -119,7 +119,7 @@ test('search handshake bounds automatic contracts while named and cached reads s
   const c=api.connect({queries:['quickModel','螺丝'],includeContracts:true,limit:3});
   assert(c.contracts.items.some(item=>item.id==='template.screw'&&item.status==='read'));
   assert(c.contractIdsOmitted.includes('quickModel'));assert(c.contractReadPolicy.omissions.some(item=>item.id==='quickModel'&&item.reason==='CHAR_BUDGET'));
-  assert(JSON.stringify(c).length<80000);
+  assert(c.contractReadPolicy.automaticChars<=64000);assert(JSON.stringify(c).length<90000);
   const full=api.connect({toolIds:['quickModel']});assert(full.contracts.items[0].card.templates.length>10);assert.deepEqual(full.contractIdsOmitted,[]);
   const cached=api.connect({queries:['quickModel','螺丝'],includeContracts:true,limit:3,knownHashes:{quickModel:full.contracts.items[0].docsHash}});
   assert.equal(cached.contracts.items.find(item=>item.id==='quickModel').status,'not_modified');assert.deepEqual(cached.contractIdsOmitted,[]);
@@ -133,6 +133,8 @@ test('connect bounds state and never silently omits contract results',()=>{
   assert(!JSON.stringify(result).includes('private'));assert(!JSON.stringify(result).includes('large payload'));
   for(const input of [{queries:['a','b','c','d','e']},{queries:['x'.repeat(501)]},{limit:11},{includeContracts:'yes'},{knownCatalogHash:'bad'},{unexpected:1}])
     assert.throws(()=>api.connect(input),{code:'PARAM_SCHEMA_INVALID'});
+  assert.throws(()=>api.connect({queries:['a','b','c','d','e']}),error=>error.code==='PARAM_SCHEMA_INVALID'&&/最多 4 项/.test(error.message)&&/不是查询条数上限/.test(error.message));
+  assert.throws(()=>api.connect({limit:11}),error=>error.code==='PARAM_SCHEMA_INVALID'&&/limit 是每项返回条数/.test(error.message)&&/1\.\.10/.test(error.message));
 });
 
 test('offline library and live page rank all tested query types identically and protect snapshots',async()=>{
@@ -190,8 +192,17 @@ test('template names route to small complete variant cards with executable paren
   }
   assert.equal(ids('圆圈')[0],'template.ring');
   assert.equal(ids('帮我画一个圆圈')[0],'template.ring');
-  assert(JSON.stringify(getTool({id:'template.ring'})).length < 12000);
+  assert(JSON.stringify(getTool({id:'template.ring'})).length < 14000);
   assert.deepEqual(ids('画一个xyzunknown'),[],'stopword 一个 must not route to arbitrary tools');
+});
+
+test('unknown shorthand tool ids name the registered operation',()=>{
+ assert.throws(()=>getTool({id:'pipe'}),error=>error.code==='UNKNOWN_OPERATION'&&/curveSweep/.test(error.message));
+ assert.throws(()=>getTool({id:'thicken'}),error=>error.code==='UNKNOWN_OPERATION'&&/thickenFace/.test(error.message)&&/shell/.test(error.message));
+ assert.throws(()=>getTool({id:'heightfield'}),error=>error.code==='UNKNOWN_OPERATION'&&/meshHeightfieldRelief/.test(error.message));
+ assert.throws(()=>getTool({id:'boolean'}),error=>error.code==='UNKNOWN_OPERATION'&&/union/.test(error.message)&&/cut/.test(error.message));
+ assert.ok(ids('pipe').includes('curveSweep'));
+ assert.ok(ids('boolean').includes('union'));
 });
 
 test('handshake reads known contracts directly and reports execution blockers without writes',()=>{

@@ -61,7 +61,10 @@
     "thickenFace",
     "Normal offset of one face into a new solid",
     "thicken Face operation",
-    "选面增厚"
+    "选面增厚",
+    "thicken",
+    "加厚",
+    "单面加厚"
   ],
   "description": "Normal offset of one face into a new solid",
   "schemaHash": "sha256:d88da15ed231d7a2a370e08432b3f5ceada4f904b00448da595696911bb8f2a0",
@@ -424,6 +427,7 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "选面增厚",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -442,6 +446,7 @@
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -718,5 +723,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b80e11760042ae75f5b543095cf0f9e16b8a3f9e44e305dacffc9413c684153e"
+  "docsHash": "sha256:4c64c1828b06fa2501217713b66ed77b9d37834d35c01bfa1a0a5b91c101540b"
 }

@@ -15,7 +15,7 @@ test('revision-protected writes reject a missing expectedRevision with a field p
 test('getState publishes strict argument schema matching the existing object-input boundary',()=>{
  const card=getTool({id:'getState'}),schema=card.inputSchema,{api}=fixture();
  assert.equal(card.contextPolicy,'none');assert.equal(schema.additionalProperties,false);
- assert.deepEqual(Object.keys(schema.properties),['include','compact','fields','sinceRevision']);
+ assert.deepEqual(Object.keys(schema.properties),['featureIds','featureFields','bodyIds','bodyFields','include','compact','fields','sinceRevision']);
  assert.match(readDocs({docId:'api.run',limitChars:8000}).text,/steps\[\]\.id 必须各不相同/);
  for(const input of [{},{compact:true},{include:[]},{include:['reliefDesigns','summary']},{fields:['appearance','renderFinish'],sinceRevision:0}]){
   assert.doesNotThrow(()=>validateSchema(schema,input,'input'));assert.doesNotThrow(()=>api.getState(input));
@@ -32,11 +32,12 @@ test('LOGO read/export produces host artifacts without geometry or workspace fil
   const read=await f.api.readLogo({context:context(),resourceId:file.resourceId,name:file.name});
   assert.equal(read.status,'read');assert.equal(typeof read.logoId,'string');
   const out=await f.api.exportDrawing({context:context(),logoId:read.logoId,name:'letters.dxf'});
-  assert.equal(out.status,'generated');assert.equal(out.reviewRequired,true);assert.deepEqual(out.contours,{regions:1,holes:1,units:'mm'});
+  assert.equal(read.reviewPolicy,'automatic');assert.equal(read.reviewRequired,false);assert.equal(read.logo.source.reviewed,true);
+  assert.equal(out.status,'generated');assert.equal(out.reviewRequired,false);assert.deepEqual(out.contours,{regions:1,holes:1,units:'mm'});
   assert.match(new TextDecoder().decode(await f.api.files.read({resourceId:out.resourceId,as:'bytes'})),/LWPOLYLINE/);
   const packet=await f.api.exportDrawing({context:context(),logoId:read.logoId,format:'json',name:'letters.logo.json'});
   const exportedLogo=JSON.parse(new TextDecoder().decode(await f.api.files.read({resourceId:packet.resourceId,as:'bytes'})));
-  assert.deepEqual(exportedLogo,{...logo,type:'webcad-logo',units:'mm'});
+  assert.equal(exportedLogo.type,'webcad-logo');assert.equal(exportedLogo.units,'mm');assert.deepEqual(exportedLogo.regions,logo.regions);assert.equal(exportedLogo.source.reviewed,true);assert.equal(exportedLogo.source.sha256,logo.source.sha256);
   assert.equal(f.calls.execute,0);assert.equal(f.calls.files,0);assert.equal(f.api.getState().context.revision,7);
   assert.equal((await f.api.exportDrawing({context:context(),logoId:'expired'})).error.code,'RESOURCE_EXPIRED');
   assert.equal((await f.api.exportDrawing({context:{...context(),documentInstanceId:'other'},logoId:read.logoId})).error.code,'INSTANCE_MISMATCH');

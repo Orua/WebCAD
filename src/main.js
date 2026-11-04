@@ -5,6 +5,7 @@ import {applyReliefDesignReference,readReliefDesignReference} from './relief-des
 import {legacyReliefParams} from './relief-param-migration.js';
 import {markTopologySemantics} from './legacy-topology-policy.js';
 import {intentForUIParameterEdit} from './machining-intent.js';
+import {sameSurfaceType} from './surface-type.js';
 import {saveCommittedProject} from './project-save.js';
 import {loadMaterialSettings,validateMaterialSettings,rememberMaterialSettings,inheritBodyMaterials} from './material-density.js';
 import {createHostAdapter} from './agent/host-adapter.js';
@@ -525,7 +526,7 @@ async function resolveLogoParams(op,params,refs,options={}){
   const face=await request('logoTarget',{bodyId:refs[0],faceId:params.faceId});
   checkTransaction(options.signal,options.expectedRevision);
   if(revision!==startRevision)throw Object.assign(new Error('目标模型已变化，请重新选面'),{code:'REVISION_CONFLICT'});
-  if(params.targetSurfaceType!==undefined&&params.targetSurfaceType!==face.geomType)throw Object.assign(new Error('目标面类型已改变，请重新选面'),{code:'STALE_REFERENCE'});
+  if(params.targetSurfaceType!==undefined&&!sameSurfaceType(params.targetSurfaceType,face.geomType))throw Object.assign(new Error('目标面类型已改变，请重新选面'),{code:'STALE_REFERENCE'});
   if(params.targetGeometryFingerprint!==undefined&&params.targetGeometryFingerprint!==face.geometryFingerprint)throw Object.assign(new Error('目标实体几何已改变，请重新选面'),{code:'STALE_REFERENCE'});
   if(params.targetFaceSignature!==undefined&&params.targetFaceSignature!==face.stableFaceSignature)throw Object.assign(new Error('目标面几何已改变，请重新选面'),{code:'STALE_REFERENCE'});
   return {...params,targetSurfaceType:face.geomType,targetFaceArea:face.areaMm2,targetFaceCenter:face.center,targetFaceSignature:face.stableFaceSignature,targetGeometryFingerprint:face.geometryFingerprint};

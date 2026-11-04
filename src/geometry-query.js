@@ -2,6 +2,7 @@ import * as cad from 'replicad';
 import { topologyDetails } from './smooth-transition.js';
 import { planarFace } from './reference-profile-wires.js';
 import {halfLengthPoint} from './arc-length.js';
+import {canonicalSurfaceType} from './surface-type.js';
 
 const dispose = value => { try { value?.delete(); } catch {} };
 const surfaceTypes={plane:'plane',cylinder:'cylindre',cylindre:'cylindre',cone:'cone',sphere:'sphere',torus:'torus',bezier:'bezier_surface',bspline:'bspline_surface',revolution:'revolution_surface',extrusion:'extrusion_surface',offset:'offset_surface',other:'other_surface'};
@@ -75,8 +76,20 @@ export function normalizeGeometryFilter(kind, filter = {}) {
 function vectorTuple(value) {
   try { return value.toTuple(); } finally { dispose(value); }
 }
+function faceAnchor(face, center) {
+  const vertex = cad.makeVertex(center);
+  let query, projected;
+  try {
+    query = new cad.DistanceQuery(face);
+    const centerDistanceToFaceMm = query.distanceTo(vertex);
+    projected = query.wrapped.PointOnShape1(1);
+    const pointOnFace = [projected.X(), projected.Y(), projected.Z()];
+    return { pointOnFace, closestPoint: pointOnFace, centerDistanceToFaceMm, centerOnSurface: centerDistanceToFaceMm <= 1e-6 };
+  } finally { dispose(projected); dispose(query); dispose(vertex); }
+}
 function faceSummary(face, id, oc) {
-  const item = { kind: 'face', topologyId: id, faceId: id, geomType: face.geomType, surfaceType: face.geomType.toLowerCase(), areaMm2: cad.measureArea(face), center: vectorTuple(face.center) };
+  const item = { kind: 'face', topologyId: id, faceId: id, geomType: face.geomType, surfaceType: face.geomType.toLowerCase(), surfaceClass: canonicalSurfaceType(face.geomType) || 'other', areaMm2: cad.measureArea(face), center: vectorTuple(face.center) };
+  Object.assign(item, faceAnchor(face, item.center));
   const wires=face.wires;
   try { item.wireCount=wires.length; } finally { wires.forEach(dispose); }
   // IGES commonly stores exact planes as BSpline patches. Keep the encoding

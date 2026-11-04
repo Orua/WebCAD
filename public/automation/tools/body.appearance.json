@@ -18,7 +18,7 @@
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172,5 +172,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:18bd78bffc527af2fddf1aba5f522a527c88e5b057b241c9a96af140d3fd76cd"
+  "docsHash": "sha256:be7bc07a2d414883214e4813e5ca5cba907a6ecd7ab9523f489c98c2b126d7d0"
 }

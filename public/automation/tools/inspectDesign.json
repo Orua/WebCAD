@@ -2,7 +2,7 @@
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -357,5 +357,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a6f6175c8f3072bdd5e11f4b98e98e7023b6dd511e38c99a29aa64102aa82864"
+  "docsHash": "sha256:58dd166205e4fab8ada385e142fd0e61d911b1674e3c3f188b7ba13733a50e3a"
 }
