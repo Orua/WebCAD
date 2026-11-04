@@ -85,6 +85,37 @@ test('连续线弧路径拒绝开链、闭环和退化圆弧', () => {
   assert.throws(()=>buildCurveSweep({pathType:'segments',radius:.2,segments:[line([0,0,0],[1,0,0]),{type:'arc',points:[[1,0,0],[2,0,0],[3,0,0]]}]},cad),/不能共线/);
 });
 
+test('真实 OCCT：平面闭合圆截面以路径为中心', () => {
+  const p=(x,y)=>[x,y,0];
+  const segments=[
+    {type:'line',points:[p(10,-8),p(10,8)]},
+    {type:'arc',points:[p(10,8),p(7.0710678118654755,15.071067811865476),p(0,18)]},
+    {type:'arc',points:[p(0,18),p(-7.0710678118654755,15.071067811865476),p(-10,8)]},
+    {type:'line',points:[p(-10,8),p(-10,-8)]},
+    {type:'line',points:[p(-10,-8),p(10,-8)]},
+  ];
+  const radius=1.1;
+  const shape=buildCurveSweep({pathType:'segments',segments,closed:true,radius},cad);
+  try {
+    const [min,max]=shape.boundingBox.bounds;
+    assert.ok(Math.abs(min[2]+radius)<1e-4, `minZ=${min[2]}`);
+    assert.ok(Math.abs(max[2]-radius)<1e-4, `maxZ=${max[2]}`);
+  } finally { shape.delete?.(); }
+});
+
+test('非平面闭合分段圆线仍因扫掠拓扑无效而拒绝', () => {
+  const p=(x,y,z=0)=>[x,y,z];
+  const segments=[
+    {type:'line',points:[p(10,-8),p(10,8)]},
+    {type:'arc',points:[p(10,8),p(7.0710678118654755,15.071067811865476,0.2),p(0,18)]},
+    {type:'arc',points:[p(0,18),p(-7.0710678118654755,15.071067811865476,0.2),p(-10,8)]},
+    {type:'line',points:[p(-10,8),p(-10,-8)]},
+    {type:'line',points:[p(-10,-8),p(10,-8)]},
+  ];
+  assert.throws(()=>buildCurveSweep({pathType:'segments',segments,closed:true,radius:1.1},cad),/分段扫掠拓扑无效/);
+  assert.throws(()=>buildCurveSweep({pathType:'spline',points:[[0,0,0],[1,0,0],[1,1,0]],closed:true,radius:0.2},cad),/closed:true 只用于分段路径/);
+});
+
 test('分段扫掠公开工具卡和脚本使用方法可发现', () => {
   const tool=getOperation('curveSweep');
   assert.ok(tool.inputSchema.properties.pathType.enum.includes('segments'));

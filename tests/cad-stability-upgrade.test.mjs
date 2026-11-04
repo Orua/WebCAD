@@ -17,9 +17,9 @@ test('unsupported Services operations never inherit translation semantics',()=>{
 });
 
 test('ready page discovery does not promise input-specific execution',()=>{
- const item=searchTools({query:'union',limit:10},{browserReady:true}).items.find(row=>row.id==='union');
+ const item=searchTools({query:'union',limit:10,sessionId:'page'},{browserReady:true}).items.find(row=>row.id==='union');
  assert(item);
- assert.equal(item.runtimeAvailability,'page_ready');
+ assert.equal(item.runtimeAvailability,'available');
  assert.equal(item.availabilityScope,'page');
  assert.equal(item.executionAvailability,'unknown');
  assert.deepEqual(item.executionCheck.methods,['getServicesCapabilities','getServicesRouting']);

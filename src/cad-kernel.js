@@ -8,6 +8,7 @@ import {meshBoolean} from './mesh/mesh-boolean.js';
 import {legacyReliefParams} from './relief-param-migration.js';
 import {editMeshRelief} from './mesh/relief-edit.js';
 import {assertPatternExecution} from './machining-intent.js';
+import {sameSurfaceType} from './surface-type.js';
 import {meshError} from './mesh/mesh-contract.js';
 import {createTechnicalDrawing} from './drawing/technical-drawing.js';
 import {inspectDesignRequirements} from './design-inspection.js';
@@ -442,7 +443,7 @@ export class CadKernel {
             const c=faces[p.faceId].center;try{center=c.toTuple();}finally{dispose(c);}
             signature=logoFaceSignature(faces[p.faceId],cad);
           }finally{faces.forEach(dispose);}
-          if(p.targetSurfaceType&&p.targetSurfaceType!==type)throw new Error('目标面类型已改变，请重新选面');
+          if(p.targetSurfaceType&&!sameSurfaceType(p.targetSurfaceType,type))throw new Error('目标面类型已改变，请重新选面');
           if(p.targetFaceArea!==undefined&&Math.abs(area-p.targetFaceArea)>Math.max(1e-5,area*1e-7))throw new Error('目标面面积已改变，请重新选面');
           if(p.targetFaceCenter&&Math.hypot(...center.map((v,i)=>v-p.targetFaceCenter[i]))>1e-5)throw new Error('目标面位置已改变，请重新选面');
           if(p.targetFaceSignature&&signature!==p.targetFaceSignature)throw new Error('目标面几何已改变，请重新选面');

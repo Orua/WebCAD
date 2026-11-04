@@ -1,6 +1,6 @@
 import * as cad from 'replicad';
 import {topologyDetails} from './smooth-transition.js';
-import {millComplementaryFillet} from './modeling/rounding/mill-fillet-fallback.js';
+import {millComplementaryFillet,radiusFitsAdjacentFaces} from './modeling/rounding/mill-fillet-fallback.js';
 
 const dispose=value=>{try{value?.delete();}catch{}};
 const fail=message=>{throw Object.assign(new Error(message),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});};
@@ -53,14 +53,14 @@ export function blendTargets(shape,{edgeIds,faceIds,allEdges=false,sharedFaces=f
   return {targets,rows,skipped:candidates.filter(row=>!row.sharp).map(row=>row.edgeId)};
 }
 
-export function buildEdgeBlend(shape,op,params,{suggestRadius=false}={}) {
+export function buildEdgeBlend(shape,op,params,{suggestRadius=false,allowOversizedMill=true}={}) {
   // OCCT Boolean/fillet builders may update flags or pcurves of their operands.
   // Work on an owned BRep so the committed source remains available for undo.
   const source=cad.deserializeShape(shape.serialize()).asShape3D();
-  try{return buildOwnedEdgeBlend(source,op,params,{suggestRadius});}finally{dispose(source);}
+  try{return buildOwnedEdgeBlend(source,op,params,{suggestRadius,allowOversizedMill});}finally{dispose(source);}
 }
 
-function buildOwnedEdgeBlend(shape,op,params,{suggestRadius=false}={}) {
+function buildOwnedEdgeBlend(shape,op,params,{suggestRadius=false,allowOversizedMill=true}={}) {
   const started=performance.now();let selected;
   try{selected=blendTargets(shape,params);}catch(error){error.report={version:1,operation:op,stage:'selection',strategy:'native',attemptCount:0,elapsedMs:performance.now()-started,cause:'selection-rejected',targetCount:0};throw error;}
   const amount=params[op==='fillet'?'radius':'distance'];
@@ -77,7 +77,10 @@ function buildOwnedEdgeBlend(shape,op,params,{suggestRadius=false}={}) {
   const kinkedSelected=targets.filter(t=>kinkedIds.has(t.edgeId)).length;
   const allKinked=op==='fillet'&&targets.length>=1&&kinkedSelected===targets.length;
   const mostlyKinked=op==='fillet'&&targets.length>=2&&kinkedSelected>=Math.ceil(targets.length*0.5);
-  if(allKinked||mostlyKinked||(op==='fillet'&&params.preferMillFallback===true)){
+  // One explicit edge may mill a cutter larger than the adjacent face. An exact
+  // whole-body fillet, or a round tool that asked for a true radius, may not.
+  const millAllowed=op!=='fillet'||((params.allEdges!==true&&allowOversizedMill!==false)||radiusFitsAdjacentFaces(shape,targets.map(row=>row.edgeId),amount));
+  if(millAllowed&&(allKinked||mostlyKinked||(op==='fillet'&&params.preferMillFallback===true))){
     try{
       const mill=millComplementaryFillet(shape,{edgeIds:targets.map(r=>r.edgeId),radiusMm:amount});
       mill.shape.blendReport={version:1,operation:'fillet',stage:'completed',strategy:'mill-complementary-r-fallback',attemptCount:1,elapsedMs:performance.now()-started,dimensionKind:'radius',requestedAmountMm:amount,amount,scope:params.allEdges?'body':params.faceIds?(params.sharedFaces?'shared-faces':'face-boundaries'):'edges',processedEdgeIds:targets.map(r=>r.edgeId),skippedTangentEdgeIds:skipped,millReports:mill.reports,nativeFailure:allKinked?'prefer-mill-on-kinked-chain':mostlyKinked?'prefer-mill-on-mostly-kinked':'preferMillFallback',kinkedEdgeIds:[...kinkedIds]};
@@ -121,7 +124,7 @@ function buildOwnedEdgeBlend(shape,op,params,{suggestRadius=false}={}) {
     }catch{}
     const ids=failedIds.length?failedIds:targets.map(row=>row.edgeId);
     // Prefer true OCCT fillet; if it cannot finish, mill complementary-R along each edge and boolean.
-    if(op==='fillet'){
+    if(op==='fillet'&&millAllowed){
       try{
         dispose(builder);builder=null;dispose(result);result=null;
         const mill=millComplementaryFillet(shape,{edgeIds:ids,radiusMm:amount});

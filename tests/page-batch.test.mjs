@@ -135,6 +135,7 @@ test('missing, invalid and duplicate step IDs have actionable diagnostics before
   const original=structuredClone(request),receipt=await f.run(request);
   assert.equal(receipt.status,'failed');assert.equal(receipt.error.code,'PARAM_SCHEMA_INVALID');assert.equal(receipt.error.path,'steps[1].id');
   assert.match(receipt.error.message,variant==='missing'?/缺少 id/:variant==='invalid'?/格式无效/:/本批次中重复/);
+  if(variant==='invalid')assert.match(receipt.error.message,/不能使用中文/);
   assert.match(receipt.error.userMessage,/第 2 步/);assert.equal(receipt.results.length,0);assert.equal(f.count,0);
   assert.equal(receipt.context.revision,0);assert.deepEqual(request,original);
  }

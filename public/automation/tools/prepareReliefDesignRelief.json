@@ -2,7 +2,7 @@
   "id": "prepareReliefDesignRelief",
   "title": "prepareReliefDesignRelief",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_read",
@@ -411,5 +411,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:06a1d82ac77d1d761c5e5563ca87a34b34854d5f946eaf6cfe8cd42f29d86a6b"
+  "docsHash": "sha256:476ad97909752ed2c62beaed49b191c057a67e6d5be3da440b497ec76d5b6e1f"
 }

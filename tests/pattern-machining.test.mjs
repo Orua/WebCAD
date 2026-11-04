@@ -89,6 +89,8 @@ test('new creation requires declaration; legacy edits retain old semantics and n
  const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[{id:'old',op:'logo',params,refs:['plate']}],bodies:[{id:'plate'},{id:'old'}],kernelReady:true,busy:false,referenceSystem:createReferenceSystem()};let writes=0,last;
  const service=createCommandService({allowAdvisory:true,snapshot:()=>structuredClone(s),execute:async(command,args)=>{writes++;last={command,args};s.revision++;}});
  const card=getOperation('logo'),args={op:'logo',opVersion:card.version,schemaHash:card.schemaHash,params,refs:['plate']};
+ assert.ok(card.inputSchema.required.includes('machiningIntent'));
+ assert.ok(getOperation('relief').inputSchema.required.includes('machiningIntent'));
  const input=(action,args)=>({context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:s.revision},idempotencyKey:crypto.randomUUID(),action,args});
  const failed=await service.execute(input('feature.add',args));assert.equal(failed.error.code,'MACHINING_INTENT_REQUIRED');assert.equal(failed.commitState,'not_committed');assert.equal(writes,0);
  const legacy=await service.execute(input('feature.edit',{featureId:'old',opVersion:card.version,schemaHash:card.schemaHash,params:{depth:.5}}));assert.equal(legacy.status,'committed');assert.equal(last.args.params.machiningIntent,undefined);

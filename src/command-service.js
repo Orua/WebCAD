@@ -2,7 +2,7 @@ import {normalizeChainSize} from './quick-models/chain-size.js';
 import { assertOperationContract, normalizeOperationParams, normalizeOperationPatch, validateOperationRefs, migratedOperationIds, getOperation, validateOperationExample } from './operation-registry.js';
 import { EDITOR_ACTIONS, INTERNAL_EDITOR_ACTIONS, validateEditorAction } from './editor-actions.js';
 import {REFERENCE_ACTIONS,applyReferenceAction} from './reference-contracts.js';
-import {resolvePlacement,describeResolvedPlacement,newFeaturePlacement} from './work-frame.js';
+import {resolvePlacement,describeResolvedPlacement,newFeaturePlacement,SPATIAL_MODE_PLACEMENT_MESSAGE} from './work-frame.js';
 import { assertHistoryEditSafe } from './history-edit-safety.js';
 import {assertFeatureCapacity} from './document-limits.js';
 import {compileFeaturePlan} from './feature-plan.js';
@@ -98,7 +98,7 @@ export function createCommandService(adapter) {
       }
       if(include.includes('selection'))r.selection={bodyIds:clone(s.selectedIds),topology:clone(s.selectedTopology)};
       if(include.includes('references'))r.references=clone(s.referenceSystem);
-      if(include.includes('capabilities'))r.capabilities={runtimeAvailability:s.kernelReady&&!s.busy&&!s.preview&&!s.previewComputing?'available':'not_ready',executeV2Operations:[...migratedOperationIds],geometryQuery:{faces:['plane'],edges:['line','circle'],loopRole:false,bounds:true,adjacentSurfaceTypes:true,boundaryLoopIndices:true,expectedCount:true},idempotencyGuarantee:'same document runtime instance; memory only; no cross-reload guarantee'};
+      if(include.includes('capabilities'))r.capabilities={runtimeAvailability:s.kernelReady&&!s.busy&&!s.preview&&!s.previewComputing?'available':'not_ready',executeV2Operations:[...migratedOperationIds],geometryQuery:{faces:['plane'],edges:['line','circle'],loopRole:false,bounds:true,adjacentSurfaceTypes:true,boundaryLoopIndices:true,expectedCount:true,pointOnFace:true,surfaceClass:true},idempotencyGuarantee:'same document runtime instance; memory only; no cross-reload guarantee'};
       return r;
     }catch(e){return errorResult(e,requestId,s);}
   }
@@ -116,7 +116,7 @@ export function createCommandService(adapter) {
       const result=await adapter.query({bodyId:input.bodyId,kind:input.kind,filter});
       context(input.context,snapshot());available(snapshot());
       if(result.matchCount===0||input.expectedCount!==undefined&&input.expectedCount!==result.matchCount){const e=domainError(result.matchCount===0?'NO_MATCH':'SELECTION_COUNT_CHANGED','filter',result.matchCount===0?'No geometry matches':'Geometry match count differs from expectedCount','QUERY_GEOMETRY_AGAIN');e.report={stage:'selection',attemptCount:0,matchCount:result.matchCount,expectedCount:input.expectedCount??null,filter:clone(input.filter??{})};throw e;}
-      if((input.requireUnique??true)&&result.matchCount>1){const r=errorResult(domainError('AMBIGUOUS_SELECTION','filter','More than one match','REFINE_QUERY'),requestId,s);return {...r,matchCount:result.matchCount,items:result.items.slice(0,limit),ambiguous:true,context:contextOf(s)};}
+      if((input.requireUnique??true)&&result.matchCount>1){const shown=Math.min(limit,result.matchCount),kindLabel=input.kind==='face'?'面':'边';const r=errorResult(domainError('AMBIGUOUS_SELECTION','filter',`匹配到 ${result.matchCount} 个${kindLabel}。查询默认要求唯一结果；要列出候选请传 requireUnique:false，或收窄 filter。本次仍返回前 ${shown} 项供查看，没有生成 selectionToken。`,'REFINE_QUERY'),requestId,s);return {...r,matchCount:result.matchCount,items:result.items.slice(0,limit),ambiguous:true,requireUnique:true,listingHint:'requireUnique:false',context:contextOf(s)};}
       const fingerprint=canonical({context:input.context,bodyId:input.bodyId,kind:input.kind,filter,requireUnique:input.requireUnique??true,expectedCount:input.expectedCount,limit});
       let offset=0;
       if(input.cursor!==undefined){string(input.cursor,'cursor',2048);const c=cursors.get(input.cursor);if(!c||c.fingerprint!==fingerprint)fail('STALE_REFERENCE','cursor','Cursor does not match this snapshot/query');offset=c.offset;}
@@ -174,7 +174,7 @@ export function createCommandService(adapter) {
             a.params={...a.params,machiningIntent:uiPatternIntent(op,a.params)};
           }
           assertPatternExecution(op,a.params,{required:true});
-          a.params=parameters(op,a.params);if(['transform','copy'].includes(op)&&a.params.mode&&a.placement===undefined)fail('FRAME_INVALID','args.placement','Spatial mode requires placement:{version:1,frame:{kind:"world"},sourceAnchor:{kind:"model-origin"}} (or an explicit work frame). For world translation without placement use params:{x:0,y:0,z:300} and omit mode/delta');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,refs);
+          a.params=parameters(op,a.params);if(['transform','copy'].includes(op)&&a.params.mode&&a.placement===undefined)fail('FRAME_INVALID','args.placement',SPATIAL_MODE_PLACEMENT_MESSAGE);if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,refs);
           command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name,placement:resolvePlacement(newFeaturePlacement(a.placement,s.referenceSystem,op),s.referenceSystem,op,a.params),placementExplicit:a.placement!==undefined,...(input.action==='preview.start'?{previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api'}}:{})};break;
         }
         case 'preview.update':{
@@ -198,7 +198,7 @@ export function createCommandService(adapter) {
           // Validation stays strict; the error only names which card to read.
           try{contract(op,a);}catch(e){if(['SCHEMA_MISMATCH','OPERATION_VERSION_UNSUPPORTED'].includes(e.code))throw Object.assign(e,{message:`feature.edit 需要被编辑特征的 ${op} 工具卡的 opVersion/schemaHash（不是 feature.edit 卡）；请 getTool({id:'${op}'}) 后重试。`,details:{featureId:a.featureId,op,toolId:op,field:e.path}});throw e;}
           const merged=['transform','copy'].includes(op)&&a.params?.mode&&!feature.params.mode?a.params:{...feature.params,...a.params};
-          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged,{creation:false});if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement','Spatial mode requires placement:{version:1,frame:{kind:"world"},sourceAnchor:{kind:"model-origin"}} (or an explicit work frame). For world translation without placement use params:{x:0,y:0,z:300} and omit mode/delta');if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,feature.refs||[]);
+          const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged,{creation:false});if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement',SPATIAL_MODE_PLACEMENT_MESSAGE);if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,feature.refs||[]);
           command='edit_feature';args={featureId:a.featureId,params,name:a.name,...(Object.hasOwn(a,'placement')?{placement:resolvePlacement(a.placement,s.referenceSystem,op,params)}:{})};break;
         }
         case 'document.parameters':

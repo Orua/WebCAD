@@ -32,7 +32,7 @@ test('JPG conversion requires physical width and consent and returns unreviewed 
  await assert.rejects(readBrowserLogo(file,x=>x,{client,sizeConfirmed:true,allowUpload:true}),{code:'SIZE_REQUIRED'});assert.equal(uploads,0);
  await assert.rejects(readBrowserLogo(file,x=>x,{client,targetWidthMm:10,sizeConfirmed:true}),{code:'UPLOAD_AUTH_REQUIRED'});assert.equal(uploads,0);
  const result=await readBrowserLogo(file,x=>x,{client,targetWidthMm:10,sizeConfirmed:true,allowUpload:true});
- assert.equal(uploads,1);assert.equal(result.source.reviewed,false);assert.equal(requests[1].payload.options.mode,'raster');assert.equal(requests[1].payload.options.targetWidthMm,10);
+ assert.equal(uploads,1);assert.equal(result.source.reviewed,false);assert.equal(requests.some(item=>item.kind==='logo/inspect'),false);const convert=requests.find(item=>item.kind==='logo/convert');assert.equal(convert.payload.options.mode,'raster');assert.equal(convert.payload.options.targetWidthMm,10);
  const resized=fitLogoWidth(logo,30);assert.equal(resized.sizeMm[0],30);assert.equal(Math.max(...resized.regions[0].outer.map(p=>p[0]))-Math.min(...resized.regions[0].outer.map(p=>p[0])),30);assert.equal(resized.source.widthNormalization.scale,3);
 });
 

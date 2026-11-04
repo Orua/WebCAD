@@ -11,7 +11,7 @@ frame 有且只有以下四种形状：
 
 任意世界位置/方向使用 snapshot。origin 是毫米世界坐标；quaternion 是单位四元数 [x,y,z,w]。sourceAnchor 可为 model-origin、bottom-center、bounds-center、point（另带 point）或 named（另带 anchorId）；优先按当前实体卡指定的插入锚点。不得发明 frame.coordinates 或把 origin 塞进 world。
 
-显式 placement 固定位置，禁止默认自动摆放。省略 placement 会冻结当前工作基准，并可能收到 AUTO_PLACED；设置工作基准后省略 placement 仍不等于精确放置。收到 AUTO_PLACED 必须以最终 bounds/量测为准。
+显式 placement 固定位置。省略 placement 冻结当前工作基准；Agent 与 UI 均不额外向 X 轴自动排布。工作基准未锁定且被新模型占据时仍会沿 Z 避让，影响下一次省略 placement 的创建；连续精确建模请先归零再锁定基准，或每步显式指定 world/snapshot。排布独立模型时由调用方明确给出各自 placement，不以避让改变设计坐标。
 
 只读预检为 Page api.resolvePlacement({context,op,params,refs:[],placement})；MCP 为 webcad_read(method:'resolvePlacement',args:同一对象)。返回不计算几何，成功不等于实体已创建。
 

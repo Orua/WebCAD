@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
-    'agent-state-observer','agent-floating-toggle','message-presenter', 'tool-reading-guide', 'deploy-plan',
+    'agent-state-observer','agent-floating-toggle','agent-host-workspace','agent-metal-routing','agent-run-envelope','message-presenter', 'tool-reading-guide', 'deploy-plan',
     'location-marker','error-recovery','relief-design-drafts','relief-design-reference','relief-design-edits-ui','relief-design-bspline-fit','relief-design-fit-runtime','relief-design-fit-api','relief-design-field','relief-design-brep','relief-fix-261023','relief-fillet-261024','logo-export','logo-review-api','logo-vector-review','logo-wizard-state','logo-machining-optimization','logo-pdf-renderer','panel-layout','receipt-capacity-recovery','relief-intent-runtime','relief-sculpt-preflight','report-regressions','tool-selection',
     'agent-selection-preservation', 'count-summary', 'floor-grid', 'free-placement',
     'logo-selection-draft', 'metal-warning', 'open-file-recent',
@@ -32,8 +32,9 @@ const groups = {
     'mechanical-tools-contracts','mechanical-page-api','profile-constraints','profile-constraint-history',
     'modeling-precision', 'workspace-upgrade', 'anchor-clearance', 'anchor-lineage', 'align-mode', 'frame-orientation', 'webcad-shortcuts', 'dimension-adapter',
     'tool-discovery', 'native-watch-revision', 'agent-onboarding', 'agent-kit', 'browser-logo-input', 'page-batch', 'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry', 'position-table', 'profile-projection',
-    'parameter-calculator', 'named-parameters', 'recovery-isolation', 'selection-contract', 'selection-assists',
-    'tool-state', 'viewport-transform', 'dfam-inspection', 'profile-fitting', 'text-commands',
+    'parameter-calculator', 'parameter-error-message', 'named-parameters', 'recovery-isolation', 'recovery-consent', 'selection-contract', 'selection-assists',
+    'tool-state', 'viewport-transform', 'orthographic-fit', 'dfam-inspection', 'profile-fitting', 'text-commands',
+    'debug-journal', 'cad-completion', 'logo-endpoint-adaptation', 'logo-host-preparer', 'logo-placement-guide', 'native-state-projection', 'relief-reference', 'relief-photo-convert', 'relief-quality-fit-accuracy', 'state-facts', 'visual-evidence',
   ],
   kernel: [
     'core-tools-regressions','d-buckle-boundary','history-compatibility','keyring-history','rod-junction','source-free-junction',
@@ -66,7 +67,7 @@ const groups = {
     'nipple-stud','pull-core-bar','section-curve-loft','two-piece-eyelet','quick-installation-models',
     'agent-profile-contract',
     'drag-snap','drag-snap-controller','render-quality','profile-edit','profile-editing','profile-primitives','profile-inspection','fit-inspection','thickness-inspection','relation-measure','boolean-roles','hole-wizard','draft-tools',
-    'advanced-integration', 'advanced-kernel', 'advanced-loft', 'align-kernel', 'curve-sweep',
+    'advanced-integration', 'advanced-kernel', 'advanced-loft', 'align-kernel', 'curve-sweep', 'revolve-feedback',
     'curved-logo', 'projected-logo', 'fitted-surface', 'geometry-query', 'nearest-brep', 'group-explode',
     'hardware-templates', 'igs-tools', 'igs30-slot', 'igs30-templates', 'multi-pocket', 'multi-boss', 'dwg-ring-bar', 'dwg-rounded-frame', 'dwg-compact-rect', 'dwg-chamfered-section', 'dwg-compact-slider', 'dwg-figure-eight-capsule', 'dwg-u-end-hole-plate', 'dwg-twin-window-plate', 'dwg-small-twin-window', 'dwg-spline-twin-window', 'dwg-ellipse-bar', 'dwg-ellipse-open-wire', 'dwg-ellipse-u-wire', 'dwg-analytic-arc-profile', 'dwg-profile-loop', 'dwg-capsule-wire', 'dwg-arc-band-plate', 'dwg-ellipse-section-ring', 'dwg-flat-washer', 'dwg-polar-hole-ring', 'dwg-bowed-twin-window', 'dwg-arched-twin-window', 'dwg-d-flat-frame', 'dwg-gable-open-frame', 'dwg-ellipse-section-rect',
     'incremental-rebuild', 'kernel', 'logo-draft', 'logo-kernel', 'logo-model',
@@ -75,7 +76,7 @@ const groups = {
     'planar-thickness-invariant', 'round-edit-preferences', 'rounding-modes', 'rounding-history', 'rounding-kernel', 'rounding-unified', 'rounding-spline', 'rounding-section-metrics', 'smooth-transition',
   ],
   'host-integration': ['host-attachment-identity'],
-  services: ['services-store-faults','services-runtime', 'services-compute', 'services-native-bridge', 'services-boolean-native', 'services-round-native','services-shoulder-native', 'services-relief', 'services-support-intent'],
+  services: ['services-store-faults','services-runtime', 'services-compute', 'services-native-bridge', 'services-boolean-native', 'services-round-native','services-shoulder-native', 'services-relief', 'services-support-intent', 'services-handshake', 'cad-stability-upgrade', 'relief-checkpoint-capacity', 'relief-photo-cancellation', 'relief-photo-v2'],
   mcp: ['bridge-cancellation', 'mcp-bridge', 'mcp-v2', 'document-assets', 'agent-cli'],
   'local-fixtures': ['iges-import', 'iges-roundtrip'],
   'browser-dom-modules':['relief-browser','profile-solid-dialogs','direct-modeling-dialogs','profile-constraints-dialog'],

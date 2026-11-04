@@ -2,11 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtemp,writeFile,readFile,rm} from 'node:fs/promises';
 import {join} from 'node:path';
+import {tmpdir} from 'node:os';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 
 test('native preparer accepts omitted options encoded as null and applies exact contour width',async()=>{
- const folder=await mkdtemp('G:/CAD-Workspace/WebCAD/temp/logo-preparer-');
+ const folder=await mkdtemp(join(tmpdir(),'logo-preparer-'));
  try{
   const input=join(folder,'source.json'),output=join(folder,'logo.json'),preview=join(folder,'logo.svg');
   await writeFile(input,JSON.stringify({machining:null,logoDocument:{type:'webcad-logo',version:1,units:'mm',name:'outline',sizeMm:[10,6],regions:[{outer:[[0,0],[10,0],[10,6],[0,6]],holes:[]}],source:{kind:'raster'}}}));

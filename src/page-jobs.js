@@ -1,5 +1,6 @@
 // Page-local receipts survive a host call timeout, not a page reload. No server.
 import {contractHash} from './contracts/operation-schema.js';
+import {JOB_METHODS} from './agent/protocol.js';
 import {archiveReceiptResult} from './receipt-archive.js';
 import {withErrorRecovery} from './error-recovery.js';
 export function createPageJobs(api,{runBatch}={}) {
@@ -8,19 +9,7 @@ export function createPageJobs(api,{runBatch}={}) {
   // Completion is pushed: each job owns a settled-once promise, so hosts await it instead of polling getState.
   const done = new Map();
   const settle = job => {const d=done.get(job.jobId);if(d){done.delete(job.jobId);d.resolve();}};
-  const methods = new Set(['run','execute','queryGeometry','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','setView','setRenderQuality','files.save','files.export','files.import']);
-  methods.add('inspectDesign');
-  methods.add('measureMass');methods.add('reliefDesignFit');
-  methods.add('inspectRound');
-  methods.add('readLogo');
-  methods.add('prepareOperation');methods.add('applyPreparedOperation');
-  methods.add('reviewLogo');
-  methods.add('logoWizard');
-  methods.add('reliefDesignField');methods.add('reliefDesignReference');
-  methods.add('probeBlendRadius');
-  methods.add('recoverKernel');
-  methods.add('files.reattach');
-  for(const name of ['createDrawing','exportDrawing','copySelection','pasteSelection'])methods.add(name);
+  const methods = new Set(JOB_METHODS);
   const fail = (code,message) => {throw Object.assign(new Error(message),{code});};
   const snapshot = job => structuredClone(Object.fromEntries(Object.entries(job).filter(([k])=>!['fingerprint','args'].includes(k))));
   const archive=job=>{archivedJobs.set(job.jobId,{fingerprint:job.fingerprint,jobId:job.jobId,status:job.status,archived:true,originalStatus:job.status,phase:'finished',createdAt:job.createdAt,finishedAt:job.finishedAt,context:job.context,result:archiveReceiptResult(job.result)});};

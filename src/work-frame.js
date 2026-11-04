@@ -4,6 +4,7 @@ import {PLACEMENT_SCHEMA} from './placement-schema.js';
 import {validateSchema} from './contracts/operation-schema.js';
 
 const fail=(code,path,message)=>{throw Object.assign(new Error(message),{code,path,recoveryAction:'READ_STATE_AND_REPLAN'});};
+export const SPATIAL_MODE_PLACEMENT_MESSAGE='显式 mode 需要 placement 定位框。mode 为 rotate 时必须同时给出 placement:{version:1,frame:{kind:"world"},sourceAnchor:{kind:"model-origin"}} 以及 pivot、axisVector、angleDeg。不传 placement 时，绕世界原点旋转用 params 的 rx、ry、rz 并省略 mode；世界平移用 x、y、z 并省略 mode。';
 const plain=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
 const fields=(v,allowed,path)=>{if(!plain(v)||Object.keys(v).some(k=>!allowed.includes(k)))fail('FRAME_INVALID',path,'Invalid reference fields');};
 const vector=(v,length,path)=>{if(!Array.isArray(v)||v.length!==length||v.some(n=>typeof n!=='number'||!Number.isFinite(n)))fail('FRAME_INVALID',path,`Expected ${length} finite coordinates`);return [...v];};

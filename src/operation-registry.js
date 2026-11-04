@@ -26,7 +26,13 @@ import {operationDefaults as defaults,operationExamples as examples} from './ope
 function schemaFor(id, source) {
   const schema = clone(source.paramsSchema || { type: 'object', properties: {}, additionalProperties: false });
   schema.$schema = 'https://json-schema.org/draft/2020-12/schema';
-  if(PATTERN_OPERATIONS.includes(id))schema.properties.machiningIntent=clone(MACHINING_INTENT_SCHEMA);
+  if(PATTERN_OPERATIONS.includes(id)){
+    schema.properties.machiningIntent=clone(MACHINING_INTENT_SCHEMA);
+    // Strict cards must list the field the create path already requires.
+    // Deprecated curvedLogo stays advisory so historical edits keep their original params.
+    if(migrated.has(id))schema.required=[...new Set([...(schema.required||[]),'machiningIntent'])];
+  }
+  if(id==='logo'&&schema.properties.targetSurfaceType)schema.properties.targetSurfaceType.description='Kernel geomType or canonical class. cylinder accepts cylindre/CYLINDRE; plane accepts PLANE. Case alone is not a surface-type change.';
   if (id === 'quickModel') {
     return { $schema: schema.$schema, type: 'object', oneOf: Object.entries(QUICK_MODELS).map(([kind, definition]) => {
       const fields = new Map(definition.fields.map(field => [field.key, field]));
@@ -208,7 +214,7 @@ export function assertOperationContract(op, { opVersion, schemaHash } = {}) {
   return card;
 }
 
-export function normalizeOperationParams(op, params, { selectionToken, phase = 'resolved' } = {}) {
+export function normalizeOperationParams(op, params, { selectionToken, phase = 'resolved', allowMissingMachiningIntent = false } = {}) {
   params=migrateReliefParams(op,params);
   const card = getOperation(op);
   if (!card.strictContract) contractError('CAPABILITY_UNAVAILABLE', 'args.op', 'Strict normalization is available only for migrated operations.', 'READ_TOOL_CONTRACT');
@@ -228,6 +234,7 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
     if (scopes > 1) contractError('SELECTION_CONFLICT', 'params', 'Choose exactly one of edgeIds, faceIds, or allEdges=true.');
     if(params.sharedFaces===true&&!(params.faceIds?.length>=2))contractError('SELECTION_CONFLICT','params.sharedFaces','sharedFaces=true requires at least two adjacent faceIds.');
   }
+  if(allowMissingMachiningIntent)schema.required=(schema.required||[]).filter(key=>key!=='machiningIntent');
   try{validateSchema(schema, params);if(['transform','copy'].includes(op))assertBoundsAlignment(params);}catch(error){if(op==='meshHeightfieldRelief')error.code='HEIGHTFIELD_INVALID';if(op==='meshBoolean')error.code='MESH_BOOLEAN_INVALID';throw error;}
   if(op==='meshHeightfieldRelief'&&!params.heights?.importKey)heightfieldSamples(legacyReliefParams(op,params));
   if(op==='chamfer'){
@@ -276,10 +283,12 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
 }
 
 export function normalizeOperationPatch(op, previousParams, patch) {
+  const allowMissingMachiningIntent=PATTERN_OPERATIONS.includes(op)&&!previousParams?.machiningIntent&&!Object.hasOwn(patch||{},'machiningIntent');
+  const normalize=merged=>normalizeOperationParams(op,merged,{allowMissingMachiningIntent});
   if(['transform','copy'].includes(op)&&patch?.align!==undefined&&previousParams.align===undefined){
     const previous={...previousParams};
     for(const key of ['mode','positionMode','x','y','z','delta','targetPoint'])delete previous[key];
-    return normalizeOperationParams(op,{...previous,...patch});
+    return normalize({...previous,...patch});
   }
   assertJsonValue(patch);
   if (!patch || typeof patch !== 'object' || Array.isArray(patch)) contractError('PARAM_SCHEMA_INVALID', 'params', 'Expected a parameter patch object.');
@@ -310,7 +319,7 @@ export function normalizeOperationPatch(op, previousParams, patch) {
     else if (Object.hasOwn(patch, 'faceIds')) { delete merged.edgeIds; delete merged.allEdges; }
     else if (patch.allEdges === true) { delete merged.edgeIds; delete merged.faceIds; if(!Object.hasOwn(patch,'sharedFaces'))delete merged.sharedFaces; }
   }
-  return normalizeOperationParams(op, merged);
+  return normalize(merged);
 }
 
 export function validateOperationRefs(op, refs) {

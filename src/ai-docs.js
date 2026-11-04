@@ -116,7 +116,7 @@ export function searchTools(input, runtime = {}) {
     schemaHash: card.schemaHash, description: card.description, category: card.category,
     availabilityScope:'page', executionAvailability:'unknown', executionCheck:{methods:['getServicesCapabilities','getServicesRouting'],requires:'current operation input and routing policy'},
     implementationStatus: card.implementationStatus, v2Executable: card.v2Executable,
-    runtimeAvailability: !sessionId ? 'unknown' : runtime.browserReady === true ? 'page_ready' : runtime.browserReady === false ? 'not_ready' : 'unknown' })),
+    runtimeAvailability: !sessionId ? 'unknown' : runtime.browserReady === true ? 'available' : runtime.browserReady === false ? 'not_ready' : 'unknown' })),
     nextCursor: offset + limit < matches.length ? cursorAt(scope, offset + limit) : null, catalogHash };
 }
 

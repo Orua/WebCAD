@@ -97,6 +97,6 @@ test('small artifacts use one POST; above chunkBytes the chunked path; caps unch
   calls.length=0;
   const legacy={...client};delete legacy.post;
   assert.equal((await uploadArtifact({bytes:new Uint8Array(8),name:'a.stl',client:legacy})).mode,'chunked');
-  assert.equal(LIMITS.transport.maxArtifactBytes,100*1024*1024);assert.equal(LIMITS.transport.chunkBytes,4*1024*1024);
+  assert.equal(LIMITS.transport.maxArtifactBytes,200*1024*1024);assert.equal(LIMITS.transport.chunkBytes,4*1024*1024);
   await assert.rejects(()=>uploadArtifact({bytes:new Uint8Array(0),name:'a.step',client}),e=>e.code==='ASSET_INVALID');
 });

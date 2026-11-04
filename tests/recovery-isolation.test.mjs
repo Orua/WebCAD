@@ -7,9 +7,9 @@ test('recovery writes isolate two document runtime instances',async()=>{
  const start=source.indexOf('async function autosave('),end=source.indexOf("document.addEventListener('keydown'",start);
  const records=new Map();
  const db={transaction:()=>{const tx={objectStore:()=>({put:(v,k)=>{records.set(k,structuredClone(v));queueMicrotask(()=>tx.oncomplete?.());}})};return tx;}};
- const context={dbPromise:Promise.resolve(db),clone:structuredClone,Date,documentInstanceId:'one',revision:1,persistenceCheckpoint:'pending',documentModel:{version:1,documentId:'first',features:[]},setStatus:()=>{}};
+ const context={dbPromise:Promise.resolve(db),clone:structuredClone,Date,documentInstanceId:'one',revision:1,persistenceCheckpoint:'pending',documentModel:{version:1,documentId:'first',features:[]},setStatus:()=>{},debugJournal:{record(){},setContextProvider(){}}};
  vm.createContext(context);vm.runInContext(source.slice(start,end)+'\nthis.save=autosave;',context);
  await context.save();context.documentInstanceId='two';context.documentModel={version:1,documentId:'second',features:[]};await context.save();
- assert.equal(records.size,2,'One instance overwrote another recovery');
  assert.equal(records.get('recovery:one').document.documentId,'first');assert.equal(records.get('recovery:two').document.documentId,'second');
+ assert.equal(records.get('recovery:latest').document.documentId,'second');assert.equal(records.size,3);
 });

@@ -1,7 +1,7 @@
 import * as cad from 'replicad';
 import {buildEndRounding} from './end-rounding.js';
 import {buildEdgeBlend} from '../../edge-blend.js';
-import {millComplementaryFillet} from './mill-fillet-fallback.js';
+import {millComplementaryFillet,radiusFitsAdjacentFaces} from './mill-fillet-fallback.js';
 import {topologyDetails} from './topology.js';
 
 const dispose=x=>{try{x?.delete?.();}catch{}};
@@ -92,13 +92,14 @@ export function buildRoundTool(input,p){
   const plan=planRoundTool(source,p);
   let result;
   try{
-   result=plan.mode==='end'?buildEndRounding(source,plan.resolved):buildEdgeBlend(source,'fillet',plan.resolved,{suggestRadius:false});
+   result=plan.mode==='end'?buildEndRounding(source,plan.resolved):buildEdgeBlend(source,'fillet',plan.resolved,{suggestRadius:false,allowOversizedMill:false});
   }catch(nativeError){
    if(plan.mode==='end')throw nativeError;
    // buildEdgeBlend already tries mill; if it still threw, attempt explicit mill on resolved edges.
    const ids=plan.resolved?.edgeIds||[];
-   if(!ids.length)throw nativeError;
-   const mill=millComplementaryFillet(source,{edgeIds:ids,radiusMm:plan.resolved.radius??p.radiusMm});
+   const radiusMm=plan.resolved.radius??p.radiusMm;
+   if(!ids.length||!radiusFitsAdjacentFaces(source,ids,radiusMm))throw nativeError;
+   const mill=millComplementaryFillet(source,{edgeIds:ids,radiusMm});
    result=mill.shape;result.blendReport={version:1,operation:'fillet',stage:'completed',strategy:'mill-complementary-r-fallback',attemptCount:2,millReports:mill.reports,nativeFailure:nativeError?.message||null};
   }
   result.roundReport={version:1,...plan,endRoundingReport:result.endRoundingReport??null,blendReport:result.blendReport??null,attemptCount:result.blendReport?.attemptCount??1};
