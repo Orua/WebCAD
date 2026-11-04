@@ -28,7 +28,7 @@ JSON.stringify((()=>{
 - 已知工具用 connect({toolIds:["advancedLoft","transform"]})，直接返回完整卡与实时上下文。模板用 template.* 单独读卡，按卡内 minimalExample 执行 quickModel。
 - 检查 canExecute/blockers/nextAction；ready 仅代表内核已加载。页面缺少 connect 时先报告旧版本，不沿用旧 action/execute/ready，也不自动刷新工程。
 - 完整卡已在 connection.contracts.items[].card；不要再逐项 getTool。补充工具用 getTools({ids:[实际ID]}) 批量读取，已知 ID 可直接读卡。
-- queries 最多4项，支持中英文；每项默认返回5个候选。includeContracts:true 可连同前20个命中卡一次取回。
+- queries 最多 4 项，支持中英文。limit 是每项返回条数（1..10，默认 5），不是查询条数上限。includeContracts:true 可连同前20个命中卡一次取回。
 - 搜索是候选排序，不是执行计划。依据完整卡核对参数、约束及可用性；未知 ID 逐项返回错误。
 - 建模使用 api.run 的 add/execute 步骤；返回的 connection.requestContext 可用于请求，后续实体用 $ref 引用回执。查询面边后再决定操作时重新核对 revision。
 - CDP 异步表达式使用 (async()=>JSON.stringify(await window.webcad.api.run(请求对象)))()，并设置 awaitPromise:true；不要直接使用顶层 await。

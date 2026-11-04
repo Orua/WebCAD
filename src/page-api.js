@@ -130,7 +130,12 @@ export function createPageAPI(host){
     const cached=cachedLogo(logoId,current()),review=cached.reviewSession.get();
     if(review.reviewRequired)fail('LOGO_REVIEW_REQUIRED','The requested preview has not been confirmed.');
     if(expectedReviewRevision!==undefined&&expectedReviewRevision!==review.revision)fail('LOGO_REVIEW_STALE','expectedReviewRevision differs from the current draft; read reviewLogo.review.revision, or omit this optional lock.','params.expectedReviewRevision');
-    return {...args,params:{...logoOperationData(review.logo),...params}};
+    const merged={...logoOperationData(review.logo),...params};
+    if(merged.machiningIntent===undefined){
+      const depth=merged.depthMm??merged.depth;
+      if((merged.mode==='engrave'||merged.mode==='emboss')&&Number.isFinite(depth)&&depth>0)merged.machiningIntent={version:1,requestedGeometry:'constantDepthContours',sourceInterpretation:'reviewedVectors',userIntentEvidence:`调用者要求使用已接受图案${merged.mode==='engrave'?'向内凹刻':'向外凸起'}，深度${depth} mm。`};
+    }
+    return {...args,params:merged};
   }
   function releaseLogoArtifacts(cached){
     for(const item of cached.resources||[])try{rawFiles.release({resourceId:item.resourceId});}catch(error){if(!['RESOURCE_EXPIRED','RESOURCE_BUSY'].includes(error.code))throw error;}
@@ -228,7 +233,10 @@ export function createPageAPI(host){
     connect:(input={})=>{
       if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['queries','toolIds','limit','includeContracts','knownCatalogHash','knownDocsHash','knownHashes'].includes(k)))fail('PARAM_SCHEMA_INVALID','Unexpected connect fields');
       const queries=input.queries??[],limit=input.limit??5;
-      if(!Array.isArray(queries)||queries.length>4||queries.some(q=>typeof q!=='string'||q.length>500)||!Number.isInteger(limit)||limit<1||limit>10)fail('PARAM_SCHEMA_INVALID','Use up to 4 queries of 500 characters and limit 1..10');
+      if(!Array.isArray(queries))fail('PARAM_SCHEMA_INVALID','queries 必须是字符串数组，最多 4 项。');
+      if(queries.length>4)fail('PARAM_SCHEMA_INVALID',`connect 的 queries 最多 4 项，当前为 ${queries.length} 项。limit 是每项返回条数（1..10），不是查询条数上限。`);
+      if(queries.some(q=>typeof q!=='string'||q.length>500))fail('PARAM_SCHEMA_INVALID','每条 query 必须是不超过 500 字的字符串。');
+      if(!Number.isInteger(limit)||limit<1||limit>10)fail('PARAM_SCHEMA_INVALID','limit 是每项返回条数，必须是 1..10 的整数；queries 数组本身最多 4 项。');
       if(input.includeContracts!==undefined&&typeof input.includeContracts!=='boolean')fail('PARAM_SCHEMA_INVALID','includeContracts must be boolean');
       const toolIds=input.toolIds??[];
       if(!Array.isArray(toolIds)||toolIds.length>20||new Set(toolIds).size!==toolIds.length||toolIds.some(id=>typeof id!=='string'||!id.length||id.length>150))fail('PARAM_SCHEMA_INVALID','toolIds must contain up to 20 unique tool IDs');

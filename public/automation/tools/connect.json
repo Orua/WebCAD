@@ -2,14 +2,14 @@
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "connect",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
+  "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。只读，内核启动期间可用。",
   "synonyms": [
     "connect",
     "连接",
@@ -17,7 +17,7 @@
     "工具",
     "缓存"
   ],
-  "inputContract": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
+  "inputContract": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。只读，内核启动期间可用。",
   "outputContract": "当前 context/requestContext、canExecute/blockers/nextAction、版本与迁移说明、实体引用和完整工具契约。搜索自动附带卡最多64000字符，contractIdsOmitted 和 contractReadPolicy 明示省略项；显式 toolIds 与按需 getTools 不受字符预算限制。ready 仅为内核状态；canExecute 才计入 busy/preview。详见 api.workflow。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -107,5 +107,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:00b9d8268941a5b0692b7dd7534bf79811377482a36048fb4ace18cd4479dda0"
+  "docsHash": "sha256:cd9125074e4187e7234644f7af23a9e2e97ef33ab1ac47cd7c2a8bc5917984ba"
 }

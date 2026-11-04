@@ -1,5 +1,5 @@
 import {validateOperationRefs,normalizeOperationParams,assertOperationContract} from './operation-registry.js';
-import {resolvePlacement,newFeaturePlacement} from './work-frame.js';
+import {resolvePlacement,newFeaturePlacement,SPATIAL_MODE_PLACEMENT_MESSAGE} from './work-frame.js';
 import {markTopologySemantics} from './legacy-topology-policy.js';
 import {PLACEMENT_SCHEMA} from './placement-schema.js';
 
@@ -39,7 +39,7 @@ export async function compileFeaturePlan(input,state,{uid=()=>crypto.randomUUID(
   const params=normalizeParams(item.op,item.params);
   if(['fillet','chamfer'].includes(item.op)&&params.allEdges!==true)fail('SELECTION_CONFLICT',path+'.params','Feature plans only accept allEdges:true blends; selected-edge work needs a live step');
   if(item.name!==undefined&&(typeof item.name!=='string'||!item.name.trim()||item.name.length>120))fail('PARAM_SCHEMA_INVALID',path+'.name','Short nonempty name required');
-  if(['transform','copy'].includes(item.op)&&params.mode&&item.placement===undefined)fail('FRAME_INVALID',path+'.placement','Spatial mode requires placement:{version:1,frame:{kind:"world"},sourceAnchor:{kind:"model-origin"}} (or an explicit work frame). For world translation without placement use params:{x:0,y:0,z:300} and omit mode/delta');
+  if(['transform','copy'].includes(item.op)&&params.mode&&item.placement===undefined)fail('FRAME_INVALID',path+'.placement',SPATIAL_MODE_PLACEMENT_MESSAGE);
   await verifyPlacement(item.placement,state,refs);
   const placement=resolvePlacement(newFeaturePlacement(item.placement,state.referenceSystem,item.op),state.referenceSystem,item.op,params);
   const id=uid();if(allocated.has(id))fail('RESOURCE_LIMIT',path,'Feature ID collision');allocated.add(id);featureIds[item.key]=id;

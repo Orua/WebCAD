@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.60.8 · sha256:89602af8d7c31c5d1ac9bd13b472e841003757e1fa3d972972015f0b595adc58
+API 1.60.11 · sha256:1e3d0a24a692a71387e108784885ebe0c86231485ff942a91be3c93d1912dc4d
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -410,6 +410,122 @@ files.write: contextPolicy=none
 files.confirmWritten: contextPolicy=none
 files.release: contextPolicy=none
 
+## api.creation-placement
+
+Agent 与 UI 默认冻结工作锚点，不再隐式沿 X 排布。未锁定工作锚点可能沿 Z 避让；连续精确建模显式指定 placement world/snapshot，或先归零再锁定。experimental 是成熟度，implemented 是实现状态；能否执行由当前页面 canExecute/blockers 决定。curveSweep sections/spine 的 spline 截面默认 points2d 为毫米坐标、保留旧折线；coordinateMode:normalized 才使用站点宽深，interpolation:periodicSpline 才生成闭合光滑周期样条。
+
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+reliefWizard: contextPolicy=identity
+prepareToolCall: contextPolicy=identity
+prepareOperation: contextPolicy=identity
+applyPreparedOperation: contextPolicy=identity
+getDebugReport: contextPolicy=none
+setDebugPanel: contextPolicy=identity
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
+reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
+reliefDesignReference: contextPolicy=revision
+reliefDesignField: contextPolicy=revision
+readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
+getBatchReceipt: contextPolicy=none
+probeBlendRadius: contextPolicy=identity
+recoverKernel: contextPolicy=revision
+sampleMeshRelief: contextPolicy=identity
+getModelLibrary: contextPolicy=none
+updateModelLibrary: contextPolicy=revision
+resolveModelLibrary: contextPolicy=identity
+planPatternMachining: contextPolicy=identity
+decideServicesWait: contextPolicy=none
+recoverServicesJob: contextPolicy=none
+prepareReliefTopologyUpgrade: contextPolicy=identity
+sampleReliefHeight: contextPolicy=identity
+prepareReliefSculpt: contextPolicy=identity
+readRelief: contextPolicy=identity
+getHistory: contextPolicy=none
+planAlignment: contextPolicy=identity
+selectRectangle: contextPolicy=identity
+createDrawing: contextPolicy=revision
+exportDrawing: contextPolicy=revision
+getQuickModelUsage: contextPolicy=none
+copySelection: contextPolicy=revision
+pasteSelection: contextPolicy=revision
+createRequestContext: contextPolicy=none
+getUILayout: contextPolicy=none
+setRenderQuality: contextPolicy=identity
+invoke: contextPolicy=none
+submit: contextPolicy=none
+getJob: contextPolicy=none
+cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
+connect: contextPolicy=none
+info: contextPolicy=none
+getState: contextPolicy=none
+searchTools: contextPolicy=none
+getTools: contextPolicy=none
+getTool: contextPolicy=none
+readDocs: contextPolicy=none
+queryGeometry: contextPolicy=identity
+queryReferences: contextPolicy=identity
+resolvePlacement: contextPolicy=identity
+execute: contextPolicy=revision
+measure: contextPolicy=identity
+measureRelation: contextPolicy=identity
+inspectDesign: contextPolicy=identity
+inspectPrintability: contextPolicy=identity
+inspectProfile: contextPolicy=identity
+prepareProfileEdit: contextPolicy=identity
+inspectConstraints: contextPolicy=identity
+projectProfile: contextPolicy=identity
+inspectFit: contextPolicy=identity
+inspectThickness: contextPolicy=identity
+inspectDraft: contextPolicy=identity
+inspectRound: contextPolicy=identity
+readVector: contextPolicy=identity
+connectVector: contextPolicy=none
+fitProfile: contextPolicy=identity
+traceTwinWindow: contextPolicy=identity
+executeText: contextPolicy=revision
+setDisplayPreferences: contextPolicy=identity
+getAgentPanel: contextPolicy=none
+configureAgentPanel: contextPolicy=revision
+setAgentPanel: contextPolicy=revision
+markLocation: contextPolicy=revision
+getServices: contextPolicy=none
+setServices: contextPolicy=revision
+getServicesCapabilities: contextPolicy=none
+getServicesRouting: contextPolicy=none
+clearServicesCredential: contextPolicy=revision
+getServicesJob: contextPolicy=none
+getServicesRequest: contextPolicy=none
+cancelServicesJob: contextPolicy=revision
+getLogoConverter: contextPolicy=none
+setLogoConverter: contextPolicy=revision
+convertLogoPdf: contextPolicy=revision
+setView: contextPolicy=identity
+redraw: contextPolicy=identity
+capture: contextPolicy=identity
+getEvidenceImage: contextPolicy=revision
+run: contextPolicy=revision
+files.capabilities: contextPolicy=none
+files.register: contextPolicy=none
+files.new: contextPolicy=none
+files.open: contextPolicy=revision
+files.import: contextPolicy=revision
+files.save: contextPolicy=revision
+files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
+files.read: contextPolicy=none
+files.download: contextPolicy=none
+files.write: contextPolicy=none
+files.confirmWritten: contextPolicy=none
+files.release: contextPolicy=none
+
 ## api.design-checks
 
 按源图要求核对 inspectDesign
@@ -553,7 +669,7 @@ files.release: contextPolicy=none
 ## api.discovery
 
 WebCAD 是可独立运行的小五金作图软件，Agent 与 Services 是可选扩展。公开历史案例经通用化，不分发公司资料、原图句柄或私有工具路径；沿用的参数与历史量测不是自主源几何或本次验收。recipes.pg 开头的旧 docId 仅作兼容别名，正文不以货号标识案例。首次连接先读 automation/agent-start.html 或机器可读 automation/agent-start.json。connect().onboarding 为 version=1 静态引导：绑定用户选定标签页 → capabilities.list → 当前 CDP 文档 → Runtime.evaluate 调用 connect 并检查 canExecute/blockers → 相关契约 → run → 回执与画面读回。当前宿主实际文档优先；连接传输失败不等于页面 API 不可用，不刷新已有工程或安装服务绕过权限。可选本地技能/客户端由 automation/agent-kit.json 列出，automation/install-agent.ps1 仅 host-opt-in 安装；页面脚本调用不要求先安装。
-搜索自动附带的完整契约最多64000字符；contractIdsOmitted/contractReadPolicy.omissions 明确列出未附带项与原因。显式 toolIds 不受此字符预算影响，getTools 按需读取完整卡。快捷模型优先 template.kind。首次通过获授权页面脚本通道调用 api.connect({queries:[简短能力关键词]})。无需先遍历源文件或下载全库。connect 同时给出精简的实时 requestContext、ready/busy/preview、最多20个当前实体引用、目录/文档哈希和搜索结果；内核未就绪仍可查契约。queries 最多4项，每项最多500字符，limit 为每项1..10，默认5。结果是相关候选，不自动解释自然语言、不生成操作计划。category 可用于单独 searchTools 过滤；query 为空时分页列出全部工具。
+搜索自动附带的完整契约最多64000字符；contractIdsOmitted/contractReadPolicy.omissions 明确列出未附带项与原因。显式 toolIds 不受此字符预算影响，getTools 按需读取完整卡。快捷模型优先 template.kind。首次通过获授权页面脚本通道调用 api.connect({queries:[简短能力关键词]})。无需先遍历源文件或下载全库。connect 同时给出精简的实时 requestContext、ready/busy/preview、最多20个当前实体引用、目录/文档哈希和搜索结果；内核未就绪仍可查契约。queries 数组最多 4 项，每项最多 500 字符；limit 是每项返回条数（整数 1..10，默认 5），不是查询条数上限。超过 4 项查询与 limit 超范围会分别说明。结果是相关候选，不自动解释自然语言、不生成操作计划。category 可用于单独 searchTools 过滤；query 为空时分页列出全部工具。
 接着 getTools({ids:[选中的工具ID],expectedCatalogHash:connect返回的catalogHash}) 一次读完整契约，最多20项。includeContracts:true 可在 connect 中直接取得前20个去重命中的契约，contractIdsOmitted 明示未附带的其余ID。已完整缓存的卡可传 knownHashes:{工具ID:docsHash}；匹配只返回 not_modified，新增或变化返回 read.card，未知ID逐项返回 error，不丢失其他卡。不可仅见过摘要哈希就声称持有完整卡。getTools 不省略约束、不截断 schema；getTool 保持兼容。
 connect 可传 knownCatalogHash/knownDocsHash 检查整体漂移；changed 只表示静态说明变化，实时状态始终重新读取。manifest.json 为每张卡/每篇文档提供 docsHash，可比较增删变化；已删除ID必须从宿主缓存移除。readDocs({docId,knownHash}) 可复用完整文档缓存；knownHash 与 cursor 不可同时使用，分页文档须取完才能缓存为完整文档。缓存版本不能代替当前页面状态。
 可选离线库：一次下载同版本 automation/index.json 与 automation/tool-library.mjs；在具备持久存储能力的宿主保存。import {createToolLibrary} from './tool-library.mjs'; const lib=createToolLibrary(snapshot); lib.search(query) 返回摘要，lib.get(id) 取完整卡，lib.readDoc(id) 取一篇说明；lib.isCurrent(api.connect()) 对比 catalogHash/docsHash，漂移时刷新快照。离线库与页面使用相同搜索实现，所有运行可用性为 unknown；始终从目标页面取得新鲜 requestContext/实体/拓扑。不要把完整快照打印进模型上下文。没有磁盘能力的侧栏直接调用页面搜索即可。
@@ -1045,7 +1161,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 先通过现有设置完成登录或取得所需授权，再核对原请求；不要绕过权限或擅自上传来源。
 
-代码：`action_not_allowed`、`AGENT_METHOD_DENIED`、`AUTH_CONFIG_REQUIRED`、`HOST_ACCESS_DENIED`、`HTTPS_REQUIRED`、`IIS_STORAGE_FORBIDDEN`、`LAN_ONLY`、`method_not_allowed`、`ORIGIN_FORBIDDEN`、`PERMISSION_REQUIRED`、`RECOVERY_AUTH_REQUIRED`、`scope_denied`、`SERVICES_AUTH_REQUIRED`、`UNAUTHORIZED`、`UPLOAD_AUTH_REQUIRED`
+代码：`action_not_allowed`、`AGENT_METHOD_DENIED`、`AGENT_NOT_CONFIGURED`、`AUTH_CONFIG_REQUIRED`、`HOST_ACCESS_DENIED`、`HTTPS_REQUIRED`、`IIS_STORAGE_FORBIDDEN`、`LAN_ONLY`、`method_not_allowed`、`ORIGIN_FORBIDDEN`、`PERMISSION_REQUIRED`、`RECOVERY_AUTH_REQUIRED`、`scope_denied`、`SERVICES_AUTH_REQUIRED`、`UNAUTHORIZED`、`UPLOAD_AUTH_REQUIRED`
 
 ### unsupported
 
@@ -1055,21 +1171,13 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 代码：`ADAPTIVE_FAMILY_UNMATCHED`、`AGENT_COMPOSER_UNAVAILABLE`、`ANALYTIC_FAMILY_UNMATCHED`、`CAPABILITY_UNAVAILABLE`、`CONTINUITY_UNSUPPORTED`、`CONTINUOUS_SCULPT_UNAVAILABLE`、`DESIGN_CHECK_UNSUPPORTED`、`DOMAIN_SHAPE_UNSUPPORTED`、`END_ROUNDING_UNSUPPORTED`、`ENGINE_UNAVAILABLE`、`EVIDENCE_UNAVAILABLE`、`FORMAT_UNSUPPORTED`、`FORMAT_VARIANT_UNSUPPORTED`、`GUIDED_LOFT_BINDING_SHAPE_MISSING`、`GUIDED_LOFT_BINDING_SOURCE_UNSUPPORTED`、`HOST_UNAVAILABLE`、`LOCAL_VECTOR_UNSUPPORTED`、`LOFT_GUIDE_UNSUPPORTED`、`LOFT_POINT_CAP_UNSUPPORTED`、`MESH_BOOLEAN_UNAVAILABLE`、`MESH_BREP_UNAVAILABLE`、`MESH_COMBINATION_UNAVAILABLE`、`MESH_OPERATION_UNAVAILABLE`、`MESH_RECOVERY_UNAVAILABLE`、`MESH_TOOL_UNAVAILABLE`、`MESH_TOPOLOGY_UNAVAILABLE`、`NATIVE_ACCEPTANCE_INVALID`、`NATIVE_POLISHING_NETWORK_UNAVAILABLE`、`OPERATION_TBD`、`OPERATION_UNAVAILABLE`、`PDF_RENDERER_UNAVAILABLE`、`PIPELINE_OPTION_UNSUPPORTED`、`PROFILE_CONSTRAINT_UNSUPPORTED`、`PROJECT_SNAPSHOT_UNAVAILABLE`、`REFINE_UNSUPPORTED`、`RELIEF_PATCH_UNSUPPORTED`、`RELIEF_PLAN_UNSUPPORTED`、`RELIEF_SHOULDER_UNSUPPORTED`、`RELIEF_SOURCE_UNSUPPORTED`、`RELIEF_UNSUPPORTED`、`RELIEF_WORKER_UNAVAILABLE`、`SCOPE_EXPANSION_REQUIRED`、`SELECTION_UNSUPPORTED`、`SERVICES_OPERATION_UNAVAILABLE`、`SERVICES_UNAVAILABLE`、`TARGET_PEAK_UNAVAILABLE`、`UNKNOWN_OPERATION`、`UNSUPPORTED_CURVE_PROJECTION`、`UNSUPPORTED_FORMAT`、`VARIABLE_FAMILY_UNMATCHED`、`VOLUME_UNAVAILABLE`、`WIDTH_FAMILY_UNMATCHED`
 
-### unclassified
-
-操作未能完成，目前没有足够证据确定安全恢复方式。
-
-保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
-
-代码：`AGENT_NOT_CONFIGURED`、`BUSY`、`EVIDENCE_INVALID`、`EVIDENCE_QUEUE_FULL`、`EVIDENCE_RENDER_FAILED`、`EVIDENCE_SIZE_LIMIT`、`EVIDENCE_SUPERSEDED`、`EXECUTION_UNKNOWN`、`IDEMPOTENCY_CONFLICT`、`MATERIAL_IN_USE`、`MEASUREMENT_FAILED`、`PREPARATION_APPLIED`、`PREPARATION_STALE`、`PROJECT_ENCODING`、`RASTER_AUTO_DETAIL`、`RASTER_AUTO_LIMIT`、`RASTER_AUTO_TOPOLOGY`、`SERVICES_JOB_FINISHED_BEFORE_CANCEL`
-
 ### preview
 
 已有预览、编辑草稿、资源写入或计算占用当前操作。
 
 先查看当前任务：继续原任务，或明确应用/取消草稿后再执行；不要自动关闭用户未完成编辑。
 
-代码：`AGENT_PANEL_ACTIVE`、`KERNEL_BUSY`、`LOGO_WIZARD_BUSY`、`LOGO_WIZARD_CLOSED`、`PREVIEW_ACTIVE`、`RESOURCE_BUSY`、`UI_TASK_ACTIVE`
+代码：`AGENT_PANEL_ACTIVE`、`BUSY`、`KERNEL_BUSY`、`LOGO_WIZARD_BUSY`、`LOGO_WIZARD_CLOSED`、`PREPARATION_APPLIED`、`PREVIEW_ACTIVE`、`RESOURCE_BUSY`、`UI_TASK_ACTIVE`
 
 ### host_connection
 
@@ -1117,7 +1225,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 区分已生成、已传输和已写盘；先取原工件或原回执，再仅恢复未完成的传输，不重算模型。
 
-代码：`ARTIFACT_TRANSFER_FAILED`、`PROJECT_ENCODING_FAILED`、`PROJECT_ENCODING_MESSAGE_ERROR`、`PROJECT_ENCODING_SEND_FAILED`、`PROJECT_ENCODING_TIMEOUT`、`RESULT_REPORT_FAILED`、`SAVE_CONFIRMATION_FAILED`、`UPLOAD_FAILED`
+代码：`ARTIFACT_TRANSFER_FAILED`、`PROJECT_ENCODING`、`PROJECT_ENCODING_FAILED`、`PROJECT_ENCODING_MESSAGE_ERROR`、`PROJECT_ENCODING_SEND_FAILED`、`PROJECT_ENCODING_TIMEOUT`、`RESULT_REPORT_FAILED`、`SAVE_CONFIRMATION_FAILED`、`UPLOAD_FAILED`
 
 ### file
 
@@ -1141,7 +1249,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 读取对应完整工具卡，核对报错字段及实际单位后修正请求；保留原设计尺寸和加工意图。
 
-代码：`BADGE_INVALID`、`FIT_INPUT_INVALID`、`FRAME_INVALID`、`GATEWAY_REQUEST_INVALID`、`HOST_CONTROL_INVALID`、`HOST_FRAME_INVALID`、`INVALID_INPUT`、`INVALID_OPTIONS`、`NAME_INVALID`、`PARAM_RANGE_INVALID`、`PARAM_SCHEMA_INVALID`、`REQUEST_INVALID`、`TYPE_MISMATCH`
+代码：`BADGE_INVALID`、`FIT_INPUT_INVALID`、`FRAME_INVALID`、`GATEWAY_REQUEST_INVALID`、`HOST_CONTROL_INVALID`、`HOST_FRAME_INVALID`、`INVALID_INPUT`、`INVALID_OPTIONS`、`NAME_INVALID`、`PARAM_RANGE_INVALID`、`PARAM_SCHEMA_INVALID`、`REQUEST_INVALID`、`REVOLVE_AXIS_CROSSING`、`TYPE_MISMATCH`
 
 ### cancelled
 
@@ -1149,7 +1257,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 检查最终回执和仍保留的已提交步骤；取消请求不等于内核已停止，只有最终停止状态才能开始后续计算。
 
-代码：`BATCH_CANCELLED`、`CANCELLED`、`JOB_CANCELED`、`JOB_CANCELLED`、`LOGO_READ_CANCELLED`、`PREVIEW_CANCELLED`、`SERVICES_JOB_CANCELLED`、`WORKER_CANCELLED`
+代码：`BATCH_CANCELLED`、`CANCELLED`、`JOB_CANCELED`、`JOB_CANCELLED`、`LOGO_READ_CANCELLED`、`PREVIEW_CANCELLED`、`SERVICES_JOB_CANCELLED`、`SERVICES_JOB_FINISHED_BEFORE_CANCEL`、`WORKER_CANCELLED`
 
 ### execution
 
@@ -1157,7 +1265,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 读取原错误的code、path、stage、report与逐步回执；先核对提交状态，仅修复已证实的原因。不要自动重算或把未知失败归咎于模型。
 
-代码：`BATCH_FAILED`、`HOST_FAILED`、`JOB_EXECUTION_FAILED`、`SERVICES_JOB_FAILED`、`SERVICES_REQUEST_FAILED`、`TEXT_COMMAND_FAILED`、`UPGRADE_FAILED`
+代码：`BATCH_FAILED`、`EXECUTION_UNKNOWN`、`HOST_FAILED`、`JOB_EXECUTION_FAILED`、`MEASUREMENT_FAILED`、`SERVICES_JOB_FAILED`、`SERVICES_REQUEST_FAILED`、`TEXT_COMMAND_FAILED`、`UPGRADE_FAILED`
 
 ### geometry
 
@@ -1173,7 +1281,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 读取提交回执和当前状态，再尝试一次 redraw 或 capture；只报告画面未确认，不要重新执行建模。
 
-代码：`CAPTURE_TIMEOUT`、`DISPLAY_FAILED`、`DISPLAY_INCOMPLETE`、`DISPLAY_REFINEMENT_FAILED`、`DISPLAY_VOLUME_MISMATCH`、`STALE_DISPLAY`、`UNSUPPORTED_RENDER_FEATURE`
+代码：`CAPTURE_TIMEOUT`、`DISPLAY_FAILED`、`DISPLAY_INCOMPLETE`、`DISPLAY_REFINEMENT_FAILED`、`DISPLAY_VOLUME_MISMATCH`、`EVIDENCE_INVALID`、`EVIDENCE_QUEUE_FULL`、`EVIDENCE_RENDER_FAILED`、`EVIDENCE_SIZE_LIMIT`、`EVIDENCE_SUPERSEDED`、`STALE_DISPLAY`、`UNSUPPORTED_RENDER_FEATURE`
 
 ### version
 
@@ -1213,7 +1321,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 读取当前状态与来源，重新查询引用并重规划尚未完成的步骤；不要沿用旧面边编号。
 
-代码：`COORDINATE_MODE_CONFLICT`、`DOCUMENT_MISMATCH`、`FRAME_SURFACE_MISMATCH`、`INSTANCE_MISMATCH`、`LIBRARY_REVISION_CONFLICT`、`LOGO_REVIEW_STALE`、`MACHINING_SOURCE_CONFLICT`、`RECOVERY_INPUT_CHANGED`、`REVISION_CONFLICT`、`SELECTOR_CONTEXT_REQUIRED`、`SELECTOR_CONTEXT_STALE`、`SOURCE_ANCHOR_INVALID`、`SOURCE_HASH_MISMATCH`、`STALE_REFERENCE`、`TOPOLOGY_REFERENCE_STALE`
+代码：`COORDINATE_MODE_CONFLICT`、`DOCUMENT_MISMATCH`、`FRAME_SURFACE_MISMATCH`、`INSTANCE_MISMATCH`、`LIBRARY_REVISION_CONFLICT`、`LOGO_REVIEW_STALE`、`MACHINING_SOURCE_CONFLICT`、`PREPARATION_STALE`、`RECOVERY_INPUT_CHANGED`、`REVISION_CONFLICT`、`SELECTOR_CONTEXT_REQUIRED`、`SELECTOR_CONTEXT_STALE`、`SOURCE_ANCHOR_INVALID`、`SOURCE_HASH_MISMATCH`、`STALE_REFERENCE`、`TOPOLOGY_REFERENCE_STALE`
 
 ### source_parameters
 
@@ -1341,7 +1449,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 先取原回执并核对是否已提交；只有明确修订后的剩余请求才使用新标识。
 
-代码：`idempotency_conflict`、`IDEMPOTENCY_KEY_REUSED`
+代码：`idempotency_conflict`、`IDEMPOTENCY_CONFLICT`、`IDEMPOTENCY_KEY_REUSED`
 
 ### units
 
@@ -1357,7 +1465,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 核对原图与可读中间轮廓；明确修正真实轮廓，保留孔与尺寸，不自动填洞、删细节或扩大容差。
 
-代码：`INVALID_CONTOUR`、`INVALID_HOLE`、`LOGO_CONTOUR_INVALID`、`LOGO_EMPTY`、`LOGO_MIN_VERTICES`、`NO_VECTOR_CONTENT`、`OPEN_CONTOUR`、`RASTER_SMOOTHING_TOPOLOGY`、`RASTER_TOPOLOGY_AMBIGUOUS`、`REGIONS_TOUCH_OR_OVERLAP`、`SELF_INTERSECTION`
+代码：`INVALID_CONTOUR`、`INVALID_HOLE`、`LOGO_CONTOUR_INVALID`、`LOGO_EMPTY`、`LOGO_MIN_VERTICES`、`NO_VECTOR_CONTENT`、`OPEN_CONTOUR`、`RASTER_AUTO_DETAIL`、`RASTER_AUTO_LIMIT`、`RASTER_AUTO_TOPOLOGY`、`RASTER_SMOOTHING_TOPOLOGY`、`RASTER_TOPOLOGY_AMBIGUOUS`、`REGIONS_TOUCH_OR_OVERLAP`、`SELF_INTERSECTION`
 
 ### kernel
 
@@ -1407,6 +1515,14 @@ PDF页面渲染或渲染底图校验未通过。
 
 代码：`LOGO_REVIEW_REQUIRED`、`LOGO_SOURCE_REQUIRED`、`MACHINING_SOURCE_REQUIRED`
 
+### constraints
+
+约束、保护区域或锁定规则与这次修改冲突。
+
+读取实际约束与保护区，明确修改哪一项条件；不能自动解除锁定、删除孔或覆盖保护区域。
+
+代码：`MATERIAL_IN_USE`、`PROFILE_CONSTRAINT_CONFLICT`、`PROFILE_CONSTRAINT_GEOMETRY_INVALID`、`PROFILE_CONSTRAINT_INVALID`、`PROFILE_CONSTRAINT_NUMERICAL`、`PROFILE_CONSTRAINT_UNSATISFIED`、`REFERENCE_LOCKED`、`RELIEF_BOUNDARY_CONFLICT`、`RELIEF_CONSTRAINT_CONFLICT`、`RELIEF_CONSTRAINT_INVALID`、`RELIEF_DESIGN_PROTECTED`、`RELIEF_PATCH_PROTECTION`
+
 ### parameters
 
 命名参数存在循环、无效表达式或绑定冲突。
@@ -1422,14 +1538,6 @@ PDF页面渲染或渲染底图校验未通过。
 读取工具定位契约，沿来源冻结坐标执行加工；不能叠加当前锚点造成错位。
 
 代码：`PLACEMENT_NOT_APPLICABLE`
-
-### constraints
-
-约束、保护区域或锁定规则与这次修改冲突。
-
-读取实际约束与保护区，明确修改哪一项条件；不能自动解除锁定、删除孔或覆盖保护区域。
-
-代码：`PROFILE_CONSTRAINT_CONFLICT`、`PROFILE_CONSTRAINT_GEOMETRY_INVALID`、`PROFILE_CONSTRAINT_INVALID`、`PROFILE_CONSTRAINT_NUMERICAL`、`PROFILE_CONSTRAINT_UNSATISFIED`、`REFERENCE_LOCKED`、`RELIEF_BOUNDARY_CONFLICT`、`RELIEF_CONSTRAINT_CONFLICT`、`RELIEF_CONSTRAINT_INVALID`、`RELIEF_DESIGN_PROTECTED`、`RELIEF_PATCH_PROTECTION`
 
 ### project-store
 
@@ -5511,7 +5619,7 @@ frame 有且只有以下四种形状：
 
 任意世界位置/方向使用 snapshot。origin 是毫米世界坐标；quaternion 是单位四元数 [x,y,z,w]。sourceAnchor 可为 model-origin、bottom-center、bounds-center、point（另带 point）或 named（另带 anchorId）；优先按当前实体卡指定的插入锚点。不得发明 frame.coordinates 或把 origin 塞进 world。
 
-显式 placement 固定位置，禁止默认自动摆放。省略 placement 会冻结当前工作基准，并可能收到 AUTO_PLACED；设置工作基准后省略 placement 仍不等于精确放置。收到 AUTO_PLACED 必须以最终 bounds/量测为准。
+显式 placement 固定位置。省略 placement 冻结当前工作基准；Agent 与 UI 均不额外向 X 轴自动排布。工作基准未锁定且被新模型占据时仍会沿 Z 避让，影响下一次省略 placement 的创建；连续精确建模请先归零再锁定基准，或每步显式指定 world/snapshot。排布独立模型时由调用方明确给出各自 placement，不以避让改变设计坐标。
 
 只读预检为 Page api.resolvePlacement({context,op,params,refs:[],placement})；MCP 为 webcad_read(method:'resolvePlacement',args:同一对象)。返回不计算几何，成功不等于实体已创建。
 
@@ -6371,7 +6479,7 @@ files.release: contextPolicy=none
 
 ## api.query-geometry
 
-queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,limit:20}) 返回精确 BRep 候选、总数、分页及快照绑定令牌。face.surfaceType 筛选支持 plane/cylinder/cone/sphere/torus/bspline/bezier/revolution/extrusion/offset/other；edge.curveType 支持 line/circle/ellipse/hyperbola/parabola/bspline/bezier/offset/other，也兼容内核原始小写类型（cylindre、bspline_surface、bspline_curve 等）。返回 geomType/surfaceType/curveType 保留实际内核编码。plane 另包含已证实共面的 BSpline（planar=true）。normal 和 atExtreme 仍仅适用于可识别平面；非平面不能伪造统一法向。BSpline 返回 spline 次数、控制点数量与节点数量，尚不返回完整控制网或 G0/G1/G2 认证。圆边返回 radiusMm/center/axis；radiusRangeMm 不适用于椭圆。拓扑编号和 selectionToken 只属于返回的工程实例与 revision。改模型后重新查询。 新筛选 bounds:{min:[x,y,z],max:[x,y,z],mode:"contained"|"intersects",toleranceMm?:0.000001} 使用世界坐标 BRep 包围盒；默认完整包含，不是实体体积相交证明。边支持 adjacentSurfaceTypes:["plane","cylinder"]，按实际相邻曲面类型匹配（两项要求两个邻面）。onFaceToken 限定当前面后可用 loopIndex，边返回 boundaryLoopIndices；环索引仅当前修订有效，不猜内外环。解析柱面返回 cylinder:{radiusMm,origin,axis}。expectedCount 为正整数，与匹配数量不符返回 SELECTION_COUNT_CHANGED（0 匹配为 NO_MATCH），报告 matchCount/expectedCount，且不创建选择令牌、不进入加工。
+queryGeometry({context,bodyId,kind:"face"|"edge",filter:{},requireUnique:false,limit:20}) 返回精确 BRep 候选、总数、分页及快照绑定令牌。face.surfaceType 筛选支持 plane/cylinder/cone/sphere/torus/bspline/bezier/revolution/extrusion/offset/other；edge.curveType 支持 line/circle/ellipse/hyperbola/parabola/bspline/bezier/offset/other，也兼容内核原始小写类型（cylindre、bspline_surface、bspline_curve 等）。返回 geomType/surfaceType/curveType 保留实际内核编码，并另给 surfaceClass（cylindre/CYLINDRE 规范为 cylinder，PLANE 规范为 plane）。面结果的 center 仍是面积重心，柱面重心在轴线上、不能当刻字落点；pointOnFace 与 closestPoint 是该重心到修剪面的最近点，保证在面上，centerOnSurface 标明重心是否已在面上。targetSurfaceType 接受 cylinder 与 cylindre/CYLINDRE，仅大小写不同不算面类型改变。kind 为 face 时默认 requireUnique:true，多个面返回 AMBIGUOUS_SELECTION，同时附带本页 items 且不生成 selectionToken；列出候选请传 requireUnique:false。plane 另包含已证实共面的 BSpline（planar=true）。normal 和 atExtreme 仍仅适用于可识别平面；非平面不能伪造统一法向。BSpline 返回 spline 次数、控制点数量与节点数量，尚不返回完整控制网或 G0/G1/G2 认证。圆边返回 radiusMm/center/axis；radiusRangeMm 不适用于椭圆。拓扑编号和 selectionToken 只属于返回的工程实例与 revision。改模型后重新查询。 新筛选 bounds:{min:[x,y,z],max:[x,y,z],mode:"contained"|"intersects",toleranceMm?:0.000001} 使用世界坐标 BRep 包围盒；默认完整包含，不是实体体积相交证明。边支持 adjacentSurfaceTypes:["plane","cylinder"]，按实际相邻曲面类型匹配（两项要求两个邻面）。onFaceToken 限定当前面后可用 loopIndex，边返回 boundaryLoopIndices；环索引仅当前修订有效，不猜内外环。解析柱面返回 cylinder:{radiusMm,origin,axis}。expectedCount 为正整数，与匹配数量不符返回 SELECTION_COUNT_CHANGED（0 匹配为 NO_MATCH），报告 matchCount/expectedCount，且不创建选择令牌、不进入加工。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 reliefWizard: contextPolicy=identity
@@ -21018,6 +21126,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "高级放样",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -21035,6 +21144,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -21295,7 +21405,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:3e3212f6053e5e69da5d8abbbbebeacf9ad56ee14f5768982851a8017eacd240"
+  "docsHash": "sha256:d38fda59da0a4a6cd46e0d83176e4039b3b6fb66a2a9f4c1ca0262f6e4676f03"
 }
 ```
 
@@ -22043,6 +22153,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "解析线弧轮廓",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -22060,6 +22171,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -22352,7 +22464,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8e2902e53bd769db0ef484b35faf8ad7225ff3b914d750e6bd743bf959bfe62c"
+  "docsHash": "sha256:1929588b1aac94bc5908c57f56409f9596dc525dec07e2757b9a0d2b5f647fbb"
 }
 ```
 
@@ -22769,6 +22881,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "整件圆边",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -22787,6 +22900,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -23063,7 +23177,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:b192242d1b6d6d0d34d0d56acd468835786e18d8c97998a3740b29de854d4168"
+  "docsHash": "sha256:2d6498eec3c5c066e5a73d71861ea650b5e1f4b3217bc3ebf17f854bdbee1fef"
 }
 ```
 
@@ -23626,6 +23740,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "牌仔工具",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -23644,6 +23759,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -23920,7 +24036,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:94e33142f8ce315015751c7496e56b269263cb2ba2f0b0dcb907ded971b091a9"
+  "docsHash": "sha256:3a991b70d9353ac8984b6101a7f15c41c38504d614b6a672435e97e276e74b8d"
 }
 ```
 
@@ -24375,6 +24491,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "长方体",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -24392,6 +24509,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "bottom-center",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -24648,7 +24766,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ac97e0e6ab1d9ab521cf311144b30aec5f21c90ed7630cc4ce3fb116ceb22524"
+  "docsHash": "sha256:b94d1cb651ce31c65076aadd1d7dded64b160d8fabddb0a6469ad7743d22548d"
 }
 ```
 
@@ -25238,6 +25356,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "批量凸点",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -25256,6 +25375,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -25532,7 +25652,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:c414a7e6eaa61cc70b9e561d3afff931b63101fc27195be53b6174aa2ff21b75"
+  "docsHash": "sha256:7e5696229687e7c2295ec4f190681cbf7e8879087dc35c3e41e62ce9cea8938c"
 }
 ```
 
@@ -26210,6 +26330,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "倒角",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -26228,6 +26349,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -26504,7 +26626,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:4a788736f6422cec21d1d086c8db5460efa520b01215bd94ac5cc14b0747deef"
+  "docsHash": "sha256:95143c548cf23aa30d88c7b7af17e825d6ef639e85b91cb994967c7fb092ecfc"
 }
 ```
 
@@ -27049,6 +27171,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "环形阵列",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -27066,6 +27189,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -27334,7 +27458,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:679b3629cc4ba59478305d88113f06cb4c3ec8993ded255ffbf4b68d2722c063"
+  "docsHash": "sha256:eed462b3666d6693abf20869e8ba83609009635837de0da21f81687aa8c963ba"
 }
 ```
 
@@ -27825,6 +27949,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "圆线弹簧",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -27842,6 +27967,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -28139,7 +28265,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d84537871ec9c71eb69fe2bde9621aa2fa2fc129dd62e09dfeda94a9b03fd86e"
+  "docsHash": "sha256:235d5bb116b5587d2d0bb3ffc784fd87b92e523265e406c7167bca22d1247b47"
 }
 ```
 
@@ -28616,6 +28742,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "圆锥",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -28633,6 +28760,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "bottom-center",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -28889,7 +29017,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8517489af43a7e5a2b46de623520d2b500e6ac145f3e3b0e53de34bb21e2e9d1"
+  "docsHash": "sha256:769befe28acc6e4c2cf19a78dbb92a1005f769695c685da793f53b364272a089"
 }
 ```
 
@@ -29775,6 +29903,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "复制",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -29792,6 +29921,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -30060,7 +30190,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b662a16956a65105d1b0409c687b43aaaa8a1b36446dd8860380e1f9095e41e9"
+  "docsHash": "sha256:662621a2c4cbc0371d18f7bf5e7222cb8e299dcec1078e0659d14ec188a28cf7"
 }
 ```
 
@@ -30288,6 +30418,22 @@ files.release: contextPolicy=none
                       "properties": {
                         "kind": {
                           "const": "spline"
+                        },
+                        "coordinateMode": {
+                          "type": "string",
+                          "enum": [
+                            "millimeters",
+                            "normalized"
+                          ],
+                          "description": "Default millimeters preserves points2d; normalized fits the profile bounds to station widthMm/depthMm."
+                        },
+                        "interpolation": {
+                          "type": "string",
+                          "enum": [
+                            "polyline",
+                            "periodicSpline"
+                          ],
+                          "description": "Default polyline preserves legacy geometry; periodicSpline constructs a closed periodic interpolating B-spline."
                         },
                         "points2d": {
                           "type": "array",
@@ -30810,7 +30956,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Profiles are sampled into 64 corresponding points. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path.",
   "title": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
   "category": "creation",
   "synonyms": [
@@ -30821,10 +30967,13 @@ files.release: contextPolicy=none
     "截面站",
     "stations",
     "sections",
-    "截面扫掠"
+    "截面扫掠",
+    "pipe",
+    "圆管",
+    "沿路径圆管"
   ],
   "description": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
-  "schemaHash": "sha256:f38451d896e94a62bcbf12eaf1bd7f0c646c5eb443acf52a1f52df03637a7ada",
+  "schemaHash": "sha256:359becb2ccbc5221a1bc8e7ca3a0d1878b4696415f37599b6feebd146dd76fd2",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -30885,7 +31034,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Profiles are sampled into 64 corresponding points. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid.",
+    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -30983,7 +31132,7 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
     "whenToUse": [
-      "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Profiles are sampled into 64 corresponding points. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid."
+      "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path."
     ],
     "whenNotToUse": [
       {
@@ -31460,7 +31609,7 @@ files.release: contextPolicy=none
   },
   "purpose": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
   "whenToUse": [
-    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Profiles are sampled into 64 corresponding points. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid."
+    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path."
   ],
   "whenNotToUse": [
     {
@@ -31529,6 +31678,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "曲线扫掠",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -31546,6 +31696,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -31806,7 +31957,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:14e431b1aa7e51711e691b5f1352f13d6f4c74b4b3acd4ff3be97d63e47d5063"
+  "docsHash": "sha256:44794a2db1877f5369913fc34a2ef7d979401cbcce0d6644908df18edd251d2a"
 }
 ```
 
@@ -32771,6 +32922,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "deprecated",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "deprecated": true,
   "replacement": "logo",
   "label": "曲面 LOGO",
@@ -32791,6 +32943,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -33099,7 +33252,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:090fd603e9c23d91d3f373b94ec08c51bffc1eb7ee7b2fbf925dfda0ee76b40d"
+  "docsHash": "sha256:8a389ac2281bda27758f16d7cc5d61d9bb3a787697baba5bb0cdbb39b94d3f9f"
 }
 ```
 
@@ -33577,6 +33730,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "相减",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -33595,6 +33749,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -33879,7 +34034,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:a59da6bfdb9a5be560b93c01f3937558dc09238af48512f2da35839befafffe1"
+  "docsHash": "sha256:3c038275ce811493eb9197885ea843f21c421b15d2b374f03f8176a44bb812e4"
 }
 ```
 
@@ -34309,6 +34464,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "圆柱",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -34326,6 +34482,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "bottom-center",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -34594,7 +34751,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5538be26386b2c605c9423f5bf61cd15f03a9b4b45e58149e49c50a27aeffb4c"
+  "docsHash": "sha256:435df159530440be4ac8998d38038b73796b724dd2f173481b730387af8c078f"
 }
 ```
 
@@ -35203,6 +35360,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "平面拔模",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -35221,6 +35379,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -35518,7 +35677,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d052a17d8c42235eedbdd2bcae4792cbfbac03cc1afe3617845eb2cf36e5da5c"
+  "docsHash": "sha256:f8ec3a0a9e59a005ecfadeaa63bbe05e08b6c61dae447eed134cf090bca9db71"
 }
 ```
 
@@ -36068,6 +36227,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "受限拔模",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -36086,6 +36246,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -36382,7 +36543,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6c37e47e7445f8f56d54186d97692d266c45942459cfbe59ed92fb2b3931dc72"
+  "docsHash": "sha256:218badb508be19d7df716ffbecbfec942d15f56d3ff0611f04bd67bf5840d105"
 }
 ```
 
@@ -36840,6 +37001,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "椭球",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -36857,6 +37019,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -37113,7 +37276,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:99d29a4aebb964caa02e4166e80413f9d5d82f40432270c717ee88dd3dfb7ad3"
+  "docsHash": "sha256:154f9c9bd37df81f6aaa45bc4f42e6081ee7809d851a399cd8f3778783f04562"
 }
 ```
 
@@ -37550,6 +37713,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "提取指定面",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -37568,6 +37732,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -37836,7 +38001,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8580b2fe8beaea3379489944bbd85b48e4d0f89f2fe8a6718670cf9550d1a070"
+  "docsHash": "sha256:a7f2d6a47648bea481ae18ab54aab39fffcda3a29171df032d299514852e6e57"
 }
 ```
 
@@ -38252,6 +38417,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "提取壳",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -38270,6 +38436,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -38538,7 +38705,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:65c97bf01e2c765802f39f1bdb36a40d6ed8d074cd8204bb83e5994f5914f474"
+  "docsHash": "sha256:87b84b1f86674511f2f73d74070555e5acf6fe7d80be169b6a3686ccf69b6417"
 }
 ```
 
@@ -38968,6 +39135,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "提取实体",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -38986,6 +39154,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -39262,7 +39431,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:cddb8aa9c8bdfe8347f2d5ada56a06ca86e7c6af72457f4a237e7f6a9018d077"
+  "docsHash": "sha256:d83e1772daba3486011ed9e423b7afca5c74aaf03a56867e0b6f7e3be2a3d3cf"
 }
 ```
 
@@ -39881,6 +40050,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "拉伸",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -39898,6 +40068,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -40162,7 +40333,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f7221bf92f48a421f4183e569e1e8c42192bc94e61d9beaf764b9a208d87abb7"
+  "docsHash": "sha256:805980fc21614c068d4ba8656519bab012bdcc4cab3ca6cae13328d95577b2e2"
 }
 ```
 
@@ -40590,6 +40761,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "提取面边界",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -40608,6 +40780,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -40892,7 +41065,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c922778448d240b0dd5f68fec427b0a4bdd3e4f95f7b19f7b524605249cad1a5"
+  "docsHash": "sha256:21ffcb9d9007fb0421450ed021ab43e5efeb565a3cb49f9213588bf5c8634535"
 }
 ```
 
@@ -41323,6 +41496,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "面上拉伸",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -41341,6 +41515,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -41593,7 +41768,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0d70e5971580423acabf4e58b79490b66865fc4e497a2a93538db440a0574032"
+  "docsHash": "sha256:a3abbd26dd0f709a1883a736689c4d1f9e00bff5c869b6bdfe38b6485cf77079"
 }
 ```
 
@@ -42086,6 +42261,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "锣槽",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -42104,6 +42280,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -42397,7 +42574,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:76dea7d3034ff256557527271b08c63b3aecf84f5074471f99cafcb177252fdb"
+  "docsHash": "sha256:0d1034dc528a23931ffcd50bc745c369e80a0d20d02991557f83c681a499cc0a"
 }
 ```
 
@@ -43007,6 +43184,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "面上打孔",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -43024,6 +43202,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -43316,7 +43495,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:03374df8caf23143b237f244cc564b2140d6278f6db764d7af91653a0235192b"
+  "docsHash": "sha256:40b232a1af9cad7476520e1a760086c4303d8f42a3acee29a65e78c7a44161dd"
 }
 ```
 
@@ -44134,6 +44313,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "圆角",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -44152,6 +44332,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -44428,7 +44609,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:0a46a0c7ce6b8734cd6a120541724a21ae0f7ee5b1e7c800f6ca96d04d1ccca4"
+  "docsHash": "sha256:ffd49ad6b03cea782380ef285645612425f77f957720b4f18fcc08cf7b7094f4"
 }
 ```
 
@@ -45084,6 +45265,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "拟合曲面",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -45101,6 +45283,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -45369,7 +45552,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ad321983dd10debf63e5440d35b2ca3e7fac804c565e906f5ba9e4b95e529524"
+  "docsHash": "sha256:34c0e45311df8faefffb7f7e75536066bf24643c94888c6bd423fc234abcc22d"
 }
 ```
 
@@ -45758,6 +45941,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "组合",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -45776,6 +45960,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -46056,7 +46241,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:d9bf3c5c102b3e7758b02cf39f2039dfe7dcae355809b2fae036b63575c03fa5"
+  "docsHash": "sha256:77054c662cc8394abcfb3fcd937d90b7e09f3838399e0098f9c65d5d56c2d10a"
 }
 ```
 
@@ -47245,6 +47430,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "导向放样",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -47262,6 +47448,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -47522,7 +47709,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:e22894da01c35fb26fdbdcb74be8333f0ce9c4f655af03ff9ac47fc81ec3a2ef"
+  "docsHash": "sha256:dd25f7664c2a2ec3f81244ae346037c2624a7092805f8c0dbd7cc66f59969523"
 }
 ```
 
@@ -47990,6 +48177,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "螺旋线",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -48007,6 +48195,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -48304,7 +48493,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6b962571b1f8d8b2726849d6093dd8388e841c8ab45d4f830df877bc4894a4ef"
+  "docsHash": "sha256:8c2f3f6145ccd2d770448d0b6873518c6a08f815ae20edb0cde64cd149076e2a"
 }
 ```
 
@@ -48887,6 +49076,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "打孔",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -48904,6 +49094,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -49196,7 +49387,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1df7cee3c2b054b77d5f25ad39c284391f7de886c594748acba6499f2e134357"
+  "docsHash": "sha256:0ab8f0620c2efa6f42eab8c400b7e349978dbb9ebaa615ff5d35586ad603cb11"
 }
 ```
 
@@ -49933,6 +50124,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "孔向导",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -49950,6 +50142,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -50250,7 +50443,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4162a96a2a12c8dff12d1ba64889eb0b0258d7372ee1da4f3949b58576e0a13a"
+  "docsHash": "sha256:52e1a39badd28f0f938b839bf2c371d81c118649d6e544427f0d144da7440854"
 }
 ```
 
@@ -50621,6 +50814,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "导入",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -50638,6 +50832,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": "registered-file-only"
   },
@@ -50900,7 +51095,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:371b2a5e274fe2c99dc8d6d67bf81d2e81037abef89f5bc14d02fe7813310d0f"
+  "docsHash": "sha256:16733d3133ed1b7816883eec43fb795cf54d5802a663a1580e34dbb258edcda8"
 }
 ```
 
@@ -51370,6 +51565,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "内车",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -51388,6 +51584,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -51681,7 +51878,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c306dfde472d974b02ec79564def60d1ea4cc9b2975d97840d57586c918e0cdf"
+  "docsHash": "sha256:a45e590d8900ace8dbef04714ee37c4be514fd5d41d51ef696857a7d0f19bc3a"
 }
 ```
 
@@ -52090,6 +52287,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "相交",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -52108,6 +52306,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -52384,7 +52583,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:9284cd227006c00e6c891528db88a8d6c1785904a29e654f0300f2344e3418c3"
+  "docsHash": "sha256:e83281533201974ab78f852c52eaddcffdedb2dd9ab2a8ae9a6d4828b42229cb"
 }
 ```
 
@@ -52883,6 +53082,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "直线阵列",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -52900,6 +53100,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -53168,7 +53369,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3ab792b9841dd8b05a0ed50fa12d10bf97f85e31ddf332103bbe34745b317bdf"
+  "docsHash": "sha256:74c2bece4bd43259d1b0816be18a6400ba8b4078bbf7a7b1df64e931e93bd4fa"
 }
 ```
 
@@ -53742,6 +53943,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "放样",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -53759,6 +53961,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -54019,7 +54222,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:de4b12117cdf0439a832cb71716a5ef98c892c2dcf8f1f5938aff6465c5ca754"
+  "docsHash": "sha256:ba007c7603559925fc4f2367749c685a32341088ca1e51eb182a3d6a9ebf91d7"
 }
 ```
 
@@ -54062,7 +54265,8 @@ files.release: contextPolicy=none
       "targetSurfaceType": {
         "type": "string",
         "minLength": 1,
-        "maxLength": 40
+        "maxLength": 40,
+        "description": "Kernel geomType or canonical class. cylinder accepts cylindre/CYLINDRE; plane accepts PLANE. Case alone is not a surface-type change."
       },
       "targetFaceArea": {
         "type": "number",
@@ -54386,7 +54590,8 @@ files.release: contextPolicy=none
     "required": [
       "faceId",
       "mode",
-      "depthMm"
+      "depthMm",
+      "machiningIntent"
     ],
     "additionalProperties": false,
     "anyOf": [
@@ -54462,7 +54667,7 @@ files.release: contextPolicy=none
     "LOGO"
   ],
   "description": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
-  "schemaHash": "sha256:fcd8e241d1078025c1f3e5318dba50e11efd7016112e29a7a3ffe0f4d2f4389a",
+  "schemaHash": "sha256:7441bfee455f0e8f4e67ebf358a46c824c712e2bdabd45bf777f3520cc7109e6",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -55261,6 +55466,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "LOGO",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -55278,6 +55484,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -55586,7 +55793,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:fa9e3b6e4545101d689c58a88263ca462520d2469219d2398ffdb92e8e8c0864"
+  "docsHash": "sha256:23f2ae000881f2ef622170d74a4277ea9194f7abbb5d8d90131abe869666aa62"
 }
 ```
 
@@ -56127,6 +56334,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "网格布尔（STL）",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -56145,6 +56353,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -56421,7 +56630,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:0d3afa67f44608a5c71cddde7494ba5dc62007e9c4d2fd479c77de63bd42312b"
+  "docsHash": "sha256:44aab5bb8f4970e66ec19f4cf56db6ea66fbe1b79c54a2ab8d7676650ceedc5f"
 }
 ```
 
@@ -56641,7 +56850,9 @@ files.release: contextPolicy=none
     "depth map",
     "photo relief",
     "meshHeightfieldRelief",
-    "高度图浮雕（网格）"
+    "高度图浮雕（网格）",
+    "heightfield",
+    "高度场"
   ],
   "description": "高度图浮雕 / Heightfield relief",
   "schemaHash": "sha256:57af650f5511ca7f4fc342b87ab2f0f615f12cb31cb128b1927ba0faa828a19d",
@@ -57302,6 +57513,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "高度图浮雕（网格）",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -57319,6 +57531,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -57627,7 +57840,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:888fc60f52d0bd68c81112b887d4396e7f7491070291f365adfeeabfda7fedcc"
+  "docsHash": "sha256:4649cc45211e2b35dad8ff05afe1b1e0dae6038c99392eb98c1c91533f19734f"
 }
 ```
 
@@ -59703,6 +59916,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "网格局部修高",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -59721,6 +59935,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -60029,7 +60244,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:9964a3e48c3cd6721fe282abf85a0295ec191c4ee4779558223e11601669becf"
+  "docsHash": "sha256:05aa7e45797252e3dbbce2e9c379ffc6640055690ef8b1b7f0bc0272f8013df2"
 }
 ```
 
@@ -60646,6 +60861,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "网格底板（起伏点）",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -60663,6 +60879,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -60971,7 +61188,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:a8c3a9352ec64021ab502b4eea7b78937ce3564750a3706b3c56b7b161bb64c0"
+  "docsHash": "sha256:3e5d878cf7f22e71c907b1efc5ddd98682f785e913006d2042c08d79014a5fc8"
 }
 ```
 
@@ -61502,6 +61719,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "镜像",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -61519,6 +61737,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -61787,7 +62006,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4eb8f1d25115e78ba1cafaf5c3437bc9a09903402c3b4d483d45801c01576af8"
+  "docsHash": "sha256:f29d0001a526d71e6404b17a80b6282ab09f5218520aa934e64fdc22e6563f88"
 }
 ```
 
@@ -62399,6 +62618,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "批量圆柱凸台",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -62416,6 +62636,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -62708,7 +62929,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5aa3954c3a2cb705eda1e506ce3e1dad3e6e325f251887a23a56a82b752c4653"
+  "docsHash": "sha256:fb7b728d42509ed03ae5e438996d2066195794c15b018b75b13c8bfbd763a635"
 }
 ```
 
@@ -63383,6 +63604,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "多位置打孔",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -63400,6 +63622,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -63692,7 +63915,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:20af2f19a86475667ccbe44e4ca560e79e921efcbc7c4503f057f33cae6618af"
+  "docsHash": "sha256:bd730bd9d545deff59175cffc6d533c6f85b9ac107e5874e2677dae8df8eaadf"
 }
 ```
 
@@ -64353,6 +64576,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "批量矩形凹槽",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -64370,6 +64594,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -64662,7 +64887,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e2a8b82d2e75bfca83568f5c7feaf9a1b81f21b5b691e26230e50883dac6f0ac"
+  "docsHash": "sha256:b35348606c20928e0352be9030feb109038c71f48dd44928389e69ad80650a5f"
 }
 ```
 
@@ -65104,6 +65329,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "实体偏置",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -65122,6 +65348,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -65391,7 +65618,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f506fee1b73ed1cbb7f212318e30d4ca2045183a9524e600208db99af93481ea"
+  "docsHash": "sha256:7ef6f472bee887b6698f9b77d2aeef48ae8685fa38b032026b42781f2315ea83"
 }
 ```
 
@@ -65833,6 +66060,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "偏置面",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -65851,6 +66079,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -66120,7 +66349,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a5e8897ffaebd69af9227217a6ac8b168883df8a7ac5e407458af11579a6fd86"
+  "docsHash": "sha256:1a50ec70d7f27c6414443790b2ba3586ad3fb5ca84d5e784b0c5dd006f9c58b0"
 }
 ```
 
@@ -66590,6 +66819,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "外车",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -66608,6 +66838,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -66901,7 +67132,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:05296889a23521b61d4568846af6273b2970c105c53564b13dfa0cf4c8199509"
+  "docsHash": "sha256:7dab86aa15ea53acad74f957d923715012a63046b218824882bbf3e578c93ecb"
 }
 ```
 
@@ -67332,6 +67563,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "提取真实截面",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -67349,6 +67581,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -67633,7 +67866,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:da575922c85a97d7510d9e9ff3e3466c8d7eb831655bf42b3f0f92d00daa5c74"
+  "docsHash": "sha256:c1042d2b433d754b656348f952a0d44c916f6f59347046f6a028d28f8d884a37"
 }
 ```
 
@@ -68985,6 +69218,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "约束尺寸",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -69003,6 +69237,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -69296,7 +69531,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:48c04fb2c0218ff44a1d61181bd0802b4b4e18d17494749a7d2e9293e8e6f91a"
+  "docsHash": "sha256:3d0848c0ba794626de46f7df7ba1aabf8e3dcafec97e529c4ae3a03227c8cff4"
 }
 ```
 
@@ -69862,6 +70097,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "轮廓拉伸 / 加工",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -69880,6 +70116,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -70145,7 +70382,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1769fdc64be2277f06e2911290a5f81ff67f5ab44f0beab6aa9e4d93e461dc2d"
+  "docsHash": "sha256:15c9a3450ac2fb37a5a8209899a62cc74863abac0c1463fa0ebdaa8149bd7ebf"
 }
 ```
 
@@ -70615,6 +70852,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "轮廓放样",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -70633,6 +70871,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -70894,7 +71133,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:0a0b0192a9b33f9a2bc7df4c75c575974518ee20a98376e37fef193daf578f43"
+  "docsHash": "sha256:1603a0acd6f24c173ab8a63874482335bab7649e893ff6541f6bbb7f333e4dba"
 }
 ```
 
@@ -71383,6 +71622,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "等距偏移 / 边框",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -71401,6 +71641,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -71685,7 +71926,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:54525f88ad9539876f6ca22684550e4c410a6d0abdb46e37e4f2cf40a43d24d0"
+  "docsHash": "sha256:4c95c5141aa3f26420b857b04e0eaf5735d3a1c2f7492ec3f54d984a818c4340"
 }
 ```
 
@@ -72124,6 +72365,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "修复轮廓",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -72142,6 +72384,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -72431,7 +72674,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a027b20783ec715fb8e5255b9aa0213f35f56efa62cc8ba4cc3bea116af6defb"
+  "docsHash": "sha256:a6c27c586e35d304baa68755c3c5a752b35226f2da7fb09f7d22f52e22fc3ce5"
 }
 ```
 
@@ -73012,6 +73255,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "轮廓旋转",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -73030,6 +73274,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -73283,7 +73528,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ccd60fe57408a3dc925f29485f2b40f318e725355a810e17a9e3ab92aeeea4b"
+  "docsHash": "sha256:fba2fa1af9bf4aed058d13d6921fa62bcd6cd9f0b0077ec633d3f6099a790207"
 }
 ```
 
@@ -73778,6 +74023,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "轮廓扫掠",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -73796,6 +74042,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -74057,7 +74304,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:4cf85e44fecb0645453eca22edd5691f921401fd91f775bb003f0f1235480666"
+  "docsHash": "sha256:0f523dabb14be411ec11b4de3ff44c6bd23220ca2974f3f78c555e0a57b2dbc9"
 }
 ```
 
@@ -84867,6 +85114,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "快捷模型",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -84884,6 +85132,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -85140,7 +85389,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3eaab1930f91dd624623555df532ca95238c9009c637fe83078a784a02e6c1a3"
+  "docsHash": "sha256:e9e0d55e79b104c1e640c89e93c0ccbe0c2cf3321a4702b998a2580bcb758cfa"
 }
 ```
 
@@ -85596,6 +85845,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "参考轮廓拉伸",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -85613,6 +85863,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -85865,7 +86116,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a5ab61bd5ea81030da0d15cb2ca32e27a74aad60a6440a198c826febbbbdffe4"
+  "docsHash": "sha256:2d44ae558df91ab8c23a78d0b67c42371189ceb2863afdc8c9c172e68e187448"
 }
 ```
 
@@ -86279,6 +86530,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "参考截面放样",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -86297,6 +86549,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -86557,7 +86810,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:77b93ff3049b4abc9ea461d86d1b1ad66d3aeb744750777bd17fd259a2b2a357"
+  "docsHash": "sha256:8a62a93c2b6231b0e9ad9624ec91dc52d63b4e8728ddd08b8db9512cd2831308"
 }
 ```
 
@@ -86995,6 +87248,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "清理分割线",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -87013,6 +87267,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -87290,7 +87545,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:c791fb3170b7b5f180326c311369fe486088b0047dcc85a7c4cecc560de8f9fd"
+  "docsHash": "sha256:fcddce8ff88eb4fc48d70f27f2acb0b28c953395fe4622800d95061e71fd9145"
 }
 ```
 
@@ -87307,7 +87562,8 @@ files.release: contextPolicy=none
       "faceId",
       "sizeXMm",
       "sizeYMm",
-      "reliefHeightMm"
+      "reliefHeightMm",
+      "machiningIntent"
     ],
     "anyOf": [
       {
@@ -88542,7 +88798,7 @@ files.release: contextPolicy=none
     "小图）"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:f94a3e051f5bcfdee8e69c6fce7cc59260ced74650aef4efc2e271ef2861a8a3",
+  "schemaHash": "sha256:86aaa4d6fafcc22f89a4ddae105a8f92d44ac21548cea890c1e2c925bb73ff56",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -89678,6 +89934,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "精确浮雕（矢量/小图）",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -89696,6 +89953,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -90005,7 +90263,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:e3b08c49e364c445fb2a5e85480b6d876f92c535548dc406e4aebbc78b679068"
+  "docsHash": "sha256:bfbfbbe9ea07ba9fa2f646062041e5d6647b4c34a5d5b38e4c21d83695013a48"
 }
 ```
 
@@ -90623,6 +90881,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "浮雕层肩部",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -90641,6 +90900,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -90949,7 +91209,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f56d52c4f8f85153ffbde165902f75e020e274920e710f720ca7edf48b64af61"
+  "docsHash": "sha256:2da1405bf2959069934c66df06a22a8d4b35292621782799259eb51488115170"
 }
 ```
 
@@ -91327,6 +91587,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "删除",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -91345,6 +91606,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -91623,7 +91885,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:99dbf492173d25fc97a6b2b95826a6dae4230b5b254f55716f730437d758203d"
+  "docsHash": "sha256:c61a4471458e5bfc76711f73633e782b6db3e80d907e4d6c644fd777663df42d"
 }
 ```
 
@@ -91734,7 +91996,7 @@ files.release: contextPolicy=none
       },
       "offset": {
         "type": "number",
-        "description": "Horizontal in-plane offset from rotation axis (mm)",
+        "description": "Signed distance from the profile local origin/center to the rotation axis; not an inner radius (mm)",
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
@@ -91782,7 +92044,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. XY revolves about local Y; XZ/YZ about local Z before feature placement. Defaults angle=360,offset=10. offset translates the centered profile horizontally in its sketch plane; it is not an inner radius. For a centered rectangle of width w with |offset|>=w/2: outer radius=|offset|+w/2, inner radius=|offset|-w/2; outer diameter=2*|offset|+w, inner diameter=2*|offset|-w. Example width=4,depth=5,offset=10 gives outer diameter 24, inner diameter 16 and axial length 5. A contour crossing the axis fails REVOLVE_AXIS_CROSSING at params.offset without committing. An axis-touching rectangle can form a solid cylinder. For a cylinder along +X use extrude with profile:circle,radius:r,height:L,plane:YZ, or explicitly rotate the creation placement; do not invent revolve.axis. General saved-profile rotation supports profileRevolve axisPoint/axisDirection.",
   "title": "Revolve a closed profile",
   "category": "creation",
   "synonyms": [
@@ -91792,7 +92054,7 @@ files.release: contextPolicy=none
     "旋转成型"
   ],
   "description": "Revolve a closed profile",
-  "schemaHash": "sha256:d509e5b503652a41ac5580a5d6d519191a4f2c23866756e39127c5223cfe4f6c",
+  "schemaHash": "sha256:f5fe891ace05c609ace02f52c207288fd0536399e838046e8562369995d235f6",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -91853,7 +92115,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis.",
+    "XY revolves about local Y; XZ/YZ about local Z before feature placement. Defaults angle=360,offset=10. offset translates the centered profile horizontally in its sketch plane; it is not an inner radius. For a centered rectangle of width w with |offset|>=w/2: outer radius=|offset|+w/2, inner radius=|offset|-w/2; outer diameter=2*|offset|+w, inner diameter=2*|offset|-w. Example width=4,depth=5,offset=10 gives outer diameter 24, inner diameter 16 and axial length 5. A contour crossing the axis fails REVOLVE_AXIS_CROSSING at params.offset without committing. An axis-touching rectangle can form a solid cylinder. For a cylinder along +X use extrude with profile:circle,radius:r,height:L,plane:YZ, or explicitly rotate the creation placement; do not invent revolve.axis. General saved-profile rotation supports profileRevolve axisPoint/axisDirection.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "minimalExample": {
@@ -91923,7 +92185,7 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "Revolve a closed profile",
     "whenToUse": [
-      "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis."
+      "XY revolves about local Y; XZ/YZ about local Z before feature placement. Defaults angle=360,offset=10. offset translates the centered profile horizontally in its sketch plane; it is not an inner radius. For a centered rectangle of width w with |offset|>=w/2: outer radius=|offset|+w/2, inner radius=|offset|-w/2; outer diameter=2*|offset|+w, inner diameter=2*|offset|-w. Example width=4,depth=5,offset=10 gives outer diameter 24, inner diameter 16 and axial length 5. A contour crossing the axis fails REVOLVE_AXIS_CROSSING at params.offset without committing. An axis-touching rectangle can form a solid cylinder. For a cylinder along +X use extrude with profile:circle,radius:r,height:L,plane:YZ, or explicitly rotate the creation placement; do not invent revolve.axis. General saved-profile rotation supports profileRevolve axisPoint/axisDirection."
     ],
     "whenNotToUse": [
       {
@@ -92043,7 +92305,7 @@ files.release: contextPolicy=none
         }
       },
       "offset": {
-        "meaning": "Horizontal in-plane offset from rotation axis (mm)",
+        "meaning": "Signed distance from the profile local origin/center to the rotation axis; not an inner radius (mm)",
         "unit": "mm",
         "range": [
           null,
@@ -92198,7 +92460,7 @@ files.release: contextPolicy=none
   },
   "purpose": "Revolve a closed profile",
   "whenToUse": [
-    "XY revolves about global Y; XZ/YZ about global Z. Defaults angle=360,offset=10; avoid crossing rotation axis."
+    "XY revolves about local Y; XZ/YZ about local Z before feature placement. Defaults angle=360,offset=10. offset translates the centered profile horizontally in its sketch plane; it is not an inner radius. For a centered rectangle of width w with |offset|>=w/2: outer radius=|offset|+w/2, inner radius=|offset|-w/2; outer diameter=2*|offset|+w, inner diameter=2*|offset|-w. Example width=4,depth=5,offset=10 gives outer diameter 24, inner diameter 16 and axial length 5. A contour crossing the axis fails REVOLVE_AXIS_CROSSING at params.offset without committing. An axis-touching rectangle can form a solid cylinder. For a cylinder along +X use extrude with profile:circle,radius:r,height:L,plane:YZ, or explicitly rotate the creation placement; do not invent revolve.axis. General saved-profile rotation supports profileRevolve axisPoint/axisDirection."
   ],
   "whenNotToUse": [
     {
@@ -92267,6 +92529,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "旋转成型",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -92284,6 +92547,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -92536,7 +92800,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:53efa4dc836bf3f21ebb87a0ce9b8122b2dfa2dd26b43b63fc2e6f9e0597a536"
+  "docsHash": "sha256:569a95cdfc9572c401609cb77f92f514d5b808037235030a7676b156165a7023"
 }
 ```
 
@@ -92998,6 +93262,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "圆杆接头倒 R",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -93016,6 +93281,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -93293,7 +93559,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:df966d3ba4c450d6e6542259e461a5e9f467ee37b32844319aa884864a343c9d"
+  "docsHash": "sha256:82a58308d48bb8d1cb1a63af6b37904793bcde8cb634d9be0aee65c8de0772ed"
 }
 ```
 
@@ -93986,6 +94252,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "圆润",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -94004,6 +94271,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -94280,7 +94548,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:75c7dd3cfbc8794d3d5a4e4100413efbd9911a3a193634c2e39e69418e0be9e4"
+  "docsHash": "sha256:76e799273d0256419e12c052462dd80cccf01b4e1d51d4b57cfe7b4fbf3ae8e9"
 }
 ```
 
@@ -94864,6 +95132,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "端头圆润",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -94882,6 +95151,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -95158,7 +95428,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:16466482a016a11c98c2489f9ff8d662f569eaf9262adea7494c4a423fa6c176"
+  "docsHash": "sha256:356b3a87c9ce68941fa3c1085cfe22d2434a5791939f1febf0ff91cf0b9de43f"
 }
 ```
 
@@ -96091,6 +96361,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "自动打磨",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -96109,6 +96380,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -96385,7 +96657,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:389ac35648a4b73b8eb0c4edc35b396a1344eeb6e7765722e4364001fae28189"
+  "docsHash": "sha256:61525ba8d6b815323c4b81aac63f3bcb2a0442eae2015f04e57b57d351c284af"
 }
 ```
 
@@ -96818,6 +97090,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "曲面缝合",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -96836,6 +97109,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -97104,7 +97378,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:26d3f4bf5728372e5a42e3f8db66dcf1e4fac7a2629232cda69251deba283b84"
+  "docsHash": "sha256:cce2b015e09feeaff2f80d307a3567c85070c36115c09a98ae9e07ef6e067af5"
 }
 ```
 
@@ -97198,7 +97472,8 @@ files.release: contextPolicy=none
     "Hollow body removing selected faces",
     "shell operation",
     "抽壳",
-    "壁厚"
+    "壁厚",
+    "thicken"
   ],
   "description": "Hollow body removing selected faces",
   "schemaHash": "sha256:601eb52cdadbb692ba338260abd9e5f23eca2960f26807b0b1bbb95b809378a0",
@@ -97605,6 +97880,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "抽壳",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -97623,6 +97899,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -97899,7 +98176,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c4af53cad8dd6992e587ec2e21961d6396c1fe0ca5c04e80e26082bc678e28c4"
+  "docsHash": "sha256:04fc396432aa60dd7d3197df768c68e6b1b0c61624047abe12017fa3d00221f9"
 }
 ```
 
@@ -98805,6 +99082,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "绘制轮廓",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -98836,6 +99114,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -99129,7 +99408,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4dcf7e0f66bc0d64c18154faa77e53121df36ac6a1943157b6f1eab3953848b7"
+  "docsHash": "sha256:88818dec6e68b6c4ae3326facf353cb4c076962b9a7d13c8f078ff6a5f715d88"
 }
 ```
 
@@ -99715,6 +99994,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "长圆槽",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -99732,6 +100012,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -100024,7 +100305,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8095dd4acc13c71707b33734c671b54929c214f9b2a7084b3d5a897726de5ccd"
+  "docsHash": "sha256:4b28b54fae9a74b7159477eba554bb30aee5699ee51b06231bc04fd44a70c6f7"
 }
 ```
 
@@ -100746,6 +101027,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "平滑过渡",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -100764,6 +101046,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -101040,7 +101323,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:718916e1e8712827c27fcb917cefd970eb60099708d8468f712c7f859f9c1488"
+  "docsHash": "sha256:2844949361770e817535a51f1e97e64a954cbdc2c317d2b91b9ac0b60a110d2d"
 }
 ```
 
@@ -101447,6 +101730,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "球体",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -101464,6 +101748,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "bounds-center",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -101720,7 +102005,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:746ad6f5af660bffd9f60044b1c41105e9656f44866eed79f06851566c24cc8d"
+  "docsHash": "sha256:0690ab9ca94e906cf791037bc0e34137deb4e059d9b7c7e2d3e9f9404be582ef"
 }
 ```
 
@@ -102156,6 +102441,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "分割",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -102173,6 +102459,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -102449,7 +102736,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:0087a14741446e72eb40a4ee4b141309783fba3aec69648fd9da97623770774a"
+  "docsHash": "sha256:14d38f3a2e9b39cca6a1c7b46fd4d0bf3f539e3d693b1f76fae39ce5a17020ea"
 }
 ```
 
@@ -103569,6 +103856,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "细分曲面体",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -103586,6 +103874,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -103854,7 +104143,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c4411a42825d47c567792ba4060b1bf55073e7c95d1b605838f46533e7ceadee"
+  "docsHash": "sha256:634d9843f780918eae9e5c29fe83497919f1c66afbdeed641fc9b9a5ed16f4af"
 }
 ```
 
@@ -104295,6 +104584,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "实体修剪面",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -104313,6 +104603,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -104581,7 +104872,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bd6924e5311e19d4bcc05160cb1893dfa89c405ff51415ab58408393f66cbfe6"
+  "docsHash": "sha256:86d4fe4a72e996ddf7cba9a9418da70f6deae40c0cefc46d8acf818ab0f3ea46"
 }
 ```
 
@@ -105202,6 +105493,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "扫掠",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -105219,6 +105511,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -105479,7 +105772,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:f52a78b56c75c5396f7fe9175e7fc46e1c58667311eed8bffe7da92c3798e1c3"
+  "docsHash": "sha256:5e3fa967ca5a59ad20d45f8984c9565efea78f4242f13c3c879ec99b35e108e7"
 }
 ```
 
@@ -106092,6 +106385,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "攻牙",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -106110,6 +106404,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -106410,7 +106705,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5b01fa5b3b2cca5156953100c4d4e7b9b1d41681e5aac3e1765329837efd7da0"
+  "docsHash": "sha256:2058f7615c58ff44a1446f9fb2e63d9c7bf3e58c299c54dd35632a9147ded016"
 }
 ```
 
@@ -106480,7 +106775,10 @@ files.release: contextPolicy=none
     "thickenFace",
     "Normal offset of one face into a new solid",
     "thicken Face operation",
-    "选面增厚"
+    "选面增厚",
+    "thicken",
+    "加厚",
+    "单面加厚"
   ],
   "description": "Normal offset of one face into a new solid",
   "schemaHash": "sha256:d88da15ed231d7a2a370e08432b3f5ceada4f904b00448da595696911bb8f2a0",
@@ -106843,6 +107141,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "选面增厚",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -106861,6 +107160,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -107137,7 +107437,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b80e11760042ae75f5b543095cf0f9e16b8a3f9e44e305dacffc9413c684153e"
+  "docsHash": "sha256:4c64c1828b06fa2501217713b66ed77b9d37834d35c01bfa1a0a5b91c101540b"
 }
 ```
 
@@ -107709,6 +108009,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "螺纹 V 槽",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -107727,6 +108028,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -108028,7 +108330,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a6221a354323b70e242b98f1fd3b9bbf2df1217510fc5673240e1f962a716c44"
+  "docsHash": "sha256:62946e416e7fac0cac4020daac80c6385bfeb89c893506a7830ea23416c9d7bd"
 }
 ```
 
@@ -108474,6 +108776,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "圆环",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -108491,6 +108794,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "bounds-center",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -108759,7 +109063,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8da903e6f964ad599b066ee1e114a473f2d7a5affd63fe26f1331c7b067f33a7"
+  "docsHash": "sha256:7e716de4ecd8934922ed3e2659b4a45a1eff5bcae62fd87c80855f1ebe62a391"
 }
 ```
 
@@ -109657,6 +109961,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "移动 / 旋转",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -109674,6 +109979,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -109951,7 +110257,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3ca3d17d61e904447142deb95c42b65c01a8291df101f8deb7db2785ac313826"
+  "docsHash": "sha256:a1c6698903b022e399cb8ffb83933d164ab5c94d4679f1c742d85ef397926149"
 }
 ```
 
@@ -110059,7 +110365,8 @@ files.release: contextPolicy=none
     "并集",
     "布尔合并",
     "布尔相加",
-    "boolean union"
+    "boolean union",
+    "boolean"
   ],
   "description": "Fuse bodies",
   "schemaHash": "sha256:0afca952356208fcc49b8df34e475eefcd8363536d6ba4b859a3ea71cb665c57",
@@ -110462,6 +110769,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "合并",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -110480,6 +110788,7 @@ files.release: contextPolicy=none
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -110760,7 +111069,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:81ca87c40bccb035de5879f4fcdc7f88444484495b74e457bb4131cbf0cd8e32"
+  "docsHash": "sha256:59f0845f63b349e722e1a41842bc4bb7107fc91cd7044da2c3c970b9d2036a62"
 }
 ```
 
@@ -111478,6 +111787,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "导入路径",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
@@ -111495,6 +111805,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -111787,7 +112098,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e6e21d4bbcbafe93749e3f7f1ade7917a699effca9fd8e256b9313bdb0140e3d"
+  "docsHash": "sha256:845a46e931ebb4c6a7945c8c0c28633aa7bf5c65f44902f8de50b5bd906b2ca2"
 }
 ```
 
@@ -111799,7 +112110,7 @@ files.release: contextPolicy=none
   "title": "高度图浮雕精修",
   "label": "高度图浮雕精修",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -111913,7 +112224,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f4a6674b26bd4e7ad109b16eb2e0090c06d606007c446dbd239d1f5f72c51355"
+  "docsHash": "sha256:660cb9d3d2fb42ec74a89ec8bd27705e15b2027206531dc3d378aae8d18a175e"
 }
 ```
 
@@ -111925,7 +112236,7 @@ files.release: contextPolicy=none
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -112039,7 +112350,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:585b08e43a3cd95df13f7d8d9997adc49c3a7a6d98509f4be94a8d04459c4481"
+  "docsHash": "sha256:fc382e5833bbe1e7d5e48b5cd8b4f5ec78a86aa9998a918c6e59a6e7b5d571b8"
 }
 ```
 
@@ -112254,6 +112565,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -112346,6 +112658,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -112631,7 +112944,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2aeae9888132da2a9a6a7a09e11a6b8d4f578a6edb2ddc4985ba722c0a6f18de"
+  "docsHash": "sha256:e4afd344add91e02639bef2422739a370d061463a0e1ee7b93a46ed14d6faae5"
 }
 ```
 
@@ -112846,6 +113159,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -112940,6 +113254,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -113217,7 +113532,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9910d2952d33acaefa6e793dde9dba89813d9b0dca638e4e7774c996e62859e7"
+  "docsHash": "sha256:f7d630fc7d4d454472db3e4dc1682ad49364fbb255c81a401843652533768b4a"
 }
 ```
 
@@ -113432,6 +113747,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -113510,6 +113826,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -113782,7 +114099,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3c1e299560c643afb97edde4f54b2f33fef8e48a69adb339899207b42670446f"
+  "docsHash": "sha256:beb24a3a56d31341c32577373d1ca8707454717c9d5712a139b0c311592c2451"
 }
 ```
 
@@ -113997,6 +114314,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -114121,6 +114439,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -114400,7 +114719,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2640a8bd164caf02b846e954e334beb53fa04f115c5dd238059fb56275dd3450"
+  "docsHash": "sha256:fd8bb439932a9ca389f38e798563d5ce647e15fdf7f34d82bf155698738c421c"
 }
 ```
 
@@ -114615,6 +114934,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -114773,6 +115093,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -115065,7 +115386,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7bd077824e3ce8d25616f617c88958498c190a2aa56ff47c959a962b6a7a6b22"
+  "docsHash": "sha256:0a7507a5918171f69b97ddc5e8b338fca511662232adb0383e48b884fe61bff7"
 }
 ```
 
@@ -115280,6 +115601,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -115388,6 +115710,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -115674,7 +115997,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:02da9290778e571e1a5d487c82b8983bae7bfde53b0df51e214acb7c663dd181"
+  "docsHash": "sha256:35778d068e6441171f094093ca10fcf8f77804ad8bf36ef42bb3df98958a9af4"
 }
 ```
 
@@ -115889,6 +116212,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -116047,6 +116371,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -116335,7 +116660,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0c9fe38f806dede79c6d94cd4613e604f38fe0c8d328f45a3b1eb8634aa653f2"
+  "docsHash": "sha256:b5bdbcecf3cac876c4b5e36f84d6bad5d92f36ba266acd1691b9f2b18ceea313"
 }
 ```
 
@@ -116550,6 +116875,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -116642,6 +116968,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -116931,7 +117258,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ec8d3e91cf8a89371707dc2bd19cc6951c008b5f7f03232ed23a9ec7d1f8d063"
+  "docsHash": "sha256:dd1ef1b32435c808ca32a10406fe0b0d7941b6967e5651be3f8c8fa36bf910fc"
 }
 ```
 
@@ -117151,6 +117478,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -117291,6 +117619,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -117587,7 +117916,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f6461f44728e343b038ff732cf83033e08d3904aa2f433ccc1370de175788da5"
+  "docsHash": "sha256:3b3ce9dc615f70fba03628a5ff0abe5aa4c201200aa1178c894744d98c33f3f5"
 }
 ```
 
@@ -117802,6 +118131,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -117960,6 +118290,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -118229,7 +118560,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:447ac2976bdd3ff51c498f97958e27481794319126a911c9f75fcd5aae8963dd"
+  "docsHash": "sha256:ead1930d6ebe0169403452d35446e53c2693bb6ef8b80bd6279bcbfd2e2ea7c0"
 }
 ```
 
@@ -118444,6 +118775,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -118618,6 +118950,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -118888,7 +119221,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f690df6e89a434318be2ac9c015ad0f1204d1648c9e4a8e1a11c6bbb9c10af23"
+  "docsHash": "sha256:b9aa19743e7e6f7184d21980a070a43c4233dd542cffd87d35060e9f481192d3"
 }
 ```
 
@@ -119103,6 +119436,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -119293,6 +119627,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -119563,7 +119898,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7e73858bbffdfff49181cef3bde9ed665b0ed32a971b1b33cbbed3f80645e366"
+  "docsHash": "sha256:616b5ba471f524582380e1810f6dc1f7672ba5e85f6441a4ffd534ec2f6de810"
 }
 ```
 
@@ -119778,6 +120113,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -119902,6 +120238,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -120169,7 +120506,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:635986ef0a733ba680cf471a174169b617c3f5a3cd5fc6bda1199717f6c7e852"
+  "docsHash": "sha256:7233d5ad3949c0415f3af424121c3b93ef576e67ecfba3f3af242ef675728682"
 }
 ```
 
@@ -120384,6 +120721,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -120558,6 +120896,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -120844,7 +121183,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e9d2919dfa224970b723f0bda2fa258e4f3c76a9f3a8496b344c53db4fa04e9c"
+  "docsHash": "sha256:0e90367c9643b70dbb991a0fc61b2845db8c41646d2e1bcfe48c005d6b6135ce"
 }
 ```
 
@@ -121059,6 +121398,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -121249,6 +121589,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -121535,7 +121876,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c6bf44945f3a392928ad9bb1f75b710d66d39045df84840065957eb0070c4eed"
+  "docsHash": "sha256:ff24032bc074229960eef223516138144a676ca41ae38bf26fcff80d73c0b862"
 }
 ```
 
@@ -121750,6 +122091,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -121892,6 +122234,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -122178,7 +122521,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fa811c5258631f40a32a92b97415c2bc5d098534020b94d96cbd06ddbaec45dd"
+  "docsHash": "sha256:50c8011e17361e9bf0402003094fb4a423c4671277eb23df7aa2fbb13079ba38"
 }
 ```
 
@@ -122393,6 +122736,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -122583,6 +122927,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -122873,7 +123218,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f0d168cec1fcf5752c11611942a3d148982c96f1953f1324df208ab2f5c926cc"
+  "docsHash": "sha256:31d741f98796370b33425dcca939cf778c93cce61e536224a6d46834ee4ba29f"
 }
 ```
 
@@ -123088,6 +123433,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -123180,6 +123526,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -123465,7 +123812,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f33af3cda27149616375c2dbf4417716e2abae0cd8238857e3da26948f198c30"
+  "docsHash": "sha256:9c50501903408b5df602e825a068b3dc5cfd1a5640451121a8f01f2366c24ed0"
 }
 ```
 
@@ -123680,6 +124027,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -123804,6 +124152,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -124091,7 +124440,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:31fa7cc627fc940e4e95659064fed168a4ca304077dc363e3d95b986cfc24089"
+  "docsHash": "sha256:f6527fdb97a84c35a92de8bcdfb067f4fe583a23ede791c524b60ce1e59505ed"
 }
 ```
 
@@ -124306,6 +124655,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -124496,6 +124846,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -124775,7 +125126,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:92051d2cc94585335a3bf59097702928522046560945a7970ae3607978bbafad"
+  "docsHash": "sha256:bae099be5ecfcd070abe7d08a5513d3cf8b008ce52e42d9bff8a34dfe39f250b"
 }
 ```
 
@@ -124990,6 +125341,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -125264,6 +125616,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -125603,7 +125956,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ba0924d39e08dd56f19999638c8a1ada0182ad742ddcd7c8a6d85fe263ed53de"
+  "docsHash": "sha256:2886f11dbb27b712468d77a27b88ea19433a7bfe3d9e398328535dab9b233180"
 }
 ```
 
@@ -125818,6 +126171,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -126008,6 +126362,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -126286,7 +126641,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7032069dce54e91c4686b3532a9f490ba38af7236b107cbabbe34c170746dd70"
+  "docsHash": "sha256:ac23d26330679766e7f6aa4f8144057bf4efc86676c1d590e180242afbb952ef"
 }
 ```
 
@@ -126501,6 +126856,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -126625,6 +126981,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -126900,7 +127257,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bd75280606073e479c953f7567510b941dfebf1a5ef48255a451250203116b1d"
+  "docsHash": "sha256:acab4e1c212832e3a62a0c074c65d47cc39333356f44d9d54feb9080d47781ff"
 }
 ```
 
@@ -127115,6 +127472,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -127303,6 +127661,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -127582,7 +127941,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1bec044f0642d5202e7a243265198ea001590f3d6649fb458cda46632f0d231e"
+  "docsHash": "sha256:bb081b7f6a59d622709890c6d37965d2662f8ab2e39c2f1ec794ea506545df3b"
 }
 ```
 
@@ -127797,6 +128156,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -127989,6 +128349,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -128268,7 +128629,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:aaa997135af9e183c5da11f044eb28ba4844c2d2025996d9bb8c67196dec5899"
+  "docsHash": "sha256:851c7bc18f0784df3d8f26ef6ba841e301985b35927b045fb6f352551a397353"
 }
 ```
 
@@ -128483,6 +128844,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -128649,6 +129011,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "bottom-center",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -128937,7 +129300,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:26b4ae80517ebd58614eed233859e80a5b520e55eef75d7b8c8af57d8562936c"
+  "docsHash": "sha256:60e1f8d2233a737d4eac459f2740652ba2065b292b7bdca8dea1e2762c51912d"
 }
 ```
 
@@ -129152,6 +129515,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -129302,6 +129666,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -129590,7 +129955,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1c7e6535bac742e55a03456d3b4796fbedd0a9947be404ad3846d55706aa758d"
+  "docsHash": "sha256:8559ff40b872d0d11016870a193715a04f9c437b614ee3ab118027d996367e1c"
 }
 ```
 
@@ -129805,6 +130170,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -129971,6 +130337,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -130260,7 +130627,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:22c269d507071258f778d0585cc5bdab0d96ee2a359bb71e9ce8f0e68e5dd8ae"
+  "docsHash": "sha256:cd292a6f7dc09525befbbc5cfc081e522b73c2adefb076ed2d711f14b4393825"
 }
 ```
 
@@ -130475,6 +130842,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -130655,6 +131023,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -130945,7 +131314,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5739fe64f266049a11e5f6c64aadb7186bda6374b71f3d31064ab389d188c086"
+  "docsHash": "sha256:8d0dc959e8e40c25286e55265d1bba02426df43e9bf41d0bef77cfed1f282874"
 }
 ```
 
@@ -131160,6 +131529,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -131427,6 +131797,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -131720,7 +132091,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e68e4705da3b75778f7285e458db844e19cd612f6d5ca4a234446fbb58ce59f1"
+  "docsHash": "sha256:27346591e82931288e0bf79e746f33d2d8f9531ee4411416178b21a075c186f0"
 }
 ```
 
@@ -131935,6 +132306,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -132153,6 +132525,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -132445,7 +132818,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5e58df576309e0d87497f1cfad6f35595238f82ac51ae10c7c20e5c7d4f24c9e"
+  "docsHash": "sha256:b5391277a6fa0d6e630f722dd087920165f5facf19a39a63665b21714b75efdc"
 }
 ```
 
@@ -132660,6 +133033,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -133006,6 +133380,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -133281,7 +133656,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ebcd72d901137bbaca3a0713c6faffa956638c0594fc1f97094e7659b70d91bb"
+  "docsHash": "sha256:cd57aac547fc49118d051a04e384dc72019a15f2fd2c63a68d8cf04999dcad50"
 }
 ```
 
@@ -133496,6 +133871,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -133631,6 +134007,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -133906,7 +134283,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:228c18cf09a99e427d25ba44dc71d0f4d535a4957624e3d020eaa8f6f45033a6"
+  "docsHash": "sha256:ea4819248500751b6c6459e40daf79344e545b2b4a4594d028d266cf891a2f27"
 }
 ```
 
@@ -134121,6 +134498,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -134339,6 +134717,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -134619,7 +134998,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:56292d8540b0c79dbb5026a5e1807344d62f27708b24e72417552b8b623fc108"
+  "docsHash": "sha256:f34a505e4b484c259cdf6fd1b2cd025c49c889aec70605e361bd85801b61e769"
 }
 ```
 
@@ -134834,6 +135213,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -135014,6 +135394,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -135292,7 +135673,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:053b950cea6038feebb19d62531db69a978ec38f8834c5cd11c82edb75baf333"
+  "docsHash": "sha256:c2fd012940e87e3791adeb25fbcb45d2eed355cf255c8f04eea1ea0598243132"
 }
 ```
 
@@ -135507,6 +135888,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -135636,6 +136018,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -135919,7 +136302,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e78f7d278be75ab98bbde6ba268d507b0ebc9537254d5b1637075168cc09498d"
+  "docsHash": "sha256:12e5b3fbe555f0c31041c7f1ccbc86f0b391d1e13c5f9505e8f9723bf286d193"
 }
 ```
 
@@ -136134,6 +136517,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -136370,6 +136754,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -136658,7 +137043,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e1a095047adbb7ac4ce18ccfcedfa7baf1445c33866c8bf4db7c2a8ded4125c2"
+  "docsHash": "sha256:0864bfafa8df268ffad643465ec45a35d1a4926b130f08fae399c843f1e1b28b"
 }
 ```
 
@@ -136873,6 +137258,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -137097,6 +137483,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -137381,7 +137768,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:583395e3a4b9fdab8859a801dcbfe06ecf89e1ed5ac716bd396d0d08f4fa0f28"
+  "docsHash": "sha256:f5fe46c2b73606ad510a629e00de4aa216a71a143ed4139b0d7d46c89d819a0b"
 }
 ```
 
@@ -137596,6 +137983,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -137715,6 +138103,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -138002,7 +138391,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4d565a466a779129a151e24f020a7828af517e29c19cf8e40e5b8c0364bcf1a2"
+  "docsHash": "sha256:41bd66ce69fe8cedb727647922bc4e558582df2ddfd933f8f27c2dd600269fc3"
 }
 ```
 
@@ -138217,6 +138606,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -138340,6 +138730,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -138623,7 +139014,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:891faffbc643fa2af7923b657b409f64774c6b98c6848f491ca34d4b499e2114"
+  "docsHash": "sha256:c690eb52229beacfe86c7211557818ecf3bd403baa914fa57ee08b65b8b5efcd"
 }
 ```
 
@@ -138838,6 +139229,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -139165,6 +139557,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -139439,7 +139832,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6fc651b799d2fda7dd31b3ebcee9188308670a4e8f450775d84902e29d9901be"
+  "docsHash": "sha256:926797403607f93a72afee38eee5251e7331bdb5724c09952e6d637e74f665f4"
 }
 ```
 
@@ -139654,6 +140047,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -139947,6 +140341,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -140219,7 +140614,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:81b7b8605d134e7f8c293f24fd39238362b995a5ef2dd6db70595b02c703a98b"
+  "docsHash": "sha256:895a436b7d16e41f5e0cc79c46b187085ffa08028e136cfa728d428bbdf24bef"
 }
 ```
 
@@ -140434,6 +140829,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -140852,6 +141248,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -141144,7 +141541,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:070bb7f69967f64a4314616e51ac5c79ddb4ed43976dd280abbf84c545a19f81"
+  "docsHash": "sha256:3ea361e7a62c350cc37dc76e4429028f1780ed0a6047c018a546cb9d7a94a62d"
 }
 ```
 
@@ -141359,6 +141756,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -141738,6 +142136,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -142028,7 +142427,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c71a0c0b8a536fc38d27750b765858c43424680e6df8cbf7d91e9f80755d1f90"
+  "docsHash": "sha256:f60743c1285e990b3fe9daa76b8f64458106a975e25bf0401d4424814844b0a1"
 }
 ```
 
@@ -142243,6 +142642,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -142456,6 +142856,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -142721,7 +143122,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:392eecd890caeac64c620c60aa618bf5a420f13e865ad5a7107b31743756cc11"
+  "docsHash": "sha256:0507f547bd6fa5f166c185a78cac5cc436f9cea309d88d04ba3951954d4f8a64"
 }
 ```
 
@@ -142936,6 +143337,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -143149,6 +143551,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -143414,7 +143817,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:94fc0e89292fd519b37c6d095cc374c1dcfeaac717579194d605f183e43b35f5"
+  "docsHash": "sha256:61f2ae0120e0d15e1f78b4ad0008797b7d0f48755bc7ef4d907b61adf143ec38"
 }
 ```
 
@@ -143629,6 +144032,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -143878,6 +144282,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -144145,7 +144550,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1e722012698d7796c4462482ed2f35ea730a1befc5f3584a80d0b5efae0ee18b"
+  "docsHash": "sha256:99a0bb1b691a858db412e02543cfce7a28b4a0c59ba732a24e0c26a60ce3894e"
 }
 ```
 
@@ -144360,6 +144765,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -144500,6 +144906,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -144783,7 +145190,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:91cf3c3d66b39646e415cefc8175b489716306d798e9199733fe7791077aeec3"
+  "docsHash": "sha256:5c777f94b2c4aac7da8d4fa95098843d6adc59dd2b5bac415faab44a4d814133"
 }
 ```
 
@@ -144998,6 +145405,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -145174,6 +145582,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -145464,7 +145873,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b3c888264c9655c9088477bd4c326aa6e6860462c955722ce839b69f614a6446"
+  "docsHash": "sha256:1dc6e0355d291dab43a5d25a4d329e140ca2023ce8aa241b820e5ece28a2b68b"
 }
 ```
 
@@ -145679,6 +146088,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -145871,6 +146281,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -146170,7 +146581,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c4eef07d9354a9e8dcf72b82db836e066b8faa9622a8d78b7db969675be82e6e"
+  "docsHash": "sha256:b6eda64f17afd57f69c547e71f08ebdf8adbe3216612c1518d282b264af1765d"
 }
 ```
 
@@ -146385,6 +146796,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -146595,6 +147007,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -146895,7 +147308,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1efcc78d9c1af655132a27d7ba72de667b519b735cd19f4de73af890d66ffac9"
+  "docsHash": "sha256:8c916404c845506dbb16e4098d28e73b2c9f4df2a94b7362f1540c8ac78c2945"
 }
 ```
 
@@ -147110,6 +147523,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -147254,6 +147668,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -147538,7 +147953,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2d5d9a38cd441ee07f1218d5774e528d0908e480bcea012f6ee424a26afb7b6c"
+  "docsHash": "sha256:7e6397b79a07f2ea6c843162daf36bee02b4149fa9221d12b5dcb18e53d5a26a"
 }
 ```
 
@@ -147753,6 +148168,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -147945,6 +148361,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -148232,7 +148649,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:aa17d975ce10100875c57f87976bbd0e003e41a0c8744564a4f5be22d3eb75c2"
+  "docsHash": "sha256:b907c5882437a14160ade80b664c9055b6d66e1586613094468111f6b296a628"
 }
 ```
 
@@ -148447,6 +148864,7 @@ files.release: contextPolicy=none
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -148623,6 +149041,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -148909,7 +149328,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6c2b3dd41c1ed8036bdfa89cb1290ac86ef79ec9af518d9c93514847e1db4b2e"
+  "docsHash": "sha256:531054c9f66f26ed44ffd4f71801a6f70759101e6b5ec728569e646c5d6ac424"
 }
 ```
 
@@ -148920,7 +149339,7 @@ files.release: contextPolicy=none
   "id": "reliefWizard",
   "title": "reliefWizard",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -149207,7 +149626,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:ba3289817ca55fe9ccf61eeb43c0d4e18bb6f7f65213ab682000895426726347"
+  "docsHash": "sha256:024f189c11482f205647a9143c8bbfd615f490c9be95f4aa8f6975ad2011bf46"
 }
 ```
 
@@ -149218,7 +149637,7 @@ files.release: contextPolicy=none
   "id": "prepareToolCall",
   "title": "prepareToolCall",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -149394,7 +149813,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ae92efbf5208677ac6283f5caf495745fe2e1c652592ec0596c46d065363f568"
+  "docsHash": "sha256:8dc0f0455ff1e1072588e53f652e1d536cbe453cabc3dca299ef080d3914ef9b"
 }
 ```
 
@@ -149405,7 +149824,7 @@ files.release: contextPolicy=none
   "id": "prepareOperation",
   "title": "prepareOperation",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "docs": "api.prepare-operation",
   "relatedTools": [
@@ -149815,7 +150234,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ff42b8ae8e899509315e98f12d99c6f7df4258bb48fb43a6a6e1582358352ff4"
+  "docsHash": "sha256:8825bece6e5a6abe9d0b505b76172ffcebe72579edbfc4216f61bf271877e808"
 }
 ```
 
@@ -149826,7 +150245,7 @@ files.release: contextPolicy=none
   "id": "applyPreparedOperation",
   "title": "applyPreparedOperation",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "docs": "api.prepare-operation",
   "relatedTools": [
@@ -150008,7 +150427,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0dc9b9da8c5c1305c9a04f599176c4e391eec7fe653da4d004e4702db271da1c"
+  "docsHash": "sha256:5e25d0c3ca2ab2a77093644a514f5b2ad952dd35eac036d391db7debca0772e4"
 }
 ```
 
@@ -150019,7 +150438,7 @@ files.release: contextPolicy=none
   "id": "getDebugReport",
   "title": "getDebugReport",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -150115,7 +150534,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:89b2f942844a676f97d2ab75bec1cc9f9fa75fb0a815e9a0952e4fcf17b20ca7"
+  "docsHash": "sha256:2d1d999b9c9d3a05aef6a75d40900bdef43d63386e39d7a8eeed502b938fd455"
 }
 ```
 
@@ -150126,7 +150545,7 @@ files.release: contextPolicy=none
   "id": "setDebugPanel",
   "title": "setDebugPanel",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -150222,7 +150641,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4df062db2c2d25cc825d2943832a89cc197a89559c180aba8689a0925140c230"
+  "docsHash": "sha256:f9a0b01ac174134cdb9e80a5c0b9cd6e946e85c14a3bd8c89f85398462554ae4"
 }
 ```
 
@@ -150233,7 +150652,7 @@ files.release: contextPolicy=none
   "id": "getMetalMaterials",
   "title": "getMetalMaterials",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -150348,7 +150767,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8b269d2174bc56a1eaea2734b23e3ae2600507033cdef7ca4a5bbf7f6f6be55f"
+  "docsHash": "sha256:619300395b1d219b9bb5978891c7f1f76da9a43d380d008d12acf1a063e99291"
 }
 ```
 
@@ -150359,7 +150778,7 @@ files.release: contextPolicy=none
   "id": "setMetalMaterials",
   "title": "setMetalMaterials",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -150517,7 +150936,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dfd242a23c6b58f97be773b4372598c73da01461387ac3ee73e3418ec8c75521"
+  "docsHash": "sha256:4a2d9e4b0a5de513665956c10157485a8a511ef8c0bb491f21f72d601560c216"
 }
 ```
 
@@ -150528,7 +150947,7 @@ files.release: contextPolicy=none
   "id": "getMaterials",
   "title": "getMaterials",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -150589,7 +151008,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:94ed7565e0d993ef3dd5535adc8fe8b09df971853cde112590b86214b035318c"
+  "docsHash": "sha256:ca719ba219700ad8f3e2bb975446f068212fc46ae9b9582553ffad76914d20ff"
 }
 ```
 
@@ -150600,7 +151019,7 @@ files.release: contextPolicy=none
   "id": "measureMass",
   "title": "measureMass",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -150686,7 +151105,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8affbb6ce37c607098df0edd09fe9df57604af219648954c034ee1fcb5ec33cd"
+  "docsHash": "sha256:8fe11a59a6e74c3c121f6580414caa4cb0932050d20c355f5461768446bb71a6"
 }
 ```
 
@@ -150697,7 +151116,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignFit",
   "title": "reliefDesignFit",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_read",
@@ -150959,7 +151378,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:14dd7c611b0e2274643f80545e4e70c659eba6080b3a558bd50509b5dcfec622"
+  "docsHash": "sha256:db00d7a9a10600f8887c62534f314b27c07abfb43486e6517ac1e2ba4d06e2ec"
 }
 ```
 
@@ -150970,7 +151389,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefDesignRelief",
   "title": "prepareReliefDesignRelief",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_read",
@@ -151379,7 +151798,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:06a1d82ac77d1d761c5e5563ca87a34b34854d5f946eaf6cfe8cd42f29d86a6b"
+  "docsHash": "sha256:476ad97909752ed2c62beaed49b191c057a67e6d5be3da440b497ec76d5b6e1f"
 }
 ```
 
@@ -151390,7 +151809,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignReference",
   "title": "reliefDesignReference",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_read",
@@ -151591,7 +152010,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:4bb3627eca674b82d59eecc9987b07fdcb3fb1256eedf2a413f6fdbcd39f9bc1"
+  "docsHash": "sha256:3b8513aaa9f612375cb5324efdc04e7075bbfc8ac44b42496c2bd642aa157248"
 }
 ```
 
@@ -151602,7 +152021,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignField",
   "title": "reliefDesignField",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_read",
@@ -151857,7 +152276,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:ec7c3033694d55b96b1f689ef8c0fd7f4381f7ce074a495f615ccedf6ecb58ef"
+  "docsHash": "sha256:23888503f46ab98223ae0322b5ff0f4bc02d74d8308d3934b36c07e5493ee7df"
 }
 ```
 
@@ -151868,7 +152287,7 @@ files.release: contextPolicy=none
   "id": "readLogo",
   "title": "readLogo",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -152204,7 +152623,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:be21a5c46872e1b63f679226f17f5e1e3b6b027df1691c96e9225b96e7660180"
+  "docsHash": "sha256:b9c230c49e956f0b4561fa556ae79b543bb88eb7288cdb610c728af6a8468d4e"
 }
 ```
 
@@ -152215,7 +152634,7 @@ files.release: contextPolicy=none
   "id": "reviewLogo",
   "title": "reviewLogo",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -152427,7 +152846,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:b6921b3475cbfe332473942a347df935b9397c34c01ad60417ac2583848ccd1e"
+  "docsHash": "sha256:673203ed71bd49e77c91d456df64e94ab14ee964182f9ebf41cfd536452e6f02"
 }
 ```
 
@@ -152438,7 +152857,7 @@ files.release: contextPolicy=none
   "id": "logoWizard",
   "title": "logoWizard",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -152799,7 +153218,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:88e8c05802396c8db1941106d89a3667ff3e86c61c7282ca769daec92a6abeaf"
+  "docsHash": "sha256:75146b83fa4379327063e8d21ba7d04aa0068cec7b50b1c6732558fc5e287194"
 }
 ```
 
@@ -152810,7 +153229,7 @@ files.release: contextPolicy=none
   "id": "getBatchReceipt",
   "title": "getBatchReceipt",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -152917,7 +153336,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9ca2ca1b0ac6770dd8b17ac6769aba81bc4965f056f910ba2986b945d5596a03"
+  "docsHash": "sha256:808d202b68caf93a7207a5500ff659b32c091ebd0b8a19452ee8d31724e5edeb"
 }
 ```
 
@@ -152928,7 +153347,7 @@ files.release: contextPolicy=none
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153196,7 +153615,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:3fad9a4ab49fb70784936f858b8b03ed507110b818f0ffa9085bc48084b85559"
+  "docsHash": "sha256:8f3a0098218ac3e4bba889ffd13fdbbc8b96669902fb30c8cdf2681bcfbee409"
 }
 ```
 
@@ -153207,7 +153626,7 @@ files.release: contextPolicy=none
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -153337,7 +153756,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1d4bd80c66918d99695e87ffd6301142ed9e5548c5a5cec62eb26d95815fd9bd"
+  "docsHash": "sha256:2967b643ea9d1649a96d0d13cde6215c345cafbbea7a78a23435b702f4ec398c"
 }
 ```
 
@@ -153348,7 +153767,7 @@ files.release: contextPolicy=none
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153561,7 +153980,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:844f32df2cf17d81fca17424c160b7eda5877ccd12d325487f057b32e444cc2e"
+  "docsHash": "sha256:2cb856dccf767b597344ee29cdbd921f0309ff189ea85392c26b7b376a66df30"
 }
 ```
 
@@ -153572,7 +153991,7 @@ files.release: contextPolicy=none
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -153677,7 +154096,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f2c35dcf9ae6f823854d195168c20c77108a8e5e17e7a0528498c8597304775d"
+  "docsHash": "sha256:7248edc29c393408958e641506a673806f9d064819d808fbd5cc76676b02e5b5"
 }
 ```
 
@@ -153688,7 +154107,7 @@ files.release: contextPolicy=none
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_view",
@@ -153854,7 +154273,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8a740c674835e08d944d3707a2518e3918177800abc7296af9c041b269f4f011"
+  "docsHash": "sha256:76fdd1609c9a84d6eb61e0c8f7d76c7e32800decf774e8c227d3ca63c0ac7cf8"
 }
 ```
 
@@ -153865,7 +154284,7 @@ files.release: contextPolicy=none
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -154021,7 +154440,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9064730928435a1fbf8596b7271c33bf6ec87c7d71decd9159f614d1dfa693e6"
+  "docsHash": "sha256:8279589037210e285a590cee0583a041e7769546550479072c56581ad28af682"
 }
 ```
 
@@ -154032,7 +154451,7 @@ files.release: contextPolicy=none
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -154323,7 +154742,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:7817042bea83686d232b038b06e79f3b7a8c3239a893bc9dd45f35638bd93024"
+  "docsHash": "sha256:749b8b27456df2d8a5d13219c3fa51890ea22847785222076b5ab086e8964f5a"
 }
 ```
 
@@ -154334,7 +154753,7 @@ files.release: contextPolicy=none
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -154463,7 +154882,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e18b68dcf8da7b2d3df64e9a8ebb67ae76f63927968d87fe4bb3f88e75aeb465"
+  "docsHash": "sha256:a50d147836631311e4902d87331e9c2c7aac3984d4791c7ed03e1240a4763c08"
 }
 ```
 
@@ -154474,7 +154893,7 @@ files.release: contextPolicy=none
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -154608,7 +155027,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ab9dedee456667e6172752624fce4f2ac76b50aab9adfe66d6b6363380e5776e"
+  "docsHash": "sha256:673af8a871df5cde590f71993555a2d6427897b0cf78686a160de680cb9bb380"
 }
 ```
 
@@ -154619,7 +155038,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "host-only",
@@ -154755,7 +155174,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:c7bedcdfebd129a616d2109c07bbcfec019c4f394d248093c6fa9770e039ab36"
+  "docsHash": "sha256:a70e5f13c4715445bd0c2b1de167c0295f3261c267e9ba291e1abf42a74292de"
 }
 ```
 
@@ -154766,7 +155185,7 @@ files.release: contextPolicy=none
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -154967,7 +155386,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:5a963496b3e1e60b7d518b7cf65219d45161c71c954fa40307a8a7d57a2770df"
+  "docsHash": "sha256:5ef4cff7d5b3825b04977e61762d67a1dbd701772ea11026024e9eb4c51c0bb5"
 }
 ```
 
@@ -154978,7 +155397,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -155167,7 +155586,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:c894338f78051af88050d4893d1f80787bf831e91a34efd117292767ab9233df"
+  "docsHash": "sha256:8291f7c9f08a5e677c6d0f547da606ac651dc078e2bcea5aadd0a18efd64cb90"
 }
 ```
 
@@ -155178,7 +155597,7 @@ files.release: contextPolicy=none
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -155425,7 +155844,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:a76bd233e68557c16111a37c64f7279e64d3dfdd8252629c17af1434e6183a1f"
+  "docsHash": "sha256:393879b6fc4399637d33348f1fc996950351024f3558f23b7ab92dde699f27d9"
 }
 ```
 
@@ -155436,7 +155855,7 @@ files.release: contextPolicy=none
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -155521,7 +155940,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cb0bfbfd84a4207d59bd792c83db79ee36a5726556d11b3f77a8326ee33cb47c"
+  "docsHash": "sha256:74ebf558fdc6621c86319499122a27a6bcf0aaee0c021061ca2ece557d79395c"
 }
 ```
 
@@ -155532,7 +155951,7 @@ files.release: contextPolicy=none
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -155707,7 +156126,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fa0854b002701507d25bffb764d56f08d6fa72a94266b7133c9edcb1489cd368"
+  "docsHash": "sha256:0287cb8d906d9cf7a8041ba7c9962d88c8907b1571c172d2c10417b980b564f9"
 }
 ```
 
@@ -155718,7 +156137,7 @@ files.release: contextPolicy=none
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -155885,7 +156304,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0b2a708707cfd37cdb2dff6a1cb3d69ae74296c2b0d42220dd0cfdf48d51cb5b"
+  "docsHash": "sha256:dffa71f6da0dd7a8d433992df7f6fc81498ae2f1bb6601f8f037423e5c86c0e0"
 }
 ```
 
@@ -155896,7 +156315,7 @@ files.release: contextPolicy=none
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_artifact",
@@ -156065,7 +156484,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0e06f8d5bd973ae64c5bed52642bc5347b60abf1d31ba2c801325349e2e2d2da"
+  "docsHash": "sha256:7ba7f08e917773c5663d38521edbbd02b7d0c2d54b5519d55b8af2642950e0a7"
 }
 ```
 
@@ -156076,7 +156495,7 @@ files.release: contextPolicy=none
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_artifact",
@@ -156279,7 +156698,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ba3d30047acccdfcbf3f0e502d71de7545b1b6206da1f5195cb650494d610ca"
+  "docsHash": "sha256:3dde834c4ac927c808a8795747a5ffa0523f0be11ba80f5acf1ef2a23d207682"
 }
 ```
 
@@ -156290,7 +156709,7 @@ files.release: contextPolicy=none
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -156389,7 +156808,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e28c9a40a467a4cb383e76e35ba637e35fe295e9b2491b93b76a648cbf4ebb8d"
+  "docsHash": "sha256:19a97d4fb88dd92abbed64c057225a9512958ea580fe75fee20ae0fa257fc2ea"
 }
 ```
 
@@ -156400,7 +156819,7 @@ files.release: contextPolicy=none
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -156548,7 +156967,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a112350cb388096e1ed12c2f45168cc337970a4376a70425109c782889e59026"
+  "docsHash": "sha256:cbd3fdf4cc2ebfe3c7cf562f5b6708f674074ae319bcb79bd6c65cc176162c8b"
 }
 ```
 
@@ -156559,7 +156978,7 @@ files.release: contextPolicy=none
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -156697,7 +157116,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ac1def16a8994e531e217154ce5f09371237c856fdfbdf11d1d6ee7f3d90729b"
+  "docsHash": "sha256:4c9e570203fe64bf20503edd9dafaa96668a755de4e44386d50e8d825618ebe8"
 }
 ```
 
@@ -156708,7 +157127,7 @@ files.release: contextPolicy=none
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -156805,7 +157224,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8c5016346a356a785a3e9ce3e2e5b72105e09a84b61c42f930bc7744956d09a7"
+  "docsHash": "sha256:1568dd36cb7180a0f9b484c30d9c8b14c9a5be40d41334716078b028bcc5d9cf"
 }
 ```
 
@@ -156816,7 +157235,7 @@ files.release: contextPolicy=none
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -156935,7 +157354,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3bc4c7c264645f9bb741f68d4eab9792f77ee3c010ff910ca16af1f450dfcf9c"
+  "docsHash": "sha256:f830fbb8b47118fb6c006d7ab5f1f13b2842fe45fbebd3ab427c11f556f28fef"
 }
 ```
 
@@ -156946,7 +157365,7 @@ files.release: contextPolicy=none
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -157106,7 +157525,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6f4d608650e4735f511a8e5cabac965910fdc2f723e644b7dd693994a97e2aff"
+  "docsHash": "sha256:6c2add68585958b20f2cecd18ccbba0ef7fc71d15a467d03796efcf96a042036"
 }
 ```
 
@@ -157117,7 +157536,7 @@ files.release: contextPolicy=none
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -157205,7 +157624,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3c6ae4b125db6b558dd5565feb87c6560bb023cc8175ddfd6fc84b43d41f80a5"
+  "docsHash": "sha256:b041c02735415daf1a89bd36513eca71e448790fb68c1421180b3e4f655f198d"
 }
 ```
 
@@ -157216,7 +157635,7 @@ files.release: contextPolicy=none
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -157308,7 +157727,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bb05da9f5cc8c1685ca4665e6a2c557b23a3357275a0d0fb02a1f562ab7ad4e0"
+  "docsHash": "sha256:1dd4d513f9971b7db781c010d5a992f95007662f23f9ce4431f2c1ca8e52e9dd"
 }
 ```
 
@@ -157319,7 +157738,7 @@ files.release: contextPolicy=none
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -157416,7 +157835,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4274b26c1a769cacfba329b45bf0ac2a1d565baef99e5a3b4e6af6a16fe915f2"
+  "docsHash": "sha256:b041bd01e1bee9ac22716ebe05bf62520cf5984774772b5895bf937a3668a0fd"
 }
 ```
 
@@ -157427,7 +157846,7 @@ files.release: contextPolicy=none
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -157522,7 +157941,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b9c2509715b935ca87c171b26aab745c8ebe075c65be5f53ae6e3395fa7e26a4"
+  "docsHash": "sha256:b7fdb1ee0f1146fa3104bf050dfa8d75320c5993b22e70ff1d053dbc91ca8607"
 }
 ```
 
@@ -157533,7 +157952,7 @@ files.release: contextPolicy=none
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -157666,7 +158085,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c03759d4030884f1728497cd8d4a0276afb3e9f25277aededda687bb6a096b3a"
+  "docsHash": "sha256:eebb236662904a2685e380a36722ce8a414e95fca655a626a4de60a56dbecdeb"
 }
 ```
 
@@ -157677,7 +158096,7 @@ files.release: contextPolicy=none
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -157766,7 +158185,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d8744423bf6aa2d2febe162a4a4a588b95037fa77aecde36e75b38c125046884"
+  "docsHash": "sha256:dfc12e747da1eabf4994eb03386c622221e0f896b882e845411058e2fe4632c4"
 }
 ```
 
@@ -157777,14 +158196,14 @@ files.release: contextPolicy=none
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "connect",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
+  "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。只读，内核启动期间可用。",
   "synonyms": [
     "connect",
     "连接",
@@ -157792,7 +158211,7 @@ files.release: contextPolicy=none
     "工具",
     "缓存"
   ],
-  "inputContract": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.",
+  "inputContract": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。只读，内核启动期间可用。",
   "outputContract": "当前 context/requestContext、canExecute/blockers/nextAction、版本与迁移说明、实体引用和完整工具契约。搜索自动附带卡最多64000字符，contractIdsOmitted 和 contractReadPolicy 明示省略项；显式 toolIds 与按需 getTools 不受字符预算限制。ready 仅为内核状态；canExecute 才计入 busy/preview。详见 api.workflow。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -157882,7 +158301,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:00b9d8268941a5b0692b7dd7534bf79811377482a36048fb4ace18cd4479dda0"
+  "docsHash": "sha256:cd9125074e4187e7234644f7af23a9e2e97ef33ab1ac47cd7c2a8bc5917984ba"
 }
 ```
 
@@ -157893,7 +158312,7 @@ files.release: contextPolicy=none
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -157985,7 +158404,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6c5802027bad506551074b671d94dae05e3ebcebe24882257d109508d9b87b25"
+  "docsHash": "sha256:4291c2f169a43b0945ab58295723c4f910ed5f0b6273c16e79303ec933e1f1ce"
 }
 ```
 
@@ -157996,7 +158415,7 @@ files.release: contextPolicy=none
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "inputSchema": {
     "type": "object",
@@ -158179,7 +158598,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0867f1edae575e4a96901789fd93d1950467433a5786ddcbabb4ffb8b5b331a0"
+  "docsHash": "sha256:3be0454042117012557c6ab0820d29df0840bcea7d3cf41cf0e67267cbc3a684"
 }
 ```
 
@@ -158190,7 +158609,7 @@ files.release: contextPolicy=none
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -158307,7 +158726,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cf9f14219cfea93b7a16f508b9e53063ddeac2fe53f89d95fa7c6e64b13fc91d"
+  "docsHash": "sha256:16c9b1dfea25f991c6b5417819a42cfddb861388048a7b6c8e484a911972afb9"
 }
 ```
 
@@ -158318,7 +158737,7 @@ files.release: contextPolicy=none
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -158432,7 +158851,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ba18cb35bd4607768de56870a7f0644fa1001503e7c81e48764fc9d8c28c2f8e"
+  "docsHash": "sha256:a12fea28f6670702dd5ff260e8c44bb9f7399b6ba428d96a9db4155da1e48a72"
 }
 ```
 
@@ -158443,7 +158862,7 @@ files.release: contextPolicy=none
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -158551,7 +158970,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:12a4ef8623b431cba97438d18420d4d7ea7830e86fbb058481e89477b1b37723"
+  "docsHash": "sha256:095538105be822e281a74832153c5cdb12950157633a1a06ec64ab8d387d5bbd"
 }
 ```
 
@@ -158562,7 +158981,7 @@ files.release: contextPolicy=none
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -158666,7 +159085,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:423a7a67964addfc4b4133d0b3f572aa6f408eb4a690a868254a5f81919fa980"
+  "docsHash": "sha256:865a32678fe615705aedc3d0f1c82bb09a0e525a39ac31243f5b54ee51227b90"
 }
 ```
 
@@ -158677,7 +159096,7 @@ files.release: contextPolicy=none
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -158757,7 +159176,7 @@ files.release: contextPolicy=none
     "method": "queryGeometry",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
+  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。",
   "synonyms": [
     "queryGeometry",
     "几何查询",
@@ -158765,8 +159184,8 @@ files.release: contextPolicy=none
     "边",
     "选择令牌"
   ],
-  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
-  "outputContract": "精确 B-Rep 候选项、歧义信息、快照绑定的 selectionToken 与当前 context；expectedCount 不符时不生成令牌。",
+  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。",
+  "outputContract": "精确 B-Rep 候选项、surfaceClass、pointOnFace/closestPoint、歧义信息、快照绑定的 selectionToken 与当前 context；expectedCount 不符时不生成令牌。刻字落点用 pointOnFace，不要用柱面 center。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -158841,7 +159260,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3a9a419de231a16673f319c02df1f222b6b5782794a11b7b3605c9eef1e72f4b"
+  "docsHash": "sha256:99d4a4d1a729416c77664f4d2163a23dcfc8349014acea09f1cf3f65396b111e"
 }
 ```
 
@@ -158852,7 +159271,7 @@ files.release: contextPolicy=none
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -158984,7 +159403,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b14ba59d0e69b8d32666f58339e00a116789354d92196f6c38abcd20cb7ee0e3"
+  "docsHash": "sha256:285a0fd2c73448cf30d302c2ff0cf982db3ec88019086e998dbb6e2c59079cfd"
 }
 ```
 
@@ -158995,7 +159414,7 @@ files.release: contextPolicy=none
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -159334,7 +159753,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fc935b0d0b70fc6a679bb6fa6e1c05f82486ecddfe9429026517dcb59a278ac2"
+  "docsHash": "sha256:7e1189994546812a0719e4346dcbe8697f4b6c93838358deace6852cfa897906"
 }
 ```
 
@@ -159345,7 +159764,7 @@ files.release: contextPolicy=none
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_submit",
@@ -159494,7 +159913,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a5abf0c40edfdc6da59aaed31d64441800f9fb1889e353773d8b7a738004cf79"
+  "docsHash": "sha256:dca6b2acaa3a8031288c09fd0002ebb791a90c1bb72ca0f1d4ddc9e7e4acb211"
 }
 ```
 
@@ -159505,7 +159924,7 @@ files.release: contextPolicy=none
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -159669,7 +160088,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bbf8db8bd4d9846e628dfdc8006938a66cc4700b4c30aaa77fdc112bcc45ad3a"
+  "docsHash": "sha256:581bbd1e1ded3e3a7d0e2783602f1c81413a0b035e50a495faaad92177cada16"
 }
 ```
 
@@ -159680,7 +160099,7 @@ files.release: contextPolicy=none
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -159837,7 +160256,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1a3b21a7d6636bce7498d0ea1f7dcd0eab7b3edbaf8c0e62021d194eba1d09bf"
+  "docsHash": "sha256:e7b9f12e9a8fdffd9298a997fb37423bd5f1bf96031972fd9fcaa145b8ee20ad"
 }
 ```
 
@@ -159848,7 +160267,7 @@ files.release: contextPolicy=none
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -160203,7 +160622,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a6f6175c8f3072bdd5e11f4b98e98e7023b6dd511e38c99a29aa64102aa82864"
+  "docsHash": "sha256:58dd166205e4fab8ada385e142fd0e61d911b1674e3c3f188b7ba13733a50e3a"
 }
 ```
 
@@ -160214,7 +160633,7 @@ files.release: contextPolicy=none
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -160354,7 +160773,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e27b30ccebd8701690125342047710cccb14157e522264f400efd0ad99e783c0"
+  "docsHash": "sha256:b0d1ab1e0351e6168699a4060ee168022483c356ea487f9f5212afbe704b6052"
 }
 ```
 
@@ -160365,7 +160784,7 @@ files.release: contextPolicy=none
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -160508,7 +160927,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6f768a19f302939846ef952400fb07a2e36276ce1166bbcc701a7d303ef6e73a"
+  "docsHash": "sha256:607f5bd4ae1e2f20b2f53d30277f0b52851d4789aa31d9e5d1a6910ce7b86a72"
 }
 ```
 
@@ -160519,7 +160938,7 @@ files.release: contextPolicy=none
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -160693,7 +161112,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:558d76ee866d206cd8ecb5a8b7ff6fb937e999b39b150be30d76fc3a121ee290"
+  "docsHash": "sha256:4637ba2cf9312eef335e6534ad240ecf91bd9db157984048e393539299958423"
 }
 ```
 
@@ -160704,7 +161123,7 @@ files.release: contextPolicy=none
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -160857,7 +161276,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:758e8e21dfce83dd0341bd953355fcea45e10c08391c23e7b2ad5d6e4775d9c9"
+  "docsHash": "sha256:c1109e153b0c9c9f9b49f617e3e64cd80c30574aae9359b5d3181e2903ba2eb8"
 }
 ```
 
@@ -160868,7 +161287,7 @@ files.release: contextPolicy=none
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -161034,7 +161453,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:00bf49545e76224dfdc2607ebfa39576097f1051545986938b2acb4430bbcc6a"
+  "docsHash": "sha256:6fd4c2cbcf55392bd0896bb93e32df220a2aad536be229cbd1b7de851fd283cf"
 }
 ```
 
@@ -161045,7 +161464,7 @@ files.release: contextPolicy=none
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -161191,7 +161610,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a41885164da83161798a7bf3cb598b0b813e9d1f32bac05e74d1b881c221f92e"
+  "docsHash": "sha256:3f75ed17ef9f688a308f965346bfa828830bfc2f144947e865499225628eb3be"
 }
 ```
 
@@ -161202,7 +161621,7 @@ files.release: contextPolicy=none
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -161369,7 +161788,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:66c4aceb30b0d78a9837fee2feb18c92891c06f0b9589b08263e8f051f828c6c"
+  "docsHash": "sha256:bec57e2956a8a21e176772c2439c820392ffd6054921dd4c2f0b9dcf7e17b821"
 }
 ```
 
@@ -161380,7 +161799,7 @@ files.release: contextPolicy=none
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -161536,7 +161955,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4fcffdc8041cb6d96e15c9073f5ab90e8be577abb4cc6b65b4272321cab057ca"
+  "docsHash": "sha256:419f2e33400aee27a27018e47059a9b5145ce93cf6b6ecfdde21a5d20fe84afb"
 }
 ```
 
@@ -161547,7 +161966,7 @@ files.release: contextPolicy=none
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -161699,7 +162118,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:dfc51a5cc2356017e24f71f3da7a81d84416e1d77501a56f2d597b9138346877"
+  "docsHash": "sha256:27c85b159ec86db2e9b0ce61a674d867ec4563e5de02d3f579717a5773373f1b"
 }
 ```
 
@@ -161710,7 +162129,7 @@ files.release: contextPolicy=none
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -161870,7 +162289,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ab2cd32c4b42ab29bcf92111f76c7f8cd4a4459aa2fff402dc2ea8863dbab7ef"
+  "docsHash": "sha256:133f578874f9ca553ca748d98bb7dcf5840d78bbef28e448db074eee0f5a6935"
 }
 ```
 
@@ -161881,7 +162300,7 @@ files.release: contextPolicy=none
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -162042,7 +162461,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f63c3d8bb1d3057338d7cab2f42d71dfbe163b323c58bedec50667b75dc80fa8"
+  "docsHash": "sha256:02d0c20b4021eeba4a61a21997778f370b01ba71791ba0d4950b418dbfe1083d"
 }
 ```
 
@@ -162053,7 +162472,7 @@ files.release: contextPolicy=none
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -162217,7 +162636,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fa2d9bcc23f1447a57518669d690cc9a8b86a3f8f344fded3590a3ea68c00a6e"
+  "docsHash": "sha256:db4c09a276ea15a596afb2562ae956971c70bff5f1cad17da57a39309ee657d0"
 }
 ```
 
@@ -162228,7 +162647,7 @@ files.release: contextPolicy=none
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_read",
@@ -162382,7 +162801,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5eaa1f1230fc5fddad857361018999201da8be70698d89f1361c260cf807ec96"
+  "docsHash": "sha256:17f99552ab294c8838cf0fee41bd9df2634e361f13d5e0b9c936ae6cbdd43fa7"
 }
 ```
 
@@ -162393,7 +162812,7 @@ files.release: contextPolicy=none
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -162486,7 +162905,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:57fe3d3527198f0e53dec719272398bbd303780e7e416496e347a671d4b9be26"
+  "docsHash": "sha256:8758a5b22be20a02ae1936bbebc16b4a76f88709687a49a94d37c0f6dbf58c8d"
 }
 ```
 
@@ -162497,7 +162916,7 @@ files.release: contextPolicy=none
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -162653,7 +163072,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:853badfec5419de7959f39a1dd675f0097953f3826db5921ef4dc82d3d9213fb"
+  "docsHash": "sha256:4c098c5974e874ffa25c8795f0bf35fa3b96a7cc70f6aa8c1afce42490f0a14e"
 }
 ```
 
@@ -162664,7 +163083,7 @@ files.release: contextPolicy=none
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -162723,7 +163142,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:22e9038c47253ee5db02f26daa084de43a0beacbccb52ffae44029c91668e60a"
+  "docsHash": "sha256:a2b985baa2809b789170eb345a48166ae1a423ba46c41056d17d5c336fe88478"
 }
 ```
 
@@ -162734,7 +163153,7 @@ files.release: contextPolicy=none
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -162791,7 +163210,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bfba8185f8c69727e71d75f747ff6811c8f780ebaa78e13c036e45d24c6b4936"
+  "docsHash": "sha256:c38d515b11791884e06f47c15ebc47dcf9b628949f1cd32580154ad5f1004610"
 }
 ```
 
@@ -162802,7 +163221,7 @@ files.release: contextPolicy=none
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -162868,7 +163287,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4ed81bb767d78d930bde144d948128e5c5578110424fb111117960e251a0cacc"
+  "docsHash": "sha256:e01be3bf6fd5c3df3835523113707c8ed22137cc2ab0b03e46357916331357be"
 }
 ```
 
@@ -162879,7 +163298,7 @@ files.release: contextPolicy=none
   "id": "markLocation",
   "title": "markLocation",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "webcad_view",
@@ -163025,7 +163444,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:626ee04ec5e88c52489e67b1294aa45307af80a9bb3e5b79db18df487a139dc0"
+  "docsHash": "sha256:8398c10a632aad5d2bf9cbd0c60f55bcecc032863ec9e552dc08028a1c1ec890"
 }
 ```
 
@@ -163036,7 +163455,7 @@ files.release: contextPolicy=none
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -163163,7 +163582,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0528260397bcc5ccb3e39299a39e53a924d14196a6c397e366a2faf93cb88333"
+  "docsHash": "sha256:380e637779557a4be12a8eaa95fb0e5c4e1cddccdd56a50544c2c4476b584a45"
 }
 ```
 
@@ -163174,7 +163593,7 @@ files.release: contextPolicy=none
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -163308,7 +163727,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:19442610156438d97b022d367310960bdce7e7db8bac580d4523c0d0f23510b5"
+  "docsHash": "sha256:6300b874308ee92ec8bdf5af50b4c1b8f03ecd5ac0689065e68df161470cbc6e"
 }
 ```
 
@@ -163319,7 +163738,7 @@ files.release: contextPolicy=none
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -163451,7 +163870,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e6c53cb1d786c85b248965fc29253a36d1a207f903b98c1c2fbbd8aff5ed4cd2"
+  "docsHash": "sha256:8118d44da4cfe759f9b06667edf915bbe5ae0be650c0fd51405eb888fc7f87ec"
 }
 ```
 
@@ -163462,7 +163881,7 @@ files.release: contextPolicy=none
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "webcad_read",
@@ -163588,7 +164007,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:98c6cf650ec5bb2e62e94610cef9b62e023ff0bec382f7511005278da1600f06"
+  "docsHash": "sha256:0f0f9e92a65995afd186e8564c61d3a7003a646b53986b27f77a63bd08f7eaae"
 }
 ```
 
@@ -163599,7 +164018,7 @@ files.release: contextPolicy=none
   "id": "clearServicesCredential",
   "title": "clearServicesCredential",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -163728,7 +164147,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c9b65749ab5a2c1535df86644d904bcfbce2af6ec8209e7ae078854728c8d1e8"
+  "docsHash": "sha256:d614946ef73de11b1746b400b1ccaa4a5f62634ba6d51002e2f5f689e946cd71"
 }
 ```
 
@@ -163739,7 +164158,7 @@ files.release: contextPolicy=none
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -163875,7 +164294,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4d773cd1211f771ea013f2b52995a7936bc80348f439e03de965c81242fa291c"
+  "docsHash": "sha256:2402c2cbbfafeddf5ef4105b6713f4dff29d25320fe0b21eeda1e138992668c5"
 }
 ```
 
@@ -163886,7 +164305,7 @@ files.release: contextPolicy=none
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -164023,7 +164442,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:860fbd2018eef3187d35673761f1b6c50f594f221579377753f5c88f6f0ebdbd"
+  "docsHash": "sha256:f4151642213f061de0f6d0294009600971d22754de6ce4f4ab2ae19566ede59a"
 }
 ```
 
@@ -164034,7 +164453,7 @@ files.release: contextPolicy=none
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -164175,7 +164594,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:98fd5f0c59881f2d6ac6198af68dfc5fb2d613efb14a73b0b78ab4bc476d9582"
+  "docsHash": "sha256:04210911a789834e749ee9d601287903f036472072d728543cc5fb40c9a17ea3"
 }
 ```
 
@@ -164186,7 +164605,7 @@ files.release: contextPolicy=none
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "mcpCall": {
     "tool": "host-only",
@@ -164311,7 +164730,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:697bd59dd98c8ebb7b539ba53100285defa0f26127ddb04ae5efdc77d988537f"
+  "docsHash": "sha256:593f50b67fc8f61da4056533cdc48a34b4c3ebd3490a113c1f1318c9335a0d28"
 }
 ```
 
@@ -164322,7 +164741,7 @@ files.release: contextPolicy=none
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -164452,7 +164871,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:5a2452892853fb9735957858e015ef425cf5c2e3709f821338c7acc11caf50fa"
+  "docsHash": "sha256:90ec91c19e3ece3156e24e031d2f64aa96c73f27e6a58e97df1f5c567464a26f"
 }
 ```
 
@@ -164463,7 +164882,7 @@ files.release: contextPolicy=none
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "mcpCall": {
     "tool": "host-only",
@@ -164607,7 +165026,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:32ec668f234bcc34fd0ac583eb608b2a57bec3b2a4efc290111a0f020e2517bf"
+  "docsHash": "sha256:260ceb496f144d6bf24d319c39473988d4137719776e353e1153a59a5c31c95b"
 }
 ```
 
@@ -164618,7 +165037,7 @@ files.release: contextPolicy=none
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -164967,7 +165386,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9fa065d4059de37f0650e570af0c3cdf659c5d74d3d17e73dc7dd5909e2208ba"
+  "docsHash": "sha256:7ee784f2a86a8d1a345fec1f86b3e3b7b30feac9303c69d6d40b5eba7b279883"
 }
 ```
 
@@ -164978,7 +165397,7 @@ files.release: contextPolicy=none
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "mcpCall": {
     "tool": "webcad_view",
@@ -165126,7 +165545,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ac28b89441bd3a1c84cc7eb2eefb5e7e2b5c38d2b2a68da2fe14a44a2aba531"
+  "docsHash": "sha256:5dd0b52bc86829d10cc18b5dc2a5009e656f4722e88a22c1eb1eebddf7cbe948"
 }
 ```
 
@@ -165137,7 +165556,7 @@ files.release: contextPolicy=none
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -165312,7 +165731,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9191e9e43df4a2ba7b45bc1d3509f83bfb740f28636d855bad41056b20309ed9"
+  "docsHash": "sha256:8179ab5038f08e7975e8921f9cebae75d30d8b4c9ec8c984eade1cdb7c6f8d14"
 }
 ```
 
@@ -165323,7 +165742,7 @@ files.release: contextPolicy=none
   "id": "getEvidenceImage",
   "title": "getEvidenceImage",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "inputSchema": {
     "type": "object",
@@ -165536,7 +165955,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:934c641ceed9df431d453e4413cdfa03247cd150efbf6bc5e80aa7d1c7dd2be8"
+  "docsHash": "sha256:7c719d78f5312685d9503307ba00491b41c437444eb7877d2f3b9a897831a10f"
 }
 ```
 
@@ -165547,7 +165966,7 @@ files.release: contextPolicy=none
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "inputSchema": {
     "type": "object",
@@ -166203,7 +166622,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6d29635c2c57a2a0e5f103d2c520df8196049f8125e898de2bc454e28beb9c25"
+  "docsHash": "sha256:11a9f6930ee98a334454dd81e367e64d26142c2d1ae80eea26e04979adc4f45d"
 }
 ```
 
@@ -166220,7 +166639,7 @@ files.release: contextPolicy=none
   "title": "材料密度与重量",
   "description": "设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -166311,7 +166730,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:66de720be7a4b85acfdc9b93e0890cebe917e7a5670279c8f94840bdd57f1e45"
+  "docsHash": "sha256:d7606f3cebc9dbcb90d6ca247f7d08df630a05efc68e116ddc5e0b49c8084fbc"
 }
 ```
 
@@ -166328,7 +166747,7 @@ files.release: contextPolicy=none
   "title": "Services 原特征编译",
   "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -166478,7 +166897,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b3ae566d8ce83419d885b9d41ccf121332613bb97be9eeb6d6e1d4e9e978a164"
+  "docsHash": "sha256:d09412922f4c8c4d53f82f05cf148ccd6fd7be60a57c064b9fab66cff6053506"
 }
 ```
 
@@ -166495,7 +166914,7 @@ files.release: contextPolicy=none
   "title": "快速对齐",
   "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -166670,7 +167089,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dd0ba3672212ecb17c2dae5c58f758ef0d21a1dbdb7e911fbca7591dee68c104"
+  "docsHash": "sha256:781ee91f6903d27fbaa4d31ad0051bb234fd9a64f91e544b356307b149b8e47b"
 }
 ```
 
@@ -166687,7 +167106,7 @@ files.release: contextPolicy=none
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -166798,7 +167217,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a2f5816c26355edad4e95a2d73df0a6f749315fe950e5c8e9e760bf8ae9a8d97"
+  "docsHash": "sha256:f778f60374abcbfad2d76839c47569ddf942499ddf7221cf4eef705d746170b2"
 }
 ```
 
@@ -166815,7 +167234,7 @@ files.release: contextPolicy=none
   "title": "浮雕设计约束草稿",
   "description": "保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。heightSource可选{source,depthMm,edgeKeepoutMm?,edgeFadeMm?,weight?}：source为浏览器转换生成的高度来源记录（原图sha256、转换设置及哈希、u16le网格≤1025²）；照片须带derivedFrom及用户确认“我确认此结果为我制作的高度图”，否则MACHINING_SOURCE_CONFLICT；高度图覆盖支撑外接矩形，亮=高，按depthMm映射到最低高度之上，作为求解观测。fieldSettings可选servicesQuality:{mode:adaptive/off,maxControlSide:16–1025}（纯图像无人工点/局部编辑时默认adaptive/1025，Services自动选控制网，结果报告实际ladder和误差；off保留旧拟合），以及machiningPrecisionMm(0.01–0.5 mm，默认0.05，可调：小于该值的起伏/噪声/台阶以C1平滑方式去除，边缘与基线平齐，记入草稿指纹)、columns/rows(9–129)、smoothWeight、maxIterations(1–20000)、toleranceMm及edits笔刷数组(最多256笔，按顺序执行)。每笔显式mode:raise/lower/flatten/smooth、centerMm:[x,y]、radiusMm:0.001..10000；strength可选0..1默认1；raise/lower必填amountMm:0..100，flatten必填targetMm:-100..100，smooth为一次邻域平滑。坐标与草稿支撑同一毫米坐标系；孔、边缘固定节点及保护区保持基线，高度不超heightRangeMm。UI新增/更新/移除笔画会连同当前其他有效表单字段一次保存，Agent等价传整份draft并携带expectedDraftRevision；原图reference及其他既有设置必须保留。随工程保留可重算设计。使用reliefDesignField求解/残差回读和保留圆/矩形支撑、孔与作者保护基线的采样闭网格候选（边界近似，不是精确圆）；不从原图亮度推断设计高度。getState({include:[\"reliefDesigns\"]})读取。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -166972,7 +167391,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:1297845ccad7e6d2ce24da3c0ee85cc0e26b48bcf59d3275d6cdda3973bc2c78"
+  "docsHash": "sha256:8a997433f25bd372a57fa9663b234ccde205f59a4bc40fd9f40fb87dd0a9e24c"
 }
 ```
 
@@ -166989,7 +167408,7 @@ files.release: contextPolicy=none
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -167119,7 +167538,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:690639a69f66b97d5437a30de8e521ee43671b6c4dfb8d333ebd67677df828ac"
+  "docsHash": "sha256:1758431f584ff28e425e0791c16bb957ef5888bc2911901897981cff274d5d67"
 }
 ```
 
@@ -167136,7 +167555,7 @@ files.release: contextPolicy=none
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -167270,7 +167689,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3d24d7108b77f0d4ac715b4656c9bd69010f91edfd519585ae51acf9a7b66bde"
+  "docsHash": "sha256:32ec3112065cc8f508ddfb1abf99e5b8233151fac71ccbc037faf388308eda77"
 }
 ```
 
@@ -167287,7 +167706,7 @@ files.release: contextPolicy=none
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -167407,7 +167826,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:d24876963333f6a7410ce7977265e2cff61c359d52469cd348dcd232055933ff"
+  "docsHash": "sha256:c867acdb8cc0fc3a9799a5e8348ba1251e47f93be81b9642aa3188081ddc8eea"
 }
 ```
 
@@ -167434,7 +167853,7 @@ files.release: contextPolicy=none
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -167588,7 +168007,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:18bd78bffc527af2fddf1aba5f522a527c88e5b057b241c9a96af140d3fd76cd"
+  "docsHash": "sha256:be7bc07a2d414883214e4813e5ca5cba907a6ecd7ab9523f489c98c2b126d7d0"
 }
 ```
 
@@ -167605,7 +168024,7 @@ files.release: contextPolicy=none
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -167751,7 +168170,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9dc6d6c6c0d8c2aed81a871c5cde0393c5415681c2b94874714f7edcc8cd9191"
+  "docsHash": "sha256:453ae06b684f946c49e0fde3c10af96d472c7ac337eba666cad8f020fcc80297"
 }
 ```
 
@@ -167768,7 +168187,7 @@ files.release: contextPolicy=none
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -167886,7 +168305,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:3025bacdd31a3bea16522a154e8df673f06c62a1fdafdba3c51fa0aab0a19ef8"
+  "docsHash": "sha256:87c2f70a9cbd94e343a6fdd20352172843c5df41d4a2d9f143916127f168681b"
 }
 ```
 
@@ -167903,7 +168322,7 @@ files.release: contextPolicy=none
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -168019,7 +168438,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e3b8e6ee099679ca63005df50afb576b0f4343e13c8751e5c7221acdec0bdc41"
+  "docsHash": "sha256:74c1c0270b7c4d078975e2afdec4c5e0353c19eb74daa7329d40c487aa25b875"
 }
 ```
 
@@ -168036,7 +168455,7 @@ files.release: contextPolicy=none
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -168129,7 +168548,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3ddc3d2efc8ec2d1dfd549bedd7372606e10bce311ad5c6e669c6fd6ed783f57"
+  "docsHash": "sha256:8853140f8e12b087ef68c99f06db2761dc7d90021da23dea6360ea2dad4d3499"
 }
 ```
 
@@ -168146,7 +168565,7 @@ files.release: contextPolicy=none
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -168239,7 +168658,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4db588388d4da2831d6a7a487c5e46be05b7b18ac3e8316677251795ad928707"
+  "docsHash": "sha256:39957b0eeb59103134da1a1396cca7a192c1097e8db2437ea6d68b2c1fdbad20"
 }
 ```
 
@@ -168256,7 +168675,7 @@ files.release: contextPolicy=none
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -168353,7 +168772,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8d801d57b7821d3e1e1d6647849a77c5277da79da73ed36b3332d34e03109e92"
+  "docsHash": "sha256:5acdb35ce7023b894867bd0068779c7a4c0fbe7c2417d02a3e414d051f9505b0"
 }
 ```
 
@@ -168370,7 +168789,7 @@ files.release: contextPolicy=none
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -168465,7 +168884,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1d2367d59f282986cb3b1994d2f7c747cd0e48721650d7ba4809362c09fb8a0c"
+  "docsHash": "sha256:60afa9c5ccf29dc52d47939fe85c010cb1ea5ebcd54e7d90d1ec22eb9cd3a6a3"
 }
 ```
 
@@ -168482,7 +168901,7 @@ files.release: contextPolicy=none
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -168579,7 +168998,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:817fc7fd9ca29de12dbd9c4f89e058b9e4a419949fb13f794f12888774392f6f"
+  "docsHash": "sha256:a9f1bdc53c8cdafb9bf1641e349ab2adb8b7bef38e174518bc633025fc6bd20d"
 }
 ```
 
@@ -168596,7 +169015,7 @@ files.release: contextPolicy=none
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -168691,7 +169110,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f5485fbf669a14e1db4ac7051cce2b5d4fe726b35c7ac23d366e1999a0a8e768"
+  "docsHash": "sha256:e2a6838f693e66c1aa5e5bfe63d9ea50b90b6f4391e1a9837a871e735c5d7d49"
 }
 ```
 
@@ -168708,7 +169127,7 @@ files.release: contextPolicy=none
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -168813,7 +169232,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b32ee6a5f292b31b407c689a2d2ecb9667713e3745f502af5ed3bfe13bf18909"
+  "docsHash": "sha256:9663a843df7f91eb310fc9baad18dbf0a20493452b0dd2566ade45b759a04980"
 }
 ```
 
@@ -168830,7 +169249,7 @@ files.release: contextPolicy=none
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -168927,7 +169346,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6d364dd06530cbbdba7495f975e20b5c9d9a9de8ea2ee17cdd21459b52347f37"
+  "docsHash": "sha256:22ae062e86317132496c056f7e28382d2b9b12e9a7e19756e5edcd49087a3ed3"
 }
 ```
 
@@ -168944,7 +169363,7 @@ files.release: contextPolicy=none
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169050,7 +169469,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:218462198602c409ad41315ec4589d5eeaf3610665eb0eea39d6ba413b06b4d5"
+  "docsHash": "sha256:991282e5a343de56d8eeb2cdddf74279e836057a3ab1d666ef7a0c15189fe183"
 }
 ```
 
@@ -169336,7 +169755,7 @@ files.release: contextPolicy=none
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169422,7 +169841,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:304614028f72a8c99fdb471e286cf887c9a3e6cc4872a711d6b116d2bd95301f"
+  "docsHash": "sha256:e93992c7a3743f2630ce088b77d890f5959f29245f30f8b6c424391839c4f304"
 }
 ```
 
@@ -169439,7 +169858,7 @@ files.release: contextPolicy=none
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169542,7 +169961,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:566f3aac92978d0020c1fc9121d4fc803a0dfc6cf0a12c7b3c8efb812d4dcdd4"
+  "docsHash": "sha256:b4c0a3a64adc494f3561f9c73e0d1e7e1769e310f2832ec62e582f491dbbc7df"
 }
 ```
 
@@ -169559,7 +169978,7 @@ files.release: contextPolicy=none
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169664,7 +170083,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:22bacdfb695ef4c79c92ef836533dbe0118c109de92f537206b505983bee8c71"
+  "docsHash": "sha256:cbd58e1e1d1d4cee9f3117c39d9cb70a617875ef2041eed26e92822737435582"
 }
 ```
 
@@ -169681,7 +170100,7 @@ files.release: contextPolicy=none
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169774,7 +170193,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b7129a60e9bb2193a74c1d88661f4198f6d586ec1071d2e7cf1e5ca9bcd0158b"
+  "docsHash": "sha256:80e0c882a2efa4685c6676a1433d5777318e536c2b960faf9125f51385a31aca"
 }
 ```
 
@@ -169791,7 +170210,7 @@ files.release: contextPolicy=none
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169884,7 +170303,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5b72570626e3fcfb2be9e97c1801a7309c7bc2582d13c5b2c3c88961cf2178ab"
+  "docsHash": "sha256:23df15e9ec42da09ce54be855422167efe5e12a8ac86de5ca61c0b80ebfa7cb4"
 }
 ```
 
@@ -169901,7 +170320,7 @@ files.release: contextPolicy=none
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170002,7 +170421,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:67683016f8d7686dae0bd2f56c7afdd871e2c3d9252726fa321f471a4f21c222"
+  "docsHash": "sha256:1721c49cebc70e933c3d0bf18862d85e64fd4f094209f087fc4a0378ca6a8775"
 }
 ```
 
@@ -170019,7 +170438,7 @@ files.release: contextPolicy=none
   "title": "预览模型、原特征编辑或文件插入",
   "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170099,7 +170518,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c0e8c477e9e0d7ce12ef2c682664e6889ad88dbf1e57bb237f15bad8afba7def"
+  "docsHash": "sha256:991635259e009642483303b38cbb27a3c76051f6c4b525588b35ac26bea6cc4c"
 }
 ```
 
@@ -170116,7 +170535,7 @@ files.release: contextPolicy=none
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170193,7 +170612,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c59958b9f42287be2cccdff2d4b7b7fd6b1f40e15e53009d6ea7525853ae93f1"
+  "docsHash": "sha256:365bf2f4ad63732ad49098ceed3594677518d91b408ea3f533fedfd8be98d6b1"
 }
 ```
 
@@ -170210,7 +170629,7 @@ files.release: contextPolicy=none
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170285,7 +170704,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8a7ac5c50e0e03197251093ae14f642229e9ab4b7b2958286ed0f5a1e3ccf451"
+  "docsHash": "sha256:3a1ed7d0a9d972c45f8427cc8c3b25f04602b08a46b25bb0448e7893301646d2"
 }
 ```
 
@@ -170302,7 +170721,7 @@ files.release: contextPolicy=none
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170385,7 +170804,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:31da36a5e9a6a64115ec5209335bcfa9c2809e0d0aab26fb712b3554c9f04d7f"
+  "docsHash": "sha256:5ff2ac05e93c83d2cb66192aa13643b7f20efb6b1e74b1b81f978eb521e45c9a"
 }
 ```
 
@@ -170396,7 +170815,7 @@ files.release: contextPolicy=none
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "execute",
@@ -170546,7 +170965,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5ebce14c09d84bf252112dd6dc4def9cfed33d52ffa91b6cef53dc7487132246"
+  "docsHash": "sha256:fd4a09d0b2bac87c38f65ccf32255756802753302e99f2d996e80b48f30f617c"
 }
 ```
 
@@ -170562,7 +170981,7 @@ files.release: contextPolicy=none
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "label": "文件能力",
   "synonyms": [
@@ -170665,7 +171084,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:f74846e8012865b883d1873310e1dc560b0e001d5c4dc19c0871c16bb5c359fb"
+  "docsHash": "sha256:668c0339aa674bb6268b8c692e5c26d3c56cf219c2e012bb95c2692b4de5d9a6"
 }
 ```
 
@@ -170682,7 +171101,7 @@ files.release: contextPolicy=none
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "label": "登记文件资源",
   "synonyms": [
@@ -170800,7 +171219,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:c9eaab0cbf644cf87cbc8f300be65199c5c1d1c76ec33d0ab5111aa679ef8b4e"
+  "docsHash": "sha256:e4b1ae568455572a4262def22114ca317e66d312bdc6273adcd3da174f50c126"
 }
 ```
 
@@ -170817,7 +171236,7 @@ files.release: contextPolicy=none
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "label": "新建工程",
   "synonyms": [
@@ -170963,7 +171382,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:6d76ce1ca4eeffdb8998c92adc72f97c1643fc513e100246a7cea8c9850452b2"
+  "docsHash": "sha256:3c9f70717845b01cafa4d704a94684c0dbbc5d9dc968196679d7dbd85491d9d5"
 }
 ```
 
@@ -170980,7 +171399,7 @@ files.release: contextPolicy=none
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -171155,7 +171574,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:ae722a6fd29fc70edf6e98e279a90c892a3489351d8a10654617a7867dc77bb5"
+  "docsHash": "sha256:c6147b71ee37a6f7a0fc889956fa51b360c0accd942c953dd61601ad9f5404ff"
 }
 ```
 
@@ -171171,7 +171590,7 @@ files.release: contextPolicy=none
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -171231,6 +171650,7 @@ files.release: contextPolicy=none
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": true,
     "defaultInsertionAnchor": "model-origin",
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": "registered-file-only"
   },
@@ -171361,7 +171781,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:c6408960663ddbee33b2ca573022c4e1b5890d927d191c1eaae84f5208488ab6"
+  "docsHash": "sha256:046c8dc4b887a42caa4c872800bc0821530e3312e1f2f472573667982736f438"
 }
 ```
 
@@ -171377,7 +171797,7 @@ files.release: contextPolicy=none
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -171541,7 +171961,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:1374e9be645897f46a6b19825ff70ab2409381d9e84d925af93d848170de62d4"
+  "docsHash": "sha256:d2ba949e99dc3054a406f70192b8d0ef9846f6bbbdfa01774cae546570a31ce7"
 }
 ```
 
@@ -171557,7 +171977,7 @@ files.release: contextPolicy=none
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -171737,7 +172157,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:0448671e1a763c125c5eeba3b1823223d642b5d2dc7175d8c664fd912346d7a7"
+  "docsHash": "sha256:61b1426edfe2566832d396a45364d971e43d92bada5d40e13ec9166a23276d3e"
 }
 ```
 
@@ -171753,7 +172173,7 @@ files.release: contextPolicy=none
   "id": "files.reattach",
   "title": "files.reattach",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "label": "reattach",
   "synonyms": [
@@ -171905,7 +172325,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:a1bbe46e1b6c96317b66297cf1107147625b2b1eb60c33ca018d4473164da502"
+  "docsHash": "sha256:ab6fc3e5b0c8be7583b6fc55173f7fd2ddd361d36270928d2cd2b23c04d6eb9b"
 }
 ```
 
@@ -171922,7 +172342,7 @@ files.release: contextPolicy=none
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
@@ -172042,7 +172462,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:16c4a0925b51d7da3be09076325c26dc0796dc182a64450be3be67325ba4058e"
+  "docsHash": "sha256:2807ae8c192a54227def3a7a7e507e2eaa805088b47fc8f21d599f5fb7296726"
 }
 ```
 
@@ -172059,7 +172479,7 @@ files.release: contextPolicy=none
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "label": "下载文件",
   "synonyms": [
@@ -172179,7 +172599,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:57022292cc0055783ea7eda46551121643f62c787ae3ceb28b279218463d7256"
+  "docsHash": "sha256:602ad17d7ca74b4fbbd786012436746761b37e89cd8d2690784c6e7e3c229707"
 }
 ```
 
@@ -172196,7 +172616,7 @@ files.release: contextPolicy=none
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -172323,7 +172743,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:8415e1d09eb05790868032ea6c1b6d923174b80cde387de6bc5264d52041680e"
+  "docsHash": "sha256:463e0a7565514b8c06fb27f481af2a73d12982776c175815dfb95f3b795489c9"
 }
 ```
 
@@ -172340,7 +172760,7 @@ files.release: contextPolicy=none
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -172469,7 +172889,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:686f9b4d986f4a6657415c06abb41eda26916355928e00c1e5b43307c7b4d301"
+  "docsHash": "sha256:457a119edb028229903be3c48a717783ab4bd0ab0dedcbe1043f23b033d6b2c8"
 }
 ```
 
@@ -172486,7 +172906,7 @@ files.release: contextPolicy=none
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -172605,7 +173025,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:8419330b6879d02db9a8c9de45be715bbddbace932229b46cd776498ae2c0455"
+  "docsHash": "sha256:2f78c0526e32247e9acafd80ebe5331a79c54484a1116c5ae32a4c1b98abc27f"
 }
 ```
 
@@ -172617,7 +173037,7 @@ files.release: contextPolicy=none
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -172673,7 +173093,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:05c706542d8f655d4c2120785def255ebce0e99e1c1ca05a8d094f45ed682e4a"
+  "docsHash": "sha256:152a35f33650fa631274551e7671b3419cdfeeb3dc539342e8b2779221df62f0"
 }
 ```
 
@@ -172685,7 +173105,7 @@ files.release: contextPolicy=none
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -172741,6 +173161,6 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2312fe594bbc87ecab8a0b0b3834823a6563283fad96bb4550178c54f1517706"
+  "docsHash": "sha256:98039e861156e3af636f87538d85a1d726913155ce2f773f677f1b98477cad89"
 }
 ```

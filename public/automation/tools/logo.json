@@ -34,7 +34,8 @@
       "targetSurfaceType": {
         "type": "string",
         "minLength": 1,
-        "maxLength": 40
+        "maxLength": 40,
+        "description": "Kernel geomType or canonical class. cylinder accepts cylindre/CYLINDRE; plane accepts PLANE. Case alone is not a surface-type change."
       },
       "targetFaceArea": {
         "type": "number",
@@ -358,7 +359,8 @@
     "required": [
       "faceId",
       "mode",
-      "depthMm"
+      "depthMm",
+      "machiningIntent"
     ],
     "additionalProperties": false,
     "anyOf": [
@@ -434,7 +436,7 @@
     "LOGO"
   ],
   "description": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
-  "schemaHash": "sha256:fcd8e241d1078025c1f3e5318dba50e11efd7016112e29a7a3ffe0f4d2f4389a",
+  "schemaHash": "sha256:7441bfee455f0e8f4e67ebf358a46c824c712e2bdabd45bf777f3520cc7109e6",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -1233,6 +1235,7 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "LOGO",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -1250,6 +1253,7 @@
     "newCoordinates": "frame-local",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "snapshot",
     "previewSupported": true
   },
@@ -1558,5 +1562,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:fa9e3b6e4545101d689c58a88263ca462520d2469219d2398ffdb92e8e8c0864"
+  "docsHash": "sha256:23f2ae000881f2ef622170d74a4277ea9194f7abbb5d8d90131abe869666aa62"
 }

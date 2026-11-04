@@ -1,4 +1,17 @@
 {
+  "pageApiProbeFixes20261104": {
+    "localImpact": "Page API connect/queryGeometry/logo schema/error text only. Round curveSweep centering was already on the path; closed non-planar sweep, bendSolid, variable closed section and curved engrave robustness stay in the browser kernel and are not changed here.",
+    "servicesImpact": "None. services/** was not modified. Deferred kernel work is listed in docs/UPGRADE-20261104-page-api-probe-fixes.zh-CN.md.",
+    "logoImpact": "targetSurfaceType accepts cylinder/cylindre/CYLINDRE. machiningIntent is required on the strict logo and relief cards. No glyph or engraving algorithm change.",
+    "contractImpact": "Page API 1.60.11. queryGeometry faces add surfaceClass, pointOnFace, closestPoint and centerOnSurface. logo/relief inputSchema.required includes machiningIntent.",
+    "documentImpact": "Chinese upgrade note and changelog. Regenerated automation knowledge snapshot.",
+    "cacheImpact": "catalogHash and docsHash change. Hosts must refresh the static knowledge package after handshake.",
+    "requiredTests": [
+      "npm test",
+      "npm run test:contracts",
+      "Focused regressions: connect limit text, userMessage separator, machiningIntent required, surface class, pointOnFace, step id, guided-loft nearest point"
+    ]
+  },
   "revolveDiagnostics20261104": {
     "localImpact": "Reject revolve axis-crossing contours with a specific actionable diagnostic. Required-field messages identify their full schema path.",
     "servicesImpact": "None: browser revolve and schema diagnostics only; no backend change.",

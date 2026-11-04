@@ -2,7 +2,7 @@
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.60.8",
+  "version": "1.60.11",
   "contextPolicy": "identity",
   "inputSchema": {
     "type": "object",
@@ -82,7 +82,7 @@
     "method": "queryGeometry",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
+  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。",
   "synonyms": [
     "queryGeometry",
     "几何查询",
@@ -90,8 +90,8 @@
     "边",
     "选择令牌"
   ],
-  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。",
-  "outputContract": "精确 B-Rep 候选项、歧义信息、快照绑定的 selectionToken 与当前 context；expectedCount 不符时不生成令牌。",
+  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。",
+  "outputContract": "精确 B-Rep 候选项、surfaceClass、pointOnFace/closestPoint、歧义信息、快照绑定的 selectionToken 与当前 context；expectedCount 不符时不生成令牌。刻字落点用 pointOnFace，不要用柱面 center。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -166,5 +166,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3a9a419de231a16673f319c02df1f222b6b5782794a11b7b3605c9eef1e72f4b"
+  "docsHash": "sha256:99d4a4d1a729416c77664f4d2163a23dcfc8349014acea09f1cf3f65396b111e"
 }

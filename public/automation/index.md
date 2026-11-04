@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.60.8 · 操作目录 sha256:89602af8d7c31c5d1ac9bd13b472e841003757e1fa3d972972015f0b595adc58
+API 1.60.11 · 操作目录 sha256:1e3d0a24a692a71387e108784885ebe0c86231485ff942a91be3c93d1912dc4d
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -315,14 +315,14 @@ API 1.60.8 · 操作目录 sha256:89602af8d7c31c5d1ac9bd13b472e841003757e1fa3d97
 - `cancelJob` · page-method · cancelJob({jobId})
 - `waitFor` · page-method · waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。
 - `awaitJob` · page-method · awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。
-- `connect` · page-method · connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); up to 4 queries or 20 unique known tool IDs. toolIds includes contracts automatically. Read-only; works while the kernel starts.
+- `connect` · page-method · connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。只读，内核启动期间可用。
 - `info` · page-method · info() 无参数。
 - `getState` · page-method · getState({include?,compact?,fields?,sinceRevision?,featureIds?,featureFields?,bodyIds?,bodyFields?}={}); featureIds/bodyIds 限定1..50个对象，featureFields/bodyFields指定字段路径（如 params.depthMm），只返回这些对象与字段，不带其他LOGO轮廓。原生Agent优先读取有效同步快照，缺失分组才按需读取；compact不会携带全量特征。 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:["appearance","colors","renderFinish"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。
 - `searchTools` · page-method · searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。
 - `getTools` · page-method · getTools({ids:string[],knownHashes?:{[id]:docsHash},expectedCatalogHash?}); 1..20 unique IDs. Only pass knownHashes for complete cards actually cached by the caller.
 - `getTool` · page-method · getTool({id,version?}); id 为当前登记的操作、页面方法或 files.*。
 - `readDocs` · page-method · readDocs({docId,version?,cursor?,limitChars?,knownHash?}); 只接受登记的文档 ID。knownHash 仅用于已完整缓存的文档。
-- `queryGeometry` · page-method · queryGeometry({context,bodyId,kind:"face"|"edge",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry；多选仍须 requireUnique:false。
+- `queryGeometry` · page-method · queryGeometry({context,bodyId,kind:"face"|"edge",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。
 - `queryReferences` · page-method · queryReferences({context,bodyIds:[],kind:"point"|"axis"|"frame",filter?:{types?:["cad-vertex","edge-midpoint","circle-center","edge-nearest","trimmed-face-point",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。
 - `resolvePlacement` · page-method · resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。
 - `execute` · page-method · execute({context,idempotencyKey,action,args}); action 来自当前命令合同。

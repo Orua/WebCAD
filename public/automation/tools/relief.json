@@ -8,7 +8,8 @@
       "faceId",
       "sizeXMm",
       "sizeYMm",
-      "reliefHeightMm"
+      "reliefHeightMm",
+      "machiningIntent"
     ],
     "anyOf": [
       {
@@ -1243,7 +1244,7 @@
     "小图）"
   ],
   "description": "浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief",
-  "schemaHash": "sha256:f94a3e051f5bcfdee8e69c6fce7cc59260ced74650aef4efc2e271ef2861a8a3",
+  "schemaHash": "sha256:86aaa4d6fafcc22f89a4ddae105a8f92d44ac21548cea890c1e2c925bb73ff56",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -2379,6 +2380,7 @@
     "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
   },
   "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
   "label": "精确浮雕（矢量/小图）",
   "validationMode": "strict-normalization",
   "documentLimits": {
@@ -2397,6 +2399,7 @@
     "newCoordinates": "not-applicable",
     "sourceAnchorRequired": false,
     "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
     "historyBinding": "legacy",
     "previewSupported": true
   },
@@ -2706,5 +2709,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:e3b08c49e364c445fb2a5e85480b6d876f92c535548dc406e4aebbc78b679068"
+  "docsHash": "sha256:bfbfbbe9ea07ba9fa2f646062041e5d6647b4c34a5d5b38e4c21d83695013a48"
 }

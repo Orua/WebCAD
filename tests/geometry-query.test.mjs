@@ -4,6 +4,7 @@ import init from 'replicad-opencascadejs';
 import { CadKernel } from '../src/cad-kernel.js';
 import { normalizeGeometryFilter } from '../src/geometry-query.js';
 import { queryShapeGeometry } from '../src/geometry-query.js';
+import { sameSurfaceType } from '../src/surface-type.js';
 import * as cad from 'replicad';
 
 const oc = await init({ wasmBinary: fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm', import.meta.url)) });
@@ -77,6 +78,19 @@ try {
   assert.equal(loop.matchCount,1);assert.deepEqual(loop.items[0].boundaryLoopIndices,[1]);
   const cylindricalFaces=await kernel.queryGeometry('holes','face',{surfaceType:'cylinder'});
   assert.equal(cylindricalFaces.matchCount,4);assert.ok(cylindricalFaces.items.every(face=>Math.abs(face.cylinder.radiusMm-2)<1e-8));
+  assert.ok(sameSurfaceType('cylinder','CYLINDRE')&&sameSurfaceType('cylindre','cylinder')&&sameSurfaceType('plane','PLANE')&&!sameSurfaceType('cylinder','plane'));
+  assert.ok(cylindricalFaces.items.every(face=>face.surfaceType==='cylindre'&&face.surfaceClass==='cylinder'&&face.centerOnSurface===false));
+  for(const face of cylindricalFaces.items){
+    const axis=face.cylinder.axis,origin=face.cylinder.origin,delta=face.pointOnFace.map((value,index)=>value-origin[index]);
+    const along=delta.reduce((sum,value,index)=>sum+value*axis[index],0);
+    const radial=Math.hypot(...delta.map((value,index)=>value-along*axis[index]));
+    assert.ok(Math.abs(radial-face.cylinder.radiusMm)<1e-6, 'pointOnFace lies on the cylinder');
+    assert.deepEqual(face.closestPoint,face.pointOnFace);
+    assert.ok(Math.hypot(...face.center.map((value,index)=>value-face.pointOnFace[index]))>1, 'area centroid is not the on-surface point');
+  }
+  assert.equal(drilledTop.items[0].surfaceClass,'plane');
+  assert.equal(drilledTop.items[0].centerOnSurface,true);
+  assert.ok(Math.hypot(...drilledTop.items[0].pointOnFace.map((value,index)=>value-drilledTop.items[0].center[index]))<1e-6);
   assert.ok(holeTopEdges.items.every(item => Math.abs(item.center[2] - 3) < 1e-9));
   assert.notEqual(circles.geometryFingerprint, top.geometryFingerprint);
   const beforeFailure = circles.geometryFingerprint;

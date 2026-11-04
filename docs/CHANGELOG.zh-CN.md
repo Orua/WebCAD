@@ -1,3 +1,10 @@
+## 1.60.11 · 页面 API 探针修复（2026-11-04）
+
+- connect 把「queries 最多 4 项」和「limit 为每项 1..10」分成两条错误，避免把返回条数说成查询条数。
+- queryGeometry 面结果增加 surfaceClass、pointOnFace/closestPoint；cylinder 与 cylindre/CYLINDRE 视为同一面类型。logo/relief 的 machiningIntent 写入 inputSchema.required。
+- userMessage 在内核原句和恢复说明之间补句号。步骤 id 拒绝中文时写明原因。mode:rotate 说明须带 placement，世界旋转用 rx/ry/rz。
+- 闭合非平面扫掠、变截面 D 扣和曲面刻字稳健性仍待内核，见升级说明。
+
 ## 浮雕拟合转精确BRep接入页面（未改版本号）
 
 - 新增只读页面/Agent 工具 prepareReliefDesignRelief：读取当前选中真实平面，明确中心、X方向、基线和加工意图后返回 relief 预览参数。
