@@ -2,11 +2,12 @@
   "id": "getBatchReceipt",
   "title": "getBatchReceipt",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getBatchReceipt 不能作为 api.run 的 method。请直接调用 api.getBatchReceipt。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getBatchReceipt",
@@ -114,5 +115,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9951e623ce44291fd347239c455bcfbe1cbb199250edd733d9be4415da346ab3"
+  "docsHash": "sha256:6270b44a5d1ac87e217c5c11d5dd4dc0e7eb5511536ae44c84b415d538bf032c"
 }

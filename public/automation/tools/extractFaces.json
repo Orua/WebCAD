@@ -128,6 +128,10 @@
   "knownUnsupportedCases": [
     "按当前faceIds提取精确面并保留来源；不承诺生成闭合实体。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "extractFaces",
     "params": {
@@ -137,9 +141,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "extractFaces",
@@ -150,9 +152,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -302,9 +302,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "extractFaces",
@@ -315,9 +313,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -659,6 +655,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -717,5 +714,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4cf3adf2c5efd5b61e3568b27b9b6df925698054ffaa9e2f57a68c580b455f4d"
+  "docsHash": "sha256:fa72532b7f1df6c1750f3c2f2b811c763328868602ccdb087f5a3d1110699e98"
 }

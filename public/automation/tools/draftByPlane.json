@@ -176,6 +176,10 @@
   "knownUnsupportedCases": [
     "选择一个封闭实体的当前平面、圆柱或圆锥面，指定固定中性平面、拉出方向和有符号角度。中性面法线须平行或反平行拉出方向。直壁正角在拉出方向一侧减料，负角加料；圆锥面指定目标锥角而非累加原角，材料变化须回读。保留中性平面交线。相切链中需要联动的面必须全部显式列入 faceIds，否则整步拒绝。替换来源；不受六面棱柱限制，但不支持改变拓扑的拔模、样条面或自动判断脱模方向。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "draftByPlane",
     "params": {
@@ -201,9 +205,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "draftByPlane",
@@ -230,9 +232,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -447,9 +447,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "draftByPlane",
@@ -476,9 +474,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -832,6 +828,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -918,5 +915,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c77f28beb72233e4a0a45338e3462bd718d50ef8afab2344a2a44dd67c340dda"
+  "docsHash": "sha256:31996b1b2e7fd661018924d132ec00293cc36605ac159c0302af5911e6a77332"
 }

@@ -181,7 +181,9 @@ test('file API rejects misspelled selection fields before export and still accep
   const resource=await api.files.export({context:context(),format:'step',ids:['body-1']});
   assert.deepEqual(forwarded.args.ids,['body-1']);assert.equal(resource.status,'generated');
   const input=await api.files.register({name:'fixture.step',data:new Blob(['exact input'])});
-  assert.equal(await (await api.files.read({resourceId:input.resourceId})).text(),'exact input');
+  assert.equal(await (await api.files.read({resourceId:input.resourceId,as:'blob'})).text(),'exact input');
+  assert.equal(await api.files.read({resourceId:input.resourceId,as:'text'}),'exact input');
+  await assert.rejects(api.files.read({resourceId:input.resourceId}),error=>error.code==='PARAM_SCHEMA_INVALID');
   assert.throws(()=>api.files.read({resourceId:input.resourceId,format:'base64'}),{code:'PARAM_SCHEMA_INVALID'});
   const card=getTool({id:'files.export'});
   assert(card.argumentKeys.includes('ids'));assert.equal(card.unknownFields,'rejected');

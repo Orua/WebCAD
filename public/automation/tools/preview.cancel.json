@@ -8,7 +8,7 @@
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -38,6 +38,7 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -93,5 +94,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:eaee42060af25490f81f8642f13ec983adb59a0b2b6ed0ccb1a61561dfcebe25"
+  "docsHash": "sha256:d36abc4d3567afd62c4cbf79e5aa33466ec26f0666d6fbc65423dfcfc78e6bb8"
 }

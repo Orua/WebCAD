@@ -2,11 +2,12 @@
   "id": "getDebugReport",
   "title": "getDebugReport",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getDebugReport 不能作为 api.run 的 method。请直接调用 api.getDebugReport。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -103,5 +104,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6b7d3b9bd93582a8e977141507420437cc752163b76dc786978adc6198f70b99"
+  "docsHash": "sha256:10681a2bf10e4232937c08692a460e69b89844a689f5eec4128c0623044f88cf"
 }

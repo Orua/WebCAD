@@ -8,16 +8,16 @@
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
     "read"
   ],
-  "description": "read({resourceId,as?}); as is blob (default) or bytes.",
-  "inputContract": "read({resourceId,as?}); as is blob (default) or bytes.",
-  "outputContract": "Actual Blob or Uint8Array; host JSON boundaries may need bounded transfer.",
+  "description": "read({resourceId,as}); as is required: \"bytes\", \"text\", or \"blob\". Omitting as is PARAM_SCHEMA_INVALID and does not return an empty object. text is UTF-8; bytes is a Uint8Array; blob is an in-page Blob that a JSON host would otherwise stringify as {}.",
+  "inputContract": "read({resourceId,as}); as is required: \"bytes\", \"text\", or \"blob\". Omitting as is PARAM_SCHEMA_INVALID and does not return an empty object. text is UTF-8; bytes is a Uint8Array; blob is an in-page Blob that a JSON host would otherwise stringify as {}.",
+  "outputContract": "Uint8Array, UTF-8 string, or Blob. JSON hosts must use bytes or text.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -63,25 +63,37 @@
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
-    "properties": {
-      "resourceId": {},
-      "as": {}
-    },
     "required": [
-      "resourceId"
-    ]
-  },
-  "preparationSchema": {
-    "type": "object",
-    "additionalProperties": false,
+      "resourceId",
+      "as"
+    ],
     "properties": {
-      "resourceId": {},
-      "as": {}
-    },
-    "required": [
-      "resourceId"
-    ]
+      "resourceId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "as": {
+        "type": "string",
+        "enum": [
+          "bytes",
+          "text",
+          "blob"
+        ]
+      }
+    }
   },
+  "minimalExample": {
+    "resourceId": "<current resourceId>",
+    "as": "bytes"
+  },
+  "normalExample": {
+    "resourceId": "<current resourceId>",
+    "as": "text"
+  },
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.read 不能作为 api.run 的 method。请直接调用 api.files.read。",
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -141,5 +153,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:73e43b587f4e5c10c8b4fe8b23d468acdc676d642bec88250774a43a9c7df444"
+  "docsHash": "sha256:5f694a5aa8d9781aee8454ef604a09e8d9b1445f620567ae32fef2d212e731d8"
 }

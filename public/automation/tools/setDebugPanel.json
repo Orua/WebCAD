@@ -2,11 +2,12 @@
   "id": "setDebugPanel",
   "title": "setDebugPanel",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "setDebugPanel 不能作为 api.run 的 method。请直接调用 api.setDebugPanel。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -103,5 +104,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b9f5ae9696ac8f123ea00cf4138fd2768b91b4f9012e3d28e6a11bc7e1dc4c0b"
+  "docsHash": "sha256:ecf0a7b3d9e6072e5cff014f3084ff1bb28d9841572c20fa91d26dfba0b0ee84"
 }

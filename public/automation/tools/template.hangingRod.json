@@ -100,6 +100,10 @@
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -625,6 +629,7 @@
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -667,5 +672,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:40c8c0ba9f416b462bfa3f9cbd4f6ee0059d4d7fddd992b33441639bfa6b46fc"
+  "docsHash": "sha256:69f8e42724e7ab2b0239cceb13802005cab10cd1358555bc05b85d4aecba9437"
 }

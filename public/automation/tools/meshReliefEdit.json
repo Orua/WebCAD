@@ -1152,6 +1152,10 @@
   "knownUnsupportedCases": [
     "Read current meshReport.geometryHash. Explicit physical support, on-surface seed, core/transition and hard-protection disks. replace uses field.originMm/sizeMm/heightsMm in support UV; rows increase V, entries are absolute heights in mm. Bilinear target replaces old heights in core and blends only in transition, never max; field must cover editable samples. Source facet spacing must resolve target field; this is a sampling gate, not an approximation-error certificate. Fixed topology Float64 direct edit; source remains immutable. Only closed oriented planar single-valued relief, at most 200000 triangles / 20000 affected vertices / 12000000 tests per clearance phase. Clearance uses projected facet overlaps and vertex/centroid rays; arbitrary 3D self-intersection is not certified. Output remains mesh, not BRep/STEP. History restores prior asset/recipe, not an inverse brush. Read bodies[].meshReport.edit. Missing support, ambiguous seed, stale hash, unavailable back support, boundary conflict, collision or thickness failure reject atomically. replace may instead take deformation:{pivotMm,translationMm,scale:[positiveU,positiveV],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}. Inverse affine sampling of the same current selected source height surface moves/narrows/rotates its relief within the declared ROI; topology/XY positions and protected vertices remain fixed. Heights are barycentrically sampled from the immutable source, never from a previous partial output. Only sourceRegion contributes; inverse samples outside it use explicit baseHeightMm, preventing unrelated neighbors from being copied. The editable ROI must cover the old and new local relief, with unrelated geometry protected. This is resampling, not recovered analytic geometry; no approximation error is certified by the spacing gate. Domain misses, nonpositive scale or ambiguous height reject. Source interpolation must resolve the narrowest scaled axis. Read meshReport.edit.profile. Alternatively replace accepts profile (mutually exclusive with field/value): cubic Bezier segments in support UV, stations from at=0 to 1 along approximate arc length, sectionMm ordered [signed lateral offset,height] pairs with zero outer heights, baseHeightMm, endTaperMm, curveToleranceMm and maxSourceSpacingMm. Positive section offset is left of path direction. Sections and stations interpolate linearly without height overshoot; end taper is cubic smoothstep in mm, exterior end planes use base height. This replaces the declared ROI including old path positions, not an additive overlay. Hard protections take precedence. Read meshReport.edit.profile. No arbitrary undercuts or automatic remeshing. Optional targets:[{pointMm:[U,V],heightMm,toleranceMm}] are mandatory acceptance constraints, not soft brush requests. A protected point conflicting with a target fails RELIEF_CONSTRAINT_CONFLICT with params.targets index before commit; no hit fails RELIEF_TARGET_OUTSIDE. Read meshReport.edit.constraints. mode=layers composes 1..16 ordered layers with unique id and enabled. Surface layers declare role=macro|detail, region and blend: add/remove require positive heightMm and attachment=followHeight (relative normal height); replace requires attachment=absolute and exactly heightMm, field or profile. A freeze layer supplies hard-protection regions for subsequent layers. Global protections apply to every layer. Editing the whole layers array at the original feature recomputes from its immutable input; order and enabled state are part of the recipe. This is height-only following, not automatic tangent or lateral detail binding. Layer domains must lie inside the total ROI; accumulated freeze disks <=64, active layers times triangles <=1000000. Mandatory targets apply to the final composed surface. Failures discard the entire candidate. Read edit.layers, layerSemanticsVersion, continuationSeedMm; minimum thickness/clearance are conservative minima over affected regions at every applied layer, not global final-surface certificates."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "meshReliefEdit",
     "params": {
@@ -1196,9 +1200,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "meshReliefEdit",
@@ -1244,9 +1246,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -1758,9 +1758,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "meshReliefEdit",
@@ -1806,9 +1804,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -2298,6 +2294,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -2396,5 +2393,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:b70237d9ef138a79f368d93e3d50d00595d963a7ac7c3f4d91b99f3e74ca8e4c"
+  "docsHash": "sha256:7e872c3a524e2394b5dd26333eb5818fc8310d7a9eaf7c419137522542f1ba10"
 }

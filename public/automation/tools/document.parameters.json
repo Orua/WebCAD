@@ -2,7 +2,7 @@
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "execute",
@@ -87,6 +87,7 @@
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -154,5 +155,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3814bcc1ea38c0f39788de96ceee79e0e716c2280127380bd02537c6da638ef5"
+  "docsHash": "sha256:e33d136df574d26c9e2bb74b9ab71762f7cb1b203424d7284def8c441ccdc93d"
 }

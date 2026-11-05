@@ -2,11 +2,12 @@
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "probeBlendRadius 不能作为 api.run 的 method。请直接调用 api.probeBlendRadius。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "probeBlendRadius",
@@ -275,5 +276,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:37b3adf6286697cb9a8da9172b746a49cc18060d23a6ba2ff856dbdcf2544b06"
+  "docsHash": "sha256:62c10395e5e5263aa3bf1ff89ed30dd4fbeef6b8169c3cc413bc2920f3a06438"
 }

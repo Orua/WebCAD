@@ -129,15 +129,17 @@
   "knownUnsupportedCases": [
     "majorRadius > minorRadius"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "torus",
     "params": {
       "majorRadius": 10,
       "minorRadius": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "torus",
@@ -145,9 +147,7 @@
       "majorRadius": 10,
       "minorRadius": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -309,9 +309,7 @@
           "majorRadius": 10,
           "minorRadius": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "torus",
@@ -319,9 +317,7 @@
           "majorRadius": 10,
           "minorRadius": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -667,6 +663,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -725,5 +722,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6b7689a3b7537f4577faaf19d160aeba0b2740631b8230ffe80f7aa1cf4780f2"
+  "docsHash": "sha256:09269f67cd20142a54bf1f7a2e49e70c9aacf5b20e17d96ed4513fe5d542c2e6"
 }

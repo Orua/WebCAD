@@ -78,7 +78,9 @@ export function createPageBatch(api,{display}={}){
       displayMatchesContext:s.display?.status==='rendered'&&['documentId','documentInstanceId','revision'].every(k=>s.display.rendered?.[k]===s.context[k])});
       receipt.facts=batchFacts(s,receipt,Array.isArray(input?.steps)?input.steps:[],beforeState);return receipt;};
     try{
-      safe(input);keys(input,['context','idempotencyKey','steps']);
+      safe(input);
+      if(plain(input)&&Object.hasOwn(input,'atomic'))bad('PARAM_SCHEMA_INVALID','api.run does not accept atomic. Batches always run with atomic:false: a failed step keeps earlier committed steps. Use feature.addMany for one atomic multi-feature commit.');
+      keys(input,['context','idempotencyKey','steps']);
       const signature=JSON.stringify(input);if(signature.length>3*1024*1024)bad('RESOURCE_LIMIT','Batch exceeds 3 MiB');fingerprint=contractHash(signature);
       const now=api.getState();beforeState={bodies:(now.bodies||[]).map(body=>({id:body.id}))};
       if(instance!==now.context.documentInstanceId){receipts.clear();archivedReceipts.clear();failedAttempts.clear();instance=now.context.documentInstanceId;}

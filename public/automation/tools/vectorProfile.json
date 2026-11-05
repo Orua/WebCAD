@@ -233,6 +233,10 @@
     "No selected body needed. Closed regions and holes only; normalize imported bounds center to origin before position. XY normal +Z, XZ normal -Y, YZ normal +X. Curves are approximated at source import tolerance. Face output has zero solids; change output to solid and height to extrude later.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "vectorProfile",
     "params": {
@@ -257,9 +261,7 @@
       "output": "solid",
       "height": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "vectorProfile",
@@ -285,9 +287,7 @@
       "output": "solid",
       "height": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -577,9 +577,7 @@
           "output": "solid",
           "height": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "vectorProfile",
@@ -605,9 +603,7 @@
           "output": "solid",
           "height": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -939,6 +935,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -1021,5 +1018,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:725b0d03035d4507fac01a78c477893e69f177df9f8a576cc1a8f1b574e04d3d"
+  "docsHash": "sha256:ff7e56da49bc6d9fc299a70887bb774be01aa55bdc142737ecc75adc98726975"
 }

@@ -232,6 +232,10 @@
   "knownUnsupportedCases": [
     "Unified rounding entrance. Select exactly one scope: edgeIds or faceIds. Planar faceIds resolve all current face boundary edges, including holes, with a 1000-edge budget; this scope uses edge mode and reports scope.faceIds/edgeIds. With configured Services, a rectangular face beside exactly one existing full-span round uses the accepted planar-boundary-cutter: six orthogonal support planes, one equal-radius cylindrical blend, no holes, width and depth greater than 4R, height greater than R. The source radius is retained when radiusMm is omitted; strength must remain .5 and does not scale this fixed-radius path. Four side sections retain R; corners are smooth freeform patches with four isolated termination points and are not constant-radius in every direction. Unsupported geometry is rejected without retry. Other automatic local face radii use measured support depth and body dimensions, not the shortest tessellated outline segment. Exact radiusMm is never reduced. Damaged contours must be explicitly corrected upstream; this tool never fills holes or removes profile points. Edge mode auto makes one geometry-based decision: an elongated principal-axis body selected wholly near its extreme end uses measured half-section end reconstruction, otherwise standard edge fillet. No solver fallback or radius search; one candidate per preview. strength defaults .5. End depth is measured and recommended. Optional explicit mode, radiusMm or depthMm, axis/direction/profileAxis and a straight principal-axis directionEdgeId on the same source resolve ambiguity. Only LINE/CIRCLE symmetric stable end sections are supported. End operation replaces the declared end and may add/remove material. Existing profile creases up to 1 degree are reported; new body join must meet sampled 0.1 degrees. A recommendation is not a feasibility guarantee. Read roundReport in preview.scope/getState.previewScope and bodies[].roundReport: mode, resolved parameters, control, scope, endRoundingReport or blendReport, attemptCount. Failure preserves the source."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "round",
     "params": {
@@ -241,9 +245,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "round",
@@ -254,9 +256,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -534,9 +534,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "round",
@@ -547,9 +545,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -915,6 +911,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -981,5 +978,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:182ea77e0c32120829572c3c41ce8d7cd49e4349e54e5fc3fbb1f3358e4e7b0b"
+  "docsHash": "sha256:405dd2cbb6e9fe827d25e59279bb5e7b1940b765f20a63ae018bf68b0d83d899"
 }

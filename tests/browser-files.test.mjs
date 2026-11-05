@@ -65,7 +65,11 @@ test('register copies bytes, applies basename and size limits, and forwards exac
   const resource = await h.files.register({ name: '零件.step', data: original });
   original.fill(7);
   assert.deepEqual([...await h.files.read({ resourceId: resource.resourceId, as: 'bytes' })], [0, 1, 2, 255]);
-  assert.equal((await h.files.read({ resourceId: resource.resourceId })).size, 4);
+  assert.equal((await h.files.read({ resourceId: resource.resourceId, as: 'blob' })).size, 4);
+  await assert.rejects(h.files.read({ resourceId: resource.resourceId, as: 'text' }), error => error.code==='PARAM_SCHEMA_INVALID');
+  const note = await h.files.register({ name: 'note.txt', data: new TextEncoder().encode('抽壳') });
+  assert.equal(await h.files.read({ resourceId: note.resourceId, as: 'text' }), '抽壳');
+  await assert.rejects(h.files.read({ resourceId: resource.resourceId }), error => error.code==='PARAM_SCHEMA_INVALID' && /as:/.test(error.message));
   await h.files.import({ context: context(), resourceId: resource.resourceId });
   assert.equal(h.calls.at(-1).action, 'import');
   assert(h.calls.at(-1).args.data instanceof Uint8Array);assert.deepEqual([...h.calls.at(-1).args.data], [0, 1, 2, 255]);

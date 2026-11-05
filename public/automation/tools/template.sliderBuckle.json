@@ -100,6 +100,10 @@
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -780,6 +784,7 @@
     "restrictions": "Round, equal frame/bar diameter and no gap; complete junctions must fit between corners. rollingBall jointRadius is an independent 3D radius (0<R<=20 mm; wire diameter<=40 mm). profileRound jointRadius is planar. sourceFree ignores jointRadius; legacy sourceFixedR retains wireDiameter/4. Invalid dimensions fail before commit."
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -822,5 +827,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2926dcef35ee37703b74008c0d81630e7fb249ea4dba05905e8bdb5dbfa69649"
+  "docsHash": "sha256:74e94e0ee6fbbffe9f04e7c80fc60a6b8156f71e9429dd9b10f08f1912649da8"
 }

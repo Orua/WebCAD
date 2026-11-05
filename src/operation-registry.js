@@ -100,9 +100,11 @@ function buildCard(id, source) {
   const preserves = profileSolidIds.includes(id) ? 'Preserves section/path sources; replaces only the last target for join/cut/intersect.' : ['guidedLoft','badge','copy', 'planeSection', 'faceBoundary', 'extractFaces', 'extractShell', 'surfaceTrim', 'referenceExtrude', 'referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(id) ? true
     : ['mirror', 'extractSolid'].includes(id) ? 'unless keepOriginal=false' : false;
   const minRefs = refsSchema.minItems;
-  const example = { op: id, params: clone(examples[id]), refs: Array.from({ length: minRefs }, (_, i) => `<current-bodyId-${i + 1}>`),
+  const example = { op: id, params: clone(examples[id]), refs: Array.from({ length: minRefs }, (_, i) => `<current-bodyId-${i + 1}>`) };
+  const exampleNotes = {
     referenceInstructions: 'Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.',
-    validation: strict ? 'strict-parameter-schema' : special ? 'dedicated-entry-only' : 'advisory-schema-only; kernel prerequisites are not certified by this example' };
+    validation: strict ? 'strict-parameter-schema' : special ? 'dedicated-entry-only' : 'advisory-schema-only; kernel prerequisites are not certified by this example',
+  };
   if(PATTERN_OPERATIONS.includes(id))example.params.machiningIntent={version:1,requestedGeometry:id==='relief'?'continuousRelief':'constantDepthContours',sourceInterpretation:id==='relief'?'authoredHeightMap':'reviewedVectors',userIntentEvidence:'Example only: replace with the actual confirmed user request and source identity'};
   example.params=migrateReliefParams(id,example.params);
   const invalidParams = id === 'box' ? { ...examples[id], width: -1 }
@@ -157,7 +159,7 @@ function buildCard(id, source) {
     undoBehavior: 'One successful feature operation is one undo step. Legacy refresh is separately documented.',
     idempotency: strict ? 'v2 same documentInstanceId, at most 1000 in-memory receipts; refuses new commands at capacity without evicting old receipts. No durable or cross-reload guarantee.' : 'Legacy calls do not guarantee idempotency.',
     limits: strict ? ['Finite JSON values; no numeric strings, unknown fields, or implicit UI selection.'] : ['Schema advisory only; existing operation/kernel restrictions apply.'],
-    knownUnsupportedCases: known, minimalExample: example, normalExample: id==='rounding'?{...clone(example),params:{...clone(example.params),strength:0.75}}:clone(example),
+    knownUnsupportedCases: known, exampleNotes, minimalExample: example, normalExample: id==='rounding'?{...clone(example),params:{...clone(example.params),strength:0.75}}:clone(example),
     invalidExamples: [{ params: invalidParams, errorCode: strict ? (id === 'box' ? 'PARAM_RANGE_INVALID' : ['fillet', 'chamfer'].includes(id) ? 'SELECTION_CONFLICT' : 'PARAM_SCHEMA_INVALID') : 'NOT_A_STRICT_V2_OPERATION',
       explanation: strict ? 'Rejected before kernel execution.' : 'v2 rejects the operation until migration; this is not a claim of legacy runtime enforcement.' },
       ...(id==='cone'?[{params:{radius1:0,radius2:0,height:5},errorCode:'PARAM_RANGE_INVALID',explanation:'At least one radius must be positive; validation applies after the existing defaults.'}]:[]),
@@ -201,6 +203,11 @@ const cards = Object.fromEntries(Object.keys(operationCatalog.operations).sort()
 export const catalogHash = contractHash(Object.values(cards).map(({ id, version, schemaHash }) => ({ id, version, schemaHash })));
 
 export const UNKNOWN_OPERATION_HINTS={
+  scale:'没有 scale。缩放、移动和旋转都用 transform。',
+  move:'没有 move。移动、旋转和缩放都用 transform。',
+  rotate:'没有 rotate。旋转、移动和缩放都用 transform。',
+  offsetFace:'没有 offsetFace。单面加厚用 thickenFace；曲面等距用 offsetSurface。',
+  deleteFace:'没有 deleteFace。删除实体用 remove；分割用 split；不要发明 deleteFace。',
   patternLinear:'没有 patternLinear。线性阵列是 linearPattern，步长字段是 dx/dy/dz，不是 spacingMm。',
   patternCircular:'没有 patternCircular。环形阵列是 circularPattern，字段是 angle、axis、cx/cy/cz，不是 angleDeg。',
   draft:'没有 draft。拔模用 draftByPlane（解析面）或 draftFaces。',

@@ -2,11 +2,12 @@
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "decideServicesWait 不能作为 api.run 的 method。请直接调用 api.decideServicesWait。",
   "mcpCall": {
     "tool": "host-only",
     "method": "decideServicesWait",
@@ -142,5 +143,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d1c97d6c0ee3e8922ef51cf3b4e444d4ec30080756ab9735e71591f525376b2b"
+  "docsHash": "sha256:1facec0d1b9fc9f1d91b3f5c4a5c96004a329d489234743a15df416371960081"
 }

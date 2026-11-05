@@ -131,6 +131,10 @@
     "Positive fuses outward material; negative cuts inward.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "faceExtrude",
     "params": {
@@ -139,9 +143,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "faceExtrude",
@@ -151,9 +153,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -306,9 +306,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "faceExtrude",
@@ -318,9 +316,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -653,6 +649,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -695,5 +692,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a64ffcb388b43aacbc702070c54c9ea4edfe0510f6bae17871b0252d3b311e59"
+  "docsHash": "sha256:a09ea6379b60df342b13b1745a7b52e297e8381068641d8e7c022bef1c35f472"
 }

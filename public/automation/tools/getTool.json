@@ -2,7 +2,7 @@
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -132,5 +132,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d91c77aa0faba18b66516d4d3c1644c585dcab1fa20d1a555fc52801d4318892"
+  "docsHash": "sha256:2caf3415c2ab8ca558c96e981c64c1d41e946b4e9d91f5334a8415b2f4dc8c0d"
 }

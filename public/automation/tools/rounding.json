@@ -505,6 +505,10 @@
   "knownUnsupportedCases": [
     "Select current source edges and preview automatic local grinding. No sizeMm or exact-radius target is required. Optional strength is a dimensionless fraction in (0,1], default 1; the solver derives local dimensions from the source geometry. Related edges and support faces may follow only within the reported source-derived local region. The preview and committed roundingReport.region expose sourceBodyId, requestedEdgeIds, expandedEdgeIds and affectedFaceIds; verify this explicit expansion before committing the same preview. Every generated contact, inter-patch and terminal boundary must meet the original strict G0/G1, material and locality checks. Multiple smooth curved patches are permitted; valid topology alone is not acceptance. Unsupported geometry or failed evidence leaves the source unchanged. Historical specVersion:1 and specVersion:2 features retain their original parameters and solver semantics; do not reinterpret them as automatic grinding."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "rounding",
     "params": {
@@ -518,9 +522,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "rounding",
@@ -536,9 +538,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -755,9 +755,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "rounding",
@@ -773,9 +771,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -1155,6 +1151,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -1221,5 +1218,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:26bc66543058057a85c4a8b08d50bca38e25f6c8ab2b6c284f73f8706ef11aa2"
+  "docsHash": "sha256:5d62aaed0998660c9e1aa337cbb14fc98d2b75de63c9758742a077dbea5d7c2f"
 }

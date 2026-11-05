@@ -181,6 +181,10 @@
   "knownUnsupportedCases": [
     "Centered XY plate, support z=0 and back z=-thicknessMm. Explicit radial profiles use plateau plus cubic smoothstep shoulder, add signed heights; overlapping contributions add. Float64 regular triangulated surface; spacing is physical maximum cell size, not precision guarantee. No hidden normalization. Preserve this recipe in native project; output mesh, not BRep or STEP. Bumps must remain inside the plate, height must leave positive material, and total mesh is capped at 200000 triangles. New object placement uses the normal shared creation frame."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "meshReliefPlate",
     "params": {
@@ -201,9 +205,7 @@
       "sizeYMm": 20,
       "baseThicknessMm": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "meshReliefPlate",
@@ -225,9 +227,7 @@
       "sizeYMm": 20,
       "baseThicknessMm": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -451,9 +451,7 @@
           "sizeYMm": 20,
           "baseThicknessMm": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "meshReliefPlate",
@@ -475,9 +473,7 @@
           "sizeYMm": 20,
           "baseThicknessMm": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -838,6 +834,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -936,5 +933,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:80352851d8bd2763bd7e66fb5cd2eab580020dbc1578ccaa161170b41adceaff"
+  "docsHash": "sha256:4f8b0b0ecc86cd4be7a47a21c78297722214de0d2b03ef35224121fe0005c35d"
 }

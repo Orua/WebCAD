@@ -8,7 +8,7 @@
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -38,6 +38,7 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -103,5 +104,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ee82092b20c14e62f8459f03ba8898ba7c7fab97081d3229ab011fca72e4a96"
+  "docsHash": "sha256:b229b35d83a2d530d350ca1725b234ea788a6fd7ec331d3d5d54f93d105584f0"
 }
