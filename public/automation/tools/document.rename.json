@@ -8,7 +8,7 @@
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -40,6 +40,13 @@
     "getState"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "document.rename",
     "args": {
       "name": "圆环设计"
@@ -48,6 +55,140 @@
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.rename"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {}
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "name": {}
+    },
+    "required": [
+      "name"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.rename"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {}
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -141,5 +282,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:407b6c8a2433c487e37e052a0c6c1ef44925dd2156251784c5cc029b532e3451"
+  "docsHash": "sha256:e9ba1a7fe02578b1d01f6ded5d6de05922b86b317bfbae4dc5d96e48ec1df817"
 }

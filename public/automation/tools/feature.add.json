@@ -8,7 +8,7 @@
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -39,6 +39,167 @@
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.add"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "op": {},
+          "opVersion": {},
+          "schemaHash": {},
+          "params": {},
+          "refs": {},
+          "name": {},
+          "selectionToken": {},
+          "placement": {}
+        },
+        "required": [
+          "op",
+          "params",
+          "refs"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {},
+      "opVersion": {},
+      "schemaHash": {},
+      "params": {},
+      "refs": {},
+      "name": {},
+      "selectionToken": {},
+      "placement": {}
+    },
+    "required": [
+      "op",
+      "params",
+      "refs"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.add"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "op": {},
+          "opVersion": {},
+          "schemaHash": {},
+          "params": {},
+          "refs": {},
+          "name": {},
+          "selectionToken": {},
+          "placement": {}
+        },
+        "required": [
+          "op",
+          "params",
+          "refs"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -117,5 +278,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:02fd0735d75bd66811d7ee149b987288d7f02a56a2a7d82a1f6da10f84abb6dd"
+  "docsHash": "sha256:0f85c9613261fee89509a9de358dd33a8a3a1a061ccf6538c44e60c1360792fe"
 }

@@ -5,6 +5,7 @@ import {readBuildIdentity} from './build-identity.mjs';
 import {verifyOpenSource} from './generate-open-source.mjs';
 import { infoMetadata, getTool, readDocs } from '../src/page-api-docs.js';
 import {assertAutomationParity} from '../src/automation-parity.js';
+import {auditAgentInterfaces} from './agent-interface-audit.mjs';
 import { listOperations } from '../src/operation-registry.js';
 import { assertPlacementCoverage } from '../src/placement-policy.js';
 import { UI_API_ROUTES } from '../src/ui-api-coverage.js';
@@ -21,6 +22,7 @@ const outputDirectory=resolve(root,process.argv[2]||process.env.WEBCAD_DIST_DIR|
 const outputJson=path=>json(resolve(outputDirectory,path));
 const metadata = infoMetadata();
 assertAutomationParity();
+await auditAgentInterfaces(root);
 const {buildId}=readBuildIdentity(root);
 const [index, manifest, report] = await Promise.all([
   outputJson('automation/index.json'), outputJson('automation/manifest.json'),

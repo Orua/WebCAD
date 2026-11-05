@@ -8,7 +8,7 @@
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -39,6 +39,152 @@
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.deleteBodyAnchor"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyId": {},
+          "anchorId": {},
+          "expectedAnchorVersion": {}
+        },
+        "required": [
+          "bodyId",
+          "anchorId",
+          "expectedAnchorVersion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "bodyId": {},
+      "anchorId": {},
+      "expectedAnchorVersion": {}
+    },
+    "required": [
+      "bodyId",
+      "anchorId",
+      "expectedAnchorVersion"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.deleteBodyAnchor"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyId": {},
+          "anchorId": {},
+          "expectedAnchorVersion": {}
+        },
+        "required": [
+          "bodyId",
+          "anchorId",
+          "expectedAnchorVersion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -108,5 +254,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a2e47b108f05e59461983ce0c085eaaac6a184c14009e52f03bcb97fcf1fcaf9"
+  "docsHash": "sha256:f90431cdc870238e5f0d59e95a2146a36e7bb92abb03df0726c4dbfe5322fbe7"
 }

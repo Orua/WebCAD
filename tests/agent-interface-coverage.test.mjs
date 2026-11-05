@@ -8,9 +8,44 @@ import {createToolCallPreparation} from '../src/tool-call-preparation.js';
 import {createOperationPreparation} from '../src/prepared-operations.js';
 import {normalizeOperationParams,normalizeOperationPatch} from '../src/operation-registry.js';
 import {validateSchema} from '../src/contracts/operation-schema.js';
+import {readDocs} from '../src/page-api-docs.js';
+import {METHOD_PREPARATION_SCHEMAS} from '../src/tool-call-contracts.js';
 
 const dryState=()=>({context:{sessionId:'audit-s',documentId:'audit-d',documentInstanceId:'audit-i',revision:3},bodies:[{id:'body-a',name:'真实目标'}],features:[{id:'feature-a',op:'box',params:{width:20,depth:30,height:3}}]});
 const newPreflight=()=>createToolCallPreparation({state:dryState,getCard:getTool,normalizePatch:normalizeOperationPatch});
+
+test('documentation preparation uses the real pagination and known-hash contract',async()=>{
+ const ready=await newPreflight()({toolId:'readDocs',args:{docId:'api.agent-contracts',limitChars:1000}});
+ assert.equal(ready.status,'prepared',JSON.stringify(ready));
+ const first=readDocs(ready.nextCall.args);
+ assert.equal(first.status,'read');assert.equal(first.text.length,1000);assert.ok(first.nextCursor);
+ const cached=readDocs({docId:first.docId,knownHash:first.docsHash});assert.equal(cached.status,'not_modified');
+ const schema=getTool({id:'readDocs'}).inputSchema;
+ assert.throws(()=>validateSchema(schema,{docId:first.docId,maxChars:1000}));
+ assert.throws(()=>validateSchema(schema,{docId:first.docId,knownHash:first.docsHash,cursor:first.nextCursor}));
+});
+
+test('named-parameter preparation returns a complete stable execute envelope without double nesting',async()=>{
+ const prepare=newPreflight(),args={parameters:{length:{value:63,unit:'mm'}}};
+ const ready=await prepare({toolId:'document.parameters',args});
+ assert.equal(ready.status,'prepared',JSON.stringify(ready));
+ const call=ready.nextCall,card=getTool({id:'document.parameters'});
+ assert.equal(call.method,'execute');assert.deepEqual(call.args.args,args);
+ assert.equal(call.args.action,'document.parameters');assert.match(call.args.idempotencyKey,/^prepared-/);
+ validateSchema(METHOD_PREPARATION_SCHEMAS.execute,call.args);validateSchema(card.callSchema,call.args);
+ const resumed=await prepare({callPreparationId:ready.callPreparationId,answers:{}});
+ assert.equal(resumed.nextCall.args.idempotencyKey,call.args.idempotencyKey);
+ assert.throws(()=>validatePayload({method:call.method,args:call.args},dryState().context,['cad.read']),e=>e.code==='scope_denied');
+});
+
+test('every allowed edit action publishes inner arguments and a complete execute call schema',()=>{
+ for(const action of AGENT_CONTRACT.editActions){
+  const card=getTool({id:action});
+  assert.ok(card.argsSchema,action);assert.equal(card.callSchema.properties.action.const,action);
+  assert.ok(card.callSchema.required.includes('idempotencyKey'),action);
+  assert.ok(card.callSchema.properties.context.required.includes('expectedRevision'),action);
+ }
+});
 
 test('every public card has a bounded read-only preparation route, including unavailable and host tools',async()=>{
  const before=JSON.stringify(dryState()),cards=listPublicToolCards();assert(cards.length>=285);

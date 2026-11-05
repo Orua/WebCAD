@@ -2,7 +2,7 @@
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -150,5 +150,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a1056d8eb532c54643b07e3eb45df97ba3e503d8e23ecae522d60e388fe3ac31"
+  "docsHash": "sha256:3dc6993ac01ea9ad72e970b4ef99b6056475c1a1495bc0092ecf22b2afa0a0ca"
 }

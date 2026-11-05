@@ -2,7 +2,7 @@
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "execute",
@@ -23,18 +23,44 @@
   "runtimeAvailability": "requires_ready_page",
   "inputSchema": {
     "type": "object",
-    "required": [
-      "context",
-      "idempotencyKey",
-      "action",
-      "args"
-    ],
+    "additionalProperties": false,
     "properties": {
       "context": {
-        "description": "Current sessionId, documentId, documentInstanceId and expectedRevision."
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
       },
       "idempotencyKey": {
-        "type": "string"
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
       },
       "action": {
         "const": "document.parameters"
@@ -53,10 +79,23 @@
           }
         }
       }
-    }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
   },
   "outputContract": "Committed revision plus getState().parameters/parameterValues; a failed expression leaves the previous model intact.",
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "document.parameters",
     "args": {
       "parameters": {
@@ -88,6 +127,86 @@
   ],
   "docs": "api.named-parameters",
   "batchCapable": false,
+  "argsSchema": {
+    "type": "object",
+    "required": [
+      "parameters"
+    ],
+    "properties": {
+      "parameters": {
+        "description": "Name -> {value:number|string,unit:\"mm\"|\"scalar\"}; merged with current definitions."
+      },
+      "bindings": {
+        "description": "Feature ID -> numeric params dot path -> expression; merged with existing bindings."
+      }
+    }
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.parameters"
+      },
+      "args": {
+        "type": "object",
+        "required": [
+          "parameters"
+        ],
+        "properties": {
+          "parameters": {
+            "description": "Name -> {value:number|string,unit:\"mm\"|\"scalar\"}; merged with current definitions."
+          },
+          "bindings": {
+            "description": "Feature ID -> numeric params dot path -> expression; merged with existing bindings."
+          }
+        }
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -155,5 +274,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e33d136df574d26c9e2bb74b9ab71762f7cb1b203424d7284def8c441ccdc93d"
+  "docsHash": "sha256:0731cb3f5e686107c4534aecc3793b0fdb6982b0f7a856624f7175860a1262d1"
 }

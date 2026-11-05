@@ -8,7 +8,7 @@
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -39,6 +39,140 @@
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.setLocked"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "locked": {}
+        },
+        "required": [
+          "locked"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "locked": {}
+    },
+    "required": [
+      "locked"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.setLocked"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "locked": {}
+        },
+        "required": [
+          "locked"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -104,5 +238,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:aa4c9004a4dd068016045e19befbbd34e350b1e7643139b34ba4c1f710123a4a"
+  "docsHash": "sha256:01ac55129bc3422599d78124e2c63d919d82ba05b3953a12e1839220f58bae80"
 }

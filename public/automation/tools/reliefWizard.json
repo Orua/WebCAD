@@ -2,7 +2,7 @@
   "id": "reliefWizard",
   "title": "reliefWizard",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -195,6 +195,7 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
   "docs": "api.relief",
   "preparation": {
     "method": "prepareToolCall",
@@ -295,5 +296,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:041376e172d2914c84140d71033fc88ffafb8fe83059f183eb32a01fbe0286ad"
+  "docsHash": "sha256:303a8956313fa04ff4f013949530d6902237232e2900dbb7053db8af85afc797"
 }

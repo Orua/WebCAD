@@ -1,8 +1,136 @@
 # WebCAD AI 完整知识库
 
-API 1.61.0 · sha256:fedacca90b7cc6294a2b9316e0e1c31e5f39aedd02250d1c495bc584d8ea5bd2
+API 1.61.1 · sha256:ebd59f49f6c2a239bea713a1c4953f437ff1ad91ad186b2d2e6e13115a7aa34a
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
+
+## api.agent-contracts
+
+# 页面 API 与 Agent 调用边界
+
+先 connect，比较 pageApiVersion/catalogHash/docsHash，下载并校验 onboarding.knowledge 的完整包；只缓存静态合同。每次写入使用最新 requestContext，实体和拓扑编号必须来自当前工程修订。
+
+1. 建模操作：工具卡 inputSchema 验证 params，refsSchema 验证 refs；api.run 步骤用 method:add、args:{op,params,refs,name?,placement?}。template.* 是发现 ID，实际 op:quickModel、params.kind，不能将发现 ID 当建模 op。
+2. 编辑命令：mcpCall.action 对应 execute 的 action；argsSchema 验证内层 args，callSchema 验证完整 {context,idempotencyKey,action,args}。prepareToolCall 接收内层 args，不再嵌套 action/context。其 prepared.nextCall 含稳定的命令幂等键；读取同一准备单不生成另一条写入。MCP 外层 requestKey 由宿主管理，与页面幂等键不同。
+3. 页面方法：按 mcpCall.tool/method 调用。batchCapable 只说明该准确 method 能否成为 api.run 步骤，不代表任意工具 ID 都能作为 method。capture、recoverKernel 和 run 自身不能嵌入 run。batchCapable:false 也不表示不能通过工具卡 mcpCall 直调。
+4. 文件：按 mcpCall 区分公开入口与 host-only。files.read 必须传 as:bytes/text/blob；bytes 返回 Uint8Array，blob 返回 Blob，不能把普通 JSON.stringify 的结果当成文件字节。资源生成、下载发起、磁盘写入和哈希校验是不同回执；不绕过宿主文件句柄权限。
+5. 预检：prepareOperation/prepareToolCall 的 prepared 只证明输入结构，不证明几何、来源、权限、生命周期或业务验收。needs_input 使用同一准备单的 answerPath 续接。错误、过期或工程变化后读取原回执，不用换键重算未知结果。
+
+run 固定 atomic:false，失败保留之前已提交步骤；同次原子多特征提交用 feature.addMany。结果按 status/commitState、实际 context、createdBodyIds、精确量测和 rendered 修订核验。所有示例中的 <live...>、资源/准备单编号及 revision=0 必须替换为真实回执值；示例通过 schema 不代表可以脱离真实来源直接执行。
+
+readDocs 参数为 docId/version?/cursor?/limitChars?/knownHash?；limitChars 为 1000–16000。knownHash 只能对应完整缓存，不能与 cursor 同传。没有 section/maxChars 参数。抽壳正厚度向内、负厚度向外；开口抽壳材料可能减少，向外用体积或外形增大验证。闭合相切圆弧的扫掠不应被尖角检测拒绝；真正尖角 transformed 使用 right/round 或修改真实路径，不能自动换过渡。
+
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+reliefWizard: contextPolicy=identity
+prepareToolCall: contextPolicy=identity
+prepareOperation: contextPolicy=identity
+applyPreparedOperation: contextPolicy=identity
+getDebugReport: contextPolicy=none
+setDebugPanel: contextPolicy=identity
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
+reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
+reliefDesignReference: contextPolicy=revision
+reliefDesignField: contextPolicy=revision
+readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
+getBatchReceipt: contextPolicy=none
+probeBlendRadius: contextPolicy=identity
+recoverKernel: contextPolicy=revision
+sampleMeshRelief: contextPolicy=identity
+getModelLibrary: contextPolicy=none
+updateModelLibrary: contextPolicy=revision
+resolveModelLibrary: contextPolicy=identity
+planPatternMachining: contextPolicy=identity
+decideServicesWait: contextPolicy=none
+recoverServicesJob: contextPolicy=none
+prepareReliefTopologyUpgrade: contextPolicy=identity
+sampleReliefHeight: contextPolicy=identity
+prepareReliefSculpt: contextPolicy=identity
+readRelief: contextPolicy=identity
+getHistory: contextPolicy=none
+planAlignment: contextPolicy=identity
+selectRectangle: contextPolicy=identity
+createDrawing: contextPolicy=revision
+exportDrawing: contextPolicy=revision
+getQuickModelUsage: contextPolicy=none
+copySelection: contextPolicy=revision
+pasteSelection: contextPolicy=revision
+createRequestContext: contextPolicy=none
+getUILayout: contextPolicy=none
+setRenderQuality: contextPolicy=identity
+invoke: contextPolicy=none
+submit: contextPolicy=none
+getJob: contextPolicy=none
+cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
+connect: contextPolicy=none
+info: contextPolicy=none
+getState: contextPolicy=none
+searchTools: contextPolicy=none
+getTools: contextPolicy=none
+getTool: contextPolicy=none
+readDocs: contextPolicy=none
+queryGeometry: contextPolicy=identity
+queryReferences: contextPolicy=identity
+resolvePlacement: contextPolicy=identity
+execute: contextPolicy=revision
+measure: contextPolicy=identity
+measureRelation: contextPolicy=identity
+inspectDesign: contextPolicy=identity
+inspectPrintability: contextPolicy=identity
+inspectProfile: contextPolicy=identity
+prepareProfileEdit: contextPolicy=identity
+inspectConstraints: contextPolicy=identity
+projectProfile: contextPolicy=identity
+inspectFit: contextPolicy=identity
+inspectThickness: contextPolicy=identity
+inspectDraft: contextPolicy=identity
+inspectRound: contextPolicy=identity
+readVector: contextPolicy=identity
+connectVector: contextPolicy=none
+fitProfile: contextPolicy=identity
+traceTwinWindow: contextPolicy=identity
+executeText: contextPolicy=revision
+setDisplayPreferences: contextPolicy=identity
+getAgentPanel: contextPolicy=none
+configureAgentPanel: contextPolicy=revision
+setAgentPanel: contextPolicy=revision
+markLocation: contextPolicy=revision
+getServices: contextPolicy=none
+setServices: contextPolicy=revision
+getServicesCapabilities: contextPolicy=none
+getServicesRouting: contextPolicy=none
+clearServicesCredential: contextPolicy=revision
+getServicesJob: contextPolicy=none
+getServicesRequest: contextPolicy=none
+cancelServicesJob: contextPolicy=revision
+getLogoConverter: contextPolicy=none
+setLogoConverter: contextPolicy=revision
+convertLogoPdf: contextPolicy=revision
+setView: contextPolicy=identity
+redraw: contextPolicy=identity
+capture: contextPolicy=identity
+getEvidenceImage: contextPolicy=revision
+run: contextPolicy=revision
+files.capabilities: contextPolicy=none
+files.register: contextPolicy=none
+files.new: contextPolicy=none
+files.open: contextPolicy=revision
+files.import: contextPolicy=revision
+files.save: contextPolicy=revision
+files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
+files.read: contextPolicy=none
+files.download: contextPolicy=none
+files.write: contextPolicy=none
+files.confirmWritten: contextPolicy=none
+files.release: contextPolicy=none
 
 ## api.agent-runtime
 
@@ -97328,7 +97456,7 @@ files.release: contextPolicy=none
     "properties": {
       "thickness": {
         "type": "number",
-        "description": "Signed nonzero wall thickness. Positive is inward and must be smaller than half the minimum solid extent; negative grows outward; zero is rejected. (mm)",
+        "description": "Signed nonzero wall thickness. Positive is inward; negative grows outward; zero is rejected. Feasibility depends on the retained walls and actual offset result, not half the bounding-box extent. (mm)",
         "not": {
           "const": 0
         },
@@ -97399,7 +97527,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Positive thickness requires an effective volume decrease and a valid single solid. Negative thickness requires a valid single solid with increased volume or expanded bounds; removing an opening can decrease material volume. Zero is rejected. Resolve faceIds from current topology; no implicit UI selection.",
   "title": "Hollow body removing selected faces",
   "category": "modification",
   "synonyms": [
@@ -97411,7 +97539,7 @@ files.release: contextPolicy=none
     "thicken"
   ],
   "description": "Hollow body removing selected faces",
-  "schemaHash": "sha256:9e95e81f2608eb6eafc11465907a8e9e988fe3d4dbe889740750b24e41f9b520",
+  "schemaHash": "sha256:a269ac4b37e6e1722d548a00dcd75469ec8374a41950c613e1c78a05e61390e1",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -97473,7 +97601,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
+    "Positive thickness requires an effective volume decrease and a valid single solid. Negative thickness requires a valid single solid with increased volume or expanded bounds; removing an opening can decrease material volume. Zero is rejected. Resolve faceIds from current topology; no implicit UI selection."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -97551,7 +97679,7 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "Hollow body removing selected faces",
     "whenToUse": [
-      "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
+      "Positive thickness requires an effective volume decrease and a valid single solid. Negative thickness requires a valid single solid with increased volume or expanded bounds; removing an opening can decrease material volume. Zero is rejected. Resolve faceIds from current topology; no implicit UI selection."
     ],
     "whenNotToUse": [
       {
@@ -97561,7 +97689,7 @@ files.release: contextPolicy=none
     ],
     "params": {
       "thickness": {
-        "meaning": "Signed nonzero wall thickness. Positive is inward and must be smaller than half the minimum solid extent; negative grows outward; zero is rejected. (mm)",
+        "meaning": "Signed nonzero wall thickness. Positive is inward; negative grows outward; zero is rejected. Feasibility depends on the retained walls and actual offset result, not half the bounding-box extent. (mm)",
         "unit": "mm",
         "range": [
           null,
@@ -97727,7 +97855,7 @@ files.release: contextPolicy=none
   },
   "purpose": "Hollow body removing selected faces",
   "whenToUse": [
-    "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
+    "Positive thickness requires an effective volume decrease and a valid single solid. Negative thickness requires a valid single solid with increased volume or expanded bounds; removing an opening can decrease material volume. Zero is rejected. Resolve faceIds from current topology; no implicit UI selection."
   ],
   "whenNotToUse": [
     {
@@ -98109,7 +98237,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fe95369fb71d03b6004131530ab45de4513c6d7fbc618fde11a4ae0b69873d7f"
+  "docsHash": "sha256:617ee32c695612a439a88f4f698fa00e4a9fa7a33e8668ece4a7399628798c1f"
 }
 ```
 
@@ -112015,7 +112143,7 @@ files.release: contextPolicy=none
   "title": "高度图浮雕精修",
   "label": "高度图浮雕精修",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -112132,7 +112260,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:cc5529a6f419de1ad3f66e75f06f2f03734ef81d5f07c68ff316c87303f8abfd"
+  "docsHash": "sha256:fefef0a6457a475fbf23b62cbc463d7cd915aa91eb501b310e7affce2cbecd12"
 }
 ```
 
@@ -112144,7 +112272,7 @@ files.release: contextPolicy=none
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -112261,7 +112389,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:7fc45759e9e99b8e168407f08991b7278a28b4cc4811f9d8215cb03becd31b90"
+  "docsHash": "sha256:f73305c65c4c018b4e435dc563a88fbac512f7fdbc7f15f588eab01440a21bf1"
 }
 ```
 
@@ -149574,7 +149702,7 @@ files.release: contextPolicy=none
   "id": "reliefWizard",
   "title": "reliefWizard",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -149767,6 +149895,7 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
   "docs": "api.relief",
   "preparation": {
     "method": "prepareToolCall",
@@ -149867,7 +149996,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:041376e172d2914c84140d71033fc88ffafb8fe83059f183eb32a01fbe0286ad"
+  "docsHash": "sha256:303a8956313fa04ff4f013949530d6902237232e2900dbb7053db8af85afc797"
 }
 ```
 
@@ -149878,7 +150007,7 @@ files.release: contextPolicy=none
   "id": "prepareToolCall",
   "title": "prepareToolCall",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -149961,6 +150090,15 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_LIMIT",
+    "RESOURCE_EXPIRED",
+    "PREPARATION_STALE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -150060,7 +150198,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b2251ef7834890faeac51ab40b11f3780206e3f7caf6861b88a32b29492f6ed3"
+  "docsHash": "sha256:6869531b43ca7a478cce197a809f490a9225402a1bc98f3cdf7c48ecf9689e95"
 }
 ```
 
@@ -150071,7 +150209,7 @@ files.release: contextPolicy=none
   "id": "prepareOperation",
   "title": "prepareOperation",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -150095,6 +150233,12 @@ files.release: contextPolicy=none
     "arbitraryScripts": false
   },
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
     "op": "logo",
     "face": "top",
     "params": {
@@ -150388,6 +150532,15 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_LIMIT",
+    "RESOURCE_EXPIRED",
+    "PREPARATION_STALE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -150487,7 +150640,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a9fb63a1d796cd403ce4dc8c7af7ea0d874318a9438eaddbc9c79f9bab6a3ee1"
+  "docsHash": "sha256:517aff0202d6e2339cff910462994c624f96611b8465d61694d016d5678018c6"
 }
 ```
 
@@ -150498,7 +150651,7 @@ files.release: contextPolicy=none
   "id": "applyPreparedOperation",
   "title": "applyPreparedOperation",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -150522,7 +150675,13 @@ files.release: contextPolicy=none
     "arbitraryScripts": false
   },
   "minimalExample": {
-    "preparationId": "<returned preparationId>"
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "preparationId": "prep_1"
   },
   "inputSchema": {
     "type": "object",
@@ -150587,6 +150746,15 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_LIMIT",
+    "RESOURCE_EXPIRED",
+    "PREPARATION_STALE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -150686,7 +150854,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a6ef2fa0a99fb2302aa4112c48ecc7e9c4692cd75741627c1524be8d09b506cf"
+  "docsHash": "sha256:61141fa8fd75de0e02a9e72f16f7f6c8f33a759747b11cc18c9f4b39f237beef"
 }
 ```
 
@@ -150697,7 +150865,7 @@ files.release: contextPolicy=none
   "id": "getDebugReport",
   "title": "getDebugReport",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -150799,7 +150967,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:10681a2bf10e4232937c08692a460e69b89844a689f5eec4128c0623044f88cf"
+  "docsHash": "sha256:c0dc57af9409c62a6a68ac2b493f061b89b9bbe92dff6a65bf4e8f8a5adbe1bb"
 }
 ```
 
@@ -150810,7 +150978,7 @@ files.release: contextPolicy=none
   "id": "setDebugPanel",
   "title": "setDebugPanel",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -150912,7 +151080,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ecf0a7b3d9e6072e5cff014f3084ff1bb28d9841572c20fa91d26dfba0b0ee84"
+  "docsHash": "sha256:a531ccf51734a4ca12af9a61ea93d4c94f60e1a9485352faa4d6bbf85d8824ef"
 }
 ```
 
@@ -150923,7 +151091,7 @@ files.release: contextPolicy=none
   "id": "getMetalMaterials",
   "title": "getMetalMaterials",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -151044,7 +151212,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1d1c3152599e78ebe3a466928600ed70387f5072c119a2f1b0bd274b98f17537"
+  "docsHash": "sha256:e8cd6ac27f19f99cb345714f5c224d280244fdb8373e6a2694ca814ef9bbe3ef"
 }
 ```
 
@@ -151055,7 +151223,7 @@ files.release: contextPolicy=none
   "id": "setMetalMaterials",
   "title": "setMetalMaterials",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -151219,7 +151387,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a8e700a8efdf31bb7fd137a082913467a1bdd2bb3ee85a80314a6f556dd6dda9"
+  "docsHash": "sha256:74ea7b8ec7303cd06d9d14d0b1cfa60e288c53a9cbc228e9c1b75cda81161f32"
 }
 ```
 
@@ -151230,7 +151398,7 @@ files.release: contextPolicy=none
   "id": "getMaterials",
   "title": "getMaterials",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -151296,7 +151464,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1074070fec1dba0558ffa4f9c991ab3b2ef174308028d108bd7340d4127a47bb"
+  "docsHash": "sha256:7f4bb0dfebb92a2da8664b4591ef76f33edd4c0c14762d193231f029fc2fa6e7"
 }
 ```
 
@@ -151307,7 +151475,7 @@ files.release: contextPolicy=none
   "id": "measureMass",
   "title": "measureMass",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -151398,7 +151566,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:40e08d559d195c80863e07951b898dfe5308b5b7968e925c2b8cc127a2b0c48a"
+  "docsHash": "sha256:18f55e52a1e3660fceb4b8af32d559bca2924d5860b8f706ec88a5c08ff9fa04"
 }
 ```
 
@@ -151409,7 +151577,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignFit",
   "title": "reliefDesignFit",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -151677,7 +151845,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:1092874599a0382aedda82df00a4b9e394d246cdd92e115c0dc5326c0814e247"
+  "docsHash": "sha256:0417dc9c86edaadef233c037f357c03f3913f23235b3868b417e8cab89274ae2"
 }
 ```
 
@@ -151688,7 +151856,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefDesignRelief",
   "title": "prepareReliefDesignRelief",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -152103,7 +152271,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:aca7983fe6f935ac01efa821b01b66cd0eb84a9b0dc8a1a6e644b0e6e11df753"
+  "docsHash": "sha256:f17006f0be3db646373f1f35da321f3f2ff9e5b918f57e316561f0d7a1b72ead"
 }
 ```
 
@@ -152114,7 +152282,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignReference",
   "title": "reliefDesignReference",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -152320,7 +152488,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:971572083a51a021b85b28aedaa2fd95070c589ee7b24d41970e2b3aea1d6168"
+  "docsHash": "sha256:be6e3ba593728a124cdf79d087dcc1766f716e163d99b3d3deef39392a7f6095"
 }
 ```
 
@@ -152331,7 +152499,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignField",
   "title": "reliefDesignField",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -152591,7 +152759,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:8ff250c2c64e22a9cf0e1d8c6eced6a340f6f2630d9953052e65dba80c8ae9e6"
+  "docsHash": "sha256:71913d6e43608ab991abfbad494b25d6df23fb1b116108aef1097be8d8a1f12b"
 }
 ```
 
@@ -152602,7 +152770,7 @@ files.release: contextPolicy=none
   "id": "readLogo",
   "title": "readLogo",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -152943,7 +153111,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:890f705d9632a28800e430aa6ab3ee7b745c42f2ceaff9f230eaa253e2e7e123"
+  "docsHash": "sha256:30c03e16633374fba8dc86b2e8a7d1c97ad0abb7389b0b738bf7491909798f5b"
 }
 ```
 
@@ -152954,7 +153122,7 @@ files.release: contextPolicy=none
   "id": "reviewLogo",
   "title": "reviewLogo",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -153171,7 +153339,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:a5ba291bc798a1177f12345fdbeac9bbe81a22cd45183162ef1990366171245e"
+  "docsHash": "sha256:d7ca20254f13ca1353720beebcc9a4dd91d6123d7a051f65e4295fe94b99f74c"
 }
 ```
 
@@ -153182,7 +153350,7 @@ files.release: contextPolicy=none
   "id": "logoWizard",
   "title": "logoWizard",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -153548,7 +153716,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:50ed5a0b9528c82c5adc0ca872c22159a20b99e059507969d9c53320dfa319b6"
+  "docsHash": "sha256:04a4368772f2078e94a0fca26c3b10f9e6b02c87db8fcef65d5498c6f569d2c5"
 }
 ```
 
@@ -153559,7 +153727,7 @@ files.release: contextPolicy=none
   "id": "getBatchReceipt",
   "title": "getBatchReceipt",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -153672,7 +153840,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6270b44a5d1ac87e217c5c11d5dd4dc0e7eb5511536ae44c84b415d538bf032c"
+  "docsHash": "sha256:21dae21cceeeed9b68d6e1766d2f3bc5aee3ea866dd7e1db4c7cf397556cedf8"
 }
 ```
 
@@ -153683,7 +153851,7 @@ files.release: contextPolicy=none
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -153711,6 +153879,7 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
   "docs": "api.blend-radius",
   "relatedTools": [
     "smoothTransition",
@@ -153957,7 +154126,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:62c10395e5e5263aa3bf1ff89ed30dd4fbeef6b8169c3cc413bc2920f3a06438"
+  "docsHash": "sha256:e4c7c327c51bb4bcef3b07962d5832edc232ca5714fbfd2054c2d64191ef0511"
 }
 ```
 
@@ -153968,7 +154137,7 @@ files.release: contextPolicy=none
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -153994,6 +154163,7 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -154147,7 +154317,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8a3df104aa3d4b614c8ea8981a83a4698645b166848dd4f41d298eaa0b0aa07b"
+  "docsHash": "sha256:78ba873aeacdf730e98812419bf56ffde127711a5f67f970310899ec114e4bc1"
 }
 ```
 
@@ -154158,7 +154328,7 @@ files.release: contextPolicy=none
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -154376,7 +154546,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:4cb48ea461377a7f1de74adc318c4301d51f76fc069d6c1feb66dd8c5e5ec68e"
+  "docsHash": "sha256:f888ad7abc56bbb136d298db6d2f77a889baf19da93c55aca8e13f0eea4b4f07"
 }
 ```
 
@@ -154387,7 +154557,7 @@ files.release: contextPolicy=none
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -154503,7 +154673,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:05b460d4f2a346fc2e061ff1a3bb9531ca8ce6a03cdc01de6d6c4ba201711355"
+  "docsHash": "sha256:092814b9f8102245677ddc321466be42cf258bf181b2b67a531d50d7eb6faee8"
 }
 ```
 
@@ -154514,7 +154684,7 @@ files.release: contextPolicy=none
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -154745,7 +154915,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a47d9f43e95cd8c7ff3d9388f71f3998095ce5c71b87fb2f3dacfb2f3500c50e"
+  "docsHash": "sha256:245477d23ecf08e4c6682ef6b820559d26a5cc2bd95d26e5f763e292cb67af5b"
 }
 ```
 
@@ -154756,7 +154926,7 @@ files.release: contextPolicy=none
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -154970,7 +155140,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ce14e9c068172de97a228636cc8856f32892d673db738a5e3a43878cd429656c"
+  "docsHash": "sha256:b4182c10641a175fe6a403a11febd0ab34b0facd77ef4460b8fc4662e2df455f"
 }
 ```
 
@@ -154981,7 +155151,7 @@ files.release: contextPolicy=none
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -155277,7 +155447,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:47576baee5aafb0801e04839bea0095a2d41cde7b6b39ce9fc7da8c021be196b"
+  "docsHash": "sha256:55a9f0dc043ea029e5166cb0ffba2142623725b3cb682ed7ee2e3badc2a34428"
 }
 ```
 
@@ -155288,7 +155458,7 @@ files.release: contextPolicy=none
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -155429,7 +155599,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1facec0d1b9fc9f1d91b3f5c4a5c96004a329d489234743a15df416371960081"
+  "docsHash": "sha256:156e9097c965afd71621a6fe876494ae313b34ca98a86e1605e51a8d968faddc"
 }
 ```
 
@@ -155440,7 +155610,7 @@ files.release: contextPolicy=none
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -155586,7 +155756,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d20d0520769954d13a1dda5f995cea2e026e9e44e9a9ff8561db2279dcfe8955"
+  "docsHash": "sha256:d574f16b18390b383ea076317254ead8db772841b0644f13e97670bfc7709751"
 }
 ```
 
@@ -155597,7 +155767,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -155745,7 +155915,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:8e667f767ce58f8a92416eae1012d5717c26aa1f88904cc23faccfdc7995cd63"
+  "docsHash": "sha256:24e96004003cf0f522bc45a453973d930464ca606ade05f3c9509d29e6f2c5a4"
 }
 ```
 
@@ -155756,7 +155926,7 @@ files.release: contextPolicy=none
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -156031,7 +156201,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:4f21f8b3bed968a49a92b624d96a1c3fa72bda94c737e15727972207102295f1"
+  "docsHash": "sha256:1276a2132dc774a8a2bd12ed0665d11e14a8e460b4b0bffb841b7304761df618"
 }
 ```
 
@@ -156042,7 +156212,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -156284,7 +156454,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:80fa0308823e941ee7b51ec97b7a5f63346919a00c65c5036073bcc37a795860"
+  "docsHash": "sha256:50f0f2429da164cf3d99b9716ba47de6db665034ce481a524fe28903945d08c7"
 }
 ```
 
@@ -156295,7 +156465,7 @@ files.release: contextPolicy=none
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -156655,7 +156825,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:0dd8e74ad123790a39c371819cad9927cdc49e796bcebf811cc9c0a413563169"
+  "docsHash": "sha256:163d578ae16208535809a92634a4a99a83e27d827832d4ae041575e5fcd1ab66"
 }
 ```
 
@@ -156666,7 +156836,7 @@ files.release: contextPolicy=none
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -156763,7 +156933,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:30b97c2ec08aa291a9877f9a1e6298b27170781f420d41f4678870f7a9fa72c4"
+  "docsHash": "sha256:351ca5918ec071f5069b82311517bdb94b62dc2da01d10525e69f90ff11cc1f3"
 }
 ```
 
@@ -156774,7 +156944,7 @@ files.release: contextPolicy=none
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -157047,7 +157217,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:52cb67c340e9f4f5cf84016150ce797ca264b7e644f48d64197f30ff862e9e82"
+  "docsHash": "sha256:5b00b7302e3f8ad99e6ef78e8d3c5e28342d46911fe5c81fa9992d2571f640b9"
 }
 ```
 
@@ -157058,7 +157228,7 @@ files.release: contextPolicy=none
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -157291,7 +157461,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6665a53621d3305c908985d0c22f9341c3115f342363119c07cadf13cc5a51fb"
+  "docsHash": "sha256:9484f2ce9554e0db48bbc9771417977a838f925df9b0f30d68a152510bc0d4c0"
 }
 ```
 
@@ -157302,7 +157472,7 @@ files.release: contextPolicy=none
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -157561,7 +157731,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:68b586e6d1c8efe9d9c784fcdce4d6636628082d497a11b1fee27b6231f82c81"
+  "docsHash": "sha256:f23635ebc859640e5d1a31073e8f8b259aa335762c3d555ca886d0d5c42ea5bb"
 }
 ```
 
@@ -157572,7 +157742,7 @@ files.release: contextPolicy=none
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -157781,7 +157951,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c795128503c554d3c55d89566f71116725d493fb70c2486fd2dc4166fa5f1ce6"
+  "docsHash": "sha256:2fa652e472d9f8e646346da7e4b7135648dc06ca2d084052a055ea4cf63a04f2"
 }
 ```
 
@@ -157792,7 +157962,7 @@ files.release: contextPolicy=none
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -157902,7 +158072,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:89209feac471ec3ff831a5e23ca70ac1664f996fc734b9cef9509288f8df3196"
+  "docsHash": "sha256:7d46a30cf4be5f42ea9f5e2465293ab50de2b8cd22191644220db891c448b520"
 }
 ```
 
@@ -157913,7 +158083,7 @@ files.release: contextPolicy=none
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -158118,7 +158288,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:adb226c8f9d8d4eba9923ba6e6a99735e4ad743ccb2c91a655c6cef1379a47f2"
+  "docsHash": "sha256:45f3015a8602f59a8e6ae3a14808bab746f50e3fe362c86e642bab198cade2e4"
 }
 ```
 
@@ -158129,7 +158299,7 @@ files.release: contextPolicy=none
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -158318,7 +158488,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8f67ed9047012c74d9fdd26dcc05d511b982c88e15aa9d78964f2016a1050eb5"
+  "docsHash": "sha256:781922c54479aeec8dbfcfbce5a1dc7dd7149a28ca1f66b253f93a350ed08346"
 }
 ```
 
@@ -158329,7 +158499,7 @@ files.release: contextPolicy=none
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -158438,7 +158608,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4ab32d2822bf1145962671b543e475f937f62248d8dfb607dc28d28778aa34e5"
+  "docsHash": "sha256:c29c3916d99541163bfbed44e00defa0256b4e78d7a5a7d39167e15487bc5aff"
 }
 ```
 
@@ -158449,7 +158619,7 @@ files.release: contextPolicy=none
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -158584,7 +158754,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:43226d9caf096d5eae308e962b714511905489fc3df56f2dac2cc115d65166f4"
+  "docsHash": "sha256:4630faffb0c38b32bb4f298959e9c818d3535612bd8f50335e3e20b9d4d08f2a"
 }
 ```
 
@@ -158595,7 +158765,7 @@ files.release: contextPolicy=none
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -158809,7 +158979,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:46e456f3eea8bb2ed950ec1467336439acfacf474d7943e4275fa8a576aee7db"
+  "docsHash": "sha256:8e9a4005fc5df6d7288811575b8be7db79f12e248f53e8c3259b7b5ec79b070f"
 }
 ```
 
@@ -158820,7 +158990,7 @@ files.release: contextPolicy=none
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -158920,7 +159090,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:95372c067b8a770ad2c07db9a1e236b491b57ad667e3d675fa7078f1645dc95b"
+  "docsHash": "sha256:8a6af65e72b1c76668b3723a91ff15e6858dbe9d99d1f66f816ecd6b48d1ef3f"
 }
 ```
 
@@ -158931,7 +159101,7 @@ files.release: contextPolicy=none
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -159035,7 +159205,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1c950c79856d0f8b306037f5daa6e7ebe92e5c3eded17f0582361282e146fd94"
+  "docsHash": "sha256:ed1243fa0c8e2366a866c1c320ed68bed6ca75764b4c5ea8da72c6912daf4fed"
 }
 ```
 
@@ -159046,7 +159216,7 @@ files.release: contextPolicy=none
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -159155,7 +159325,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8e7adf1aec9af685df4728d6dffbaff71ea33f83c2a3260ce62d74102c131b34"
+  "docsHash": "sha256:ad198b1708f023fbf8a7b688ce06403132d0ad06eceee33bf7db24a157a9092f"
 }
 ```
 
@@ -159166,7 +159336,7 @@ files.release: contextPolicy=none
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -159273,7 +159443,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f3415d5cb82b80ed939e6fb4dd9d7ac026a2924771d4c4a7b2630aedacfdab2e"
+  "docsHash": "sha256:34e242a25b320a4e73ae9b9d6d8e1de53ee26f90abec6fba4fb95ef4f83f12a9"
 }
 ```
 
@@ -159284,7 +159454,7 @@ files.release: contextPolicy=none
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -159469,7 +159639,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2734dde98387a683f3c986d429e67ace54763932d5c4cb2aa3bd541abe3aeca5"
+  "docsHash": "sha256:74df4a4bb58549fb130694fda64fc8f37d34c73798e21e8151e45a34d56db161"
 }
 ```
 
@@ -159480,7 +159650,7 @@ files.release: contextPolicy=none
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -159581,7 +159751,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f63ad75b70240c0b0a5bdd5d5dfaa2a22d7ce13081daf42c6db08f05c39e4f22"
+  "docsHash": "sha256:70edfde462468e138e0ae48ede3d5fdd6f0f429b5e930bf71e02339ec5da83eb"
 }
 ```
 
@@ -159592,7 +159762,7 @@ files.release: contextPolicy=none
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -159716,7 +159886,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ea1f10a1983d199d3b135301f251bee1349411bc91f8fc064de2a42d9b7357e4"
+  "docsHash": "sha256:3072ba26f88ac2c54663d6236b12715f09b368ccd26c79d7a4d9786e00cce871"
 }
 ```
 
@@ -159727,7 +159897,7 @@ files.release: contextPolicy=none
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -159830,7 +160000,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:41bce89bbad4b55c2ff090f04f0764e3d8747b858efbaba539383583f20a2b37"
+  "docsHash": "sha256:d9bfc8bbd5fe5bc91100bc9a5d8cf4ed41c05c7dbf49fb7587b4bb7b333b5ae8"
 }
 ```
 
@@ -159841,7 +160011,7 @@ files.release: contextPolicy=none
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160029,7 +160199,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5b9451c7bb9371fb5adbf71882f35d43e0f36b0afba0ca76e8088fc17db7a452"
+  "docsHash": "sha256:6972c4f73fa2d755c33feea960db5e188970f1c18bc57c43cf282a7357aaabaa"
 }
 ```
 
@@ -160040,7 +160210,7 @@ files.release: contextPolicy=none
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160188,7 +160358,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a1056d8eb532c54643b07e3eb45df97ba3e503d8e23ecae522d60e388fe3ac31"
+  "docsHash": "sha256:3dc6993ac01ea9ad72e970b4ef99b6056475c1a1495bc0092ecf22b2afa0a0ca"
 }
 ```
 
@@ -160199,7 +160369,7 @@ files.release: contextPolicy=none
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160340,7 +160510,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3ee8cfe6266e88e8001b1ce7a668030e8b78cb80ca99d15fdca05d43f897eeb1"
+  "docsHash": "sha256:4c5d5fc586f5d843c9dff69045d3adfbc16e5b9570a88370e00cecb4b01e8012"
 }
 ```
 
@@ -160351,7 +160521,7 @@ files.release: contextPolicy=none
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160481,7 +160651,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2caf3415c2ab8ca558c96e981c64c1d41e946b4e9d91f5334a8415b2f4dc8c0d"
+  "docsHash": "sha256:fc7fee87031edf4b556a894de2d004bafe0f1abc2855252e5fc8e8ea31065100"
 }
 ```
 
@@ -160492,11 +160662,47 @@ files.release: contextPolicy=none
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
   "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "docId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "version": {
+        "type": "string",
+        "minLength": 1
+      },
+      "cursor": {
+        "type": "string",
+        "minLength": 1
+      },
+      "limitChars": {
+        "type": "integer",
+        "minimum": 1000,
+        "maximum": 16000
+      },
+      "knownHash": {
+        "type": "string",
+        "pattern": "^sha256:[a-f0-9]{64}$"
+      }
+    },
+    "required": [
+      "docId"
+    ],
+    "not": {
+      "required": [
+        "cursor",
+        "knownHash"
+      ]
+    }
+  },
   "mcpCall": {
     "tool": "webcad_read",
     "method": "readDocs",
@@ -160521,32 +160727,6 @@ files.release: contextPolicy=none
     "PARAM_RANGE_INVALID",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "inputSchema": {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {
-      "docId": {},
-      "section": {},
-      "cursor": {},
-      "maxChars": {}
-    },
-    "required": [
-      "docId"
-    ]
-  },
-  "preparationSchema": {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {
-      "docId": {},
-      "section": {},
-      "cursor": {},
-      "maxChars": {}
-    },
-    "required": [
-      "docId"
-    ]
-  },
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -160614,7 +160794,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:63166246729c450a73005546acdabd6feeb242932670f23b89af5d3c6164fef7"
+  "docsHash": "sha256:dfb5f2cba3720cb0db1c531dc9e4ab8f73849da649393e461dab75bc4dd3fd28"
 }
 ```
 
@@ -160625,7 +160805,7 @@ files.release: contextPolicy=none
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160794,7 +160974,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f4d803fc4a5cd7153b903fdb673474e05f610485b8ddf1e56da9466da891c37d"
+  "docsHash": "sha256:ca97d8ec0f36f6b6d6e1247082d4aad54f1593c9bdd2883f7211ebedb1ea4f68"
 }
 ```
 
@@ -160805,7 +160985,7 @@ files.release: contextPolicy=none
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160988,7 +161168,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fdc400213b9470da053aeb0c01297ad2a00d769b5ee19cd648c789cec5e464b1"
+  "docsHash": "sha256:e65a4a827d480ae660bdb0c7d4ea465248ee89a08a9f47ccd9ca5815828de6f6"
 }
 ```
 
@@ -160999,7 +161179,7 @@ files.release: contextPolicy=none
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -161343,7 +161523,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:35931d803d28ed2f3084c5fd73707e6526a4a55b6770eb6c57b0eea6a641f9dd"
+  "docsHash": "sha256:fd731f347edd89ae77c126192d7b68eca01a814fad8611c62641c0f9ad647180"
 }
 ```
 
@@ -161354,7 +161534,7 @@ files.release: contextPolicy=none
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -161562,7 +161742,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c3c58faad329a1e0e1a847071713feeddedd5ceda3229f19ceb94b0f0a9c84ed"
+  "docsHash": "sha256:095d4c547915843670cf376d9468555eb028cd47aca1871bcc5ac0c6e58c4679"
 }
 ```
 
@@ -161573,7 +161753,7 @@ files.release: contextPolicy=none
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -161810,7 +161990,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d7b48a752832513aad3d0dfb36cf108a9074ed2817789d02f7077a2181869939"
+  "docsHash": "sha256:1b7ee98f0ff7ac11924bbf01962c56d05854431f489fada12adf727e0a0f4898"
 }
 ```
 
@@ -161821,7 +162001,7 @@ files.release: contextPolicy=none
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -162050,7 +162230,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:58bd64e8bb75ca83437938f1747f9f33c6ad1cf22e9c3e6e6c0403658147956a"
+  "docsHash": "sha256:40a76c831f8ff20d2a2083557c11d8023a11416d8d596e400423b128001959f0"
 }
 ```
 
@@ -162061,7 +162241,7 @@ files.release: contextPolicy=none
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -162422,7 +162602,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5c9148aa365174a0afa33301a471cdd825f87acccbf2d2adc524aef8afb59c9e"
+  "docsHash": "sha256:2904b421de46b7171266be29d96406936ed38ab2c10d3705049a2d325805d52e"
 }
 ```
 
@@ -162433,7 +162613,7 @@ files.release: contextPolicy=none
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -162628,7 +162808,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8444fcce945a39e5b9020117c6c21e8ffbbd10e8a0eae97bf03455aabe6361e8"
+  "docsHash": "sha256:c8295003df588f0af867d20c8d3a26b9f598d7c2cb796d34b2f3b1984ab4490e"
 }
 ```
 
@@ -162639,7 +162819,7 @@ files.release: contextPolicy=none
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -162832,7 +163012,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a537cb15dd11b54dc5f692b331b9e8312fecb0a430fc5ea57ccc46ec55b05e37"
+  "docsHash": "sha256:09b78f0a9843f53533b951d5a92163478501bc5498ac1c1935b8e7fa76591afa"
 }
 ```
 
@@ -162843,7 +163023,7 @@ files.release: contextPolicy=none
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -163088,7 +163268,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a504301173a2d68d792f158dbbc56561888c09f1c50f4980849ef113843ad239"
+  "docsHash": "sha256:f785d6b92e90c2fe598339d46c98a69da4001142b48fcea50570cb86b6363f7c"
 }
 ```
 
@@ -163099,7 +163279,7 @@ files.release: contextPolicy=none
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -163302,7 +163482,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bc6007c24552e524d3ba50924983f5e02b644c2e732e2129f220bd16d068c6d6"
+  "docsHash": "sha256:a4eb0dd04dbbe8a4cb141d168747a577dbb010ea432b36c601e67be2c682c5db"
 }
 ```
 
@@ -163313,7 +163493,7 @@ files.release: contextPolicy=none
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -163549,7 +163729,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8de7d63826f3f0cc7d7d6bef5f64d49a67a6de04f35021e22dc25d5dc746ea0d"
+  "docsHash": "sha256:1abca773f6f5241161441d457880197a809b090d0a68f594fd20561821436fb7"
 }
 ```
 
@@ -163560,7 +163740,7 @@ files.release: contextPolicy=none
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -163773,7 +163953,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bf2a337027f9167e23226975cd10522a5c8f9769e14d0b20932ab458c69116fd"
+  "docsHash": "sha256:4a47e019bc3966b5ac452fc6b45fd0a659a67c97a496b540a3526245415063b6"
 }
 ```
 
@@ -163784,7 +163964,7 @@ files.release: contextPolicy=none
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -164035,7 +164215,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6fecaa35c820a10fd9ae746dfb13475969a68a7bc26a279f2d5244ce02ac51c0"
+  "docsHash": "sha256:070a748d93ccbd857a9a8eea1519aadec8562799475b6d6ff929decb04bd9094"
 }
 ```
 
@@ -164046,7 +164226,7 @@ files.release: contextPolicy=none
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -164267,7 +164447,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2fcd8449b1a2a9811b91d49e6b8bd1504978ac74bb48c469d6e9405669ab0f66"
+  "docsHash": "sha256:d90981a848d6c5e6eca12c921fea80c879be774e9e851789f39c06eaf2b57f1e"
 }
 ```
 
@@ -164278,7 +164458,7 @@ files.release: contextPolicy=none
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -164484,7 +164664,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:06550db0f547365b0011a624e0c1e9553ce951462d75348f0bdceb3896adc386"
+  "docsHash": "sha256:59034ffc052427af062db5f7b6edcf7bee2f8472768fba1b710791151f8d614e"
 }
 ```
 
@@ -164495,7 +164675,7 @@ files.release: contextPolicy=none
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -164711,7 +164891,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f2ca8a07bb232d153d25e81ce5779f7f15c8fb7bbce8efa8744dbd3da20e028f"
+  "docsHash": "sha256:84ce9d0f5f2160ff7579a39fc1c4b733f8a30b879b9394c5a0ef881616ba5bcf"
 }
 ```
 
@@ -164722,7 +164902,7 @@ files.release: contextPolicy=none
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -164946,7 +165126,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bf68ddb25bba7c51d8d91d3c15403cd46f026c1ed0570ced486267bf409a2112"
+  "docsHash": "sha256:8e9409f8137e494ddd572e39946cb5ba0db862d5649eb5f828684006640e6c6d"
 }
 ```
 
@@ -164957,7 +165137,7 @@ files.release: contextPolicy=none
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -165187,7 +165367,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7a60e2cb4f3f5183f2aa0a4a87f0aef8e064602c535ce2e8db7308170d0edb77"
+  "docsHash": "sha256:ee7848202d669b1536bf062e47e63be12be607f880626de1dc3adb0355aa605f"
 }
 ```
 
@@ -165198,7 +165378,7 @@ files.release: contextPolicy=none
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -165411,7 +165591,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:61dff955646a4f9337b2442e183b817992dec7a3cf9a58b669da50456941c3d3"
+  "docsHash": "sha256:4af3317099771b66b5537c51ca76ec52d005c2bfcfb17a93637f56832db0d6e8"
 }
 ```
 
@@ -165422,7 +165602,7 @@ files.release: contextPolicy=none
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -165527,7 +165707,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6d51295f582e0d168330c1413f0ef722cd8614d538edd0a89fee788d0de611fe"
+  "docsHash": "sha256:a35c59b17153e1748ef532df04fa94421b5915224aa6c43406b3a7dc6ec01ecf"
 }
 ```
 
@@ -165538,7 +165718,7 @@ files.release: contextPolicy=none
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -165743,7 +165923,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7e1bccc2bcd4866be5fe45c586608b018fa780ae7e2120f499b26f3301769ebe"
+  "docsHash": "sha256:94ff160b2e170118350c58d8082d7b25a6fd0b5a852ff2e4a85184bc7a09ce10"
 }
 ```
 
@@ -165754,7 +165934,7 @@ files.release: contextPolicy=none
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -165782,6 +165962,7 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -165825,7 +166006,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f0df60de9b91c40768181a9b6c0f2c982f06f725fe796ab7489943997495a9f8"
+  "docsHash": "sha256:e23cdcca7f454b3b179bf0822ead9212aae2662154ad2f337f865cebbeac931e"
 }
 ```
 
@@ -165836,7 +166017,7 @@ files.release: contextPolicy=none
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -165862,6 +166043,7 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -165905,7 +166087,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d6db784476eae5e1b8145035f0e5ca4ea4e11c9da52fa373fb1f68fa0eddd3c8"
+  "docsHash": "sha256:c20e5f4d4108a050a6c638c1b72fc014d8cbcfe2afabf6b3ec7ad824e559a6d0"
 }
 ```
 
@@ -165916,7 +166098,7 @@ files.release: contextPolicy=none
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -165951,6 +166133,7 @@ files.release: contextPolicy=none
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -165994,7 +166177,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f39d43baa8f21315992af2e2008cdd77366e1d139e03497395bd905836231866"
+  "docsHash": "sha256:855017f1e51c457810306652ace1f3f3199c517e31107391d44cb32b0cad28c9"
 }
 ```
 
@@ -166005,7 +166188,7 @@ files.release: contextPolicy=none
   "id": "markLocation",
   "title": "markLocation",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -166157,7 +166340,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:17fe41069a8143928f102ae3d62ab8b47a776ef13a33667cd4fe6a8bbf0823cc"
+  "docsHash": "sha256:f58671346e93db66bbfc68abb9b7c7b7f2ff229ae41541a43ad3a242f0be0211"
 }
 ```
 
@@ -166168,7 +166351,7 @@ files.release: contextPolicy=none
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -166306,7 +166489,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9f6aa0281d12dbc3a557c5f364a3b005de8de20de1230707a1bb8e4cc0af4565"
+  "docsHash": "sha256:a9bdf142c83cb5652185e56661ffbc05e08375671b491086e46107d7d63540d9"
 }
 ```
 
@@ -166317,7 +166500,7 @@ files.release: contextPolicy=none
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -166462,7 +166645,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:49b1926eb4894470798c959883f218e01bc71c8084c7857d077116c7f02a5788"
+  "docsHash": "sha256:0ed53a8d3294d77e514add13ce05e67ad396eae0537f7f3e6e8996db25cfee25"
 }
 ```
 
@@ -166473,7 +166656,7 @@ files.release: contextPolicy=none
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -166616,7 +166799,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:904a3058720fcbd7064c172b43cae72e3aeebe327f0dd049625fdb770cf75a3c"
+  "docsHash": "sha256:7cd3e04080ea4c8bf5a6d1b57fefdd20a0db13614b8035b6d2ee8ae940c13c31"
 }
 ```
 
@@ -166627,7 +166810,7 @@ files.release: contextPolicy=none
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -166765,7 +166948,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a9616a59c92f37cbe342feda06c7e324cbf7b1175c5750c6b8f750ce88588b11"
+  "docsHash": "sha256:6fc5be8a65556b7af6bb03fed7a8fa1051fb43df86222a6ed99eccfe3ba4276a"
 }
 ```
 
@@ -166776,7 +166959,7 @@ files.release: contextPolicy=none
   "id": "clearServicesCredential",
   "title": "clearServicesCredential",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -166916,7 +167099,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e8c8470dcf661ee1583fefa354849ee46ddfd9300f29c936ccd42b7416e7abe4"
+  "docsHash": "sha256:277644c7753e20d1fc7de65e735766845857633f8422148c63d27f6821416abd"
 }
 ```
 
@@ -166927,7 +167110,7 @@ files.release: contextPolicy=none
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167074,7 +167257,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:daef71ea1f0885e66908d5af50ef08b6ae732a20bfd7363f0e00442de40a60aa"
+  "docsHash": "sha256:6a719498839083c1748913753aa81bab45e9c531f72a73d4bac8a679e304165e"
 }
 ```
 
@@ -167085,7 +167268,7 @@ files.release: contextPolicy=none
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167233,7 +167416,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a8d7032ee0dc1642c07d657613a4659f3a6b54b1bee81c4a33f9f5c028a4335c"
+  "docsHash": "sha256:4abca256ca6adc0f58ba9055232b049822e649b26386da2ab978771f3c8880c9"
 }
 ```
 
@@ -167244,7 +167427,7 @@ files.release: contextPolicy=none
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167396,7 +167579,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:40304e8ee283800673a0b2b65e6b3978299622041fdb86029a3081c5c1c35b75"
+  "docsHash": "sha256:2260350e3cdda3b8c6030e9fb74180afb9f14a579c69a6066a9620256e72801a"
 }
 ```
 
@@ -167407,7 +167590,7 @@ files.release: contextPolicy=none
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -167544,7 +167727,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:e6ce55f9c19224bfa292dca2c99c1c0458d694ae2dd393c8231a56ecefd666b4"
+  "docsHash": "sha256:04b6a37ce5db3a2f2bc89bbf65e256c2b7d13d137f05fc6dcf253ee62561e885"
 }
 ```
 
@@ -167555,7 +167738,7 @@ files.release: contextPolicy=none
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -167697,7 +167880,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:657ee883d8d92f5cd61eba913425882304cc6d4d2ca190b67cc8551ca82613f2"
+  "docsHash": "sha256:f9bf31ba9d5749575715ba3a6f2441d3da0a0b863f701df16bd86d511a7daf0a"
 }
 ```
 
@@ -167708,7 +167891,7 @@ files.release: contextPolicy=none
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -167864,7 +168047,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:6bb215f6eae9837fcc9b54c02609b6579d1d5ea11b6393d50e808075a2178f43"
+  "docsHash": "sha256:6c26ec5c1c3dd1dd7e0162c4ba5e0f4b779a2078beb113ebcd5eae3d953687f4"
 }
 ```
 
@@ -167875,7 +168058,7 @@ files.release: contextPolicy=none
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -168229,7 +168412,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:56d3f19a7516d355cf89cd37b07331d40e15477907100729f4dd0bdc9badd0c1"
+  "docsHash": "sha256:40d9afbf10851618e121857ec154203811d6ad37c9bda9a8ab0c9abfcb2657cb"
 }
 ```
 
@@ -168240,7 +168423,7 @@ files.release: contextPolicy=none
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -168433,7 +168616,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:29c3d583d5d6ed2f7a8e7e120e0fcd595646d7cb31752ad646b38f957af013bb"
+  "docsHash": "sha256:7f66997d70a43e1e11d0d2cdae6e5d61d4f8f2802a26a117ad753e8e8968ee80"
 }
 ```
 
@@ -168444,7 +168627,7 @@ files.release: contextPolicy=none
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -168625,7 +168808,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5f2eff62b0db351649ab787641217c2c248d80e6bcd7e60eacec327f5a6529ce"
+  "docsHash": "sha256:a3e99d5c0873f11b19a3b2dc82d806688126689bd642f87dc20ab97e5b832027"
 }
 ```
 
@@ -168636,7 +168819,7 @@ files.release: contextPolicy=none
   "id": "getEvidenceImage",
   "title": "getEvidenceImage",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -168855,7 +169038,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5b1fe48b11bda90dbdc37f6a6c09e80aa8e3b4515b012401263f96342b8e5b70"
+  "docsHash": "sha256:9153fa12ae01fa7d415d32efe8db99c237bb31db4bd399e783c7da6dca4074db"
 }
 ```
 
@@ -168866,7 +169049,7 @@ files.release: contextPolicy=none
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -169528,7 +169711,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:aedac7e7cba213491547c2cdac073dc9375c34dbeacd44d5f03fb170688b33d3"
+  "docsHash": "sha256:76126412c53641516bb51e88118fe15c26e9059a372a9f9ecd14c5cb35a856ce"
 }
 ```
 
@@ -169545,7 +169728,7 @@ files.release: contextPolicy=none
   "title": "材料密度与重量",
   "description": "设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169577,6 +169760,13 @@ files.release: contextPolicy=none
     "getState"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "document.materials",
     "args": {
       "settings": {
@@ -169598,6 +169788,140 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.materials"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "settings": {}
+        },
+        "required": [
+          "settings"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "settings": {}
+    },
+    "required": [
+      "settings"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.materials"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "settings": {}
+        },
+        "required": [
+          "settings"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -169639,7 +169963,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:43281ccc61a7d90662fc13cd6114f67853a6fbe627d2ce081e28145db8f2153c"
+  "docsHash": "sha256:c9761321dfbb301046f0f644f122c6eb3431501efd11e3a38f78bdbb06a21698"
 }
 ```
 
@@ -169656,7 +169980,7 @@ files.release: contextPolicy=none
   "title": "Services 原特征编译",
   "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169689,6 +170013,13 @@ files.release: contextPolicy=none
     "getState"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "feature.compileServices",
     "args": {
       "featureId": "<featureId>",
@@ -169698,6 +170029,146 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.compileServices"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "featureId": {},
+          "allowUpload": {}
+        },
+        "required": [
+          "featureId",
+          "allowUpload"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "featureId": {},
+      "allowUpload": {}
+    },
+    "required": [
+      "featureId",
+      "allowUpload"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.compileServices"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "featureId": {},
+          "allowUpload": {}
+        },
+        "required": [
+          "featureId",
+          "allowUpload"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -169809,7 +170280,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:de06a6f7f2c5897536d3a630b705709d95906119ca36861c05cd3d7e9dd7601d"
+  "docsHash": "sha256:5de0ee90b0a74283578024a97037745e7743425fce90c7b1c50edee86e398095"
 }
 ```
 
@@ -169826,7 +170297,7 @@ files.release: contextPolicy=none
   "title": "快速对齐",
   "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169860,6 +170331,13 @@ files.release: contextPolicy=none
     "getHistory"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "body.align",
     "args": {
       "bodyIds": [
@@ -169885,6 +170363,290 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "body.align"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyIds": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "target": {
+            "type": "object"
+          },
+          "axes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "X",
+                "Y",
+                "Z"
+              ]
+            }
+          },
+          "sourceSide": {
+            "enum": [
+              "min",
+              "center",
+              "max"
+            ]
+          },
+          "targetSide": {
+            "enum": [
+              "min",
+              "center",
+              "max"
+            ]
+          },
+          "group": {
+            "type": "boolean"
+          },
+          "gapMm": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "bodyIds",
+          "target"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "bodyIds": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "target": {
+        "type": "object"
+      },
+      "axes": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 3,
+        "uniqueItems": true,
+        "items": {
+          "enum": [
+            "X",
+            "Y",
+            "Z"
+          ]
+        }
+      },
+      "sourceSide": {
+        "enum": [
+          "min",
+          "center",
+          "max"
+        ]
+      },
+      "targetSide": {
+        "enum": [
+          "min",
+          "center",
+          "max"
+        ]
+      },
+      "group": {
+        "type": "boolean"
+      },
+      "gapMm": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      }
+    },
+    "required": [
+      "bodyIds",
+      "target"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "body.align"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyIds": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "target": {
+            "type": "object"
+          },
+          "axes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "X",
+                "Y",
+                "Z"
+              ]
+            }
+          },
+          "sourceSide": {
+            "enum": [
+              "min",
+              "center",
+              "max"
+            ]
+          },
+          "targetSide": {
+            "enum": [
+              "min",
+              "center",
+              "max"
+            ]
+          },
+          "group": {
+            "type": "boolean"
+          },
+          "gapMm": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "bodyIds",
+          "target"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170004,7 +170766,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7fe9ba6d2604d8c84a474ff913d49aacc38cfd202f869cb30a06709f552b4825"
+  "docsHash": "sha256:1e4dc24fca9f20667821b4bcdc0be1f72f53de7d641f9d002be35e2591daa59a"
 }
 ```
 
@@ -170021,7 +170783,7 @@ files.release: contextPolicy=none
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170050,6 +170812,13 @@ files.release: contextPolicy=none
     "getHistory"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "history.restore",
     "args": {
       "stateId": "<stateId>"
@@ -170058,6 +170827,140 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "history.restore"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "stateId": {}
+        },
+        "required": [
+          "stateId"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "stateId": {}
+    },
+    "required": [
+      "stateId"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "history.restore"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "stateId": {}
+        },
+        "required": [
+          "stateId"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170135,7 +171038,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4062a5c4ce002fd2d73ee4e18ae896e69d56fc17e24ef614323039ac39da268b"
+  "docsHash": "sha256:b94bbc33803468915a0876420dda08603c94da5990ae8c1a706b497e8e65dc04"
 }
 ```
 
@@ -170152,7 +171055,7 @@ files.release: contextPolicy=none
   "title": "浮雕设计约束草稿",
   "description": "保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。heightSource可选{source,depthMm,edgeKeepoutMm?,edgeFadeMm?,weight?}：source为浏览器转换生成的高度来源记录（原图sha256、转换设置及哈希、u16le网格≤1025²）；照片须带derivedFrom及用户确认“我确认此结果为我制作的高度图”，否则MACHINING_SOURCE_CONFLICT；高度图覆盖支撑外接矩形，亮=高，按depthMm映射到最低高度之上，作为求解观测。fieldSettings可选servicesQuality:{mode:adaptive/off,maxControlSide:16–1025}（纯图像无人工点/局部编辑时默认adaptive/1025，Services自动选控制网，结果报告实际ladder和误差；off保留旧拟合），以及machiningPrecisionMm(0.01–0.5 mm，默认0.05，可调：小于该值的起伏/噪声/台阶以C1平滑方式去除，边缘与基线平齐，记入草稿指纹)、columns/rows(9–129)、smoothWeight、maxIterations(1–20000)、toleranceMm及edits笔刷数组(最多256笔，按顺序执行)。每笔显式mode:raise/lower/flatten/smooth、centerMm:[x,y]、radiusMm:0.001..10000；strength可选0..1默认1；raise/lower必填amountMm:0..100，flatten必填targetMm:-100..100，smooth为一次邻域平滑。坐标与草稿支撑同一毫米坐标系；孔、边缘固定节点及保护区保持基线，高度不超heightRangeMm。UI新增/更新/移除笔画会连同当前其他有效表单字段一次保存，Agent等价传整份draft并携带expectedDraftRevision；原图reference及其他既有设置必须保留。随工程保留可重算设计。使用reliefDesignField求解/残差回读和保留圆/矩形支撑、孔与作者保护基线的采样闭网格候选（边界近似，不是精确圆）；不从原图亮度推断设计高度。getState({include:[\"reliefDesigns\"]})读取。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170187,6 +171090,13 @@ files.release: contextPolicy=none
     "getState"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "document.reliefDesign",
     "args": {
       "id": "design-1",
@@ -170215,6 +171125,152 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.reliefDesign"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {},
+          "expectedDraftRevision": {},
+          "draft": {},
+          "remove": {}
+        },
+        "required": [
+          "id",
+          "expectedDraftRevision"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "id": {},
+      "expectedDraftRevision": {},
+      "draft": {},
+      "remove": {}
+    },
+    "required": [
+      "id",
+      "expectedDraftRevision"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.reliefDesign"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {},
+          "expectedDraftRevision": {},
+          "draft": {},
+          "remove": {}
+        },
+        "required": [
+          "id",
+          "expectedDraftRevision"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170312,7 +171368,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:47f85d510e4f678dd4b26aed88c32961cc912c572ca35a7f043b61d91d5a1893"
+  "docsHash": "sha256:13e3ba113e4a832f24f2af9702060342784eac024c518b00d7352f5edac7c0d9"
 }
 ```
 
@@ -170329,7 +171385,7 @@ files.release: contextPolicy=none
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170361,6 +171417,13 @@ files.release: contextPolicy=none
     "getState"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "document.rename",
     "args": {
       "name": "圆环设计"
@@ -170369,6 +171432,140 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.rename"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {}
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "name": {}
+    },
+    "required": [
+      "name"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.rename"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {}
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170462,7 +171659,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:407b6c8a2433c487e37e052a0c6c1ef44925dd2156251784c5cc029b532e3451"
+  "docsHash": "sha256:e9ba1a7fe02578b1d01f6ded5d6de05922b86b317bfbae4dc5d96e48ec1df817"
 }
 ```
 
@@ -170479,7 +171676,7 @@ files.release: contextPolicy=none
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170512,6 +171709,13 @@ files.release: contextPolicy=none
     "getState"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "feature.rename",
     "args": {
       "featureId": "<featureId>",
@@ -170521,6 +171725,146 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.rename"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "featureId": {},
+          "name": {}
+        },
+        "required": [
+          "featureId",
+          "name"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "featureId": {},
+      "name": {}
+    },
+    "required": [
+      "featureId",
+      "name"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.rename"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "featureId": {},
+          "name": {}
+        },
+        "required": [
+          "featureId",
+          "name"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170616,7 +171960,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e309925aa97620510c5cbe70e0f6c064ecaae5ae7787afa180a294ab1e265e91"
+  "docsHash": "sha256:df2e78a823a2e2e3d786ff7f3154a3257707f8274b45d711860a169919247cbd"
 }
 ```
 
@@ -170633,7 +171977,7 @@ files.release: contextPolicy=none
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170666,6 +172010,13 @@ files.release: contextPolicy=none
     "getState"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "body.visibility",
     "args": {
       "bodyIds": [
@@ -170677,6 +172028,146 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "body.visibility"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyIds": {},
+          "visible": {}
+        },
+        "required": [
+          "bodyIds",
+          "visible"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "bodyIds": {},
+      "visible": {}
+    },
+    "required": [
+      "bodyIds",
+      "visible"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "body.visibility"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyIds": {},
+          "visible": {}
+        },
+        "required": [
+          "bodyIds",
+          "visible"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170756,7 +172247,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:4ee9bdb06d580fbbe533fe31db8fbc5136bf489d779892df84264c29806e509f"
+  "docsHash": "sha256:ea2509c555f94655ce30f7025d58cb130e41e511fec1f31fe9492da11f46af31"
 }
 ```
 
@@ -170783,7 +172274,7 @@ files.release: contextPolicy=none
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170833,6 +172324,13 @@ files.release: contextPolicy=none
     "antique-silver"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "body.appearance",
     "args": {
       "bodyIds": [
@@ -170845,6 +172343,146 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "body.appearance"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyIds": {},
+          "finish": {},
+          "color": {}
+        },
+        "required": [
+          "bodyIds"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "bodyIds": {},
+      "finish": {},
+      "color": {}
+    },
+    "required": [
+      "bodyIds"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "body.appearance"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyIds": {},
+          "finish": {},
+          "color": {}
+        },
+        "required": [
+          "bodyIds"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170940,7 +172578,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:43e72e255c2f1fc3f19db3017ef5c009064524253ec644700e24e6275ad7e99a"
+  "docsHash": "sha256:10afcb57a5f0cb5a77589a2e2f1baf9771f327e0a16c2d65febd7f9e72b675ce"
 }
 ```
 
@@ -170957,7 +172595,7 @@ files.release: contextPolicy=none
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171005,6 +172643,13 @@ files.release: contextPolicy=none
     "antique-silver"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "document.appearance",
     "args": {
       "finish": "nickel"
@@ -171013,6 +172658,140 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.appearance"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "finish": {}
+        },
+        "required": [
+          "finish"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "finish": {}
+    },
+    "required": [
+      "finish"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.appearance"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "finish": {}
+        },
+        "required": [
+          "finish"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171106,7 +172885,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b12aced1d82a2f805068133cba76eccda016576e34ecda8af36083ed2a633adb"
+  "docsHash": "sha256:1b4104d6ae5edcfe6927fe18cde2a1464b849f8756696493479bf971a55083db"
 }
 ```
 
@@ -171123,7 +172902,7 @@ files.release: contextPolicy=none
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171155,6 +172934,13 @@ files.release: contextPolicy=none
     "getState"
   ],
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "body.explode",
     "args": {
       "bodyId": "<bodyId>"
@@ -171163,6 +172949,140 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "body.explode"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyId": {}
+        },
+        "required": [
+          "bodyId"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "bodyId": {}
+    },
+    "required": [
+      "bodyId"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "body.explode"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyId": {}
+        },
+        "required": [
+          "bodyId"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171244,7 +173164,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:fb379574a506e59a6badcb5a4745a9d10ed0d89afc0d20f0314816d227102dee"
+  "docsHash": "sha256:c1f390b10b78807ce59fdbb5c36bf350e9c9cd09c375086a20e66b9567c36d93"
 }
 ```
 
@@ -171261,7 +173181,7 @@ files.release: contextPolicy=none
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171300,6 +173220,149 @@ files.release: contextPolicy=none
     "工作基准",
     "基准点"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.setWorkFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "origin": {},
+          "quaternion": {},
+          "sourceLabel": {}
+        },
+        "required": [
+          "origin",
+          "quaternion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "origin": {},
+      "quaternion": {},
+      "sourceLabel": {}
+    },
+    "required": [
+      "origin",
+      "quaternion"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.setWorkFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "origin": {},
+          "quaternion": {},
+          "sourceLabel": {}
+        },
+        "required": [
+          "origin",
+          "quaternion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171380,7 +173443,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:89a3e7e4ff108b0ce365d6f958ee4ea28e44186503208c3e8eed8a63953d2940"
+  "docsHash": "sha256:941ae12f9b25ac039bfa5ad8be696b9803fe9f1f5b1f6842abd6e876be3abfe0"
 }
 ```
 
@@ -171397,7 +173460,7 @@ files.release: contextPolicy=none
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171428,6 +173491,140 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.resetWorkFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scope": {}
+        },
+        "required": [
+          "scope"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "scope": {}
+    },
+    "required": [
+      "scope"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.resetWorkFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scope": {}
+        },
+        "required": [
+          "scope"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171493,7 +173690,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b229b35d83a2d530d350ca1725b234ea788a6fd7ec331d3d5d54f93d105584f0"
+  "docsHash": "sha256:308d3e5fa2f9878a1e31bd5a149318aa68f26fa8510ffab6e8e96c2848a0d2b5"
 }
 ```
 
@@ -171510,7 +173707,7 @@ files.release: contextPolicy=none
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171541,6 +173738,140 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.setLocked"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "locked": {}
+        },
+        "required": [
+          "locked"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "locked": {}
+    },
+    "required": [
+      "locked"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.setLocked"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "locked": {}
+        },
+        "required": [
+          "locked"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171606,7 +173937,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:aa4c9004a4dd068016045e19befbbd34e350b1e7643139b34ba4c1f710123a4a"
+  "docsHash": "sha256:01ac55129bc3422599d78124e2c63d919d82ba05b3953a12e1839220f58bae80"
 }
 ```
 
@@ -171623,7 +173954,7 @@ files.release: contextPolicy=none
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171654,6 +173985,152 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.saveFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {},
+          "frame": {},
+          "frameId": {},
+          "expectedFrameVersion": {}
+        },
+        "required": [
+          "name",
+          "frame"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "name": {},
+      "frame": {},
+      "frameId": {},
+      "expectedFrameVersion": {}
+    },
+    "required": [
+      "name",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.saveFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {},
+          "frame": {},
+          "frameId": {},
+          "expectedFrameVersion": {}
+        },
+        "required": [
+          "name",
+          "frame"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171723,7 +174200,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b69c77fc9953e694f4d0e0cb5229496d0ac2298885246769daf0cc1944b020a4"
+  "docsHash": "sha256:099fe49887e732ebd34a59ac8edfa2e7a046ca6c9a6de3ad2e140fd749e80341"
 }
 ```
 
@@ -171740,7 +174217,7 @@ files.release: contextPolicy=none
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171771,6 +174248,146 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.activateFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "frameId": {},
+          "expectedFrameVersion": {}
+        },
+        "required": [
+          "frameId",
+          "expectedFrameVersion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "frameId": {},
+      "expectedFrameVersion": {}
+    },
+    "required": [
+      "frameId",
+      "expectedFrameVersion"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.activateFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "frameId": {},
+          "expectedFrameVersion": {}
+        },
+        "required": [
+          "frameId",
+          "expectedFrameVersion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171838,7 +174455,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d916afeed8b86961b345d0fc87b5c7c0b5a8699eabc9fc3e9e374a3e85104126"
+  "docsHash": "sha256:ce064ce62a2c206484ab903d61f4abd955c264417258d621b2fe3c12a6c47215"
 }
 ```
 
@@ -171855,7 +174472,7 @@ files.release: contextPolicy=none
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171886,6 +174503,152 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.renameFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "frameId": {},
+          "expectedFrameVersion": {},
+          "name": {}
+        },
+        "required": [
+          "frameId",
+          "expectedFrameVersion",
+          "name"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "frameId": {},
+      "expectedFrameVersion": {},
+      "name": {}
+    },
+    "required": [
+      "frameId",
+      "expectedFrameVersion",
+      "name"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.renameFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "frameId": {},
+          "expectedFrameVersion": {},
+          "name": {}
+        },
+        "required": [
+          "frameId",
+          "expectedFrameVersion",
+          "name"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171955,7 +174718,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dbf141dfd7fe52498b32af80c5d71369fdc64239925bad23ce51d5f14a1dcd51"
+  "docsHash": "sha256:55352e0f7bb795c1bb3c533fb7025bf3113639b5892762e8257945aeae37c8ce"
 }
 ```
 
@@ -171972,7 +174735,7 @@ files.release: contextPolicy=none
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172003,6 +174766,146 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.deleteFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "frameId": {},
+          "expectedFrameVersion": {}
+        },
+        "required": [
+          "frameId",
+          "expectedFrameVersion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "frameId": {},
+      "expectedFrameVersion": {}
+    },
+    "required": [
+      "frameId",
+      "expectedFrameVersion"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.deleteFrame"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "frameId": {},
+          "expectedFrameVersion": {}
+        },
+        "required": [
+          "frameId",
+          "expectedFrameVersion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -172070,7 +174973,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:91ae653c9f6a4dc523310f1c567295318d18653418bfa89cbf637365c2fc533e"
+  "docsHash": "sha256:ab1ae411a7e89dfe325000c4bce60d630516c3a1ce858e81c864bdcedadb9c70"
 }
 ```
 
@@ -172087,7 +174990,7 @@ files.release: contextPolicy=none
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172122,6 +175025,164 @@ files.release: contextPolicy=none
     "对象锚点",
     "实体锚点"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.setBodyAnchor"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyId": {},
+          "name": {},
+          "referenceId": {},
+          "quaternion": {},
+          "anchorId": {},
+          "expectedAnchorVersion": {}
+        },
+        "required": [
+          "bodyId",
+          "name",
+          "referenceId",
+          "quaternion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "bodyId": {},
+      "name": {},
+      "referenceId": {},
+      "quaternion": {},
+      "anchorId": {},
+      "expectedAnchorVersion": {}
+    },
+    "required": [
+      "bodyId",
+      "name",
+      "referenceId",
+      "quaternion"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.setBodyAnchor"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyId": {},
+          "name": {},
+          "referenceId": {},
+          "quaternion": {},
+          "anchorId": {},
+          "expectedAnchorVersion": {}
+        },
+        "required": [
+          "bodyId",
+          "name",
+          "referenceId",
+          "quaternion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -172195,7 +175256,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:df60cd3ab42bd5470213f51d2ab8810c28192947688d3a39ad78e707597d1044"
+  "docsHash": "sha256:bbfa29186c35284e540933d5a9e33ae40fd23407f0f253734eab04d5ce0d7188"
 }
 ```
 
@@ -172212,7 +175273,7 @@ files.release: contextPolicy=none
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172243,6 +175304,152 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.deleteBodyAnchor"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyId": {},
+          "anchorId": {},
+          "expectedAnchorVersion": {}
+        },
+        "required": [
+          "bodyId",
+          "anchorId",
+          "expectedAnchorVersion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "bodyId": {},
+      "anchorId": {},
+      "expectedAnchorVersion": {}
+    },
+    "required": [
+      "bodyId",
+      "anchorId",
+      "expectedAnchorVersion"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "reference.deleteBodyAnchor"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyId": {},
+          "anchorId": {},
+          "expectedAnchorVersion": {}
+        },
+        "required": [
+          "bodyId",
+          "anchorId",
+          "expectedAnchorVersion"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -172312,7 +175519,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a2e47b108f05e59461983ce0c085eaaac6a184c14009e52f03bcb97fcf1fcaf9"
+  "docsHash": "sha256:f90431cdc870238e5f0d59e95a2146a36e7bb92abb03df0726c4dbfe5322fbe7"
 }
 ```
 
@@ -172329,7 +175536,7 @@ files.release: contextPolicy=none
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172360,6 +175567,167 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.add"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "op": {},
+          "opVersion": {},
+          "schemaHash": {},
+          "params": {},
+          "refs": {},
+          "name": {},
+          "selectionToken": {},
+          "placement": {}
+        },
+        "required": [
+          "op",
+          "params",
+          "refs"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {},
+      "opVersion": {},
+      "schemaHash": {},
+      "params": {},
+      "refs": {},
+      "name": {},
+      "selectionToken": {},
+      "placement": {}
+    },
+    "required": [
+      "op",
+      "params",
+      "refs"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.add"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "op": {},
+          "opVersion": {},
+          "schemaHash": {},
+          "params": {},
+          "refs": {},
+          "name": {},
+          "selectionToken": {},
+          "placement": {}
+        },
+        "required": [
+          "op",
+          "params",
+          "refs"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -172438,7 +175806,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:02fd0735d75bd66811d7ee149b987288d7f02a56a2a7d82a1f6da10f84abb6dd"
+  "docsHash": "sha256:0f85c9613261fee89509a9de358dd33a8a3a1a061ccf6538c44e60c1360792fe"
 }
 ```
 
@@ -172452,6 +175820,361 @@ files.release: contextPolicy=none
     "action": "feature.addMany"
   },
   "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.addMany"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "features"
+        ],
+        "properties": {
+          "features": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 64,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "key",
+                "op",
+                "opVersion",
+                "schemaHash",
+                "params",
+                "refs"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+                },
+                "op": {
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "cone",
+                    "torus",
+                    "extrude",
+                    "revolve",
+                    "sweep",
+                    "loft",
+                    "quickModel",
+                    "vectorProfile",
+                    "arcProfile",
+                    "sketchProfile",
+                    "curveSweep",
+                    "advancedLoft",
+                    "transform",
+                    "copy",
+                    "mirror",
+                    "linearPattern",
+                    "circularPattern",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "group",
+                    "fillet",
+                    "chamfer",
+                    "hole",
+                    "multiHole",
+                    "multiPocket",
+                    "multiBoss"
+                  ]
+                },
+                "opVersion": {
+                  "type": "string"
+                },
+                "schemaHash": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "description": "Complete current selected operation schema applies; no intermediate topology IDs"
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "feature"
+                        ],
+                        "properties": {
+                          "feature": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                "placement": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "version": {
+                      "const": 1
+                    },
+                    "frame": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "world"
+                            }
+                          },
+                          "required": [
+                            "kind"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "snapshot"
+                            },
+                            "origin": {
+                              "type": "array",
+                              "minItems": 3,
+                              "maxItems": 3,
+                              "items": {
+                                "type": "number"
+                              }
+                            },
+                            "quaternion": {
+                              "type": "array",
+                              "minItems": 4,
+                              "maxItems": 4,
+                              "items": {
+                                "type": "number"
+                              },
+                              "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "origin",
+                            "quaternion"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "work"
+                            },
+                            "expectedFrameVersion": {
+                              "type": "integer",
+                              "minimum": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "expectedFrameVersion"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "saved"
+                            },
+                            "frameId": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "expectedFrameVersion": {
+                              "type": "integer",
+                              "minimum": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "frameId",
+                            "expectedFrameVersion"
+                          ]
+                        }
+                      ]
+                    },
+                    "sourceAnchor": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "enum": [
+                                "model-origin",
+                                "bottom-center",
+                                "bounds-center"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "kind"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "point"
+                            },
+                            "point": {
+                              "type": "array",
+                              "minItems": 3,
+                              "maxItems": 3,
+                              "items": {
+                                "type": "number"
+                              }
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "point"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "named"
+                            },
+                            "anchorId": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "anchorId"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "frame"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "executionPolicy": {
+    "atomic": true,
+    "revisionCount": 1,
+    "undoSteps": 1,
+    "geometryRebuilds": 1
+  },
+  "docs": "api.feature-plan",
+  "id": "feature.addMany",
+  "title": "一次提交多特征",
+  "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
+  "category": "command",
+  "version": "1.61.1",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-command",
+  "runtimeAvailability": "requires_ready_page",
+  "inputContract": "execute({context,idempotencyKey,action:\"feature.addMany\",args}); args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "INSTANCE_MISMATCH",
+    "DOCUMENT_MISMATCH",
+    "REVISION_CONFLICT",
+    "IDEMPOTENCY_KEY_REUSED",
+    "CAPABILITY_UNAVAILABLE",
+    "PREVIEW_ACTIVE",
+    "STALE_REFERENCE",
+    "UI_TASK_ACTIVE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
+  "stateReadback": [
+    "getState"
+  ],
+  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
+  "batchCapable": false,
+  "argsSchema": {
     "type": "object",
     "additionalProperties": false,
     "required": [
@@ -172713,47 +176436,320 @@ files.release: contextPolicy=none
       }
     }
   },
-  "executionPolicy": {
-    "atomic": true,
-    "revisionCount": 1,
-    "undoSteps": 1,
-    "geometryRebuilds": 1
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.addMany"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "features"
+        ],
+        "properties": {
+          "features": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 64,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "key",
+                "op",
+                "opVersion",
+                "schemaHash",
+                "params",
+                "refs"
+              ],
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$"
+                },
+                "op": {
+                  "enum": [
+                    "box",
+                    "cylinder",
+                    "sphere",
+                    "cone",
+                    "torus",
+                    "extrude",
+                    "revolve",
+                    "sweep",
+                    "loft",
+                    "quickModel",
+                    "vectorProfile",
+                    "arcProfile",
+                    "sketchProfile",
+                    "curveSweep",
+                    "advancedLoft",
+                    "transform",
+                    "copy",
+                    "mirror",
+                    "linearPattern",
+                    "circularPattern",
+                    "union",
+                    "cut",
+                    "intersect",
+                    "group",
+                    "fillet",
+                    "chamfer",
+                    "hole",
+                    "multiHole",
+                    "multiPocket",
+                    "multiBoss"
+                  ]
+                },
+                "opVersion": {
+                  "type": "string"
+                },
+                "schemaHash": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "description": "Complete current selected operation schema applies; no intermediate topology IDs"
+                },
+                "refs": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "feature"
+                        ],
+                        "properties": {
+                          "feature": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                "placement": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "version": {
+                      "const": 1
+                    },
+                    "frame": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "world"
+                            }
+                          },
+                          "required": [
+                            "kind"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "snapshot"
+                            },
+                            "origin": {
+                              "type": "array",
+                              "minItems": 3,
+                              "maxItems": 3,
+                              "items": {
+                                "type": "number"
+                              }
+                            },
+                            "quaternion": {
+                              "type": "array",
+                              "minItems": 4,
+                              "maxItems": 4,
+                              "items": {
+                                "type": "number"
+                              },
+                              "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "origin",
+                            "quaternion"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "work"
+                            },
+                            "expectedFrameVersion": {
+                              "type": "integer",
+                              "minimum": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "expectedFrameVersion"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "saved"
+                            },
+                            "frameId": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "expectedFrameVersion": {
+                              "type": "integer",
+                              "minimum": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "frameId",
+                            "expectedFrameVersion"
+                          ]
+                        }
+                      ]
+                    },
+                    "sourceAnchor": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "enum": [
+                                "model-origin",
+                                "bottom-center",
+                                "bounds-center"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "kind"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "point"
+                            },
+                            "point": {
+                              "type": "array",
+                              "minItems": 3,
+                              "maxItems": 3,
+                              "items": {
+                                "type": "number"
+                              }
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "point"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "kind": {
+                              "const": "named"
+                            },
+                            "anchorId": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "anchorId"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "frame"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
   },
-  "docs": "api.feature-plan",
-  "id": "feature.addMany",
-  "title": "一次提交多特征",
-  "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
-  "category": "command",
-  "version": "1.61.0",
-  "implementationStatus": "implemented",
-  "contractStatus": "page-command",
-  "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"feature.addMany\",args}); args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
-  "documentLimits": {
-    "maxFeatures": 2000,
-    "maxBytes": 209715200,
-    "preflightReserveBytes": 4096
-  },
-  "errorCodes": [
-    "PARAM_SCHEMA_INVALID",
-    "PARAM_RANGE_INVALID",
-    "INSTANCE_MISMATCH",
-    "DOCUMENT_MISMATCH",
-    "REVISION_CONFLICT",
-    "IDEMPOTENCY_KEY_REUSED",
-    "CAPABILITY_UNAVAILABLE",
-    "PREVIEW_ACTIVE",
-    "STALE_REFERENCE",
-    "UI_TASK_ACTIVE",
-    "GEOMETRY_INVALID",
-    "SIZE_LIMIT"
-  ],
-  "errorModel": "CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.",
-  "stateReadback": [
-    "getState"
-  ],
-  "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
-  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -172813,7 +176809,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b74819273c7ad354a399c22ac9745fcc69024d7edebb581cab44c18bb09469b7"
+  "docsHash": "sha256:5607d7ed762ee187f93f527346e21b8513cb34debc7fa3ae7e5d813f501d7575"
 }
 ```
 
@@ -172830,7 +176826,7 @@ files.release: contextPolicy=none
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172861,6 +176857,158 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.edit"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "featureId": {},
+          "opVersion": {},
+          "schemaHash": {},
+          "params": {},
+          "name": {},
+          "placement": {}
+        },
+        "required": [
+          "featureId",
+          "params"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "featureId": {},
+      "opVersion": {},
+      "schemaHash": {},
+      "params": {},
+      "name": {},
+      "placement": {}
+    },
+    "required": [
+      "featureId",
+      "params"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.edit"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "featureId": {},
+          "opVersion": {},
+          "schemaHash": {},
+          "params": {},
+          "name": {},
+          "placement": {}
+        },
+        "required": [
+          "featureId",
+          "params"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -172936,7 +177084,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:854a122391bd0c9e175db82a8358034ce2074facb850d4ea72265fbc73da81ea"
+  "docsHash": "sha256:d8f47e1cafd7bd67b4d1e69ee1ec7c7d6b11757f58130bd0c69c5384f299d008"
 }
 ```
 
@@ -172953,7 +177101,7 @@ files.release: contextPolicy=none
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172984,6 +177132,140 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.remove"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyIds": {}
+        },
+        "required": [
+          "bodyIds"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "bodyIds": {}
+    },
+    "required": [
+      "bodyIds"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "feature.remove"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bodyIds": {}
+        },
+        "required": [
+          "bodyIds"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173061,7 +177343,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:13da391defd525265f81089798e42a991515b780637c11790e61084383279cd5"
+  "docsHash": "sha256:4dbc76c6ccc8556001ef30498246ee65b9074d6adb0dbcfc432cc337c34c7feb"
 }
 ```
 
@@ -173078,7 +177360,7 @@ files.release: contextPolicy=none
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173109,6 +177391,128 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "history.undo"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "history.undo"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173174,7 +177578,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:af24135adb6e79544806aaed593e925b9aed42a3facc9b3b9e4c3e964c3bbc19"
+  "docsHash": "sha256:caad285620432dbff14c362cdbfbbb6e6b856c1fe71a2d28f05d9349f2fd2927"
 }
 ```
 
@@ -173191,7 +177595,7 @@ files.release: contextPolicy=none
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173222,6 +177626,128 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "history.redo"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "history.redo"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173287,7 +177813,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f87d8f55c5172279828419c25eca7b6843e011c5e36a79f2f7cfaefe64512338"
+  "docsHash": "sha256:aaab5dc7868a8329543e1e2a0789e96ef5471d69fcae252bc9fd00e12cd8561f"
 }
 ```
 
@@ -173304,7 +177830,7 @@ files.release: contextPolicy=none
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173335,6 +177861,128 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.refresh"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.refresh"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173408,7 +178056,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:828e3e559834013a4ffce5a50567282eebfb146075e1f26948cfeca005e7271b"
+  "docsHash": "sha256:24576cc69f1dd2196117c6046fe0a5a8a91948a5866981a0bb55a47309d1957f"
 }
 ```
 
@@ -173425,7 +178073,7 @@ files.release: contextPolicy=none
   "title": "预览模型、原特征编辑或文件插入",
   "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。预览编号在 result.preview.previewId，同时在回执顶层提供 previewId、generation、baseRevision 别名。提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173456,6 +178104,161 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "preview.start"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "op": {},
+          "opVersion": {},
+          "schemaHash": {},
+          "params": {},
+          "refs": {},
+          "name": {},
+          "selectionToken": {},
+          "placement": {},
+          "featureEdit": {},
+          "fileImport": {}
+        },
+        "required": []
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {},
+      "opVersion": {},
+      "schemaHash": {},
+      "params": {},
+      "refs": {},
+      "name": {},
+      "selectionToken": {},
+      "placement": {},
+      "featureEdit": {},
+      "fileImport": {}
+    },
+    "required": []
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "preview.start"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "op": {},
+          "opVersion": {},
+          "schemaHash": {},
+          "params": {},
+          "refs": {},
+          "name": {},
+          "selectionToken": {},
+          "placement": {},
+          "featureEdit": {},
+          "fileImport": {}
+        },
+        "required": []
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173508,7 +178311,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f8fbbe35e713157929d3b5104ae0b77fcf2b9079fe43255a4fa714fc6afc7e21"
+  "docsHash": "sha256:aa229e18387605bfecf2b8397c6425fd4b0db44a082d21bcb5daca095ec83d0a"
 }
 ```
 
@@ -173525,7 +178328,7 @@ files.release: contextPolicy=none
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173556,6 +178359,152 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "preview.update"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "previewId": {},
+          "expectedGeneration": {},
+          "patch": {}
+        },
+        "required": [
+          "previewId",
+          "expectedGeneration",
+          "patch"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "previewId": {},
+      "expectedGeneration": {},
+      "patch": {}
+    },
+    "required": [
+      "previewId",
+      "expectedGeneration",
+      "patch"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "preview.update"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "previewId": {},
+          "expectedGeneration": {},
+          "patch": {}
+        },
+        "required": [
+          "previewId",
+          "expectedGeneration",
+          "patch"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173605,7 +178554,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ddd497aeb98ec1598fd370b14288d4d4004b5038671388182143fbedc6e66b80"
+  "docsHash": "sha256:096a08d3bd01d033494ca18173c5cf792899bf94db8155c25368016ed99860c5"
 }
 ```
 
@@ -173622,7 +178571,7 @@ files.release: contextPolicy=none
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173653,6 +178602,146 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "preview.commit"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "previewId": {},
+          "expectedGeneration": {}
+        },
+        "required": [
+          "previewId",
+          "expectedGeneration"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "previewId": {},
+      "expectedGeneration": {}
+    },
+    "required": [
+      "previewId",
+      "expectedGeneration"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "preview.commit"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "previewId": {},
+          "expectedGeneration": {}
+        },
+        "required": [
+          "previewId",
+          "expectedGeneration"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173700,7 +178789,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6ba39acb989d80534e688097874aae144e7b1158ce3c950b7dd36dc3c88e2009"
+  "docsHash": "sha256:1d3f4e9682c0aa1be0fa94c056f77755056fa532873d5fb863f8ca04e298aa09"
 }
 ```
 
@@ -173717,7 +178806,7 @@ files.release: contextPolicy=none
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173748,6 +178837,146 @@ files.release: contextPolicy=none
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
   "batchCapable": false,
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "preview.cancel"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "previewId": {},
+          "expectedGeneration": {}
+        },
+        "required": [
+          "previewId",
+          "expectedGeneration"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
+  "argsSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "previewId": {},
+      "expectedGeneration": {}
+    },
+    "required": [
+      "previewId",
+      "expectedGeneration"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "preview.cancel"
+      },
+      "args": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "previewId": {},
+          "expectedGeneration": {}
+        },
+        "required": [
+          "previewId",
+          "expectedGeneration"
+        ]
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173803,7 +179032,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d36abc4d3567afd62c4cbf79e5aa33466ec26f0666d6fbc65423dfcfc78e6bb8"
+  "docsHash": "sha256:95ccd9753733b3b8d5154f322a952bc78fa6fc89c958c1c3ff8d7710f0c9a11d"
 }
 ```
 
@@ -173814,7 +179043,7 @@ files.release: contextPolicy=none
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "execute",
@@ -173835,18 +179064,44 @@ files.release: contextPolicy=none
   "runtimeAvailability": "requires_ready_page",
   "inputSchema": {
     "type": "object",
-    "required": [
-      "context",
-      "idempotencyKey",
-      "action",
-      "args"
-    ],
+    "additionalProperties": false,
     "properties": {
       "context": {
-        "description": "Current sessionId, documentId, documentInstanceId and expectedRevision."
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
       },
       "idempotencyKey": {
-        "type": "string"
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
       },
       "action": {
         "const": "document.parameters"
@@ -173865,10 +179120,23 @@ files.release: contextPolicy=none
           }
         }
       }
-    }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
   },
   "outputContract": "Committed revision plus getState().parameters/parameterValues; a failed expression leaves the previous model intact.",
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
+    "idempotencyKey": "<fresh command key>",
     "action": "document.parameters",
     "args": {
       "parameters": {
@@ -173900,6 +179168,86 @@ files.release: contextPolicy=none
   ],
   "docs": "api.named-parameters",
   "batchCapable": false,
+  "argsSchema": {
+    "type": "object",
+    "required": [
+      "parameters"
+    ],
+    "properties": {
+      "parameters": {
+        "description": "Name -> {value:number|string,unit:\"mm\"|\"scalar\"}; merged with current definitions."
+      },
+      "bindings": {
+        "description": "Feature ID -> numeric params dot path -> expression; merged with existing bindings."
+      }
+    }
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId",
+          "expectedRevision"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "action": {
+        "const": "document.parameters"
+      },
+      "args": {
+        "type": "object",
+        "required": [
+          "parameters"
+        ],
+        "properties": {
+          "parameters": {
+            "description": "Name -> {value:number|string,unit:\"mm\"|\"scalar\"}; merged with current definitions."
+          },
+          "bindings": {
+            "description": "Feature ID -> numeric params dot path -> expression; merged with existing bindings."
+          }
+        }
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey",
+      "action",
+      "args"
+    ]
+  },
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -173967,7 +179315,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e33d136df574d26c9e2bb74b9ab71762f7cb1b203424d7284def8c441ccdc93d"
+  "docsHash": "sha256:0731cb3f5e686107c4534aecc3793b0fdb6982b0f7a856624f7175860a1262d1"
 }
 ```
 
@@ -173983,7 +179331,7 @@ files.release: contextPolicy=none
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "label": "文件能力",
   "synonyms": [
@@ -174095,7 +179443,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:5fa582a2070955ca312a3fcdb58a2bfcdc0a3ab178685d77a1f9fd8f0646d247"
+  "docsHash": "sha256:c095f6c5ae748042f939658e406b4f80df37e8a22daf7db9fd192e7078e715b7"
 }
 ```
 
@@ -174112,7 +179460,7 @@ files.release: contextPolicy=none
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "label": "登记文件资源",
   "synonyms": [
@@ -174246,7 +179594,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:efab461084c4591f65a02214d3e4351fc6c537c294f026ca1f56a56e48454d3b"
+  "docsHash": "sha256:e3f9f89a0fac17a0ce819ed74b93a64151faaf0a5b6df00772efc2a5013bcbae"
 }
 ```
 
@@ -174263,7 +179611,7 @@ files.release: contextPolicy=none
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "label": "新建工程",
   "synonyms": [
@@ -174455,7 +179803,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:3e56adca8b9a34203038fb168264e360ec58df372347a5ab799f24165fd00d9c"
+  "docsHash": "sha256:a56e6d139f39a5f72fd77f0169eb3771bbf3effffbfcc601768e95b16018eab4"
 }
 ```
 
@@ -174472,7 +179820,7 @@ files.release: contextPolicy=none
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -174703,7 +180051,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:a7bac0352c2cb4fd6ecd348c815f959eafedb8d3c9edb39de0107af890ed85cb"
+  "docsHash": "sha256:fec869f161a1c1dd64b126001094e6a906755ec7d961008d14eb5760d714a0e7"
 }
 ```
 
@@ -174719,7 +180067,7 @@ files.release: contextPolicy=none
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -174958,7 +180306,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:29f35b8edea8b82f38a9ca8c3eabb5e1cc84081e0e6ba7c06a4a087a549ec400"
+  "docsHash": "sha256:915c10b24c8e019c5969a66d5a762f4ad86ab0051e4719824303c0a9e2f0b870"
 }
 ```
 
@@ -174974,7 +180322,7 @@ files.release: contextPolicy=none
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -175182,7 +180530,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:82c9e6435feb1a13f3ce587e318d45a9b5015ba5c8c7ac68237df4f567e21bbc"
+  "docsHash": "sha256:89d19ff001958502ae64f2c26992520f770890693299ea3c8f6561007a8e5554"
 }
 ```
 
@@ -175198,7 +180546,7 @@ files.release: contextPolicy=none
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -175432,7 +180780,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:b7ec0176f18fe6daccb03c9f7e1968b873549e9c78e7c520d55c69cc3b1de0ae"
+  "docsHash": "sha256:e997c4b844ed76638fdd981fb79a2ac2ee634b4e6c57f46b97c06084c860ee79"
 }
 ```
 
@@ -175448,7 +180796,7 @@ files.release: contextPolicy=none
   "id": "files.reattach",
   "title": "files.reattach",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "label": "reattach",
   "synonyms": [
@@ -175648,7 +180996,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:33666ead0bc65911343eae483f8cb83a537b3af9bf1b9f9b3dbc2e208acc651a"
+  "docsHash": "sha256:41a210c3759831f835eeeaf0bc8ce9338b04c3c6ab1cecd2efda0ee22a5ecce5"
 }
 ```
 
@@ -175665,7 +181013,7 @@ files.release: contextPolicy=none
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
@@ -175720,24 +181068,23 @@ files.release: contextPolicy=none
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
-    "required": [
-      "resourceId",
-      "as"
-    ],
     "properties": {
       "resourceId": {
         "type": "string",
         "minLength": 1
       },
       "as": {
-        "type": "string",
         "enum": [
           "bytes",
           "text",
           "blob"
         ]
       }
-    }
+    },
+    "required": [
+      "resourceId",
+      "as"
+    ]
   },
   "minimalExample": {
     "resourceId": "<current resourceId>",
@@ -175810,7 +181157,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:5f694a5aa8d9781aee8454ef604a09e8d9b1445f620567ae32fef2d212e731d8"
+  "docsHash": "sha256:79508aa76322ccf30c4693aaecd028e6ead6bba69080ad1b17d3153f1899f990"
 }
 ```
 
@@ -175827,7 +181174,7 @@ files.release: contextPolicy=none
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "label": "下载文件",
   "synonyms": [
@@ -175963,7 +181310,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:de162da1655f6fab69e513e37c834a28196ef4267b5b9f752e268a6f8490ad46"
+  "docsHash": "sha256:02e718d00a40650e0cefb6c252ca931600944c82b02099665e4c33dc4012feaa"
 }
 ```
 
@@ -175980,7 +181327,7 @@ files.release: contextPolicy=none
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -176125,7 +181472,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:6fa17c2ca1edc903f09c7c8360934f99f2fde033c413e4e812f0f7aed71405c9"
+  "docsHash": "sha256:f126625da7d75b3d098f19c3a6cd3c9a5eb4d13dae860650b29db6bd22abeb71"
 }
 ```
 
@@ -176142,7 +181489,7 @@ files.release: contextPolicy=none
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -176291,7 +181638,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:8db39f6c0507ba187ac01144ba76724cd5118524c618e8b11690d7e7ee4c16cb"
+  "docsHash": "sha256:68a1518efb429ad7d0a7976e03e44dace2d166fdc2aaf4efce037a6724c2071d"
 }
 ```
 
@@ -176308,7 +181655,7 @@ files.release: contextPolicy=none
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -176440,7 +181787,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:fc29d425a25be67ec74974a9b5bcd5b4f338c6e0895cfa403de89d7906eedd32"
+  "docsHash": "sha256:cd3ff58d38c410b8fbcb730f7ca2ef5543ad585ac8f0a1d4c5822562efb5746d"
 }
 ```
 
@@ -176452,7 +181799,7 @@ files.release: contextPolicy=none
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -176511,7 +181858,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c9cb10f6351cc765c67cc7de78867717360fa653913999f66a4c034dd5926f48"
+  "docsHash": "sha256:039ad17053f878e631faa2a365c47cce36a57bc7c1a286e21be1fc6562f11e69"
 }
 ```
 
@@ -176523,7 +181870,7 @@ files.release: contextPolicy=none
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -176582,6 +181929,6 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:77a77899d0dac40395e8a323deb9bc4215df0974387cf92a6e4bd88580667543"
+  "docsHash": "sha256:084fed8743829ded08db9b8ff0dbe4aa44faa2f967098d6831e46a08ee1c3614"
 }
 ```

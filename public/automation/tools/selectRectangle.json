@@ -2,7 +2,7 @@
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -235,5 +235,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6665a53621d3305c908985d0c22f9341c3115f342363119c07cadf13cc5a51fb"
+  "docsHash": "sha256:9484f2ce9554e0db48bbc9771417977a838f925df9b0f30d68a152510bc0d4c0"
 }

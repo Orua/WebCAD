@@ -1,4 +1,20 @@
 {
+  "agentContractReview1611": {
+    "localImpact": "Fix tangent-arc continuity, open thin-plate shell feasibility and arbitrary volume-ratio rejection of valid explicit blends.",
+    "servicesImpact": "none: browser-only implementation",
+    "logoImpact": "none: no Logo algorithm or source changes",
+    "nativeImpact": "none",
+    "contractImpact": "Page API 1.61.1; shared readDocs schema, complete edit-command envelopes, stable prepared-command keys and strict example validation.",
+    "documentImpact": "No existing user document migration; additive on-demand api.agent-contracts and repository review.",
+    "cacheImpact": "Regenerate complete routing/cards/docs/knowledge archive; hosts refresh by live catalogHash/docsHash.",
+    "requiredTests": [
+      "Real OCCT thin plate shell, tangent-arc closed sweep and explicit large chamfer",
+      "Existing invalid/oversized geometry regressions",
+      "Contract routes, preparation, examples and permissions",
+      "Build knowledge archive and per-member SHA256",
+      "One targeted localhost browser check"
+    ]
+  },
   "pageApiProbeFixes20261104": {
     "localImpact": "Page API connect/queryGeometry/logo schema/error text only. Round curveSweep centering was already on the path; closed non-planar sweep, bendSolid, variable closed section and curved engrave robustness stay in the browser kernel and are not changed here.",
     "servicesImpact": "None. services/** was not modified. Deferred kernel work is listed in docs/UPGRADE-20261104-page-api-probe-fixes.zh-CN.md.",

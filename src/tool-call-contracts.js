@@ -28,7 +28,6 @@ export const METHOD_PREPARATION_SCHEMAS={
  getUILayout:schema({includeModelLibrary:bool}),setRenderQuality:context({quality:{enum:['draft','standard','fine','ultra']}},['quality']),
  connect:shape('queries toolIds limit includeContracts knownCatalogHash knownDocsHash knownHashes'),
  searchTools:schema({query:{type:'string',maxLength:500},limit:{type:'integer',minimum:1,maximum:50},category:str,cursor:str},['query']),getTools:schema({ids:{...ids,maxItems:20},knownHashes:obj},['ids']),getTool:schema({id:str,version:str},['id']),
- readDocs:shape('docId section cursor maxChars','docId'),
  queryReferences:scoped('bodyIds kind filter limit offset requireUnique'),
  execute:context({idempotencyKey:str,action:str,args:obj},['idempotencyKey','action','args']),
  measure:context({bodyId:str,kind:{enum:['body','face','edge']},topologyId:integer,points:{type:'array',minItems:2,maxItems:2,items:vector}}),
@@ -73,15 +72,20 @@ const commandDefinitions={
 };
 export const COMMAND_PREPARATION_SCHEMAS=Object.fromEntries(Object.entries(commandDefinitions).map(([id,[keys,required]])=>[id,shape(keys,required)]));
 Object.assign(COMMAND_PREPARATION_SCHEMAS['body.align'],METHOD_PREPARATION_SCHEMAS.planAlignment,{properties:{...METHOD_PREPARATION_SCHEMAS.planAlignment.properties},required:['bodyIds','target']});delete COMMAND_PREPARATION_SCHEMAS['body.align'].properties.context;
-const fileRequired={capabilities:[],register:['name','data'],new:['context'],open:['context','resourceId','unsaved'],import:['context','resourceId'],save:['context'],export:['context','format'],reattach:['context','resourceId'],read:['resourceId'],download:['resourceId'],write:['resourceId','handle'],confirmWritten:['resourceId','size','sha256'],release:['resourceId']};
+const fileRequired={capabilities:[],register:['name','data'],new:['context'],open:['context','resourceId','unsaved'],import:['context','resourceId'],save:['context'],export:['context','format'],reattach:['context','resourceId'],read:['resourceId','as'],download:['resourceId'],write:['resourceId','handle'],confirmWritten:['resourceId','size','sha256'],release:['resourceId']};
 export const FILE_PREPARATION_SCHEMAS=Object.fromEntries(Object.entries(FILE_ARGUMENT_KEYS).map(([name,keys])=>[`files.${name}`,schema({...fields(keys),...(keys.includes('context')?{context:IDENTITY_CONTEXT_SCHEMA}:{}),...(name==='export'?{format:{enum:['step','stl','brep','png']}}:{}),...(name==='open'?{unsaved:{enum:['fail','discard']}}:{})},fileRequired[name])]));
+FILE_PREPARATION_SCHEMAS['files.read']=schema({resourceId:str,as:{enum:['bytes','text','blob']}},fileRequired.read);
 export function preparationSchema(card){
- if(card.category==='command'&&card.inputSchema?.properties?.action?.const)return card.inputSchema.properties.args;
+ if(card.mcpCall?.action&&card.inputSchema?.properties?.action?.const)return card.inputSchema.properties.args;
  return card.inputSchema||METHOD_PREPARATION_SCHEMAS[card.id]||FILE_PREPARATION_SCHEMAS[card.id]||COMMAND_PREPARATION_SCHEMAS[card.id]||null;
 }
 export function withPreparationContract(card){
  const operation=!!card.refsSchema&&!['import','remove'].includes(card.id),target=operation?'prepareOperation':'prepareToolCall';
  const input=preparationSchema(card);
- const fillInput=!card.inputSchema&&input&&(card.category==='file'||card.category==='page-method');
- return {...card,...(fillInput?{inputSchema:input}:{}),...(input&&!card.inputSchema?{preparationSchema:input}:{}),preparation:{method:target,readOnly:true,geometryComputed:false,missingParameters:'needs_input/questions/answerPath',callShape:operation?'prepareOperation({context,op,params})':'prepareToolCall({toolId,context,args})',example:operation?{op:card.id,params:{}}:{toolId:card.id,context:'<live context>',args:{}},docs:'api.prepare-tools',validation:'Published input structure only; original target retains source, permission, lifecycle and geometry checks.'}};
+ const fillInput=!card.inputSchema&&input&&(card.category==='file'||card.category==='page-method'||card.category==='command');
+ const action=card.mcpCall?.action;
+ const callSchema=action&&input?context({context:{...IDENTITY_CONTEXT_SCHEMA,required:[...IDENTITY_CONTEXT_SCHEMA.required,'expectedRevision']},idempotencyKey:{...str,maxLength:80},action:{const:action},args:input},['idempotencyKey','action','args']):null;
+ const commandContract=callSchema?{argsSchema:input,callSchema,inputSchema:callSchema}:{};
+ const examples=Object.fromEntries(['minimalExample','normalExample'].filter(field=>action&&card[field]?.action===action).map(field=>[field,{context:{sessionId:'<live sessionId>',documentId:'<live documentId>',documentInstanceId:'<live documentInstanceId>',expectedRevision:0},idempotencyKey:'<fresh command key>',...card[field]}]));
+ return {...card,...(fillInput?{inputSchema:input}:{}),...commandContract,...examples,...(input&&!card.inputSchema?{preparationSchema:input}:{}),preparation:{method:target,readOnly:true,geometryComputed:false,missingParameters:'needs_input/questions/answerPath',callShape:operation?'prepareOperation({context,op,params})':'prepareToolCall({toolId,context,args})',example:operation?{op:card.id,params:{}}:{toolId:card.id,context:'<live context>',args:{}},docs:'api.prepare-tools',validation:'Published input structure only; original target retains source, permission, lifecycle and geometry checks.'}};
 }

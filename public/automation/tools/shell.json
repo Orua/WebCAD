@@ -6,7 +6,7 @@
     "properties": {
       "thickness": {
         "type": "number",
-        "description": "Signed nonzero wall thickness. Positive is inward and must be smaller than half the minimum solid extent; negative grows outward; zero is rejected. (mm)",
+        "description": "Signed nonzero wall thickness. Positive is inward; negative grows outward; zero is rejected. Feasibility depends on the retained walls and actual offset result, not half the bounding-box extent. (mm)",
         "not": {
           "const": 0
         },
@@ -77,7 +77,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Positive thickness requires an effective volume decrease and a valid single solid. Negative thickness requires a valid single solid with increased volume or expanded bounds; removing an opening can decrease material volume. Zero is rejected. Resolve faceIds from current topology; no implicit UI selection.",
   "title": "Hollow body removing selected faces",
   "category": "modification",
   "synonyms": [
@@ -89,7 +89,7 @@
     "thicken"
   ],
   "description": "Hollow body removing selected faces",
-  "schemaHash": "sha256:9e95e81f2608eb6eafc11465907a8e9e988fe3d4dbe889740750b24e41f9b520",
+  "schemaHash": "sha256:a269ac4b37e6e1722d548a00dcd75469ec8374a41950c613e1c78a05e61390e1",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -151,7 +151,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
+    "Positive thickness requires an effective volume decrease and a valid single solid. Negative thickness requires a valid single solid with increased volume or expanded bounds; removing an opening can decrease material volume. Zero is rejected. Resolve faceIds from current topology; no implicit UI selection."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -229,7 +229,7 @@
   "contract": {
     "purpose": "Hollow body removing selected faces",
     "whenToUse": [
-      "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
+      "Positive thickness requires an effective volume decrease and a valid single solid. Negative thickness requires a valid single solid with increased volume or expanded bounds; removing an opening can decrease material volume. Zero is rejected. Resolve faceIds from current topology; no implicit UI selection."
     ],
     "whenNotToUse": [
       {
@@ -239,7 +239,7 @@
     ],
     "params": {
       "thickness": {
-        "meaning": "Signed nonzero wall thickness. Positive is inward and must be smaller than half the minimum solid extent; negative grows outward; zero is rejected. (mm)",
+        "meaning": "Signed nonzero wall thickness. Positive is inward; negative grows outward; zero is rejected. Feasibility depends on the retained walls and actual offset result, not half the bounding-box extent. (mm)",
         "unit": "mm",
         "range": [
           null,
@@ -405,7 +405,7 @@
   },
   "purpose": "Hollow body removing selected faces",
   "whenToUse": [
-    "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
+    "Positive thickness requires an effective volume decrease and a valid single solid. Negative thickness requires a valid single solid with increased volume or expanded bounds; removing an opening can decrease material volume. Zero is rejected. Resolve faceIds from current topology; no implicit UI selection."
   ],
   "whenNotToUse": [
     {
@@ -787,5 +787,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fe95369fb71d03b6004131530ab45de4513c6d7fbc618fde11a4ae0b69873d7f"
+  "docsHash": "sha256:617ee32c695612a439a88f4f698fa00e4a9fa7a33e8668ece4a7399628798c1f"
 }

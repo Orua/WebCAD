@@ -2,7 +2,7 @@
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -28,6 +28,7 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -181,5 +182,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8a3df104aa3d4b614c8ea8981a83a4698645b166848dd4f41d298eaa0b0aa07b"
+  "docsHash": "sha256:78ba873aeacdf730e98812419bf56ffde127711a5f67f970310899ec114e4bc1"
 }
