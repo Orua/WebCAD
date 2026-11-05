@@ -67,7 +67,10 @@ export function createToolCallPreparation({state,getCard,normalizePatch,now=Date
   if(!questions.length)try{validateSchema(schema,args,'args');}catch(error){if(!error.code)throw error;const path=error.path||'args';questions.push({...parameterQuestion(path,parameterSchema(schema,args,path.split('.').slice(1)),error.message),answerPaths:['args'],issue:{code:error.code,path}});}
   if(questions.length)return finish({status:'needs_input',questions,autoFilled,nextAction:'优先从已有用户要求和真实回执补充；缺少设计意图才询问用户。用同一callPreparationId和answers续接。'});
   const route=card.mcpCall;if(!route?.tool)return finish({status:'blocked',reason:'TOOL_NOT_EXPOSED',toolId,message:'当前工具卡没有可执行MCP路由。'});
-  const callArgs=route.action?{context,action:route.action,args}:args;
+  // A prepared command is a complete execute call. Keep its key stable while
+  // re-reading the same plan; a changed plan receives a different fingerprint.
+  const commandKey='prepared-'+contractHash({callPreparationId:entry.id,context,action:route.action??null,args}).replace(/^sha256:/,'');
+  const callArgs=route.action?{context,idempotencyKey:commandKey,action:route.action,args}:args;
   return finish({status:'prepared',toolId,autoFilled,recipeHash:contractHash({toolId,args}),summary:{args},nextCall:{tool:route.tool,method:route.method,args:callArgs},nextAction:'按nextCall调用原工具；提交仍需要原权限、当前修订和本次请求唯一键。预检不会执行或自动重试。'});
  };
 }

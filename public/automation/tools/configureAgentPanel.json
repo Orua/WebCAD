@@ -2,7 +2,7 @@
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -28,6 +28,7 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -71,5 +72,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d6db784476eae5e1b8145035f0e5ca4ea4e11c9da52fa373fb1f68fa0eddd3c8"
+  "docsHash": "sha256:c20e5f4d4108a050a6c638c1b72fc014d8cbcfe2afabf6b3ec7ad824e559a6d0"
 }

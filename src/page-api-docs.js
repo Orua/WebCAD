@@ -1,4 +1,4 @@
-import {withPreparationContract} from './tool-call-contracts.js';
+import {withPreparationContract,FILE_PREPARATION_SCHEMAS} from './tool-call-contracts.js';
 import {LOGO_MACHINING_SCHEMA} from './logo-machining-optimization.js';
 import {AGENT_RUNTIME_GUIDANCE} from './agent-runtime-guidance.js';
 import {PLACEMENT_SCHEMA,PLACEMENT_GUIDE} from './placement-schema.js';
@@ -37,7 +37,8 @@ import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-in
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
 import {LOGO_RASTER_SCHEMA} from './logo-raster-options.js';
 import {ERROR_RECOVERY_VERSION,errorRecoveryCatalogDoc,errorRecovery} from './error-recovery.js';
-const PAGE_DOC_VERSION = '1.61.0';
+const PAGE_DOC_VERSION = '1.61.1';
+const EXAMPLE_CONTEXT={sessionId:'<live sessionId>',documentId:'<live documentId>',documentInstanceId:'<live documentInstanceId>',expectedRevision:0};
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
     entities:[{id:'rectangle-1',type:'rectangle',originMm:[0,0],widthMm:40,heightMm:30}],
@@ -77,6 +78,19 @@ const RELIEF_TAXONOMY = `浮雕 Agent 决策表\n输入/目标 | 工具 | 输出
 const RUN_TRANSPORT_GUIDE = '兼容 MCP 宿主 调用 webcad_submit：method、requestKey、args 在外层；完整 run 请求放在 args 内。外层 requestKey 不会代替 args.idempotencyKey，run 不接受 key 字段；不要把 method、requestKey 或第二层 args 放进 run 请求。页面直接调用 api.run 时只传 args 的内容。替换示例 context 为当前 requestContext，保留两个层次，不自动改写 revision 或重试未知结果。参数拒绝先读 error.details.path/missingFields/allowedFields/commitState，按已读契约修正；不要把报错的简称当成字段，也不要输出全量 index。';
 
 const PAGE_DOCS = Object.freeze({
+  'api.agent-contracts': `# 页面 API 与 Agent 调用边界
+
+先 connect，比较 pageApiVersion/catalogHash/docsHash，下载并校验 onboarding.knowledge 的完整包；只缓存静态合同。每次写入使用最新 requestContext，实体和拓扑编号必须来自当前工程修订。
+
+1. 建模操作：工具卡 inputSchema 验证 params，refsSchema 验证 refs；api.run 步骤用 method:add、args:{op,params,refs,name?,placement?}。template.* 是发现 ID，实际 op:quickModel、params.kind，不能将发现 ID 当建模 op。
+2. 编辑命令：mcpCall.action 对应 execute 的 action；argsSchema 验证内层 args，callSchema 验证完整 {context,idempotencyKey,action,args}。prepareToolCall 接收内层 args，不再嵌套 action/context。其 prepared.nextCall 含稳定的命令幂等键；读取同一准备单不生成另一条写入。MCP 外层 requestKey 由宿主管理，与页面幂等键不同。
+3. 页面方法：按 mcpCall.tool/method 调用。batchCapable 只说明该准确 method 能否成为 api.run 步骤，不代表任意工具 ID 都能作为 method。capture、recoverKernel 和 run 自身不能嵌入 run。batchCapable:false 也不表示不能通过工具卡 mcpCall 直调。
+4. 文件：按 mcpCall 区分公开入口与 host-only。files.read 必须传 as:bytes/text/blob；bytes 返回 Uint8Array，blob 返回 Blob，不能把普通 JSON.stringify 的结果当成文件字节。资源生成、下载发起、磁盘写入和哈希校验是不同回执；不绕过宿主文件句柄权限。
+5. 预检：prepareOperation/prepareToolCall 的 prepared 只证明输入结构，不证明几何、来源、权限、生命周期或业务验收。needs_input 使用同一准备单的 answerPath 续接。错误、过期或工程变化后读取原回执，不用换键重算未知结果。
+
+run 固定 atomic:false，失败保留之前已提交步骤；同次原子多特征提交用 feature.addMany。结果按 status/commitState、实际 context、createdBodyIds、精确量测和 rendered 修订核验。所有示例中的 <live...>、资源/准备单编号及 revision=0 必须替换为真实回执值；示例通过 schema 不代表可以脱离真实来源直接执行。
+
+readDocs 参数为 docId/version?/cursor?/limitChars?/knownHash?；limitChars 为 1000–16000。knownHash 只能对应完整缓存，不能与 cursor 同传。没有 section/maxChars 参数。抽壳正厚度向内、负厚度向外；开口抽壳材料可能减少，向外用体积或外形增大验证。闭合相切圆弧的扫掠不应被尖角检测拒绝；真正尖角 transformed 使用 right/round 或修改真实路径，不能自动换过渡。`,
   'api.prepare-tools': `# 全工具统一参数准备
 
 每张当前工具卡都有preparation字段，建模操作使用prepareOperation，其他工具使用prepareToolCall。预检不执行几何或文件写入，也不增加任意脚本执行器。不同权限仍由原工具判断。
@@ -285,7 +299,7 @@ function fileCard(name) {
     limits: FILE_LIMITS,typedByteBudgets:FILE_TYPED_BYTE_BUDGETS,additionalDocs:['api.exact-source-assets','api.mesh-assets'],documentLimits:DOCUMENT_LIMITS,...(name==='import'?{placementPolicy:placementContract('import')}:{}),
     caveats: name === 'import' ? ['IGES requires unavailable local conversion in the static build.'] : [],
     errorCodes:[...FILE_ERROR_CODES[name]],
-    ...(name==='read'?{inputSchema:{type:'object',additionalProperties:false,required:['resourceId','as'],properties:{resourceId:{type:'string',minLength:1},as:{type:'string',enum:['bytes','text','blob']}}},minimalExample:{resourceId:'<current resourceId>',as:'bytes'},normalExample:{resourceId:'<current resourceId>',as:'text'}}:{}) };
+    ...(name==='read'?{inputSchema:FILE_PREPARATION_SCHEMAS['files.read'],minimalExample:{resourceId:'<current resourceId>',as:'bytes'},normalExample:{resourceId:'<current resourceId>',as:'text'}}:{}) };
 }
 function namedParameterCard() {
   return { id: 'document.parameters', title: '命名参数与尺寸联动', category: 'document', version: PAGE_DOC_VERSION,
@@ -302,7 +316,7 @@ function namedParameterCard() {
           bindings: { description: 'Feature ID -> numeric params dot path -> expression; merged with existing bindings.' },
         } } } },
     outputContract: 'Committed revision plus getState().parameters/parameterValues; a failed expression leaves the previous model intact.',
-    minimalExample: { action: 'document.parameters', args: { parameters: { length: { value: 63, unit: 'mm' } } } },
+    minimalExample: { context:EXAMPLE_CONTEXT,idempotencyKey:'<fresh command key>',action: 'document.parameters', args: { parameters: { length: { value: 63, unit: 'mm' } } } },
     errorCodes: ['PARAM_CYCLE', 'PARAM_UNDEFINED', 'PARAM_UNIT_MISMATCH', 'PARAM_PATH_INVALID',
       'PARAMETER_BOUND', 'UNSAFE_LEGACY_REFERENCE', 'REVISION_CONFLICT', 'SIZE_LIMIT'],
     documentLimits:DOCUMENT_LIMITS,
@@ -485,7 +499,7 @@ function methodCard(name) {
   return { id: name, title: name, category: 'page-method', version: PAGE_DOC_VERSION, contextPolicy:contextPolicy(name),
     invocation:batchCapable?'page-or-batch':'page-method-only', batchCapable,
     ...(batchCapable?{batchNote:name==='inspectDesign'?'inspectDesign 可以放进 api.run，也可以页面直调。必须提供 requirements 数组（1–64 项，每项含 id、bodyId、kind、evidence）。bounds 的 toleranceMm 是绝对毫米，必须 >0 且 <=1。':'此方法可以放进 api.run，也可以页面直调。'}:{pageMethodOnly:true,batchNote:`${name} 不能作为 api.run 的 method。请直接调用 api.${name}。`}),
-    ...(['prepareOperation','applyPreparedOperation'].includes(name)?{docs:'api.prepare-operation',relatedTools:['prepareOperation','applyPreparedOperation','readLogo','queryGeometry','measure'],executionPolicy:{readOnly:name==='prepareOperation',geometryComputed:name==='applyPreparedOperation',preparedPlans:32,ttlMs:1800000,missingParameters:'structured needs_input questions; no mutation',automaticDefaults:'unique verified references and technical fields only',arbitraryScripts:false},minimalExample:name==='prepareOperation'?{op:'logo',face:'top',params:{mode:'engrave',depthMm:0.2,widthMm:35}}:{preparationId:'<returned preparationId>'}}:{}),
+    ...(['prepareOperation','applyPreparedOperation'].includes(name)?{docs:'api.prepare-operation',relatedTools:['prepareOperation','applyPreparedOperation','readLogo','queryGeometry','measure'],executionPolicy:{readOnly:name==='prepareOperation',geometryComputed:name==='applyPreparedOperation',preparedPlans:32,ttlMs:1800000,missingParameters:'structured needs_input questions; no mutation',automaticDefaults:'unique verified references and technical fields only',arbitraryScripts:false},minimalExample:name==='prepareOperation'?{context:EXAMPLE_CONTEXT,op:'logo',face:'top',params:{mode:'engrave',depthMm:0.2,widthMm:35}}:{context:EXAMPLE_CONTEXT,preparationId:'prep_1'}}:{}),
     ...(PAGE_METHOD_SCHEMAS[name]?{inputSchema:PAGE_METHOD_SCHEMAS[name]}:{}),mcpCall:agentMethodRoute(name),
     ...(name==='run'?{stepInputSchemas:{add:PAGE_METHOD_SCHEMAS.add,addMany:PAGE_METHOD_SCHEMAS.addMany},atomic:false,
       mcpExample:{method:'run',requestKey:'<fresh host request key>',args:{context:{sessionId:'<live sessionId>',documentId:'<live documentId>',documentInstanceId:'<live documentInstanceId>',expectedRevision:0},idempotencyKey:'<fresh batch key>',steps:[{id:'rename',method:'execute',args:{action:'document.rename',args:{name:'示例工程'}}}]}},
@@ -499,7 +513,7 @@ function methodCard(name) {
       : name==='run' ? 'completed/partial/failed/unknown; atomic=false; inspect per-step results and displayMatchesContext. Earlier committed steps remain on failure.'
       : ['execute', 'queryGeometry'].includes(name) ? 'CommandService structured result; inspect status and commitState.'
         : 'Guarded page method returns {status:"failed",commitState:"not_committed",error:{code,message},context} on failure.',
-    errorCodes: errors[name],
+    errorCodes: errors[name]??(['prepareOperation','prepareToolCall','applyPreparedOperation'].includes(name)?['PARAM_SCHEMA_INVALID','RESOURCE_LIMIT','RESOURCE_EXPIRED','PREPARATION_STALE','INSTANCE_MISMATCH','REVISION_CONFLICT','CAPABILITY_UNAVAILABLE']:[]),
     ...(name==='measureMass'?{inputSchema:{type:'object',additionalProperties:false,required:['context','bodyId'],properties:{context:{type:'object'},bodyId:{type:'string',minLength:1},materialId:{type:'string',enum:['zincAlloy','copper','iron','steel','brass','stainless','aluminum']}}}}:{}),
     ...(['run','execute','pasteSelection'].includes(name)?{documentLimits:DOCUMENT_LIMITS}:{}),
     ...(['connect','searchTools','getTools'].includes(name)?{docs:'api.discovery'}:{}),

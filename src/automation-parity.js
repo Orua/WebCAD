@@ -16,8 +16,8 @@ function walk(value,path,hits){
 function problem(list,error,label){
   list.push(`${label}: ${error.path||''} ${error.message}`);
 }
-export function assertAutomationParity(){
-  const cards=listPublicToolCards(),problems=[];
+export function assertAutomationParity(cards=listPublicToolCards()){
+  const problems=[];
   for(const card of cards){
     if(card.batchCapable!==BATCH_METHODS.includes(card.id))
       problems.push(`${card.id} batchCapable=${String(card.batchCapable)} but allowlist=${BATCH_METHODS.includes(card.id)}`);
@@ -31,10 +31,10 @@ export function assertAutomationParity(){
         try{validateSchema(ADD_STEP_SCHEMA,example,`${card.id}.${field}`);}
         catch(error){problem(problems,error,`${card.id}.${field}`);}
         try{validateSchema(getOperation(example.op).inputSchema,example.params,`${card.id}.${field}.params`);}
-        catch(error){if(/Unknown field/.test(error.message))problem(problems,error,`${card.id}.${field}.params`);}
+        catch(error){problem(problems,error,`${card.id}.${field}.params`);}
       }else if(card.inputSchema){
         try{validateSchema(card.inputSchema,example,`${card.id}.${field}`);}
-        catch(error){if(error.message==='Unknown field.'||card.category==='file'||card.id==='run')problem(problems,error,`${card.id}.${field}`);}
+        catch(error){problem(problems,error,`${card.id}.${field}`);}
       }
     }
   }

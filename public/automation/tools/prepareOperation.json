@@ -2,7 +2,7 @@
   "id": "prepareOperation",
   "title": "prepareOperation",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -26,6 +26,12 @@
     "arbitraryScripts": false
   },
   "minimalExample": {
+    "context": {
+      "sessionId": "<live sessionId>",
+      "documentId": "<live documentId>",
+      "documentInstanceId": "<live documentInstanceId>",
+      "expectedRevision": 0
+    },
     "op": "logo",
     "face": "top",
     "params": {
@@ -319,6 +325,15 @@
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "RESOURCE_LIMIT",
+    "RESOURCE_EXPIRED",
+    "PREPARATION_STALE",
+    "INSTANCE_MISMATCH",
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE"
+  ],
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -418,5 +433,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a9fb63a1d796cd403ce4dc8c7af7ea0d874318a9438eaddbc9c79f9bab6a3ee1"
+  "docsHash": "sha256:517aff0202d6e2339cff910462994c624f96611b8465d61694d016d5678018c6"
 }

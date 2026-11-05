@@ -21,7 +21,7 @@ export function turnDegrees(a, b) {
 function circleCenter(a, b, c) {
   const ab = sub(b, a), ac = sub(c, a), normal = cross(ab, ac), scale = 2 * dot(normal, normal);
   if (!(scale > EPS)) return null;
-  return a.map((value, index) => value + (cross(ab, normal)[index] * dot(ac, ac) - cross(ac, normal)[index] * dot(ab, ab)) / scale);
+  return a.map((value, index) => value + (cross(ac, normal)[index] * dot(ab, ab) - cross(ab, normal)[index] * dot(ac, ac)) / scale);
 }
 function segmentTangent(segment, atEnd) {
   const points = segment.points;

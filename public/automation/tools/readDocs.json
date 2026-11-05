@@ -2,11 +2,47 @@
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
   "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "docId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "version": {
+        "type": "string",
+        "minLength": 1
+      },
+      "cursor": {
+        "type": "string",
+        "minLength": 1
+      },
+      "limitChars": {
+        "type": "integer",
+        "minimum": 1000,
+        "maximum": 16000
+      },
+      "knownHash": {
+        "type": "string",
+        "pattern": "^sha256:[a-f0-9]{64}$"
+      }
+    },
+    "required": [
+      "docId"
+    ],
+    "not": {
+      "required": [
+        "cursor",
+        "knownHash"
+      ]
+    }
+  },
   "mcpCall": {
     "tool": "webcad_read",
     "method": "readDocs",
@@ -31,32 +67,6 @@
     "PARAM_RANGE_INVALID",
     "OPERATION_VERSION_UNSUPPORTED"
   ],
-  "inputSchema": {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {
-      "docId": {},
-      "section": {},
-      "cursor": {},
-      "maxChars": {}
-    },
-    "required": [
-      "docId"
-    ]
-  },
-  "preparationSchema": {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {
-      "docId": {},
-      "section": {},
-      "cursor": {},
-      "maxChars": {}
-    },
-    "required": [
-      "docId"
-    ]
-  },
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -124,5 +134,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:63166246729c450a73005546acdabd6feeb242932670f23b89af5d3c6164fef7"
+  "docsHash": "sha256:dfb5f2cba3720cb0db1c531dc9e4ab8f73849da649393e461dab75bc4dd3fd28"
 }

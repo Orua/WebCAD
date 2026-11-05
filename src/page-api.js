@@ -258,16 +258,20 @@ export function createPageAPI(host){
       if((input.includeContracts||toolIds.length)&&ids.length){
         const contracts=getTools({ids:ids.slice(0,20),knownHashes:input.knownHashes});
         const omissions=ids.slice(20).map(id=>({id,reason:'ITEM_LIMIT'}));let automaticChars=0;
+        // Protocol/schema metadata also consumes the handshake. Reserve room
+        // for the envelope and diagnostics instead of letting growing schemas
+        // silently turn a bounded automatic card read into a large response.
+        const automaticCharBudget=Math.max(0,Math.min(64000,88000-JSON.stringify(response).length));
         // Pointed requests keep complete contracts. Broad search results must not
         // pull an entire template library into the agent's first handshake.
         contracts.items=contracts.items.filter(item=>{
           if(toolIds.includes(item.id)||item.status!=='read')return true;
           const chars=JSON.stringify(item.card).length;
-          if(automaticChars+chars>64000){omissions.push({id:item.id,reason:'CHAR_BUDGET',chars});return false;}
+          if(automaticChars+chars>automaticCharBudget){omissions.push({id:item.id,reason:'CHAR_BUDGET',chars});return false;}
           automaticChars+=chars;return true;
         });
         response.contracts=contracts;response.contractIdsOmitted=omissions.map(item=>item.id);
-        response.contractReadPolicy={automaticCharBudget:64000,automaticChars,omissions,nextAction:omissions.length?'Use getTools({ids:contractIdsOmitted}) only for contracts needed by the plan; template.* cards already contain complete variant arguments.':null};
+        response.contractReadPolicy={automaticCharBudget,automaticChars,omissions,nextAction:omissions.length?'Use getTools({ids:contractIdsOmitted}) only for contracts needed by the plan; template.* cards already contain complete variant arguments.':null};
       }
       return response;
     },

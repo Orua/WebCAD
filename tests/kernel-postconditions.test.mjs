@@ -75,3 +75,36 @@ test('closed smooth sweeps pass and closed sharp transformed sweeps explain the 
     assert.ok(volume(right)>100);assert.ok(volume(round)>100);
   }finally{[round,right,profile,profileEdge,path,...edges,section].forEach(dispose);}
 });
+
+test('open thin plate accepts a valid inward wall thicker than half its height',()=>{
+  const source=cad.makeBox([0,0,0],[20,20,1]),before=source.serialize(),faces=source.faces;
+  let result;
+  try{
+    const top=faces.findIndex(face=>face.center.z>.99);
+    assert.notEqual(top,-1);
+    result=buildShell(source,{thickness:.75,faceIds:[top]},oc,cad);
+    assert.ok(Math.abs(volume(result)-314.4375)<1e-5);
+    assert.equal(source.serialize(),before);
+    const check=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);
+    try{assert.equal(check.IsValid(),true);}finally{dispose(check);}
+  }finally{faces.forEach(dispose);dispose(result);dispose(source);}
+});
+
+test('valid explicit chamfer may remove more than 65 percent of a body',()=>{
+  const source=cad.makeBox([0,0,0],[10,10,10]),before=source.serialize();
+  let result;
+  try{
+    result=buildEdgeBlend(source,'chamfer',{distance:4.5,allEdges:true});
+    assert.ok(Math.abs(volume(result)-271)<1e-5);
+    assert.equal(source.serialize(),before);
+    const check=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);
+    try{assert.equal(check.IsValid(),true);}finally{dispose(check);}
+  }finally{dispose(result);dispose(source);}
+});
+
+test('closed tangent quarter-arcs sweep with the explicitly requested transformed transition',()=>{
+  const point=angle=>[10*Math.cos(angle),10*Math.sin(angle),0];
+  const segments=Array.from({length:4},(_,i)=>({type:'arc',points:[point(i*Math.PI/2),point((i+.5)*Math.PI/2),point((i+1)*Math.PI/2)]}));
+  const result=buildCurveSweep({pathType:'segments',segments,closed:true,radius:1,transitionMode:'transformed'},cad);
+  try{assert.ok(Math.abs(volume(result)-20*Math.PI*Math.PI)<.01);}finally{dispose(result);}
+});

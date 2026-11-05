@@ -2,7 +2,7 @@
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.61.0",
+  "version": "1.61.1",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -187,5 +187,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2734dde98387a683f3c986d429e67ace54763932d5c4cb2aa3bd541abe3aeca5"
+  "docsHash": "sha256:74df4a4bb58549fb130694fda64fc8f37d34c73798e21e8151e45a34d56db161"
 }

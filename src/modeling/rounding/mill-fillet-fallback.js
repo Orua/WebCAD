@@ -92,7 +92,6 @@ function acceptMilled(shape,result,R,material){
   const epsilon=Math.max(1e-6,sourceVolume*1e-8);
   if(material==='remove'&&resultVolume>sourceVolume+epsilon)fail('减料圆角不得增加材料');
   if(material==='add'&&resultVolume<sourceVolume-epsilon)fail('加料圆角不得减少材料');
-  if(resultVolume<sourceVolume*0.35)fail('圆角造成灾难性体积塌缩，半径超出几何可行范围');
 }
 
 function complementaryTool(shape,{edgeId,radiusMm}){

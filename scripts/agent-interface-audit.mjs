@@ -35,6 +35,8 @@ export async function auditAgentInterfaces(root){
   const card=getTool({id:action});
   if(card.mcpCall?.tool!=='webcad_submit'||card.mcpCall.method!=='execute'||card.mcpCall.action!==action)
    throw Error(`Command card does not point to its allowed execute action: ${action}`);
+  if(!card.argsSchema||card.callSchema?.properties?.action?.const!==action||!card.callSchema.required?.includes('idempotencyKey'))
+   throw Error(`Command card must publish inner args and a complete execute envelope: ${action}`);
  }
  const operations=listOperations().map(op=>{
   const id=op.id==='import'?'files.import':op.id==='remove'?'feature.remove':op.id;
