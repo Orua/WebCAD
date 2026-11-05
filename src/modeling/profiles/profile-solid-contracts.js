@@ -11,7 +11,7 @@ export const profileSolidExamples = {
 };
 export const profileSolidFields = {
   profileRevolve: [['operation', '结果', 'newBody', ['newBody', 'join', 'cut', 'intersect']], ['axisPoint', '轴上一点（世界 XYZ mm）', '[0,0,0]', 'json'], ['axisDirection', '轴方向（世界 XYZ）', '[0,1,0]', 'json'], ['angleDeg', '旋转角度 °', 360, 'positive']],
-  profileSweep: [['operation', '结果', 'newBody', ['newBody', 'join', 'cut', 'intersect']], ['transitionMode', '路径拐角过渡', 'transformed', ['transformed', 'right', 'round']], ['frenet', '沿 Frenet 曲率标架', false, 'boolean']],
+  profileSweep: [['operation', '结果', 'newBody', ['newBody', 'join', 'cut', 'intersect']], ['transitionMode', '路径拐角过渡', 'transformed', ['transformed', 'right', 'round']], ['frenet', '沿 Frenet 曲率标架', false, 'boolean'], ['alignProfileToPath', '按路径起点摆放截面', false, 'boolean']],
   profileLoft: [['operation', '结果', 'newBody', ['newBody', 'join', 'cut', 'intersect']], ['ruled', '直纹过渡', false, 'boolean']],
 };
 
@@ -29,8 +29,8 @@ export const profileSolidOperations = {
   },
   profileSweep: {
     description: 'Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result', refs: '>=2', refsMin: 2, refsMax: 3,
-    paramsSchema: schema({ transitionMode: { type: 'string', enum: ['transformed', 'right', 'round'], default: 'transformed' }, frenet: { type: 'boolean', default: false } }),
-    notes: `refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。截面必须已在路径起点平面并垂直其起点切线，不自动居中/定位。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。${materialNotes}`,
+    paramsSchema: schema({ transitionMode: { type: 'string', enum: ['transformed', 'right', 'round'], default: 'transformed' }, frenet: { type: 'boolean', default: false }, alignProfileToPath: { type: 'boolean', default: false, description: 'true：把截面中心搬到路径起点，并把截面法向转到路径起点切线。默认 false，不移动来源。' } }),
+    notes: `refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。默认不自动居中/定位：截面必须已在路径起点平面并垂直其起点切线。路径沿 +X、截面画在 XY 时，给截面 placement.quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y 轴 +90°，法向从 +Z 转到 +X）。也可以设 alignProfileToPath:true，只摆放一份副本，不改已保存截面。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。${materialNotes}`,
   },
   profileLoft: {
     description: 'Loft 2–12 saved exact sections in explicit order, with new-body or material-operation result', refs: '>=2', refsMin: 2, refsMax: 13,

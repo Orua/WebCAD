@@ -670,6 +670,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.uStrapClip",
       "params": {}
@@ -718,5 +719,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b5391277a6fa0d6e630f722dd087920165f5facf19a39a63665b21714b75efdc"
+  "docsHash": "sha256:dbea7f5be10128d3fe53b3441ede71571d7f0fe0b4c5102eb83ba85c285c269f"
 }

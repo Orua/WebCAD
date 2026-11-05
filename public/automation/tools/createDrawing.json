@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "revision",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_artifact",
     "method": "createDrawing",
@@ -30,6 +33,90 @@
     "REVISION_CONFLICT",
     "GEOMETRY_INVALID"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "bodyIds": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "maxItems": 40
+      },
+      "projection": {
+        "enum": [
+          "first",
+          "third"
+        ]
+      },
+      "sections": {
+        "type": "array",
+        "maxItems": 3,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "plane": {
+              "enum": [
+                "XY",
+                "XZ",
+                "YZ"
+              ]
+            },
+            "offset": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "plane",
+            "offset"
+          ]
+        }
+      },
+      "hiddenLines": {
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "context",
+      "bodyIds"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -119,8 +206,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "createDrawing",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -171,5 +260,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7ba7f08e917773c5663d38521edbbd02b7d0c2d54b5519d55b8af2642950e0a7"
+  "docsHash": "sha256:828dbd67299f0dba36fb5734ca96e8dd5451c32c8c758dc87f04968424bafa4b"
 }

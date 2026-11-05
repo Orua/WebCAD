@@ -668,6 +668,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "surfaceTrim",
       "params": {}
@@ -720,5 +721,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:86d4fe4a72e996ddf7cba9a9418da70f6deae40c0cefc46d8acf818ab0f3ea46"
+  "docsHash": "sha256:c0da6dbb7c6efec6146906292479e8e586293142253c154e6589b4da8527e780"
 }

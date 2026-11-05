@@ -643,6 +643,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.arcBandPlate",
       "params": {}
@@ -687,5 +688,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b907c5882437a14160ade80b664c9055b6d66e1586613094468111f6b296a628"
+  "docsHash": "sha256:9084c6adc5e8fd733c734741b74d64382abe4adaf4e5f82e4a40de9d44367198"
 }

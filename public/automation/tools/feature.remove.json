@@ -53,8 +53,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "feature.remove",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -113,5 +115,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:cbd58e1e1d1d4cee9f3117c39d9cb70a617875ef2041eed26e92822737435582"
+  "docsHash": "sha256:b88bb496b1a30b775ba3b5cc031f54f409c9a2bc212e2501c53013e59308af93"
 }

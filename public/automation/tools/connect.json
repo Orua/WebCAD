@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "none",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "connect",
@@ -28,6 +31,20 @@
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "queries": {},
+      "toolIds": {},
+      "limit": {},
+      "includeContracts": {},
+      "knownCatalogHash": {},
+      "knownDocsHash": {},
+      "knownHashes": {}
+    },
+    "required": []
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -47,8 +64,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "connect",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -107,5 +126,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cd9125074e4187e7234644f7af23a9e2e97ef33ab1ac47cd7c2a8bc5917984ba"
+  "docsHash": "sha256:7eeb3fc7a2bdca9d97465290640c6684068780cd2c95b35abeeeb8f63e2cc9bc"
 }

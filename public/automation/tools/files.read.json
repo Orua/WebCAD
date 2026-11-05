@@ -60,6 +60,17 @@
     "PARAM_SCHEMA_INVALID",
     "RESOURCE_EXPIRED"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "resourceId": {},
+      "as": {}
+    },
+    "required": [
+      "resourceId"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -76,8 +87,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "files.read",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -128,5 +141,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:2807ae8c192a54227def3a7a7e507e2eaa805088b47fc8f21d599f5fb7296726"
+  "docsHash": "sha256:73e43b587f4e5c10c8b4fe8b23d468acdc676d642bec88250774a43a9c7df444"
 }

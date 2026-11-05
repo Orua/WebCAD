@@ -10,6 +10,17 @@ const tuple = value => { try { return value.toTuple(); } finally { dispose(value
 const point3 = value => Array.isArray(value) && value.length === 3 && value.every(Number.isFinite);
 const modes = ['newBody', 'join', 'cut', 'intersect'];
 const fail = message => { throw new Error(message); };
+const unitVec = v => { const n = Math.hypot(...v); return v.map(value => value / n); };
+const crossVec = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+function rotationOnto(from, to) {
+  const a = unitVec(from), b = unitVec(to), d = Math.max(-1, Math.min(1, dot(a, b)));
+  if (d > 1 - 1e-12) return null;
+  if (d < -1 + 1e-12) {
+    const seed = Math.abs(a[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
+    return { angle: 180, axis: unitVec(crossVec(a, seed)) };
+  }
+  return { angle: Math.acos(d) * 180 / Math.PI, axis: unitVec(crossVec(a, b)) };
+}
 
 function sourcesFor(sources, params, min, max = min) {
   const operation = params?.operation ?? 'newBody';
@@ -146,17 +157,30 @@ export function buildProfileSweep(sources, params = {}, cad) {
     const transitionMode = params.transitionMode ?? 'transformed';
     if (!['right', 'transformed', 'round'].includes(transitionMode)) fail('transitionMode 须为 right、transformed 或 round');
     if (params.frenet !== undefined && typeof params.frenet !== 'boolean') fail('frenet 须为布尔值');
-    const profile = prepareReferenceProfile(profiles[0], cad, { allowHoles: true });
-    let path, tool;
+    if (params.alignProfileToPath !== undefined && typeof params.alignProfileToPath !== 'boolean') fail('alignProfileToPath 须为布尔值');
+    let path, tool, posed, profile;
     try {
       path = prepareSweepPath(profiles[1], cad);
+      let profileShape = profiles[0];
+      if (params.alignProfileToPath === true) {
+        const probe = prepareReferenceProfile(profiles[0], cad, { allowHoles: true });
+        let rotated;
+        try {
+          const normal = tuple(probe.face.normalAt()), center = tuple(probe.face.center);
+          const spin = rotationOnto(normal, path.tangent);
+          rotated = spin ? profiles[0].rotate(spin.angle, center, spin.axis) : profiles[0].clone();
+          posed = rotated.translate(minus(path.start, center));
+        } finally { probe.release(); dispose(rotated); }
+        profileShape = posed;
+      }
+      profile = prepareReferenceProfile(profileShape, cad, { allowHoles: true });
       const normal = tuple(profile.face.normalAt()), center = tuple(profile.face.center);
       if (Math.abs(dot(normal, path.tangent)) < 1 - 1e-8 || Math.abs(dot(minus(path.start, center), normal)) > 1e-6)
-        fail('保存截面必须位于路径起点平面，且截面法向须与路径起点切线平行；不会自动移动或旋转来源');
+        fail('保存截面必须位于路径起点平面，且截面法向须与路径起点切线平行；默认不会自动移动或旋转来源。路径沿 +X、截面在 XY 时可用 placement.quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y +90°），或设 alignProfileToPath:true');
       tool = sweepProfileWithHoles(profile, path, cad, { frenet: params.frenet ?? false, transitionMode });
       const ownedTool = tool; tool = null;
       return applyMaterial(ownedTool, target, operation, cad);
-    } finally { dispose(tool); path?.release(); profile.release(); }
+    } finally { dispose(tool); dispose(posed); path?.release(); profile?.release(); }
   });
 }
 

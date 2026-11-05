@@ -200,8 +200,20 @@ function buildCard(id, source) {
 const cards = Object.fromEntries(Object.keys(operationCatalog.operations).sort().map(id => [id, buildCard(id, operationCatalog.operations[id])]));
 export const catalogHash = contractHash(Object.values(cards).map(({ id, version, schemaHash }) => ({ id, version, schemaHash })));
 
+export const UNKNOWN_OPERATION_HINTS={
+  patternLinear:'没有 patternLinear。线性阵列是 linearPattern，步长字段是 dx/dy/dz，不是 spacingMm。',
+  patternCircular:'没有 patternCircular。环形阵列是 circularPattern，字段是 angle、axis、cx/cy/cz，不是 angleDeg。',
+  draft:'没有 draft。拔模用 draftByPlane（解析面）或 draftFaces。',
+  text:'没有 text。文字轮廓请走 LOGO 或草图，不要发明 text 操作。',
+  wrap:'没有 wrap。柱面贴图凹刻用 logo，projectionMode 为 singleFace 或 connectedFaces。',
+  counterbore:'没有 counterbore。沉孔用 holeWizard，kind 为 counterbore。',
+  '阵列':'没有名为「阵列」的操作。线性阵列是 linearPattern，环形阵列是 circularPattern。',
+  '线性阵列':'线性阵列的操作 id 是 linearPattern。',
+  '环形阵列':'环形阵列的操作 id 是 circularPattern。',
+  '拔模':'拔模的操作 id 是 draftByPlane 或 draftFaces。',
+};
 export function getOperation(id) {
-  if (typeof id !== 'string' || !Object.hasOwn(cards, id)) contractError('UNKNOWN_OPERATION', 'args.op', `Unknown operation: ${String(id)}`, 'READ_TOOL_CONTRACT');
+  if (typeof id !== 'string' || !Object.hasOwn(cards, id)) contractError('UNKNOWN_OPERATION', 'args.op', UNKNOWN_OPERATION_HINTS[id] || `Unknown operation: ${String(id)}`, 'READ_TOOL_CONTRACT');
   return clone(cards[id]);
 }
 export function listOperations() { return Object.values(cards).map(clone); }
@@ -235,7 +247,10 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
     if(params.sharedFaces===true&&!(params.faceIds?.length>=2))contractError('SELECTION_CONFLICT','params.sharedFaces','sharedFaces=true requires at least two adjacent faceIds.');
   }
   if(allowMissingMachiningIntent)schema.required=(schema.required||[]).filter(key=>key!=='machiningIntent');
-  try{validateSchema(schema, params);if(['transform','copy'].includes(op))assertBoundsAlignment(params);}catch(error){if(op==='meshHeightfieldRelief')error.code='HEIGHTFIELD_INVALID';if(op==='meshBoolean')error.code='MESH_BOOLEAN_INVALID';throw error;}
+  try{validateSchema(schema, params);if(['transform','copy'].includes(op))assertBoundsAlignment(params);}catch(error){
+    if(op==='quickModel'&&error.message==='Exactly one alternative is required.'&&!Object.hasOwn(QUICK_MODELS,params?.kind))contractError('PARAM_SCHEMA_INVALID','params.kind','quickModel 的 kind 不在目录中。请 getTool({id:"quickModel"}) 读取 templates[].kind；常见有 dBuckle、tube、washer、ring。box、pin、cylinder 不是 kind。');
+    if(op==='meshHeightfieldRelief')error.code='HEIGHTFIELD_INVALID';if(op==='meshBoolean')error.code='MESH_BOOLEAN_INVALID';throw error;
+  }
   if(op==='meshHeightfieldRelief'&&!params.heights?.importKey)heightfieldSamples(legacyReliefParams(op,params));
   if(op==='chamfer'){
     const mode=params.mode||'equalDistance';
@@ -331,5 +346,9 @@ export function validateOperationRefs(op, refs) {
 export function validateOperationExample(op, params) {
   assertPatternExecution(op,params);
   const card = getOperation(op);
-  return card.strictContract ? normalizeOperationParams(op, params) : validateSchema(card.inputSchema, params);
+  try { return card.strictContract ? normalizeOperationParams(op, params) : validateSchema(card.inputSchema, params); }
+  catch(error){
+    if(op==='quickModel'&&error.message==='Exactly one alternative is required.'&&!Object.hasOwn(QUICK_MODELS,params?.kind))contractError('PARAM_SCHEMA_INVALID','params.kind','quickModel 的 kind 不在目录中。请 getTool({id:"quickModel"}) 读取 templates[].kind；常见有 dBuckle、tube、washer、ring。box、pin、cylinder 不是 kind。');
+    throw error;
+  }
 }

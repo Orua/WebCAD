@@ -657,6 +657,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "extractSolid",
       "params": {}
@@ -717,5 +718,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:d83e1772daba3486011ed9e423b7afca5c74aaf03a56867e0b6f7e3be2a3d3cf"
+  "docsHash": "sha256:f8f82b5ddb99f21a26b5001d9bac250f85b28efe86469a116118a327de25ca5a"
 }

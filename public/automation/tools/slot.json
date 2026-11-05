@@ -812,6 +812,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "slot",
       "params": {}
@@ -888,5 +889,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4b28b54fae9a74b7159477eba554bb30aee5699ee51b06231bc04fd44a70c6f7"
+  "docsHash": "sha256:76c9d908722d023016a74954a6e6a05baef8c97c516d0531043a37c5c85a1215"
 }

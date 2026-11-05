@@ -640,6 +640,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.rectBuckle",
       "params": {}
@@ -668,5 +669,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:616b5ba471f524582380e1810f6dc1f7672ba5e85f6441a4ffd534ec2f6de810"
+  "docsHash": "sha256:9d6d3f5bb19236ed4c165c7c1bb016c11a100141c022b486dae54a6ee4b4d056"
 }

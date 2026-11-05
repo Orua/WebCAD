@@ -809,6 +809,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "profileRevolve",
       "params": {}
@@ -845,5 +846,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fba2fa1af9bf4aed058d13d6921fa62bcd6cd9f0b0077ec633d3f6099a790207"
+  "docsHash": "sha256:91a8f88145cef0caa5fc6b53be0d9352ff7331090fef5f5e55b00e9331b2d5a4"
 }

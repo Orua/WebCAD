@@ -1109,6 +1109,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "meshHeightfieldRelief",
       "params": {}
@@ -1201,5 +1202,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:4649cc45211e2b35dad8ff05afe1b1e0dae6038c99392eb98c1c91533f19734f"
+  "docsHash": "sha256:7d5afbaecf11ae633417f825e389510ca501ce5755eadf43794ef6264e50fae7"
 }

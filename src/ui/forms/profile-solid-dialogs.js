@@ -85,7 +85,7 @@ export function showProfileSolidDialog(op, env) {
       path = sourceChoice('pathSourceId', '单一连续路径（开放或闭合）', paths, initial(paths()));
       choice(form, 'transitionMode', '路径拐角过渡', [['transformed', '随路径变换'], ['right', '直角过渡'], ['round', '圆角过渡']], 'transformed');
       numberField(form, ['frenet', '沿曲率标架转向', false, 'boolean']);
-      form.append(element('p', { class: 'property-callout wide' }, '截面与路径使用保存的世界位置。截面须先放在路径起点平面，并垂直起点切线；工具不会自动移动或旋转来源。平面截面的已定义内孔沿路径保留；独立多环不自动推断内外。不支持分叉或多个独立路径。内腔越界、交叠或无效结果失败，闭合路径也须通过有效单实体检查。'));
+      form.append(element('p', { class: 'property-callout wide' }, '截面与路径使用保存的世界位置。截面须先放在路径起点平面，并垂直起点切线；默认不会自动移动或旋转来源。路径沿 +X、截面在 XY 时，quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y +90°）。勾选按路径起点摆放截面即 alignProfileToPath:true。平面截面的已定义内孔沿路径保留；独立多环不自动推断内外。不支持分叉或多个独立路径。内腔越界、交叠或无效结果失败，闭合路径也须通过有效单实体检查。'));
     }
   }
   const target = choice(form, 'targetBodyId', '加工目标', [], '');

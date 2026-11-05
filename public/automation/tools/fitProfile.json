@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "fitProfile",
@@ -32,6 +35,67 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.profile-fitting",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "kind": {
+        "enum": [
+          "circle",
+          "line"
+        ]
+      },
+      "plane": {
+        "enum": [
+          "XY",
+          "XZ",
+          "YZ"
+        ]
+      },
+      "points": {
+        "type": "array"
+      },
+      "maxResidualMm": {
+        "type": "number"
+      }
+    },
+    "required": [
+      "context",
+      "kind",
+      "points"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -98,8 +162,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "fitProfile",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -166,5 +232,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:db4c09a276ea15a596afb2562ae956971c70bff5f1cad17da57a39309ee657d0"
+  "docsHash": "sha256:3fe2c5eaf9886c7bb67523994aeab1b087b1c38ebaa7e1728d124c7824fc6651"
 }

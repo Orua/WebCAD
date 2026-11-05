@@ -592,6 +592,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.uEndHolePlate",
       "params": {}
@@ -636,5 +637,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7e6397b79a07f2ea6c843162daf36bee02b4149fa9221d12b5dcb18e53d5a26a"
+  "docsHash": "sha256:2f86dc56127c6af16176c6fed9e088297aaa8233e9159d57eeabc991064a2700"
 }

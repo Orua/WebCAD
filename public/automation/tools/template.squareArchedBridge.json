@@ -688,6 +688,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.squareArchedBridge",
       "params": {}
@@ -732,5 +733,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0864bfafa8df268ffad643465ec45a35d1a4926b130f08fae399c843f1e1b28b"
+  "docsHash": "sha256:01bd12fced2286e755c8b332aa9dbd95b1e27a69b4b9ea7775194795bdea95b2"
 }

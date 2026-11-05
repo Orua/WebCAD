@@ -55,6 +55,12 @@
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -66,8 +72,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "files.capabilities",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -110,5 +118,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:668c0339aa674bb6268b8c692e5c26d3c56cf219c2e012bb95c2692b4de5d9a6"
+  "docsHash": "sha256:7cb6950db5d8e44400d010b23255d3f3bf2f63bcb933743d824b8c591113d62a"
 }

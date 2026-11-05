@@ -749,6 +749,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.alloyEyelet",
       "params": {}
@@ -773,5 +774,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:895a436b7d16e41f5e0cc79c46b187085ffa08028e136cfa728d428bbdf24bef"
+  "docsHash": "sha256:3e5927db2ac562c3c02d3c5a0b054a0eb89bf6bb145067d79971b8337eeba9d2"
 }

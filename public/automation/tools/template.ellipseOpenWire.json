@@ -554,6 +554,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.ellipseOpenWire",
       "params": {}
@@ -602,5 +603,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:35778d068e6441171f094093ca10fcf8f77804ad8bf36ef42bb3df98958a9af4"
+  "docsHash": "sha256:e1bcc15b87381382193369bb5863fda1f731840c973c9ec782adaae1fd498f8e"
 }

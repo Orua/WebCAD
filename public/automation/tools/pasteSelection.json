@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "revision",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "pasteSelection",
@@ -37,6 +40,51 @@
     "maxFeatures": 2000,
     "maxBytes": 209715200,
     "preflightReserveBytes": 4096
+  },
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "idempotencyKey": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "context",
+      "idempotencyKey"
+    ]
   },
   "preparationSchema": {
     "type": "object",
@@ -88,8 +136,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "pasteSelection",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -140,5 +190,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4c9e570203fe64bf20503edd9dafaa96668a755de4e44386d50e8d825618ebe8"
+  "docsHash": "sha256:91befc8bcbc56eea4016203750f152a0d8cd54a5493b622cec3ac3fba4672365"
 }

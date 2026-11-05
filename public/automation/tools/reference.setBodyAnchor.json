@@ -65,8 +65,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "reference.setBodyAnchor",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -113,5 +115,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9663a843df7f91eb310fc9baad18dbf0a20493452b0dd2566ade45b759a04980"
+  "docsHash": "sha256:b53f641941ec985ba4a3edd7064477e01e052b5ef10a0f0b4ae26d98e65b9b66"
 }

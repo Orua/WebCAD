@@ -24,6 +24,16 @@ test('coordinates, numeric range, type and unexpected fields have concrete expla
   [{type:'object',additionalProperties:false},{type:'webcad-logo'},'params',/params.type.*不接受这个字段/],
  ])assert.match(humanError(capture(()=>validateSchema(schema,value,path))),expected);
 });
+test('step ids that use Chinese, fullwidth or emoji name the ascii examples',()=>{
+ const schema={type:'object',additionalProperties:false,required:['id'],properties:{id:{type:'string',pattern:'^[a-zA-Z][a-zA-Z0-9_-]{0,39}$'}}};
+ for(const id of ['波形','ｗａｖｅ１','wave🚀']){
+  const error=capture(()=>validateSchema(schema,{id},'args.steps.0.id'));
+  const receipt=withErrorRecovery({status:'failed',commitState:'not_committed',error});
+  assert.match(error.message,/不能使用中文/);
+  assert.match(receipt.error.userMessage,/不能使用中文/);
+  assert.match(receipt.error.userMessage,/wave_1/);
+ }
+});
 test('unknown diagnostic text, credentials and malicious field paths are never rendered',()=>{
  for(const path of ['params.source.token','params.source.password','F:/private/file','params.\nsecret','params.<img>']){
   const message=humanError({code:'PARAM_SCHEMA_INVALID',path,message:'Unknown field.'});

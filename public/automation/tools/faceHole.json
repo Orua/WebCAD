@@ -836,6 +836,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "faceHole",
       "params": {}
@@ -912,5 +913,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:40b232a1af9cad7476520e1a760086c4303d8f42a3acee29a65e78c7a44161dd"
+  "docsHash": "sha256:4336f69e844c3afa2bb92fe38667ad082bd6709fd2e95285db3977e117cdae12"
 }

@@ -697,6 +697,9 @@ export class CadKernel {
                 const label = {union:'融合',cut:'切割',intersect:'求交'}[feature.op];
                 throw Object.assign(new Error(`${label}结果违反输入材料体积范围，内核未生成可信结果；原模型保持。`),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});
               }
+              if (feature.op==='cut' && before - volume <= Math.max(1e-8, before * 1e-12)) {
+                throw Object.assign(new Error('切割与目标没有材料相交，体积没有减少，本次不提交，也不删除刀具。请让刀具切入目标后再切；keepTools 只在确实切除了材料时才有意义。'),{code:'NO_MATERIAL_REMOVED',recoveryAction:'CORRECT_PARAMETERS'});
+              }
             } catch (error) { dispose(next); throw error; }
             dispose(out); out = next;
           }

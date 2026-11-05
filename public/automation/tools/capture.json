@@ -4,6 +4,10 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "capture 不能作为 api.run 的 method。请直接调用 api.capture。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -93,8 +97,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "capture",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -177,5 +183,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8179ab5038f08e7975e8921f9cebae75d30d8b4c9ec8c984eade1cdb7c6f8d14"
+  "docsHash": "sha256:ada6622afc19334cfe6a9409185994cb265317851c61e1863bcbfd480b6e4446"
 }

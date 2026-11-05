@@ -841,6 +841,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.mushroomRivet",
       "params": {}
@@ -877,5 +878,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f60743c1285e990b3fe9daa76b8f64458106a975e25bf0401d4424814844b0a1"
+  "docsHash": "sha256:7ab7316b8911dbf313801bb9b88768037b3e99df75b00e0d109e62ebe8b881c6"
 }

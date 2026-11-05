@@ -522,6 +522,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.domedPin",
       "params": {}
@@ -558,5 +559,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:beb24a3a56d31341c32577373d1ca8707454717c9d5712a139b0c311592c2451"
+  "docsHash": "sha256:44c91610c63114b7d2d71863e8d74b3c1d15632aab036a5e7960bc63a8d058fd"
 }

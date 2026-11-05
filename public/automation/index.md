@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.60.11 · 操作目录 sha256:cf9c8c6abda16462a36a2abd995e4c183aba3ed5145ac94b1dcdcafd44ea1f0e
+API 1.60.11 · 操作目录 sha256:eed43b45e6cbdcff8b8d44f40940d612e8e8cc5c5ba188549569011ef6ecccf0
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -128,7 +128,7 @@ API 1.60.11 · 操作目录 sha256:cf9c8c6abda16462a36a2abd995e4c183aba3ed5145ac
 - `arcProfile` · advisory · Extrude exact closed XY LINE/ARC boundaries with optional holes
 - `autoRound` · migrated · 整件圆边 / Round every sharp edge of one solid
 - `badge` · migrated · 牌仔工具 / Thicken a planar face into an edge-rounded badge
-- `box` · migrated · Box from [0,0,0] to [width,depth,height]
+- `box` · migrated · Box from local [0,0,0] to [width,depth,height] before placement
 - `bumpSet` · migrated · 批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once
 - `chamfer` · migrated · Equal-distance, two-distance or distance-angle chamfer of sharp edges
 - `circularPattern` · migrated · Rotated copies as a compound or explicitly fused solid
@@ -138,7 +138,7 @@ API 1.60.11 · 操作目录 sha256:cf9c8c6abda16462a36a2abd995e4c183aba3ed5145ac
 - `curveSweep` · advisory · Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine
 - `curvedLogo` · advisory · Legacy curved LOGO operation retained for historical project compatibility; use unified logo placementVersion 2 for new work
 - `cut` · migrated · Subtract other bodies from first
-- `cylinder` · migrated · Cylinder on +Z from origin
+- `cylinder` · migrated · Cylinder on local +Z before placement
 - `draftByPlane` · migrated · Draft explicitly selected analytic faces about an explicit neutral plane
 - `draftFaces` · migrated · Exact restricted four-side planar prism draft around one fixed bottom plane
 - `ellipsoid` · migrated · 椭球 / Exact rational quadratic ellipsoid
@@ -155,7 +155,7 @@ API 1.60.11 · 操作目录 sha256:cf9c8c6abda16462a36a2abd995e4c183aba3ed5145ac
 - `group` · advisory · Group bodies as a compound without fusing
 - `guidedLoft` · migrated · 导向放样 / Framed sections, boundary guides and actual G1/G2 source jets
 - `helix` · migrated · Create an exact helical wire in the creation frame
-- `hole` · migrated · Cylindrical cut starting at global coordinates
+- `hole` · migrated · Cylindrical cut starting at placement-frame coordinates
 - `holeWizard` · migrated · Exact plain, counterbore, or countersink hole with flat or angled blind drill point
 - `import` · advisory · Open STEP/BREP through browser file picker; MCP has no arbitrary filesystem access
 - `innerTurn` · migrated · Bore inside a selected planar section
@@ -199,7 +199,7 @@ API 1.60.11 · 操作目录 sha256:cf9c8c6abda16462a36a2abd995e4c183aba3ed5145ac
 - `sketchProfile` · migrated · Create an editable exact 2D wire or planar face from stable analytic entities
 - `slot` · advisory · Cut an exact capsule slot (two semicircles and two straight sides)
 - `smoothTransition` · migrated · 平滑过渡 / Smooth shared seams of adjacent faces together
-- `sphere` · migrated · Sphere centered at origin
+- `sphere` · migrated · Sphere centered at the local origin before placement
 - `split` · advisory · Split body by an offset global plane
 - `subdBody` · migrated · 细分曲面体 / Catmull–Clark cage to sewn B-spline solid
 - `surfaceTrim` · advisory · 按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。

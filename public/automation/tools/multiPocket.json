@@ -887,6 +887,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "multiPocket",
       "params": {}
@@ -963,5 +964,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b35348606c20928e0352be9030feb109038c71f48dd44928389e69ad80650a5f"
+  "docsHash": "sha256:3b3084cfdba36f3528307b1668ee0641e53a57b4b82a82c512f7aaffd304ebd0"
 }

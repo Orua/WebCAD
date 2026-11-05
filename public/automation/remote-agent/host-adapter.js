@@ -91,7 +91,10 @@ function validateSchema(schema, value, path = "params") {
       const count = [...v].length;
       if (s.minLength !== void 0 && count < s.minLength) range(`Minimum length is ${s.minLength}.`);
       if (s.maxLength !== void 0 && count > s.maxLength) range(`Maximum length is ${s.maxLength}.`);
-      if (s.pattern !== void 0 && !new RegExp(s.pattern, "u").test(v)) fail("String does not match the required pattern.");
+      if (s.pattern !== void 0 && !new RegExp(s.pattern, "u").test(v)) {
+        if (s.pattern === "^[a-zA-Z][a-zA-Z0-9_-]{0,39}$") fail("\u6807\u8BC6\u4E0D\u80FD\u4F7F\u7528\u4E2D\u6587\u3001\u5168\u89D2\u5B57\u7B26\u3001emoji\u3001\u7A7A\u683C\u6216\u6807\u70B9\u3002\u8BF7\u6539\u7528\u5B57\u6BCD\u5F00\u5934\u7684 1\u201340 \u4F4D\u82F1\u6587\u6807\u8BC6\uFF08\u53EF\u542B\u6570\u5B57\u3001\u4E0B\u5212\u7EBF\u3001\u8FDE\u5B57\u7B26\uFF09\uFF0C\u4F8B\u5982 wave_1\u3001wave-1 \u6216 buckle\u3002");
+        fail("String does not match the required pattern.");
+      }
     }
     if (Array.isArray(v)) {
       if (s.minItems !== void 0 && v.length < s.minItems) range(`At least ${s.minItems} items are required.`);
@@ -110,7 +113,7 @@ function validateSchema(schema, value, path = "params") {
     if (s.allOf && !s.allOf.every(matches)) fail("Value does not meet all required conditions.");
     if (s.anyOf && !s.anyOf.some(matches)) fail("Value does not meet a required alternative.");
     if (s.oneOf && s.oneOf.filter(matches).length !== 1) fail("Exactly one alternative is required.");
-    if (s.not && matches(s.not)) fail("This combination is not accepted.");
+    if (s.not && matches(s.not)) fail(typeof s.not.description === "string" && s.not.description.trim() ? s.not.description : "This combination is not accepted.");
   }
   visit(schema, value, path);
   return value;
@@ -310,6 +313,12 @@ function fieldName(path) {
 }
 function parameterErrorMessage(error = {}) {
   if (!["PARAM_SCHEMA_INVALID", "PARAM_RANGE_INVALID", "TYPE_MISMATCH", "INVALID_INPUT", "HEIGHTFIELD_INVALID"].includes(error.code)) return null;
+  const raw = String(error.message || "");
+  if (/不能使用中文/.test(raw)) return raw;
+  if (raw === "String does not match the required pattern." && /(?:^|\.)(id|key)$/.test(String(error.path || ""))) return "\u6807\u8BC6\u4E0D\u80FD\u4F7F\u7528\u4E2D\u6587\u3001\u5168\u89D2\u5B57\u7B26\u3001emoji\u3001\u7A7A\u683C\u6216\u6807\u70B9\u3002\u8BF7\u6539\u7528\u5B57\u6BCD\u5F00\u5934\u7684 1\u201340 \u4F4D\u82F1\u6587\u6807\u8BC6\uFF08\u53EF\u542B\u6570\u5B57\u3001\u4E0B\u5212\u7EBF\u3001\u8FDE\u5B57\u7B26\uFF09\uFF0C\u4F8B\u5982 wave_1\u3001wave-1 \u6216 buckle\u3002";
+  if (raw === "Unknown field." && /(?:^|\.)radiusMm$/.test(String(error.path || ""))) return "\u5F53\u524D\u5B57\u6BB5\u4E0D\u63A5\u53D7 radiusMm\u3002\u8349\u56FE\u5706\u8BF7\u7528 diameterMm\uFF08\u76F4\u5F84\uFF0C\u6BEB\u7C73\uFF09\uFF1B\u76F4\u7EBF\u7528 startMm \u4E0E endMm\u3002";
+  if (/^At least 2 items are required\.$/.test(raw) && String(error.path || "").endsWith("segments")) return "\u5F00\u653E\u76F4\u7EBF\u53D8\u5F84\u81F3\u5C11\u9700\u8981 2 \u6BB5 segments\uFF0C\u6216\u6539\u7528\u5176\u4ED6 pathType\u3002\u5355\u6BB5\u76F4\u7EBF\u4E0D\u80FD\u914D\u5408 widthLaw\u3002";
+  if (/多截面模式不支持 closed:true/.test(raw)) return raw;
   const field = fieldName(error.path);
   if (!field) return null;
   const message = String(error.message || ""), types = { number: "\u6570\u503C", integer: "\u6574\u6570", array: "\u6570\u7EC4", object: "\u5BF9\u8C61", string: "\u6587\u5B57", boolean: "\u662F\u6216\u5426", null: "\u7A7A\u503C" };
@@ -636,6 +645,9 @@ function errorRecovery(error = {}, receipt = {}) {
   const classification = uncertain ? "reconcile" : base.id;
   const next = uncertain ? "\u5148\u6309\u539F\u4EFB\u52A1\u6216\u8BF7\u6C42\u6807\u8BC6\u67E5\u8BE2\u56DE\u6267\u5E76\u4E0E\u5F53\u524D\u5DE5\u7A0B\u5BF9\u8D26\uFF0C\u786E\u8BA4\u524D\u4E0D\u8981\u91CD\u653E\u3001\u6362\u952E\u6216\u53E6\u8D77\u8BA1\u7B97\u3002" : logoNext ?? base.next;
   const candidate = base.candidate === true && !uncertain && notCommitted && error.budgetExhausted !== true;
+  const nearest = Array.isArray(error.nearestBoundaryPointMm) ? error.nearestBoundaryPointMm : Array.isArray(error.report?.nearestBoundaryPointMm) ? error.report.nearestBoundaryPointMm : null;
+  const nearestCorner = error.nearestCorner || error.report?.nearestCorner;
+  const guideHint = nearest ? `\u6700\u8FD1\u8FB9\u754C\u70B9 ${nearest.map((v) => Number(Number(v).toFixed(6))).join(", ")} mm\u3002` : "";
   return {
     version: ERROR_RECOVERY_VERSION,
     code,
@@ -645,7 +657,8 @@ function errorRecovery(error = {}, receipt = {}) {
     next,
     scope: "failed-operation",
     agentMayContinue: true,
-    userMessage: logoReason ? joinClauses(reason, next) : joinClauses(reason, preservation, next),
+    ...nearest ? { nearestBoundaryPointMm: nearest, ...nearestCorner ? { nearestCorner } : {} } : {},
+    userMessage: logoReason ? joinClauses(reason, next, guideHint) : joinClauses(reason, preservation, next, guideHint),
     automaticRetry: false,
     retry: { allowed: false, condition: base.readRetry && !uncertain ? "\u4EC5\u91CD\u8BD5\u53EA\u8BFB\u753B\u9762/\u622A\u56FE\u4E00\u6B21\uFF1B\u4E0D\u91CD\u505A\u5EFA\u6A21\u3002" : "\u539F\u9519\u8BEF\u6761\u4EF6\u5DF2\u660E\u786E\u4FEE\u6B63\u3001\u72B6\u6001\u5DF2\u5BF9\u8D26\u4E14\u5171\u4EAB\u9884\u7B97\u5141\u8BB8\uFF1B\u4E0D\u5F97\u81EA\u52A8\u91CD\u653E\u3002" },
     candidate: { eligible: candidate, allowed: false, mode: candidate ? "evaluate-existing-preview-conditions" : "blocked", requires: ["known-not-committed", "new-mechanism-evidence", "shared-budget-available", "supported-tool-contract", "unchanged-design-intent"], commit: "only-after-valid-preview-and-explicit-task-authorization" },

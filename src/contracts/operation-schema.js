@@ -70,7 +70,10 @@ export function validateSchema(schema, value, path = 'params') {
       const count = [...v].length;
       if (s.minLength !== undefined && count < s.minLength) range(`Minimum length is ${s.minLength}.`);
       if (s.maxLength !== undefined && count > s.maxLength) range(`Maximum length is ${s.maxLength}.`);
-      if (s.pattern !== undefined && !new RegExp(s.pattern,'u').test(v)) fail('String does not match the required pattern.');
+      if (s.pattern !== undefined && !new RegExp(s.pattern,'u').test(v)) {
+        if (s.pattern === '^[a-zA-Z][a-zA-Z0-9_-]{0,39}$') fail('标识不能使用中文、全角字符、emoji、空格或标点。请改用字母开头的 1–40 位英文标识（可含数字、下划线、连字符），例如 wave_1、wave-1 或 buckle。');
+        fail('String does not match the required pattern.');
+      }
     }
     if (Array.isArray(v)) {
       if (s.minItems !== undefined && v.length < s.minItems) range(`At least ${s.minItems} items are required.`);
@@ -89,7 +92,7 @@ export function validateSchema(schema, value, path = 'params') {
     if (s.allOf && !s.allOf.every(matches)) fail('Value does not meet all required conditions.');
     if (s.anyOf && !s.anyOf.some(matches)) fail('Value does not meet a required alternative.');
     if (s.oneOf && s.oneOf.filter(matches).length !== 1) fail('Exactly one alternative is required.');
-    if (s.not && matches(s.not)) fail('This combination is not accepted.');
+    if (s.not && matches(s.not)) fail(typeof s.not.description === 'string' && s.not.description.trim() ? s.not.description : 'This combination is not accepted.');
   }
   visit(schema, value, path);
   return value;

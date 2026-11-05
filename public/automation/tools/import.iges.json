@@ -15,8 +15,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "import.iges",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -59,5 +61,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:152a35f33650fa631274551e7671b3419cdfeeb3dc539342e8b2779221df62f0"
+  "docsHash": "sha256:f83c44e2ea33a1e34c4c670b6dee10ec7733705d9bae4843c92cc1066d8c3237"
 }

@@ -582,6 +582,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.buckleTongue",
       "params": {}
@@ -618,5 +619,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ea4819248500751b6c6459e40daf79344e545b2b4a4594d028d266cf891a2f27"
+  "docsHash": "sha256:99e8869ef6aeb9421ea025ae76415fec4a384c218c25dffa7e59d41e74cce948"
 }
