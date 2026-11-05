@@ -71,6 +71,57 @@
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "format": {
+        "enum": [
+          "step",
+          "stl",
+          "brep",
+          "png"
+        ]
+      },
+      "ids": {},
+      "name": {}
+    },
+    "required": [
+      "context",
+      "format"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -127,8 +178,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "files.export",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -187,5 +240,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:61b1426edfe2566832d396a45364d971e43d92bada5d40e13ec9166a23276d3e"
+  "docsHash": "sha256:4cc0a73a1a92dcfd7b4ce37652a41a3aabde2ccc6f0274c2323c3274f88a7afd"
 }

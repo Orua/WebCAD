@@ -212,3 +212,26 @@ kernelTest('contradictory inherited constraints and unsupported source types fai
   await checkAtomic(kernel, base, feature('badSource', 'profileConstraints', { constraints: [] }, ['solid']));
   await checkAtomic(kernel, base, feature('missingEntity', 'profileConstraints', { constraints: [{ type: 'radius', entityId: 'missing', radiusMm: 2 }] }, ['source']));
 });
+
+kernelTest('alignProfileToPath moves an XY circle onto a path that is not already normal to it', async kernel => {
+  const section = sourceCircle('section');
+  const params = pathParams(10);
+  const path = feature('path', 'sketchProfile', params, [], placement('sketchProfile', params));
+  const base = documentFor([section, path]);
+  await kernel.rebuild(base);
+  await assert.rejects(kernel.rebuild(documentFor([section, path, feature('bad', 'profileSweep', { operation: 'newBody' }, ['section', 'path'])])), /起点平面|不会自动移动/);
+  await kernel.rebuild(documentFor([section, path, feature('swept', 'profileSweep', { operation: 'newBody', alignProfileToPath: true }, ['section', 'path'])]));
+  near(kernel.measure('swept').volume, 10 * Math.PI);
+  assert.deepEqual(ids(kernel), ['section', 'path', 'swept']);
+});
+
+kernelTest('a cut that misses the target fails and keeps both solids', async kernel => {
+  const box = { width: 10, depth: 10, height: 10 };
+  const a = feature('a', 'box', box, [], placement('box', box));
+  const toolBox = { width: 4, depth: 4, height: 4 };
+  const b = feature('b', 'box', toolBox, [], placement('box', toolBox, [100, 0, 0]));
+  await kernel.rebuild(documentFor([a, b]));
+  await assert.rejects(kernel.rebuild(documentFor([a, b, feature('c', 'cut', {}, ['a', 'b'])])), error => /没有材料相交/.test(error.message) && error.code === 'NO_MATERIAL_REMOVED');
+  assert.ok(kernel.shapes.has('a') && kernel.shapes.has('b'));
+  assert.ok(!kernel.shapes.has('c'));
+});

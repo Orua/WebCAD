@@ -67,17 +67,17 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "World [0,0,0] to [width,depth,height], all in mm.",
-  "title": "Box from [0,0,0] to [width,depth,height]",
+  "title": "Box from local [0,0,0] to [width,depth,height] before placement",
   "category": "creation",
   "synonyms": [
     "box",
-    "Box from [0,0,0] to [width,depth,height]",
+    "Box from local [0,0,0] to [width,depth,height] before placement",
     "box operation",
     "长方体",
     "安装板",
     "plate"
   ],
-  "description": "Box from [0,0,0] to [width,depth,height]",
+  "description": "Box from local [0,0,0] to [width,depth,height] before placement",
   "schemaHash": "sha256:d082303b846c478cc1d8b09298f7bb401e917a0e4859bb8fcc62832cdd1ba85c",
   "apiCompatibility": [
     "page-v2"
@@ -138,7 +138,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
+    "Local solid starts at the model origin. Omitted placement puts the bottom center on the current work frame, which starts at world [0,0,0]. A user insert may lift that frame 0.05 mm in +Z when the vertical column is occupied. Agent/API inserts do not move the frame. Read getState().referenceSystem.workFrame.origin and body bounds before assuming the next solid is still at world origin."
   ],
   "minimalExample": {
     "op": "box",
@@ -206,9 +206,9 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "contract": {
-    "purpose": "Box from [0,0,0] to [width,depth,height]",
+    "purpose": "Box from local [0,0,0] to [width,depth,height] before placement",
     "whenToUse": [
-      "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
+      "Local solid starts at the model origin. Omitted placement puts the bottom center on the current work frame, which starts at world [0,0,0]. A user insert may lift that frame 0.05 mm in +Z when the vertical column is occupied. Agent/API inserts do not move the frame. Read getState().referenceSystem.workFrame.origin and body bounds before assuming the next solid is still at world origin."
     ],
     "whenNotToUse": [
       {
@@ -368,16 +368,16 @@
     ],
     "synonyms": [
       "box",
-      "Box from [0,0,0] to [width,depth,height]",
-      "Box from [0,0,0] to [width,depth,height]",
+      "Box from local [0,0,0] to [width,depth,height] before placement",
+      "Box from local [0,0,0] to [width,depth,height] before placement",
       "box operation"
     ],
     "status": "experimental",
     "sourcePaths": []
   },
-  "purpose": "Box from [0,0,0] to [width,depth,height]",
+  "purpose": "Box from local [0,0,0] to [width,depth,height] before placement",
   "whenToUse": [
-    "显式X/Y/Z尺寸创建长方体；原点到width/depth/height。"
+    "Local solid starts at the model origin. Omitted placement puts the bottom center on the current work frame, which starts at world [0,0,0]. A user insert may lift that frame 0.05 mm in +Z when the vertical column is occupied. Agent/API inserts do not move the frame. Read getState().referenceSystem.workFrame.origin and body bounds before assuming the next solid is still at world origin."
   ],
   "whenNotToUse": [
     {
@@ -681,6 +681,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "box",
       "params": {}
@@ -721,5 +722,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b94d1cb651ce31c65076aadd1d7dded64b160d8fabddb0a6469ad7743d22548d"
+  "docsHash": "sha256:89265b399bcb1a2255e0a45a135a286af3b978c72556bec7b60281bbc061c8c5"
 }

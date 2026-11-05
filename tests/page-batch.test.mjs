@@ -145,6 +145,23 @@ test('failure stops later steps, preserves prior commit and does not repeat it',
   const result=await f.run(r);assert.equal(result.status,'partial');assert.equal(result.results.length,2);assert.equal(f.count,2);
   assert.deepEqual(await f.run(r),result);assert.equal(f.count,2);
 });
+test('string step aliases are rejected and object refs stay the contract',async()=>{
+  const f=fixture(),request=f.request();
+  request.steps[1].args.bodyId='$size';
+  const receipt=await f.run(request);
+  assert.equal(receipt.error.code,'STALE_REFERENCE');
+  assert.match(receipt.error.message,/\$ref/);
+  assert.match(receipt.error.userMessage,/\$ref|对象/);
+});
+test('capture is page-method-only inside a batch',async()=>{
+  const f=fixture(),request=f.request();
+  request.steps.push({id:'shot',method:'capture',args:{format:'webp'}});
+  const receipt=await f.run(request);
+  assert.equal(receipt.status,'failed');
+  assert.equal(f.count,0);
+  assert.match(receipt.error.message,/页面方法/);
+  assert.match(receipt.error.message,/api\.capture/);
+});
 test('bad result reference fails and external edits are never silently adopted',async()=>{
   const f=fixture(),r=f.request();r.steps[1].args.bodyId={$ref:'missing.createdBodyIds.0'};
   assert.equal((await f.run(r)).error.code,'STALE_REFERENCE');assert.equal(f.count,1);

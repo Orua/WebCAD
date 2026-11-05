@@ -1045,6 +1045,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "fillet",
       "params": {}
@@ -1105,5 +1106,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:ffd49ad6b03cea782380ef285645612425f77f957720b4f18fcc08cf7b7094f4"
+  "docsHash": "sha256:571cae5db5b937bfc93a240305a92aeb49efeff91f3f5a3c6b2da6c3fc6076c2"
 }

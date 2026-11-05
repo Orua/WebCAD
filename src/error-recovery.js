@@ -119,8 +119,12 @@ export function errorRecovery(error={},receipt={}){
   const classification=uncertain?'reconcile':base.id;
   const next=uncertain?'先按原任务或请求标识查询回执并与当前工程对账，确认前不要重放、换键或另起计算。':logoNext??base.next;
   const candidate=base.candidate===true&&!uncertain&&notCommitted&&error.budgetExhausted!==true;
+  const nearest=Array.isArray(error.nearestBoundaryPointMm)?error.nearestBoundaryPointMm:Array.isArray(error.report?.nearestBoundaryPointMm)?error.report.nearestBoundaryPointMm:null;
+  const nearestCorner=error.nearestCorner||error.report?.nearestCorner;
+  const guideHint=nearest?`最近边界点 ${nearest.map(v=>Number(Number(v).toFixed(6))).join(', ')} mm。`: '';
   return {version:ERROR_RECOVERY_VERSION,code,classification,reason,preservation,next,scope:'failed-operation',agentMayContinue:true,
-    userMessage:logoReason?joinClauses(reason,next):joinClauses(reason,preservation,next),automaticRetry:false,
+    ...(nearest?{nearestBoundaryPointMm:nearest,...(nearestCorner?{nearestCorner}:{})}:{}),
+    userMessage:logoReason?joinClauses(reason,next,guideHint):joinClauses(reason,preservation,next,guideHint),automaticRetry:false,
     retry:{allowed:false,condition:base.readRetry&&!uncertain?'仅重试只读画面/截图一次；不重做建模。':'原错误条件已明确修正、状态已对账且共享预算允许；不得自动重放。'},
     candidate:{eligible:candidate,allowed:false,mode:candidate?'evaluate-existing-preview-conditions':'blocked',requires:['known-not-committed','new-mechanism-evidence','shared-budget-available','supported-tool-contract','unchanged-design-intent'],commit:'only-after-valid-preview-and-explicit-task-authorization'},
     alternatives:{mode:'contract-compatible-only',readTools:uncertain?['getJob','getBatchReceipt','getServicesJob','getServicesRequest','getState']:base.tools,automaticFallback:false},

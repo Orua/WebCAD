@@ -630,6 +630,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.hangingRod",
       "params": {}
@@ -666,5 +667,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c2fd012940e87e3791adeb25fbcb45d2eed355cf255c8f04eea1ea0598243132"
+  "docsHash": "sha256:40c8c0ba9f416b462bfa3f9cbd4f6ee0059d4d7fddd992b33441639bfa6b46fc"
 }

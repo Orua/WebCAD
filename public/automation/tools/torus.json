@@ -672,6 +672,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "torus",
       "params": {}
@@ -724,5 +725,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7e716de4ecd8934922ed3e2659b4a45a1eff5bcae62fd87c80855f1ebe62a391"
+  "docsHash": "sha256:6b7689a3b7537f4577faaf19d160aeba0b2740631b8230ffe80f7aa1cf4780f2"
 }

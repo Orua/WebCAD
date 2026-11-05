@@ -60,6 +60,48 @@
     "RESOURCE_EXPIRED",
     "ASSET_INVALID"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "resourceId": {}
+    },
+    "required": [
+      "context",
+      "resourceId"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -107,8 +149,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "files.reattach",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -159,5 +203,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:ab6fc3e5b0c8be7583b6fc55173f7fd2ddd361d36270928d2cd2b23c04d6eb9b"
+  "docsHash": "sha256:3c5ddc584f8512d6772f94a1e1b7f5d90e29f86a2efc4637ea154f3de1daad7e"
 }

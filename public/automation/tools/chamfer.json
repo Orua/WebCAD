@@ -905,6 +905,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "chamfer",
       "params": {}
@@ -965,5 +966,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:95143c548cf23aa30d88c7b7af17e825d6ef639e85b91cb994967c7fb092ecfc"
+  "docsHash": "sha256:d288fa88a3a1f534036dbe8f37143490b6856cebd20587b5b0b2e129fff0e30b"
 }

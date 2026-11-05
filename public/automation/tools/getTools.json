@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "none",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getTools",
@@ -29,6 +32,28 @@
     "CATALOG_CHANGED"
   ],
   "docs": "api.discovery",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "ids": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "maxItems": 20
+      },
+      "knownHashes": {
+        "type": "object"
+      }
+    },
+    "required": [
+      "ids"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -56,8 +81,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "getTools",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -116,5 +143,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a12fea28f6670702dd5ff260e8c44bb9f7399b6ba428d96a9db4155da1e48a72"
+  "docsHash": "sha256:eb191f60c295ba8089553fd29724fb0d4814a8231f374c29dbf6e5b7677a92a9"
 }

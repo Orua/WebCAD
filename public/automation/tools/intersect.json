@@ -636,6 +636,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "intersect",
       "params": {}
@@ -696,5 +697,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:e83281533201974ab78f852c52eaddcffdedb2dd9ab2a8ae9a6d4828b42229cb"
+  "docsHash": "sha256:8d20548d10d3e3a69b2f097788b8076483473a1fcd4e4e19a0b7d66311358162"
 }

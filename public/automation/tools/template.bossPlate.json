@@ -630,6 +630,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.bossPlate",
       "params": {}
@@ -678,5 +679,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8d0dc959e8e40c25286e55265d1bba02426df43e9bf41d0bef77cfed1f282874"
+  "docsHash": "sha256:3b25c6cb04a19a9a4ab162af10f42050b60458fd182a740923071b23504c244d"
 }

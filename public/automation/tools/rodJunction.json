@@ -690,6 +690,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "rodJunction",
       "params": {}
@@ -750,5 +751,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:82a58308d48bb8d1cb1a63af6b37904793bcde8cb634d9be0aee65c8de0772ed"
+  "docsHash": "sha256:3e0aa96db26167117beb045fb6660db66c39651e075165ee165fc16263991de7"
 }

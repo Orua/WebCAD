@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "measureRelation",
@@ -31,6 +34,73 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "mode": {
+        "enum": [
+          "shortest",
+          "centerDistance",
+          "axisAlignment",
+          "pointFace",
+          "parallelFaces"
+        ]
+      },
+      "first": {
+        "type": "object"
+      },
+      "second": {
+        "type": "object"
+      },
+      "face": {
+        "type": "object"
+      },
+      "pointWorld": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      }
+    },
+    "required": [
+      "context",
+      "mode"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -103,8 +173,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "measureRelation",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -159,5 +231,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e7b9f12e9a8fdffd9298a997fb37423bd5f1bf96031972fd9fcaa145b8ee20ad"
+  "docsHash": "sha256:21a133927fe98e825a3c24c84915ef8ac9be6bfcd1ce6a3631b81bc8f5ef512a"
 }

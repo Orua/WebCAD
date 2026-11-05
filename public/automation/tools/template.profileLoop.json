@@ -571,6 +571,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.profileLoop",
       "params": {}
@@ -619,5 +620,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f6527fdb97a84c35a92de8bcdfb067f4fe583a23ede791c524b60ce1e59505ed"
+  "docsHash": "sha256:dc12b32ff07482ab6137711604e9582a1f6105f934fbb5c54e54d6a0d934d067"
 }

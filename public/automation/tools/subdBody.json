@@ -1346,6 +1346,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "subdBody",
       "params": {}
@@ -1398,5 +1399,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:634d9843f780918eae9e5c29fe83497919f1c66afbdeed641fc9b9a5ed16f4af"
+  "docsHash": "sha256:7fccc389cbf408873728a41604ffdde9192ec027027694c1302cd644ee10e64c"
 }

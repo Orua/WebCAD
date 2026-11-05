@@ -2303,6 +2303,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "meshReliefEdit",
       "params": {}
@@ -2395,5 +2396,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:05aa7e45797252e3dbbce2e9c379ffc6640055690ef8b1b7f0bc0272f8013df2"
+  "docsHash": "sha256:b70237d9ef138a79f368d93e3d50d00595d963a7ac7c3f4d91b99f3e74ca8e4c"
 }

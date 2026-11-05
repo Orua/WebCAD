@@ -22,7 +22,7 @@
       },
       "x": {
         "type": "number",
-        "description": "Start X (mm)",
+        "description": "Start X in the placement frame (mm)",
         "default": 0,
         "unit": "mm",
         "quantityKind": "length",
@@ -30,7 +30,7 @@
       },
       "y": {
         "type": "number",
-        "description": "Start Y (mm)",
+        "description": "Start Y in the placement frame (mm)",
         "default": 0,
         "unit": "mm",
         "quantityKind": "length",
@@ -38,7 +38,7 @@
       },
       "z": {
         "type": "number",
-        "description": "Start Z (mm)",
+        "description": "Start Z in the placement frame (mm)",
         "default": 0,
         "unit": "mm",
         "quantityKind": "length",
@@ -109,19 +109,19 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "World XYZ cutter start, signed principal axis, radius in mm (not diameter), fixed positive depth. No through parameter.",
-  "title": "Cylindrical cut starting at global coordinates",
+  "title": "Cylindrical cut starting at placement-frame coordinates",
   "category": "modification",
   "synonyms": [
     "hole",
-    "Cylindrical cut starting at global coordinates",
+    "Cylindrical cut starting at placement-frame coordinates",
     "hole operation",
     "孔",
     "钻孔",
     "radius",
     "打孔"
   ],
-  "description": "Cylindrical cut starting at global coordinates",
-  "schemaHash": "sha256:42c43c2ab8df379086862a5a77b153781cb94310caa6a4b2a0947d4f3c509624",
+  "description": "Cylindrical cut starting at placement-frame coordinates",
+  "schemaHash": "sha256:0ea14de75421e7f0d5e75a04650056ecefed0a3de59ee2833322ea77740ee792",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -182,7 +182,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Start defaults origin,axis=Z,direction=1. Must remove material."
+    "Start defaults to the placement-frame origin, axis=Z, direction=1. With no explicit placement the frame is the work frame, initially world [0,0,0]; it is not a body-local coordinate. After a user insert the work frame may sit 0.05 mm above the previous solid, so an example such as x:5,y:5,z:4 only cuts a box that actually occupies that world point. Read the target bounds (world mm) and either pass those coordinates with placement frame kind world, or convert them into the current work frame. Must remove material."
   ],
   "minimalExample": {
     "op": "hole",
@@ -268,9 +268,9 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "contract": {
-    "purpose": "Cylindrical cut starting at global coordinates",
+    "purpose": "Cylindrical cut starting at placement-frame coordinates",
     "whenToUse": [
-      "Start defaults origin,axis=Z,direction=1. Must remove material."
+      "Start defaults to the placement-frame origin, axis=Z, direction=1. With no explicit placement the frame is the work frame, initially world [0,0,0]; it is not a body-local coordinate. After a user insert the work frame may sit 0.05 mm above the previous solid, so an example such as x:5,y:5,z:4 only cuts a box that actually occupies that world point. Read the target bounds (world mm) and either pass those coordinates with placement frame kind world, or convert them into the current work frame. Must remove material."
     ],
     "whenNotToUse": [
       {
@@ -296,7 +296,7 @@
         ]
       },
       "x": {
-        "meaning": "Start X (mm)",
+        "meaning": "Start X in the placement frame (mm)",
         "unit": "mm",
         "range": [
           null,
@@ -305,7 +305,7 @@
         "default": 0
       },
       "y": {
-        "meaning": "Start Y (mm)",
+        "meaning": "Start Y in the placement frame (mm)",
         "unit": "mm",
         "range": [
           null,
@@ -314,7 +314,7 @@
         "default": 0
       },
       "z": {
-        "meaning": "Start Z (mm)",
+        "meaning": "Start Z in the placement frame (mm)",
         "unit": "mm",
         "range": [
           null,
@@ -332,7 +332,7 @@
         "default": "Z"
       },
       "direction": {
-        "meaning": "direction: Cylindrical cut starting at global coordinates",
+        "meaning": "direction: Cylindrical cut starting at placement-frame coordinates",
         "unit": "1",
         "range": [
           null,
@@ -491,16 +491,16 @@
     ],
     "synonyms": [
       "hole",
-      "Cylindrical cut starting at global coordinates",
-      "Cylindrical cut starting at global coordinates",
+      "Cylindrical cut starting at placement-frame coordinates",
+      "Cylindrical cut starting at placement-frame coordinates",
       "hole operation"
     ],
     "status": "experimental",
     "sourcePaths": []
   },
-  "purpose": "Cylindrical cut starting at global coordinates",
+  "purpose": "Cylindrical cut starting at placement-frame coordinates",
   "whenToUse": [
-    "Start defaults origin,axis=Z,direction=1. Must remove material."
+    "Start defaults to the placement-frame origin, axis=Z, direction=1. With no explicit placement the frame is the work frame, initially world [0,0,0]; it is not a body-local coordinate. After a user insert the work frame may sit 0.05 mm above the previous solid, so an example such as x:5,y:5,z:4 only cuts a box that actually occupies that world point. Read the target bounds (world mm) and either pass those coordinates with placement frame kind world, or convert them into the current work frame. Must remove material."
   ],
   "whenNotToUse": [
     {
@@ -809,6 +809,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "hole",
       "params": {}
@@ -885,5 +886,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0ab8f0620c2efa6f42eab8c400b7e349978dbb9ebaa615ff5d35586ad603cb11"
+  "docsHash": "sha256:6ca07c4a60138aa135e2b80f2f9231f5483c8ad69aa5241081810b9af8a20e42"
 }

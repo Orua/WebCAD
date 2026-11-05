@@ -68,25 +68,35 @@ export function buildCurvedLogo(source,params,cad) {
         let drawing=drawRing(region.outer);
         for(const hole of region.holes)drawing=own(drawing.cut(drawRing(hole)));
         const sketch=own(drawing.sketchOnPlane(plane)),mask=own(sketch.extrude(-2*reach));
-        const common=own(new (cad.getOC().BRepAlgoAPI_Common)(face.wrapped,mask.wrapped));
+        const oc=cad.getOC();
+        const common=own(new oc.BRepAlgoAPI_Common(face.wrapped,mask.wrapped));
         common.Build();const projected=own(cad.cast(common.Shape())),patches=projected.faces;
         local.push(...patches);
-        const front=patches.filter(patch=>dot(unit(own(patch.normalAt())),normal)>0);
-        check(front.length===1,'投影为空、跨接缝或分成多片，请缩小或移动 LOGO');
-        const patch=front[0],patchEdges=patch.edges;local.push(...patchEdges);
-        for(const edge of edges)check(cad.measureDistanceBetween(patch,edge)>1e-5,'LOGO 跨越所选面的边界、孔洞或接缝');
-        for(const edge of patchEdges)for(const t of [0,.5,1]){
-          const v=own(edge.pointAt(t)),n=unit(own(patch.normalAt(v)));
-          check(dot(n,normal)>.15,'LOGO 接近曲面侧缘，投影过于倾斜，请缩小或重新选中心');
+        const front=patches.filter(patch=>dot(unit(own(patch.normalAt())),normal)>0.15);
+        check(front.length>0,'投影为空，请缩小或移动 LOGO');
+        const periodic=edges.filter(edge=>{try{return oc.BRep_Tool.IsClosed(edge.wrapped,face.wrapped);}catch{return false;}});
+        const boundary=edges.filter(edge=>!periodic.includes(edge));
+        const touches=(patch,list)=>list.some(edge=>cad.measureDistanceBetween(patch,edge)<=1e-5);
+        if(front.some(patch=>touches(patch,boundary)))check(false,'LOGO 跨越所选面的边界或孔洞');
+        if(front.length>1&&(!periodic.length||front.some(patch=>!touches(patch,periodic))))check(false,'投影分成多片，且不是沿周期接缝分开。请缩小 LOGO，或改用 projectionMode:connectedFaces（仅凹刻）。edge.periodicSeam 可标出接缝。');
+        let tool=null;
+        for(const patch of front){
+          const patchEdges=patch.edges;local.push(...patchEdges);
+          for(const edge of patchEdges)for(const t of [0,.5,1]){
+            const v=own(edge.pointAt(t)),n=unit(own(patch.normalAt(v)));
+            check(dot(n,normal)>.15,'LOGO 接近曲面侧缘，投影过于倾斜，请缩小或重新选中心');
+          }
+          const thick=own(new oc.BRepOffsetAPI_MakeThickSolid());
+          thick.MakeThickSolidBySimple(patch.wrapped,-depth);
+          const piece=own(cad.cast(thick.Shape()));
+          if(piece instanceof cad.Solid)check(oc.BRepLib.OrientClosedSolid(piece.wrapped),'曲面刀具方向无效');
+          valid(piece,cad);
+          check(solidCount(piece)===1,'无法生成闭合的曲面等深刀具');
+          const volume=Math.abs(cad.measureVolume(piece)),inside=own(piece.intersect(source));
+          check(volume>1e-8 && Math.abs(volume-Math.abs(cad.measureVolume(inside)))<Math.max(1e-6,volume*1e-6),'偏移刀具超出实体：可能穿透薄壁、方向错误或自交');
+          if(!tool)tool=piece;
+          else {const fused=own(tool.fuse(own(cad.deserializeShape(piece.serialize()))));valid(fused,cad);tool=fused;}
         }
-        const thick=own(new (cad.getOC().BRepOffsetAPI_MakeThickSolid)());
-        thick.MakeThickSolidBySimple(patch.wrapped,-depth);
-        const tool=own(cad.cast(thick.Shape()));
-        if(tool instanceof cad.Solid)check(cad.getOC().BRepLib.OrientClosedSolid(tool.wrapped),'曲面刀具方向无效');
-        valid(tool,cad);
-        check(solidCount(tool)===1,'无法生成闭合的曲面等深刀具');
-        const volume=Math.abs(cad.measureVolume(tool)),inside=own(tool.intersect(source));
-        check(volume>1e-8 && Math.abs(volume-Math.abs(cad.measureVolume(inside)))<Math.max(1e-6,volume*1e-6),'偏移刀具超出实体：可能穿透薄壁、方向错误或自交');
         const next=own(current.cut(tool));valid(next,cad);
         check(solidCount(next)===1,'刻字使实体断开，请减小深度');
         check(Math.abs(cad.measureVolume(current))-Math.abs(cad.measureVolume(next))>1e-8,'刻字未实际去除材料');

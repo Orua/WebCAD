@@ -716,6 +716,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "profileOffset",
       "params": {}
@@ -784,5 +785,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4c95c5141aa3f26420b857b04e0eaf5735d3a1c2f7492ec3f54d984a818c4340"
+  "docsHash": "sha256:372c3570480898dcbc438263e0af462973d059e757c63751aaf2fde8597a642e"
 }

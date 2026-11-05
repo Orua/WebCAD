@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -78,8 +81,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "setDebugPanel",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -98,5 +103,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f9a0b01ac174134cdb9e80a5c0b9cd6e946e85c14a3bd8c89f85398462554ae4"
+  "docsHash": "sha256:b9f5ae9696ac8f123ea00cf4138fd2768b91b4f9012e3d28e6a11bc7e1dc4c0b"
 }

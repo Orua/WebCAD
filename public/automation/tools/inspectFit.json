@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "inspectFit",
@@ -31,6 +34,65 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "bodyAId": {
+        "type": "string",
+        "minLength": 1,
+        "description": "当前第一个封闭实体 id。不是 bodyIds 或 ids。"
+      },
+      "bodyBId": {
+        "type": "string",
+        "minLength": 1,
+        "description": "当前第二个封闭实体 id。"
+      },
+      "toleranceMm": {
+        "type": "number",
+        "description": "绝对毫米，0 到 1。"
+      },
+      "volumeThresholdMm3": {
+        "type": "number"
+      }
+    },
+    "required": [
+      "context",
+      "bodyAId",
+      "bodyBId"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -68,14 +130,17 @@
       },
       "bodyAId": {
         "type": "string",
-        "minLength": 1
+        "minLength": 1,
+        "description": "当前第一个封闭实体 id。不是 bodyIds 或 ids。"
       },
       "bodyBId": {
         "type": "string",
-        "minLength": 1
+        "minLength": 1,
+        "description": "当前第二个封闭实体 id。"
       },
       "toleranceMm": {
-        "type": "number"
+        "type": "number",
+        "description": "绝对毫米，0 到 1。"
       },
       "volumeThresholdMm3": {
         "type": "number"
@@ -92,8 +157,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "inspectFit",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -148,5 +215,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3f75ed17ef9f688a308f965346bfa828830bfc2f144947e865499225628eb3be"
+  "docsHash": "sha256:8df6cf6eade65721e2540949148723930359ab4b7cb56b009709d25885a36ee0"
 }

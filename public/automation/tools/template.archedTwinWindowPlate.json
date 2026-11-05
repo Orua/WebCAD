@@ -639,6 +639,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.archedTwinWindowPlate",
       "params": {}
@@ -675,5 +676,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bb081b7f6a59d622709890c6d37965d2662f8ab2e39c2f1ec794ea506545df3b"
+  "docsHash": "sha256:02f08aa17bfe280b7a64ebb0eeb436f927d8ba5035e313bceb272b613ff0d8bb"
 }

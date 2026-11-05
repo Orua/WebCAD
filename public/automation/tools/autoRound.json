@@ -644,6 +644,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "autoRound",
       "params": {}
@@ -704,5 +705,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:2d6498eec3c5c066e5a73d71861ea650b5e1f4b3217bc3ebf17f854bdbee1fef"
+  "docsHash": "sha256:670c6cdca6d013fc8f53d7d1797be3b5686dd41783d8544b6a8f807ac19813dc"
 }

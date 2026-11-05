@@ -615,6 +615,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.fourHolePlate",
       "params": {}
@@ -663,5 +664,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cd292a6f7dc09525befbbc5cfc081e522b73c2adefb076ed2d711f14b4393825"
+  "docsHash": "sha256:86b1b12302dadef993fdf4c1d82104ed02f58052ae373aae1e9e76bd65f7677d"
 }

@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "traceTwinWindow",
@@ -30,6 +33,59 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.dwg-spline-twin-window",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "outerLeft": {},
+      "outerRight": {},
+      "innerLeft": {},
+      "innerRight": {},
+      "barTopY": {},
+      "barBottomY": {},
+      "simplifyToleranceMm": {}
+    },
+    "required": [
+      "context",
+      "outerLeft",
+      "outerRight",
+      "innerLeft",
+      "innerRight",
+      "barTopY",
+      "barBottomY"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -88,8 +144,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "traceTwinWindow",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -156,5 +214,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:17f99552ab294c8838cf0fee41bd9df2634e361f13d5e0b9c936ae6cbdd43fa7"
+  "docsHash": "sha256:7840071e30a0be43341c8b38d9ba0cc3097a34e8459d51da79c683d34d116b3f"
 }

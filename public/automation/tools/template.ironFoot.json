@@ -720,6 +720,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.ironFoot",
       "params": {}
@@ -768,5 +769,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:27346591e82931288e0bf79e746f33d2d8f9531ee4411416178b21a075c186f0"
+  "docsHash": "sha256:35b60129597e7800aaa5c0165355360fd6bcea9571d7ab12b6d1a60f7678f963"
 }

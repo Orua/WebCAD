@@ -73,7 +73,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range.",
   "title": "Subtract other bodies from first",
   "category": "modification",
   "synonyms": [
@@ -91,7 +91,7 @@
     "subtract"
   ],
   "description": "Subtract other bodies from first",
-  "schemaHash": "sha256:64b268221ad330f566b1f2e17b4df47312337c8e1e1ffbf9d74e5bd055190a07",
+  "schemaHash": "sha256:44a5e4f74cd6e35b45b75371d603cd758bff4922a1b6785c3951e54ab0a64f64",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -152,7 +152,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
   ],
   "minimalExample": {
     "op": "cut",
@@ -216,7 +216,7 @@
   "contract": {
     "purpose": "Subtract other bodies from first",
     "whenToUse": [
-      "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+      "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
     ],
     "whenNotToUse": [
       {
@@ -400,7 +400,7 @@
   },
   "purpose": "Subtract other bodies from first",
   "whenToUse": [
-    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
   ],
   "whenNotToUse": [
     {
@@ -705,6 +705,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "cut",
       "params": {}
@@ -773,5 +774,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:3c038275ce811493eb9197885ea843f21c421b15d2b374f03f8176a44bb812e4"
+  "docsHash": "sha256:4bf12f4def1086eabbd732ff4cccc352039558f0e6f6c7352a5c194cea36b85f"
 }

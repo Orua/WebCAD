@@ -882,6 +882,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.nippleStud",
       "params": {}
@@ -918,5 +919,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3ea361e7a62c350cc37dc76e4429028f1780ed0a6047c018a546cb9d7a94a62d"
+  "docsHash": "sha256:6b055dd3ac939b2b46e137018d1a9f319011149a2104fba2e2fabc952272fda4"
 }

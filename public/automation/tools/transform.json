@@ -1125,6 +1125,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "transform",
       "params": {}
@@ -1185,5 +1186,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a1c6698903b022e399cb8ffb83933d164ab5c94d4679f1c742d85ef397926149"
+  "docsHash": "sha256:f5499a7cfda5889c4aa09328445275ebe0b84019422ad022f592084cb3bab8d8"
 }

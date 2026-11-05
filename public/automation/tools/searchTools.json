@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "none",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "searchTools",
@@ -28,6 +31,32 @@
     "PARAM_RANGE_INVALID"
   ],
   "docs": "api.discovery",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "query": {
+        "type": "string",
+        "maxLength": 500
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 50
+      },
+      "category": {
+        "type": "string",
+        "minLength": 1
+      },
+      "cursor": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "query"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -59,8 +88,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "searchTools",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -119,5 +150,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:16c9b1dfea25f991c6b5417819a42cfddb861388048a7b6c8e484a911972afb9"
+  "docsHash": "sha256:bf88b7c32bff3c2dc77c1a80c20b9ce2ab0347b4ef2450782181551bc866204b"
 }

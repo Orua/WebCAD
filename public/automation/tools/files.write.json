@@ -66,6 +66,18 @@
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "resourceId": {},
+      "handle": {}
+    },
+    "required": [
+      "resourceId",
+      "handle"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -83,8 +95,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "files.write",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -135,5 +149,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:463e0a7565514b8c06fb27f481af2a73d12982776c175815dfb95f3b795489c9"
+  "docsHash": "sha256:8addd7d7d687d8bc928e56479de3cb71a584c006f03129775fd507e0efb3e4e7"
 }

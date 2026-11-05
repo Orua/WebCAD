@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "none",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "host-only",
     "method": "invoke",
@@ -27,6 +30,12 @@
     "PARAM_SCHEMA_INVALID"
   ],
   "docs": "api.reliability",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -38,8 +47,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "invoke",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -90,5 +101,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b041c02735415daf1a89bd36513eca71e448790fb68c1421180b3e4f655f198d"
+  "docsHash": "sha256:1ee4dde5f515d98de5e35cd8fd3bad8071ca9ea78827d9ad3e2dbb7b758d60c3"
 }

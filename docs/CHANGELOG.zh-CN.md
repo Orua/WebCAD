@@ -1,3 +1,12 @@
+## 1.60.11 · 页面 API 第 4 轮探针（2026-11-05）
+
+- 柱面 `singleFace` 等深凹刻可以沿周期接缝分成两侧再偏移；`pointOnFace` 不再落在接缝上。
+- 闭合非平面锐角折线仍拒绝，但说明什么可以提交。`pathType:sections` 与 `closed:true` 在契约层拒绝，并说明伪闭写法。
+- 中文/全角/emoji 步骤 id 的 userMessage 写明不能使用中文，并给出 `wave_1`。字符串别名不再被当成实体 id。
+- Agent 创建不再把工作基准静默上移 0.05 mm。无相交 `cut` 失败且不删刀具。`profileSweep` 可选用 `alignProfileToPath`。
+- 假名 `patternLinear` / `patternCircular` / `draft` 指向正式工具。`files.*`、`measure`、`inspectFit` 的工具卡带上 `inputSchema`。
+- 没有改 `services/**`。交接见 `docs/HANDOFF-20261105-page-api-round4.zh-CN.md`。
+
 ## 1.60.11 · 页面 API 探针修复（2026-11-04）
 
 - connect 把「queries 最多 4 项」和「limit 为每项 1..10」分成两条错误，避免把返回条数说成查询条数。

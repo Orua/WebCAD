@@ -592,6 +592,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.dBarBuckle",
       "params": {}
@@ -636,5 +637,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:50c8011e17361e9bf0402003094fb4a423c4671277eb23df7aa2fbb13079ba38"
+  "docsHash": "sha256:f28a987f031ab7d534fc18925319a331966bd93ac6a653907efabe32eb25a9c7"
 }

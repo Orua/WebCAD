@@ -537,6 +537,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.ellipseSectionRing",
       "params": {}
@@ -589,5 +590,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dd1ef1b32435c808ca32a10406fe0b0d7941b6967e5651be3f8c8fa36bf910fc"
+  "docsHash": "sha256:45952f2006228c7f692af28e46e596d4a6b2a3d4835cc1b00a5a2f692bfdb752"
 }

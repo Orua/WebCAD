@@ -662,6 +662,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.twistedChain",
       "params": {}
@@ -686,5 +687,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:61f2ae0120e0d15e1f78b4ad0008797b7d0f48755bc7ef4d907b61adf143ec38"
+  "docsHash": "sha256:b3d39f82a1c58be395901d5e6acf62b2693f0a1d66ae96a000f6a49087ded3de"
 }

@@ -901,6 +901,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "multiHole",
       "params": {}
@@ -977,5 +978,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bd730bd9d545deff59175cffc6d533c6f85b9ac107e5874e2677dae8df8eaadf"
+  "docsHash": "sha256:f50f88a43ee5b961b75fc6f981036b008e2fffb2bd7eb7f75f454cb1219fb478"
 }

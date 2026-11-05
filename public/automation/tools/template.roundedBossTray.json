@@ -662,6 +662,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.roundedBossTray",
       "params": {}
@@ -718,5 +719,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8c916404c845506dbb16e4098d28e73b2c9f4df2a94b7362f1540c8ac78c2945"
+  "docsHash": "sha256:23c0939443dcf72a6ddb8045e0da3f875861bee46249c3a5c03a5bc02968fd77"
 }

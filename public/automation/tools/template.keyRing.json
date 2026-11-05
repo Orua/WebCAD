@@ -597,6 +597,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.keyRing",
       "params": {}
@@ -649,5 +650,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3b3ce9dc615f70fba03628a5ff0abe5aa4c201200aa1178c894744d98c33f3f5"
+  "docsHash": "sha256:c6753ca8c76f32cf90b1ef97379aa0878cb32cc42b876674286454a677de2096"
 }

@@ -63,7 +63,7 @@
       },
       "projectionMode": {
         "type": "string",
-        "description": "singleFace preserves original normal depth; connectedFaces projects onto adjacent front faces and subtracts exact fused cutters; depth measured along inward anchor normal",
+        "description": "singleFace preserves normal depth and can cross one periodic seam by offsetting each side; connectedFaces projects onto adjacent front faces and is engrave-only. Prefer pointOnFace, which avoids the seam.",
         "enum": [
           "singleFace",
           "connectedFaces"
@@ -436,7 +436,7 @@
     "LOGO"
   ],
   "description": "Reviewed LOGO: single-face normal depth or connected-face directional projection",
-  "schemaHash": "sha256:7441bfee455f0e8f4e67ebf358a46c824c712e2bdabd45bf777f3520cc7109e6",
+  "schemaHash": "sha256:f9cb2bf692450120aa8c6048af534f5fce6666d43267534b285f13d95259915a",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -751,7 +751,7 @@
         }
       },
       "projectionMode": {
-        "meaning": "singleFace preserves original normal depth; connectedFaces projects onto adjacent front faces and subtracts exact fused cutters; depth measured along inward anchor normal",
+        "meaning": "singleFace preserves normal depth and can cross one periodic seam by offsetting each side; connectedFaces projects onto adjacent front faces and is engrave-only. Prefer pointOnFace, which avoids the seam.",
         "unit": "none",
         "range": [
           null,
@@ -1482,6 +1482,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "logo",
       "params": {}
@@ -1574,5 +1575,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:a47f34b230b0453a4a008007012ebada59a64eee515f6fcd3bb565c3eee22698"
+  "docsHash": "sha256:1bf8f986098300c61ff7dd4407135a5ba8e2544f96c8817ad23df4e3df77d1c1"
 }

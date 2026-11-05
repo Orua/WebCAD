@@ -800,6 +800,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "loft",
       "params": {}
@@ -844,5 +845,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:ba007c7603559925fc4f2367749c685a32341088ca1e51eb182a3d6a9ebf91d7"
+  "docsHash": "sha256:05c7b2e4f929e662cffe50ff6e64dcd37b4752b10d11845d44538cc270efc0a4"
 }

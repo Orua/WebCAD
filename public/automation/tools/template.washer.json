@@ -537,6 +537,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.washer",
       "params": {}
@@ -585,5 +586,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e4afd344add91e02639bef2422739a370d061463a0e1ee7b93a46ed14d6faae5"
+  "docsHash": "sha256:0a370cae2c42d6504f7b8da83de9ee83e3f325db692acab98f1038f00fea0aec"
 }

@@ -58,15 +58,15 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "Full cylinder centered on Z, base at [0,0,0], top at Z=height. radius is the cross-section radius, not diameter. Explicit placement transforms this local geometry.",
-  "title": "Cylinder on +Z from origin",
+  "title": "Cylinder on local +Z before placement",
   "category": "creation",
   "synonyms": [
     "cylinder",
-    "Cylinder on +Z from origin",
+    "Cylinder on local +Z before placement",
     "cylinder operation",
     "圆柱"
   ],
-  "description": "Cylinder on +Z from origin",
+  "description": "Cylinder on local +Z before placement",
   "schemaHash": "sha256:a220f2281b98d86c1c56c176c29af7d5c6a39f60edfb18e10495fd284df60b2e",
   "apiCompatibility": [
     "page-v2"
@@ -127,7 +127,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Z轴圆柱，radius是半径，height为轴向长度。"
+    "Local cylinder starts at the model origin and grows on +Z. Omitted placement uses the work frame (initially world origin) with source anchor model-origin. Agent/API inserts do not silently stack the frame; a user insert may lift it 0.05 mm. Read the work frame and body bounds. Do not treat the tool note as a promise that every new solid appears at world [0,0,0] after the anchor has moved."
   ],
   "minimalExample": {
     "op": "cylinder",
@@ -191,9 +191,9 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "contract": {
-    "purpose": "Cylinder on +Z from origin",
+    "purpose": "Cylinder on local +Z before placement",
     "whenToUse": [
-      "Z轴圆柱，radius是半径，height为轴向长度。"
+      "Local cylinder starts at the model origin and grows on +Z. Omitted placement uses the work frame (initially world origin) with source anchor model-origin. Agent/API inserts do not silently stack the frame; a user insert may lift it 0.05 mm. Read the work frame and body bounds. Do not treat the tool note as a promise that every new solid appears at world [0,0,0] after the anchor has moved."
     ],
     "whenNotToUse": [
       {
@@ -343,16 +343,16 @@
     ],
     "synonyms": [
       "cylinder",
-      "Cylinder on +Z from origin",
-      "Cylinder on +Z from origin",
+      "Cylinder on local +Z before placement",
+      "Cylinder on local +Z before placement",
       "cylinder operation"
     ],
     "status": "experimental",
     "sourcePaths": []
   },
-  "purpose": "Cylinder on +Z from origin",
+  "purpose": "Cylinder on local +Z before placement",
   "whenToUse": [
-    "Z轴圆柱，radius是半径，height为轴向长度。"
+    "Local cylinder starts at the model origin and grows on +Z. Omitted placement uses the work frame (initially world origin) with source anchor model-origin. Agent/API inserts do not silently stack the frame; a user insert may lift it 0.05 mm. Read the work frame and body bounds. Do not treat the tool note as a promise that every new solid appears at world [0,0,0] after the anchor has moved."
   ],
   "whenNotToUse": [
     {
@@ -656,6 +656,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "cylinder",
       "params": {}
@@ -708,5 +709,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:435df159530440be4ac8998d38038b73796b724dd2f173481b730387af8c078f"
+  "docsHash": "sha256:947c6413f4f823858d9f78f73821c15010afc267c5ae95691688b00f21c31aff"
 }

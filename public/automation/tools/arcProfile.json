@@ -974,6 +974,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "arcProfile",
       "params": {}
@@ -1050,5 +1051,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1929588b1aac94bc5908c57f56409f9596dc525dec07e2757b9a0d2b5f647fbb"
+  "docsHash": "sha256:c294be83e71b91b0542e90308df0148ca71870f44d5161f76862e679855523ac"
 }

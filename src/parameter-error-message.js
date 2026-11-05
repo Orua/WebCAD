@@ -15,6 +15,12 @@ function fieldName(path){
 }
 export function parameterErrorMessage(error={}){
  if(!['PARAM_SCHEMA_INVALID','PARAM_RANGE_INVALID','TYPE_MISMATCH','INVALID_INPUT','HEIGHTFIELD_INVALID'].includes(error.code))return null;
+ const raw=String(error.message||'');
+ if(/不能使用中文/.test(raw))return raw;
+ if(raw==='String does not match the required pattern.'&&/(?:^|\.)(id|key)$/.test(String(error.path||'')))return '标识不能使用中文、全角字符、emoji、空格或标点。请改用字母开头的 1–40 位英文标识（可含数字、下划线、连字符），例如 wave_1、wave-1 或 buckle。';
+ if(raw==='Unknown field.'&&/(?:^|\.)radiusMm$/.test(String(error.path||'')))return '当前字段不接受 radiusMm。草图圆请用 diameterMm（直径，毫米）；直线用 startMm 与 endMm。';
+ if(/^At least 2 items are required\.$/.test(raw)&&String(error.path||'').endsWith('segments'))return '开放直线变径至少需要 2 段 segments，或改用其他 pathType。单段直线不能配合 widthLaw。';
+ if(/多截面模式不支持 closed:true/.test(raw))return raw;
  const field=fieldName(error.path);if(!field)return null;
  const message=String(error.message||''),types={number:'数值',integer:'整数',array:'数组',object:'对象',string:'文字',boolean:'是或否',null:'空值'};
  let reason={

@@ -570,6 +570,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.spring",
       "params": {}
@@ -614,5 +615,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c690eb52229beacfe86c7211557818ecf3bd403baa914fa57ee08b65b8b5efcd"
+  "docsHash": "sha256:bea76456377e24652f0e1094e88945ba23f8602901f63c28c5d6a2fb0c1c8300"
 }

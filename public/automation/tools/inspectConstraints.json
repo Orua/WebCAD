@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "inspectConstraints",
@@ -40,6 +43,51 @@
   "units": {
     "length": "mm",
     "angle": "degrees"
+  },
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "bodyId": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "context",
+      "bodyId"
+    ]
   },
   "preparationSchema": {
     "type": "object",
@@ -91,8 +139,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "inspectConstraints",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -155,5 +205,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c1109e153b0c9c9f9b49f617e3e64cd80c30574aae9359b5d3181e2903ba2eb8"
+  "docsHash": "sha256:f9d954b058aa9a39fb1961ae61d34e68b408e18b06536dd554dbb5289b3d92d7"
 }

@@ -100,7 +100,7 @@ function expandCaps(stations,params){
 export function buildSectionCurveLoft(params,cad){
  let stations=params.stations;
  if(!Array.isArray(stations)||stations.length<2||stations.length>64)throw new Error('多截面模式需要 2–64 个有序截面');
- if(params.closed===true)throw new Error('多截面模式暂不支持闭环');
+ if(params.closed===true)throw Object.assign(new Error('多截面模式不支持 closed:true。开放 stations 可以提交。近似闭环请让首尾截面重合且 closed:false（伪闭）。闭合变径圆线用 pathType:segments 与 widthLaw，不要给 sections 设闭环。'),{code:'PARAM_SCHEMA_INVALID',path:'params.closed'});
  if(!['error','warn','off',undefined].includes(params.volumeCheck))throw new Error('volumeCheck 须为 error、warn 或 off');
  if(params.guides?.length)fail('LOFT_GUIDE_UNSUPPORTED','当前 OCCT ThruSections 构建不支持按导轨约束曲面；未生成近似冒充结果',{capability:'guided-loft',supported:false});
  if(params.matchTo)fail('CONTINUITY_UNSUPPORTED','当前特征接口不能读取相邻放样面的边界几何，matchTo 接续校验未执行',{capability:'cross-feature-continuity',supported:false});

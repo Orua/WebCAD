@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "planAlignment",
@@ -28,6 +31,98 @@
     "STALE_REFERENCE",
     "REVISION_CONFLICT"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "bodyIds": {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "target": {
+        "type": "object"
+      },
+      "axes": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 3,
+        "uniqueItems": true,
+        "items": {
+          "enum": [
+            "X",
+            "Y",
+            "Z"
+          ]
+        }
+      },
+      "sourceSide": {
+        "enum": [
+          "min",
+          "center",
+          "max"
+        ]
+      },
+      "targetSide": {
+        "enum": [
+          "min",
+          "center",
+          "max"
+        ]
+      },
+      "group": {
+        "type": "boolean"
+      },
+      "gapMm": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      }
+    },
+    "required": [
+      "context",
+      "bodyIds",
+      "target"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -125,8 +220,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "planAlignment",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -177,5 +274,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0287cb8d906d9cf7a8041ba7c9962d88c8907b1571c172d2c10417b980b564f9"
+  "docsHash": "sha256:307a443d7dd24c6b0afd4ce070d881bef3b52c5763b9d6eb98ba717c7ffcd722"
 }

@@ -72,6 +72,56 @@
     "FORMAT_UNSUPPORTED",
     "MESH_UNITS_REQUIRED"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "resourceId": {},
+      "unsaved": {
+        "enum": [
+          "fail",
+          "discard"
+        ]
+      },
+      "units": {}
+    },
+    "required": [
+      "context",
+      "resourceId",
+      "unsaved"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -127,8 +177,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "files.open",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -183,5 +235,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:c6147b71ee37a6f7a0fc889956fa51b360c0accd942c953dd61601ad9f5404ff"
+  "docsHash": "sha256:df50c53e63f5c815620e07ee787ca21131ab6810bee6d6f41b2cf8ce84ab3f83"
 }

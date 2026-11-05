@@ -698,6 +698,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "innerTurn",
       "params": {}
@@ -774,5 +775,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a45e590d8900ace8dbef04714ee37c4be514fd5d41d51ef696857a7d0f19bc3a"
+  "docsHash": "sha256:b0f47a0cdad4dca5858923ecf3cbbac899d7526387946a799f8b9ec9a94443fc"
 }

@@ -11036,6 +11036,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "quickModel",
       "params": {}
@@ -11076,5 +11077,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e9e0d55e79b104c1e640c89e93c0ccbe0c2cf3321a4702b998a2580bcb758cfa"
+  "docsHash": "sha256:50921b5e17baf5ea737a3820876260ab804570cdde80005b393ba118b127902f"
 }

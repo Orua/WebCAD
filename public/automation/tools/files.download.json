@@ -61,6 +61,16 @@
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "resourceId": {}
+    },
+    "required": [
+      "resourceId"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -76,8 +86,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "files.download",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -128,5 +140,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:602ad17d7ca74b4fbbd786012436746761b37e89cd8d2690784c6e7e3c229707"
+  "docsHash": "sha256:d2cb4218a70811f32181191d5fd5f1d5581853d28728e9e43f33ae9eedb51dab"
 }

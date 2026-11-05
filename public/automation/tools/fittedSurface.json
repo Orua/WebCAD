@@ -882,6 +882,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "fittedSurface",
       "params": {}
@@ -934,5 +935,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:34c0e45311df8faefffb7f7e75536066bf24643c94888c6bd423fc234abcc22d"
+  "docsHash": "sha256:2261bb327d7dfb885b25467f5f45594e864a775feb7b23c1b0f07c74180de83b"
 }

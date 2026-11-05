@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -91,7 +94,7 @@
     "选择令牌"
   ],
   "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。",
-  "outputContract": "精确 B-Rep 候选项、surfaceClass、pointOnFace/closestPoint、歧义信息、快照绑定的 selectionToken 与当前 context；expectedCount 不符时不生成令牌。刻字落点用 pointOnFace，不要用柱面 center。",
+  "outputContract": "精确 B-Rep 候选项、surfaceClass、pointOnFace/closestPoint、歧义信息、快照绑定的 selectionToken 与当前 context；expectedCount 不符时不生成令牌。刻字落点用 pointOnFace，不要用柱面 center。柱面 pointOnFace 若落在周期接缝上会改到面参数中点，并带 periodicSeamAvoided。边的 periodicSeam 标出接缝。singleFace 等深可以沿周期接缝分成两侧再偏移；跨真实边界仍拒绝。connectedFaces 只做凹刻。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -110,8 +113,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "queryGeometry",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -166,5 +171,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:99d4a4d1a729416c77664f4d2163a23dcfc8349014acea09f1cf3f65396b111e"
+  "docsHash": "sha256:f2f991181ccf43ec115852111eb39af12b338aec28b093b8dcd7b05bc2561d4b"
 }

@@ -13,7 +13,7 @@ export const DESIGN_INSPECTION_SCHEMA={type:'object',properties:{
   context:{type:'object',properties:{sessionId:{type:'string'},documentId:{type:'string'},documentInstanceId:{type:'string'},expectedRevision:{type:'integer',minimum:0}},required:['sessionId','documentId','documentInstanceId','expectedRevision'],additionalProperties:false},
   requirePass:{type:'boolean',default:false},
   requirements:{type:'array',minItems:1,maxItems:64,items:{oneOf:[
-    variant('bounds',{sizeMm:{...xyzSchema,items:{type:'number',minimum:0}},toleranceMm:{type:'number',exclusiveMinimum:0,maximum:1}},['sizeMm','toleranceMm']),
+    variant('bounds',{sizeMm:{...xyzSchema,items:{type:'number',minimum:0}},toleranceMm:{type:'number',exclusiveMinimum:0,maximum:1,description:'Absolute millimetres, must be >0 and <=1. Not a ratio.'}},['sizeMm','toleranceMm']),
     variant('solidCount',{count:{type:'integer',minimum:1,maximum:1000}},['count']),
     variant('material',{points:{type:'array',items:xyzSchema,minItems:1,maxItems:128},expected:{enum:['inside','outside']},toleranceMm:{type:'number',exclusiveMinimum:0,maximum:0.01,default:0.00001}},['points','expected']),
   ]}},

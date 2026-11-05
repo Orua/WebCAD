@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "none",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "host-only",
     "method": "submit",
@@ -31,6 +34,12 @@
     "IDEMPOTENCY_KEY_REUSED"
   ],
   "docs": "api.reliability",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -42,8 +51,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "submit",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -94,5 +105,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1dd4d513f9971b7db781c010d5a992f95007662f23f9ce4431f2c1ca8e52e9dd"
+  "docsHash": "sha256:53dba441c907a9824ca28531ff023a14b4dda510ebc7c4a8069ae92cf0cf78ac"
 }

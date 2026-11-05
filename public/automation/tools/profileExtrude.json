@@ -794,6 +794,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "profileExtrude",
       "params": {}
@@ -842,5 +843,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:15c9a3450ac2fb37a5a8209899a62cc74863abac0c1463fa0ebdaa8149bd7ebf"
+  "docsHash": "sha256:f9122dddb90ec5f41e0d39616c90af3f944a7705ad59871a3321c4455bb22b82"
 }

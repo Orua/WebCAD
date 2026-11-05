@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "revision",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_artifact",
     "method": "exportDrawing",
@@ -145,8 +148,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "exportDrawing",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -205,5 +210,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3dde834c4ac927c808a8795747a5ffa0523f0be11ba80f5acf1ef2a23d207682"
+  "docsHash": "sha256:94e1ccccbaac20c2a8aee12018451713abf5836d10bbf0fcbf40e7ed0a453c95"
 }

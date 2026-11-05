@@ -36,7 +36,7 @@ export const METHOD_PREPARATION_SCHEMAS={
  inspectPrintability:body({angleLimitDeg:{type:'number',exclusiveMinimum:0,exclusiveMaximum:90}}),inspectProfile:body(),inspectConstraints:body(),
  prepareProfileEdit:body({mode:{enum:['intersections','trim','extend','trimCircle','fillet']},...fields(['entityId','targetId','edgeIds','endpoint','candidateId','startCandidateId','endCandidateId','keepSide','radiusMm','arcId','output'])},['mode']),
  projectProfile:context({bodyId:str,edgeIds:{type:'array',minItems:1,maxItems:100,uniqueItems:true,items:integer},pointWorld:vector,frame:obj},[]),
- inspectFit:context({bodyAId:str,bodyBId:str,toleranceMm:num,volumeThresholdMm3:num},['bodyAId','bodyBId']),
+ inspectFit:context({bodyAId:{...str,description:'当前第一个封闭实体 id。不是 bodyIds 或 ids。'},bodyBId:{...str,description:'当前第二个封闭实体 id。'},toleranceMm:{...num,description:'绝对毫米，0 到 1。'},volumeThresholdMm3:num},['bodyAId','bodyBId']),
  inspectThickness:body({mode:{enum:['ray','faces']},point:vector,direction:vector,faceAId:integer,faceBId:integer,toleranceMm:num},['point']),
  inspectDraft:body({pullDirection:vector,thresholdDeg:{type:'number',minimum:0,exclusiveMaximum:90}},['pullDirection','thresholdDeg']),inspectRound:body({params:obj},['params']),
  readVector:scoped('resourceId name text scaleMm targetWidthMm entityIds bounds layers offset limit','name'),
@@ -82,5 +82,6 @@ export function preparationSchema(card){
 export function withPreparationContract(card){
  const operation=!!card.refsSchema&&!['import','remove'].includes(card.id),target=operation?'prepareOperation':'prepareToolCall';
  const input=preparationSchema(card);
- return {...card,...(input&&!card.inputSchema?{preparationSchema:input}:{}),preparation:{method:target,readOnly:true,geometryComputed:false,missingParameters:'needs_input/questions/answerPath',example:operation?{op:card.id,params:{}}:{toolId:card.id,args:{}},docs:'api.prepare-tools',validation:'Published input structure only; original target retains source, permission, lifecycle and geometry checks.'}};
+ const fillInput=!card.inputSchema&&input&&(card.category==='file'||card.category==='page-method');
+ return {...card,...(fillInput?{inputSchema:input}:{}),...(input&&!card.inputSchema?{preparationSchema:input}:{}),preparation:{method:target,readOnly:true,geometryComputed:false,missingParameters:'needs_input/questions/answerPath',callShape:operation?'prepareOperation({context,op,params})':'prepareToolCall({toolId,context,args})',example:operation?{op:card.id,params:{}}:{toolId:card.id,context:'<live context>',args:{}},docs:'api.prepare-tools',validation:'Published input structure only; original target retains source, permission, lifecycle and geometry checks.'}};
 }

@@ -606,6 +606,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.openArcRing",
       "params": {}
@@ -654,5 +655,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b5bdbcecf3cac876c4b5e36f84d6bad5d92f36ba266acd1691b9f2b18ceea313"
+  "docsHash": "sha256:2783296df3a01998077e6c0effc325c41ee6725cb6974464407bde7082b7b311"
 }
