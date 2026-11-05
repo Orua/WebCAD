@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.60.11 · sha256:eed43b45e6cbdcff8b8d44f40940d612e8e8cc5c5ba188549569011ef6ecccf0
+API 1.61.0 · sha256:fedacca90b7cc6294a2b9316e0e1c31e5f39aedd02250d1c495bc584d8ea5bd2
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -20693,6 +20693,10 @@ files.release: contextPolicy=none
     "Z must increase. Same vertex count, winding and corresponding start vertex. Default smooth solid. Shell has no caps and is not a closed solid.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "advancedLoft",
     "params": {
@@ -20733,9 +20737,7 @@ files.release: contextPolicy=none
         }
       ]
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "advancedLoft",
@@ -20777,9 +20779,7 @@ files.release: contextPolicy=none
         }
       ]
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -20978,9 +20978,7 @@ files.release: contextPolicy=none
             }
           ]
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "advancedLoft",
@@ -21022,9 +21020,7 @@ files.release: contextPolicy=none
             }
           ]
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -21356,6 +21352,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -21406,7 +21403,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:323ad6c8a99e470ee45f43fedb655b1cfcd5f4be844fa0ae2b9648669adc3831"
+  "docsHash": "sha256:26a1c2ea60320675bee3a412392efe0204e3166928d6b32d3b99fafdb7e0f955"
 }
 ```
 
@@ -21637,6 +21634,10 @@ files.release: contextPolicy=none
     "Ordered line start/end or arc start/middle/end XY points. Each boundary accepts 2–256 segments; up to16 holes. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "arcProfile",
     "params": {
@@ -21696,9 +21697,7 @@ files.release: contextPolicy=none
       ],
       "height": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "arcProfile",
@@ -21759,9 +21758,7 @@ files.release: contextPolicy=none
       ],
       "height": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -21987,9 +21984,7 @@ files.release: contextPolicy=none
           ],
           "height": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "arcProfile",
@@ -22050,9 +22045,7 @@ files.release: contextPolicy=none
           ],
           "height": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -22384,6 +22377,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -22466,7 +22460,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c294be83e71b91b0542e90308df0148ca71870f44d5161f76862e679855523ac"
+  "docsHash": "sha256:839e2c9294433eb569df140a3070c9a9ab97aa668405c0985925e0f5d04c07f6"
 }
 ```
 
@@ -22596,6 +22590,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "autoRound",
     "params": {
@@ -22603,9 +22601,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "autoRound",
@@ -22614,9 +22610,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -22762,9 +22756,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "autoRound",
@@ -22773,9 +22765,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -23114,6 +23104,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -23180,7 +23171,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:670c6cdca6d013fc8f53d7d1797be3b5686dd41783d8544b6a8f807ac19813dc"
+  "docsHash": "sha256:cd6a70e64ddfa405cbda6448016de541265adee79eed3cb089f58699c46c824f"
 }
 ```
 
@@ -23368,6 +23359,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Preserves the source and creates one independent exact solid. Single-sided extends by the total thickness along direction times face normal; double-sided spans -thickness/2 to +thickness/2. Preserve source footprint and holes before filleting all sharp edges, including hole rims and side corners; tangent seams are skipped. Radius must be less than half thickness. One fillet attempt; failure rejects the entire step without radius reduction. Read badgeReport for resolved R, offsets and rounded edge count. Local WASM only."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "badge",
     "params": {
@@ -23379,9 +23374,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "badge",
@@ -23394,9 +23387,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -23603,9 +23594,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "badge",
@@ -23618,9 +23607,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -23974,6 +23961,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -24040,7 +24028,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:b8e668964fb7d43d91439f23d1a875c971f948f888d1a606a41ca97b9f5316d9"
+  "docsHash": "sha256:193ad01a61f69d51c6d0d8243c684e7582460e744167b4082862fa29a819ceec"
 }
 ```
 
@@ -24189,6 +24177,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Local solid starts at the model origin. Omitted placement puts the bottom center on the current work frame, which starts at world [0,0,0]. A user insert may lift that frame 0.05 mm in +Z when the vertical column is occupied. Agent/API inserts do not move the frame. Read getState().referenceSystem.workFrame.origin and body bounds before assuming the next solid is still at world origin."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "box",
     "params": {
@@ -24196,9 +24188,7 @@ files.release: contextPolicy=none
       "depth": 30,
       "height": 3
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "box",
@@ -24207,9 +24197,7 @@ files.release: contextPolicy=none
       "depth": 30,
       "height": 3
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -24374,9 +24362,7 @@ files.release: contextPolicy=none
           "depth": 30,
           "height": 3
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "box",
@@ -24385,9 +24371,7 @@ files.release: contextPolicy=none
           "depth": 30,
           "height": 3
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -24725,6 +24709,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -24771,7 +24756,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:89265b399bcb1a2255e0a45a135a286af3b978c72556bec7b60281bbc061c8c5"
+  "docsHash": "sha256:3b6984ef6c534c4e356fdee847968a2ba10d0d30dee14292b12acc1d604a85a3"
 }
 ```
 
@@ -24985,6 +24970,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "bumpSet",
     "params": {
@@ -25002,9 +24991,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "bumpSet",
@@ -25023,9 +25010,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -25224,9 +25209,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "bumpSet",
@@ -25245,9 +25228,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -25592,6 +25573,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -25658,7 +25640,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:23ff10b1cef9a59f0db35c1094bd797b942a372ab80ef2bf1bf083042aa52982"
+  "docsHash": "sha256:8ac34e4d253e337bccb8541e7cfe80326a54d3d7e39e9f6ff77470afdb03a117"
 }
 ```
 
@@ -25899,6 +25881,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true selects their common sharp edges. Legacy/omitted mode is equalDistance. twoDistances requires distance2; distanceAngle requires angleDeg in (0,90), radians are converted only at kernel call. Opposite mode fields are rejected; equalDistance forbids asymmetric options. Asymmetric distance is on referenceFaceId, or first adjacent current source face; flipDirection uses the other face. Optional explicit reference face must touch every selected edge. Tangent/periodic seams and degenerate edges are excluded. Failure preserves source, never reduces dimensions. getState().bodies[].blendReport returns mode, processed/skipped edges and resolved supportFaces for asymmetric modes."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "chamfer",
     "params": {
@@ -25909,9 +25895,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "chamfer",
@@ -25923,9 +25907,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -26194,9 +26176,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "chamfer",
@@ -26208,9 +26188,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -26567,6 +26545,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -26633,7 +26612,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:d288fa88a3a1f534036dbe8f37143490b6856cebd20587b5b0b2e129fff0e30b"
+  "docsHash": "sha256:d1ba95ca16642de89e4692b976d1d25ce5e0ba79596c62cbf90b3684c5a13057"
 }
 ```
 
@@ -26824,6 +26803,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Defaults count=3,angle=360,axis=Z,center=origin,outputMode=compound. Full circle excludes duplicate endpoint; partial angle includes both endpoints. Fuse requires one connected solid. Placement transforms local axis and center."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "circularPattern",
     "params": {
@@ -26833,9 +26816,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "circularPattern",
@@ -26846,9 +26827,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -27053,9 +27032,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "circularPattern",
@@ -27066,9 +27043,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -27408,6 +27383,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -27466,7 +27442,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c020d0bbd75154ffd54a788d4689117012c4653a92523e57fec3db6195d33008"
+  "docsHash": "sha256:54043675797b07c2558bb42e68bc722a2727da7125aa4b5746f8e867b30cf413"
 }
 ```
 
@@ -27630,6 +27606,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "按精确螺旋路径扫掠圆线实体；半径指中心线半径，外半径为它加线径的一半。螺距须大于线径，最多100圈，不含闭并端圈和力学计算。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "coil",
     "params": {
@@ -27638,9 +27618,7 @@ files.release: contextPolicy=none
       "turns": 4,
       "wireDiameterMm": 1.4
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "coil",
@@ -27650,9 +27628,7 @@ files.release: contextPolicy=none
       "turns": 4,
       "wireDiameterMm": 1.4
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -27836,9 +27812,7 @@ files.release: contextPolicy=none
           "turns": 4,
           "wireDiameterMm": 1.4
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "coil",
@@ -27848,9 +27822,7 @@ files.release: contextPolicy=none
           "turns": 4,
           "wireDiameterMm": 1.4
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -28188,6 +28160,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -28274,7 +28247,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:54040e9ed607b88425400dc8a205e9449ceaecde065e21600d096c38d2f0da2d"
+  "docsHash": "sha256:8d1cc7bd40f115958c3a626a47d18a80e3e8539b255183d074923cfbbbe48a3c"
 }
 ```
 
@@ -28425,6 +28398,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "At least one radius >0. Defaults radius1=10,radius2=0."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "cone",
     "params": {
@@ -28432,9 +28409,7 @@ files.release: contextPolicy=none
       "radius2": 0,
       "height": 20
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "cone",
@@ -28443,9 +28418,7 @@ files.release: contextPolicy=none
       "radius2": 0,
       "height": 20
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -28620,9 +28593,7 @@ files.release: contextPolicy=none
           "radius2": 0,
           "height": 20
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "cone",
@@ -28631,9 +28602,7 @@ files.release: contextPolicy=none
           "radius2": 0,
           "height": 20
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -28981,6 +28950,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -29027,7 +28997,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f8c6651c39c29a7bdd9d06576de9187879ce7f6924d31589cd4d7332dbb6477e"
+  "docsHash": "sha256:6197ae5f0a23b24f23bd4872f0450d00014cb84cfa5d9e98751d2651ead59167"
 }
 ```
 
@@ -29370,6 +29340,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Preserves original; defaults same as transform."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "copy",
     "params": {
@@ -29377,9 +29351,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "copy",
@@ -29388,9 +29360,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -29792,9 +29762,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "copy",
@@ -29803,9 +29771,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -30143,6 +30109,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -30201,7 +30168,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:81d85fae8f3b11f2d192c999da560aa33079ee7000977972cd5d152198f2acc7"
+  "docsHash": "sha256:e6ee3543a824ece1056b77add44ec419e768daab7b00f1253994159bd104739a"
 }
 ```
 
@@ -30924,6 +30891,15 @@ files.release: contextPolicy=none
         "type": "boolean",
         "description": "true 只用于 pathType:segments。sections 不接受 closed:true；伪闭用首尾重合且 closed:false。"
       },
+      "transitionMode": {
+        "type": "string",
+        "enum": [
+          "transformed",
+          "right",
+          "round"
+        ],
+        "description": "Corner transition. Open segment paths default to transformed. Closed paths default to right. A closed path with sharp corners rejects transformed and tells the caller to use right, round, or tangent arc segments."
+      },
       "tolerance": {
         "type": "number",
         "minimum": 0.00001,
@@ -31000,7 +30976,7 @@ files.release: contextPolicy=none
     "沿路径圆管"
   ],
   "description": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
-  "schemaHash": "sha256:b1cdc331a5fcfde93f38c275dae1ff6a345bf56e19ed83ea948277b8d72c0664",
+  "schemaHash": "sha256:66a20d2198285332934e82f782828a2c5dedd3bbd0a6423b80d4462ea2707209",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -31064,6 +31040,10 @@ files.release: contextPolicy=none
     "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. pathType:sections does not accept closed:true；开放 stations 可以，首尾重合且 closed:false 是伪闭，闭合变径用 segments 加 widthLaw。闭合非平面折线若在折角处切向不连续，会拒绝并说明分段扫掠拓扑无效；同一平面、对边整体抬起、以及圆滑非平面闭合可以。单段 segments 不能配 widthLaw，至少 2 段。Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "curveSweep",
     "params": {
@@ -31087,9 +31067,7 @@ files.release: contextPolicy=none
       ],
       "radius": 1
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "curveSweep",
@@ -31114,9 +31092,7 @@ files.release: contextPolicy=none
       ],
       "radius": 1
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -31463,6 +31439,17 @@ files.release: contextPolicy=none
           "behavior": "omitted; retain the operation source default"
         }
       },
+      "transitionMode": {
+        "meaning": "Corner transition. Open segment paths default to transformed. Closed paths default to right. A closed path with sharp corners rejects transformed and tells the caller to use right, round, or tangent arc segments.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
       "tolerance": {
         "meaning": "Millimetres; default 0.01",
         "unit": "mm",
@@ -31574,9 +31561,7 @@ files.release: contextPolicy=none
           ],
           "radius": 1
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "curveSweep",
@@ -31601,9 +31586,7 @@ files.release: contextPolicy=none
           ],
           "radius": 1
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -31935,6 +31918,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -31985,7 +31969,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:4ec23e3078ed19d0f72f81f9cc4bc905f60359eb09d3abad7fb19e2b86bead7a"
+  "docsHash": "sha256:eaf7d98081ceee75343ca39f339f9b9d52f6ee5e6741c92e0cdcd8cc1726c061"
 }
 ```
 
@@ -32394,6 +32378,10 @@ files.release: contextPolicy=none
     "Single closed solid. Pick a point on the face; tangent frame uses projected world X or Y. Orthographic projection of reviewed polygonal contours, then actual normal offset. Reject boundaries, holes, seams, grazing, invalid offsets and breakthrough. No emboss/draft/multi-face wrap. Imported contour approximation is retained.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "curvedLogo",
     "params": {
@@ -32431,9 +32419,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "curvedLogo",
@@ -32472,9 +32458,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -32804,9 +32788,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "curvedLogo",
@@ -32845,9 +32827,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -33183,6 +33163,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -33281,7 +33262,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:037863d99a6757c1c9c05d0161c84316b977c3229bb19e7bdd8372454eb0a001"
+  "docsHash": "sha256:db51a237ef07ff8b3d375649eb8a104da54829430e3da5843cc52c29730b12b2"
 }
 ```
 
@@ -33444,15 +33425,17 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "cut",
     "params": {},
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "cut",
@@ -33460,9 +33443,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -33642,9 +33623,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "cut",
@@ -33652,9 +33631,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -33990,6 +33967,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -34064,7 +34042,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:4bf12f4def1086eabbd732ff4cccc352039558f0e6f6c7352a5c194cea36b85f"
+  "docsHash": "sha256:4d8d2c6799fc93c1d00ec214431a1f88c0ae1da66d01e1c17b59eb692b634ffc"
 }
 ```
 
@@ -34202,15 +34180,17 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Local cylinder starts at the model origin and grows on +Z. Omitted placement uses the work frame (initially world origin) with source anchor model-origin. Agent/API inserts do not silently stack the frame; a user insert may lift it 0.05 mm. Read the work frame and body bounds. Do not treat the tool note as a promise that every new solid appears at world [0,0,0] after the anchor has moved."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "cylinder",
     "params": {
       "radius": 10,
       "height": 20
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "cylinder",
@@ -34218,9 +34198,7 @@ files.release: contextPolicy=none
       "radius": 10,
       "height": 20
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -34374,9 +34352,7 @@ files.release: contextPolicy=none
           "radius": 10,
           "height": 20
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "cylinder",
@@ -34384,9 +34360,7 @@ files.release: contextPolicy=none
           "radius": 10,
           "height": 20
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -34724,6 +34698,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -34782,7 +34757,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:947c6413f4f823858d9f78f73821c15010afc267c5ae95691688b00f21c31aff"
+  "docsHash": "sha256:2acff3e402716894eb6063eef0e89c3a87e45cefbbebe3b2720cd4350b34b21f"
 }
 ```
 
@@ -34967,6 +34942,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "选择一个封闭实体的当前平面、圆柱或圆锥面，指定固定中性平面、拉出方向和有符号角度。中性面法线须平行或反平行拉出方向。直壁正角在拉出方向一侧减料，负角加料；圆锥面指定目标锥角而非累加原角，材料变化须回读。保留中性平面交线。相切链中需要联动的面必须全部显式列入 faceIds，否则整步拒绝。替换来源；不受六面棱柱限制，但不支持改变拓扑的拔模、样条面或自动判断脱模方向。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "draftByPlane",
     "params": {
@@ -34992,9 +34971,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "draftByPlane",
@@ -35021,9 +34998,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -35238,9 +35213,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "draftByPlane",
@@ -35267,9 +35240,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -35623,6 +35594,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -35709,7 +35681,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c77f28beb72233e4a0a45338e3462bd718d50ef8afab2344a2a44dd67c340dda"
+  "docsHash": "sha256:31996b1b2e7fd661018924d132ec00293cc36605ac159c0302af5911e6a77332"
 }
 ```
 
@@ -35880,6 +35852,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "One explicit six-plane twelve-edge single-solid prism target. Exactly all four side faces and fixed bottom must be listed. Source is not mutated; topology outside this verified subset is rejected. Preview before commit. Not a castability certification."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "draftFaces",
     "params": {
@@ -35899,9 +35875,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "draftFaces",
@@ -35922,9 +35896,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -36118,9 +36090,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "draftFaces",
@@ -36141,9 +36111,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -36490,6 +36458,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -36576,7 +36545,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0d4e4a0ba5d5ec67ad93bf504d5b9acf814a195104b32f70109fb737e67876c0"
+  "docsHash": "sha256:4931fb5fab5036d8277f9d16dab892702bc22035a9409657f7816c5133fdb950"
 }
 ```
 
@@ -36724,6 +36693,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Eight exact rational quadratic octants, sewn into a checked solid. ellipsoidReport compares actual precise volume with 4/3*pi*a*b*c, error must be below 0.5%. Independent creation placement; no mesh or fitted substitute."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "ellipsoid",
     "params": {
@@ -36733,9 +36706,7 @@ files.release: contextPolicy=none
         4
       ]
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "ellipsoid",
@@ -36746,9 +36717,7 @@ files.release: contextPolicy=none
         4
       ]
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -36911,9 +36880,7 @@ files.release: contextPolicy=none
             4
           ]
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "ellipsoid",
@@ -36924,9 +36891,7 @@ files.release: contextPolicy=none
             4
           ]
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -37264,6 +37229,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -37310,7 +37276,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:98a7c3f085bb2848bdf4a4ee38bdf965b6006fbdd923254155259b36e588f637"
+  "docsHash": "sha256:74283673c5a2eef83a6b8e7f3242a0dd5fb7ab5b0f7798d8e207deb05ba1d714"
 }
 ```
 
@@ -37447,6 +37413,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "按当前faceIds提取精确面并保留来源；不承诺生成闭合实体。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "extractFaces",
     "params": {
@@ -37456,9 +37426,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "extractFaces",
@@ -37469,9 +37437,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -37621,9 +37587,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "extractFaces",
@@ -37634,9 +37598,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -37978,6 +37940,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -38036,7 +37999,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4cf3adf2c5efd5b61e3568b27b9b6df925698054ffaa9e2f57a68c580b455f4d"
+  "docsHash": "sha256:fa72532b7f1df6c1750f3c2f2b811c763328868602ccdb087f5a3d1110699e98"
 }
 ```
 
@@ -38164,6 +38127,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "按当前shellIndex提取壳，保留来源；开放壳不等于实体。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "extractShell",
     "params": {
@@ -38171,9 +38138,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "extractShell",
@@ -38182,9 +38147,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -38330,9 +38293,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "extractShell",
@@ -38341,9 +38302,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -38683,6 +38642,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -38741,7 +38701,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:38d780868c90eddd963edafb516edd5720860875d78c9a621e0bf8216448ab50"
+  "docsHash": "sha256:37c0971be0df86c51ec556b70f65a8332c1be8bc73db28cc412f34ddcca11285"
 }
 ```
 
@@ -38874,6 +38834,10 @@ files.release: contextPolicy=none
     "Use body.solidCount; default index=0.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "extractSolid",
     "params": {
@@ -38881,9 +38845,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "extractSolid",
@@ -38892,9 +38854,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -39052,9 +39012,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "extractSolid",
@@ -39063,9 +39021,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -39402,6 +39358,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -39468,7 +39425,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:f8f82b5ddb99f21a26b5001d9bac250f85b28efe86469a116118a327de25ca5a"
+  "docsHash": "sha256:ba48fe720c16e68741aab8d221295aaf515d73a67e9e80feb3862f35ff8cd04a"
 }
 ```
 
@@ -39694,6 +39651,10 @@ files.release: contextPolicy=none
     "Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "extrude",
     "params": {
@@ -39702,9 +39663,7 @@ files.release: contextPolicy=none
       "depth": 10,
       "height": 5
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "extrude",
@@ -39714,9 +39673,7 @@ files.release: contextPolicy=none
       "depth": 10,
       "height": 5
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -39971,9 +39928,7 @@ files.release: contextPolicy=none
           "depth": 10,
           "height": 5
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "extrude",
@@ -39983,9 +39938,7 @@ files.release: contextPolicy=none
           "depth": 10,
           "height": 5
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -40317,6 +40270,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -40371,7 +40325,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4f611a33f4667e06e6d500802c06ab40bf06920f71623011bdf91c57a314cddc"
+  "docsHash": "sha256:15ccb5a71c0fca60c810ef6a0838660b871024e3e1792623aeea4f91cf7a760f"
 }
 ```
 
@@ -40508,6 +40462,10 @@ files.release: contextPolicy=none
     "提取当前faceId的精确边界；面号只在当前快照有效。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "faceBoundary",
     "params": {
@@ -40515,9 +40473,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "faceBoundary",
@@ -40526,9 +40482,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -40683,9 +40637,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "faceBoundary",
@@ -40694,9 +40646,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -41030,6 +40980,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -41104,7 +41055,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f2370cfb869738f71adcd32d8a3cdbeff647a30fde95fe4ed83128f4bc3dc498"
+  "docsHash": "sha256:6c29e2866bd42f13bcaa6764ef917b6bf7dda1c0c0ff37edf9d0b99f68d09813"
 }
 ```
 
@@ -41244,6 +41195,10 @@ files.release: contextPolicy=none
     "Positive fuses outward material; negative cuts inward.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "faceExtrude",
     "params": {
@@ -41252,9 +41207,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "faceExtrude",
@@ -41264,9 +41217,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -41419,9 +41370,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "faceExtrude",
@@ -41431,9 +41380,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -41766,6 +41713,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -41808,7 +41756,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a64ffcb388b43aacbc702070c54c9ea4edfe0510f6bae17871b0252d3b311e59"
+  "docsHash": "sha256:a09ea6379b60df342b13b1745a7b52e297e8381068641d8e7c022bef1c35f472"
 }
 ```
 
@@ -41964,6 +41912,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Rectangle is centered at face area centroid; X is projected world X, falling back to world Y. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "faceGroove",
     "params": {
@@ -41974,9 +41926,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "faceGroove",
@@ -41988,9 +41938,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -42173,9 +42121,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "faceGroove",
@@ -42187,9 +42133,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -42533,6 +42477,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -42615,7 +42560,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ac6be7f6e4cff8fdccc0a8a3547d2fd1b99dc126507b0ad72b4c408c62e27760"
+  "docsHash": "sha256:c5fdf8cb1b12e8a5080023e4b4342d6bd3b7f6c798996ae96010a7e2ea3e1dd7"
 }
 ```
 
@@ -42815,6 +42760,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Explicit world point required and must lie inside/on selected face; no automatic center. through=true computes sufficient depth from body bounds; otherwise supply depth."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "faceHole",
     "params": {
@@ -42829,9 +42778,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "faceHole",
@@ -42847,9 +42794,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -43069,9 +43014,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "faceHole",
@@ -43087,9 +43030,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -43455,6 +43396,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -43537,7 +43479,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4336f69e844c3afa2bb92fe38667ad082bd6709fd2e95285db3977e117cdae12"
+  "docsHash": "sha256:ad48ef869deb801466f13b4c403dd03fff66cd20cc0e6b3677efbd32d1a8977b"
 }
 ```
 
@@ -43951,6 +43893,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. For two or more faces use sharedFaces:true to round only shared edges. UI multi-face selection uses sharedFaces:true; one face selects its boundary including holes. Tangent seams, periodic seams and degenerate edges are excluded. Exact BRep p-curves determine surface normals. Failure reports target/failing edge IDs and commits nothing. For up to eight target edges, a failed radius can trigger bounded read-only trials of smaller radii; the error may report one sampled radius that produced a valid solid. It is not a maximum and is never silently applied. Convex corners remove material; concave corners add a blend inside the recess. getState().bodies[].blendReport returns processed/skipped edges."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "fillet",
     "params": {
@@ -43961,9 +43907,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "fillet",
@@ -43975,9 +43919,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -44213,9 +44155,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "fillet",
@@ -44227,9 +44167,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -44586,6 +44524,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -44652,7 +44591,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:571cae5db5b937bfc93a240305a92aeb49efeff91f3f5a3c6b2da6c3fc6076c2"
+  "docsHash": "sha256:7a84c231f49ccc392c901f8f7410168ba68cc4df6556152287e9d2895bab6ddb"
 }
 ```
 
@@ -44813,6 +44752,10 @@ files.release: contextPolicy=none
     "Rectangular grid with consistent row/column correspondence, not unordered point-cloud reconstruction. Verifies point-to-face residuals. Output is one face, zero solids; thicken a selected face to obtain a solid.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "fittedSurface",
     "params": {
@@ -44870,9 +44813,7 @@ files.release: contextPolicy=none
         ]
       ]
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "fittedSurface",
@@ -44931,9 +44872,7 @@ files.release: contextPolicy=none
         ]
       ]
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -45138,9 +45077,7 @@ files.release: contextPolicy=none
             ]
           ]
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "fittedSurface",
@@ -45199,9 +45136,7 @@ files.release: contextPolicy=none
             ]
           ]
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -45538,6 +45473,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -45596,7 +45532,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2261bb327d7dfb885b25467f5f45594e864a775feb7b23c1b0f07c74180de83b"
+  "docsHash": "sha256:632416e3c5db4c181997e88e26c93b6dcedfa0aa0e3b4cef193f0cfe8eeb3696"
 }
 ```
 
@@ -45715,15 +45651,17 @@ files.release: contextPolicy=none
     "Preserves constituent solid boundaries and positions. UI explode creates separate extractSolid features in one undo transaction. Already-fused single solids cannot be ungrouped into their original components.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "group",
     "params": {},
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "group",
@@ -45731,9 +45669,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -45867,9 +45803,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "group",
@@ -45877,9 +45811,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -46216,6 +46148,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -46286,7 +46219,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:f9d8aaf1b38df5330c7fc29eb40f7c82f15201376c943757b995b87364101964"
+  "docsHash": "sha256:4ce044287ba52616ac5481011e1c06b44a70a6bb0ac88e24679b8bf17c5dffb5"
 }
 ```
 
@@ -46622,6 +46555,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "matchTo.featureId must equal the sole refs entry and identify a preceding guidedLoft feature. matchTo.end is the SOURCE endpoint (start or end). The current target endpoint is inferred from the unique non-G0 startCondition/endCondition; two constrained ends are rejected. D1/D2 are read from the actual source B-spline terminal patch poles. Same-end pairing reverses D1 only. Use buildBoundGuidedLoft(feature, shapes, historyFeatures, cad) for frozen creation-frame and refs binding. Frozen creation frames are required; the previous segment stays unchanged. G0 creation uses no refs and no matchTo. Read guidedLoftReport for actual boundary error and endpoint jets."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "guidedLoft",
     "params": {
@@ -46711,9 +46648,7 @@ files.release: contextPolicy=none
       "endCondition": "G0",
       "fitToleranceMm": 0.01
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "guidedLoft",
@@ -46804,9 +46739,7 @@ files.release: contextPolicy=none
       "endCondition": "G0",
       "fitToleranceMm": 0.01
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -47192,9 +47125,7 @@ files.release: contextPolicy=none
           "endCondition": "G0",
           "fitToleranceMm": 0.01
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "guidedLoft",
@@ -47285,9 +47216,7 @@ files.release: contextPolicy=none
           "endCondition": "G0",
           "fitToleranceMm": 0.01
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -47705,6 +47634,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -47755,7 +47685,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:867f500ef81dadf957641116fb32243e190c85491504e90abf17e1aa0f5c0d57"
+  "docsHash": "sha256:81288e3abfa6f0316cba0fdf2b54668b34ea1a529a2f78eb8e4fe36821aa8416"
 }
 ```
 
@@ -47910,6 +47840,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "精确螺旋路径，起点在局部 +X，轴沿局部 +Z；可使用工作基准。半径指中心线，螺距是每圈轴向前进距离。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "helix",
     "params": {
@@ -47917,9 +47851,7 @@ files.release: contextPolicy=none
       "pitchMm": 3,
       "turns": 4
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "helix",
@@ -47928,9 +47860,7 @@ files.release: contextPolicy=none
       "pitchMm": 3,
       "turns": 4
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -48104,9 +48034,7 @@ files.release: contextPolicy=none
           "pitchMm": 3,
           "turns": 4
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "helix",
@@ -48115,9 +48043,7 @@ files.release: contextPolicy=none
           "pitchMm": 3,
           "turns": 4
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -48454,6 +48380,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -48540,7 +48467,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4a2e01317f087730d971a4625b55146468acc935be1daaba3b8b2cc081c9b747"
+  "docsHash": "sha256:7bed1fe2cffa95611a9fe6a17a08d6d1dedc2dffc51172d2324c83234da77a03"
 }
 ```
 
@@ -48733,6 +48660,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Start defaults to the placement-frame origin, axis=Z, direction=1. With no explicit placement the frame is the work frame, initially world [0,0,0]; it is not a body-local coordinate. After a user insert the work frame may sit 0.05 mm above the previous solid, so an example such as x:5,y:5,z:4 only cuts a box that actually occupies that world point. Read the target bounds (world mm) and either pass those coordinates with placement frame kind world, or convert them into the current work frame. Must remove material."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "hole",
     "params": {
@@ -48746,9 +48677,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "hole",
@@ -48763,9 +48692,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -48984,9 +48911,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "hole",
@@ -49001,9 +48926,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -49353,6 +49276,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -49435,7 +49359,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6ca07c4a60138aa135e2b80f2f9231f5483c8ad69aa5241081810b9af8a20e42"
+  "docsHash": "sha256:64507c25086dd3042be4163fd3fb2196e9979e2e0070d703108d6195574d6889"
 }
 ```
 
@@ -49691,6 +49615,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "One current solid target. Start point must lie on the boundary and direction enter continuous material. Blind depth including tip must stop before its first exit. Legacy/omitted drillPoint is flat. Angled blind tip height=diameter/(2*tan(drillPointAngleDeg/2)); default angle 118 deg, depthReference defaults cylindricalLength (tip is additional). tipDepth includes the tip and must leave positive cylinder length. Through holes reject angled tips. Recess must fit within cylindrical segment. Counterbore uses recessDepthMm; countersink derives depth (D-d)/(2*tan(includedAngle/2)). No modeled thread geometry."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "holeWizard",
     "params": {
@@ -49708,9 +49636,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "holeWizard",
@@ -49729,9 +49655,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -50030,9 +49954,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "holeWizard",
@@ -50051,9 +49973,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -50402,6 +50322,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -50492,7 +50413,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3311a1f484fb112fdfe138c0938a6601f1fdb6c831760c7b1c7523d194876dcd"
+  "docsHash": "sha256:c64707f530353807347af252f718450d46a08571e0d2db428c6b81a6bb750bd2"
 }
 ```
 
@@ -50609,19 +50530,19 @@ files.release: contextPolicy=none
     "用files.register/import登记真实STEP/BREP或网格字节；保留源资产，不恢复来源软件特征树。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "dedicated-entry-only"
+  },
   "minimalExample": {
     "op": "import",
     "params": {},
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "dedicated-entry-only"
+    "refs": []
   },
   "normalExample": {
     "op": "import",
     "params": {},
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "dedicated-entry-only"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -50752,16 +50673,12 @@ files.release: contextPolicy=none
       "minimal": {
         "op": "import",
         "params": {},
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "dedicated-entry-only"
+        "refs": []
       },
       "normal": {
         "op": "import",
         "params": {},
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "dedicated-entry-only"
+        "refs": []
       },
       "invalid": [
         {
@@ -51095,6 +51012,7 @@ files.release: contextPolicy=none
     "api.modeling-pitfalls",
     "api.placement"
   ],
+  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -51146,7 +51064,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:34fbadf0d273ab864b6b5942d68bf2911912267400c7883cc0bf1e08ddda5abb"
+  "docsHash": "sha256:d17932cc12d9d59168ac19b5b7e2c1ef178d77e08b59d7187493e55b2286364d"
 }
 ```
 
@@ -51293,6 +51211,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Cuts a cylinder centered on the section centroid; an existing circular opening must be smaller than the requested finished diameter. Does not simulate machine feeds."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "innerTurn",
     "params": {
@@ -51302,9 +51224,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "innerTurn",
@@ -51315,9 +51235,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -51490,9 +51408,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "innerTurn",
@@ -51503,9 +51419,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -51848,6 +51762,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -51930,7 +51845,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b0f47a0cdad4dca5858923ecf3cbbac899d7526387946a799f8b9ec9a94443fc"
+  "docsHash": "sha256:4a51313ee75ca8db46e00fffdf54860734b7758922d60a4f2354b613b9d2a8f7"
 }
 ```
 
@@ -52057,15 +51972,17 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "intersect",
     "params": {},
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "intersect",
@@ -52073,9 +51990,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -52222,9 +52137,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "intersect",
@@ -52232,9 +52145,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -52570,6 +52481,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -52636,7 +52548,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:8d20548d10d3e3a69b2f097788b8076483473a1fcd4e4e19a0b7d66311358162"
+  "docsHash": "sha256:51cb10b266e3e7520eadb542930de78119ef5c3226c7c3c4d1356c1ee49007fd"
 }
 ```
 
@@ -52805,6 +52717,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Defaults count=3, dx=dy=dz=0, outputMode=compound; at least one step must be nonzero. Fuse requires all copies to form one solid and fails without committing if disconnected. Placement transforms local step vectors."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "linearPattern",
     "params": {
@@ -52813,9 +52729,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "linearPattern",
@@ -52825,9 +52739,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -53012,9 +52924,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "linearPattern",
@@ -53024,9 +52934,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -53365,6 +53273,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -53423,7 +53332,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6d4d0ec124582b1d8a58962645f7cca19720d23cc837f65ff1768a3f0fa2339c"
+  "docsHash": "sha256:7b0569c7f438bbbaacdd5129c59f52706c2f75c612d235d5faa4a0e2ab6c9c26"
 }
 ```
 
@@ -53618,6 +53527,10 @@ files.release: contextPolicy=none
     "Missing end dimensions use corresponding start dimensions.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "loft",
     "params": {
@@ -53626,9 +53539,7 @@ files.release: contextPolicy=none
       "endRadius": 3,
       "height": 10
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "loft",
@@ -53638,9 +53549,7 @@ files.release: contextPolicy=none
       "endRadius": 3,
       "height": 10
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -53881,9 +53790,7 @@ files.release: contextPolicy=none
           "endRadius": 3,
           "height": 10
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "loft",
@@ -53893,9 +53800,7 @@ files.release: contextPolicy=none
           "endRadius": 3,
           "height": 10
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -54227,6 +54132,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -54277,7 +54183,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:05c7b2e4f929e662cffe50ff6e64dcd37b4752b10d11845d44538cc270efc0a4"
+  "docsHash": "sha256:3dab6ecdd86771e1b60ab27476a7df42162f113f77df3609d99bcebcc8361708"
 }
 ```
 
@@ -54785,6 +54691,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "New unified placement uses placementVersion:2, explicit world point and source.reviewed=true; WebCAD records exact face type/area/center, stable face signature for reloaded history and current BRep hash for creation audit, then dispatches planar or curved engraving. Curved emboss and draft remain unsupported. Missing placementVersion retains legacy planar semantics and missing draft defaults to 0. Source coordinates are centered X-right/Y-up mm. Local X is projected global X, or Y near X-aligned normal; local Y=normal cross X. Mirror, scale, rotate, then offset. Holes preserved; 12000 vertices total. singleFace (default/missing) rejects face boundaries and seams. Explicit projectionMode:connectedFaces requires placementVersion:2, mode:engrave and draftAngle:0. It crosses connected front-facing plane/round/periodic seams with one projection direction (inward normal at point); depth is along that direction, not surface-normal depth. Preserves outline scale/holes; rejects incomplete projection, overlap, grazing/back faces, thin walls, disconnected solids, invalid geometry or stale face. Read getState().bodies[].logoProjectionReport for crossed source face IDs, direction, depth and actual removedVolumeMm3. For an existing automatic readLogo draft, use only the exact returned logoId plus placement/engraving fields; do not send source or regions, and omit expectedReviewRevision unless read from the current review.revision. Never reconstruct or edit a UUID by hand."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "logo",
     "params": {
@@ -54808,8 +54718,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry()."
+    ]
   },
   "normalExample": {
     "op": "logo",
@@ -54857,9 +54766,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -55340,9 +55247,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "logo",
@@ -55390,9 +55295,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -55763,6 +55666,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -55861,7 +55765,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:1bf8f986098300c61ff7dd4407135a5ba8e2544f96c8817ad23df4e3df77d1c1"
+  "docsHash": "sha256:19d937a6941e519f153848d107ba524da3168dbe7f76c56bc1a2c08c7aad3266"
 }
 ```
 
@@ -56023,6 +55927,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "meshBoolean",
     "params": {
@@ -56033,9 +55941,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "meshBoolean",
@@ -56047,9 +55953,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -56261,9 +56165,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "meshBoolean",
@@ -56275,9 +56177,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -56633,6 +56533,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -56699,7 +56600,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:dd416b1842c99fc9e72ebfdb2aadff0ee5c565268016250b39a80f8c1230af63"
+  "docsHash": "sha256:fad16bf1589d3af30f365aeed555bb0c1b5ad975a407727a5bf3475f33798bfd"
 }
 ```
 
@@ -57017,6 +56918,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Row-major grayscale samples, row 0 = image top (+Y). White is high unless invert. z: back 0, base top baseMm, peak baseMm+heightMm; centered XY. gamma shapes the height curve, smoothing = 3x3 blur passes, edgeFadeMm ramps heights to the base near the border. heights is inline base64 data or importKey of a binary project asset (format heightmap). sculpt: ordered brush strokes {mode raise|lower (strength mm per dab)|smooth|flatten (strength 0–1, flatten to targetMm), radiusMm, points [x,y,...] mm in relief-local XY} replayed deterministically after gamma/fade. Output is a closed, outward-oriented triangle mesh (STL/3D print), not a BRep/STEP. Samples capped at 1.9 M (about 3.8 M triangles)."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "meshHeightfieldRelief",
     "params": {
@@ -57036,9 +56941,7 @@ files.release: contextPolicy=none
       "reliefHeightMm": 1.5,
       "baseThicknessMm": 1
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "meshHeightfieldRelief",
@@ -57059,9 +56962,7 @@ files.release: contextPolicy=none
       "reliefHeightMm": 1.5,
       "baseThicknessMm": 1
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -57415,9 +57316,7 @@ files.release: contextPolicy=none
           "reliefHeightMm": 1.5,
           "baseThicknessMm": 1
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "meshHeightfieldRelief",
@@ -57438,9 +57337,7 @@ files.release: contextPolicy=none
           "reliefHeightMm": 1.5,
           "baseThicknessMm": 1
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -57812,6 +57709,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -57910,7 +57808,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:7d5afbaecf11ae633417f825e389510ca501ce5755eadf43794ef6264e50fae7"
+  "docsHash": "sha256:0d5b8c8623589793ef431c03859ca4d99ee6aba783936da1559ab1be6412f82f"
 }
 ```
 
@@ -59071,6 +58969,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Read current meshReport.geometryHash. Explicit physical support, on-surface seed, core/transition and hard-protection disks. replace uses field.originMm/sizeMm/heightsMm in support UV; rows increase V, entries are absolute heights in mm. Bilinear target replaces old heights in core and blends only in transition, never max; field must cover editable samples. Source facet spacing must resolve target field; this is a sampling gate, not an approximation-error certificate. Fixed topology Float64 direct edit; source remains immutable. Only closed oriented planar single-valued relief, at most 200000 triangles / 20000 affected vertices / 12000000 tests per clearance phase. Clearance uses projected facet overlaps and vertex/centroid rays; arbitrary 3D self-intersection is not certified. Output remains mesh, not BRep/STEP. History restores prior asset/recipe, not an inverse brush. Read bodies[].meshReport.edit. Missing support, ambiguous seed, stale hash, unavailable back support, boundary conflict, collision or thickness failure reject atomically. replace may instead take deformation:{pivotMm,translationMm,scale:[positiveU,positiveV],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}. Inverse affine sampling of the same current selected source height surface moves/narrows/rotates its relief within the declared ROI; topology/XY positions and protected vertices remain fixed. Heights are barycentrically sampled from the immutable source, never from a previous partial output. Only sourceRegion contributes; inverse samples outside it use explicit baseHeightMm, preventing unrelated neighbors from being copied. The editable ROI must cover the old and new local relief, with unrelated geometry protected. This is resampling, not recovered analytic geometry; no approximation error is certified by the spacing gate. Domain misses, nonpositive scale or ambiguous height reject. Source interpolation must resolve the narrowest scaled axis. Read meshReport.edit.profile. Alternatively replace accepts profile (mutually exclusive with field/value): cubic Bezier segments in support UV, stations from at=0 to 1 along approximate arc length, sectionMm ordered [signed lateral offset,height] pairs with zero outer heights, baseHeightMm, endTaperMm, curveToleranceMm and maxSourceSpacingMm. Positive section offset is left of path direction. Sections and stations interpolate linearly without height overshoot; end taper is cubic smoothstep in mm, exterior end planes use base height. This replaces the declared ROI including old path positions, not an additive overlay. Hard protections take precedence. Read meshReport.edit.profile. No arbitrary undercuts or automatic remeshing. Optional targets:[{pointMm:[U,V],heightMm,toleranceMm}] are mandatory acceptance constraints, not soft brush requests. A protected point conflicting with a target fails RELIEF_CONSTRAINT_CONFLICT with params.targets index before commit; no hit fails RELIEF_TARGET_OUTSIDE. Read meshReport.edit.constraints. mode=layers composes 1..16 ordered layers with unique id and enabled. Surface layers declare role=macro|detail, region and blend: add/remove require positive heightMm and attachment=followHeight (relative normal height); replace requires attachment=absolute and exactly heightMm, field or profile. A freeze layer supplies hard-protection regions for subsequent layers. Global protections apply to every layer. Editing the whole layers array at the original feature recomputes from its immutable input; order and enabled state are part of the recipe. This is height-only following, not automatic tangent or lateral detail binding. Layer domains must lie inside the total ROI; accumulated freeze disks <=64, active layers times triangles <=1000000. Mandatory targets apply to the final composed surface. Failures discard the entire candidate. Read edit.layers, layerSemanticsVersion, continuationSeedMm; minimum thickness/clearance are conservative minima over affected regions at every applied layer, not global final-surface certificates."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "meshReliefEdit",
     "params": {
@@ -59115,9 +59017,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "meshReliefEdit",
@@ -59163,9 +59063,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -59677,9 +59575,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "meshReliefEdit",
@@ -59725,9 +59621,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -60217,6 +60111,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -60315,7 +60210,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:b70237d9ef138a79f368d93e3d50d00595d963a7ac7c3f4d91b99f3e74ca8e4c"
+  "docsHash": "sha256:7e872c3a524e2394b5dd26333eb5818fc8310d7a9eaf7c419137522542f1ba10"
 }
 ```
 
@@ -60505,6 +60400,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Centered XY plate, support z=0 and back z=-thicknessMm. Explicit radial profiles use plateau plus cubic smoothstep shoulder, add signed heights; overlapping contributions add. Float64 regular triangulated surface; spacing is physical maximum cell size, not precision guarantee. No hidden normalization. Preserve this recipe in native project; output mesh, not BRep or STEP. Bumps must remain inside the plate, height must leave positive material, and total mesh is capped at 200000 triangles. New object placement uses the normal shared creation frame."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "meshReliefPlate",
     "params": {
@@ -60525,9 +60424,7 @@ files.release: contextPolicy=none
       "sizeYMm": 20,
       "baseThicknessMm": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "meshReliefPlate",
@@ -60549,9 +60446,7 @@ files.release: contextPolicy=none
       "sizeYMm": 20,
       "baseThicknessMm": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -60775,9 +60670,7 @@ files.release: contextPolicy=none
           "sizeYMm": 20,
           "baseThicknessMm": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "meshReliefPlate",
@@ -60799,9 +60692,7 @@ files.release: contextPolicy=none
           "sizeYMm": 20,
           "baseThicknessMm": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -61162,6 +61053,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -61260,7 +61152,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:80352851d8bd2763bd7e66fb5cd2eab580020dbc1578ccaa161170b41adceaff"
+  "docsHash": "sha256:4f8b0b0ecc86cd4be7a47a21c78297722214de0d2b03ef35224121fe0005c35d"
 }
 ```
 
@@ -61463,6 +61355,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Defaults plane=XY, offsetMm=0, keepOriginal=false. The mirror replaces its input by default; explicitly set keepOriginal=true to create a mirror copy. Offset is the signed coordinate along the corresponding positive coordinate axis. Explicit placement uses the frozen local frame; omitted placement retains global coordinates. variation uses a deterministic seed, signed translation/rotation bounds and a positive scale interval; variationReport records actual values. linkedOverrides re-evaluates the current source recipe with numeric path overrides; no topology IDs are cached."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "mirror",
     "params": {
@@ -61470,9 +61366,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "mirror",
@@ -61481,9 +61375,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -61670,9 +61562,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "mirror",
@@ -61681,9 +61571,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -62021,6 +61909,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -62079,7 +61968,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d3dfdd0e946ed0609dbb32947ccefb72e5449a10e5274ca300e3be730638b8f1"
+  "docsHash": "sha256:9c804145a131e8136f9c3800f0354af3cba40226ff45d52a595d82e4686c08de"
 }
 ```
 
@@ -62268,6 +62157,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Every world XYZ point is a boss base center. Cylinder grows along signed X/Y/Z axis. Defaults axis=Z,direction=1. Each boss must add material and fuse into one solid; the whole feature fails atomically otherwise. Solid bosses only: drill holes in a separate multiHole step. No inferred face or automatic fillet."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "multiBoss",
     "params": {
@@ -62290,9 +62183,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "multiBoss",
@@ -62316,9 +62207,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -62534,9 +62423,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "multiBoss",
@@ -62560,9 +62447,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -62921,6 +62806,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -63003,7 +62889,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f044c049f27940c143508866cf9c7003add1e5a7876b5499fbf5337ab01b5751"
+  "docsHash": "sha256:4351e540fea51853912dc244c2357b61b031787dbb2bf59608166fd1d57eec55"
 }
 ```
 
@@ -63193,6 +63079,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "One referenced body. Each point is a cutter START [x,y,z], not a face identifier or 2D sketch point. All holes share radius/depth/axis/direction. Defaults axis=Z,direction=1. Every hole must remove material from the sequential result; an off-body or already-empty hole fails the whole feature. Does not create threads."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "multiHole",
     "params": {
@@ -63225,9 +63115,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "multiHole",
@@ -63261,9 +63149,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -63501,9 +63387,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "multiHole",
@@ -63537,9 +63421,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -63908,6 +63790,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -63990,7 +63873,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f50f88a43ee5b961b75fc6f981036b008e2fffb2bd7eb7f75f454cb1219fb478"
+  "docsHash": "sha256:819be69565d3a3fe4cc4a9ff00cf7ef251257994d0bc624f5b159fab22f837b1"
 }
 ```
 
@@ -64212,6 +64095,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Each pocket is centered at world XYZ on a plane normal to axis and cuts along direction * axis. Defaults axis=Z,direction=-1,cornerRadius=0. In-plane width/height directions: Z -> X/Y; X -> Y/Z; Y -> Z/X. Rounded corners require cornerRadius < half the shorter side. Every pocket must remove remaining material; the entire feature fails atomically otherwise. No automatic through depth or inferred surface."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "multiPocket",
     "params": {
@@ -64238,9 +64125,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "multiPocket",
@@ -64268,9 +64153,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -64486,9 +64369,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "multiPocket",
@@ -64516,9 +64397,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -64881,6 +64760,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -64963,7 +64843,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3b3084cfdba36f3528307b1668ee0641e53a57b4b82a82c512f7aaffd304ebd0"
+  "docsHash": "sha256:948752cc2164d8b1d23e604c345bd6d657f1ff5812ded05ea456cd749be99359"
 }
 ```
 
@@ -65102,6 +64982,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "选一个封闭实体，对全部边界面作等距偏置。正值向外，负值向内；交角保留尖角，圆接生成圆角过渡。替换来源。首版仅解析平面、圆柱、圆台、球面和环面；尖锥退化点、样条面、曲率半径塌陷、局部自交和分裂结果拒绝，不自动减小距离或放宽公差。结果检查有效性、面积、体积及解析局部曲率域；复杂多面不保证任意全局自交均能诊断。不是按比例缩放，也不是抽壳。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "offsetSolid",
     "params": {
@@ -65110,9 +64994,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "offsetSolid",
@@ -65122,9 +65004,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -65281,9 +65161,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "offsetSolid",
@@ -65293,9 +65171,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -65637,6 +65513,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -65695,7 +65572,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:acb99a1f630fc465cb343cccd5df3e7762d9cc97c9557868070356f21306541c"
+  "docsHash": "sha256:6f759ae315182f689ff51e655ece935083fc250ce580df19b38fc4bf497d18bc"
 }
 ```
 
@@ -65834,6 +65711,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "显式选择当前对象的一张面，沿该面的有向法线作等距偏置，生成独立面并保留整个来源。正负控制方向；平面保持边界面积，曲面半径和面积会改变。首版仅解析平面、圆柱、圆台、球面和环面，并检查解析局部曲率域；尖锥退化点和样条面不支持。不生成厚度，不推拉实体，不缝合多面或自动延伸相邻面。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "offsetSurface",
     "params": {
@@ -65842,9 +65723,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "offsetSurface",
@@ -65854,9 +65733,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -66013,9 +65890,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "offsetSurface",
@@ -66025,9 +65900,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -66369,6 +66242,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -66427,7 +66301,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:384263a4c79d95c89cc668c3a2b955c9b97cb063f9088bd5dde821076a005d26"
+  "docsHash": "sha256:33064f8a6b7304c8c9da5a81c544124910f9189b8b5fbeae945e24eec5a9e4ac"
 }
 ```
 
@@ -66574,6 +66448,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Removes material outside the specified centered diameter within the explicit depth interval. The outside cutter encloses the source cross-section; remainder below depth is retained. It does not add material or create a lathe toolpath."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "outerTurn",
     "params": {
@@ -66583,9 +66461,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "outerTurn",
@@ -66596,9 +66472,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -66771,9 +66645,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "outerTurn",
@@ -66784,9 +66656,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -67129,6 +66999,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -67211,7 +67082,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e9c915a2dd5182955d694c57bd1798ef79fc8f613ee40dfd1b20400696fa8e67"
+  "docsHash": "sha256:ba88e365ff056c3e1d0018dc68cded828b60fff8764d247d440d94c720958359"
 }
 ```
 
@@ -67344,6 +67215,10 @@ files.release: contextPolicy=none
     "在明确平面上提取当前精确实体截线；不消耗源实体。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "planeSection",
     "params": {
@@ -67352,9 +67227,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "planeSection",
@@ -67364,9 +67237,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -67525,9 +67396,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "planeSection",
@@ -67537,9 +67406,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -67872,6 +67739,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -67946,7 +67814,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d1ff4be7b371e0b67648d87b8183587df8b934888210661412400fab7d17ccad"
+  "docsHash": "sha256:9c7bd665d81ae7e8a67a4afae8c7fdd196dac1ad047394f01ab3aacfc4286ec5"
 }
 ```
 
@@ -68882,6 +68750,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "One saved sketchProfile-derived analytic profile source. Line/circle supported; rectangle is explicitly expanded only in the derived result into sourceId_0..3 line IDs, with primitiveConversion mapping and intrinsic horizontal/vertical relations. profile.constraintMetadata preserves those intrinsic relations for later solves; no origin or size is secretly fixed. At most 64 derived entities, 128 independent scalar variables, 128 user constraints and 64 intrinsic relations; minimum supported line length/radius 1e-7 mm. Coordinates and dimensions are in its frozen local plane, not current world/work-frame coordinates. Bounded local numerical solver; reports residuals, Jacobian rank and remaining degrees of freedom. Closed-loop/open-chain endpoint connections are preserved structurally. Underconstrained solutions are allowed and reported; redundant equations are reported. Axis/parallel/perpendicular constraints choose the nearest valid directed branch from initial geometry. Conflicting/unsatisfied, nonconvergent or invalid/degenerate geometry rejects without altering the source. No arc/spline/rounded-primitive solving, global uniqueness proof, automatic conflict minimization or full mainstream Sketcher claim."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "profileConstraints",
     "params": {
@@ -68899,9 +68771,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "profileConstraints",
@@ -68920,9 +68790,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -69126,9 +68994,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "profileConstraints",
@@ -69147,9 +69013,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -69530,6 +69394,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -69612,7 +69477,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b2e4aab56c7f8df6b4faec0249d3b16fa8f8c88541472230e78507e19e4c9b0c"
+  "docsHash": "sha256:f72396962087fe61c12a53505eda949738409d1353c47f56c363210c8f326d76"
 }
 ```
 
@@ -69812,6 +69677,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "refs[0] is the placed planar profile. newBody requires only that ref; join/cut/intersect require refs[1] as one explicit solid target. The profile remains in history and the target is replaced. throughSelected computes depth from that target only and refuses a cutter starting inside it. toPlane supports only a fixed world plane parallel to the source profile plus signed allowance; oblique end planes are explicitly rejected. It uses an infinite world plane; it does not claim the cutter stops at a finite face boundary. No active anchor transform is applied again."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "profileExtrude",
     "params": {
@@ -69822,9 +69691,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "profileExtrude",
@@ -69836,9 +69703,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -70050,9 +69915,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "profileExtrude",
@@ -70064,9 +69927,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -70410,6 +70271,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -70464,7 +70326,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f9122dddb90ec5f41e0d39616c90af3f944a7705ad59871a3321c4455bb22b82"
+  "docsHash": "sha256:6950e8132658dc1d545331ec6ae5b4e068b0d80c6129a9fb71b6b7e747ed43d2"
 }
 ```
 
@@ -70614,6 +70476,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "refs 按截面顺序排列 2–12 个闭合单外环平面对象；加工模式最后另附目标。复用 referenceLoft 的精确构造，不重新输入数值圆/矩形；相比 referenceLoft 新增加料、切除与交集。无内孔、导轨、端点相切/曲率连续条件或手工边对应，复杂不同拓扑必须检查结果。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "profileLoft",
     "params": {
@@ -70623,9 +70489,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "profileLoft",
@@ -70636,9 +70500,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -70804,9 +70666,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "profileLoft",
@@ -70817,9 +70677,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -71166,6 +71024,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -71216,7 +71075,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:161a18aa6dc638b5abb5788316b34abdd6e1b89789f261d8ab3f97fd93374259"
+  "docsHash": "sha256:90156a245420b8d63126d1294b6aac44a393c31178c2ad1b282ac9c717fff32f"
 }
 ```
 
@@ -71375,6 +71234,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Source face is preserved. A single planar unholed region is supported. Collapse, multiple outputs and ambiguous offsets are rejected; geometry is never scaled as a substitute."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "profileOffset",
     "params": {
@@ -71385,9 +71248,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "profileOffset",
@@ -71399,9 +71260,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -71577,9 +71436,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "profileOffset",
@@ -71591,9 +71448,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -71936,6 +71791,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -72010,7 +71866,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:372c3570480898dcbc438263e0af462973d059e757c63751aaf2fde8597a642e"
+  "docsHash": "sha256:00232b2d936c0c304c7aa981e2f51e908aa476e12a672eb82bdefe7f25ccbe09"
 }
 ```
 
@@ -72147,6 +72003,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "refs[0] is the current saved sketchProfile source. The source is preserved. The issueId must come from inspectProfile on this source and only an explicit endpoint gap is supported. Closing an open chain yields a face. Failure leaves the source untouched."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "profileRepair",
     "params": {
@@ -72155,9 +72015,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "profileRepair",
@@ -72167,9 +72025,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -72325,9 +72181,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "profileRepair",
@@ -72337,9 +72191,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -72681,6 +72533,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -72759,7 +72612,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:af5facd9f9b827d74c8c873f9e9b90d5bf705a1864dbaf8f4ffd9d6d7258a1e4"
+  "docsHash": "sha256:812f7475355730ca9fd065a3f9684c7dfdfb567092dd85bcb49aa66945eefdf4"
 }
 ```
 
@@ -72947,6 +72800,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "refs[0] 是一个闭合平面截面；加料/切除/交集另附 refs[1] 目标。轴须位于截面平面内；原生平面 Face 的内孔按原几何旋转。开轮廓、多区域、非平面或自交结果拒绝。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "profileRevolve",
     "params": {
@@ -72965,9 +72822,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "profileRevolve",
@@ -72987,9 +72842,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -73191,9 +73044,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "profileRevolve",
@@ -73213,9 +73064,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -73572,6 +73421,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -73614,7 +73464,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:91a8f88145cef0caa5fc6b53be0d9352ff7331090fef5f5e55b00e9331b2d5a4"
+  "docsHash": "sha256:5835a23dec2b59774c784e5f06191d81c78132843b34c4f8e388f7ac859ba760"
 }
 ```
 
@@ -73779,6 +73629,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。默认不自动居中/定位：截面必须已在路径起点平面并垂直其起点切线。路径沿 +X、截面画在 XY 时，给截面 placement.quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y 轴 +90°，法向从 +Z 转到 +X）。也可以设 alignProfileToPath:true，只摆放一份副本，不改已保存截面。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "profileSweep",
     "params": {
@@ -73789,9 +73643,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "profileSweep",
@@ -73803,9 +73655,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -73991,9 +73841,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "profileSweep",
@@ -74005,9 +73853,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -74355,6 +74201,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -74405,7 +74252,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:182e88b980a1b6e4a463861a65037b425c7264207fb436b5892ccb3934a98cce"
+  "docsHash": "sha256:74868267c27357e36a080a6bee84dd757c5b87b28b6e92cc57c39db15dc7b0fb"
 }
 ```
 
@@ -79145,23 +78992,23 @@ files.release: contextPolicy=none
     "Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "quickModel",
     "params": {
       "kind": "tube"
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "quickModel",
     "params": {
       "kind": "tube"
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -85099,18 +84946,14 @@ files.release: contextPolicy=none
         "params": {
           "kind": "tube"
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "quickModel",
         "params": {
           "kind": "tube"
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -85445,6 +85288,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -85491,7 +85335,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:50921b5e17baf5ea737a3820876260ab804570cdde80005b393ba118b127902f"
+  "docsHash": "sha256:05d7023b2c170b6cb046829b484d7b66a339205a6c0cef330c8a2eef042789d5"
 }
 ```
 
@@ -85639,6 +85483,10 @@ files.release: contextPolicy=none
     "沿明确direction和distance拉伸参考轮廓，保留原来源。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "referenceExtrude",
     "params": {
@@ -85651,9 +85499,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "referenceExtrude",
@@ -85667,9 +85513,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -85826,9 +85670,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "referenceExtrude",
@@ -85842,9 +85684,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -86177,6 +86017,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -86219,7 +86060,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:62137deef8991b6651d911cce81ac50365b18fd29e0b4de27ac47b881c89d90e"
+  "docsHash": "sha256:8422de4ff17253a1b2c5ddc16601a29e1a3ea047720f4adb4d805c99b33a17e5"
 }
 ```
 
@@ -86346,6 +86187,10 @@ files.release: contextPolicy=none
     "用有序参考截面放样；引用上限为12，保留原轮廓。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "referenceLoft",
     "params": {
@@ -86354,9 +86199,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "referenceLoft",
@@ -86366,9 +86209,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -86516,9 +86357,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "referenceLoft",
@@ -86528,9 +86367,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -86864,6 +86701,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -86914,7 +86752,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:c41ea771c81fab10ee3667a9194bacb42b480e52c84e08c32c55c15e1b1d860a"
+  "docsHash": "sha256:f59c478497d6da9eecd67a2958296b34c952e278c6e85de5778364ea2542e19b"
 }
 ```
 
@@ -87032,23 +86870,23 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "清理一个封闭实体上同一平面或曲面的多余分割线。无需参数；固定线性公差 1e-7 mm、角公差 1e-7 rad，不增大公差、不近似重建曲面。最多 400 面、2000 边。检查 BRep、实体数、体积、包围盒及双向材料差；来源隔离复制。没有可清理的边面时返回 NO_CHANGE，不增加历史。替换当前对象，原始上游保留；可预览、撤销。边面编号会改变，后续必须重新 queryGeometry。不是删孔、补洞、去特征或圆角。读取 getState().bodies[].refineReport 的前后面边数与验证结果。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "refineShape",
     "params": {},
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "refineShape",
     "params": {},
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -87213,18 +87051,14 @@ files.release: contextPolicy=none
         "params": {},
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "refineShape",
         "params": {},
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -87584,6 +87418,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -87650,7 +87485,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:df31a759472abffdb7f05c32e1be0c033a506be985b0b50927d9831650265c1f"
+  "docsHash": "sha256:affb521eb24646b28757ae277ac2c73e446679c65b4746d23babcb38876b43ba"
 }
 ```
 
@@ -88977,6 +88812,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "浮雕在单个有效实体的平面或外凸圆柱面上加工。新流程 readRelief 返回 values、regions、surfaceMode、source，全部传给 relief。regions 为独立图案轮廓，outer/holes 坐标归一化到图像中心的[-0.5,0.5]，按widthMm/heightMm缩放；孔和轮廓外保持原主体表面，不生成矩形底层。轮廓最多1024区、每环2000点、合计64000点，拒绝自交/相触。surfaceMode=flat 生成真正的解析平顶面，depthMm 从放置中心切平面计算；smooth 使用4–65行列的0–1高度控制网格拟合三次B样条，轮廓独立裁切，内部起伏仍为平滑近似。readRelief 的独立轮廓采样为257，约0.2像素简化，位图边界精度受原图限制；准确CAD轮廓可直接提供regions。平面以面质心加offsetX/Y放置，局部X为世界X投影（近共线改Y），Y=外法向叉X，可angleDeg旋转。柱面须point，局部X沿圆周弧长、Y沿轴；轮廓沿放置法向投影，angleDeg=0，半径1–10000mm、角宽≤90°、总起伏≤半径20%。平顶凹雕depthMm须超过图案范围弓高。有regions时检查实际图案，允许空白区跨孔；无regions的旧高度场仍检查完整矩形。mode=emboss/engrave，结果必须融合为一个有效实体；失败保留原件。旧工程不含regions时保持原矩形高度场语义，柱面仍须显式baseMm=0.005–1mm；新轮廓模式平滑肩部内部默认0.005mm，平顶忽略baseMm，外部背景不加工。图像亮度不是照片深度。参数与来源哈希存入历史，可改参、重建、预览、撤销。reliefReport回读surfaceMode、background、regionCount、smoothing、材料体积和限制。 分层矢量：layers最多32层，明确name、heightMm、mode及regions或strokes，各层以原始选面为共同基准，整个操作一次预览、提交和撤销。凸层按实体并集合成（重叠处取更高层）；凹层从原主体面向内刻。浅层肌理用完整低凸层加带细节孔的高凸层，不能把肌理内线全部当穿到底的孔。每层可选startHeightMm（默认0，须低于heightMm），用于从已存在的下层表面附近开始加工，避免复杂层完整重叠；须确保下层实际承托，否则拒绝不连续实体。每层可选values，否则为等高4×4网格。strokes包含points（归一化局部坐标，至少2点）与widthMm，形成圆端开放刻线，相交或重叠部分先在二维合并，再生成统一刀具；方向与深度由mode/heightMm决定。contourSnapMm为显式轮廓清理网格（mm，0关闭）；每轴最多移动半个网格，小于该精度的缝隙/孔可能合并。建议先对照原图选择0.005mm，保留原始参数可撤销。curveToleranceMm为显式曲线拟合公差0–0.05mm，0保留折线，推荐0.005mm；不推断CAD内线用途。UI和readRelief均可读取version:1、widthMm、heightMm、layers的.relief.json文件，UI逐层编辑高度和方向；AI也可直接传layers，getState及reliefReport.layers回读。分层回执不重复计算逐层材料体积，addedMm3/removedMm3为null，最终实体的测量仍正常提供。分层工程通过prepareReliefSculpt({context,featureId,layerIndex,strokes})选择单层，返回params.layers供feature.edit一次提交；各层sculpt独立保存。未有values/sculpt的等高层可显式samples=4–65初始化网格，已有网格不隐式重采样。精修保留轮廓和孔，仅改变该层高度，不保证消除相邻层台阶。timingsMs区分源复制、刀具、轮廓裁切、边界检查、精确布尔和最终有效性检查；最终仍须为有效单实体。 curveConversion回执记录清理后点列与结果边数、采样偏差、线圆弧面积及环孔数；参考对象不是未提供的原始样条。采样误差不是全域严格误差界，sourceSplineDeviation=unknown。环详情最多16项，超出用truncated/ringCount明确标记；偏差或面积变化越界返回RELIEF_CURVE_DEVIATION。详见api.source-curves。分层UI支持逐层笔刷、独立草稿和应用；初始无网格层显式选择4–65网格（默认33），已有网格不重采样。 独立局部精修：等高外凸柱面凸雕层可存 localPatches（当前最多一个），含稳定 id、domainMm:[uMin,vMin,uMax,vMax]、7–65 行列 deltaMm 和可选 mask、protectionMm；毫米域独立于全局网格，边界两排增量严格为零，保护带至少 0.02mm 与两倍轮廓拟合公差中的较大值。禁止跨越原轮廓或孔，禁止隐式改域/重采样，不保证消除层间台阶。prepareReliefSculpt 的 patch:{id,domainMm,samples,protectionMm} 启用独立域；strokes.points 仍是原图案归一化坐标。sampleReliefHeight 可用 patchId 读该域控制高度。精确预览使用 preview.start args:{featureEdit:{featureId,params:prepared.params}}，在原柱面及邻层内重建真实 BRep，preview.commit 一次提交或 preview.cancel 恢复；右侧小画布只是高度草稿。Services 使用独立语义 relief.compiled-contours-local-patch-1.1，旧服务不能冒称支持。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "relief",
     "params": {
@@ -89031,9 +88870,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "relief",
@@ -89089,9 +88926,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -89733,9 +89568,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "relief",
@@ -89791,9 +89624,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -90283,6 +90114,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -90381,7 +90213,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:bb899cc8fe39d58be4593fdd23560ac9bd5db4186ff902fda68c1e422f74cf63"
+  "docsHash": "sha256:527af830c8a48fee52a57fb9ae78960f39b8268bd4cffc588c50beadfb04bd55"
 }
 ```
 
@@ -90570,6 +90402,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Native Services required. Bounded coaxial outward cylindrical layer under rigid pose; select an interior point on its four-edge upper/lower step with circular boundaries, or a vertical side with straight boundaries. Source dimensions are inferred. Side width is at most twice the radial layer height and 10% of the support radius. Removes material only across the central transition; upper/lower steps use axial width and vertical sides use circumferential width. Central support seams are G1; protected planar end caps are G0, not a whole-boundary fillet or fixed radius. Holes and all unselected faces are preserved. Fragmented boundaries and ambiguous support reject without approximation. Save includes the compiled result for offline reopen; recomputation requires Services."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "reliefShoulder",
     "params": {
@@ -90585,9 +90421,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "reliefShoulder",
@@ -90604,9 +90438,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -90843,9 +90675,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "reliefShoulder",
@@ -90862,9 +90692,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -91230,6 +91058,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -91328,7 +91157,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:af6895633e70062582ff0b2f91db7a8002c8b54f74c58e76645884e0469720c8"
+  "docsHash": "sha256:c0ed141dd597236de9d5c3051a45ab1cd5d2cac02b073a2652cd130670c1b7bd"
 }
 ```
 
@@ -91444,23 +91273,23 @@ files.release: contextPolicy=none
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result.",
     "Use webcad_remove or v2 feature.remove; not feature.add."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "dedicated-entry-only"
+  },
   "minimalExample": {
     "op": "remove",
     "params": {},
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "dedicated-entry-only"
+    ]
   },
   "normalExample": {
     "op": "remove",
     "params": {},
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "dedicated-entry-only"
+    ]
   },
   "invalidExamples": [
     {
@@ -91593,18 +91422,14 @@ files.release: contextPolicy=none
         "params": {},
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "dedicated-entry-only"
+        ]
       },
       "normal": {
         "op": "remove",
         "params": {},
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "dedicated-entry-only"
+        ]
       },
       "invalid": [
         {
@@ -91939,6 +91764,7 @@ files.release: contextPolicy=none
     "api.modeling-pitfalls",
     "api.placement"
   ],
+  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -92006,7 +91832,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:d3182445487686b76b3cc3bdcde27591ab351d662f77585f53d52ebde37fac05"
+  "docsHash": "sha256:58ad975fb5658ab54f5a1372aef4d3f408c398de54bfbc2b2595bda59f3dc4ca"
 }
 ```
 
@@ -92239,6 +92065,10 @@ files.release: contextPolicy=none
     "XY revolves about local Y; XZ/YZ about local Z before feature placement. Defaults angle=360,offset=10. offset translates the centered profile horizontally in its sketch plane; it is not an inner radius. For a centered rectangle of width w with |offset|>=w/2: outer radius=|offset|+w/2, inner radius=|offset|-w/2; outer diameter=2*|offset|+w, inner diameter=2*|offset|-w. Example width=4,depth=5,offset=10 gives outer diameter 24, inner diameter 16 and axial length 5. A contour crossing the axis fails REVOLVE_AXIS_CROSSING at params.offset without committing. An axis-touching rectangle can form a solid cylinder. For a cylinder along +X use extrude with profile:circle,radius:r,height:L,plane:YZ, or explicitly rotate the creation placement; do not invent revolve.axis. General saved-profile rotation supports profileRevolve axisPoint/axisDirection.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "revolve",
     "params": {
@@ -92248,9 +92078,7 @@ files.release: contextPolicy=none
       "offset": 10,
       "angle": 360
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "revolve",
@@ -92261,9 +92089,7 @@ files.release: contextPolicy=none
       "offset": 10,
       "angle": 360
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -92533,9 +92359,7 @@ files.release: contextPolicy=none
           "offset": 10,
           "angle": 360
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "revolve",
@@ -92546,9 +92370,7 @@ files.release: contextPolicy=none
           "offset": 10,
           "angle": 360
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -92880,6 +92702,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -92922,7 +92745,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a08d281d621c42584d3e52cfcc50210e807eef9abfe0a00a08412e529805b07c"
+  "docsHash": "sha256:62de56d2761c40201eb0f3c2509262fbfb9665cc499a5f1907248f6e24261595"
 }
 ```
 
@@ -93068,6 +92891,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "选择一个封闭实体的两张圆柱面：第一张为两侧贯通的主杆，第二张为支杆。仅等径、轴线垂直相交的直圆杆T接头；R独立设置，线径≤40 mm、R≤20 mm。局部三个完整圆截面之外保留原BRep；接头靠近框角、含其它结构、异径、斜交、X交叉或已圆角接头明确拒绝。与日字扣定R共用解析滚球算法，曲面误差门限1e-7 mm，不缩小R、不自动转圆润。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "rodJunction",
     "params": {
@@ -93079,9 +92906,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "rodJunction",
@@ -93094,9 +92919,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -93259,9 +93082,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "rodJunction",
@@ -93274,9 +93095,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -93616,6 +93435,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -93682,7 +93502,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:3e0aa96db26167117beb045fb6660db66c39651e075165ee165fc16263991de7"
+  "docsHash": "sha256:ccab4902d1c1a32f3d956add83f6e766850472b7d18b6a3aa5f002f9adc18c45"
 }
 ```
 
@@ -93923,6 +93743,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Unified rounding entrance. Select exactly one scope: edgeIds or faceIds. Planar faceIds resolve all current face boundary edges, including holes, with a 1000-edge budget; this scope uses edge mode and reports scope.faceIds/edgeIds. With configured Services, a rectangular face beside exactly one existing full-span round uses the accepted planar-boundary-cutter: six orthogonal support planes, one equal-radius cylindrical blend, no holes, width and depth greater than 4R, height greater than R. The source radius is retained when radiusMm is omitted; strength must remain .5 and does not scale this fixed-radius path. Four side sections retain R; corners are smooth freeform patches with four isolated termination points and are not constant-radius in every direction. Unsupported geometry is rejected without retry. Other automatic local face radii use measured support depth and body dimensions, not the shortest tessellated outline segment. Exact radiusMm is never reduced. Damaged contours must be explicitly corrected upstream; this tool never fills holes or removes profile points. Edge mode auto makes one geometry-based decision: an elongated principal-axis body selected wholly near its extreme end uses measured half-section end reconstruction, otherwise standard edge fillet. No solver fallback or radius search; one candidate per preview. strength defaults .5. End depth is measured and recommended. Optional explicit mode, radiusMm or depthMm, axis/direction/profileAxis and a straight principal-axis directionEdgeId on the same source resolve ambiguity. Only LINE/CIRCLE symmetric stable end sections are supported. End operation replaces the declared end and may add/remove material. Existing profile creases up to 1 degree are reported; new body join must meet sampled 0.1 degrees. A recommendation is not a feasibility guarantee. Read roundReport in preview.scope/getState.previewScope and bodies[].roundReport: mode, resolved parameters, control, scope, endRoundingReport or blendReport, attemptCount. Failure preserves the source."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "round",
     "params": {
@@ -93932,9 +93756,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "round",
@@ -93945,9 +93767,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -94225,9 +94045,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "round",
@@ -94238,9 +94056,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -94606,6 +94422,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -94672,7 +94489,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:182ea77e0c32120829572c3c41ce8d7cd49e4349e54e5fc3fbb1f3358e4e7b0b"
+  "docsHash": "sha256:405dd2cbb6e9fe827d25e59279bb5e7b1940b765f20a63ae018bf68b0d83d899"
 }
 ```
 
@@ -94865,6 +94682,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Rebuild the whole end containing every selected edge by revolving its actual half section 180 degrees. Explicit axis/direction and profileAxis; no fixed R. Supports a single solid with a symmetric, stable straight LINE/CIRCLE section and no profile corner over 1 degree; ellipse and spline sections are unsupported. Preserves smaller inherited profile creases and reports them; not a whole-body G1/G2 claim. New body connection must meet 0.1 degrees; sampled position tolerance 1e-5 mm. Replaces material only inside the declared end region, may add and remove material, never extends overall length. Use preview.start/commit to inspect the full changed end. getState bodies[].endRoundingReport reports section checks, source/head/join angles, residual seams, target displacement, length and separate material changes. Wrong target, taper, asymmetry, insufficient depth, already rounded or invalid solid rejects atomically. World principal axes only; edit rebuilds from the original upstream body."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "roundEnd",
     "params": {
@@ -94878,9 +94699,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "roundEnd",
@@ -94895,9 +94714,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -95108,9 +94925,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "roundEnd",
@@ -95125,9 +94940,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -95487,6 +95300,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -95553,7 +95367,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:92e8f2296a9e3f5cafe39e838c4cc634bf3580349fb9ad92172b93044e00b4e0"
+  "docsHash": "sha256:898d7e372ef4e883fdb7e66e8825fcc7f5c21d432757707fdfc7f78b9cc28dc0"
 }
 ```
 
@@ -96067,6 +95881,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Select current source edges and preview automatic local grinding. No sizeMm or exact-radius target is required. Optional strength is a dimensionless fraction in (0,1], default 1; the solver derives local dimensions from the source geometry. Related edges and support faces may follow only within the reported source-derived local region. The preview and committed roundingReport.region expose sourceBodyId, requestedEdgeIds, expandedEdgeIds and affectedFaceIds; verify this explicit expansion before committing the same preview. Every generated contact, inter-patch and terminal boundary must meet the original strict G0/G1, material and locality checks. Multiple smooth curved patches are permitted; valid topology alone is not acceptance. Unsupported geometry or failed evidence leaves the source unchanged. Historical specVersion:1 and specVersion:2 features retain their original parameters and solver semantics; do not reinterpret them as automatic grinding."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "rounding",
     "params": {
@@ -96080,9 +95898,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "rounding",
@@ -96098,9 +95914,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -96317,9 +96131,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "rounding",
@@ -96335,9 +96147,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -96717,6 +96527,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -96783,7 +96594,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:26bc66543058057a85c4a8b08d50bca38e25f6c8ab2b6c284f73f8706ef11aa2"
+  "docsHash": "sha256:5d62aaed0998660c9e1aa337cbb14fc98d2b75de63c9758742a077dbea5d7c2f"
 }
 ```
 
@@ -96914,6 +96725,10 @@ files.release: contextPolicy=none
     "按显式缝合公差连接精确面；makeSolid受实际闭合和有效性校验。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "sewFaces",
     "params": {
@@ -96922,9 +96737,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "sewFaces",
@@ -96934,9 +96747,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -97095,9 +96906,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "sewFaces",
@@ -97107,9 +96916,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -97447,6 +97254,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -97505,7 +97313,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9b10c5a496d72d7dff1a8f8d61af126d59477ffeee202504176f61dab06e50da"
+  "docsHash": "sha256:2567f608fa3466d7e495f0785e1b3e62360473ab897b848fa6188e9f72114160"
 }
 ```
 
@@ -97520,7 +97328,7 @@ files.release: contextPolicy=none
     "properties": {
       "thickness": {
         "type": "number",
-        "description": "Signed nonzero wall thickness (mm)",
+        "description": "Signed nonzero wall thickness. Positive is inward and must be smaller than half the minimum solid extent; negative grows outward; zero is rejected. (mm)",
         "not": {
           "const": 0
         },
@@ -97591,7 +97399,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Positive thickness produces inward shell. Current UI selected faces may supply IDs.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs.",
   "title": "Hollow body removing selected faces",
   "category": "modification",
   "synonyms": [
@@ -97603,7 +97411,7 @@ files.release: contextPolicy=none
     "thicken"
   ],
   "description": "Hollow body removing selected faces",
-  "schemaHash": "sha256:601eb52cdadbb692ba338260abd9e5f23eca2960f26807b0b1bbb95b809378a0",
+  "schemaHash": "sha256:9e95e81f2608eb6eafc11465907a8e9e988fe3d4dbe889740750b24e41f9b520",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -97665,8 +97473,12 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "Positive thickness produces inward shell. Current UI selected faces may supply IDs."
+    "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "shell",
     "params": {
@@ -97677,9 +97489,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "shell",
@@ -97691,9 +97501,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -97743,7 +97551,7 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "Hollow body removing selected faces",
     "whenToUse": [
-      "Positive thickness produces inward shell. Current UI selected faces may supply IDs."
+      "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
     ],
     "whenNotToUse": [
       {
@@ -97753,7 +97561,7 @@ files.release: contextPolicy=none
     ],
     "params": {
       "thickness": {
-        "meaning": "Signed nonzero wall thickness (mm)",
+        "meaning": "Signed nonzero wall thickness. Positive is inward and must be smaller than half the minimum solid extent; negative grows outward; zero is rejected. (mm)",
         "unit": "mm",
         "range": [
           null,
@@ -97870,9 +97678,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "shell",
@@ -97884,9 +97690,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -97923,7 +97727,7 @@ files.release: contextPolicy=none
   },
   "purpose": "Hollow body removing selected faces",
   "whenToUse": [
-    "Positive thickness produces inward shell. Current UI selected faces may supply IDs."
+    "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
   ],
   "whenNotToUse": [
     {
@@ -98238,6 +98042,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -98304,7 +98109,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:298cbf9fe584704a04cb5f55fd658edb9457ac0d372043b0a6985f8a1ac94082"
+  "docsHash": "sha256:fe95369fb71d03b6004131530ab45de4513c6d7fbc618fde11a4ae0b69873d7f"
 }
 ```
 
@@ -98698,6 +98503,11 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Single planar sketch. Top-level placement freezes the current insertion frame; later anchor moves do not move this profile. Analytic line, three-point arc and circle remain exact. Rectangle, roundedRectangle and capsule store one parameter definition (originMm,widthMm,heightMm,cornerRadiusMm); stable analytic edges are derived, not separately edited until explicit conversion. Closed face requires explicit ordered loops and up to 16 disjoint regions; open wire uses ordered chains. Unsupported spline editing is rejected."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema",
+    "normalExampleNote": "For this parameterized rectangle, the loop references rectangle-1 once; its four edges are derived internally. Face output requires the explicit outer loop and region shown."
+  },
   "minimalExample": {
     "op": "sketchProfile",
     "params": {
@@ -98733,9 +98543,7 @@ files.release: contextPolicy=none
       ],
       "output": "face"
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "sketchProfile",
@@ -98773,8 +98581,7 @@ files.release: contextPolicy=none
         }
       ],
       "output": "face"
-    },
-    "referenceInstructions": "For this parameterized rectangle, the loop references rectangle-1 once; its four edges are derived internally. Face output requires the explicit outer loop and region shown."
+    }
   },
   "invalidExamples": [
     {
@@ -99030,9 +98837,7 @@ files.release: contextPolicy=none
           ],
           "output": "face"
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "sketchProfile",
@@ -99069,9 +98874,7 @@ files.release: contextPolicy=none
           ],
           "output": "face"
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -99455,6 +99258,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -99537,7 +99341,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ce48feb13c81a94e93d2aca32ea5b0dae47ae71efa14031f4a4326f4df153bca"
+  "docsHash": "sha256:5e12fcc38ff87bf5b9fcd83d526959b007413f09b5497cbbc58d8bed4626234e"
 }
 ```
 
@@ -99733,6 +99537,10 @@ files.release: contextPolicy=none
     "length >= width; equality gives a circular hole. Defaults center=origin,axis=Z,direction=1,angle=0. Unrotated long direction: Z axis -> +X; X axis -> +Y; Y axis -> +Z. Angle always follows the right-hand rule about the positive axis, independent of direction. Depth extends from the start plane along direction * axis. Must remove material. No automatic through depth.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "slot",
     "params": {
@@ -99746,9 +99554,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "slot",
@@ -99763,9 +99569,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -99997,9 +99801,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "slot",
@@ -100014,9 +99816,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -100353,6 +100153,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -100435,7 +100236,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:76c9d908722d023016a74954a6e6a05baef8c97c516d0531043a37c5c85a1215"
+  "docsHash": "sha256:df0e0941bab1397b0eeb31ccc17064f6dcd3f11b3154b5a632255b0ed4812406"
 }
 ```
 
@@ -100791,6 +100592,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "smoothTransition",
     "params": {
@@ -100802,9 +100607,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "smoothTransition",
@@ -100817,9 +100620,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -101013,9 +100814,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "smoothTransition",
@@ -101028,9 +100827,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -101388,6 +101185,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -101454,7 +101252,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:48eaf85cb6a70cb36ee6c1729a82f907d000d5fa63a9d2aa02e2459ae60b53d1"
+  "docsHash": "sha256:202a671f21d8deb3f43de2216217c39a38eaf37746f18d6f134bcbff6672fbb1"
 }
 ```
 
@@ -101583,23 +101381,23 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Omitted placement uses the work frame, initially world origin. Agent/API inserts do not move that frame. A user insert may lift it 0.05 mm in +Z. Read workFrame.origin and bounds."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "sphere",
     "params": {
       "radius": 10
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "sphere",
     "params": {
       "radius": 10
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -101743,18 +101541,14 @@ files.release: contextPolicy=none
         "params": {
           "radius": 10
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "sphere",
         "params": {
           "radius": 10
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -102091,6 +101885,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -102137,7 +101932,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8a7dcca2d32b3053a5cc3a33cab5b9f03eb3e0a2ba8f88bed6c85c77a216ced1"
+  "docsHash": "sha256:8f702b69494a6413436c7d3444c0befcf7a1a6c69ff3445a2fb8462a9e54a9f6"
 }
 ```
 
@@ -102274,6 +102069,10 @@ files.release: contextPolicy=none
     "Plane must cross interior. Produces compound with both halves.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "split",
     "params": {
@@ -102282,9 +102081,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "split",
@@ -102294,9 +102091,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -102455,9 +102250,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "split",
@@ -102467,9 +102260,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -102803,6 +102594,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -102869,7 +102661,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:bb1f6f5b7a5a678c70e342dbecd9850500fb2b158bb9d75ffe0da01ec37ddebd"
+  "docsHash": "sha256:354caaf38953e7595bb4cd284a984992e826c7f6931dbc2959d895c749981549"
 }
 ```
 
@@ -103138,6 +102930,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "subdBody",
     "params": {
@@ -103228,9 +103024,7 @@ files.release: contextPolicy=none
       "fittingTolerance": 0.03,
       "sewingTolerance": 0.05
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "subdBody",
@@ -103322,9 +103116,7 @@ files.release: contextPolicy=none
       "fittingTolerance": 0.03,
       "sewingTolerance": 0.05
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -103704,9 +103496,7 @@ files.release: contextPolicy=none
           "fittingTolerance": 0.03,
           "sewingTolerance": 0.05
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "subdBody",
@@ -103798,9 +103588,7 @@ files.release: contextPolicy=none
           "fittingTolerance": 0.03,
           "sewingTolerance": 0.05
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -104219,6 +104007,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -104277,7 +104066,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7fccc389cbf408873728a41604ffdde9192ec027027694c1302cd644ee10e64c"
+  "docsHash": "sha256:7fdd3d583395fad8f6948028f061d4c5ea5332ce5d45976d748bdf8a292accac"
 }
 ```
 
@@ -104415,6 +104204,10 @@ files.release: contextPolicy=none
     "按指定faceId和明确剪裁来源裁剪精确面；不是网格裁剪。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "surfaceTrim",
     "params": {
@@ -104424,9 +104217,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "surfaceTrim",
@@ -104437,9 +104228,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -104596,9 +104385,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "surfaceTrim",
@@ -104609,9 +104396,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -104949,6 +104734,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -105007,7 +104793,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c0da6dbb7c6efec6146906292479e8e586293142253c154e6589b4da8527e780"
+  "docsHash": "sha256:dd8d2c52e7df2ba2a317bd182641fcef2688a4d69b57a26c1f64018e097873c6"
 }
 ```
 
@@ -105217,6 +105003,10 @@ files.release: contextPolicy=none
     "Use circle/rectangle/roundedRectangle/arc profile. points are the PATH, so polygon profile is not suitable for this API. Consecutive path points must differ. Profile is normal to first segment.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "sweep",
     "params": {
@@ -105235,9 +105025,7 @@ files.release: contextPolicy=none
         ]
       ]
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "sweep",
@@ -105257,9 +105045,7 @@ files.release: contextPolicy=none
         ]
       ]
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -105502,9 +105288,7 @@ files.release: contextPolicy=none
             ]
           ]
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "sweep",
@@ -105524,9 +105308,7 @@ files.release: contextPolicy=none
             ]
           ]
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -105858,6 +105640,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -105908,7 +105691,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:627fcac020765650e91b7282c616a64fc07a3ee08408e8eb83054bc57ca7e1c0"
+  "docsHash": "sha256:f0cdc6fcbf4c244adaec330fdecde1b417c723318d646107b35cd82e8e7202dc"
 }
 ```
 
@@ -106088,6 +105871,10 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "tap",
     "params": {
@@ -106102,9 +105889,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "tap",
@@ -106120,9 +105905,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -106348,9 +106131,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "tap",
@@ -106366,9 +106147,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -106752,6 +106531,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -106842,7 +106622,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8011016293a5851829e161d06b5d1a39dad5bf26656c5bdd883d929955f79c57"
+  "docsHash": "sha256:c57affb62a7c69abe7edf564ead50370c0a1ad91bb113c3418bfcd8d7fee0f6b"
 }
 ```
 
@@ -106982,6 +106762,10 @@ files.release: contextPolicy=none
     "Nonzero signed thickness. Replaces source object with the selected face thickness only. Not a whole-object shell operation. Invalid offsets fail. Planar faces require adaptive volume to match source area times absolute thickness (relative consistency allowance 1e-5, absolute floor 1e-7 mm^3); inconsistent trimming or footprint change rejects the operation without commit.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "thickenFace",
     "params": {
@@ -106990,9 +106774,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "thickenFace",
@@ -107002,9 +106784,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -107157,9 +106937,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "thickenFace",
@@ -107169,9 +106947,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -107509,6 +107285,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -107575,7 +107352,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c912164503eabc82e9acca3bd78015ff37d23e7935e9c04192e322ca0e456d5f"
+  "docsHash": "sha256:8e4d8c12c085903ee0328c831df65022e8c1de9d232530fb7a1bec0f85f259c9"
 }
 ```
 
@@ -107762,6 +107539,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "先选真实圆柱面；内外材料方向按单位法向判断，支持小半径内孔。工具从所选面的轴向下界开始，按明确螺距、径向牙深和V槽包含角实际切除材料。支持内／外、左／右旋，起止处按长度裁切。周向起点沿所选圆柱面的U=0母线，随该面的轴坐标旋转。它不提供ISO/GB规格、配合公差、端部退刀槽或多头螺纹；不是标准螺纹认证。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "thread",
     "params": {
@@ -107776,9 +107557,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "thread",
@@ -107794,9 +107573,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -108016,9 +107793,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "thread",
@@ -108034,9 +107809,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -108379,6 +108152,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -108469,7 +108243,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cf3fb3a618074cd902e3d8ccc5ff417fc60404568f33b4e3ea9b0c2e12f9a732"
+  "docsHash": "sha256:3cbc44e6c885d9b0d426a67c3042f0e64cfa705420593a523180a95ad4b6d9d1"
 }
 ```
 
@@ -108607,15 +108381,17 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "majorRadius > minorRadius"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "torus",
     "params": {
       "majorRadius": 10,
       "minorRadius": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "torus",
@@ -108623,9 +108399,7 @@ files.release: contextPolicy=none
       "majorRadius": 10,
       "minorRadius": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -108787,9 +108561,7 @@ files.release: contextPolicy=none
           "majorRadius": 10,
           "minorRadius": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "torus",
@@ -108797,9 +108569,7 @@ files.release: contextPolicy=none
           "majorRadius": 10,
           "minorRadius": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -109145,6 +108915,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -109203,7 +108974,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6b7689a3b7537f4577faaf19d160aeba0b2740631b8230ffe80f7aa1cf4780f2"
+  "docsHash": "sha256:09269f67cd20142a54bf1f7a2e49e70c9aacf5b20e17d96ed4513fe5d542c2e6"
 }
 ```
 
@@ -109557,6 +109328,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "transform",
     "params": {
@@ -109564,9 +109339,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "transform",
@@ -109575,9 +109348,7 @@ files.release: contextPolicy=none
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -109980,9 +109751,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "transform",
@@ -109991,9 +109760,7 @@ files.release: contextPolicy=none
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -110332,6 +110099,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -110398,7 +110166,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f5499a7cfda5889c4aa09328445275ebe0b84019422ad022f592084cb3bab8d8"
+  "docsHash": "sha256:72be54f600bbc738aa4168621e89effa0edd335403f87baa2dff258899797fae"
 }
 ```
 
@@ -110573,15 +110341,17 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "union",
     "params": {},
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "union",
@@ -110589,9 +110359,7 @@ files.release: contextPolicy=none
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -110793,9 +110561,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "union",
@@ -110803,9 +110569,7 @@ files.release: contextPolicy=none
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -111141,6 +110905,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -111211,7 +110976,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:c880602774b6f112f173f61b6d9b727d6d4de0a213ea78ab063727ccac0420d7"
+  "docsHash": "sha256:746644a199ae286cb1962e97595dc86e82d6bffa23557a5167ce8a12bba16dfa"
 }
 ```
 
@@ -111453,6 +111218,10 @@ files.release: contextPolicy=none
     "No selected body needed. Closed regions and holes only; normalize imported bounds center to origin before position. XY normal +Z, XZ normal -Y, YZ normal +X. Curves are approximated at source import tolerance. Face output has zero solids; change output to solid and height to extrude later.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "vectorProfile",
     "params": {
@@ -111477,9 +111246,7 @@ files.release: contextPolicy=none
       "output": "solid",
       "height": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "vectorProfile",
@@ -111505,9 +111272,7 @@ files.release: contextPolicy=none
       "output": "solid",
       "height": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -111797,9 +111562,7 @@ files.release: contextPolicy=none
           "output": "solid",
           "height": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "vectorProfile",
@@ -111825,9 +111588,7 @@ files.release: contextPolicy=none
           "output": "solid",
           "height": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -112159,6 +111920,7 @@ files.release: contextPolicy=none
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -112241,7 +112003,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:725b0d03035d4507fac01a78c477893e69f177df9f8a576cc1a8f1b574e04d3d"
+  "docsHash": "sha256:ff7e56da49bc6d9fc299a70887bb774be01aa55bdc142737ecc75adc98726975"
 }
 ```
 
@@ -112253,7 +112015,7 @@ files.release: contextPolicy=none
   "title": "高度图浮雕精修",
   "label": "高度图浮雕精修",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -112270,6 +112032,7 @@ files.release: contextPolicy=none
     "浮雕精修",
     "sculpt"
   ],
+  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -112369,7 +112132,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:ed7a9b35bd74eb923413f4ae881067db33d48b039c7bd5776d4fb8a2ee67acf7"
+  "docsHash": "sha256:cc5529a6f419de1ad3f66e75f06f2f03734ef81d5f07c68ff316c87303f8abfd"
 }
 ```
 
@@ -112381,7 +112144,7 @@ files.release: contextPolicy=none
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -112398,6 +112161,7 @@ files.release: contextPolicy=none
     "浮雕精修",
     "sculpt"
   ],
+  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -112497,7 +112261,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:06ae5fe3f3080c7b0ac10d8804a39538563c97939718e9e19dcb9e4702e1acfb"
+  "docsHash": "sha256:7fc45759e9e99b8e168407f08991b7278a28b4cc4811f9d8215cb03becd31b90"
 }
 ```
 
@@ -112606,6 +112370,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -113038,6 +112806,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -113092,7 +112861,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0a370cae2c42d6504f7b8da83de9ee83e3f325db692acab98f1038f00fea0aec"
+  "docsHash": "sha256:f7f47a22a784d1252ce4f04b83ca5cab0c811b3aff2ae2544674ddb69a274c62"
 }
 ```
 
@@ -113201,6 +112970,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -113635,6 +113408,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -113681,7 +113455,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:695eb771ea93d48e4ac5424dd1baf9685663858dd3ad84174919941436572e6d"
+  "docsHash": "sha256:16a876f7ab84ecc4549f1a535e0923c151b4a0abe9f9e446d3e6af0d5a6237b9"
 }
 ```
 
@@ -113790,6 +113564,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -114207,6 +113985,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -114249,7 +114028,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:44c91610c63114b7d2d71863e8d74b3c1d15632aab036a5e7960bc63a8d058fd"
+  "docsHash": "sha256:a40450d58847aa8d808843e0b74812c24806bbbd9d4dc46ee29cb7b5b6c657ae"
 }
 ```
 
@@ -114358,6 +114137,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -114824,6 +114607,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -114870,7 +114654,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ea45c142e0363c13afa21452359433d45546d70d147673cb7edf9a9cee93982e"
+  "docsHash": "sha256:cf9dbf7f916a0d9be7879ba8aa527bd41a89a09d9ff4b031d4e0b4e0be60c384"
 }
 ```
 
@@ -114979,6 +114763,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -115480,6 +115268,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -115538,7 +115327,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2172a3c6b47ba65e65d501671b03bb481c69a3c5fc6c27913bb47cf35a4ba32d"
+  "docsHash": "sha256:f83a6eccaf73007c46c7d1850e2232e96f1c5bbd7c45c69a4ed0ba1f19b1f7e1"
 }
 ```
 
@@ -115647,6 +115436,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -116096,6 +115889,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -116150,7 +115944,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e1bcc15b87381382193369bb5863fda1f731840c973c9ec782adaae1fd498f8e"
+  "docsHash": "sha256:0237df802ccfbc74d33d7917c3ae0ee7463a1b4f00b59071d2e4bdf725df5507"
 }
 ```
 
@@ -116259,6 +116053,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -116760,6 +116558,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -116814,7 +116613,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2783296df3a01998077e6c0effc325c41ee6725cb6974464407bde7082b7b311"
+  "docsHash": "sha256:fc140a19015bea41b01cbb80784c5b8f372ec6bdf576d197c4411951ef4fba06"
 }
 ```
 
@@ -116923,6 +116722,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -117355,6 +117158,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -117413,7 +117217,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:45952f2006228c7f692af28e46e596d4a6b2a3d4835cc1b00a5a2f692bfdb752"
+  "docsHash": "sha256:7fcb8a3f6304d18a4a96e58535024420e7a1f76a751faa393eaaf14b2004ab6c"
 }
 ```
 
@@ -117527,6 +117331,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -118014,6 +117822,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -118072,7 +117881,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c6753ca8c76f32cf90b1ef97379aa0878cb32cc42b876674286454a677de2096"
+  "docsHash": "sha256:093afcee4449b986f4f0160813f390be84ee1381633d47ff14646b0e31fe9b72"
 }
 ```
 
@@ -118181,6 +117990,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -118683,6 +118496,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -118717,7 +118531,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a4c7de03a25d5a462969ac790ad311bd7c465ec2d36e4b94f9ddcf2b28244f59"
+  "docsHash": "sha256:feb451da544ff28f73ff0aad2e0ac1a0fec347825ffaa3406bc00b5395dee0e6"
 }
 ```
 
@@ -118826,6 +118640,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -119345,6 +119163,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -119379,7 +119198,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cb32d778540f0d52d0a05e132c901e661102e9d4b892c512f273fbee8bb44671"
+  "docsHash": "sha256:c4af84eb6dd8781b1239eb43dd7829ca1d2deec98bc9861b9e142baffdf2b40d"
 }
 ```
 
@@ -119488,6 +119307,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -120023,6 +119846,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -120057,7 +119881,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9d6d3f5bb19236ed4c165c7c1bb016c11a100141c022b486dae54a6ee4b4d056"
+  "docsHash": "sha256:2ccf73279b8bd6b6b9a12addf1037dc3ff6f9f5be268e6e0e86bf3583da0c978"
 }
 ```
 
@@ -120166,6 +119990,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -120632,6 +120460,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -120666,7 +120495,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3ba7db86445bee8748e11098bf839b8e38d14f0b64cbe2ee1ec0d59849716643"
+  "docsHash": "sha256:3c657846004c6ad23dbb716dc6f731451ab71289ba46a9b98119a0ded852f329"
 }
 ```
 
@@ -120775,6 +120604,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -121294,6 +121127,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -121344,7 +121178,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e11c0c3687054cf742effc08b512a9313c1df684a7dfccd43f2c22ba2232a847"
+  "docsHash": "sha256:986df6343d4e5d4f354b5dfe170418b3fdfb1e6ca34fc342d0a6bb7352fe5259"
 }
 ```
 
@@ -121453,6 +121287,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -121988,6 +121826,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -122038,7 +121877,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:79cd5b4a9e1d4ab2e114703fe5bc37c27561a2aa3589b221f865654b9283bd16"
+  "docsHash": "sha256:235fb71ab689be338de20c754d04b07dccd2acae331df947761116a4d665be3f"
 }
 ```
 
@@ -122147,6 +121986,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -122634,6 +122477,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -122684,7 +122528,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f28a987f031ab7d534fc18925319a331966bd93ac6a653907efabe32eb25a9c7"
+  "docsHash": "sha256:df8838100916058654cf598e7e0bdadf5e360361a4ebeb59f20727a062dbcc1d"
 }
 ```
 
@@ -122793,6 +122637,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -123328,6 +123176,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -123382,7 +123231,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7f327691596f9397243126bdbb6eb4a209f99d239f3295501950f8c0e8aa91b4"
+  "docsHash": "sha256:460a25219a46e1da0cf09d7e1f5c3bd7dbec693fe4a9594e1ec623b1b31e37df"
 }
 ```
 
@@ -123491,6 +123340,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -123923,6 +123776,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -123977,7 +123831,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3ed527674b77d7636801db453172ef79a401d5d301e56612a82aef81f63f7d3b"
+  "docsHash": "sha256:c58f3cc00f70e0a070584903f2f6a72226eed6f1e16d50fad073cb9d8e5bf5d7"
 }
 ```
 
@@ -124086,6 +123940,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -124552,6 +124410,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -124606,7 +124465,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dc12b32ff07482ab6137711604e9582a1f6105f934fbb5c54e54d6a0d934d067"
+  "docsHash": "sha256:5c885565113d20e280277e9f2e90f89e390a196d21d29303d06d42904677f251"
 }
 ```
 
@@ -124715,6 +124574,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -125251,6 +125114,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -125293,7 +125157,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2a19a32a4e9e0d10fae01502905cc8d87235028bd03ba46e2f9f0634c664c806"
+  "docsHash": "sha256:55f28ad24ae71d539b1be92ea68950faf8121686f16509f38428f9ef29e23c4b"
 }
 ```
 
@@ -125402,6 +125266,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -126082,6 +125950,7 @@ files.release: contextPolicy=none
     "restrictions": "Round, equal frame/bar diameter and no gap; complete junctions must fit between corners. rollingBall jointRadius is an independent 3D radius (0<R<=20 mm; wire diameter<=40 mm). profileRound jointRadius is planar. sourceFree ignores jointRadius; legacy sourceFixedR retains wireDiameter/4. Invalid dimensions fail before commit."
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -126124,7 +125993,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2926dcef35ee37703b74008c0d81630e7fb249ea4dba05905e8bdb5dbfa69649"
+  "docsHash": "sha256:74e94e0ee6fbbffe9f04e7c80fc60a6b8156f71e9429dd9b10f08f1912649da8"
 }
 ```
 
@@ -126233,6 +126102,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -126768,6 +126641,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -126810,7 +126684,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5a68f9aa7fd80b67c988fec90009e1c771fd7653dfadd96918ff053e9dc88f60"
+  "docsHash": "sha256:27bf30068a15b6e75c0c8050c6324a8595797cd4b80b35ea6963bea9565d71c0"
 }
 ```
 
@@ -126919,6 +126793,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -127385,6 +127263,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -127427,7 +127306,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7bf527177cdd6407e54943375cd260f536345160177ed07b680dbfe7dc7e5f87"
+  "docsHash": "sha256:b89d052bcb184a6af0e9720961c99e25daa72968c14e876f4ea49e6a757b9f83"
 }
 ```
 
@@ -127536,6 +127415,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -128070,6 +127953,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -128112,7 +127996,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:02f08aa17bfe280b7a64ebb0eeb436f927d8ba5035e313bceb272b613ff0d8bb"
+  "docsHash": "sha256:ddab3cc2537df15dd11a9a214a8982782d14af49bc875bf365193ad0e68a74b0"
 }
 ```
 
@@ -128221,6 +128105,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -128759,6 +128647,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -128801,7 +128690,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f98632df81140f061ac1bd4ea3526893a1c7b338046356dc48ed593903160bb0"
+  "docsHash": "sha256:6bba0b6339557c62b7535e43b2273d07a2b31e43b146483bfc531997feb94620"
 }
 ```
 
@@ -128910,6 +128799,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -129419,6 +129312,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -129473,7 +129367,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1c07f156fa1443981202062d2fa8a1d630c953440ea932396e5215016a620536"
+  "docsHash": "sha256:6aedc41df3957e918ff1e89520ede04b48fe2fc6fdb86a15fbced3bd1b013772"
 }
 ```
 
@@ -129582,6 +129476,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -130075,6 +129973,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -130129,7 +130028,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:61b79d70bd3c679e97babfa1d35ff394290eca747f142ddc6abd746b73036652"
+  "docsHash": "sha256:9e98aa41143793b1262d32c3c243fbc5f0fe8e6a58b11c6e7605b40332cb745b"
 }
 ```
 
@@ -130238,6 +130137,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -130748,6 +130651,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -130802,7 +130706,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:86b1b12302dadef993fdf4c1d82104ed02f58052ae373aae1e9e76bd65f7677d"
+  "docsHash": "sha256:2087605f8f9fa5aa4319d6075087349a5491eafe90407e7edce0c4cb947f39d8"
 }
 ```
 
@@ -130911,6 +130815,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -131436,6 +131344,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -131490,7 +131399,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3b25c6cb04a19a9a4ab162af10f42050b60458fd182a740923071b23504c244d"
+  "docsHash": "sha256:a3f208e3ed8f92048d6e84de5b0bdfda5d03c948cad55b05cc196886d6ab08fa"
 }
 ```
 
@@ -131599,6 +131508,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -132214,6 +132127,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-chains",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -132268,7 +132182,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:35b60129597e7800aaa5c0165355360fd6bcea9571d7ab12b6d1a60f7678f963"
+  "docsHash": "sha256:4ef7c27ff1e87a3c6340eb7277f1ee300facaada356d76b041d304af2fda072a"
 }
 ```
 
@@ -132377,6 +132291,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -132942,6 +132860,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-installation",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -132996,7 +132915,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:dbea7f5be10128d3fe53b3441ede71571d7f0fe0b4c5102eb83ba85c285c269f"
+  "docsHash": "sha256:778473d09fb70c3ac8f490d369a28717dd1806504d68f32a4af0e49ac6b794fb"
 }
 ```
 
@@ -133105,6 +133024,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -133805,6 +133728,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-installation",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -133835,7 +133759,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3692f04a45612079502922dd952f2d3d1538a0e9fe72026e5f1924d693d7eddc"
+  "docsHash": "sha256:87c0482684ca67f61ce73ed61c205997ffbd562a6a46340a7080d6f52c34e2dd"
 }
 ```
 
@@ -133944,6 +133868,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -134421,6 +134349,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -134463,7 +134392,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:99e8869ef6aeb9421ea025ae76415fec4a384c218c25dffa7e59d41e74cce948"
+  "docsHash": "sha256:b8825323291123200e9d1af60e6271510260bd9a33e14d2a54b05767bd1b48b3"
 }
 ```
 
@@ -134572,6 +134501,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -135137,6 +135070,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -135179,7 +135113,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:80dc563f19a3822c85736aba5e8ed67327c95fa6d812ec8bef566feca9fc7399"
+  "docsHash": "sha256:23a394495d8c5424a3dcd69df4b7272544f1750100c9bdc3b08774b3b8e3f58a"
 }
 ```
 
@@ -135288,6 +135222,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -135813,6 +135751,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -135855,7 +135794,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:40c8c0ba9f416b462bfa3f9cbd4f6ee0059d4d7fddd992b33441639bfa6b46fc"
+  "docsHash": "sha256:69f8e42724e7ab2b0239cceb13802005cab10cd1358555bc05b85d4aecba9437"
 }
 ```
 
@@ -135964,6 +135903,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -136435,6 +136378,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -136485,7 +136429,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fe5bc05b4d1b0fe73b4e6dd22dce2691c4099561dbfbb6520cd8add13d4fa462"
+  "docsHash": "sha256:1c3c6aba57be9dbefb0949d510c61abf743a3406e9b9b97c62c057c064d0238e"
 }
 ```
 
@@ -136594,6 +136538,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -137177,6 +137125,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -137227,7 +137176,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:01bd12fced2286e755c8b332aa9dbd95b1e27a69b4b9ea7775194795bdea95b2"
+  "docsHash": "sha256:daa97a78bd5a1ed02f7abbd1a6104b61d60ff072269ae79af83d5022981e07a4"
 }
 ```
 
@@ -137336,6 +137285,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -137903,6 +137856,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -137953,7 +137907,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cc29532ab496e35d9e5340624ec0ada7daaeeb88033ab8f10dae05d0ee595efe"
+  "docsHash": "sha256:87b3a377d3799b29bc78453b6c65e8aeecde7a2b4b532ac38afb15dfc5331053"
 }
 ```
 
@@ -138062,6 +138016,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -138523,6 +138481,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -138577,7 +138536,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:58d53705319ac40017233d6612e9c4d115fcc51922ad313ef1e327f3f5c51e46"
+  "docsHash": "sha256:cb3f3724b1219d51e182730741d919947b96cad40b7f77c755e1e04f562152c6"
 }
 ```
 
@@ -138686,6 +138645,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -139151,6 +139114,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-hardware",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -139201,7 +139165,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bea76456377e24652f0e1094e88945ba23f8602901f63c28c5d6a2fb0c1c8300"
+  "docsHash": "sha256:f2c3ddf95cbdfc76781ce923cc47e387b80df71cb3aabb891f00d4e0148cf70e"
 }
 ```
 
@@ -139310,6 +139274,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -139990,6 +139958,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-eyelets",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -140020,7 +139989,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:959d479d3d0e301fc6d3b762c471ba2a077ab22de1ba71568e18d54a7fb266f4"
+  "docsHash": "sha256:794402e3fb8e5fad568993db5111cc04abb9e5d99a3ba0b6f5df14ec8642a8ed"
 }
 ```
 
@@ -140129,6 +140098,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -140773,6 +140746,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-eyelets",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -140803,7 +140777,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3e5927db2ac562c3c02d3c5a0b054a0eb89bf6bb145067d79971b8337eeba9d2"
+  "docsHash": "sha256:25f56dbb6373f9e3fd3b6f39e9f7421020764743b01679d1c5a9158c5e7da821"
 }
 ```
 
@@ -140912,6 +140886,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -141689,6 +141667,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -141731,7 +141710,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6b055dd3ac939b2b46e137018d1a9f319011149a2104fba2e2fabc952272fda4"
+  "docsHash": "sha256:3cf3b68e16cf557d369057a49a95966f7aa2275dc8cc5d18c7478a8a9f8cd95b"
 }
 ```
 
@@ -141840,6 +141819,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -142576,6 +142559,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -142618,7 +142602,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7ab7316b8911dbf313801bb9b88768037b3e99df75b00e0d109e62ebe8b881c6"
+  "docsHash": "sha256:f7c8e9f3f5378a714060d16358df8df725284f35893b6a7e48c85c78442d82fd"
 }
 ```
 
@@ -142727,6 +142711,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -143284,6 +143272,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-chains",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -143314,7 +143303,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c743767a1fce37532399191067370694c813d548719e16d32b3d9a5dbf72c52d"
+  "docsHash": "sha256:7a6363814b9e518420b9efc7a26da2b03bc28381862c87f58bf4cdc1ea62f786"
 }
 ```
 
@@ -143423,6 +143412,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -143980,6 +143973,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-chains",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -144010,7 +144004,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b3d39f82a1c58be395901d5e6acf62b2693f0a1d66ae96a000f6a49087ded3de"
+  "docsHash": "sha256:063660c88a3208722a59ef799f055572a95a227ea564e5afb0a148a7c44caa83"
 }
 ```
 
@@ -144119,6 +144113,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -144714,6 +144712,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.quick-chains",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -144744,7 +144743,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d006f8c572ebd8f70dfcefcc731bfddb25c9ae050314e891a7f8394b618cbf7d"
+  "docsHash": "sha256:568ffb79aed8122ee5f2ef63de4a7f3426ad8ff094a36e67108049514bf4d560"
 }
 ```
 
@@ -144853,6 +144852,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -145335,6 +145338,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -145385,7 +145389,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:933c448d23dac8b516f65896a3559ecaa2c160f18480ccdcf564c5837a482cb0"
+  "docsHash": "sha256:10e2ee73627fb953a8a0a833746d390a9b64ac4824baac459a22ed0a4f651664"
 }
 ```
 
@@ -145494,6 +145498,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -145991,7 +145999,7 @@ files.release: contextPolicy=none
     }
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。 visibleInLibrary 为 false：不出现在模型库列表，Page API 仍可执行，提交后的使用统计不会因此失败。",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -146015,6 +146023,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -146069,7 +146078,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5cb6bbc364449451ecb8ef296d88f557e955d3755a9492dd9100389e7b58f841"
+  "docsHash": "sha256:a826e5278456d02f8200f69d5f50027512adf8dfa0c265373274f06fd1a91b64"
 }
 ```
 
@@ -146178,6 +146187,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -146691,7 +146704,7 @@ files.release: contextPolicy=none
     }
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。 visibleInLibrary 为 false：不出现在模型库列表，Page API 仍可执行，提交后的使用统计不会因此失败。",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -146716,6 +146729,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -146778,7 +146792,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:060d1a7f0e636c7d6abddae21ca540b5957e547170705298176a96f9befefe8b"
+  "docsHash": "sha256:099cb576fa2bd86625e823a5773d0a1d11965b6739c71cb94974c20691528029"
 }
 ```
 
@@ -146887,6 +146901,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -147418,7 +147436,7 @@ files.release: contextPolicy=none
     }
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。 visibleInLibrary 为 false：不出现在模型库列表，Page API 仍可执行，提交后的使用统计不会因此失败。",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -147444,6 +147462,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -147506,7 +147525,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:23c0939443dcf72a6ddb8045e0da3f875861bee46249c3a5c03a5bc02968fd77"
+  "docsHash": "sha256:cd534ff758ef58a6d70b03a644fb62345854c5b49fd29147e73abb529d741a93"
 }
 ```
 
@@ -147615,6 +147634,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -148080,7 +148103,7 @@ files.release: contextPolicy=none
     }
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。 visibleInLibrary 为 false：不出现在模型库列表，Page API 仍可执行，提交后的使用统计不会因此失败。",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -148102,6 +148125,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -148152,7 +148176,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2f86dc56127c6af16176c6fed9e088297aaa8233e9159d57eeabc991064a2700"
+  "docsHash": "sha256:c0aff764e483f51b7f13345849fef693c59f76874b2290b407a5883ef277d72e"
 }
 ```
 
@@ -148261,6 +148285,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -148774,7 +148802,7 @@ files.release: contextPolicy=none
     }
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。 visibleInLibrary 为 false：不出现在模型库列表，Page API 仍可执行，提交后的使用统计不会因此失败。",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -148799,6 +148827,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -148849,7 +148878,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9084c6adc5e8fd733c734741b74d64382abe4adaf4e5f82e4a40de9d44367198"
+  "docsHash": "sha256:b4c6d9b73cc8570ddb50047590aac3e584f7ad4ab4b9e072450dd436c46728cd"
 }
 ```
 
@@ -148958,6 +148987,10 @@ files.release: contextPolicy=none
   "knownUnsupportedCases": [
     "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "invalidExamples": [
     {
       "params": {
@@ -149455,7 +149488,7 @@ files.release: contextPolicy=none
     }
   },
   "runtimeAvailability": "requires_ready_page",
-  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。 visibleInLibrary 为 false：不出现在模型库列表，Page API 仍可执行，提交后的使用统计不会因此失败。",
   "minimalExample": {
     "op": "quickModel",
     "params": {
@@ -149479,6 +149512,7 @@ files.release: contextPolicy=none
     "refs": []
   },
   "docs": "api.workflow",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -149529,7 +149563,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:69156865e5130a3b62493110f2c4af7b77d79a128ab8f53c7081860508b9d507"
+  "docsHash": "sha256:5784555a935315b25b73fd8c2048446b90347483ac0f247e78481ddee691ac43"
 }
 ```
 
@@ -149540,11 +149574,12 @@ files.release: contextPolicy=none
   "id": "reliefWizard",
   "title": "reliefWizard",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "reliefWizard 不能作为 api.run 的 method。请直接调用 api.reliefWizard。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -149832,7 +149867,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:37b4ff386f21acb5cfc5cd5f379e817b5a7ee015976c12e0d0431b7a2f98c8ca"
+  "docsHash": "sha256:041376e172d2914c84140d71033fc88ffafb8fe83059f183eb32a01fbe0286ad"
 }
 ```
 
@@ -149843,11 +149878,12 @@ files.release: contextPolicy=none
   "id": "prepareToolCall",
   "title": "prepareToolCall",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "prepareToolCall 不能作为 api.run 的 method。请直接调用 api.prepareToolCall。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -150024,7 +150060,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:048123835d47612f39598ba03f4efc19691cc11cad181da1c3395aceab337b65"
+  "docsHash": "sha256:b2251ef7834890faeac51ab40b11f3780206e3f7caf6861b88a32b29492f6ed3"
 }
 ```
 
@@ -150035,11 +150071,12 @@ files.release: contextPolicy=none
   "id": "prepareOperation",
   "title": "prepareOperation",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "prepareOperation 不能作为 api.run 的 method。请直接调用 api.prepareOperation。",
   "docs": "api.prepare-operation",
   "relatedTools": [
     "prepareOperation",
@@ -150450,7 +150487,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:45c8bca10fabcfb76f72fec24bbaef77172fd0b6567a0e7b541b1bb8fb5827ca"
+  "docsHash": "sha256:a9fb63a1d796cd403ce4dc8c7af7ea0d874318a9438eaddbc9c79f9bab6a3ee1"
 }
 ```
 
@@ -150461,11 +150498,12 @@ files.release: contextPolicy=none
   "id": "applyPreparedOperation",
   "title": "applyPreparedOperation",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "applyPreparedOperation 不能作为 api.run 的 method。请直接调用 api.applyPreparedOperation。",
   "docs": "api.prepare-operation",
   "relatedTools": [
     "prepareOperation",
@@ -150648,7 +150686,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:866e4e60c4c5a3d99284a5bd8c2427d9ea96a495d0e46c9a0964a4d6ba986650"
+  "docsHash": "sha256:a6ef2fa0a99fb2302aa4112c48ecc7e9c4692cd75741627c1524be8d09b506cf"
 }
 ```
 
@@ -150659,11 +150697,12 @@ files.release: contextPolicy=none
   "id": "getDebugReport",
   "title": "getDebugReport",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getDebugReport 不能作为 api.run 的 method。请直接调用 api.getDebugReport。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -150760,7 +150799,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6b7d3b9bd93582a8e977141507420437cc752163b76dc786978adc6198f70b99"
+  "docsHash": "sha256:10681a2bf10e4232937c08692a460e69b89844a689f5eec4128c0623044f88cf"
 }
 ```
 
@@ -150771,11 +150810,12 @@ files.release: contextPolicy=none
   "id": "setDebugPanel",
   "title": "setDebugPanel",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "setDebugPanel 不能作为 api.run 的 method。请直接调用 api.setDebugPanel。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -150872,7 +150912,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b9f5ae9696ac8f123ea00cf4138fd2768b91b4f9012e3d28e6a11bc7e1dc4c0b"
+  "docsHash": "sha256:ecf0a7b3d9e6072e5cff014f3084ff1bb28d9841572c20fa91d26dfba0b0ee84"
 }
 ```
 
@@ -150883,11 +150923,12 @@ files.release: contextPolicy=none
   "id": "getMetalMaterials",
   "title": "getMetalMaterials",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getMetalMaterials 不能作为 api.run 的 method。请直接调用 api.getMetalMaterials。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -151003,7 +151044,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ce7bee5ce02e07f13304b94fb7c2269abed4a34a1b247a5da0cee4178e0c7da2"
+  "docsHash": "sha256:1d1c3152599e78ebe3a466928600ed70387f5072c119a2f1b0bd274b98f17537"
 }
 ```
 
@@ -151014,11 +151055,12 @@ files.release: contextPolicy=none
   "id": "setMetalMaterials",
   "title": "setMetalMaterials",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "setMetalMaterials 不能作为 api.run 的 method。请直接调用 api.setMetalMaterials。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -151177,7 +151219,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cbc04968bdeaa465df79f02130e095cafa56138140f1c67966cb742996b9ae6f"
+  "docsHash": "sha256:a8e700a8efdf31bb7fd137a082913467a1bdd2bb3ee85a80314a6f556dd6dda9"
 }
 ```
 
@@ -151188,7 +151230,7 @@ files.release: contextPolicy=none
   "id": "getMaterials",
   "title": "getMaterials",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -151254,7 +151296,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bf050a5c020c30d999589461457a9a6ed636cef5403aca0a1fe23907f6fe5eec"
+  "docsHash": "sha256:1074070fec1dba0558ffa4f9c991ab3b2ef174308028d108bd7340d4127a47bb"
 }
 ```
 
@@ -151265,7 +151307,7 @@ files.release: contextPolicy=none
   "id": "measureMass",
   "title": "measureMass",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -151356,7 +151398,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:df3b8b1aecc7c378ac1662dbd22ca192462be8d20b145a75448e18abef0480ee"
+  "docsHash": "sha256:40e08d559d195c80863e07951b898dfe5308b5b7968e925c2b8cc127a2b0c48a"
 }
 ```
 
@@ -151367,11 +151409,12 @@ files.release: contextPolicy=none
   "id": "reliefDesignFit",
   "title": "reliefDesignFit",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "reliefDesignFit 不能作为 api.run 的 method。请直接调用 api.reliefDesignFit。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "reliefDesignFit",
@@ -151634,7 +151677,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:b9c485f1f9809fcaa07cae2a764851c2175780fbe2575ba3f386870ea2b6e6cf"
+  "docsHash": "sha256:1092874599a0382aedda82df00a4b9e394d246cdd92e115c0dc5326c0814e247"
 }
 ```
 
@@ -151645,11 +151688,12 @@ files.release: contextPolicy=none
   "id": "prepareReliefDesignRelief",
   "title": "prepareReliefDesignRelief",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "prepareReliefDesignRelief 不能作为 api.run 的 method。请直接调用 api.prepareReliefDesignRelief。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "prepareReliefDesignRelief",
@@ -152059,7 +152103,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:d6fbb770c1c47be264ff416a31858e4afb9b753b60378afb200b06143adaea5c"
+  "docsHash": "sha256:aca7983fe6f935ac01efa821b01b66cd0eb84a9b0dc8a1a6e644b0e6e11df753"
 }
 ```
 
@@ -152070,7 +152114,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignReference",
   "title": "reliefDesignReference",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -152276,7 +152320,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:b7c3292593f99e564ac98c70a26c97efaded54514d1ebe2384ab88eacc437de6"
+  "docsHash": "sha256:971572083a51a021b85b28aedaa2fd95070c589ee7b24d41970e2b3aea1d6168"
 }
 ```
 
@@ -152287,7 +152331,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignField",
   "title": "reliefDesignField",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -152547,7 +152591,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:89be5a094d9e7cca161358710d7ed2b8132b61a0103dd235b8a4bc0df989c650"
+  "docsHash": "sha256:8ff250c2c64e22a9cf0e1d8c6eced6a340f6f2630d9953052e65dba80c8ae9e6"
 }
 ```
 
@@ -152558,7 +152602,7 @@ files.release: contextPolicy=none
   "id": "readLogo",
   "title": "readLogo",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -152899,7 +152943,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:88b633c48964f48f8b764bae786957d77639dba570d5a333e0853ef3acc402d5"
+  "docsHash": "sha256:890f705d9632a28800e430aa6ab3ee7b745c42f2ceaff9f230eaa253e2e7e123"
 }
 ```
 
@@ -152910,7 +152954,7 @@ files.release: contextPolicy=none
   "id": "reviewLogo",
   "title": "reviewLogo",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -153127,7 +153171,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:6c6b4964b03cb3f34627ef438f421233f7e09ec3731e0a87163cf0c596a948ab"
+  "docsHash": "sha256:a5ba291bc798a1177f12345fdbeac9bbe81a22cd45183162ef1990366171245e"
 }
 ```
 
@@ -153138,7 +153182,7 @@ files.release: contextPolicy=none
   "id": "logoWizard",
   "title": "logoWizard",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -153504,7 +153548,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:ac641fce2f0700033974c3f0fa9e39f506cfff3e0323ce636786cea1295aff80"
+  "docsHash": "sha256:50ed5a0b9528c82c5adc0ca872c22159a20b99e059507969d9c53320dfa319b6"
 }
 ```
 
@@ -153515,11 +153559,12 @@ files.release: contextPolicy=none
   "id": "getBatchReceipt",
   "title": "getBatchReceipt",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getBatchReceipt 不能作为 api.run 的 method。请直接调用 api.getBatchReceipt。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getBatchReceipt",
@@ -153627,7 +153672,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9951e623ce44291fd347239c455bcfbe1cbb199250edd733d9be4415da346ab3"
+  "docsHash": "sha256:6270b44a5d1ac87e217c5c11d5dd4dc0e7eb5511536ae44c84b415d538bf032c"
 }
 ```
 
@@ -153638,11 +153683,12 @@ files.release: contextPolicy=none
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "probeBlendRadius 不能作为 api.run 的 method。请直接调用 api.probeBlendRadius。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "probeBlendRadius",
@@ -153911,7 +153957,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:37b3adf6286697cb9a8da9172b746a49cc18060d23a6ba2ff856dbdcf2544b06"
+  "docsHash": "sha256:62c10395e5e5263aa3bf1ff89ed30dd4fbeef6b8169c3cc413bc2920f3a06438"
 }
 ```
 
@@ -153922,7 +153968,7 @@ files.release: contextPolicy=none
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -154101,7 +154147,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:39492201842db428390bf4f7a35084b5992177ae82d2be9c951d0bbc9a54a715"
+  "docsHash": "sha256:8a3df104aa3d4b614c8ea8981a83a4698645b166848dd4f41d298eaa0b0aa07b"
 }
 ```
 
@@ -154112,7 +154158,7 @@ files.release: contextPolicy=none
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -154330,7 +154376,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:4a35644192a00423c9b48f0e20f40a8a09644eccc06e7e59254da7148c684ef2"
+  "docsHash": "sha256:4cb48ea461377a7f1de74adc318c4301d51f76fc069d6c1feb66dd8c5e5ec68e"
 }
 ```
 
@@ -154341,7 +154387,7 @@ files.release: contextPolicy=none
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -154457,7 +154503,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9f47a53b90ad0f3eea48837e779910bd153672eb5423b86038c1f7c29d70adc3"
+  "docsHash": "sha256:05b460d4f2a346fc2e061ff1a3bb9531ca8ce6a03cdc01de6d6c4ba201711355"
 }
 ```
 
@@ -154468,7 +154514,7 @@ files.release: contextPolicy=none
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -154699,7 +154745,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4f694fa42ee1f409c35adf7434f8cf30fc14422f8e91d1134c3a4f49aa3e7f8b"
+  "docsHash": "sha256:a47d9f43e95cd8c7ff3d9388f71f3998095ce5c71b87fb2f3dacfb2f3500c50e"
 }
 ```
 
@@ -154710,7 +154756,7 @@ files.release: contextPolicy=none
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -154924,7 +154970,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2733e52d3ee161585e6a557543a20b00d498f519abb9cdbaf567f11668a19cff"
+  "docsHash": "sha256:ce14e9c068172de97a228636cc8856f32892d673db738a5e3a43878cd429656c"
 }
 ```
 
@@ -154935,7 +154981,7 @@ files.release: contextPolicy=none
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -155231,7 +155277,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:e5a07e76666adcb3bc74f20501d8e95d1f5392510637ee82b5ceed8211027847"
+  "docsHash": "sha256:47576baee5aafb0801e04839bea0095a2d41cde7b6b39ce9fc7da8c021be196b"
 }
 ```
 
@@ -155242,11 +155288,12 @@ files.release: contextPolicy=none
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "decideServicesWait 不能作为 api.run 的 method。请直接调用 api.decideServicesWait。",
   "mcpCall": {
     "tool": "host-only",
     "method": "decideServicesWait",
@@ -155382,7 +155429,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d1c97d6c0ee3e8922ef51cf3b4e444d4ec30080756ab9735e71591f525376b2b"
+  "docsHash": "sha256:1facec0d1b9fc9f1d91b3f5c4a5c96004a329d489234743a15df416371960081"
 }
 ```
 
@@ -155393,11 +155440,12 @@ files.release: contextPolicy=none
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "recoverServicesJob 不能作为 api.run 的 method。请直接调用 api.recoverServicesJob。",
   "mcpCall": {
     "tool": "host-only",
     "method": "recoverServicesJob",
@@ -155538,7 +155586,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:aeeb794512f60d4d40abd7b52dcd9e53c814249ce96c073a194aaf21afde1c2c"
+  "docsHash": "sha256:d20d0520769954d13a1dda5f995cea2e026e9e44e9a9ff8561db2279dcfe8955"
 }
 ```
 
@@ -155549,11 +155597,12 @@ files.release: contextPolicy=none
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "prepareReliefTopologyUpgrade 不能作为 api.run 的 method。请直接调用 api.prepareReliefTopologyUpgrade。",
   "mcpCall": {
     "tool": "host-only",
     "method": "prepareReliefTopologyUpgrade",
@@ -155696,7 +155745,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:d39518e41758237cddfdb1a7b5c50ac7af66a5f6d0f0aa975f9f213cb5b03dd5"
+  "docsHash": "sha256:8e667f767ce58f8a92416eae1012d5717c26aa1f88904cc23faccfdc7995cd63"
 }
 ```
 
@@ -155707,7 +155756,7 @@ files.release: contextPolicy=none
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -155982,7 +156031,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:acabcbc42f8190bcf9601bb69d6894f65acf01013fd700c592bfea36770e82ca"
+  "docsHash": "sha256:4f21f8b3bed968a49a92b624d96a1c3fa72bda94c737e15727972207102295f1"
 }
 ```
 
@@ -155993,7 +156042,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -156235,7 +156284,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:4fbf701020ee27680a95c542776ed5b7ae6287c48516d2432b1a8cc5cc14a1b9"
+  "docsHash": "sha256:80fa0308823e941ee7b51ec97b7a5f63346919a00c65c5036073bcc37a795860"
 }
 ```
 
@@ -156246,11 +156295,12 @@ files.release: contextPolicy=none
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "readRelief 不能作为 api.run 的 method。请直接调用 api.readRelief。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "readRelief",
@@ -156605,7 +156655,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f2645368683e357a4cf090dc03714892e25eb9f1cc67964f2a895e9fc1f0ad82"
+  "docsHash": "sha256:0dd8e74ad123790a39c371819cad9927cdc49e796bcebf811cc9c0a413563169"
 }
 ```
 
@@ -156616,11 +156666,12 @@ files.release: contextPolicy=none
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getHistory 不能作为 api.run 的 method。请直接调用 api.getHistory。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getHistory",
@@ -156712,7 +156763,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0c99da17bba35c7b9c4b3247199beea84522121111d40a8f8fbc3f916aac8b82"
+  "docsHash": "sha256:30b97c2ec08aa291a9877f9a1e6298b27170781f420d41f4678870f7a9fa72c4"
 }
 ```
 
@@ -156723,11 +156774,12 @@ files.release: contextPolicy=none
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "planAlignment 不能作为 api.run 的 method。请直接调用 api.planAlignment。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "planAlignment",
@@ -156995,7 +157047,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:307a443d7dd24c6b0afd4ce070d881bef3b52c5763b9d6eb98ba717c7ffcd722"
+  "docsHash": "sha256:52cb67c340e9f4f5cf84016150ce797ca264b7e644f48d64197f30ff862e9e82"
 }
 ```
 
@@ -157006,11 +157058,12 @@ files.release: contextPolicy=none
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "selectRectangle 不能作为 api.run 的 method。请直接调用 api.selectRectangle。",
   "mcpCall": {
     "tool": "webcad_view",
     "method": "selectRectangle",
@@ -157238,7 +157291,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e1ddaa0ccbcbc65a323528d536f1d649f45584e26a27d596a109cc26f41125c5"
+  "docsHash": "sha256:6665a53621d3305c908985d0c22f9341c3115f342363119c07cadf13cc5a51fb"
 }
 ```
 
@@ -157249,11 +157302,12 @@ files.release: contextPolicy=none
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "createDrawing 不能作为 api.run 的 method。请直接调用 api.createDrawing。",
   "mcpCall": {
     "tool": "webcad_artifact",
     "method": "createDrawing",
@@ -157507,7 +157561,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:828dbd67299f0dba36fb5734ca96e8dd5451c32c8c758dc87f04968424bafa4b"
+  "docsHash": "sha256:68b586e6d1c8efe9d9c784fcdce4d6636628082d497a11b1fee27b6231f82c81"
 }
 ```
 
@@ -157518,11 +157572,12 @@ files.release: contextPolicy=none
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "exportDrawing 不能作为 api.run 的 method。请直接调用 api.exportDrawing。",
   "mcpCall": {
     "tool": "webcad_artifact",
     "method": "exportDrawing",
@@ -157726,7 +157781,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:94e1ccccbaac20c2a8aee12018451713abf5836d10bbf0fcbf40e7ed0a453c95"
+  "docsHash": "sha256:c795128503c554d3c55d89566f71116725d493fb70c2486fd2dc4166fa5f1ce6"
 }
 ```
 
@@ -157737,7 +157792,7 @@ files.release: contextPolicy=none
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -157847,7 +157902,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5158a88357b1f2b42fa4f6b3099f23e97a2510757b5dc0b661875b5c29d0b273"
+  "docsHash": "sha256:89209feac471ec3ff831a5e23ca70ac1664f996fc734b9cef9509288f8df3196"
 }
 ```
 
@@ -157858,11 +157913,12 @@ files.release: contextPolicy=none
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "copySelection 不能作为 api.run 的 method。请直接调用 api.copySelection。",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "copySelection",
@@ -158062,7 +158118,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3c697c1795620f73110e1d1f76c2221a068e577d13992930d373b16a1ea75295"
+  "docsHash": "sha256:adb226c8f9d8d4eba9923ba6e6a99735e4ad743ccb2c91a655c6cef1379a47f2"
 }
 ```
 
@@ -158073,11 +158129,12 @@ files.release: contextPolicy=none
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "pasteSelection 不能作为 api.run 的 method。请直接调用 api.pasteSelection。",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "pasteSelection",
@@ -158261,7 +158318,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:91befc8bcbc56eea4016203750f152a0d8cd54a5493b622cec3ac3fba4672365"
+  "docsHash": "sha256:8f67ed9047012c74d9fdd26dcc05d511b982c88e15aa9d78964f2016a1050eb5"
 }
 ```
 
@@ -158272,11 +158329,12 @@ files.release: contextPolicy=none
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "createRequestContext 不能作为 api.run 的 method。请直接调用 api.createRequestContext。",
   "mcpCall": {
     "tool": "host-only",
     "method": "createRequestContext",
@@ -158380,7 +158438,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:67c67c15bd159a5335e3d6899a086a72201165e555c422641a85f996dd34eef2"
+  "docsHash": "sha256:4ab32d2822bf1145962671b543e475f937f62248d8dfb607dc28d28778aa34e5"
 }
 ```
 
@@ -158391,11 +158449,12 @@ files.release: contextPolicy=none
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getUILayout 不能作为 api.run 的 method。请直接调用 api.getUILayout。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getUILayout",
@@ -158525,7 +158584,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ee8e74f487a1544938f883ef1ac9a4978abc82c8531ae4274555143d13468f46"
+  "docsHash": "sha256:43226d9caf096d5eae308e962b714511905489fc3df56f2dac2cc115d65166f4"
 }
 ```
 
@@ -158536,7 +158595,7 @@ files.release: contextPolicy=none
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -158750,7 +158809,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d5eef45dbb8e9be669223ba0709e60f6b10095abb507e4207b9c224b72fa1802"
+  "docsHash": "sha256:46e456f3eea8bb2ed950ec1467336439acfacf474d7943e4275fa8a576aee7db"
 }
 ```
 
@@ -158761,11 +158820,12 @@ files.release: contextPolicy=none
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "invoke 不能作为 api.run 的 method。请直接调用 api.invoke。",
   "mcpCall": {
     "tool": "host-only",
     "method": "invoke",
@@ -158860,7 +158920,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ee4dde5f515d98de5e35cd8fd3bad8071ca9ea78827d9ad3e2dbb7b758d60c3"
+  "docsHash": "sha256:95372c067b8a770ad2c07db9a1e236b491b57ad667e3d675fa7078f1645dc95b"
 }
 ```
 
@@ -158871,11 +158931,12 @@ files.release: contextPolicy=none
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "submit 不能作为 api.run 的 method。请直接调用 api.submit。",
   "mcpCall": {
     "tool": "host-only",
     "method": "submit",
@@ -158974,7 +159035,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:53dba441c907a9824ca28531ff023a14b4dda510ebc7c4a8069ae92cf0cf78ac"
+  "docsHash": "sha256:1c950c79856d0f8b306037f5daa6e7ebe92e5c3eded17f0582361282e146fd94"
 }
 ```
 
@@ -158985,11 +159046,12 @@ files.release: contextPolicy=none
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getJob 不能作为 api.run 的 method。请直接调用 api.getJob。",
   "mcpCall": {
     "tool": "host-only",
     "method": "getJob",
@@ -159093,7 +159155,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:16c28d7dcc51b77b0439e85a84bcfb3a6ca76838d5e07399971468c716c614c3"
+  "docsHash": "sha256:8e7adf1aec9af685df4728d6dffbaff71ea33f83c2a3260ce62d74102c131b34"
 }
 ```
 
@@ -159104,11 +159166,12 @@ files.release: contextPolicy=none
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "cancelJob 不能作为 api.run 的 method。请直接调用 api.cancelJob。",
   "mcpCall": {
     "tool": "host-only",
     "method": "cancelJob",
@@ -159210,7 +159273,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:410a23328e416262cc27c234c29cc63fbd135c14d0a7cb25982a77ede031484b"
+  "docsHash": "sha256:f3415d5cb82b80ed939e6fb4dd9d7ac026a2924771d4c4a7b2630aedacfdab2e"
 }
 ```
 
@@ -159221,11 +159284,12 @@ files.release: contextPolicy=none
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "waitFor 不能作为 api.run 的 method。请直接调用 api.waitFor。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "waitFor",
@@ -159405,7 +159469,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:02a234bd6980f71c19a0a939f75e3f135ecae4f2833744e303f391f04a3ad2ca"
+  "docsHash": "sha256:2734dde98387a683f3c986d429e67ace54763932d5c4cb2aa3bd541abe3aeca5"
 }
 ```
 
@@ -159416,11 +159480,12 @@ files.release: contextPolicy=none
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "awaitJob 不能作为 api.run 的 method。请直接调用 api.awaitJob。",
   "mcpCall": {
     "tool": "host-only",
     "method": "awaitJob",
@@ -159516,7 +159581,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:96193abf0c65fec2e379de6b78b60a39b84b352da919f7bbb54bbb9da67b3c55"
+  "docsHash": "sha256:f63ad75b70240c0b0a5bdd5d5dfaa2a22d7ce13081daf42c6db08f05c39e4f22"
 }
 ```
 
@@ -159527,7 +159592,7 @@ files.release: contextPolicy=none
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -159651,7 +159716,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7eeb3fc7a2bdca9d97465290640c6684068780cd2c95b35abeeeb8f63e2cc9bc"
+  "docsHash": "sha256:ea1f10a1983d199d3b135301f251bee1349411bc91f8fc064de2a42d9b7357e4"
 }
 ```
 
@@ -159662,7 +159727,7 @@ files.release: contextPolicy=none
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -159765,7 +159830,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a3369e2cccefb9f3ffd7cf795d836ad3b47c8cb03d7058653e6ab1fd33e68b86"
+  "docsHash": "sha256:41bce89bbad4b55c2ff090f04f0764e3d8747b858efbaba539383583f20a2b37"
 }
 ```
 
@@ -159776,7 +159841,7 @@ files.release: contextPolicy=none
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -159964,7 +160029,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:37320c45d26c2ae311265ba76a71fd5e99d4054158d063f3820b18d59b27670b"
+  "docsHash": "sha256:5b9451c7bb9371fb5adbf71882f35d43e0f36b0afba0ca76e8088fc17db7a452"
 }
 ```
 
@@ -159975,7 +160040,7 @@ files.release: contextPolicy=none
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160123,7 +160188,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bf88b7c32bff3c2dc77c1a80c20b9ce2ab0347b4ef2450782181551bc866204b"
+  "docsHash": "sha256:a1056d8eb532c54643b07e3eb45df97ba3e503d8e23ecae522d60e388fe3ac31"
 }
 ```
 
@@ -160134,7 +160199,7 @@ files.release: contextPolicy=none
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160275,7 +160340,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:eb191f60c295ba8089553fd29724fb0d4814a8231f374c29dbf6e5b7677a92a9"
+  "docsHash": "sha256:3ee8cfe6266e88e8001b1ce7a668030e8b78cb80ca99d15fdca05d43f897eeb1"
 }
 ```
 
@@ -160286,7 +160351,7 @@ files.release: contextPolicy=none
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160416,7 +160481,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d91c77aa0faba18b66516d4d3c1644c585dcab1fa20d1a555fc52801d4318892"
+  "docsHash": "sha256:2caf3415c2ab8ca558c96e981c64c1d41e946b4e9d91f5334a8415b2f4dc8c0d"
 }
 ```
 
@@ -160427,7 +160492,7 @@ files.release: contextPolicy=none
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160549,7 +160614,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1d28268dd71e3ffca521543ef488379b12809c58b4283d6e9aa6fbdd95288eb2"
+  "docsHash": "sha256:63166246729c450a73005546acdabd6feeb242932670f23b89af5d3c6164fef7"
 }
 ```
 
@@ -160560,7 +160625,7 @@ files.release: contextPolicy=none
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160729,7 +160794,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f2f991181ccf43ec115852111eb39af12b338aec28b093b8dcd7b05bc2561d4b"
+  "docsHash": "sha256:f4d803fc4a5cd7153b903fdb673474e05f610485b8ddf1e56da9466da891c37d"
 }
 ```
 
@@ -160740,7 +160805,7 @@ files.release: contextPolicy=none
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160923,7 +160988,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1979a3ee4b014d0287fa993b38a93693c158642efdeaa6aee0a2412195c8bda1"
+  "docsHash": "sha256:fdc400213b9470da053aeb0c01297ad2a00d769b5ee19cd648c789cec5e464b1"
 }
 ```
 
@@ -160934,7 +160999,7 @@ files.release: contextPolicy=none
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -161278,7 +161343,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:af71f80f74eef7077d4ddb815977b02116366f0d1f02384d575ae0155585d585"
+  "docsHash": "sha256:35931d803d28ed2f3084c5fd73707e6526a4a55b6770eb6c57b0eea6a641f9dd"
 }
 ```
 
@@ -161289,7 +161354,7 @@ files.release: contextPolicy=none
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -161497,7 +161562,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:826e56484fcd9dfa363bd3adc19cc814bf6b768637168245cb59854e55da2307"
+  "docsHash": "sha256:c3c58faad329a1e0e1a847071713feeddedd5ceda3229f19ceb94b0f0a9c84ed"
 }
 ```
 
@@ -161508,7 +161573,7 @@ files.release: contextPolicy=none
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -161745,7 +161810,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:01f756e627174ff4ab345a69a550b67996c0468045262dbb946872cdfc8ddc41"
+  "docsHash": "sha256:d7b48a752832513aad3d0dfb36cf108a9074ed2817789d02f7077a2181869939"
 }
 ```
 
@@ -161756,7 +161821,7 @@ files.release: contextPolicy=none
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -161985,7 +162050,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:21a133927fe98e825a3c24c84915ef8ac9be6bfcd1ce6a3631b81bc8f5ef512a"
+  "docsHash": "sha256:58bd64e8bb75ca83437938f1747f9f33c6ad1cf22e9c3e6e6c0403658147956a"
 }
 ```
 
@@ -161996,7 +162061,7 @@ files.release: contextPolicy=none
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -162357,7 +162422,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:32c77bf768a3845ccd1d98db27a23e12a3710c74479a85d4201ff8d5d552dab1"
+  "docsHash": "sha256:5c9148aa365174a0afa33301a471cdd825f87acccbf2d2adc524aef8afb59c9e"
 }
 ```
 
@@ -162368,7 +162433,7 @@ files.release: contextPolicy=none
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -162563,7 +162628,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8f4a0f1de99bee8dc5debd7002f408f5961529aec4f407d1177a8d4d5ebf7a2f"
+  "docsHash": "sha256:8444fcce945a39e5b9020117c6c21e8ffbbd10e8a0eae97bf03455aabe6361e8"
 }
 ```
 
@@ -162574,7 +162639,7 @@ files.release: contextPolicy=none
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -162767,7 +162832,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0a6e55959e4b8372b84fc251cfafffe5681131fe41ba11ff761a231c79030196"
+  "docsHash": "sha256:a537cb15dd11b54dc5f692b331b9e8312fecb0a430fc5ea57ccc46ec55b05e37"
 }
 ```
 
@@ -162778,7 +162843,7 @@ files.release: contextPolicy=none
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -163023,7 +163088,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c53637ed28cf7e0630c3f0b34cc8c4087d9c466524fbb0bd278a4c3dd1b19bab"
+  "docsHash": "sha256:a504301173a2d68d792f158dbbc56561888c09f1c50f4980849ef113843ad239"
 }
 ```
 
@@ -163034,7 +163099,7 @@ files.release: contextPolicy=none
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -163237,7 +163302,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f9d954b058aa9a39fb1961ae61d34e68b408e18b06536dd554dbb5289b3d92d7"
+  "docsHash": "sha256:bc6007c24552e524d3ba50924983f5e02b644c2e732e2129f220bd16d068c6d6"
 }
 ```
 
@@ -163248,7 +163313,7 @@ files.release: contextPolicy=none
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -163484,7 +163549,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:110b8adc9a46a0628cdb3991df0bd349abea1152aafdc3040197d0ce0a7f8bad"
+  "docsHash": "sha256:8de7d63826f3f0cc7d7d6bef5f64d49a67a6de04f35021e22dc25d5dc746ea0d"
 }
 ```
 
@@ -163495,7 +163560,7 @@ files.release: contextPolicy=none
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -163708,7 +163773,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8df6cf6eade65721e2540949148723930359ab4b7cb56b009709d25885a36ee0"
+  "docsHash": "sha256:bf2a337027f9167e23226975cd10522a5c8f9769e14d0b20932ab458c69116fd"
 }
 ```
 
@@ -163719,7 +163784,7 @@ files.release: contextPolicy=none
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -163970,7 +164035,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2814303c711c2d7162913829b334adb5e665d4fafd38df42aaa69d736e70a83c"
+  "docsHash": "sha256:6fecaa35c820a10fd9ae746dfb13475969a68a7bc26a279f2d5244ce02ac51c0"
 }
 ```
 
@@ -163981,7 +164046,7 @@ files.release: contextPolicy=none
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -164202,7 +164267,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e975172d0250c2ecd5e12e135fe474788f13ea095828dbfd76ca26a0fdfffabd"
+  "docsHash": "sha256:2fcd8449b1a2a9811b91d49e6b8bd1504978ac74bb48c469d6e9405669ab0f66"
 }
 ```
 
@@ -164213,7 +164278,7 @@ files.release: contextPolicy=none
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -164419,7 +164484,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:1c13b29a3cc86e63dc3323c7b34c3f020c5bace1365142de560d423e98255216"
+  "docsHash": "sha256:06550db0f547365b0011a624e0c1e9553ce951462d75348f0bdceb3896adc386"
 }
 ```
 
@@ -164430,7 +164495,7 @@ files.release: contextPolicy=none
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -164646,7 +164711,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:602f2f86e44c5644a78e5afc25ab6fc7e63723286be3c3f5acabebc440d2f7b9"
+  "docsHash": "sha256:f2ca8a07bb232d153d25e81ce5779f7f15c8fb7bbce8efa8744dbd3da20e028f"
 }
 ```
 
@@ -164657,7 +164722,7 @@ files.release: contextPolicy=none
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -164881,7 +164946,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fb616870331cdfd44f367c4e43425c6a2aa52ca787767afb92a71fee62500a35"
+  "docsHash": "sha256:bf68ddb25bba7c51d8d91d3c15403cd46f026c1ed0570ced486267bf409a2112"
 }
 ```
 
@@ -164892,7 +164957,7 @@ files.release: contextPolicy=none
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -165122,7 +165187,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3fe2c5eaf9886c7bb67523994aeab1b087b1c38ebaa7e1728d124c7824fc6651"
+  "docsHash": "sha256:7a60e2cb4f3f5183f2aa0a4a87f0aef8e064602c535ce2e8db7308170d0edb77"
 }
 ```
 
@@ -165133,11 +165198,12 @@ files.release: contextPolicy=none
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "traceTwinWindow 不能作为 api.run 的 method。请直接调用 api.traceTwinWindow。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "traceTwinWindow",
@@ -165345,7 +165411,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7840071e30a0be43341c8b38d9ba0cc3097a34e8459d51da79c683d34d116b3f"
+  "docsHash": "sha256:61dff955646a4f9337b2442e183b817992dec7a3cf9a58b669da50456941c3d3"
 }
 ```
 
@@ -165356,11 +165422,12 @@ files.release: contextPolicy=none
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "executeText 不能作为 api.run 的 method。请直接调用 api.executeText。",
   "mcpCall": {
     "tool": "host-only",
     "method": "executeText",
@@ -165460,7 +165527,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8cfe96433a87998c1494a20c3913502a394f536555eb6ab92213b683c8934319"
+  "docsHash": "sha256:6d51295f582e0d168330c1413f0ef722cd8614d538edd0a89fee788d0de611fe"
 }
 ```
 
@@ -165471,7 +165538,7 @@ files.release: contextPolicy=none
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -165676,7 +165743,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ad897deab3378a4fc24c0d9db7eee0044336803497524a406aefdf9ad15835a1"
+  "docsHash": "sha256:7e1bccc2bcd4866be5fe45c586608b018fa780ae7e2120f499b26f3301769ebe"
 }
 ```
 
@@ -165687,11 +165754,12 @@ files.release: contextPolicy=none
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getAgentPanel 不能作为 api.run 的 method。请直接调用 api.getAgentPanel。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getAgentPanel",
@@ -165757,7 +165825,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7961b1e65cc4851918b446c39f1c0b95e817e4c599559ff557bde128ab92f68f"
+  "docsHash": "sha256:f0df60de9b91c40768181a9b6c0f2c982f06f725fe796ab7489943997495a9f8"
 }
 ```
 
@@ -165768,11 +165836,12 @@ files.release: contextPolicy=none
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "configureAgentPanel 不能作为 api.run 的 method。请直接调用 api.configureAgentPanel。",
   "mcpCall": {
     "tool": "host-only",
     "method": "configureAgentPanel",
@@ -165836,7 +165905,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d72f43b9adfb783c6826e288951656ba748c17faac8acc0be7a441e8ab83031b"
+  "docsHash": "sha256:d6db784476eae5e1b8145035f0e5ca4ea4e11c9da52fa373fb1f68fa0eddd3c8"
 }
 ```
 
@@ -165847,11 +165916,12 @@ files.release: contextPolicy=none
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "setAgentPanel 不能作为 api.run 的 method。请直接调用 api.setAgentPanel。",
   "mcpCall": {
     "tool": "host-only",
     "method": "setAgentPanel",
@@ -165924,7 +165994,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a19452bb04fe37ab3d4f9bf80beabb486b6f765356b064e1822e36f341905b29"
+  "docsHash": "sha256:f39d43baa8f21315992af2e2008cdd77366e1d139e03497395bd905836231866"
 }
 ```
 
@@ -165935,11 +166005,12 @@ files.release: contextPolicy=none
   "id": "markLocation",
   "title": "markLocation",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "markLocation 不能作为 api.run 的 method。请直接调用 api.markLocation。",
   "mcpCall": {
     "tool": "webcad_view",
     "method": "markLocation",
@@ -166086,7 +166157,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4e8187fcf7636b306728fd0dd7ebba4d8f8fbe538959d812f697cb3a3d9db7ff"
+  "docsHash": "sha256:17fe41069a8143928f102ae3d62ab8b47a776ef13a33667cd4fe6a8bbf0823cc"
 }
 ```
 
@@ -166097,7 +166168,7 @@ files.release: contextPolicy=none
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -166235,7 +166306,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d71cc9f84c5fb839d441e19bbb84b991f4ddfbd7e7791240e3511755fe9d0385"
+  "docsHash": "sha256:9f6aa0281d12dbc3a557c5f364a3b005de8de20de1230707a1bb8e4cc0af4565"
 }
 ```
 
@@ -166246,7 +166317,7 @@ files.release: contextPolicy=none
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -166391,7 +166462,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cb1da0d7aee149c51c54225828d48bf14180bc68002b4059434cff1d9e459b38"
+  "docsHash": "sha256:49b1926eb4894470798c959883f218e01bc71c8084c7857d077116c7f02a5788"
 }
 ```
 
@@ -166402,7 +166473,7 @@ files.release: contextPolicy=none
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -166545,7 +166616,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2422be74f11e7bfa816b353cc7a8d904ab64b45a2d3e30a2a25051342d63cb2c"
+  "docsHash": "sha256:904a3058720fcbd7064c172b43cae72e3aeebe327f0dd049625fdb770cf75a3c"
 }
 ```
 
@@ -166556,11 +166627,12 @@ files.release: contextPolicy=none
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getServicesRouting 不能作为 api.run 的 method。请直接调用 api.getServicesRouting。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getServicesRouting",
@@ -166693,7 +166765,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e8ac1d8973e7ab3f5ac0755bb9081762a8f7ea13b3760b775fb9a57eb7f32559"
+  "docsHash": "sha256:a9616a59c92f37cbe342feda06c7e324cbf7b1175c5750c6b8f750ce88588b11"
 }
 ```
 
@@ -166704,7 +166776,7 @@ files.release: contextPolicy=none
   "id": "clearServicesCredential",
   "title": "clearServicesCredential",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -166844,7 +166916,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4152d6423176df4cb92cd9e0ab8b659bdb25a3400889ca4fdbe92b89405bc98a"
+  "docsHash": "sha256:e8c8470dcf661ee1583fefa354849ee46ddfd9300f29c936ccd42b7416e7abe4"
 }
 ```
 
@@ -166855,7 +166927,7 @@ files.release: contextPolicy=none
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167002,7 +167074,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:23ea9e41003c53d168c732457d0d6ddccaaf06c98a029a1157694fe825b29145"
+  "docsHash": "sha256:daef71ea1f0885e66908d5af50ef08b6ae732a20bfd7363f0e00442de40a60aa"
 }
 ```
 
@@ -167013,7 +167085,7 @@ files.release: contextPolicy=none
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167161,7 +167233,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7779245682bc09f5f48489ee567fd8ffefb78b60576fc981d74371d1956916ab"
+  "docsHash": "sha256:a8d7032ee0dc1642c07d657613a4659f3a6b54b1bee81c4a33f9f5c028a4335c"
 }
 ```
 
@@ -167172,7 +167244,7 @@ files.release: contextPolicy=none
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167324,7 +167396,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cf895710f87ae53b417d6fa302d87d33ee65aeb0492d26bcffcc628bef796995"
+  "docsHash": "sha256:40304e8ee283800673a0b2b65e6b3978299622041fdb86029a3081c5c1c35b75"
 }
 ```
 
@@ -167335,11 +167407,12 @@ files.release: contextPolicy=none
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getLogoConverter 不能作为 api.run 的 method。请直接调用 api.getLogoConverter。",
   "mcpCall": {
     "tool": "host-only",
     "method": "getLogoConverter",
@@ -167471,7 +167544,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:34f123051ee45243b374485a2c8769b7dab8f1853de6c1bb073f97351120f5d4"
+  "docsHash": "sha256:e6ce55f9c19224bfa292dca2c99c1c0458d694ae2dd393c8231a56ecefd666b4"
 }
 ```
 
@@ -167482,11 +167555,12 @@ files.release: contextPolicy=none
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "setLogoConverter 不能作为 api.run 的 method。请直接调用 api.setLogoConverter。",
   "mcpCall": {
     "tool": "host-only",
     "method": "setLogoConverter",
@@ -167623,7 +167697,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:40a72b13ca32a53f8b80d9ced20d8f642501b8ce568bd5055ed7c1e001c78ef2"
+  "docsHash": "sha256:657ee883d8d92f5cd61eba913425882304cc6d4d2ca190b67cc8551ca82613f2"
 }
 ```
 
@@ -167634,11 +167708,12 @@ files.release: contextPolicy=none
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "convertLogoPdf 不能作为 api.run 的 method。请直接调用 api.convertLogoPdf。",
   "mcpCall": {
     "tool": "host-only",
     "method": "convertLogoPdf",
@@ -167789,7 +167864,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:868dab851281a4789a37ec9f7ab00fc6fec90268760c75fca99dd8ead95addc9"
+  "docsHash": "sha256:6bb215f6eae9837fcc9b54c02609b6579d1d5ea11b6393d50e808075a2178f43"
 }
 ```
 
@@ -167800,7 +167875,7 @@ files.release: contextPolicy=none
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -168154,7 +168229,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:35fe894ec14e09f811c9464815352ac078ceed8585fbf6abef9d85ffea56fcc8"
+  "docsHash": "sha256:56d3f19a7516d355cf89cd37b07331d40e15477907100729f4dd0bdc9badd0c1"
 }
 ```
 
@@ -168165,7 +168240,7 @@ files.release: contextPolicy=none
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -168358,7 +168433,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bd8d1af9dca49751859f41fc0095aa0bbbd39efe47e7f7521408900df32a5fd8"
+  "docsHash": "sha256:29c3d583d5d6ed2f7a8e7e120e0fcd595646d7cb31752ad646b38f957af013bb"
 }
 ```
 
@@ -168369,7 +168444,7 @@ files.release: contextPolicy=none
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -168550,7 +168625,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ada6622afc19334cfe6a9409185994cb265317851c61e1863bcbfd480b6e4446"
+  "docsHash": "sha256:5f2eff62b0db351649ab787641217c2c248d80e6bcd7e60eacec327f5a6529ce"
 }
 ```
 
@@ -168561,11 +168636,12 @@ files.release: contextPolicy=none
   "id": "getEvidenceImage",
   "title": "getEvidenceImage",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getEvidenceImage 不能作为 api.run 的 method。请直接调用 api.getEvidenceImage。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -168779,7 +168855,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b606f5dca72504a4aea81ee4267b3d577c17ca7c4f8482dab9d318233f070ff8"
+  "docsHash": "sha256:5b1fe48b11bda90dbdc37f6a6c09e80aa8e3b4515b012401263f96342b8e5b70"
 }
 ```
 
@@ -168790,11 +168866,12 @@ files.release: contextPolicy=none
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "run 不能作为 api.run 的 method。请直接调用 api.run。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -169359,7 +169436,7 @@ files.release: contextPolicy=none
       }
     }
   },
-  "description": "run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:\"api.run\"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。addMany 的原子计划见 api.feature-plan。",
+  "description": "run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:\"api.run\"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。",
   "synonyms": [
     "run",
     "批量",
@@ -169368,8 +169445,8 @@ files.release: contextPolicy=none
     "指令",
     "无CLI"
   ],
-  "inputContract": "run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:\"api.run\"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。addMany 的原子计划见 api.feature-plan。",
-  "outputContract": "completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false。后续操作前核对实时状态。",
+  "inputContract": "run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:\"api.run\"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。",
+  "outputContract": "completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false，失败保留前序已提交步骤。后续操作前核对实时状态。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -169451,7 +169528,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7cee3dbd67aca61704354c8f14ac670891a2f7e2b5426c64302b0bff7357e78b"
+  "docsHash": "sha256:aedac7e7cba213491547c2cdac073dc9375c34dbeacd44d5f03fb170688b33d3"
 }
 ```
 
@@ -169468,7 +169545,7 @@ files.release: contextPolicy=none
   "title": "材料密度与重量",
   "description": "设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169520,6 +169597,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -169561,7 +169639,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0d8462386c9cfdb0e49dc77d468b0a817ecec73041944e9cc0610b4481bc5e71"
+  "docsHash": "sha256:43281ccc61a7d90662fc13cd6114f67853a6fbe627d2ce081e28145db8f2153c"
 }
 ```
 
@@ -169578,7 +169656,7 @@ files.release: contextPolicy=none
   "title": "Services 原特征编译",
   "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169619,6 +169697,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -169730,7 +169809,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a453c2003f298dfb87ffcf1bc743d7461a0de08cc8afd692b3d35f6bb542e998"
+  "docsHash": "sha256:de06a6f7f2c5897536d3a630b705709d95906119ca36861c05cd3d7e9dd7601d"
 }
 ```
 
@@ -169747,7 +169826,7 @@ files.release: contextPolicy=none
   "title": "快速对齐",
   "description": "按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169805,6 +169884,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -169924,7 +170004,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d56a51a317255a1de3b00e4c51a2a170f9a0a40a5380f7dad37a99096e69cd5d"
+  "docsHash": "sha256:7fe9ba6d2604d8c84a474ff913d49aacc38cfd202f869cb30a06709f552b4825"
 }
 ```
 
@@ -169941,7 +170021,7 @@ files.release: contextPolicy=none
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -169977,6 +170057,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170054,7 +170135,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1b87b5084300f4577a8b25aff631073dc0f74ce3e07259b49e1dedcc41a15612"
+  "docsHash": "sha256:4062a5c4ce002fd2d73ee4e18ae896e69d56fc17e24ef614323039ac39da268b"
 }
 ```
 
@@ -170071,7 +170152,7 @@ files.release: contextPolicy=none
   "title": "浮雕设计约束草稿",
   "description": "保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。heightSource可选{source,depthMm,edgeKeepoutMm?,edgeFadeMm?,weight?}：source为浏览器转换生成的高度来源记录（原图sha256、转换设置及哈希、u16le网格≤1025²）；照片须带derivedFrom及用户确认“我确认此结果为我制作的高度图”，否则MACHINING_SOURCE_CONFLICT；高度图覆盖支撑外接矩形，亮=高，按depthMm映射到最低高度之上，作为求解观测。fieldSettings可选servicesQuality:{mode:adaptive/off,maxControlSide:16–1025}（纯图像无人工点/局部编辑时默认adaptive/1025，Services自动选控制网，结果报告实际ladder和误差；off保留旧拟合），以及machiningPrecisionMm(0.01–0.5 mm，默认0.05，可调：小于该值的起伏/噪声/台阶以C1平滑方式去除，边缘与基线平齐，记入草稿指纹)、columns/rows(9–129)、smoothWeight、maxIterations(1–20000)、toleranceMm及edits笔刷数组(最多256笔，按顺序执行)。每笔显式mode:raise/lower/flatten/smooth、centerMm:[x,y]、radiusMm:0.001..10000；strength可选0..1默认1；raise/lower必填amountMm:0..100，flatten必填targetMm:-100..100，smooth为一次邻域平滑。坐标与草稿支撑同一毫米坐标系；孔、边缘固定节点及保护区保持基线，高度不超heightRangeMm。UI新增/更新/移除笔画会连同当前其他有效表单字段一次保存，Agent等价传整份draft并携带expectedDraftRevision；原图reference及其他既有设置必须保留。随工程保留可重算设计。使用reliefDesignField求解/残差回读和保留圆/矩形支撑、孔与作者保护基线的采样闭网格候选（边界近似，不是精确圆）；不从原图亮度推断设计高度。getState({include:[\"reliefDesigns\"]})读取。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170133,6 +170214,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170230,7 +170312,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:a6b8535a6dbfb8f4af672fb1053d35752e700355540440d9d0ff1428e41d950d"
+  "docsHash": "sha256:47f85d510e4f678dd4b26aed88c32961cc912c572ca35a7f043b61d91d5a1893"
 }
 ```
 
@@ -170247,7 +170329,7 @@ files.release: contextPolicy=none
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170286,6 +170368,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170379,7 +170462,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ac5da6674f97f82ad4a0dd4e6d7910e015d98601fd494016f796a0aa1a07df0e"
+  "docsHash": "sha256:407b6c8a2433c487e37e052a0c6c1ef44925dd2156251784c5cc029b532e3451"
 }
 ```
 
@@ -170396,7 +170479,7 @@ files.release: contextPolicy=none
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170437,6 +170520,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170532,7 +170616,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d6ac5868db9d11129778a984a9b844aee2e6845765bf039e3c170b9688e3c45f"
+  "docsHash": "sha256:e309925aa97620510c5cbe70e0f6c064ecaae5ae7787afa180a294ab1e265e91"
 }
 ```
 
@@ -170549,7 +170633,7 @@ files.release: contextPolicy=none
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170592,6 +170676,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170671,7 +170756,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:d66dccbc5ee9a6bfa85d3b421ddac4744f302dbed472bab1134ef83bf4f36048"
+  "docsHash": "sha256:4ee9bdb06d580fbbe533fe31db8fbc5136bf489d779892df84264c29806e509f"
 }
 ```
 
@@ -170698,7 +170783,7 @@ files.release: contextPolicy=none
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170759,6 +170844,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -170854,7 +170940,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:26795494c94617005f70662848ae55dc6b4d3a4db0eef50d58c5aa65bc03b8da"
+  "docsHash": "sha256:43e72e255c2f1fc3f19db3017ef5c009064524253ec644700e24e6275ad7e99a"
 }
 ```
 
@@ -170871,7 +170957,7 @@ files.release: contextPolicy=none
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -170926,6 +171012,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171019,7 +171106,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9daf42983b107045e9b2a46fd1acc12518cabadbab10767f80827e4586163266"
+  "docsHash": "sha256:b12aced1d82a2f805068133cba76eccda016576e34ecda8af36083ed2a633adb"
 }
 ```
 
@@ -171036,7 +171123,7 @@ files.release: contextPolicy=none
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171075,6 +171162,7 @@ files.release: contextPolicy=none
   },
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171156,7 +171244,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:debc0422792e9a766b3ec9b13b42e42062f8f959852365c2e22d5a4f3805e5b8"
+  "docsHash": "sha256:fb379574a506e59a6badcb5a4745a9d10ed0d89afc0d20f0314816d227102dee"
 }
 ```
 
@@ -171173,7 +171261,7 @@ files.release: contextPolicy=none
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171203,6 +171291,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
+  "batchCapable": false,
   "synonyms": [
     "锚点",
     "参考锚点",
@@ -171291,7 +171380,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7abe3b6937a549a672a8387f5442bb07f518d6872a486b84aa43f4b186fdb9b0"
+  "docsHash": "sha256:89a3e7e4ff108b0ce365d6f958ee4ea28e44186503208c3e8eed8a63953d2940"
 }
 ```
 
@@ -171308,7 +171397,7 @@ files.release: contextPolicy=none
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171338,6 +171427,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171403,7 +171493,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ee82092b20c14e62f8459f03ba8898ba7c7fab97081d3229ab011fca72e4a96"
+  "docsHash": "sha256:b229b35d83a2d530d350ca1725b234ea788a6fd7ec331d3d5d54f93d105584f0"
 }
 ```
 
@@ -171420,7 +171510,7 @@ files.release: contextPolicy=none
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171450,6 +171540,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171515,7 +171606,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3d64b4b172b64f945efcea940b60c485f7dc85f92c365b50ae00f980b3bfe17f"
+  "docsHash": "sha256:aa4c9004a4dd068016045e19befbbd34e350b1e7643139b34ba4c1f710123a4a"
 }
 ```
 
@@ -171532,7 +171623,7 @@ files.release: contextPolicy=none
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171562,6 +171653,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171631,7 +171723,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:80733002cf36dfd9271916138fb8af81426499069b0ac9d92f798dab7daca02f"
+  "docsHash": "sha256:b69c77fc9953e694f4d0e0cb5229496d0ac2298885246769daf0cc1944b020a4"
 }
 ```
 
@@ -171648,7 +171740,7 @@ files.release: contextPolicy=none
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171678,6 +171770,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171745,7 +171838,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c4b33419936e6b9c20ea8930ef4ea9893c5f6644ff697fc7336ba61d68467a9d"
+  "docsHash": "sha256:d916afeed8b86961b345d0fc87b5c7c0b5a8699eabc9fc3e9e374a3e85104126"
 }
 ```
 
@@ -171762,7 +171855,7 @@ files.release: contextPolicy=none
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171792,6 +171885,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171861,7 +171955,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1b3576a0ca59267b1e56f47c54971eb4240db63f1b395f84be98276f56228194"
+  "docsHash": "sha256:dbf141dfd7fe52498b32af80c5d71369fdc64239925bad23ce51d5f14a1dcd51"
 }
 ```
 
@@ -171878,7 +171972,7 @@ files.release: contextPolicy=none
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -171908,6 +172002,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -171975,7 +172070,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e82a853ddc45359a690ffbd0be6793f5f74949c0f38189ccd19a84f7d19c13f4"
+  "docsHash": "sha256:91ae653c9f6a4dc523310f1c567295318d18653418bfa89cbf637365c2fc533e"
 }
 ```
 
@@ -171992,7 +172087,7 @@ files.release: contextPolicy=none
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172022,6 +172117,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
+  "batchCapable": false,
   "synonyms": [
     "对象锚点",
     "实体锚点"
@@ -172099,7 +172195,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b53f641941ec985ba4a3edd7064477e01e052b5ef10a0f0b4ae26d98e65b9b66"
+  "docsHash": "sha256:df60cd3ab42bd5470213f51d2ab8810c28192947688d3a39ad78e707597d1044"
 }
 ```
 
@@ -172116,7 +172212,7 @@ files.release: contextPolicy=none
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172146,6 +172242,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -172215,7 +172312,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cb60a754ee10c84aad3a13b9f935e93262a9e9e2bfe98297696d9f59d3c836ae"
+  "docsHash": "sha256:a2e47b108f05e59461983ce0c085eaaac6a184c14009e52f03bcb97fcf1fcaf9"
 }
 ```
 
@@ -172232,7 +172329,7 @@ files.release: contextPolicy=none
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172262,6 +172359,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -172340,7 +172438,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9bd10399b85b27dbdfdb63bb3a99ce6340ee96cb11559a56d39a40430b63ca67"
+  "docsHash": "sha256:02fd0735d75bd66811d7ee149b987288d7f02a56a2a7d82a1f6da10f84abb6dd"
 }
 ```
 
@@ -172626,7 +172724,7 @@ files.release: contextPolicy=none
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172655,6 +172753,7 @@ files.release: contextPolicy=none
     "getState"
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -172714,7 +172813,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:67a866e7f0bc9d6061a3d20bedfde2fd4294e6c1d2f2c176e0a94993a4df7006"
+  "docsHash": "sha256:b74819273c7ad354a399c22ac9745fcc69024d7edebb581cab44c18bb09469b7"
 }
 ```
 
@@ -172731,7 +172830,7 @@ files.release: contextPolicy=none
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172761,6 +172860,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -172836,7 +172936,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c894046d3951aa73c44c8ebdff89f1d63c9b307177e32d5628380c961a2c2636"
+  "docsHash": "sha256:854a122391bd0c9e175db82a8358034ce2074facb850d4ea72265fbc73da81ea"
 }
 ```
 
@@ -172853,7 +172953,7 @@ files.release: contextPolicy=none
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -172883,6 +172983,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -172960,7 +173061,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:b88bb496b1a30b775ba3b5cc031f54f409c9a2bc212e2501c53013e59308af93"
+  "docsHash": "sha256:13da391defd525265f81089798e42a991515b780637c11790e61084383279cd5"
 }
 ```
 
@@ -172977,7 +173078,7 @@ files.release: contextPolicy=none
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173007,6 +173108,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173072,7 +173174,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:339e4ec888f2701706f5a0d10f7e2da9972c2cd8cae9c42750277cb27f01a3fe"
+  "docsHash": "sha256:af24135adb6e79544806aaed593e925b9aed42a3facc9b3b9e4c3e964c3bbc19"
 }
 ```
 
@@ -173089,7 +173191,7 @@ files.release: contextPolicy=none
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173119,6 +173221,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173184,7 +173287,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bb6bfc8dcc462bf54edb3923e690ef3a1bd489ff6d153070eff7e4d4c9671502"
+  "docsHash": "sha256:f87d8f55c5172279828419c25eca7b6843e011c5e36a79f2f7cfaefe64512338"
 }
 ```
 
@@ -173201,7 +173304,7 @@ files.release: contextPolicy=none
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173231,6 +173334,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173304,7 +173408,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5249766207890d77dc57fee06e4355b649fdff25a0ec370c8d21461ac1f470f1"
+  "docsHash": "sha256:828e3e559834013a4ffce5a50567282eebfb146075e1f26948cfeca005e7271b"
 }
 ```
 
@@ -173319,13 +173423,13 @@ files.release: contextPolicy=none
   },
   "id": "preview.start",
   "title": "预览模型、原特征编辑或文件插入",
-  "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
+  "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。预览编号在 result.preview.previewId，同时在回执顶层提供 previewId、generation、baseRevision 别名。提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"preview.start\",args}); 普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。",
+  "inputContract": "execute({context,idempotencyKey,action:\"preview.start\",args}); 普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。预览编号在 result.preview.previewId，同时在回执顶层提供 previewId、generation、baseRevision 别名。提交前工程 revision 不变。",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 209715200,
@@ -173351,6 +173455,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173403,7 +173508,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0b5000e9e69fb3279fbc9d322368f14903cec791df41912fc07993ed6583b0d4"
+  "docsHash": "sha256:f8fbbe35e713157929d3b5104ae0b77fcf2b9079fe43255a4fa714fc6afc7e21"
 }
 ```
 
@@ -173420,7 +173525,7 @@ files.release: contextPolicy=none
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173450,6 +173555,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173499,7 +173605,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:13bebf121c890e1fa074c873d54dde6e87584d1e206e6cc6915d30bc18462d83"
+  "docsHash": "sha256:ddd497aeb98ec1598fd370b14288d4d4004b5038671388182143fbedc6e66b80"
 }
 ```
 
@@ -173516,7 +173622,7 @@ files.release: contextPolicy=none
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173546,6 +173652,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173593,7 +173700,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:168a0a3ee1164ca282e23e7fca79fec4e5783d6270450ee88d3b6b2d6743047a"
+  "docsHash": "sha256:6ba39acb989d80534e688097874aae144e7b1158ce3c950b7dd36dc3c88e2009"
 }
 ```
 
@@ -173610,7 +173717,7 @@ files.release: contextPolicy=none
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -173640,6 +173747,7 @@ files.release: contextPolicy=none
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。",
   "docs": "api.editor",
+  "batchCapable": false,
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173695,7 +173803,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:eaee42060af25490f81f8642f13ec983adb59a0b2b6ed0ccb1a61561dfcebe25"
+  "docsHash": "sha256:d36abc4d3567afd62c4cbf79e5aa33466ec26f0666d6fbc65423dfcfc78e6bb8"
 }
 ```
 
@@ -173706,7 +173814,7 @@ files.release: contextPolicy=none
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "execute",
@@ -173791,6 +173899,7 @@ files.release: contextPolicy=none
     "Indexed face/edge references downstream of a changed feature are rejected when stability cannot be proven."
   ],
   "docs": "api.named-parameters",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -173858,7 +173967,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3814bcc1ea38c0f39788de96ceee79e0e716c2280127380bd02537c6da638ef5"
+  "docsHash": "sha256:e33d136df574d26c9e2bb74b9ab71762f7cb1b203424d7284def8c441ccdc93d"
 }
 ```
 
@@ -173874,7 +173983,7 @@ files.release: contextPolicy=none
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "文件能力",
   "synonyms": [
@@ -173922,6 +174031,7 @@ files.release: contextPolicy=none
   "errorCodes": [
     "PARAM_SCHEMA_INVALID"
   ],
+  "batchCapable": true,
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -173985,7 +174095,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:7cb6950db5d8e44400d010b23255d3f3bf2f63bcb933743d824b8c591113d62a"
+  "docsHash": "sha256:5fa582a2070955ca312a3fcdb58a2bfcdc0a3ab178685d77a1f9fd8f0646d247"
 }
 ```
 
@@ -174002,7 +174112,7 @@ files.release: contextPolicy=none
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "登记文件资源",
   "synonyms": [
@@ -174058,6 +174168,7 @@ files.release: contextPolicy=none
     "SIZE_LIMIT",
     "RESOURCE_LIMIT"
   ],
+  "batchCapable": true,
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -174135,7 +174246,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:98046ba3522d10129a3c672bc022ca0df88ba1d32be8f415d8a8a94a26d558b9"
+  "docsHash": "sha256:efab461084c4591f65a02214d3e4351fc6c537c294f026ca1f56a56e48454d3b"
 }
 ```
 
@@ -174152,7 +174263,7 @@ files.release: contextPolicy=none
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "新建工程",
   "synonyms": [
@@ -174209,6 +174320,10 @@ files.release: contextPolicy=none
     "FILE_COMMAND_FAILED",
     "SIZE_LIMIT"
   ],
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.new 不能作为 api.run 的 method。请直接调用 api.files.new。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -174340,7 +174455,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:7ac2ee1a788111331495e45a1b9eed4f2547963d179c9964e108787f85066035"
+  "docsHash": "sha256:3e56adca8b9a34203038fb168264e360ec58df372347a5ab799f24165fd00d9c"
 }
 ```
 
@@ -174357,7 +174472,7 @@ files.release: contextPolicy=none
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -174421,6 +174536,10 @@ files.release: contextPolicy=none
     "FORMAT_UNSUPPORTED",
     "MESH_UNITS_REQUIRED"
   ],
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.open 不能作为 api.run 的 method。请直接调用 api.files.open。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -174584,7 +174703,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:df50c53e63f5c815620e07ee787ca21131ab6810bee6d6f41b2cf8ce84ab3f83"
+  "docsHash": "sha256:a7bac0352c2cb4fd6ecd348c815f959eafedb8d3c9edb39de0107af890ed85cb"
 }
 ```
 
@@ -174600,7 +174719,7 @@ files.release: contextPolicy=none
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -174685,6 +174804,7 @@ files.release: contextPolicy=none
     "MESH_ASSET_CORRUPT",
     "MESH_DISPLAY_CAPACITY"
   ],
+  "batchCapable": true,
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -174838,7 +174958,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:502fc83661ff39dcc7ddcc39c015656d44d811940a981833b15de43f4ac0a798"
+  "docsHash": "sha256:29f35b8edea8b82f38a9ca8c3eabb5e1cc84081e0e6ba7c06a4a087a549ec400"
 }
 ```
 
@@ -174854,7 +174974,7 @@ files.release: contextPolicy=none
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -174920,6 +175040,7 @@ files.release: contextPolicy=none
     "PROJECT_ENCODING_MESSAGE_ERROR",
     "PROJECT_ENCODING_SEND_FAILED"
   ],
+  "batchCapable": true,
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -175061,7 +175182,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:fa00021d50710915b96a6e406bf3e45d06c80ac160450fb427c195972f657281"
+  "docsHash": "sha256:82c9e6435feb1a13f3ce587e318d45a9b5015ba5c8c7ac68237df4f567e21bbc"
 }
 ```
 
@@ -175077,7 +175198,7 @@ files.release: contextPolicy=none
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -175141,6 +175262,7 @@ files.release: contextPolicy=none
     "RESOURCE_LIMIT",
     "FORMAT_UNSUPPORTED"
   ],
+  "batchCapable": true,
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -175310,7 +175432,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:4cc0a73a1a92dcfd7b4ce37652a41a3aabde2ccc6f0274c2323c3274f88a7afd"
+  "docsHash": "sha256:b7ec0176f18fe6daccb03c9f7e1968b873549e9c78e7c520d55c69cc3b1de0ae"
 }
 ```
 
@@ -175326,7 +175448,7 @@ files.release: contextPolicy=none
   "id": "files.reattach",
   "title": "files.reattach",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "reattach",
   "synonyms": [
@@ -175379,6 +175501,10 @@ files.release: contextPolicy=none
     "RESOURCE_EXPIRED",
     "ASSET_INVALID"
   ],
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.reattach 不能作为 api.run 的 method。请直接调用 api.files.reattach。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -175522,7 +175648,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:3c5ddc584f8512d6772f94a1e1b7f5d90e29f86a2efc4637ea154f3de1daad7e"
+  "docsHash": "sha256:33666ead0bc65911343eae483f8cb83a537b3af9bf1b9f9b3dbc2e208acc651a"
 }
 ```
 
@@ -175539,16 +175665,16 @@ files.release: contextPolicy=none
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
     "读取文件字节",
     "read"
   ],
-  "description": "read({resourceId,as?}); as is blob (default) or bytes.",
-  "inputContract": "read({resourceId,as?}); as is blob (default) or bytes.",
-  "outputContract": "Actual Blob or Uint8Array; host JSON boundaries may need bounded transfer.",
+  "description": "read({resourceId,as}); as is required: \"bytes\", \"text\", or \"blob\". Omitting as is PARAM_SCHEMA_INVALID and does not return an empty object. text is UTF-8; bytes is a Uint8Array; blob is an in-page Blob that a JSON host would otherwise stringify as {}.",
+  "inputContract": "read({resourceId,as}); as is required: \"bytes\", \"text\", or \"blob\". Omitting as is PARAM_SCHEMA_INVALID and does not return an empty object. text is UTF-8; bytes is a Uint8Array; blob is an in-page Blob that a JSON host would otherwise stringify as {}.",
+  "outputContract": "Uint8Array, UTF-8 string, or Blob. JSON hosts must use bytes or text.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -175594,25 +175720,37 @@ files.release: contextPolicy=none
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
-    "properties": {
-      "resourceId": {},
-      "as": {}
-    },
     "required": [
-      "resourceId"
-    ]
-  },
-  "preparationSchema": {
-    "type": "object",
-    "additionalProperties": false,
+      "resourceId",
+      "as"
+    ],
     "properties": {
-      "resourceId": {},
-      "as": {}
-    },
-    "required": [
-      "resourceId"
-    ]
+      "resourceId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "as": {
+        "type": "string",
+        "enum": [
+          "bytes",
+          "text",
+          "blob"
+        ]
+      }
+    }
   },
+  "minimalExample": {
+    "resourceId": "<current resourceId>",
+    "as": "bytes"
+  },
+  "normalExample": {
+    "resourceId": "<current resourceId>",
+    "as": "text"
+  },
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.read 不能作为 api.run 的 method。请直接调用 api.files.read。",
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -175672,7 +175810,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:73e43b587f4e5c10c8b4fe8b23d468acdc676d642bec88250774a43a9c7df444"
+  "docsHash": "sha256:5f694a5aa8d9781aee8454ef604a09e8d9b1445f620567ae32fef2d212e731d8"
 }
 ```
 
@@ -175689,7 +175827,7 @@ files.release: contextPolicy=none
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "下载文件",
   "synonyms": [
@@ -175742,6 +175880,10 @@ files.release: contextPolicy=none
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.download 不能作为 api.run 的 method。请直接调用 api.files.download。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -175821,7 +175963,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:d2cb4218a70811f32181191d5fd5f1d5581853d28728e9e43f33ae9eedb51dab"
+  "docsHash": "sha256:de162da1655f6fab69e513e37c834a28196ef4267b5b9f752e268a6f8490ad46"
 }
 ```
 
@@ -175838,7 +175980,7 @@ files.release: contextPolicy=none
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -175896,6 +176038,10 @@ files.release: contextPolicy=none
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.write 不能作为 api.run 的 method。请直接调用 api.files.write。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -175979,7 +176125,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:8addd7d7d687d8bc928e56479de3cb71a584c006f03129775fd507e0efb3e4e7"
+  "docsHash": "sha256:6fa17c2ca1edc903f09c7c8360934f99f2fde033c413e4e812f0f7aed71405c9"
 }
 ```
 
@@ -175996,7 +176142,7 @@ files.release: contextPolicy=none
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -176054,6 +176200,10 @@ files.release: contextPolicy=none
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.confirmWritten 不能作为 api.run 的 method。请直接调用 api.files.confirmWritten。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -176141,7 +176291,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:3407701a5ed87891d83d98f573cb98e99e27adb3ae24ff4fbe55b85cf8d7403e"
+  "docsHash": "sha256:8db39f6c0507ba187ac01144ba76724cd5118524c618e8b11690d7e7ee4c16cb"
 }
 ```
 
@@ -176158,7 +176308,7 @@ files.release: contextPolicy=none
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -176210,6 +176360,7 @@ files.release: contextPolicy=none
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
+  "batchCapable": true,
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -176289,7 +176440,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:0fde88cc39d72066dd17406ad8b523585b10036daa9941b7f5b7d720f371b5de"
+  "docsHash": "sha256:fc29d425a25be67ec74974a9b5bcd5b4f338c6e0895cfa403de89d7906eedd32"
 }
 ```
 
@@ -176301,13 +176452,14 @@ files.release: contextPolicy=none
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
+  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -176359,7 +176511,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f83c44e2ea33a1e34c4c670b6dee10ec7733705d9bae4843c92cc1066d8c3237"
+  "docsHash": "sha256:c9cb10f6351cc765c67cc7de78867717360fa653913999f66a4c034dd5926f48"
 }
 ```
 
@@ -176371,13 +176523,14 @@ files.release: contextPolicy=none
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
   "errorCodes": [
     "CAPABILITY_UNAVAILABLE"
   ],
+  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -176429,6 +176582,6 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:849baf2c43238378c6a48bd30dbf0988061ec1abda646396c9a3f83385c7cc93"
+  "docsHash": "sha256:77a77899d0dac40395e8a323deb9bc4215df0974387cf92a6e4bd88580667543"
 }
 ```

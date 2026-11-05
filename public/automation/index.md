@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.60.11 · 操作目录 sha256:eed43b45e6cbdcff8b8d44f40940d612e8e8cc5c5ba188549569011ef6ecccf0
+API 1.61.0 · 操作目录 sha256:fedacca90b7cc6294a2b9316e0e1c31e5f39aedd02250d1c495bc584d8ea5bd2
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -363,7 +363,7 @@ API 1.60.11 · 操作目录 sha256:eed43b45e6cbdcff8b8d44f40940d612e8e8cc5c5ba18
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context,maxWidth?:64..4096,format?:"png"|"webp",quality?:0<q<=1}); 建议 maxWidth:800,format:"webp"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:"capture",args:{context,maxWidth:800,format:"webp"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。
 - `getEvidenceImage` · page-method · getEvidenceImage({context:{sessionId,documentId,documentInstanceId,expectedRevision},evidenceId?,viewId?:iso|front|top|right,maxWidth?:64..1024,format?:png|webp,quality?}); 默认640px WebP，三视图分别读相同revision和displaySignature。
-- `run` · page-method · run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:"api.run"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。addMany 的原子计划见 api.feature-plan。
+- `run` · page-method · run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:"api.run"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。
 - `document.materials` · page-command · 设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。
 - `feature.compileServices` · page-command · 按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。
 - `body.align` · page-command · 按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:"body",bodyId:基准实体ID},axes:["Y"],sourceSide:"center",targetSide:"center",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。
@@ -391,7 +391,7 @@ API 1.60.11 · 操作目录 sha256:eed43b45e6cbdcff8b8d44f40940d612e8e8cc5c5ba18
 - `history.undo` · page-command · args:{}；撤销一个已提交步骤。
 - `history.redo` · page-command · args:{}；重做一个步骤。
 - `document.refresh` · page-command · args:{}；重建当前历史。
-- `preview.start` · page-command · 普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。
+- `preview.start` · page-command · 普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。预览编号在 result.preview.previewId，同时在回执顶层提供 previewId、generation、baseRevision 别名。提交前工程 revision 不变。
 - `preview.update` · page-command · args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。
 - `preview.commit` · page-command · 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。
 - `preview.cancel` · page-command · 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。
@@ -404,7 +404,7 @@ API 1.60.11 · 操作目录 sha256:eed43b45e6cbdcff8b8d44f40940d612e8e8cc5c5ba18
 - `files.save` · browser-file-adapter · save({context,name?}); complete current context. Save committed data even while busy, previewing or the kernel is unavailable. Normally final BRep/typed mesh with ids/appearance/visibility/material/anchors; if final checkpoints are unavailable, retain the original committed recipe and embedded assets in a recovery project. Codec failure uses direct encoding; no geometry recomputation. name may omit .webcad.
 - `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).
 - `files.reattach` · browser-file-adapter · reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。
-- `files.read` · browser-file-adapter · read({resourceId,as?}); as is blob (default) or bytes.
+- `files.read` · browser-file-adapter · read({resourceId,as}); as is required: "bytes", "text", or "blob". Omitting as is PARAM_SCHEMA_INVALID and does not return an empty object. text is UTF-8; bytes is a Uint8Array; blob is an in-page Blob that a JSON host would otherwise stringify as {}.
 - `files.download` · browser-file-adapter · download({resourceId}); generated output only.
 - `files.write` · browser-file-adapter · write({resourceId,handle}); previously authorized FileSystemFileHandle.
 - `files.confirmWritten` · browser-file-adapter · confirmWritten({resourceId,size,sha256}); only after the authorized client has written and read back this native project artifact. Exact size and hash must match the retained generated resource.

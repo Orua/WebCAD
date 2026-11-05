@@ -10,6 +10,7 @@ import {BLEND_SELECTOR_SCHEMA} from './modeling/blend-selector-contract.js';
 import {contextPolicy} from './page-context-policy.js';
 import {AGENT_CONTRACT} from './agent/protocol.js';
 import { apiVersion, getOperation, listOperations, migratedOperationIds, UNKNOWN_OPERATION_HINTS } from './operation-registry.js';
+import {BATCH_METHODS} from './page-batch.js';
 import {FILE_ARGUMENT_KEYS,FILE_ERROR_CODES,FILE_LIMITS,FILE_TYPED_BYTE_BUDGETS,CONTEXTUAL_FILE_METHODS} from './browser-file-contracts.js';
 import {DOCUMENT_LIMITS} from './document-limits.js';
 import {LIMITS} from './limits.js';
@@ -36,7 +37,7 @@ import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-in
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
 import {LOGO_RASTER_SCHEMA} from './logo-raster-options.js';
 import {ERROR_RECOVERY_VERSION,errorRecoveryCatalogDoc,errorRecovery} from './error-recovery.js';
-const PAGE_DOC_VERSION = '1.60.11';
+const PAGE_DOC_VERSION = '1.61.0';
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
     entities:[{id:'rectangle-1',type:'rectangle',originMm:[0,0],widthMm:40,heightMm:30}],
@@ -62,7 +63,7 @@ const commandSpecs={...EDITOR_ACTIONS,
   'history.undo':{title:'撤销',description:'args:{}；撤销一个已提交步骤。'},
   'history.redo':{title:'重做',description:'args:{}；重做一个步骤。'},
   'document.refresh':{title:'重建工程',description:'args:{}；重建当前历史。'},
-  'preview.start':{title:'预览模型、原特征编辑或文件插入',description:'普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。回执含 previewId/generation/baseRevision，提交前工程 revision 不变。'},
+  'preview.start':{title:'预览模型、原特征编辑或文件插入',description:'普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。预览编号在 result.preview.previewId，同时在回执顶层提供 previewId、generation、baseRevision 别名。提交前工程 revision 不变。'},
   'preview.update':{title:'更新预览',description:'args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。'},
   'preview.commit':{title:'应用预览',description:'新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。'},
   'preview.cancel':{title:'取消预览',description:'新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。'}
@@ -243,7 +244,7 @@ const fileDetails = {
   save: ['save({context,name?}); complete current context. Save committed data even while busy, previewing or the kernel is unavailable. Normally final BRep/typed mesh with ids/appearance/visibility/material/anchors; if final checkpoints are unavailable, retain the original committed recipe and embedded assets in a recovery project. Codec failure uses direct encoding; no geometry recomputation. name may omit .webcad.', 'status=generated native project resource with exact source snapshot; optional report.saveMode=recovery and report.reason. Not a disk save; use write/download and verify the receipt.'],
   export: ['export({context,format,ids?,name?}); format step/stl/brep/png. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).', 'status=generated output resource with exact source snapshot.'],
   reattach: ['reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。', 'status=generated，返回原文件名、字节数和SHA256；宿主重新传输原字节，不重建几何、不覆盖原命令终态。RESOURCE_EXPIRED须重新生成。'],
-  read: ['read({resourceId,as?}); as is blob (default) or bytes.', 'Actual Blob or Uint8Array; host JSON boundaries may need bounded transfer.'],
+  read: ['read({resourceId,as}); as is required: "bytes", "text", or "blob". Omitting as is PARAM_SCHEMA_INVALID and does not return an empty object. text is UTF-8; bytes is a Uint8Array; blob is an in-page Blob that a JSON host would otherwise stringify as {}.', 'Uint8Array, UTF-8 string, or Blob. JSON hosts must use bytes or text.'],
   download: ['download({resourceId}); generated output only.', 'status=download_initiated; disk completion cannot be claimed.'],
   write: ['write({resourceId,handle}); previously authorized FileSystemFileHandle.', 'status=write_verified after close and size/SHA-256 readback; snapshot confirmation is separate.'],
   confirmWritten: ['confirmWritten({resourceId,size,sha256}); only after the authorized client has written and read back this native project artifact. Exact size and hash must match the retained generated resource.', 'status=client_write_confirmed; writeConfirmation=client_reported_verified_write. Browser cannot prove disk fsync. Only the matching document identity and revision can become saved; later edits remain dirty. This grants no filesystem access.'],
@@ -283,7 +284,8 @@ function fileCard(name) {
     errorModel:'Direct page file scripts throw or reject with error.code. MCP callers follow mcpCall; invoke is not an Agent method. Page-script invoke({method:"files.'+name+'",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.',
     limits: FILE_LIMITS,typedByteBudgets:FILE_TYPED_BYTE_BUDGETS,additionalDocs:['api.exact-source-assets','api.mesh-assets'],documentLimits:DOCUMENT_LIMITS,...(name==='import'?{placementPolicy:placementContract('import')}:{}),
     caveats: name === 'import' ? ['IGES requires unavailable local conversion in the static build.'] : [],
-    errorCodes:[...FILE_ERROR_CODES[name]] };
+    errorCodes:[...FILE_ERROR_CODES[name]],
+    ...(name==='read'?{inputSchema:{type:'object',additionalProperties:false,required:['resourceId','as'],properties:{resourceId:{type:'string',minLength:1},as:{type:'string',enum:['bytes','text','blob']}}},minimalExample:{resourceId:'<current resourceId>',as:'bytes'},normalExample:{resourceId:'<current resourceId>',as:'text'}}:{}) };
 }
 function namedParameterCard() {
   return { id: 'document.parameters', title: '命名参数与尺寸联动', category: 'document', version: PAGE_DOC_VERSION,
@@ -343,7 +345,7 @@ const METHOD_DETAILS = Object.freeze({
   getJob:['任务 状态 轮询 结果','getJob({jobId})','任务 status/progress/phase/elapsedMs/result；result 保留原提交回执。'],
   cancelJob:['任务 取消','cancelJob({jobId})','cancelled 布尔；运行中拒绝取消且继续可查原回执。'],
   connect: ['连接 发现 工具 缓存', 'connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。只读，内核启动期间可用。', '当前 context/requestContext、canExecute/blockers/nextAction、版本与迁移说明、实体引用和完整工具契约。搜索自动附带卡最多64000字符，contractIdsOmitted 和 contractReadPolicy 明示省略项；显式 toolIds 与按需 getTools 不受字符预算限制。ready 仅为内核状态；canExecute 才计入 busy/preview。详见 api.workflow。'],
-  run: ['批量 AI JSON 指令 无CLI', 'run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:"api.run"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。addMany 的原子计划见 api.feature-plan。', 'completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false。后续操作前核对实时状态。'],
+  run: ['批量 AI JSON 指令 无CLI', 'run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:"api.run"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。', 'completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false，失败保留前序已提交步骤。后续操作前核对实时状态。'],
   info: ['页面信息 构建 就绪', 'info() 无参数。', '构建/API 版本、in-page transport、当前 context、URL、display、就绪状态和能力。'],
   getQuickModelUsage: ['快捷模型 使用频率 常用模型 五个 弹簧 螺丝 丝筒 半圆钉', 'getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。', 'status=read、version、counts、topKinds（最多5）、maxVisible=5、storage（localStorage或memory）、context。只统计新提交的快捷模型，预览/失败/取消/参数修改/撤销重做/打开工程均不增加。次数相同按简单模型优先的目录顺序。剩余模型通过快捷模型面板访问。'],
   getBatchReceipt: ['批次回执 结果未知 幂等 UNKNOWN_OUTCOME', 'getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.', 'status=read, found, receipt (original per-step result or null), recovery. found:false can mean pending/expired/reloaded; it never proves rollback. Read original job/state before replanning; see api.modeling-pitfalls.'],
@@ -479,10 +481,10 @@ function methodCard(name) {
     capture: ['REVISION_CONFLICT', 'CAPABILITY_UNAVAILABLE', 'DISPLAY_FAILED', 'CAPTURE_TIMEOUT'],
     getEvidenceImage:['PARAM_SCHEMA_INVALID','INSTANCE_MISMATCH','CAPABILITY_UNAVAILABLE','DISPLAY_FAILED','EVIDENCE_UNAVAILABLE','EVIDENCE_SUPERSEDED','EVIDENCE_QUEUE_FULL','EVIDENCE_RENDER_FAILED','EVIDENCE_INVALID','EVIDENCE_SIZE_LIMIT'],
   };
-  const pageOnly=name==='capture'||name==='recoverKernel';
+  const batchCapable=BATCH_METHODS.includes(name);
   return { id: name, title: name, category: 'page-method', version: PAGE_DOC_VERSION, contextPolicy:contextPolicy(name),
-    invocation:pageOnly?'page-method-only':'page-or-batch', batchCapable:!pageOnly,
-    ...(pageOnly?{pageMethodOnly:true,batchNote:`${name} 不能作为 api.run 的 method。请直接调用 api.${name}。`}:{batchNote:name==='inspectDesign'?'inspectDesign 可以放进 api.run，也可以页面直调。必须提供 requirements 数组（1–64 项，每项含 id、bodyId、kind、evidence）。bounds 的 toleranceMm 是绝对毫米，必须 >0 且 <=1。':'此方法可以放进 api.run，也可以页面直调。'}),
+    invocation:batchCapable?'page-or-batch':'page-method-only', batchCapable,
+    ...(batchCapable?{batchNote:name==='inspectDesign'?'inspectDesign 可以放进 api.run，也可以页面直调。必须提供 requirements 数组（1–64 项，每项含 id、bodyId、kind、evidence）。bounds 的 toleranceMm 是绝对毫米，必须 >0 且 <=1。':'此方法可以放进 api.run，也可以页面直调。'}:{pageMethodOnly:true,batchNote:`${name} 不能作为 api.run 的 method。请直接调用 api.${name}。`}),
     ...(['prepareOperation','applyPreparedOperation'].includes(name)?{docs:'api.prepare-operation',relatedTools:['prepareOperation','applyPreparedOperation','readLogo','queryGeometry','measure'],executionPolicy:{readOnly:name==='prepareOperation',geometryComputed:name==='applyPreparedOperation',preparedPlans:32,ttlMs:1800000,missingParameters:'structured needs_input questions; no mutation',automaticDefaults:'unique verified references and technical fields only',arbitraryScripts:false},minimalExample:name==='prepareOperation'?{op:'logo',face:'top',params:{mode:'engrave',depthMm:0.2,widthMm:35}}:{preparationId:'<returned preparationId>'}}:{}),
     ...(PAGE_METHOD_SCHEMAS[name]?{inputSchema:PAGE_METHOD_SCHEMAS[name]}:{}),mcpCall:agentMethodRoute(name),
     ...(name==='run'?{stepInputSchemas:{add:PAGE_METHOD_SCHEMAS.add,addMany:PAGE_METHOD_SCHEMAS.addMany},atomic:false,
@@ -572,7 +574,7 @@ function templateCards() {
       parentContract:{opVersion:raw.version,schemaHash:raw.schemaHash},
       mcpCall:{tool:'webcad_submit',method:'run',step:{method:'add',args:'Use this callSchema and current context; run supplies the parent version/hash'}},
       runtimeAvailability:'requires_ready_page',
-      usage:'这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。',
+      usage:'这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。'+(template.visibleInLibrary?'':' visibleInLibrary 为 false：不出现在模型库列表，Page API 仍可执行，提交后的使用统计不会因此失败。'),
       minimalExample:{op:'quickModel',params:template.minimalExample,refs:[]},
       normalExample:{op:'quickModel',params:template.normalExample,refs:[]},
       ...(kind==='sliderBuckle'?{sourceFreeJunction:{
@@ -618,18 +620,23 @@ function pageCards() {
       ...(['import','remove'].includes(card.id)?{executableOperation:false,contextPolicy:'revision',usage:card.id==='import'?'用files.register和files.import；不要调用add op:import':'用execute action:feature.remove；不要调用add op:remove'}:{}),
       additionalDocs:['api.modeling-pitfalls','api.placement'],
       usage: ['import','remove'].includes(card.id) ? (card.id==='import'?'用files.register和files.import；不要调用add op:import':'用execute action:feature.remove；不要调用add op:remove') : 'Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. ' + (['C','T'].includes(PLACEMENT_POLICIES[card.id])||['faceHole','logo','transform','copy','mirror','linearPattern','circularPattern','split','planeSection','referenceExtrude'].includes(card.id)?'Explicit placement version 1 is enabled; read api.references. ':'Placement is not enabled for this operation. ') + (card.strictContract ? 'Strict v2 validation applies.' : 'Schema is advisory; kernel prerequisites and result verification still apply.'),
-      minimalExample: { ...(card.id==='logo'?{op:'logo',params:{logoId:'<exact current readLogo.logoId>',faceId:0,placementVersion:2,point:[5,5,3],mode:'engrave',depthMm:0.2,scale:1,machiningIntent:{version:1,requestedGeometry:'constantDepthContours',sourceInterpretation:'reviewedVectors',userIntentEvidence:'Replace with the actual user request'}},refs:['<current-bodyId-1>']}:card.minimalExample),
-        referenceInstructions: 'Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().' },
-      normalExample: { ...(card.id==='sketchProfile'?RECTANGLE_PROFILE_EXAMPLE:card.normalExample),
-        referenceInstructions: card.id==='sketchProfile'?'For this parameterized rectangle, the loop references rectangle-1 once; its four edges are derived internally. Face output requires the explicit outer loop and region shown.':'Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().' },
+      exampleNotes: { ...(card.exampleNotes||{}),
+        referenceInstructions: 'Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().',
+        ...(card.id==='sketchProfile'?{normalExampleNote:'For this parameterized rectangle, the loop references rectangle-1 once; its four edges are derived internally. Face output requires the explicit outer loop and region shown.'}:{}) },
+      minimalExample: card.id==='logo'?{op:'logo',params:{logoId:'<exact current readLogo.logoId>',faceId:0,placementVersion:2,point:[5,5,3],mode:'engrave',depthMm:0.2,scale:1,machiningIntent:{version:1,requestedGeometry:'constantDepthContours',sourceInterpretation:'reviewedVectors',userIntentEvidence:'Replace with the actual user request'}},refs:['<current-bodyId-1>']}:card.minimalExample,
+      normalExample: card.id==='sketchProfile'?RECTANGLE_PROFILE_EXAMPLE:card.normalExample,
       }; }),
     ...['heightfieldSculpt','reliefSculpt'].map(id=>({id,title:id==='heightfieldSculpt'?'高度图浮雕精修':'精确浮雕精修',label:id==='heightfieldSculpt'?'高度图浮雕精修':'精确浮雕精修',category:'command',version:PAGE_DOC_VERSION,description:'发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。',implementationStatus:'implemented',runtimeAvailability:'requires_ready_page',contextPolicy:'revision',docs:'api.relief-taxonomy',relatedTools:['feature.edit',id==='heightfieldSculpt'?'meshHeightfieldRelief':'prepareReliefSculpt'],executableOperation:false,usage:id==='heightfieldSculpt'?'execute({context,action:"feature.edit",args:{featureId,params:{sculpt:完整笔画数组}}})':'prepareReliefSculpt后用feature.edit提交返回params',synonyms:[id,'浮雕精修','sculpt']})),
     ...templateCards(), ...PAGE_METHODS.map(methodCard), ...Object.keys(commandSpecs).map(commandCard), namedParameterCard(), ...FILE_METHODS.map(fileCard),
     ...unavailable.map(card => ({ ...card, category: 'unavailable', version: PAGE_DOC_VERSION,
       implementationStatus: 'unavailable', contractStatus: 'unavailable', runtimeAvailability: 'unavailable',
       errorCodes: ['CAPABILITY_UNAVAILABLE'] })),
-  ].map(card=>withReadingGuide(withToolSelection(withPreparationContract(Object.hasOwn(KNOWLEDGE_TOOL_SYNONYMS,card.id)
-    ? {...card,synonyms:[...new Set([...(card.synonyms||[]),...KNOWLEDGE_TOOL_SYNONYMS[card.id]])]} : card))));
+  ].map(card=>{
+    const batchCapable=BATCH_METHODS.includes(card.id);
+    const batchCard=batchCapable?{...card,batchCapable}:{...card,batchCapable,...(card.category==='page-method'||card.category==='file'?{invocation:'page-method-only',pageMethodOnly:true,batchNote:`${card.id} 不能作为 api.run 的 method。请直接调用 api.${card.id}。`}:{})};
+    const named=Object.hasOwn(KNOWLEDGE_TOOL_SYNONYMS,batchCard.id)?{...batchCard,synonyms:[...new Set([...(batchCard.synonyms||[]),...KNOWLEDGE_TOOL_SYNONYMS[batchCard.id]])]}:batchCard;
+    return withReadingGuide(withToolSelection(withPreparationContract(named)));
+  });
 }
 export const pageCatalogHash = contractHash({ searchVersion: SEARCH_VERSION, cards: pageCards(), uiRoutes:UI_API_ROUTES, knowledgeRoutes:KNOWLEDGE_ROUTES, productFamilies:PRODUCT_FAMILIES, fileLimits: FILE_LIMITS });
 export const pageDocsHash = contractHash({ pageCatalogHash, pageDocs: PAGE_DOCS, agentProtocol:AGENT_CONTRACT, onboarding:AGENT_ONBOARDING, legacyReadable: [...LEGACY_READABLE], legacyDocsHash });

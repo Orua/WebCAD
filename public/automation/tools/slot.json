@@ -187,6 +187,10 @@
     "length >= width; equality gives a circular hole. Defaults center=origin,axis=Z,direction=1,angle=0. Unrotated long direction: Z axis -> +X; X axis -> +Y; Y axis -> +Z. Angle always follows the right-hand rule about the positive axis, independent of direction. Depth extends from the start plane along direction * axis. Must remove material. No automatic through depth.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "slot",
     "params": {
@@ -200,9 +204,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "normalExample": {
     "op": "slot",
@@ -217,9 +219,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    ]
   },
   "invalidExamples": [
     {
@@ -451,9 +451,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "normal": {
         "op": "slot",
@@ -468,9 +466,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        ]
       },
       "invalid": [
         {
@@ -807,6 +803,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -889,5 +886,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:76c9d908722d023016a74954a6e6a05baef8c97c516d0531043a37c5c85a1215"
+  "docsHash": "sha256:df0e0941bab1397b0eeb31ccc17064f6dcd3f11b3154b5a632255b0ed4812406"
 }

@@ -107,23 +107,23 @@
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result.",
     "Use webcad_remove or v2 feature.remove; not feature.add."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "dedicated-entry-only"
+  },
   "minimalExample": {
     "op": "remove",
     "params": {},
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "dedicated-entry-only"
+    ]
   },
   "normalExample": {
     "op": "remove",
     "params": {},
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "dedicated-entry-only"
+    ]
   },
   "invalidExamples": [
     {
@@ -256,18 +256,14 @@
         "params": {},
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "dedicated-entry-only"
+        ]
       },
       "normal": {
         "op": "remove",
         "params": {},
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "dedicated-entry-only"
+        ]
       },
       "invalid": [
         {
@@ -602,6 +598,7 @@
     "api.modeling-pitfalls",
     "api.placement"
   ],
+  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -669,5 +666,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:d3182445487686b76b3cc3bdcde27591ab351d662f77585f53d52ebde37fac05"
+  "docsHash": "sha256:58ad975fb5658ab54f5a1372aef4d3f408c398de54bfbc2b2595bda59f3dc4ca"
 }

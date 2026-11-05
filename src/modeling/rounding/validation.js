@@ -15,6 +15,7 @@ export function validateRoundingResult(source,result,oc){
     const valid=analyzer.IsValid(),singleSolid=solids.length===1&&resultVolume>1e-9;
     if(!valid||!singleSolid)throw Object.assign(new Error('圆角结果不是有效单实体'),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});
     if(Math.abs(resultVolume-sourceVolume)<1e-9)throw Object.assign(new Error('圆角未产生可测量的材料变化'),{code:'MATERIAL_CHECK_FAILED',recoveryAction:'CORRECT_PARAMETERS'});
+    if(resultVolume<sourceVolume*0.35)throw Object.assign(new Error('圆角或倒角造成灾难性体积塌缩，尺寸超出几何可行范围。原模型保留。'),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});
     return {solid:'passed',material:'changed',volumeMethod:'BRepGProp.VolumePropertiesGK',sourceVolumeMm3:sourceVolume,resultVolumeMm3:resultVolume,deltaVolumeMm3:resultVolume-sourceVolume,radius:'not_yet_verified',seams:'not_yet_verified',endpoints:'not_yet_verified'};
   }finally{dispose(analyzer);solids.forEach(dispose);}
 }

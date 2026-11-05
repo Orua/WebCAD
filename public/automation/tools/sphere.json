@@ -120,23 +120,23 @@
   "knownUnsupportedCases": [
     "Omitted placement uses the work frame, initially world origin. Agent/API inserts do not move that frame. A user insert may lift it 0.05 mm in +Z. Read workFrame.origin and bounds."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "sphere",
     "params": {
       "radius": 10
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "sphere",
     "params": {
       "radius": 10
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -280,18 +280,14 @@
         "params": {
           "radius": 10
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "sphere",
         "params": {
           "radius": 10
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -628,6 +624,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -674,5 +671,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8a7dcca2d32b3053a5cc3a33cab5b9f03eb3e0a2ba8f88bed6c85c77a216ced1"
+  "docsHash": "sha256:8f702b69494a6413436c7d3444c0befcf7a1a6c69ff3445a2fb8462a9e54a9f6"
 }

@@ -179,6 +179,10 @@
   "knownUnsupportedCases": [
     "refs[0] 是一个闭合平面截面；加料/切除/交集另附 refs[1] 目标。轴须位于截面平面内；原生平面 Face 的内孔按原几何旋转。开轮廓、多区域、非平面或自交结果拒绝。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "profileRevolve",
     "params": {
@@ -197,9 +201,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "profileRevolve",
@@ -219,9 +221,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -423,9 +423,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "profileRevolve",
@@ -445,9 +443,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -804,6 +800,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -846,5 +843,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:91a8f88145cef0caa5fc6b53be0d9352ff7331090fef5f5e55b00e9331b2d5a4"
+  "docsHash": "sha256:5835a23dec2b59774c784e5f06191d81c78132843b34c4f8e388f7ac859ba760"
 }

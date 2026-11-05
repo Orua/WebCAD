@@ -2,7 +2,7 @@
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -216,5 +216,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2733e52d3ee161585e6a557543a20b00d498f519abb9cdbaf567f11668a19cff"
+  "docsHash": "sha256:ce14e9c068172de97a228636cc8856f32892d673db738a5e3a43878cd429656c"
 }

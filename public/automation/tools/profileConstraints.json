@@ -927,6 +927,10 @@
   "knownUnsupportedCases": [
     "One saved sketchProfile-derived analytic profile source. Line/circle supported; rectangle is explicitly expanded only in the derived result into sourceId_0..3 line IDs, with primitiveConversion mapping and intrinsic horizontal/vertical relations. profile.constraintMetadata preserves those intrinsic relations for later solves; no origin or size is secretly fixed. At most 64 derived entities, 128 independent scalar variables, 128 user constraints and 64 intrinsic relations; minimum supported line length/radius 1e-7 mm. Coordinates and dimensions are in its frozen local plane, not current world/work-frame coordinates. Bounded local numerical solver; reports residuals, Jacobian rank and remaining degrees of freedom. Closed-loop/open-chain endpoint connections are preserved structurally. Underconstrained solutions are allowed and reported; redundant equations are reported. Axis/parallel/perpendicular constraints choose the nearest valid directed branch from initial geometry. Conflicting/unsatisfied, nonconvergent or invalid/degenerate geometry rejects without altering the source. No arc/spline/rounded-primitive solving, global uniqueness proof, automatic conflict minimization or full mainstream Sketcher claim."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "profileConstraints",
     "params": {
@@ -944,9 +948,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "profileConstraints",
@@ -965,9 +967,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -1171,9 +1171,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "profileConstraints",
@@ -1192,9 +1190,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -1575,6 +1571,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -1657,5 +1654,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b2e4aab56c7f8df6b4faec0249d3b16fa8f8c88541472230e78507e19e4c9b0c"
+  "docsHash": "sha256:f72396962087fe61c12a53505eda949738409d1353c47f56c363210c8f326d76"
 }

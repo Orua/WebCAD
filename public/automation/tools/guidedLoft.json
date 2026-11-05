@@ -327,6 +327,10 @@
   "knownUnsupportedCases": [
     "matchTo.featureId must equal the sole refs entry and identify a preceding guidedLoft feature. matchTo.end is the SOURCE endpoint (start or end). The current target endpoint is inferred from the unique non-G0 startCondition/endCondition; two constrained ends are rejected. D1/D2 are read from the actual source B-spline terminal patch poles. Same-end pairing reverses D1 only. Use buildBoundGuidedLoft(feature, shapes, historyFeatures, cad) for frozen creation-frame and refs binding. Frozen creation frames are required; the previous segment stays unchanged. G0 creation uses no refs and no matchTo. Read guidedLoftReport for actual boundary error and endpoint jets."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "guidedLoft",
     "params": {
@@ -416,9 +420,7 @@
       "endCondition": "G0",
       "fitToleranceMm": 0.01
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "guidedLoft",
@@ -509,9 +511,7 @@
       "endCondition": "G0",
       "fitToleranceMm": 0.01
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -897,9 +897,7 @@
           "endCondition": "G0",
           "fitToleranceMm": 0.01
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "guidedLoft",
@@ -990,9 +988,7 @@
           "endCondition": "G0",
           "fitToleranceMm": 0.01
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -1410,6 +1406,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -1460,5 +1457,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:867f500ef81dadf957641116fb32243e190c85491504e90abf17e1aa0f5c0d57"
+  "docsHash": "sha256:81288e3abfa6f0316cba0fdf2b54668b34ea1a529a2f78eb8e4fe36821aa8416"
 }

@@ -186,6 +186,10 @@
     "Missing end dimensions use corresponding start dimensions.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "loft",
     "params": {
@@ -194,9 +198,7 @@
       "endRadius": 3,
       "height": 10
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "loft",
@@ -206,9 +208,7 @@
       "endRadius": 3,
       "height": 10
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -449,9 +449,7 @@
           "endRadius": 3,
           "height": 10
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "loft",
@@ -461,9 +459,7 @@
           "endRadius": 3,
           "height": 10
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -795,6 +791,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -845,5 +842,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:05c7b2e4f929e662cffe50ff6e64dcd37b4752b10d11845d44538cc270efc0a4"
+  "docsHash": "sha256:3dab6ecdd86771e1b60ab27476a7df42162f113f77df3609d99bcebcc8361708"
 }

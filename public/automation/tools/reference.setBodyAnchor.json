@@ -8,7 +8,7 @@
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -38,6 +38,7 @@
   ],
   "outputContract": "检查 status/revisionAfter/warnings；读回 getState。参考元数据不重建几何。",
   "docs": "api.references",
+  "batchCapable": false,
   "synonyms": [
     "对象锚点",
     "实体锚点"
@@ -115,5 +116,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b53f641941ec985ba4a3edd7064477e01e052b5ef10a0f0b4ae26d98e65b9b66"
+  "docsHash": "sha256:df60cd3ab42bd5470213f51d2ab8810c28192947688d3a39ad78e707597d1044"
 }

@@ -8,7 +8,7 @@
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -66,6 +66,10 @@
     "REVISION_CONFLICT",
     "SAVE_CONFIRMATION_FAILED"
   ],
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.confirmWritten 不能作为 api.run 的 method。请直接调用 api.files.confirmWritten。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -153,5 +157,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:3407701a5ed87891d83d98f573cb98e99e27adb3ae24ff4fbe55b85cf8d7403e"
+  "docsHash": "sha256:8db39f6c0507ba187ac01144ba76724cd5118524c618e8b11690d7e7ee4c16cb"
 }

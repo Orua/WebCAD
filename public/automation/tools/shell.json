@@ -6,7 +6,7 @@
     "properties": {
       "thickness": {
         "type": "number",
-        "description": "Signed nonzero wall thickness (mm)",
+        "description": "Signed nonzero wall thickness. Positive is inward and must be smaller than half the minimum solid extent; negative grows outward; zero is rejected. (mm)",
         "not": {
           "const": 0
         },
@@ -77,7 +77,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Positive thickness produces inward shell. Current UI selected faces may supply IDs.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs.",
   "title": "Hollow body removing selected faces",
   "category": "modification",
   "synonyms": [
@@ -89,7 +89,7 @@
     "thicken"
   ],
   "description": "Hollow body removing selected faces",
-  "schemaHash": "sha256:601eb52cdadbb692ba338260abd9e5f23eca2960f26807b0b1bbb95b809378a0",
+  "schemaHash": "sha256:9e95e81f2608eb6eafc11465907a8e9e988fe3d4dbe889740750b24e41f9b520",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -151,8 +151,12 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Positive thickness produces inward shell. Current UI selected faces may supply IDs."
+    "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "shell",
     "params": {
@@ -163,9 +167,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "shell",
@@ -177,9 +179,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -229,7 +229,7 @@
   "contract": {
     "purpose": "Hollow body removing selected faces",
     "whenToUse": [
-      "Positive thickness produces inward shell. Current UI selected faces may supply IDs."
+      "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
     ],
     "whenNotToUse": [
       {
@@ -239,7 +239,7 @@
     ],
     "params": {
       "thickness": {
-        "meaning": "Signed nonzero wall thickness (mm)",
+        "meaning": "Signed nonzero wall thickness. Positive is inward and must be smaller than half the minimum solid extent; negative grows outward; zero is rejected. (mm)",
         "unit": "mm",
         "range": [
           null,
@@ -356,9 +356,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "shell",
@@ -370,9 +368,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -409,7 +405,7 @@
   },
   "purpose": "Hollow body removing selected faces",
   "whenToUse": [
-    "Positive thickness produces inward shell. Current UI selected faces may supply IDs."
+    "Positive thickness produces an inward shell and fails when it collapses the cavity. Negative thickness shells outward and must increase volume. Zero is rejected. Current UI selected faces may supply IDs."
   ],
   "whenNotToUse": [
     {
@@ -724,6 +720,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -790,5 +787,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:298cbf9fe584704a04cb5f55fd658edb9457ac0d372043b0a6985f8a1ac94082"
+  "docsHash": "sha256:fe95369fb71d03b6004131530ab45de4513c6d7fbc618fde11a4ae0b69873d7f"
 }

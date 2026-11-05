@@ -177,7 +177,7 @@ export function createPageAPI(host){
   async function logoResources(cached,s){
     const state=cached.reviewSession.get();
     if(cached.artifactRevision===state.revision&&cached.resources?.every(r=>r.expiresAt>Date.now())){
-      try{for(const item of cached.resources)await rawFiles.read({resourceId:item.resourceId});assertLogoSnapshot(cached,s,state.revision);return cached.resources;}catch(error){if(error.code!=='RESOURCE_EXPIRED'){releaseLogoArtifacts(cached);throw error;}}
+      try{for(const item of cached.resources)await rawFiles.read({resourceId:item.resourceId,as:'blob'});assertLogoSnapshot(cached,s,state.revision);return cached.resources;}catch(error){if(error.code!=='RESOURCE_EXPIRED'){releaseLogoArtifacts(cached);throw error;}}
     }
     if(cached.artifactPending)fail('LOGO_WIZARD_BUSY','LOGO artifacts are being prepared; read the original request result');
     cached.artifactPending=true;
@@ -592,7 +592,7 @@ export function createPageAPI(host){
         validateRegions(input.logo);logo=structuredClone(input.logo);
       }else{
         if(typeof input.resourceId!=='string'||!input.resourceId||typeof input.name!=='string'||!input.name||input.name.length>255)fail('PARAM_SCHEMA_INVALID','Provide selected LOGO resourceId and name');
-        const blob=await rawFiles.read({resourceId:input.resourceId});logo=await readBrowserLogo(new File([blob],input.name),x=>x,input);
+        const blob=await rawFiles.read({resourceId:input.resourceId,as:'blob'});logo=await readBrowserLogo(new File([blob],input.name),x=>x,input);
       }
       check(input,keys);
       if(policy==='preview')logo={...logo,source:{...logo.source,reviewed:false,reviewRequired:true,...(logo.source?.contourReview?{contourReview:{...logo.source.contourReview,confirmed:false}}:{})}};
@@ -630,7 +630,7 @@ export function createPageAPI(host){
       }
       let request={...input,action};
       if(action==='load'){
-        const cached=cachedLogo(input.logoId,s),blob=cached.sourceResourceId?await rawFiles.read({resourceId:cached.sourceResourceId}):null;check(input,keys);
+        const cached=cachedLogo(input.logoId,s),blob=cached.sourceResourceId?await rawFiles.read({resourceId:cached.sourceResourceId,as:'blob'}):null;check(input,keys);
         request={...request,logo:cached.reviewSession.get().logo,sourceFile:blob?new File([blob],cached.sourceName):null,reviewSession:cached.reviewSession};
       }
       const wizard=await actLogoWizard(request);check(input,keys);
@@ -654,7 +654,7 @@ export function createPageAPI(host){
           if(input.reliefId&&input.resourceId)fail('PARAM_SCHEMA_INVALID','reliefId与resourceId二选一。');
           const resourceId=input.resourceId??cached?.sourceResourceId;
           if(!resourceId)fail('RESOURCE_EXPIRED','需要登记的原始高度图，不能用采样网格冒充原图。');
-          const blob=await rawFiles.read({resourceId}),file=new File([blob],input.name??cached?.source?.name??'height.png',{type:blob.type});
+          const blob=await rawFiles.read({resourceId,as:'blob'}),file=new File([blob],input.name??cached?.source?.name??'height.png',{type:blob.type});
           const result=await readReliefImageDesign(file,input,current().context);check(input,keys,'identity');
           const id=crypto.randomUUID(),receipt=await api.execute({context:requestContext(current().context),idempotencyKey:input.idempotencyKey,action:'document.reliefDesign',args:{id,expectedDraftRevision:0,draft:result.draft}});
           if(!['committed','no_change'].includes(receipt.status))return receipt;
@@ -683,7 +683,7 @@ export function createPageAPI(host){
         const {documentInstanceId,...data}=structuredClone(cached);return {status:'read',...reliefReadResult(data,input),context:current().context};
       }
       if(typeof input.resourceId!=='string'||!input.resourceId||typeof input.name!=='string')fail('PARAM_SCHEMA_INVALID','Provide a registered image resourceId and its file name');
-      const blob=await rawFiles.read({resourceId:input.resourceId});
+      const blob=await rawFiles.read({resourceId:input.resourceId,as:'blob'});
       if(!input.sourceInterpretation)fail('MACHINING_SOURCE_REQUIRED','Declare sourceInterpretation; shaded reference brightness is not depth.');
       const data=await readReliefImage(blob,input);check(input,keys);
       trimReliefCache();

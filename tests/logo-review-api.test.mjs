@@ -47,12 +47,12 @@ test('LOGO review preserves source and holes; artifact bytes match confirmed dra
  assert.equal(confirmed.review.reviewRequired,false);
  const artifacts=await api.reviewLogo({...args,action:'artifacts',expectedRevision:confirmed.review.revision});
  assert.equal(artifacts.status,'generated',JSON.stringify(artifacts));assert.equal(artifacts.resources.length,5);
- const doc=JSON.parse(await (await api.files.read({resourceId:artifacts.resources.find(x=>x.kind==='contours').resourceId})).text());
+ const doc=JSON.parse(await (await api.files.read({as:'blob',resourceId:artifacts.resources.find(x=>x.kind==='contours').resourceId})).text());
  assert.deepEqual(doc.regions[0].holes[0][1],[-2,2.5]);assert.equal(doc.source.sha256,'original');assert.equal(doc.source.reviewed,true);
  const repeated=await api.reviewLogo({...args,action:'artifacts',expectedRevision:confirmed.review.revision});
  assert.deepEqual(repeated.resources,artifacts.resources,'same revision reuses resources');
  assert.equal(context.revision,3);
- assert.equal(JSON.parse(await (await api.files.read({resourceId:source.resourceId})).text()).source.reviewed,false);
+ assert.equal(JSON.parse(await (await api.files.read({as:'blob',resourceId:source.resourceId})).text()).source.reviewed,false);
 });
 test('LOGO drafts reject stale edits and wrong document; released artifacts regenerate within resource bounds',async()=>{
  const {api,context}=fixture(),{result}=await read(api,context),args={context,logoId:result.logoId};
@@ -116,20 +116,20 @@ test('UI-first LOGO shares one review with Agent and readable original/derived r
   let state=getLogoWizardState();assert.equal(state.logoId,null);assert.equal(state.sourceStatus,'not-registered');
   const attached=await api.logoWizard({context,action:'attach',expectedRevision:state.revision});
   assert.equal(attached.status,'attached',JSON.stringify(attached));assert.ok(attached.logoId);assert.ok(attached.sourceResourceId);assert.deepEqual(attached.resources,[]);
-  assert.equal(await (await api.files.read({resourceId:attached.sourceResourceId})).text(),bytes,'registered source is the actual selected file, not generated contours');
+  assert.equal(await (await api.files.read({as:'blob',resourceId:attached.sourceResourceId})).text(),bytes,'registered source is the actual selected file, not generated contours');
   const args={context,logoId:attached.logoId};
   // Click the actual editor coordinate control, which mutates the shared UI session.
   ui.nodes.findLast(n=>n.attributes['aria-label']==='节点 X 毫米').value='-5.25';
   ui.nodes.findLast(n=>n.attributes['aria-label']==='应用节点坐标').listeners.click();
   const current=await api.reviewLogo({...args});assert.deepEqual(current.review.logo.regions[0].outer[0],[-5.25,-5]);
   const exported=await api.exportDrawing({...args,format:'json'});assert.equal(exported.status,'generated',JSON.stringify(exported));
-  assert.deepEqual(JSON.parse(await(await api.files.read({resourceId:exported.resourceId})).text()).regions[0].outer[0],[-5.25,-5]);
+  assert.deepEqual(JSON.parse(await(await api.files.read({as:'blob',resourceId:exported.resourceId})).text()).regions[0].outer[0],[-5.25,-5]);
   const confirmed=await api.reviewLogo({...args,action:'confirm',expectedRevision:current.review.revision,confirmed:true});
   assert.equal(confirmed.review.reviewRequired,false);assert.equal(getLogoWizardState().step,'target');assert.equal(ui.accepted().source.reviewed,true);
   const updated=await api.reviewLogo({...args,action:'setPoint',expectedRevision:confirmed.review.revision,pointMm:[-5.5,-5]});
   assert.equal(updated.status,'applied');assert.equal(getLogoWizardState().step,'review');assert.equal(ui.accepted(),null);
   const artifacts=await api.logoWizard({context,action:'artifacts',expectedRevision:getLogoWizardState().revision});assert.equal(artifacts.status,'generated',JSON.stringify(artifacts));assert.equal(artifacts.logoId,attached.logoId);
-  const doc=JSON.parse(await(await api.files.read({resourceId:artifacts.resources.find(r=>r.kind==='contours').resourceId})).text());assert.deepEqual(doc.regions[0].outer[0],[-5.5,-5]);
+  const doc=JSON.parse(await(await api.files.read({as:'blob',resourceId:artifacts.resources.find(r=>r.kind==='contours').resourceId})).text());assert.deepEqual(doc.regions[0].outer[0],[-5.5,-5]);
  }finally{ui.restore();}
 });
 test('loading a cached LOGO binds the actual session and UI changes invalidate in-flight exports',async()=>{
@@ -163,7 +163,7 @@ test('wizard source registration rejects changes during hashing and remains boun
    ui.input.files=[new File([JSON.stringify(full)],`ring-${i}.logo.json`)];await ui.input.listeners.change();
    const linked=await api.logoWizard({context,action:'artifacts',expectedRevision:getLogoWizardState().revision});assert.equal(linked.status,'generated',JSON.stringify(linked));previous.push(linked);
   }
-  await assert.rejects(api.files.read({resourceId:previous[0].sourceResourceId}),{code:'RESOURCE_EXPIRED'});
+  await assert.rejects(api.files.read({as:'blob',resourceId:previous[0].sourceResourceId}),{code:'RESOURCE_EXPIRED'});
   assert.equal((await api.reviewLogo({context,logoId:previous.at(-1).logoId})).status,'read');
  }finally{ui.restore();}
 });

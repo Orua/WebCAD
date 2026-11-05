@@ -1,4 +1,5 @@
 import { prepareReferenceProfile, checkShape } from '../../reference-profile-wires.js';
+import { maxWireCornerDegrees, SHARP_CORNER_DEGREES, sharpClosedSweepMessage } from '../sweep-continuity.js';
 import { buildReferenceLoft } from '../../reference-profile-loft.js';
 import { validMaterialSolid as validSolid, validateMaterialChange } from './material-validation.js';
 
@@ -122,7 +123,7 @@ function prepareSweepPath(shape, cad) {
     }
     finally { dispose(curve); }
     const length = Math.hypot(...tangent); if (!Number.isFinite(length) || length <= 1e-12) fail('路径起点切线无效');
-    return { wire, start, tangent: tangent.map(value => value / length), release: () => resources.reverse().forEach(dispose) };
+    return { wire, closed, maxCornerDeg: closed ? maxWireCornerDegrees(wire) : 0, start, tangent: tangent.map(value => value / length), release: () => resources.reverse().forEach(dispose) };
   } catch (error) { resources.reverse().forEach(dispose); throw error; }
 }
 
@@ -161,6 +162,8 @@ export function buildProfileSweep(sources, params = {}, cad) {
     let path, tool, posed, profile;
     try {
       path = prepareSweepPath(profiles[1], cad);
+      if (path.closed && path.maxCornerDeg > SHARP_CORNER_DEGREES && transitionMode === 'transformed')
+        fail(sharpClosedSweepMessage(path.maxCornerDeg, transitionMode));
       let profileShape = profiles[0];
       if (params.alignProfileToPath === true) {
         const probe = prepareReferenceProfile(profiles[0], cad, { allowHoles: true });

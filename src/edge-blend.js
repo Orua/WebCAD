@@ -1,6 +1,7 @@
 import * as cad from 'replicad';
 import {topologyDetails} from './smooth-transition.js';
 import {millComplementaryFillet,radiusFitsAdjacentFaces} from './modeling/rounding/mill-fillet-fallback.js';
+import {validateRoundingResult} from './modeling/rounding/validation.js';
 
 const dispose=value=>{try{value?.delete();}catch{}};
 const fail=message=>{throw Object.assign(new Error(message),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});};
@@ -77,9 +78,10 @@ function buildOwnedEdgeBlend(shape,op,params,{suggestRadius=false,allowOversized
   const kinkedSelected=targets.filter(t=>kinkedIds.has(t.edgeId)).length;
   const allKinked=op==='fillet'&&targets.length>=1&&kinkedSelected===targets.length;
   const mostlyKinked=op==='fillet'&&targets.length>=2&&kinkedSelected>=Math.ceil(targets.length*0.5);
-  // One explicit edge may mill a cutter larger than the adjacent face. An exact
-  // whole-body fillet, or a round tool that asked for a true radius, may not.
-  const millAllowed=op!=='fillet'||((params.allEdges!==true&&allowOversizedMill!==false)||radiusFitsAdjacentFaces(shape,targets.map(row=>row.edgeId),amount));
+  // Oversized cutters are never a successful fillet. Mill only when the requested
+  // radius stays inside both adjacent faces; allowOversizedMill no longer bypasses that.
+  const radiusFits=op!=='fillet'||radiusFitsAdjacentFaces(shape,targets.map(row=>row.edgeId),amount);
+  const millAllowed=op==='fillet'&&radiusFits&&allowOversizedMill!==false;
   if(millAllowed&&(allKinked||mostlyKinked||(op==='fillet'&&params.preferMillFallback===true))){
     try{
       const mill=millComplementaryFillet(shape,{edgeIds:targets.map(r=>r.edgeId),radiusMm:amount});
@@ -115,6 +117,7 @@ function buildOwnedEdgeBlend(shape,op,params,{suggestRadius=false,allowOversized
     result.blendReport={version:1,operation:op,stage:'completed',strategy:'native',attemptCount:1,elapsedMs:performance.now()-started,dimensionKind:op==='fillet'?'radius':'support-distance',requestedAmountMm:amount,amount,scope:params.allEdges?'body':params.faceIds?(params.sharedFaces?'shared-faces':'face-boundaries'):'edges',
       processedEdgeIds:targets.map(row=>row.edgeId),skippedTangentEdgeIds:skipped,
       ...(op==='chamfer'?{mode,...(mode!=='equalDistance'?{supportFaces,flipDirection:params.flipDirection===true,...(mode==='twoDistances'?{distance2:params.distance2}:{angleDeg:params.angleDeg})}:{})}:{})};
+    validateRoundingResult(shape,result,oc);
     const output=result;result=null;return output;
   }catch(error){
     let failedIds=[];

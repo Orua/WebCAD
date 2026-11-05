@@ -153,6 +153,10 @@
   "knownUnsupportedCases": [
     "refs: 2–16 bodies in order; subtract removes refs[1..] from refs[0]. Mesh bodies are used as-is (with placement); exact BRep bodies are tessellated at toleranceMm (default 0.05 mm). Every input must be a closed, manifold mesh. Result is a closed raw mesh (STL export), not a BRep/STEP; refs are consumed."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "meshBoolean",
     "params": {
@@ -163,9 +167,7 @@
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "meshBoolean",
@@ -177,9 +179,7 @@
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -391,9 +391,7 @@
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "meshBoolean",
@@ -405,9 +403,7 @@
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -763,6 +759,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -829,5 +826,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:dd416b1842c99fc9e72ebfdb2aadff0ee5c565268016250b39a80f8c1230af63"
+  "docsHash": "sha256:fad16bf1589d3af30f365aeed555bb0c1b5ad975a407727a5bf3475f33798bfd"
 }

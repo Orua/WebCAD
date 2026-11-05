@@ -108,19 +108,19 @@
     "用files.register/import登记真实STEP/BREP或网格字节；保留源资产，不恢复来源软件特征树。",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "dedicated-entry-only"
+  },
   "minimalExample": {
     "op": "import",
     "params": {},
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "dedicated-entry-only"
+    "refs": []
   },
   "normalExample": {
     "op": "import",
     "params": {},
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "dedicated-entry-only"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -251,16 +251,12 @@
       "minimal": {
         "op": "import",
         "params": {},
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "dedicated-entry-only"
+        "refs": []
       },
       "normal": {
         "op": "import",
         "params": {},
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "dedicated-entry-only"
+        "refs": []
       },
       "invalid": [
         {
@@ -594,6 +590,7 @@
     "api.modeling-pitfalls",
     "api.placement"
   ],
+  "batchCapable": false,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -645,5 +642,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:34fbadf0d273ab864b6b5942d68bf2911912267400c7883cc0bf1e08ddda5abb"
+  "docsHash": "sha256:d17932cc12d9d59168ac19b5b7e2c1ef178d77e08b59d7187493e55b2286364d"
 }

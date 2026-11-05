@@ -140,6 +140,10 @@
   "knownUnsupportedCases": [
     "Local solid starts at the model origin. Omitted placement puts the bottom center on the current work frame, which starts at world [0,0,0]. A user insert may lift that frame 0.05 mm in +Z when the vertical column is occupied. Agent/API inserts do not move the frame. Read getState().referenceSystem.workFrame.origin and body bounds before assuming the next solid is still at world origin."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "box",
     "params": {
@@ -147,9 +151,7 @@
       "depth": 30,
       "height": 3
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "box",
@@ -158,9 +160,7 @@
       "depth": 30,
       "height": 3
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -325,9 +325,7 @@
           "depth": 30,
           "height": 3
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "box",
@@ -336,9 +334,7 @@
           "depth": 30,
           "height": 3
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -676,6 +672,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -722,5 +719,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:89265b399bcb1a2255e0a45a135a286af3b978c72556bec7b60281bbc061c8c5"
+  "docsHash": "sha256:3b6984ef6c534c4e356fdee847968a2ba10d0d30dee14292b12acc1d604a85a3"
 }

@@ -2,11 +2,12 @@
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getHistory 不能作为 api.run 的 method。请直接调用 api.getHistory。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getHistory",
@@ -98,5 +99,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0c99da17bba35c7b9c4b3247199beea84522121111d40a8f8fbc3f916aac8b82"
+  "docsHash": "sha256:30b97c2ec08aa291a9877f9a1e6298b27170781f420d41f4678870f7a9fa72c4"
 }

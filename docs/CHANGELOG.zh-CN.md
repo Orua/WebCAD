@@ -1,3 +1,13 @@
+## 1.61.0 · Round 5 根因收敛（2026-11-05）
+
+- 单边过大圆角不再用铣削回退交坏实体；半径放不进相邻面，或结果体积塌缩时，返回 `GEOMETRY_INVALID` 且不提交。
+- 抽壳补上有效单实体、向内壁厚和体积方向检查。正厚度向内，负厚度向外，0 拒绝。界面与契约用同一套有符号厚度。
+- 闭合尖角扫掠在 `transitionMode:transformed` 时提前提示改用 `right` / `round` 或圆弧段。`curveSweep` 会采用调用方的 `transitionMode`。
+- `batchCapable` 只来自 `BATCH_METHODS`。示例里的说明字段移出可执行载荷。
+- 六个隐藏快捷模型提交后不再因为使用统计抛 `未知快捷模型`。
+- `files.read` 必须带 `as`（`bytes` / `text` / `blob`）。`api.run` 写明非原子，并拒绝 `atomic`。未知操作名补了 `scale` / `move` / `rotate` / `offsetFace` / `deleteFace`。
+- 没有改 `services/**`。说明见 `docs/UPGRADE-20261105-round5-root-cause.zh-CN.md`。
+
 ## 1.60.11 · 页面 API 第 4 轮探针（2026-11-05）
 
 - 柱面 `singleFace` 等深凹刻可以沿周期接缝分成两侧再偏移；`pointOnFace` 不再落在接缝上。

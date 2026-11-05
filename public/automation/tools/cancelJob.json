@@ -2,11 +2,12 @@
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "cancelJob 不能作为 api.run 的 method。请直接调用 api.cancelJob。",
   "mcpCall": {
     "tool": "host-only",
     "method": "cancelJob",
@@ -108,5 +109,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:410a23328e416262cc27c234c29cc63fbd135c14d0a7cb25982a77ede031484b"
+  "docsHash": "sha256:f3415d5cb82b80ed939e6fb4dd9d7ac026a2924771d4c4a7b2630aedacfdab2e"
 }

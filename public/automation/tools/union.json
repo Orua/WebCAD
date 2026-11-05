@@ -166,15 +166,17 @@
   "knownUnsupportedCases": [
     "refs[0] is the target. Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "union",
     "params": {},
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "union",
@@ -182,9 +184,7 @@
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -386,9 +386,7 @@
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "union",
@@ -396,9 +394,7 @@
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -734,6 +730,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -804,5 +801,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:c880602774b6f112f173f61b6d9b727d6d4de0a213ea78ab063727ccac0420d7"
+  "docsHash": "sha256:746644a199ae286cb1962e97595dc86e82d6bffa23557a5167ce8a12bba16dfa"
 }

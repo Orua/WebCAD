@@ -8,7 +8,7 @@
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -60,6 +60,7 @@
     "RESOURCE_EXPIRED",
     "RESOURCE_BUSY"
   ],
+  "batchCapable": true,
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -139,5 +140,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:0fde88cc39d72066dd17406ad8b523585b10036daa9941b7f5b7d720f371b5de"
+  "docsHash": "sha256:fc29d425a25be67ec74974a9b5bcd5b4f338c6e0895cfa403de89d7906eedd32"
 }

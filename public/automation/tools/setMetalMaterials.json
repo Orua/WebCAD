@@ -2,11 +2,12 @@
   "id": "setMetalMaterials",
   "title": "setMetalMaterials",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "setMetalMaterials 不能作为 api.run 的 method。请直接调用 api.setMetalMaterials。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -165,5 +166,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cbc04968bdeaa465df79f02130e095cafa56138140f1c67966cb742996b9ae6f"
+  "docsHash": "sha256:a8e700a8efdf31bb7fd137a082913467a1bdd2bb3ee85a80314a6f556dd6dda9"
 }

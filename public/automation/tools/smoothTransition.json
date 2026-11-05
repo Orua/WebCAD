@@ -347,6 +347,10 @@
   "knownUnsupportedCases": [
     "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "smoothTransition",
     "params": {
@@ -358,9 +362,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "smoothTransition",
@@ -373,9 +375,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -569,9 +569,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "smoothTransition",
@@ -584,9 +582,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -944,6 +940,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -1010,5 +1007,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:48eaf85cb6a70cb36ee6c1729a82f907d000d5fa63a9d2aa02e2459ae60b53d1"
+  "docsHash": "sha256:202a671f21d8deb3f43de2216217c39a38eaf37746f18d6f134bcbff6672fbb1"
 }

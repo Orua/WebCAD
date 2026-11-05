@@ -2,11 +2,12 @@
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getAgentPanel 不能作为 api.run 的 method。请直接调用 api.getAgentPanel。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getAgentPanel",
@@ -72,5 +73,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7961b1e65cc4851918b446c39f1c0b95e817e4c599559ff557bde128ab92f68f"
+  "docsHash": "sha256:f0df60de9b91c40768181a9b6c0f2c982f06f725fe796ab7489943997495a9f8"
 }

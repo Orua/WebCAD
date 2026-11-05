@@ -232,6 +232,10 @@
   "knownUnsupportedCases": [
     "Choose exactly one scope: edgeIds, faceIds, or allEdges=true. sharedFaces:true selects their common sharp edges. Legacy/omitted mode is equalDistance. twoDistances requires distance2; distanceAngle requires angleDeg in (0,90), radians are converted only at kernel call. Opposite mode fields are rejected; equalDistance forbids asymmetric options. Asymmetric distance is on referenceFaceId, or first adjacent current source face; flipDirection uses the other face. Optional explicit reference face must touch every selected edge. Tangent/periodic seams and degenerate edges are excluded. Failure preserves source, never reduces dimensions. getState().bodies[].blendReport returns mode, processed/skipped edges and resolved supportFaces for asymmetric modes."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "chamfer",
     "params": {
@@ -242,9 +246,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "chamfer",
@@ -256,9 +258,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -527,9 +527,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "chamfer",
@@ -541,9 +539,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -900,6 +896,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -966,5 +963,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:d288fa88a3a1f534036dbe8f37143490b6856cebd20587b5b0b2e129fff0e30b"
+  "docsHash": "sha256:d1ba95ca16642de89e4692b976d1d25ce5e0ba79596c62cbf90b3684c5a13057"
 }

@@ -2,11 +2,12 @@
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "planAlignment 不能作为 api.run 的 method。请直接调用 api.planAlignment。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "planAlignment",
@@ -274,5 +275,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:307a443d7dd24c6b0afd4ce070d881bef3b52c5763b9d6eb98ba717c7ffcd722"
+  "docsHash": "sha256:52cb67c340e9f4f5cf84016150ce797ca264b7e644f48d64197f30ff862e9e82"
 }

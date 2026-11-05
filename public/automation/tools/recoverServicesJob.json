@@ -2,11 +2,12 @@
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "recoverServicesJob 不能作为 api.run 的 method。请直接调用 api.recoverServicesJob。",
   "mcpCall": {
     "tool": "host-only",
     "method": "recoverServicesJob",
@@ -147,5 +148,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:aeeb794512f60d4d40abd7b52dcd9e53c814249ce96c073a194aaf21afde1c2c"
+  "docsHash": "sha256:d20d0520769954d13a1dda5f995cea2e026e9e44e9a9ff8561db2279dcfe8955"
 }

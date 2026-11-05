@@ -2,11 +2,12 @@
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "configureAgentPanel 不能作为 api.run 的 method。请直接调用 api.configureAgentPanel。",
   "mcpCall": {
     "tool": "host-only",
     "method": "configureAgentPanel",
@@ -70,5 +71,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d72f43b9adfb783c6826e288951656ba748c17faac8acc0be7a441e8ab83031b"
+  "docsHash": "sha256:d6db784476eae5e1b8145035f0e5ca4ea4e11c9da52fa373fb1f68fa0eddd3c8"
 }

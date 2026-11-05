@@ -154,15 +154,17 @@
   "knownUnsupportedCases": [
     "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "cut",
     "params": {},
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "cut",
@@ -170,9 +172,7 @@
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -352,9 +352,7 @@
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "cut",
@@ -362,9 +360,7 @@
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -700,6 +696,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -774,5 +771,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:4bf12f4def1086eabbd732ff4cccc352039558f0e6f6c7352a5c194cea36b85f"
+  "docsHash": "sha256:4d8d2c6799fc93c1d00ec214431a1f88c0ae1da66d01e1c17b59eb692b634ffc"
 }

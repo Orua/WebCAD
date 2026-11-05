@@ -184,6 +184,10 @@
   "knownUnsupportedCases": [
     "Rebuild the whole end containing every selected edge by revolving its actual half section 180 degrees. Explicit axis/direction and profileAxis; no fixed R. Supports a single solid with a symmetric, stable straight LINE/CIRCLE section and no profile corner over 1 degree; ellipse and spline sections are unsupported. Preserves smaller inherited profile creases and reports them; not a whole-body G1/G2 claim. New body connection must meet 0.1 degrees; sampled position tolerance 1e-5 mm. Replaces material only inside the declared end region, may add and remove material, never extends overall length. Use preview.start/commit to inspect the full changed end. getState bodies[].endRoundingReport reports section checks, source/head/join angles, residual seams, target displacement, length and separate material changes. Wrong target, taper, asymmetry, insufficient depth, already rounded or invalid solid rejects atomically. World principal axes only; edit rebuilds from the original upstream body."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "roundEnd",
     "params": {
@@ -197,9 +201,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "roundEnd",
@@ -214,9 +216,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -427,9 +427,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "roundEnd",
@@ -444,9 +442,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -806,6 +802,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -872,5 +869,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:92e8f2296a9e3f5cafe39e838c4cc634bf3580349fb9ad92172b93044e00b4e0"
+  "docsHash": "sha256:898d7e372ef4e883fdb7e66e8825fcc7f5c21d432757707fdfc7f78b9cc28dc0"
 }

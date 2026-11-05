@@ -2,11 +2,12 @@
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "invoke 不能作为 api.run 的 method。请直接调用 api.invoke。",
   "mcpCall": {
     "tool": "host-only",
     "method": "invoke",
@@ -101,5 +102,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1ee4dde5f515d98de5e35cd8fd3bad8071ca9ea78827d9ad3e2dbb7b758d60c3"
+  "docsHash": "sha256:95372c067b8a770ad2c07db9a1e236b491b57ad667e3d675fa7078f1645dc95b"
 }

@@ -2,11 +2,12 @@
   "id": "markLocation",
   "title": "markLocation",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "markLocation 不能作为 api.run 的 method。请直接调用 api.markLocation。",
   "mcpCall": {
     "tool": "webcad_view",
     "method": "markLocation",
@@ -153,5 +154,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4e8187fcf7636b306728fd0dd7ebba4d8f8fbe538959d812f697cb3a3d9db7ff"
+  "docsHash": "sha256:17fe41069a8143928f102ae3d62ab8b47a776ef13a33667cd4fe6a8bbf0823cc"
 }

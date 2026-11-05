@@ -430,7 +430,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     documentModel=next;bodies=result.bodies;committedFinalSources=result.finalSources;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;committed=true;
     debugJournal.record('runtime','geometry-committed',{revision,origin,historyLabel,featureCount:next.features.length,bodyCount:bodies.length,bodies:bodies.slice(-12).map(b=>({id:b.id,volume:b.volume,bounds:b.bounds,solidCount:b.solidCount,shellCount:b.shellCount})),displayConfirmation:'separate',fileWriteConfirmation:'separate'});
     kernelPerformance={totalMs:performance.now()-localBegan,...(result.parallelRebuild?{parallelRebuild:result.parallelRebuild}:{}),perFeatureMs:result.perFeatureMs||[],compiledReuse:result.compiledReuse||[],compiledInvalidated:result.compiledInvalidated||[],slowest:(result.perFeatureMs||[]).slice().sort((a,b)=>b.ms-a.ms).slice(0,10)};
-    for(const feature of newQuickModels)recordQuickModelUse(feature.params.kind);
+    for(const feature of newQuickModels){try{recordQuickModelUse(feature.params.kind);}catch(error){debugJournal.record('runtime','quick-model-usage-skipped',{kind:feature.params?.kind,message:error?.message},'warn');}}
     lastWarnings=bodyWarnings(bodies);dirty=true;if(save)void autosave(); // selection-origin
     // Agent writes never replace the user's selection. Only ids that no longer
     // exist are dropped; the user's own insert/edit path keeps its old select

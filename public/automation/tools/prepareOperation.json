@@ -2,11 +2,12 @@
   "id": "prepareOperation",
   "title": "prepareOperation",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "prepareOperation 不能作为 api.run 的 method。请直接调用 api.prepareOperation。",
   "docs": "api.prepare-operation",
   "relatedTools": [
     "prepareOperation",
@@ -417,5 +418,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:45c8bca10fabcfb76f72fec24bbaef77172fd0b6567a0e7b541b1bb8fb5827ca"
+  "docsHash": "sha256:a9fb63a1d796cd403ce4dc8c7af7ea0d874318a9438eaddbc9c79f9bab6a3ee1"
 }

@@ -222,6 +222,10 @@
     "Ordered line start/end or arc start/middle/end XY points. Each boundary accepts 2–256 segments; up to16 holes. Each adjacent endpoint and closure must agree within 0.000001 mm. Output is one exact BRep solid; holes must remove material. Supports XY only, constant Z depth, no spline, variable thickness or source-DXF auto selection. Invalid topology rejects the step.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
   "minimalExample": {
     "op": "arcProfile",
     "params": {
@@ -281,9 +285,7 @@
       ],
       "height": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "normalExample": {
     "op": "arcProfile",
@@ -344,9 +346,7 @@
       ],
       "height": 2
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -572,9 +572,7 @@
           ],
           "height": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "normal": {
         "op": "arcProfile",
@@ -635,9 +633,7 @@
           ],
           "height": 2
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+        "refs": []
       },
       "invalid": [
         {
@@ -969,6 +965,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Schema is advisory; kernel prerequisites and result verification still apply.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -1051,5 +1048,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c294be83e71b91b0542e90308df0148ca71870f44d5161f76862e679855523ac"
+  "docsHash": "sha256:839e2c9294433eb569df140a3070c9a9ab97aa668405c0985925e0f5d04c07f6"
 }

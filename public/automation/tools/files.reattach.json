@@ -7,7 +7,7 @@
   "id": "files.reattach",
   "title": "files.reattach",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "reattach",
   "synonyms": [
@@ -60,6 +60,10 @@
     "RESOURCE_EXPIRED",
     "ASSET_INVALID"
   ],
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.reattach 不能作为 api.run 的 method。请直接调用 api.files.reattach。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -203,5 +207,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:3c5ddc584f8512d6772f94a1e1b7f5d90e29f86a2efc4637ea154f3de1daad7e"
+  "docsHash": "sha256:33666ead0bc65911343eae483f8cb83a537b3af9bf1b9f9b3dbc2e208acc651a"
 }

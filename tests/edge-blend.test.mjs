@@ -62,14 +62,31 @@ test('normals use BRep p-curves even when 3D surface projection is unavailable',
   }finally{prototype.normalAt=original;faces.forEach(face=>face.delete());s.delete();}
 });
 
-test('large requested radius may produce a valid mill candidate without a box-size veto',()=>{
+test('oversized single-edge fillet is rejected and leaves the source unchanged',()=>{
+  const s=cad.makeBox([0,0,0],[10,10,10]);
+  try{
+    const before=s.serialize();
+    assert.throws(()=>buildEdgeBlend(s,'fillet',{radius:20,edgeIds:[0]}),error=>error.code==='GEOMETRY_INVALID');
+    assert.throws(()=>buildEdgeBlend(s,'fillet',{radius:50,edgeIds:[0]}),error=>error.code==='GEOMETRY_INVALID');
+    assert.equal(s.serialize(),before);
+    assert.ok(Math.abs(cad.measureVolume(s)-1000)<1e-6);
+  }finally{s.delete();}
+});
+test('a feasible single-edge fillet stays valid inside the original bounds',()=>{
   const s=cad.makeBox([0,0,0],[10,4,1]);
   try{
     const edge=topologyDetails(s).find(e=>Math.abs(e.startPoint[0]-e.endPoint[0])>9);
     assert(edge);
     const before=cad.measureVolume(s);
-    const result=buildEdgeBlend(s,'fillet',{radius:2,edgeIds:[edge.edgeId]});
-    try{assert.equal(result.blendReport.requestedAmountMm,2);assert(cad.measureVolume(result)>0);const check=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);try{assert(check.IsValid());}finally{check.delete();}}finally{result.delete();}
+    const result=buildEdgeBlend(s,'fillet',{radius:.2,edgeIds:[edge.edgeId]});
+    try{
+      assert.equal(result.blendReport.requestedAmountMm,.2);
+      assert(cad.measureVolume(result)>0&&cad.measureVolume(result)<before);
+      const check=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);
+      try{assert(check.IsValid());}finally{check.delete();}
+      const box=result.boundingBox;
+      try{const [lo,hi]=box.bounds;assert(hi[0]-lo[0]<=10+1e-6&&hi[1]-lo[1]<=4+1e-6&&hi[2]-lo[2]<=1+1e-6);}finally{box.delete();}
+    }finally{result.delete();}
     assert.equal(cad.measureVolume(s),before);
   }finally{s.delete();}
 });

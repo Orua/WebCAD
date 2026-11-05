@@ -137,6 +137,10 @@
   "knownUnsupportedCases": [
     "选择一个封闭实体的两张圆柱面：第一张为两侧贯通的主杆，第二张为支杆。仅等径、轴线垂直相交的直圆杆T接头；R独立设置，线径≤40 mm、R≤20 mm。局部三个完整圆截面之外保留原BRep；接头靠近框角、含其它结构、异径、斜交、X交叉或已圆角接头明确拒绝。与日字扣定R共用解析滚球算法，曲面误差门限1e-7 mm，不缩小R、不自动转圆润。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "rodJunction",
     "params": {
@@ -148,9 +152,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "rodJunction",
@@ -163,9 +165,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -328,9 +328,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "rodJunction",
@@ -343,9 +341,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -685,6 +681,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -751,5 +748,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:3e0aa96db26167117beb045fb6660db66c39651e075165ee165fc16263991de7"
+  "docsHash": "sha256:ccab4902d1c1a32f3d956add83f6e766850472b7d18b6a3aa5f002f9adc18c45"
 }

@@ -141,6 +141,10 @@
   "knownUnsupportedCases": [
     "refs 按截面顺序排列 2–12 个闭合单外环平面对象；加工模式最后另附目标。复用 referenceLoft 的精确构造，不重新输入数值圆/矩形；相比 referenceLoft 新增加料、切除与交集。无内孔、导轨、端点相切/曲率连续条件或手工边对应，复杂不同拓扑必须检查结果。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "profileLoft",
     "params": {
@@ -150,9 +154,7 @@
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "profileLoft",
@@ -163,9 +165,7 @@
     "refs": [
       "<current-bodyId-1>",
       "<current-bodyId-2>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -331,9 +331,7 @@
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "profileLoft",
@@ -344,9 +342,7 @@
         "refs": [
           "<current-bodyId-1>",
           "<current-bodyId-2>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -693,6 +689,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -743,5 +740,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:161a18aa6dc638b5abb5788316b34abdd6e1b89789f261d8ab3f97fd93374259"
+  "docsHash": "sha256:90156a245420b8d63126d1294b6aac44a393c31178c2ad1b282ac9c717fff32f"
 }
