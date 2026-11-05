@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "inspectProfile",
@@ -31,6 +34,51 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.interaction",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "bodyId": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [
+      "context",
+      "bodyId"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -81,8 +129,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "inspectProfile",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -145,5 +195,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:607f5bd4ae1e2f20b2f53d30277f0b52851d4789aa31d9e5d1a6910ce7b86a72"
+  "docsHash": "sha256:0a6e55959e4b8372b84fc251cfafffe5681131fe41ba11ff761a231c79030196"
 }

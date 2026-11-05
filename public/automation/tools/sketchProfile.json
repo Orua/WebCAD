@@ -129,7 +129,7 @@
             },
             "diameterMm": {
               "type": "number",
-              "description": "Circle diameter (mm)",
+              "description": "Circle diameter in mm. Do not send radiusMm; a circle has no radius field. (mm)",
               "exclusiveMinimum": 0,
               "unit": "mm",
               "quantityKind": "length",
@@ -322,7 +322,7 @@
     "绘制轮廓"
   ],
   "description": "Create an editable exact 2D wire or planar face from stable analytic entities",
-  "schemaHash": "sha256:ff427964bf4d4bab73f0c55b1389e09ded059ef4544b9f834cab3bb19aa26d63",
+  "schemaHash": "sha256:e859610a705fa7d61edcdfe2f0526e5cfc59168ef3d595241324f05baa244b4d",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -1147,6 +1147,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "sketchProfile",
       "params": {}
@@ -1223,5 +1224,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:88818dec6e68b6c4ae3326facf353cb4c076962b9a7d13c8f078ff6a5f715d88"
+  "docsHash": "sha256:ce48feb13c81a94e93d2aca32ea5b0dae47ae71efa14031f4a4326f4df153bca"
 }

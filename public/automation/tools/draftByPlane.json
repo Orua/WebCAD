@@ -837,6 +837,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "draftByPlane",
       "params": {}
@@ -917,5 +918,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f8ec3a0a9e59a005ecfadeaa63bbe05e08b6c61dae447eed134cf090bca9db71"
+  "docsHash": "sha256:c77f28beb72233e4a0a45338e3462bd718d50ef8afab2344a2a44dd67c340dda"
 }

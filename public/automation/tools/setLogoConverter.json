@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "revision",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "host-only",
     "method": "setLogoConverter",
@@ -29,6 +32,12 @@
     "REVISION_CONFLICT",
     "CAPABILITY_UNAVAILABLE"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -40,8 +49,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "setLogoConverter",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -132,5 +143,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:90ec91c19e3ece3156e24e031d2f64aa96c73f27e6a58e97df1f5c567464a26f"
+  "docsHash": "sha256:40a72b13ca32a53f8b80d9ced20d8f642501b8ce568bd5055ed7c1e001c78ef2"
 }

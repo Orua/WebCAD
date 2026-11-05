@@ -412,7 +412,10 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     try{if(!restoring)await synchronizeBodyAnchors(documentModel,next,bodies,result.bodies,async bodyId=>(await request('queryGeometry',{bodyId,kind:'edge',filter:{}})).geometryFingerprint);checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
     // Automatic clearance belongs to the same geometry transaction. A locked
     // frame and a user-chosen empty point are left alone.
-    if(record&&!restoring&&JSON.stringify(next.features)!==JSON.stringify(documentModel.features)&&!next.referenceSystem.workFrame.locked){
+    // User inserts may lift the anchor so the next click does not overlap.
+    // Agent/API creates keep the frame where it is; their tool notes say the
+    // local solid starts at the model origin, not a silent +Z stack.
+    if(record&&!restoring&&origin!=='agent'&&JSON.stringify(next.features)!==JSON.stringify(documentModel.features)&&!next.referenceSystem.workFrame.locked){
       const work=next.referenceSystem.workFrame,clear=clearOccupiedAnchor(work.origin,result.bodies);
       if(clear!==work.origin){work.origin=clear;work.frameVersion++;work.sourceLabel='自动避让模型';work.provenance={kind:'manual'};}
     }

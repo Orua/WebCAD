@@ -25,8 +25,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "heightfieldSculpt",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -117,5 +119,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:660cb9d3d2fb42ec74a89ec8bd27705e15b2027206531dc3d378aae8d18a175e"
+  "docsHash": "sha256:ed7a9b35bd74eb923413f4ae881067db33d48b039c7bd5776d4fb8a2ee67acf7"
 }

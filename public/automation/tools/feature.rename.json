@@ -66,8 +66,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "feature.rename",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -142,5 +144,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:32ec3112065cc8f508ddfb1abf99e5b8233151fac71ccbc037faf388308eda77"
+  "docsHash": "sha256:d6ac5868db9d11129778a984a9b844aee2e6845765bf039e3c170b9688e3c45f"
 }

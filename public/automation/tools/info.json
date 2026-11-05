@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "none",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "info",
@@ -23,6 +26,12 @@
   "runtimeAvailability": "requires_page",
   "errorModel": "Direct page scripts may use api.invoke for structured errors. MCP callers use this card mcpCall; invoke is an internal host wrapper, not an Agent method.",
   "errorCodes": [],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -34,8 +43,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "info",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -94,5 +105,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4291c2f169a43b0945ab58295723c4f910ed5f0b6273c16e79303ec933e1f1ce"
+  "docsHash": "sha256:a3369e2cccefb9f3ffd7cf795d836ad3b47c8cb03d7058653e6ab1fd33e68b86"
 }

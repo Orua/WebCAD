@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "none",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "waitFor",
@@ -32,6 +35,52 @@
     "PARAM_RANGE_INVALID",
     "JOB_NOT_FOUND"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "afterRevision": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "jobId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "timeoutMs": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 25000
+      },
+      "documentInstanceId": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required": [],
+    "oneOf": [
+      {
+        "required": [
+          "afterRevision"
+        ],
+        "not": {
+          "required": [
+            "jobId"
+          ]
+        }
+      },
+      {
+        "required": [
+          "jobId"
+        ],
+        "not": {
+          "required": [
+            "afterRevision"
+          ]
+        }
+      }
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -83,8 +132,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "waitFor",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -135,5 +186,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:eebb236662904a2685e380a36722ce8a414e95fca655a626a4de60a56dbecdeb"
+  "docsHash": "sha256:02a234bd6980f71c19a0a939f75e3f135ecae4f2833744e303f391f04a3ad2ca"
 }

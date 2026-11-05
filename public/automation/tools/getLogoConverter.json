@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "none",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "host-only",
     "method": "getLogoConverter",
@@ -24,6 +27,12 @@
   "runtimeAvailability": "requires_page",
   "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
   "errorCodes": [],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -35,8 +44,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "getLogoConverter",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -127,5 +138,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:593f50b67fc8f61da4056533cdc48a34b4c3ebd3490a113c1f1318c9335a0d28"
+  "docsHash": "sha256:34f123051ee45243b374485a2c8769b7dab8f1853de6c1bb073f97351120f5d4"
 }

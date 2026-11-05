@@ -76,20 +76,40 @@ export function normalizeGeometryFilter(kind, filter = {}) {
 function vectorTuple(value) {
   try { return value.toTuple(); } finally { dispose(value); }
 }
-function faceAnchor(face, center) {
+function faceAnchor(face, center, oc) {
   const vertex = cad.makeVertex(center);
-  let query, projected;
+  let query, projected, edges = [], seamVertex, adaptor, seamPoint;
   try {
     query = new cad.DistanceQuery(face);
     const centerDistanceToFaceMm = query.distanceTo(vertex);
     projected = query.wrapped.PointOnShape1(1);
-    const pointOnFace = [projected.X(), projected.Y(), projected.Z()];
-    return { pointOnFace, closestPoint: pointOnFace, centerDistanceToFaceMm, centerOnSurface: centerDistanceToFaceMm <= 1e-6 };
-  } finally { dispose(projected); dispose(query); dispose(vertex); }
+    let pointOnFace = [projected.X(), projected.Y(), projected.Z()];
+    let periodicSeamAvoided = false;
+    if (oc && face.geomType !== 'PLANE') {
+      edges = face.edges;
+      seamVertex = cad.makeVertex(pointOnFace);
+      const onSeam = edges.some(edge => {
+        try { return oc.BRep_Tool.IsClosed(edge.wrapped, face.wrapped) && cad.measureDistanceBetween(edge, seamVertex) <= 0.05; }
+        catch { return false; }
+      });
+      if (onSeam) {
+        adaptor = new oc.BRepAdaptor_Surface(face.wrapped, true);
+        const u = (adaptor.FirstUParameter() + adaptor.LastUParameter()) / 2;
+        const v = (adaptor.FirstVParameter() + adaptor.LastVParameter()) / 2;
+        seamPoint = adaptor.Value(u, v);
+        const candidate = [seamPoint.X(), seamPoint.Y(), seamPoint.Z()];
+        const check = cad.makeVertex(candidate);
+        try {
+          if (query.distanceTo(check) <= 0.05) { pointOnFace = candidate; periodicSeamAvoided = true; }
+        } finally { dispose(check); }
+      }
+    }
+    return { pointOnFace, closestPoint: pointOnFace, centerDistanceToFaceMm, centerOnSurface: centerDistanceToFaceMm <= 1e-6, periodicSeamAvoided };
+  } finally { dispose(seamPoint); dispose(adaptor); dispose(seamVertex); edges.forEach(dispose); dispose(projected); dispose(query); dispose(vertex); }
 }
 function faceSummary(face, id, oc) {
   const item = { kind: 'face', topologyId: id, faceId: id, geomType: face.geomType, surfaceType: face.geomType.toLowerCase(), surfaceClass: canonicalSurfaceType(face.geomType) || 'other', areaMm2: cad.measureArea(face), center: vectorTuple(face.center) };
-  Object.assign(item, faceAnchor(face, item.center));
+  Object.assign(item, faceAnchor(face, item.center, oc));
   const wires=face.wires;
   try { item.wireCount=wires.length; } finally { wires.forEach(dispose); }
   // IGES commonly stores exact planes as BSpline patches. Keep the encoding

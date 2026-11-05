@@ -121,7 +121,15 @@ export function buildCurveSweep(params, cad) {
     finally { solids?.forEach(dispose); }
     if (pathType==='segments') {
       const checker=new (cad.getOC().BRepCheck_Analyzer)(solid.wrapped,true,false,false);
-      try { if (!checker.IsValid()) fail('分段扫掠拓扑无效'); }
+      try {
+        if (!checker.IsValid()) {
+          const z0=segments[0].points[0][2];
+          const nonPlanar=params.closed===true&&segments.some(segment=>segment.points.some(point=>Math.abs(point[2]-z0)>1e-6));
+          fail(nonPlanar
+            ? '分段扫掠拓扑无效。闭合非平面路径在切向不连续的折角处不能形成有效实体；请改到同一平面，或把折角做成切向连续的圆弧或更密的圆滑折线（正弦起伏可以提交）。对边整体抬到同一高度有时可以，单角抬高再回到原高度不行。closed:true 只用于 pathType:segments。'
+            : '分段扫掠拓扑无效');
+        }
+      }
       finally { dispose(checker); }
     }
     const result=solid;solid=null;return result;

@@ -68,8 +68,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "body.visibility",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -128,5 +130,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:c867acdb8cc0fc3a9799a5e8348ba1251e47f93be81b9642aa3188081ddc8eea"
+  "docsHash": "sha256:d66dccbc5ee9a6bfa85d3b421ddac4744f302dbed472bab1134ef83bf4f36048"
 }

@@ -49,8 +49,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "history.redo",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -101,5 +103,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:23df15e9ec42da09ce54be855422167efe5e12a8ac86de5ca61c0b80ebfa7cb4"
+  "docsHash": "sha256:bb6bfc8dcc462bf54edb3923e690ef3a1bd489ff6d153070eff7e4d4c9671502"
 }

@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "none",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "host-only",
     "method": "cancelJob",
@@ -26,6 +29,12 @@
     "JOB_NOT_FOUND"
   ],
   "docs": "api.reliability",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -37,8 +46,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "cancelJob",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -97,5 +108,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b7fdb1ee0f1146fa3104bf050dfa8d75320c5993b22e70ff1d053dbc91ca8607"
+  "docsHash": "sha256:410a23328e416262cc27c234c29cc63fbd135c14d0a7cb25982a77ede031484b"
 }

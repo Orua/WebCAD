@@ -845,6 +845,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "reliefShoulder",
       "params": {}
@@ -937,5 +938,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:2da1405bf2959069934c66df06a22a8d4b35292621782799259eb51488115170"
+  "docsHash": "sha256:af6895633e70062582ff0b2f91db7a8002c8b54f74c58e76645884e0469720c8"
 }

@@ -664,6 +664,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "extractFaces",
       "params": {}
@@ -716,5 +717,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a7f2d6a47648bea481ae18ab54aab39fffcda3a29171df032d299514852e6e57"
+  "docsHash": "sha256:4cf3adf2c5efd5b61e3568b27b9b6df925698054ffaa9e2f57a68c580b455f4d"
 }

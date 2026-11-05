@@ -113,6 +113,24 @@ test('非平面闭合分段圆线仍因扫掠拓扑无效而拒绝', () => {
     {type:'line',points:[p(-10,-8),p(10,-8)]},
   ];
   assert.throws(()=>buildCurveSweep({pathType:'segments',segments,closed:true,radius:1.1},cad),/分段扫掠拓扑无效/);
+  assert.throws(()=>buildCurveSweep({pathType:'segments',segments,closed:true,radius:1.1},cad),/切向不连续/);
+  const corner=[
+    {type:'line',points:[[0,0,0],[20,0,0]]},
+    {type:'line',points:[[20,0,0],[20,12,0.2]]},
+    {type:'line',points:[[20,12,0.2],[0,12,0]]},
+    {type:'line',points:[[0,12,0],[0,0,0]]},
+  ];
+  assert.throws(()=>buildCurveSweep({pathType:'segments',segments:corner,closed:true,radius:1},cad),/分段扫掠拓扑无效/);
+  const lifted=[
+    {type:'line',points:[[0,0,0],[20,0,0]]},
+    {type:'line',points:[[20,0,0],[20,12,0.2]]},
+    {type:'line',points:[[20,12,0.2],[0,12,0.2]]},
+    {type:'line',points:[[0,12,0.2],[0,0,0]]},
+  ];
+  const liftedShape=buildCurveSweep({pathType:'segments',segments:lifted,closed:true,radius:1},cad);
+  try { assert.ok(cad.measureVolume(liftedShape)>100); }
+  finally { liftedShape.delete?.(); }
+  assert.throws(()=>buildCurveSweep({pathType:'sections',closed:true,stations:[{centerMm:[0,0,0],normal:[0,0,1],widthDirection:[1,0,0],widthMm:2,depthMm:2},{centerMm:[0,0,5],normal:[0,0,1],widthDirection:[1,0,0],widthMm:2,depthMm:2}]},cad),/不支持 closed:true/);
   assert.throws(()=>buildCurveSweep({pathType:'spline',points:[[0,0,0],[1,0,0],[1,1,0]],closed:true,radius:0.2},cad),/closed:true 只用于分段路径/);
 });
 

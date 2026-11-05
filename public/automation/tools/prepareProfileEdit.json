@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "prepareProfileEdit",
@@ -33,6 +36,72 @@
     "GEOMETRY_INVALID"
   ],
   "docs": "api.interaction",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "bodyId": {
+        "type": "string",
+        "minLength": 1
+      },
+      "mode": {
+        "enum": [
+          "intersections",
+          "trim",
+          "extend",
+          "trimCircle",
+          "fillet"
+        ]
+      },
+      "entityId": {},
+      "targetId": {},
+      "edgeIds": {},
+      "endpoint": {},
+      "candidateId": {},
+      "startCandidateId": {},
+      "endCandidateId": {},
+      "keepSide": {},
+      "radiusMm": {},
+      "arcId": {},
+      "output": {}
+    },
+    "required": [
+      "context",
+      "bodyId",
+      "mode"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -104,8 +173,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "prepareProfileEdit",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -176,5 +247,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4637ba2cf9312eef335e6534ad240ecf91bd9db157984048e393539299958423"
+  "docsHash": "sha256:c53637ed28cf7e0630c3f0b34cc8c4087d9c466524fbb0bd278a4c3dd1b19bab"
 }

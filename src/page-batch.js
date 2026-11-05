@@ -109,16 +109,24 @@ export function createPageBatch(api,{display}={}){
         if(step.stage!==undefined&&(typeof step.stage!=='string'||!step.stage.trim()||step.stage.length>80))bad('PARAM_SCHEMA_INVALID','stage must be a short descriptive name');
         const idPath=`steps[${index}].id`;
         if(step.id===undefined)bad('PARAM_SCHEMA_INVALID',`第 ${index+1} 步缺少 id；请为每一步填写本批次内唯一的步骤名。`,idPath);
-        if(typeof step.id!=='string'||!/^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/.test(step.id))bad('PARAM_SCHEMA_INVALID',`第 ${index+1} 步的 id 格式无效；不能使用中文、空格或标点。请改用字母开头的 1–40 位英文标识（可含数字、下划线、连字符），例如 buckle 或 wave1。`,idPath);
+        if(typeof step.id!=='string'||!/^[a-zA-Z][a-zA-Z0-9_-]{0,39}$/.test(step.id))bad('PARAM_SCHEMA_INVALID',`第 ${index+1} 步的 id 格式无效；不能使用中文、全角字符、emoji、空格或标点。请改用字母开头的 1–40 位英文标识（可含数字、下划线、连字符），例如 wave_1、wave-1 或 buckle。`,idPath);
         if(names.has(step.id))bad('PARAM_SCHEMA_INVALID',`第 ${index+1} 步的 id 在本批次中重复；请明确改为唯一名称，并同步核对引用该步骤的 $ref。`,idPath);
-        if(!methods.has(step.method))bad('CAPABILITY_UNAVAILABLE',`Unsupported batch method: ${step.method}`);
+        if(!methods.has(step.method)){
+          const pageOnly={
+            capture:'capture 是页面方法，不能放进 api.run。请直接调用 api.capture({context,format:"webp" 或 "png"})，回执是 dataUrl，不是 resourceId。',
+            recoverKernel:'recoverKernel 是页面方法，不能放进 api.run。请直接调用 api.recoverKernel({context})。',
+          };
+          bad('CAPABILITY_UNAVAILABLE', pageOnly[step.method] || `Unsupported batch method: ${step.method}`);
+        }
         if(step.args!==undefined&&!plain(step.args))bad('PARAM_SCHEMA_INVALID','args must be an object');
         if(step.args&&('context' in step.args||'idempotencyKey' in step.args))bad('PARAM_SCHEMA_INVALID','Batch owns step context and receipt keys');
         names.add(step.id);
       }
       const receiptRoom=makeReceiptRoom();if(!receiptRoom&&!standaloneRecoverySave)bad('RESOURCE_LIMIT','100 unresolved batch receipts; inspect or reconcile an existing result before starting another');
       const resolved=Object.create(null);
+      const alias=/^(?:\$\{[A-Za-z_][\w.-]{0,80}\}|\$[A-Za-z_][\w.-]{0,80}|step:[A-Za-z_][\w.-]{0,80}|#[A-Za-z_][\w.-]{0,80}|@[A-Za-z_][\w.-]{0,80})$/;
       const resolve=value=>{
+        if(typeof value==='string'&&alias.test(value))bad('STALE_REFERENCE',`字符串 ${value} 不是批内引用。同批请用对象 {"$ref":"步骤id.createdBodyIds.0"}，例如 {"$ref":"wave_1.createdBodyIds.0"}。美元符号、step:、井号、@ 这些字符串别名都不会解析。`);
         if(Array.isArray(value))return value.map(resolve);
         if(!plain(value))return value;
         if(Object.hasOwn(value,'$ref')){

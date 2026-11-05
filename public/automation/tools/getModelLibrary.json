@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "none",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getModelLibrary",
@@ -36,6 +39,12 @@
     "manage": "setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})",
     "create": "Use entries[].execution with run/add; current context and unique key required."
   },
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {},
+    "required": []
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -47,8 +56,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "getModelLibrary",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -107,5 +118,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7248edc29c393408958e641506a673806f9d064819d808fbd5cc76676b02e5b5"
+  "docsHash": "sha256:9f47a53b90ad0f3eea48837e779910bd153672eb5423b86038c1f7c29d70adc3"
 }

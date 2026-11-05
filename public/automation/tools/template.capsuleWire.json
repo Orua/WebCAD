@@ -537,6 +537,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.capsuleWire",
       "params": {}
@@ -585,5 +586,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9c50501903408b5df602e825a068b3dc5cfd1a5640451121a8f01f2366c24ed0"
+  "docsHash": "sha256:3ed527674b77d7636801db453172ef79a401d5d301e56612a82aef81f63f7d3b"
 }

@@ -670,6 +670,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "offsetSolid",
       "params": {}
@@ -722,5 +723,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7ef6f472bee887b6698f9b77d2aeef48ae8685fa38b032026b42781f2315ea83"
+  "docsHash": "sha256:acb99a1f630fc465cb343cccd5df3e7762d9cc97c9557868070356f21306541c"
 }

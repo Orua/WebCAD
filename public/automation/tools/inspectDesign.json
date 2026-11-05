@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "inspectDesign 可以放进 api.run，也可以页面直调。必须提供 requirements 数组（1–64 项，每项含 id、bodyId、kind、evidence）。bounds 的 toleranceMm 是绝对毫米，必须 >0 且 <=1。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "inspectDesign",
@@ -143,7 +146,8 @@
                 "toleranceMm": {
                   "type": "number",
                   "exclusiveMinimum": 0,
-                  "maximum": 1
+                  "maximum": 1,
+                  "description": "Absolute millimetres, must be >0 and <=1. Not a ratio."
                 }
               },
               "required": [
@@ -301,8 +305,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "inspectDesign",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -357,5 +363,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:58dd166205e4fab8ada385e142fd0e61d911b1674e3c3f188b7ba13733a50e3a"
+  "docsHash": "sha256:32c77bf768a3845ccd1d98db27a23e12a3710c74479a85d4201ff8d5d552dab1"
 }

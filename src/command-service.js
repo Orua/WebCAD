@@ -160,7 +160,7 @@ export function createCommandService(adapter) {
         case 'feature.add':{
           object(a,['op','opVersion','schemaHash','params','refs','name','selectionToken','placement'],'args');string(a.op,'args.op',60);op=a.op;
           contract(op,a);ids(a.refs,'args.refs');validateOperationRefs(op,a.refs);refs=a.refs;
-          if(refs.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.refs','Reference is not a current body');
+          if(refs.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.refs','该 id 不是当前实体。特征替换来源后旧 body id 失效，请改用回执的 createdBodyIds 或 replacements.after，不要沿用被消耗的来源。');
           if(a.selectionToken!==undefined){
             if(!['fillet','chamfer','shell','tap','faceHole','smoothTransition'].includes(op))fail('SELECTION_CONFLICT','args.selectionToken','Operation does not accept a token');
             if(!a.params||['edgeIds','faceIds','faceId','allEdges'].some(k=>Object.hasOwn(a.params,k)))fail('SELECTION_CONFLICT','args.params','Token conflicts with explicit topology');

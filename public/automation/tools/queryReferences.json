@@ -4,6 +4,9 @@
   "category": "page-method",
   "version": "1.60.11",
   "contextPolicy": "identity",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "queryReferences",
@@ -27,6 +30,52 @@
     "STALE_REFERENCE",
     "AMBIGUOUS_REFERENCE"
   ],
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "bodyIds": {},
+      "kind": {},
+      "filter": {},
+      "limit": {},
+      "offset": {},
+      "requireUnique": {}
+    },
+    "required": [
+      "context"
+    ]
+  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -78,8 +127,10 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
     "example": {
       "toolId": "queryReferences",
+      "context": "<live context>",
       "args": {}
     },
     "docs": "api.prepare-tools",
@@ -134,5 +185,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:285a0fd2c73448cf30d302c2ff0cf982db3ec88019086e998dbb6e2c59079cfd"
+  "docsHash": "sha256:1979a3ee4b014d0287fa993b38a93693c158642efdeaa6aee0a2412195c8bda1"
 }

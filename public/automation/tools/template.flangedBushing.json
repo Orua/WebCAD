@@ -571,6 +571,7 @@
     "readOnly": true,
     "geometryComputed": false,
     "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
     "example": {
       "op": "template.flangedBushing",
       "params": {}
@@ -611,5 +612,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fd8bb439932a9ca389f38e798563d5ce647e15fdf7f34d82bf155698738c421c"
+  "docsHash": "sha256:ea45c142e0363c13afa21452359433d45546d70d147673cb7edf9a9cee93982e"
 }
