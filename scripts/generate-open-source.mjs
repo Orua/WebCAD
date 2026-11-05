@@ -174,7 +174,7 @@ export async function generateOpenSource({root,outputDirectory,identity=readBuil
   const buildInputs=fingerprint.paths.map(path=>describe(path,readFileSync(resolve(root,path))));
   await put('open-source/build-inputs.json',encode(buildInputs));
   await put('open-source/source-snapshot.json',encode(snapshot));
-  const origin=git(root,['remote','get-url','origin']).trim();
+  const origin=git(root,['remote','get-url','origin']).trim().replace(/^(https:\/\/)[^/@]+@/,'$1');
   if(!/^(?:git@github\.com:|https:\/\/github\.com\/)Orua\/WebCAD(?:\.git)?$/.test(origin))fail('请先核对公开源码仓库，禁止将私有 remote 写入分发');
   const source={...identity,repository:'https://github.com/Orua/WebCAD',
     baseCommitUrl:`https://github.com/Orua/WebCAD/tree/${identity.commit}`,

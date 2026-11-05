@@ -33,7 +33,7 @@ async (page) => {
     const a=await api.files.save({context:ctx()});await saveFile(a,'plate-63.webcad');assert(api.getState().summary.dirty,'generation cannot mark saved');
     const dir=await navigator.storage.getDirectory(),handle=await dir.getFileHandle('plate.webcad',{create:true});
     record('browser-handle-write',await api.files.write({resourceId:a.resourceId,handle}));assert(!api.getState().summary.dirty,'verified write should clear dirty');
-    const reopen=await api.files.register({name:'plate.webcad',data:await api.files.read({resourceId:a.resourceId})});record('reopen',await api.files.open({context:ctx(),resourceId:reopen.resourceId}));
+    const reopen=await api.files.register({name:'plate.webcad',data:await api.files.read({resourceId:a.resourceId,as:'blob'})});record('reopen',await api.files.open({context:ctx(),resourceId:reopen.resourceId}));
     assert(api.getState().context.documentId===oldContext.documentId,'ordinary native identity');assert(api.getState().context.documentInstanceId!==oldContext.documentInstanceId,'reopen instance');
     const c=api.getTool({id:'box'});
     const stale=await api.execute({context:oldContext,idempotencyKey:crypto.randomUUID(),action:'feature.edit',args:{featureId:plate,opVersion:c.version,schemaHash:c.schemaHash,params:{width:64}}});assert(stale.status==='failed','old instance rejected');record('old-instance',stale);
@@ -48,7 +48,7 @@ async (page) => {
     const bad=await api.files.register({name:'broken.webcad',data:new Blob(['{bad'])});try{await api.files.open({context:ctx(),resourceId:bad.resourceId});}catch(e){record('bad-file',{code:e.code});}assert(api.getState().context.revision===before.context.revision,'bad file unchanged');
     await api.files.write({resourceId:final.resourceId,handle});
     await api.files.new({context:ctx()});
-    const inputStep=await api.files.register({name:'plate.step',data:await api.files.read({resourceId:step.resourceId})});record('step-import',await api.files.import({context:ctx(),resourceId:inputStep.resourceId}));await measure(46);
+    const inputStep=await api.files.register({name:'plate.step',data:await api.files.read({resourceId:step.resourceId,as:'blob'})});record('step-import',await api.files.import({context:ctx(),resourceId:inputStep.resourceId}));await measure(46);
     // Re-open one imported source in a clean context later, then edit this explicit feature.
     const imported=api.getState().bodies[0].id;
     await add('hole',{radius:1,depth:5,x:20,y:15,z:4,axis:'Z',direction:-1},[imported]);

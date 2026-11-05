@@ -2,11 +2,12 @@
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "readRelief 不能作为 api.run 的 method。请直接调用 api.readRelief。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "readRelief",
@@ -361,5 +362,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f2645368683e357a4cf090dc03714892e25eb9f1cc67964f2a895e9fc1f0ad82"
+  "docsHash": "sha256:0dd8e74ad123790a39c371819cad9927cdc49e796bcebf811cc9c0a413563169"
 }

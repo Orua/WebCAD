@@ -2,11 +2,12 @@
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "selectRectangle 不能作为 api.run 的 method。请直接调用 api.selectRectangle。",
   "mcpCall": {
     "tool": "webcad_view",
     "method": "selectRectangle",
@@ -234,5 +235,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e1ddaa0ccbcbc65a323528d536f1d649f45584e26a27d596a109cc26f41125c5"
+  "docsHash": "sha256:6665a53621d3305c908985d0c22f9341c3115f342363119c07cadf13cc5a51fb"
 }

@@ -2,11 +2,12 @@
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "identity",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "traceTwinWindow 不能作为 api.run 的 method。请直接调用 api.traceTwinWindow。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "traceTwinWindow",
@@ -214,5 +215,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7840071e30a0be43341c8b38d9ba0cc3097a34e8459d51da79c683d34d116b3f"
+  "docsHash": "sha256:61dff955646a4f9337b2442e183b817992dec7a3cf9a58b669da50456941c3d3"
 }

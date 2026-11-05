@@ -201,11 +201,15 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       const {name,mime,size,sha256,expiresAt,context}=resource;
       return {status:'generated',resourceId,name,mime,size,sha256,expiresAt,...(context?{context}:{})};
     },
-    async read({ resourceId, as = 'blob' } = {}) {
+    async read({ resourceId, as } = {}) {
       const resource = requireResource(resourceId);
       if (as === 'blob') return resource.blob;
       if (as === 'bytes') return new Uint8Array(await resource.blob.arrayBuffer());
-      throw failure('PARAM_SCHEMA_INVALID', 'Expected blob or bytes');
+      if (as === 'text') {
+        try { return new TextDecoder('utf-8', { fatal: true }).decode(await resource.blob.arrayBuffer()); }
+        catch { throw failure('PARAM_SCHEMA_INVALID', 'files.read as:"text" requires UTF-8. Use as:"bytes" for arbitrary bytes.'); }
+      }
+      throw failure('PARAM_SCHEMA_INVALID', 'files.read requires as: "bytes", "text", or "blob". Omitting as does not return file contents.');
     },
     download({ resourceId } = {}) {
       const resource = requireResource(resourceId);

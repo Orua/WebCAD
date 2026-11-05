@@ -2,11 +2,12 @@
   "id": "getMetalMaterials",
   "title": "getMetalMaterials",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getMetalMaterials 不能作为 api.run 的 method。请直接调用 api.getMetalMaterials。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -122,5 +123,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ce7bee5ce02e07f13304b94fb7c2269abed4a34a1b247a5da0cee4178e0c7da2"
+  "docsHash": "sha256:1d1c3152599e78ebe3a466928600ed70387f5072c119a2f1b0bd274b98f17537"
 }

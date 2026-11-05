@@ -8,7 +8,7 @@
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -66,6 +66,10 @@
     "HASH_MISMATCH",
     "SAVE_CONFIRMATION_FAILED"
   ],
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.write 不能作为 api.run 的 method。请直接调用 api.files.write。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -149,5 +153,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:8addd7d7d687d8bc928e56479de3cb71a584c006f03129775fd507e0efb3e4e7"
+  "docsHash": "sha256:6fa17c2ca1edc903f09c7c8360934f99f2fde033c413e4e812f0f7aed71405c9"
 }

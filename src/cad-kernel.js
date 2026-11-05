@@ -46,6 +46,7 @@ import {planarFace as referencePlanarFace} from './reference-profile-wires.js';
 import {verifyReliefDesignBinding,readPlanarSupport} from './modeling/manufacturing/relief-design-binding.js';
 import { buildAdvancedLoft } from './advanced-loft.js';
 import { buildCurveSweep } from './curve-sweep.js';
+import { buildShell } from './modeling/shell-solid.js';
 import { buildArcProfile } from './arc-profile.js';
 import { buildCurvedLogo } from './curved-logo.js';
 import { buildProjectedLogo } from './projected-logo.js';
@@ -723,13 +724,7 @@ export class CadKernel {
         if(scopes!==1)throw new Error('圆角/倒角必须明确选择边、面边界或整个实体的全部边');
         return buildEdgeBlend(shape,feature.op,p);
       }
-      case 'shell': {
-        const shape = source(), thickness = finite(p, 'thickness'); if (!thickness) throw new Error('抽壳厚度不能为 0');
-        const faces = chosenTopology(shape, 'faces', p.faceIds);
-        const finder = new cad.FaceFinder().inList(faces);
-        // Replicad already negates this for OCCT: positive is an inward shell.
-        try { return shape.shell({ thickness, filter: finder }); } finally { dispose(finder); faces.forEach(dispose); }
-      }
+      case 'shell': return buildShell(source(),p,this.oc,cad);
       case 'remove': if (!sources.length) throw new Error('请选择要删除的实体'); return null;
       default: throw new Error(`不支持的操作：${feature.op}`);
     }

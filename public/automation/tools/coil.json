@@ -155,6 +155,10 @@
   "knownUnsupportedCases": [
     "按精确螺旋路径扫掠圆线实体；半径指中心线半径，外半径为它加线径的一半。螺距须大于线径，最多100圈，不含闭并端圈和力学计算。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "coil",
     "params": {
@@ -163,9 +167,7 @@
       "turns": 4,
       "wireDiameterMm": 1.4
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "coil",
@@ -175,9 +177,7 @@
       "turns": 4,
       "wireDiameterMm": 1.4
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -361,9 +361,7 @@
           "turns": 4,
           "wireDiameterMm": 1.4
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "coil",
@@ -373,9 +371,7 @@
           "turns": 4,
           "wireDiameterMm": 1.4
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -713,6 +709,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -799,5 +796,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:54040e9ed607b88425400dc8a205e9449ceaecde065e21600d096c38d2f0da2d"
+  "docsHash": "sha256:8d1cc7bd40f115958c3a626a47d18a80e3e8539b255183d074923cfbbbe48a3c"
 }

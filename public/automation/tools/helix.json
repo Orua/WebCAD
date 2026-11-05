@@ -146,6 +146,10 @@
   "knownUnsupportedCases": [
     "精确螺旋路径，起点在局部 +X，轴沿局部 +Z；可使用工作基准。半径指中心线，螺距是每圈轴向前进距离。"
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "helix",
     "params": {
@@ -153,9 +157,7 @@
       "pitchMm": 3,
       "turns": 4
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "helix",
@@ -164,9 +166,7 @@
       "pitchMm": 3,
       "turns": 4
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "invalidExamples": [
     {
@@ -340,9 +340,7 @@
           "pitchMm": 3,
           "turns": 4
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "helix",
@@ -351,9 +349,7 @@
           "pitchMm": 3,
           "turns": 4
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -690,6 +686,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -776,5 +773,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4a2e01317f087730d971a4625b55146468acc935be1daaba3b8b2cc081c9b747"
+  "docsHash": "sha256:7bed1fe2cffa95611a9fe6a17a08d6d1dedc2dffc51172d2324c83234da77a03"
 }

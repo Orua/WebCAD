@@ -8,7 +8,7 @@
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -72,6 +72,10 @@
     "FORMAT_UNSUPPORTED",
     "MESH_UNITS_REQUIRED"
   ],
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.open 不能作为 api.run 的 method。请直接调用 api.files.open。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -235,5 +239,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:df50c53e63f5c815620e07ee787ca21131ab6810bee6d6f41b2cf8ce84ab3f83"
+  "docsHash": "sha256:a7bac0352c2cb4fd6ecd348c815f959eafedb8d3c9edb39de0107af890ed85cb"
 }

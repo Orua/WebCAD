@@ -2,11 +2,12 @@
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "createDrawing 不能作为 api.run 的 method。请直接调用 api.createDrawing。",
   "mcpCall": {
     "tool": "webcad_artifact",
     "method": "createDrawing",
@@ -260,5 +261,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:828dbd67299f0dba36fb5734ca96e8dd5451c32c8c758dc87f04968424bafa4b"
+  "docsHash": "sha256:68b586e6d1c8efe9d9c784fcdce4d6636628082d497a11b1fee27b6231f82c81"
 }

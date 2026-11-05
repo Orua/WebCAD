@@ -2,11 +2,12 @@
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "getUILayout 不能作为 api.run 的 method。请直接调用 api.getUILayout。",
   "mcpCall": {
     "tool": "webcad_read",
     "method": "getUILayout",
@@ -136,5 +137,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ee8e74f487a1544938f883ef1ac9a4978abc82c8531ae4274555143d13468f46"
+  "docsHash": "sha256:43226d9caf096d5eae308e962b714511905489fc3df56f2dac2cc115d65166f4"
 }

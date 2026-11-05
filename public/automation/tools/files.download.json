@@ -8,7 +8,7 @@
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
   "label": "下载文件",
   "synonyms": [
@@ -61,6 +61,10 @@
     "ASSET_INVALID",
     "CAPABILITY_UNAVAILABLE"
   ],
+  "batchCapable": false,
+  "invocation": "page-method-only",
+  "pageMethodOnly": true,
+  "batchNote": "files.download 不能作为 api.run 的 method。请直接调用 api.files.download。",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -140,5 +144,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:d2cb4218a70811f32181191d5fd5f1d5581853d28728e9e43f33ae9eedb51dab"
+  "docsHash": "sha256:de162da1655f6fab69e513e37c834a28196ef4267b5b9f752e268a6f8490ad46"
 }

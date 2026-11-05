@@ -2,11 +2,12 @@
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "copySelection 不能作为 api.run 的 method。请直接调用 api.copySelection。",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "copySelection",
@@ -206,5 +207,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3c697c1795620f73110e1d1f76c2221a068e577d13992930d373b16a1ea75295"
+  "docsHash": "sha256:adb226c8f9d8d4eba9923ba6e6a99735e4ad743ccb2c91a655c6cef1379a47f2"
 }

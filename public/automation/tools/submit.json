@@ -2,11 +2,12 @@
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "none",
-  "invocation": "page-or-batch",
-  "batchCapable": true,
-  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "submit 不能作为 api.run 的 method。请直接调用 api.submit。",
   "mcpCall": {
     "tool": "host-only",
     "method": "submit",
@@ -105,5 +106,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:53dba441c907a9824ca28531ff023a14b4dda510ebc7c4a8069ae92cf0cf78ac"
+  "docsHash": "sha256:1c950c79856d0f8b306037f5daa6e7ebe92e5c3eded17f0582361282e146fd94"
 }

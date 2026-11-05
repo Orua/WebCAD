@@ -63,8 +63,7 @@ function planarEdgeFits(edges,faces,row,radiusMm){
   const reach=Math.min(faceReach(faceA,row.midpoint,section.dA),faceReach(faceB,row.midpoint,section.dB));
   return tangent<reach-1e-4;
 }
-// Exact all-edge fillets and explicit round radii must stay inside both adjacent faces.
-// A single requested edge may still mill a larger complementary cutter.
+// Every fillet, including a single requested edge, must stay inside both adjacent faces.
 export function radiusFitsAdjacentFaces(shape,edgeIds,radiusMm){
   if(!Array.isArray(edgeIds)||!edgeIds.length||!(radiusMm>0))return true;
   const rows=topologyDetails(shape),edges=shape.edges,faces=shape.faces;
@@ -89,7 +88,11 @@ function acceptMilled(shape,result,R,material){
   try{
     if(solids.length!==1||cad.measureVolume(result)<=1e-9)fail('铣削回退未得到单一有效实体');
   }finally{solids.forEach(dispose);}
-  // Valid nonempty geometry is a previewable result; the requested R is not vetoed by a box/volume heuristic.
+  const sourceVolume=cad.measureVolume(shape),resultVolume=cad.measureVolume(result);
+  const epsilon=Math.max(1e-6,sourceVolume*1e-8);
+  if(material==='remove'&&resultVolume>sourceVolume+epsilon)fail('减料圆角不得增加材料');
+  if(material==='add'&&resultVolume<sourceVolume-epsilon)fail('加料圆角不得减少材料');
+  if(resultVolume<sourceVolume*0.35)fail('圆角造成灾难性体积塌缩，半径超出几何可行范围');
 }
 
 function complementaryTool(shape,{edgeId,radiusMm}){

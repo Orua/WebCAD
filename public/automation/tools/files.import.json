@@ -7,7 +7,7 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.60.11",
+  "version": "1.61.0",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -92,6 +92,7 @@
     "MESH_ASSET_CORRUPT",
     "MESH_DISPLAY_CAPACITY"
   ],
+  "batchCapable": true,
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -245,5 +246,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:502fc83661ff39dcc7ddcc39c015656d44d811940a981833b15de43f4ac0a798"
+  "docsHash": "sha256:29f35b8edea8b82f38a9ca8c3eabb5e1cc84081e0e6ba7c06a4a087a549ec400"
 }

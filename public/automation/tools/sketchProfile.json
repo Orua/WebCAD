@@ -385,6 +385,11 @@
   "knownUnsupportedCases": [
     "Single planar sketch. Top-level placement freezes the current insertion frame; later anchor moves do not move this profile. Analytic line, three-point arc and circle remain exact. Rectangle, roundedRectangle and capsule store one parameter definition (originMm,widthMm,heightMm,cornerRadiusMm); stable analytic edges are derived, not separately edited until explicit conversion. Closed face requires explicit ordered loops and up to 16 disjoint regions; open wire uses ordered chains. Unsupported spline editing is rejected."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema",
+    "normalExampleNote": "For this parameterized rectangle, the loop references rectangle-1 once; its four edges are derived internally. Face output requires the explicit outer loop and region shown."
+  },
   "minimalExample": {
     "op": "sketchProfile",
     "params": {
@@ -420,9 +425,7 @@
       ],
       "output": "face"
     },
-    "refs": [],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    "refs": []
   },
   "normalExample": {
     "op": "sketchProfile",
@@ -460,8 +463,7 @@
         }
       ],
       "output": "face"
-    },
-    "referenceInstructions": "For this parameterized rectangle, the loop references rectangle-1 once; its four edges are derived internally. Face output requires the explicit outer loop and region shown."
+    }
   },
   "invalidExamples": [
     {
@@ -717,9 +719,7 @@
           ],
           "output": "face"
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "normal": {
         "op": "sketchProfile",
@@ -756,9 +756,7 @@
           ],
           "output": "face"
         },
-        "refs": [],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        "refs": []
       },
       "invalid": [
         {
@@ -1142,6 +1140,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Explicit placement version 1 is enabled; read api.references. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -1224,5 +1223,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ce48feb13c81a94e93d2aca32ea5b0dae47ae71efa14031f4a4326f4df153bca"
+  "docsHash": "sha256:5e12fcc38ff87bf5b9fcd83d526959b007413f09b5497cbbc58d8bed4626234e"
 }

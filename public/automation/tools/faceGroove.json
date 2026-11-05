@@ -147,6 +147,10 @@
   "knownUnsupportedCases": [
     "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Rectangle is centered at face area centroid; X is projected world X, falling back to world Y. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot."
   ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
   "minimalExample": {
     "op": "faceGroove",
     "params": {
@@ -157,9 +161,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "normalExample": {
     "op": "faceGroove",
@@ -171,9 +173,7 @@
     },
     "refs": [
       "<current-bodyId-1>"
-    ],
-    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
-    "validation": "strict-parameter-schema"
+    ]
   },
   "invalidExamples": [
     {
@@ -356,9 +356,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "normal": {
         "op": "faceGroove",
@@ -370,9 +368,7 @@
         },
         "refs": [
           "<current-bodyId-1>"
-        ],
-        "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
-        "validation": "strict-parameter-schema"
+        ]
       },
       "invalid": [
         {
@@ -716,6 +712,7 @@
     "api.placement"
   ],
   "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
   "preparation": {
     "method": "prepareOperation",
     "readOnly": true,
@@ -798,5 +795,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ac6be7f6e4cff8fdccc0a8a3547d2fd1b99dc126507b0ad72b4c408c62e27760"
+  "docsHash": "sha256:c5fdf8cb1b12e8a5080023e4b4342d6bd3b7f6c798996ae96010a7e2ea3e1dd7"
 }
