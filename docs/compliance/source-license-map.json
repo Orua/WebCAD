@@ -583,11 +583,46 @@
         "public-web",
         "integrated-web"
       ],
-      "evidenceStatus": "needs-review",
-      "evidence": "Actual static-copy model files still require a rights/source review; generated previews are tracked separately.",
+      "evidenceStatus": "verified",
+      "evidence": "Finite eight generic JSON feature recipes inspected: no embedded imported CAD. Exact bytes registered; source inspection establishes content/provenance only. Distribution rights inherit solely an approved maintainer application/sample scope; no customer design rights or manufacturing approval are inferred.",
       "pathPrefixes": [
         "public/examples/",
         "public/trial-samples/"
+      ],
+      "rightsParent": "application-rights",
+      "files": [
+        {
+          "path": "public/examples/buckle-frame.webcad",
+          "sha256": "d858dcc8829ae3f6187a8f8efc820de05034912d96890e8db5a59f3d43e69848"
+        },
+        {
+          "path": "public/examples/mounting-bracket.webcad",
+          "sha256": "f09bd2b1eabb2caaa094722f57cd8b03e526923bbdfd4eb1cfd6d15d6fc7cc71"
+        },
+        {
+          "path": "public/examples/open-box.webcad",
+          "sha256": "c39bc2edb79e12691ecd58fc1d607ad75e296eee80a483bf386f46aa9bf54709"
+        },
+        {
+          "path": "public/trial-samples/bushing.webcad",
+          "sha256": "28af05481ae007b4a0e3d17bc27af34cc430fae012b2318a80270f89012a0ac5"
+        },
+        {
+          "path": "public/trial-samples/frame.webcad",
+          "sha256": "962eb74308002a51c3f24a71e9134cebe3f20e8246202027ecf63cbc32f816b6"
+        },
+        {
+          "path": "public/trial-samples/nameplate.webcad",
+          "sha256": "447c575727b044e22ca6c90a3486bb0a03736927c54e9a9f7b7fdf31b378d261"
+        },
+        {
+          "path": "public/trial-samples/plate.webcad",
+          "sha256": "ad9572688048eb11a34524e3d8eb7e275abcf4b2c8c207562db741ecf31ca8e0"
+        },
+        {
+          "path": "public/trial-samples/tray.webcad",
+          "sha256": "2125b4beb83c316d9b9389f12fa7b040c83f76a2a1a888aabb6b23f2f44b1b67"
+        }
       ]
     },
     {
