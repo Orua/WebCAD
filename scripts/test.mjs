@@ -7,6 +7,8 @@ import { spawnSync } from 'node:child_process';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const groups = {
   contracts: [
+    'performance-preparation','performance-runtime','performance-api','performance-viewport','performance-quality-install',
+    'public-edition',
     'agent-state-observer','agent-floating-toggle','agent-host-workspace','agent-metal-routing','agent-run-envelope','message-presenter', 'tool-reading-guide', 'deploy-plan',
     'location-marker','error-recovery','relief-design-drafts','relief-design-reference','relief-design-edits-ui','relief-design-bspline-fit','relief-design-fit-runtime','relief-design-fit-api','relief-design-field','relief-design-brep','relief-fix-261023','relief-fillet-261024','logo-export','logo-review-api','logo-vector-review','logo-wizard-state','logo-machining-optimization','logo-pdf-renderer','panel-layout','receipt-capacity-recovery','relief-intent-runtime','relief-sculpt-preflight','report-regressions','tool-selection',
     'agent-selection-preservation', 'count-summary', 'floor-grid', 'free-placement',

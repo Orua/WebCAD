@@ -69,3 +69,9 @@ This document is an engineering record of the distributed source and notices; it
 `replicad-opencascadejs` 安装包的真实构建脚本使用 `ghcr.io/taucad/opencascade.js:canary-ebd263f1-single-threaded` / `-multi-threaded`，README 中的泛化旧镜像说明不能替代这些脚本；尚缺镜像不可变 digest、匹配 OCCT/opencascade.js 源码树、生成配置及补丁、完整 native 依赖许可/对应源、工具链来源及替换/重链接验证。没有把本机另一份 OCCT SDK 或不同项目的源码混入，冒称当前 WASM 对应源。原 Open CASCADE LGPL exception 保持原文，不擅自扩大适用范围。
 
 这些缺口在生成页面和机器清单中持续展示，不因通过工程 release gate 而被隐去；本次不提供未经授权的商业授权推定、书面源提供承诺或法律合规结论。
+
+## Scope audit and publication gate
+
+The build also publishes `open-source/docs/compliance/source-license-map.json`, its pending-decision document and `open-source/distribution-policy.json`. The report evaluates actual browser packages and copied public resource hashes against the reviewed map for `public-web` and `integrated-web`. The original release-integrity check verifies these materials against the current working source; an unresolved scope remains visibly blocked even when byte-integrity checks pass.
+
+Run `node scripts/verify-public-release.mjs <candidate-directory> public-web` before publishing. It runs the existing release checks and then requires scope approval. Optional host/service deployments require their own actual inventories; static inventory does not approve their runtime or network behavior. See [build instructions](docs/BUILD.md) and [pending decisions](docs/compliance/LICENSE_DECISION.md). A clean application build, native-kernel rebuild/replacement, real-model acceptance and deployment are separate results; none is inferred from this documentation.

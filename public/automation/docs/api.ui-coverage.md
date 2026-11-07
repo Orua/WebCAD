@@ -2,6 +2,15 @@
 
 界面动作与 AI 等价接口（手势以坐标和显式参数代替）：
 {
+  "performanceSettings": {
+    "tools": [
+      "getPerformanceState",
+      "configurePerformance",
+      "acknowledgePerformanceAdvisory"
+    ],
+    "method": "configurePerformance",
+    "usage": "设置自动显示、preferredQuality与manualLock；getPerformanceState读有效交互样本和只读组合建议，不自动调用模型或union/fuse。"
+  },
   "debug": {
     "tools": [
       "getDebugReport",
@@ -1622,6 +1631,9 @@ redraw: contextPolicy=identity
 capture: contextPolicy=identity
 getEvidenceImage: contextPolicy=revision
 run: contextPolicy=revision
+getPerformanceState: contextPolicy=none
+configurePerformance: contextPolicy=identity
+acknowledgePerformanceAdvisory: contextPolicy=identity
 files.capabilities: contextPolicy=none
 files.register: contextPolicy=none
 files.new: contextPolicy=none

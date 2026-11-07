@@ -2,7 +2,7 @@
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.61.1",
+  "version": "1.63.2",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -363,5 +363,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2904b421de46b7171266be29d96406936ed38ab2c10d3705049a2d325805d52e"
+  "docsHash": "sha256:9e211ddc5a02d0bcf7d5de96dc0e4ecee8305494b02460c35af61a56e2ce1833"
 }

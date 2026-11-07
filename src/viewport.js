@@ -18,13 +18,15 @@ import {ExactDisplayDetail} from './viewport/exact-detail.js';
 import {MetalOcclusionPass,metalEdgeOpacity} from './viewport/metal-occlusion.js';
 import {createViewCube} from './viewport/view-cube.js';
 import {captureEvidence,evidenceDisplaySignature} from './viewport/evidence-capture.js';
+import {createPerformanceSampler} from './performance/sampling.js';
+import {createTechnicalEdgeBatch} from './viewport/edge-batching.js';
 const say=(zh,en)=>getLanguage()==='en'?en:zh;
 
 const COLORS = [0xaac4d9, 0xc5b395, 0x91bdb1, 0xb3a6c8, 0x9db5c6, 0xc39e9e];
 export class CADViewport {
   constructor(host, callbacks = {}) {
     this.host=host; this.callbacks=callbacks; this.objects=new Map(); this.selected=[]; this.selectionMode='view'; this.mode='edges'; this.hidden=[]; this.temporaryDisplay='normal';
-    this.exactDisplayDetail=new ExactDisplayDetail(this);
+    this.exactDisplayDetail=new ExactDisplayDetail(this);this.performanceSampler=createPerformanceSampler();this.performanceCounts={};this.nextPerformanceTick=0;
     this.scene=new THREE.Scene(); this.scene.background=new THREE.Color('#eef1f5');
     this.camera=new THREE.PerspectiveCamera(35,1,0.01,100000); this.camera.up.set(0,0,1); this.camera.position.set(90,-110,85);
     this.renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true}); this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2)); this.renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -72,9 +74,9 @@ export class CADViewport {
     this.renderer.domElement.addEventListener('dblclick',e=>{if(e.button!==0||this.selectionMode!=='body'||this.gizmoMode!=='off'||this.busy||this.sketch||this.measuring||this.locationMarking||performance.now()-(this.lastLocationClick??-1000)<500)return;const r=this.renderer.domElement.getBoundingClientRect();try{this.callbacks.onLocationMark?.(this.pickLocation([(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]));}catch(error){if(error.code!=='LOCATION_NO_HIT')this.callbacks.onRenderError?.(error);}});
     window.addEventListener('keydown',e=>{if(e.key!=='Tab'||!(this.measuring||this.anchorDragEnabled)||!this.snapCandidates?.length||e.target instanceof HTMLElement&&(/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)||e.target.isContentEditable))return;e.preventDefault();this.snapCandidateIndex=((this.snapCandidateIndex||0)+1)%this.snapCandidates.length;this.showSnapCandidate();});
     this.resizeObserver=new ResizeObserver(()=>this.resize());this.resizeObserver.observe(host);
-    this.frameSequence=0;this.renderer.setAnimationLoop(()=>{try{this.renderFrame();}catch(error){this.displayError=error.message;this.callbacks.onRenderError?.(error);}});this.resize();this.updateHud();
+    this.frameSequence=0;this.renderer.setAnimationLoop(timestampMs=>{try{this.renderFrame(false,{timestampMs,frameSource:'animation-frame'});}catch(error){this.displayError=error.message;this.callbacks.onRenderError?.(error);}});this.resize();this.updateHud();
   }
-  resize(){const {width,height}=this.host.getBoundingClientRect();if(width<1||height<1)return;this.camera.aspect=width/height;if(this.camera.isOrthographicCamera){this.camera.left=-this.camera.top*this.camera.aspect;this.camera.right=this.camera.top*this.camera.aspect;}this.camera.updateProjectionMatrix();this.renderer.setSize(width,height);this.lastFrameKey=null;}
+  resize(){this.performanceResizingUntil=performance.now()+250;const {width,height}=this.host.getBoundingClientRect();if(width<1||height<1)return;this.camera.aspect=width/height;if(this.camera.isOrthographicCamera){this.camera.left=-this.camera.top*this.camera.aspect;this.camera.right=this.camera.top*this.camera.aspect;}this.camera.updateProjectionMatrix();this.renderer.setSize(width,height);this.lastFrameKey=null;}
   disposeObject(root){root.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose();});}
   clearGuides(){for(const child of [...this.guideRoot.children]){this.disposeObject(child);this.guideRoot.remove(child);}}
   setErrorPoints(points=[]){
@@ -139,13 +141,16 @@ export class CADViewport {
       const edges=new THREE.Group();
       for(const edge of body.edges||[]){if(edge.positions.length<6)continue;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(edge.positions,3));const line=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:0x465b6e,transparent:true,opacity:.72}));line.userData={bodyId:body.id,type:'edge',edgeId:edge.edgeId};edges.add(line);}
       if(!edges.children.length&&body.geometryType!=='rawMesh'){const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,25),new THREE.LineBasicMaterial({color:0x465b6e}));outline.userData={bodyId:body.id,type:'outline'};edges.add(outline);}
-      root.add(edges);root.visible=!hidden.includes(body.id);this.modelRoot.add(root);this.objects.set(body.id,{root,mesh,edges,body,displayGroup,displayPatches});
+      root.add(edges);
+      const edgeBatch=createTechnicalEdgeBatch(edges,{bodyId:body.id,eligible:!body.adaptiveDisplay&&!body.displayPatches&&body.geometryType!=='rawMesh'});
+      if(edgeBatch)root.add(edgeBatch.root);
+      root.visible=!hidden.includes(body.id);this.modelRoot.add(root);this.objects.set(body.id,{root,mesh,edges,edgeBatch,body,displayGroup,displayPatches});
       this.exactDisplayDetail.attach(this.objects.get(body.id));
     });if(this.grid?.position)this.grid.position.z=floorGridZ(bodies);this.setDisplay(this.mode);this.setMetalFinish(this.finishKey);this.applyClipping();this.updateHud();
   }
   setHidden(ids){this.hidden=ids;this.applyTemporaryDisplay();}
   setTemporaryDisplay(mode){if(!['normal','selectedOnly','transparentOthers'].includes(mode))throw new Error('未知临时显示方式');this.temporaryDisplay=mode;this.applyTemporaryDisplay();}
-  applyTemporaryDisplay(){for(const [id,entry] of this.objects){const selected=this.selected.includes(id),persistentlyHidden=this.hidden.includes(id),solo=this.temporaryDisplay==='selectedOnly';entry.root.visible=!persistentlyHidden&&(!solo||selected);const translucent=this.temporaryDisplay==='transparentOthers'&&!selected&&!persistentlyHidden,technical=this.mode==='transparentEdges';entry.mesh.material.transparent=translucent||technical;entry.mesh.material.opacity=translucent?.2:technical?.35:1;entry.mesh.material.depthWrite=!(translucent||technical);for(const edge of entry.edges.children){const selectedEdge=this.topology?.bodyId===id&&this.topology?.type==='edge'&&this.topology.ids.includes(edge.userData.edgeId);edge.material.opacity=metalEdgeOpacity({selected,selectedEdge,translucent,mode:this.mode,finish:entry.mesh.material.userData.metalFinish||'design'});edge.material.transparent=true;}}this.updateHud();}
+  applyTemporaryDisplay(){for(const [id,entry] of this.objects){const selected=this.selected.includes(id),persistentlyHidden=this.hidden.includes(id),solo=this.temporaryDisplay==='selectedOnly';entry.root.visible=!persistentlyHidden&&(!solo||selected);const translucent=this.temporaryDisplay==='transparentOthers'&&!selected&&!persistentlyHidden,technical=this.mode==='transparentEdges';entry.mesh.material.transparent=translucent||technical;entry.mesh.material.opacity=translucent?.2:technical?.35:1;entry.mesh.material.depthWrite=!(translucent||technical);for(const edge of entry.edges.children){const selectedEdge=this.topology?.bodyId===id&&this.topology?.type==='edge'&&this.topology.ids.includes(edge.userData.edgeId);edge.material.opacity=metalEdgeOpacity({selected,selectedEdge,translucent,mode:this.mode,finish:entry.mesh.material.userData.metalFinish||'design'});edge.material.transparent=true;}entry.edgeBatch?.invalidate();}this.updateHud();}
   setSelection(ids=[],topology=null){
     this.selected=ids;this.topology=topology;
     for(const [id,entry] of this.objects){const active=ids.includes(id);this.metals.setSelected(entry.mesh.material,active);entry.mesh.material.emissive.set(0x000000);const finish=entry.mesh.material.userData.metalFinish||'design',edgeColor=finish.includes('gold')||finish==='antique-brass'?0x705638:0x465b6e;entry.edges.children.forEach(line=>{const edge=topology?.bodyId===id&&topology?.type==='edge'&&topology.ids.includes(line.userData.edgeId);line.material.color.set(edge?0xf08e2b:active?new THREE.Color(this.displayPreferences.themeColor):edgeColor);line.material.opacity=edge?1:.72;line.material.depthTest=!edge;line.renderOrder=edge?1000:0;});}
@@ -385,10 +390,26 @@ export class CADViewport {
     const exactDetail=this.exactDisplayDetail.update(active);if(exactDetail)this.displayDetail={...this.displayDetail,...exactDetail};
     if(!active)this.viewInteraction='settled';
   }
-  renderFrame(forceFine=false){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.logoGuide?.render();this.reliefGuide?.render();this.updateDisplayDetail(forceFine);this.updateLocationMarkers();
+  resetPerformanceSamples(){this.performanceSampler.reset();}
+  performanceState(){
+    const sum=key=>{const values=[...this.objects.values()].map(e=>e.body[key]);return values.every(Number.isFinite)?values.reduce((a,b)=>a+b,0):null;};
+    let uniqueTriangles=0;for(const entry of this.objects.values())if(entry.root.visible)entry.root.traverseVisible(o=>{if(o.isMesh&&o.geometry)uniqueTriangles+=(o.geometry.index?.count??o.geometry.attributes.position?.count??0)/3;});
+    this.performanceCounts={objectCount:this.objects.size,visibleObjectCount:[...this.objects.values()].filter(e=>e.root.visible).length,
+      solidCount:sum('solidCount'),faceCount:sum('faceCount'),edgeCount:sum('edgeCount'),uniqueTriangles};
+    const snapshot=this.performanceSampler.snapshot();return {...snapshot,counts:{...snapshot.counts,...this.performanceCounts}};
+  }
+  renderFrame(forceFine=false,frame={}){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.logoGuide?.render();this.reliefGuide?.render();this.updateDisplayDetail(forceFine);for(const entry of this.objects.values())entry.edgeBatch?.sync();this.updateLocationMarkers();
     const stamp=[this.camera.matrixWorld.elements,this.camera.projectionMatrix.elements,this.scene.background?.getHex(),this.clipPlanes.map(p=>[p.normal.toArray(),p.constant]),this.renderer.toneMappingExposure,this.modelContext,this.scene.environment?.id,this.displayPreferences,this.finishKey,this.partFinishes,this.selected,this.topology];
     this.scene.traverse(o=>{if(o.geometry||o.isLight)stamp.push([o.id,o.visible,o.matrixWorld.elements,o.geometry?.id,o.intensity,o.material?.color?.getHex(),o.material?.emissive?.getHex(),o.material?.opacity,o.material?.wireframe,o.material?.version,o.material?.map?.id,o.material?.envMap?.id,o.material?.roughness,o.material?.metalness]);});
-    const key=JSON.stringify(stamp);if(forceFine||key!==this.lastFrameKey){this.metalOcclusion.render(this.scene,this.camera,{enabled:this.mode!=='wire'&&this.mode!=='transparentEdges',clippingPlanes:this.clipPlanes});this.renderer.render(this.scene,this.camera);this.lastFrameKey=key;this.cachedFrameReused=false;this.lastRenderedTriangles=this.renderer.info.render.triangles;}else this.cachedFrameReused=true;this.displayDetail.actualRenderedTriangles=this.lastRenderedTriangles;const position=this.anchorProxy.position.clone().project(this.camera),width=this.host.clientWidth,height=this.host.clientHeight;this.anchorMarker.style.transform=`translate(${(position.x+1)*width/2}px,${(1-position.y)*height/2}px)`;this.anchorMarker.hidden=!this.anchorVisible||position.z>1;this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;}
+    const key=JSON.stringify(stamp),submitStart=performance.now(),autoReset=this.renderer.info.autoReset;let submittedTriangles=0,drawCalls=0;
+    try{this.renderer.info.autoReset=false;this.renderer.info.reset();if(forceFine||key!==this.lastFrameKey){this.metalOcclusion.render(this.scene,this.camera,{enabled:this.mode!=='wire'&&this.mode!=='transparentEdges',clippingPlanes:this.clipPlanes});this.renderer.render(this.scene,this.camera);this.lastFrameKey=key;this.cachedFrameReused=false;submittedTriangles=this.renderer.info.render.triangles;drawCalls=this.renderer.info.render.calls;this.lastRenderedTriangles=submittedTriangles;}else this.cachedFrameReused=true;}finally{this.renderer.info.autoReset=autoReset;}
+    const cpuSubmitMs=performance.now()-submitStart;this.displayDetail.actualRenderedTriangles=this.lastRenderedTriangles;const position=this.anchorProxy.position.clone().project(this.camera),width=this.host.clientWidth,height=this.host.clientHeight;this.anchorMarker.style.transform=`translate(${(position.x+1)*width/2}px,${(1-position.y)*height/2}px)`;this.anchorMarker.hidden=!this.anchorVisible||position.z>1;this.renderedContext=this.modelContext?{...this.modelContext}:null;this.frameSequence++;this.displayError=null;
+    const context=this.callbacks.performanceContext?.()??{};
+    this.performanceSampler.record({...context,...this.performanceCounts,timestampMs:frame.timestampMs??performance.now(),frameSource:frame.frameSource??'synchronous',
+      foreground:document.hasFocus(),visible:document.visibilityState==='visible',interactive:!forceFine&&(this.userViewActive||this.viewInteraction==='moving'||this.viewInteraction==='settling'),
+      capture:forceFine,cachedFrameReused:this.cachedFrameReused,resizing:performance.now()<(this.performanceResizingUntil??0),contextLost:this.renderer.getContext().isContextLost(),cpuSubmitMs,submittedTriangles,drawCalls});
+    if(frame.frameSource==='animation-frame'&&frame.timestampMs>=this.nextPerformanceTick){this.nextPerformanceTick=frame.timestampMs+500;this.callbacks.onPerformanceTick?.();}
+  }
   // requestAnimationFrame is paused in hidden/background tabs (and throttled when occluded), which used to hang
   // setView/capture until the user looked at the tab. Render synchronously when hidden; otherwise race rAF
   // against a short timer. WebGL renders into the canvas either way, so capture reads a real frame.

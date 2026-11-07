@@ -19,9 +19,13 @@ const closedScript=fileURLToPath(new URL('./ocp_m02_reader.py',import.meta.url))
 const closedMath=fileURLToPath(new URL('./m02_math.py',import.meta.url));
 const twistScript=fileURLToPath(new URL('./ocp_s01_reader.py',import.meta.url));
 const twistMath=fileURLToPath(new URL('./s01_math.py',import.meta.url));
-const supportedCases=['B01','B02','B03','M01','M02','M03','M04','M05','S01','S02','S03'];
+const spatialScript=fileURLToPath(new URL('./ocp_s04_reader.py',import.meta.url));
+const spatialMath=fileURLToPath(new URL('./s04_math.py',import.meta.url));
+const bentSectionScript=fileURLToPath(new URL('./ocp_s05_reader.py',import.meta.url));
+const bentSectionMath=fileURLToPath(new URL('./s05_math.py',import.meta.url));
+const supportedCases=['B01','B02','B03','M01','M02','M03','M04','M05','S01','S02','S03','S04','S05'];
 const isComposite=caseId=>caseId==='M01'||caseId==='M04';
-const isExtended=caseId=>caseId==='S01'||isComposite(caseId)||caseId==='S03'||caseId==='S02'||caseId==='M03'||caseId==='M05'||caseId==='M02';
+const isExtended=caseId=>caseId==='S05'||caseId==='S04'||caseId==='S01'||isComposite(caseId)||caseId==='S03'||caseId==='S02'||caseId==='M03'||caseId==='M05'||caseId==='M02';
 export async function createOcpStepReader({python,directory,environment=process.env,timeoutMs=60000}={}){
  if(!isAbsolute(python??'')||!isAbsolute(directory??'')||!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>600000)throw Error('EXPLICIT_OCP_INTERPRETER_STORAGE_AND_BUDGET_REQUIRED');
  const repository=await realpath(fileURLToPath(new URL('../../../..',import.meta.url))),root=resolve(directory);
@@ -37,8 +41,10 @@ export async function createOcpStepReader({python,directory,environment=process.
  const radialScriptSha256=hash(await readFile(radialScript)),radialMathSha256=hash(await readFile(radialMath));
  const closedScriptSha256=hash(await readFile(closedScript)),closedMathSha256=hash(await readFile(closedMath));
  const twistScriptSha256=hash(await readFile(twistScript)),twistMathSha256=hash(await readFile(twistMath));
- const selectedHash=caseId=>caseId==='S01'?twistScriptSha256:caseId==='M02'?closedScriptSha256:caseId==='M05'?radialScriptSha256:caseId==='M03'?bendScriptSha256:caseId==='S02'?ellipseScriptSha256:caseId==='S03'?sectionScriptSha256:isComposite(caseId)?compositeScriptSha256:scriptSha256;
- const sourceMetadata=caseId=>caseId==='S01'?{sourceHashes:{'ocp_s01_reader.py':twistScriptSha256,'s01_math.py':twistMathSha256,'ocp_reader.py':scriptSha256}}:caseId==='M02'?{sourceHashes:{'ocp_m02_reader.py':closedScriptSha256,'m02_math.py':closedMathSha256,'ocp_reader.py':scriptSha256}}:caseId==='M05'?{sourceHashes:{'ocp_m05_reader.py':radialScriptSha256,'m05_math.py':radialMathSha256,'ocp_reader.py':scriptSha256}}:caseId==='M03'?{sourceHashes:{'ocp_m03_reader.py':bendScriptSha256,'m03_math.py':bendMathSha256,'ocp_reader.py':scriptSha256}}:caseId==='S02'?{sourceHashes:{'ocp_s02_reader.py':ellipseScriptSha256,'s02_math.py':ellipseMathSha256,'ocp_reader.py':scriptSha256}}:{};
+ const spatialScriptSha256=hash(await readFile(spatialScript)),spatialMathSha256=hash(await readFile(spatialMath));
+ const bentSectionScriptSha256=hash(await readFile(bentSectionScript)),bentSectionMathSha256=hash(await readFile(bentSectionMath));
+ const selectedHash=caseId=>caseId==='S05'?bentSectionScriptSha256:caseId==='S04'?spatialScriptSha256:caseId==='S01'?twistScriptSha256:caseId==='M02'?closedScriptSha256:caseId==='M05'?radialScriptSha256:caseId==='M03'?bendScriptSha256:caseId==='S02'?ellipseScriptSha256:caseId==='S03'?sectionScriptSha256:isComposite(caseId)?compositeScriptSha256:scriptSha256;
+ const sourceMetadata=caseId=>caseId==='S05'?{sourceHashes:{'ocp_s05_reader.py':bentSectionScriptSha256,'s05_math.py':bentSectionMathSha256,'ocp_s04_reader.py':spatialScriptSha256,'s04_math.py':spatialMathSha256,'m02_math.py':closedMathSha256,'ocp_reader.py':scriptSha256}}:caseId==='S04'?{sourceHashes:{'ocp_s04_reader.py':spatialScriptSha256,'s04_math.py':spatialMathSha256,'m02_math.py':closedMathSha256,'ocp_reader.py':scriptSha256}}:caseId==='S01'?{sourceHashes:{'ocp_s01_reader.py':twistScriptSha256,'s01_math.py':twistMathSha256,'ocp_reader.py':scriptSha256}}:caseId==='M02'?{sourceHashes:{'ocp_m02_reader.py':closedScriptSha256,'m02_math.py':closedMathSha256,'ocp_reader.py':scriptSha256}}:caseId==='M05'?{sourceHashes:{'ocp_m05_reader.py':radialScriptSha256,'m05_math.py':radialMathSha256,'ocp_reader.py':scriptSha256}}:caseId==='M03'?{sourceHashes:{'ocp_m03_reader.py':bendScriptSha256,'m03_math.py':bendMathSha256,'ocp_reader.py':scriptSha256}}:caseId==='S02'?{sourceHashes:{'ocp_s02_reader.py':ellipseScriptSha256,'s02_math.py':ellipseMathSha256,'ocp_reader.py':scriptSha256}}:{};
  async function folder(prefix){
   const path=await mkdtemp(join(root,prefix));
   if(!within(realRoot,await realpath(path)))throw Error('ORACLE_EVIDENCE_SCOPE_ESCAPED');
@@ -46,7 +52,7 @@ export async function createOcpStepReader({python,directory,environment=process.
  }
  async function invoke(args,reportPath,caseId){
   if(hash(await readFile(script))!==scriptSha256)throw Error('OCP_READER_SOURCE_CHANGED');
-  const selectedScript=caseId==='S01'?twistScript:caseId==='M02'?closedScript:caseId==='M05'?radialScript:caseId==='M03'?bendScript:caseId==='S02'?ellipseScript:caseId==='S03'?sectionScript:isComposite(caseId)?compositeScript:script;
+  const selectedScript=caseId==='S05'?bentSectionScript:caseId==='S04'?spatialScript:caseId==='S01'?twistScript:caseId==='M02'?closedScript:caseId==='M05'?radialScript:caseId==='M03'?bendScript:caseId==='S02'?ellipseScript:caseId==='S03'?sectionScript:isComposite(caseId)?compositeScript:script;
   if(isComposite(caseId)&&hash(await readFile(compositeScript))!==compositeScriptSha256)throw Error('OCP_COMPOSITE_READER_SOURCE_CHANGED');
   if(caseId==='S03'&&hash(await readFile(sectionScript))!==sectionScriptSha256)throw Error('OCP_SECTION_READER_SOURCE_CHANGED');
   if(caseId==='S02'&&(hash(await readFile(ellipseScript))!==ellipseScriptSha256||hash(await readFile(ellipseMath))!==ellipseMathSha256))throw Error('OCP_ELLIPSE_READER_SOURCE_CHANGED');
@@ -54,6 +60,8 @@ export async function createOcpStepReader({python,directory,environment=process.
   if(caseId==='M05'&&(hash(await readFile(radialScript))!==radialScriptSha256||hash(await readFile(radialMath))!==radialMathSha256))throw Error('OCP_RADIAL_READER_SOURCE_CHANGED');
   if(caseId==='M02'&&(hash(await readFile(closedScript))!==closedScriptSha256||hash(await readFile(closedMath))!==closedMathSha256))throw Error('OCP_CLOSED_WIRE_READER_SOURCE_CHANGED');
   if(caseId==='S01'&&(hash(await readFile(twistScript))!==twistScriptSha256||hash(await readFile(twistMath))!==twistMathSha256))throw Error('OCP_TWIST_READER_SOURCE_CHANGED');
+  if(caseId==='S04'&&(hash(await readFile(spatialScript))!==spatialScriptSha256||hash(await readFile(spatialMath))!==spatialMathSha256||hash(await readFile(closedMath))!==closedMathSha256))throw Error('OCP_SPATIAL_SWEEP_READER_SOURCE_CHANGED');
+  if(caseId==='S05'&&(hash(await readFile(bentSectionScript))!==bentSectionScriptSha256||hash(await readFile(bentSectionMath))!==bentSectionMathSha256||hash(await readFile(spatialScript))!==spatialScriptSha256||hash(await readFile(spatialMath))!==spatialMathSha256||hash(await readFile(closedMath))!==closedMathSha256))throw Error('OCP_BENT_SECTION_READER_SOURCE_CHANGED');
   // Interpreter and PYTHONPATH come from the authorized host, never source defaults.
   let failure;
   try{await execute(python,['-B',selectedScript,...args,'--report',reportPath],{env:{...environment,PYTHONDONTWRITEBYTECODE:'1'},windowsHide:true,timeout:timeoutMs,maxBuffer:4*1024*1024,encoding:'utf8'});}
@@ -75,7 +83,7 @@ export async function createOcpStepReader({python,directory,environment=process.
   return result.geometry;
  };
  reader.createReference=async({caseId,variant='reference'})=>{
-  if(!supportedCases.includes(caseId)||!['reference','wrong-size','wrong-hole','blind-hole','wrong-radius','wrong-shoulder','wrong-depth','wrong-normal','wrong-center','ends-only','wrong-middle','twisted-middle','wrong-end','wrong-middle-angle','area-preserving-size','stacked','wrong-wall','wrong-path','plugged-end','rotated-sector','missing-hole','wrong-axis','extra-hole','first-hole','through-first','ambiguous-final','wrong-wire','wrong-corner','wrong-envelope','open-gap','shifted-center','crossbar'].includes(variant))throw Error('OCP_REFERENCE_INPUT_INVALID');
+  if(!supportedCases.includes(caseId)||!['reference','wrong-size','wrong-hole','blind-hole','wrong-radius','wrong-shoulder','wrong-depth','wrong-normal','wrong-center','ends-only','wrong-middle','twisted-middle','wrong-end','wrong-middle-angle','area-preserving-size','stacked','wrong-wall','wrong-path','plugged-end','rotated-sector','missing-hole','wrong-axis','extra-hole','first-hole','through-first','ambiguous-final','wrong-wire','wrong-corner','wrong-envelope','open-gap','shifted-center','crossbar','shifted-path'].includes(variant))throw Error('OCP_REFERENCE_INPUT_INVALID');
   const run=await folder(caseId+'-'+variant+'-'),output=join(run,'reference.step');
   const construction=await invoke(['--case',caseId,'--variant',variant,'--write-reference',output],join(run,'construction.json'),caseId);
   const intermediate=caseId==='M05'&&['first-hole','through-first'].includes(variant);

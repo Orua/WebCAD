@@ -272,6 +272,9 @@
 - setDisplayPreferences：浏览器全局默认颜色、材质、照明与交互精度偏好；不改已有显式几何参数。
 - setView：相机、投影、显示、选择及剖切视图；不移动几何或执行切割。
 - setRenderQuality：调整显示网格质量，不改变精确几何精度。
+- getPerformanceState：只读前台交互样本、逻辑帧渲染提交与显示策略，不运行性能测试或几何。
+- configurePerformance：设置当前页自动显示、恢复上限和手动锁档，不修改工程或导出精度。
+- acknowledgePerformanceAdvisory：回应组合建议的延后、无安全候选、拒绝或过期；不执行group/union/fuse。
 - redraw：重绘当前显示，不重建特征历史。
 - selectRectangle：按屏幕矩形选择，window/crossing 含义不同；不是世界坐标建模矩形。
 - capture：生成当前已渲染画面的截图资源，不导出三维几何。
@@ -451,6 +454,9 @@ redraw: contextPolicy=identity
 capture: contextPolicy=identity
 getEvidenceImage: contextPolicy=revision
 run: contextPolicy=revision
+getPerformanceState: contextPolicy=none
+configurePerformance: contextPolicy=identity
+acknowledgePerformanceAdvisory: contextPolicy=identity
 files.capabilities: contextPolicy=none
 files.register: contextPolicy=none
 files.new: contextPolicy=none

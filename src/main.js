@@ -1,3 +1,6 @@
+import {PUBLIC_EDITION,EDITION_CAPABILITIES} from './edition.js';
+import * as editionHost from '#webcad-host';
+const {createHostControl,installHostInteractionGuard,createAssistantPanel}=editionHost;
 import {getMetalMaterials,loadMetalMaterials,setMetalMaterialRegistry,rememberMetalMaterials,validateMetalMaterials} from './metal-presets.js';
 import {createLocationMarker} from './location-marker.js';
 import {validateReliefDesigns,updateReliefDesigns} from './relief-design-drafts.js';
@@ -8,9 +11,6 @@ import {intentForUIParameterEdit} from './machining-intent.js';
 import {sameSurfaceType} from './surface-type.js';
 import {saveCommittedProject} from './project-save.js';
 import {loadMaterialSettings,validateMaterialSettings,rememberMaterialSettings,inheritBodyMaterials} from './material-density.js';
-import {createHostAdapter} from './agent/host-adapter.js';
-import {uploadChunked,uploadArtifact,createBrokerUploadClient} from './transfer/chunked-upload.js';
-import {AGENT_CONTRACT} from './agent/protocol.js';
 import {errorRecovery,errorAuditSnapshot} from './error-recovery.js';
 import {debugJournal,traceDebug,makeDebugReport} from './debug-journal.js';
 import {getLogoWizardState} from './browser-logo-input.js';
@@ -41,18 +41,16 @@ import {quantizeModelParams} from './modeling/interaction/modeling-precision.js'
 import { assertHistoryEditSafe } from './history-edit-safety.js';
 import './style.css';
 import './workspace-layout.css';
-import './host-control.css';
-import './agent/assistant-panel.css';
 import './ui/styles/theme.css';
 import './workspace-upgrade.css';
 import {RENDER_QUALITIES} from './render-quality.js';
 import { validateDisplayPreferences, saveDisplayPreferences } from './display-preferences.js';
 import { createUI } from './ui.js';
-import {createAssistantPanel} from './agent/assistant-panel.js';
 import { referenceProfileNames } from './reference-profile-tools.js';
 import { CADViewport } from './viewport.js';
 import { QUICK_MODELS } from './quick-models.js';
 import { createPageAPI } from './page-api.js';
+import {createPerformanceRuntime} from './performance/runtime.js';
 import { inspectPrintabilityMesh } from './dfam-inspection.js';
 import { inspectProfileModel } from './profile-inspection.js';
 import { prepareAnalyticProfileEdit } from './profile-editing.js';
@@ -74,7 +72,6 @@ import {clearOccupiedAnchor} from './anchor-clearance.js';
 import {formatBodyCount} from './count-summary.js';
 import {bodyState,bodyWarnings} from './body-state.js';
 import {webcadShortcut} from './webcad-shortcuts.js';
-import {createHostControl,installHostInteractionGuard} from './host-control.js';
 import { normalizeOperationParams, normalizeOperationPatch, migratedOperationIds, getOperation } from './operation-registry.js';
 import {mechanicalIds,mechanicalNames,mechanicalRefRange} from './mechanical-tool-contracts.js';
 import {resolveProfileRecipe,constrainProfileRecipe} from './modeling/profiles/profile-constraint-history.js';
@@ -232,6 +229,8 @@ const ui=createUI(document.getElementById('app'),{
   onProfileViewRestore:previous=>viewport.restoreFrameView(previous),
 });
 const viewport=new CADViewport(document.getElementById('viewport'),{
+  performanceContext:()=>({documentInstanceId,geometryRevision:revision,kernelBusy:busy||pending.size>0,previewBusy:!!previewNext||previewComputing,initializing:!kernelReady}),
+  onPerformanceTick:()=>{void performanceRuntime.tick().catch(error=>console.warn('Performance observation failed',error));},
   onRefineDisplay:input=>busy||!kernelReady||pending.size?null:request('refineDisplay',input),
   onRectangleSelect:input=>selectRectangle(input),
   onPick:pick,
@@ -248,6 +247,33 @@ const viewport=new CADViewport(document.getElementById('viewport'),{
   onWorkFrameMove:rawOrigin=>{assertHumanEditing();const origin=quantizeModelParams({origin:rawOrigin},viewport.displayPreferences).origin;return ui.updateFrameDraft(origin)?undefined:runEditorAction('reference.setWorkFrame',{origin,quaternion:[...documentModel.referenceSystem.workFrame.quaternion]});},
 });
 installHostInteractionGuard(document,()=>hostControl.get().locked,target=>target===viewport.renderer.domElement);
+const performanceRuntime=createPerformanceRuntime({
+  getSnapshot:()=>viewport.performanceState(),
+  getContext:()=>({documentInstanceId,geometryRevision:revision,blocked:busy||!kernelReady||pending.size>0||!!previewNext||previewComputing||ui.hasActiveTask()||displayBatchDepth>0}),
+  changeQuality:(action,control)=>changeDisplayQuality(action.targetQuality,{automatic:true,isCurrent:control.isCurrent}),
+  onChange:()=>{const performanceState=performanceRuntime.state();ui.update({performance:performanceState});notifyAgentState();
+    if(performanceState.advisories.some(a=>a.status==='pending'))ui.setStatus('对象较多，可在当前建模批次结束后按结构组合；精确几何保持不变。');}
+});
+async function changeDisplayQuality(quality,{automatic=false,isCurrent=()=>true}={}){
+  if(busy||!kernelReady||pending.size||previewNext||previewComputing||ui.hasActiveTask())throw Object.assign(Error('Finish computation or editing before changing display quality'),{code:'CAPABILITY_UNAVAILABLE'});
+  const instance=documentInstanceId,expected=revision,previousBodies=bodies,previousQuality=qualityKey;
+  const selection=[...selectedIds],topology=clone(selectedTopology);
+  if(!isCurrent())throw Object.assign(Error('Display request is stale'),{code:'STALE_REFERENCE'});
+  flushDisplayBatch();setBusy(true,'更新显示网格…');
+  try{
+    const result=await request('remesh',{quality});
+    if(instance!==documentInstanceId||expected!==revision||!isCurrent())throw Object.assign(Error('Display request is stale'),{code:'STALE_REFERENCE'});
+    const features=new Map(documentModel.features.map(f=>[f.id,f]));
+    const next=result.bodies.map(body=>({...body,name:features.get(body.id)?.name||body.id}));
+    try{viewport.setBodies(next,documentModel.hidden);applyAppearance();viewport.setSelection(selection,topology);}
+    catch(error){viewport.setBodies(previousBodies,documentModel.hidden);applyAppearance();viewport.setSelection(selection,topology);throw error;}
+    bodies=next;qualityKey=quality;viewport.resetPerformanceSamples();
+    viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();
+    performanceRuntime.setEffectiveQuality(quality,{manual:!automatic});
+    setStatus('显示网格已更新 · '+RENDER_QUALITIES[quality].label+' · '+qualityState().triangleCount.toLocaleString()+' 三角面');
+    return {status:'applied'};
+  }catch(error){if(instance===documentInstanceId&&expected===revision){bodies=previousBodies;qualityKey=previousQuality;viewport.setBodies(previousBodies,documentModel.hidden);applyAppearance();viewport.setSelection(selection,topology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});}throw error;}finally{setBusy(false);}
+}
 
 // Agent batch display deferral: per-step display upload, UI refresh and DOM
 // translation dominated the main thread of multi-step runs while the kernel
@@ -757,6 +783,7 @@ async function performAction(action,params={}){
   if(!['save','downloadResource'].includes(action))assertHumanEditing();
   if(['copySelection','pasteSelection'].includes(action))return performShortcut(action);
   if(action==='downloadResource'){const result=await pageAPI.files.download({resourceId:params.resourceId});setStatus('下载已发起；请在浏览器下载记录中确认。');return result;}
+  if(action==='performanceSettings'){const result=await pageAPI.configurePerformance({context:pageAPI.createRequestContext(),settings:params});if(result.status==='failed')throw new Error(result.error.message);return result;}
   if(action==='renderQuality'){const result=await pageAPI.setRenderQuality({context:pageAPI.getState().context,quality:params.quality});if(result.status==='failed')throw new Error(result.error.message);return result;}
   params=params||{};
   if(action==='parameters'){
@@ -1172,6 +1199,11 @@ const commandService=createCommandService({
   query:args=>request('queryGeometry',args),
 });
 const pageAPI=createPageAPI({
+  performance:()=>performanceRuntime.state(),
+  performanceSummary:()=>performanceRuntime.summary(),
+  performanceVersion:()=>performanceRuntime.version(),
+  configurePerformance:settings=>performanceRuntime.configure(settings),
+  acknowledgePerformance:input=>performanceRuntime.acknowledgeAdvisory(input),
   debugReport:options=>makeDebugReport(options.includeState===false?null:debugState(),options),
   setDebugPanel:visible=>ui.setDebugPanel(visible),
   openLogoWizard:()=>ui.openLogoWizard(),
@@ -1201,7 +1233,7 @@ const pageAPI=createPageAPI({
   revisionKey:()=>JSON.stringify([documentInstanceId,revision,dirty,busy,kernelReady,!!previewNext,previewComputing,previewIdentity,selectedIds,selectedTopology,documentModel.referenceSystem?.workFrame]),
   subscribeState:listener=>{agentStateListeners.add(listener);return ()=>agentStateListeners.delete(listener);},
   state:(input={})=>({hostControl:hostControl.get(),kernelProgress:clone(kernelProgress),kernelPerformance:clone(kernelPerformance),...commandService.getState({sessionId:pageSessionId,...(input.compact?{}:{include:['summary','features','bodies','selection','capabilities','references']}),...input}),referenceSystem:clone(documentModel.referenceSystem),previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null,renderQuality:qualityState(),parameters:clone(documentModel.parameters||{}),parameterValues:evaluateNamedParameters(documentModel.parameters||{}),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),colors:clone(documentModel.colors||{}),renderFinish:documentModel.renderFinish??null,displayPreferences:clone(viewport.displayPreferences),view:{errorPoints:clone(viewport.errorPoints),workspaceLayout:ui.getWorkspaceLayout(),anchorVisible:viewport.anchorVisible,panels:ui.getPanels(),clipboard:{available:modelClipboard?.documentInstanceId===documentInstanceId,bodyIds:modelClipboard?.documentInstanceId===documentInstanceId?[...modelClipboard.ids]:[]},display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selectionMode:viewport.selectionMode,language:getLanguage(),camera:{position:viewport.camera.position.toArray(),target:viewport.controls.target.toArray()},section:clone(viewport.sectionState||{axis:'Z',position:0,enabled:false}),temporaryDisplay:viewport.temporaryDisplay}}),
-  quality:async quality=>{flushDisplayBatch();setBusy(true,'更新显示网格…');try{const result=await request('remesh',{quality}),features=new Map(documentModel.features.map(f=>[f.id,f]));bodies=result.bodies.map(body=>({...body,name:features.get(body.id)?.name||body.id}));qualityKey=quality;clearSelection();viewport.setBodies(bodies,documentModel.hidden);applyAppearance();viewport.setSelection(selectedIds,selectedTopology);flushDisplayBatch();viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});await viewport.frame();setStatus('显示网格已更新 · '+RENDER_QUALITIES[quality].label+' · '+qualityState().triangleCount.toLocaleString()+' 三角面');}finally{setBusy(false);}},
+  quality:quality=>changeDisplayQuality(quality),
   metalMaterials:configuration=>{
     const next=validateMetalMaterials(configuration),ids=new Set(next.materials.map(m=>m.id));
     const used=[documentModel.renderFinish,viewport.displayPreferences.defaultFinish,...Object.values(documentModel.appearance||{})].filter(Boolean);
@@ -1278,11 +1310,9 @@ async function deliverLocationMarker(hit){
   return {status:'applied',...lastLocationMarker,context:pageAPI.getState().context};
 }
 const assistantPanel=createAssistantPanel({getApi:()=>pageAPI,hostControl,onChange:state=>ui.setAgentPanel(state)});
-Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI,hostControl,assistantPanel,agent:Object.freeze({contract:AGENT_CONTRACT,createHostAdapter,uploadChunked,uploadArtifact,createBrokerUploadClient})}),writable:false,configurable:false});
+Object.defineProperty(window,'webcad',{value:Object.freeze({api:pageAPI,edition:EDITION_CAPABILITIES,...(!PUBLIC_EDITION?{hostControl,assistantPanel,agent:editionHost.agent}:{})}),writable:false,configurable:false});
 ui.setAgentPanel(assistantPanel.get());
-if(new URLSearchParams(location.search).get('agent')==='1'){
+if(!PUBLIC_EDITION&&new URLSearchParams(location.search).get('agent')==='1'){
   aiStatus='connecting';refresh();
-  import('./ai-bridge.js').then(({connectAI})=>{
-    agentBridge=connectAI({getState:aiState,execute:executeAI},{onStatus:event=>{aiStatus=event.state;refresh();}});
-  }).catch(error=>{aiStatus='error';reportError(Object.assign(new Error(`Agent 接口启动失败：${error.message}`),{cause:error}));});
+  editionHost.connectLegacyAI({getState:aiState,execute:executeAI},{onStatus:event=>{aiStatus=event.state;refresh();}}).then(bridge=>{agentBridge=bridge;}).catch(error=>{aiStatus='error';reportError(Object.assign(new Error(`Agent 接口启动失败：${error.message}`),{cause:error}));});
 }

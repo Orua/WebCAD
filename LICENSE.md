@@ -24,3 +24,9 @@ WebCAD 的 Vite 构建自动生成根目录 `./open-source-notices.html` 与 `./
 本地 Python 转换器确实在 PDF/AI 分支使用 PyMuPDF。其 1.26.4 安装包的 COPYING 只包含双许可声明；该声明原样保留，另附官方同版本 AGPL-3.0 全文 `LICENSES/PyMuPDF-1.26.4-AGPL-3.0.txt`。未验证商业授权，不把声明理解为已经取得商业使用许可。Python/MuPDF 不随静态 dist 复制，不表示相关服务无需许可评估。
 
 生成物包含精确工作字节的受限源码快照和完整 build identity 输入指纹；基础 Git 提交链接不冒称 dirty working 源码。完整第三方内核对应源、构建工具链闭包与重新链接/复现仍有缺口，见 `CORRESPONDING_SOURCE.md` 和生成的 `open-source/build-source.json`。这些材料是工程记录，不构成法律意见或已法律合规的声明。
+
+## 分发范围与待决授权
+
+[来源与许可清单](docs/compliance/source-license-map.json)分别记录原始来源、AI 辅助状态、许可、权利主体、证据状态及 public-web / integrated-web / agent-host / services / dev-only 范围。未知主体保持 pending；本说明没有替新增应用代码选择版权人或统一授予 MIT。维护者需确认的文件范围和工程材料列于[待决事项](docs/compliance/LICENSE_DECISION.md)。
+
+当前公开分发未获门禁批准。构建生成 `open-source/distribution-policy.json`，保留阻塞项；`npm run build` 校验材料完整性，不替代公开授权。公开发布须运行 `node scripts/verify-public-release.mjs <候选目录> public-web`，相关范围未闭合时拒绝。可选服务不因未复制到静态包而自动免审；公开功能一旦调用该服务，须审查该次实际部署范围。

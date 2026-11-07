@@ -34,6 +34,12 @@ function profilePoints(station,count=64){
   if(!['polyline','periodicSpline',undefined].includes(p.interpolation))throw new Error('spline interpolation 须为 polyline 或 periodicSpline');
   let points=p.points2d;
   if(p.coordinateMode==='normalized')points=fitProfileBounds(points,w,d);
+  if(p.interpolation==='polyline'){
+   const exact=points.map(point=>point.slice());
+   if(Math.hypot(...exact[0].map((value,k)=>value-exact.at(-1)[k]))<1e-10)exact.pop();
+   if(exact.length<3)throw new Error('显式折线截面至少需要三个不同的有序顶点');
+   return exact;
+  }
   return resampleClosed(points,count);
  }
  throw new Error(`不支持的截面类型：${kind}`);
@@ -143,7 +149,7 @@ export function buildSectionCurveLoft(params,cad){
   let estimate=0;for(let i=0;i<resolved.length-1;i++){const a=sampled[i],b=sampled[i+1],dist=Math.hypot(...resolved[i+1].centerMm.map((v,j)=>v-resolved[i].centerMm[j]));const tangent=unit(resolved[i+1].centerMm.map((v,j)=>v-resolved[i].centerMm[j]));const projected=Math.abs(dot(tangent,unit(resolved[i].normal.map((v,j)=>v+resolved[i+1].normal[j]))));estimate+=(areaOf(a)+areaOf(b))/2*dist*Math.max(projected,.05);}
   const ratio=estimate>1e-12?volume/estimate:null;let suspectStations=[];
   if(resolved.length>2){const turns=resolved.slice(1,-1).map((s,j)=>{const a=unit(resolved[j+1].centerMm.map((v,k)=>v-resolved[j].centerMm[k])),b=unit(resolved[j+2].centerMm.map((v,k)=>v-resolved[j+1].centerMm[k]));return {i:j+1,angleDeg:Math.acos(Math.max(-1,Math.min(1,dot(a,b))))*180/Math.PI};}).sort((a,b)=>b.angleDeg-a.angleDeg);suspectStations=turns.slice(0,3).filter(x=>x.angleDeg>0).map(x=>x.i);}
-  const mismatch=ratio!==null&&(ratio<.85||ratio>1.15),report={volumeMm3:volume,estimatedVolumeMm3:estimate,ratio,suspectStations,stationsResolved:resolved.map((s,i)=>({i,startAngleDeg:s.startAngleDeg,directionSign:s.directionSign,profileKind:s.profile?.kind??'ellipse'})),orthogonalizedStations,autoAlign:params.autoAlign!==false,warning:resolved.length>=32?{code:'LOFT_COMPLEXITY',stationCount:resolved.length,degree}:null};
+  const mismatch=ratio!==null&&(ratio<.85||ratio>1.15),report={volumeMm3:volume,estimatedVolumeMm3:estimate,ratio,suspectStations,stationsResolved:resolved.map((s,i)=>({i,startAngleDeg:s.startAngleDeg,directionSign:s.directionSign,profileKind:s.profile?.kind??'ellipse',profileSampleCount:sampled[i].length,preservesPolylineVertices:s.profile?.kind==='spline'&&s.profile.interpolation==='polyline'})),orthogonalizedStations,autoAlign:params.autoAlign!==false,warning:resolved.length>=32?{code:'LOFT_COMPLEXITY',stationCount:resolved.length,degree}:null};
   if(mismatch){report.warning={code:'LOFT_VOLUME_MISMATCH',ratio,estimatedVolumeMm3:estimate,volumeMm3:volume,suspectStations};if((params.volumeCheck??'warn')==='error')fail('LOFT_VOLUME_MISMATCH',`放样体积与截面估算不一致（ratio=${ratio.toFixed(3)}）`,report);}
   if(params.volumeCheck==='off')report.warning=null;
   result.loftReport=report;const complete=result;result=null;return complete;

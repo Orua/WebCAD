@@ -1,0 +1,2107 @@
+{
+  "schemaVersion": 1,
+  "baseline": "a5442ddaec3ca627e6dfe43118e2b89c3b6ba70b",
+  "decision": "Public distribution is BLOCKED pending evidence; this map grants no new rights.",
+  "records": [
+    {
+      "id": "application-rights",
+      "path": "src/**",
+      "component": "WebCAD application and documentation",
+      "originType": "mixed",
+      "aiAssisted": null,
+      "sourceUrl": null,
+      "commit": null,
+      "version": null,
+      "licenseExpression": null,
+      "noticePath": "LICENSE.md",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web",
+        "agent-host",
+        "services",
+        "dev-only"
+      ],
+      "evidenceStatus": "needs-review",
+      "evidence": "Existing multi-license statement preserves upstream rights but supplies no confirmed holder/authorization for all new code. See LICENSE_DECISION.md.",
+      "files": [
+        {
+          "path": "public/automation/webcad-page-api/references/connection.md",
+          "sha256": "fdc9c2b6f5640efaf2d8ea83c385c5090cdc39019c3c3395f4bd1fb5b79c8168",
+          "normalizedSha256": "35a8974fdb96fd5b0b39641d3606c71477d83caf4a961f9111c6994f01731800",
+          "generatedFrom": [
+            "skills/webcad-page-api/references/connection.md"
+          ],
+          "provenanceStatus": "verified-source-copy-rights-pending"
+        }
+      ],
+      "sourceFiles": [
+        {
+          "path": "skills/webcad-page-api/references/connection.md",
+          "normalizedSha256": "35a8974fdb96fd5b0b39641d3606c71477d83caf4a961f9111c6994f01731800"
+        }
+      ]
+    },
+    {
+      "id": "three",
+      "path": "node_modules/three",
+      "component": "three",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/three/-/three-0.180.0.tgz",
+      "commit": null,
+      "version": "0.180.0",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/three-0.180.0-MIT.txt",
+      "copyrightHolder": "Copyright © 2010-2025 three.js authors; The above copyright notice and this permission notice shall be included in; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed LICENSE after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "three",
+      "lockIntegrity": "sha512-o+qycAMZrh+TsE01GqWUxUIKR1AL0S8pq7zDkYOQw8GqfX8b8VoCKYUoHbhiX5j+7hr8XsuHDVU6+gkQJQKg9w==",
+      "noticeNormalizedSha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601"
+    },
+    {
+      "id": "replicad",
+      "path": "node_modules/replicad",
+      "component": "replicad",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/replicad/-/replicad-1.1.0.tgz",
+      "commit": "e4b05f67dc4e2393a876ce8c5064a9c93db05bf1",
+      "version": "1.1.0",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/replicad-1.1.0-MIT.txt",
+      "copyrightHolder": "Copyright 2023 QuaroTech Sàrl; The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.; THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed LICENSE after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "replicad",
+      "lockIntegrity": "sha512-TJw32OTe6+HASPpfrLEjYUI66VvSmYC2F/za4iDFWIWo4RVYbiA62dmUbXUp8ZEqkIS//jK6TqrxnmFqX6cbkA==",
+      "noticeNormalizedSha256": "7a3c098c1cf5d8de05efa0b930e7c8398c221da2a59032b617057fb7f122cf70"
+    },
+    {
+      "id": "occt-modeling",
+      "path": "node_modules/replicad-opencascadejs",
+      "component": "replicad-opencascadejs",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/replicad-opencascadejs/-/replicad-opencascadejs-1.1.0.tgz",
+      "commit": "e4b05f67dc4e2393a876ce8c5064a9c93db05bf1",
+      "version": "1.1.0",
+      "licenseExpression": "LGPL-2.1-only",
+      "noticePath": "LICENSES/replicad-opencascadejs-1.1.0-LGPL-2.1-only.txt",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "needs-review",
+      "evidence": "Lockfile version and retained notice only. Installation/module-graph comparison and exact native source closure require verification.",
+      "packageName": "replicad-opencascadejs",
+      "lockIntegrity": "sha512-s0KHR5V+ivsOE4nZXfuoW70lW0/rldkb3ZDY34LpXOQRFLQN5qVydQm3BRo7boZPdFkkAZBERJ+NzB0DYxrivw=="
+    },
+    {
+      "id": "manifold-native",
+      "path": "node_modules/manifold-3d",
+      "component": "manifold-3d",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/manifold-3d/-/manifold-3d-3.5.4.tgz",
+      "commit": null,
+      "version": "3.5.4",
+      "licenseExpression": "Apache-2.0",
+      "noticePath": "LICENSES/manifold-3d-3.5.4-Apache-2.0.txt",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "needs-review",
+      "evidence": "Lockfile version and retained notice only. Installation/module-graph comparison and exact native source closure require verification.",
+      "packageName": "manifold-3d",
+      "lockIntegrity": "sha512-WWsme5HabwLHVcWPHT9m+s7mdmDVSEvCny+uXH1E7jEc8FbFUgM75C3Dh6NVw57Eeh3Ow7+xHCuXfxDMOemi9A=="
+    },
+    {
+      "id": "polygon-clipping",
+      "path": "node_modules/polygon-clipping",
+      "component": "polygon-clipping",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/polygon-clipping/-/polygon-clipping-0.15.7.tgz",
+      "commit": null,
+      "version": "0.15.7",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/polygon-clipping-0.15.7-MIT.txt",
+      "copyrightHolder": "Copyright (c) 2018 Mike Fogel <mike@fogel.ca> - covers everything not specially attributed to others below.; Copyright (c) 2016 Alexander Milevski <info@w8r.name> - covers all portions originally part of github:w8r/martinez, from which this project was forked on Febuary 2, 2018.; The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.; THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed LICENSE.md after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "polygon-clipping",
+      "lockIntegrity": "sha512-nhfdr83ECBg6xtqOAJab1tbksbBAOMUltN60bU+llHVOL0e5Onm1WpAXXWXVB39L8AJFssoIhEVuy/S90MmotA==",
+      "noticeNormalizedSha256": "864ae9e4ed75e1571a3bcf5dc9070264213445b32e7e2af5bf60eba46fb656d0"
+    },
+    {
+      "id": "robust-predicates",
+      "path": "node_modules/robust-predicates",
+      "component": "robust-predicates",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/robust-predicates/-/robust-predicates-3.0.3.tgz",
+      "commit": null,
+      "version": "3.0.3",
+      "licenseExpression": "Unlicense",
+      "noticePath": "LICENSES/robust-predicates-3.0.3-Unlicense.txt",
+      "copyrightHolder": "This is free and unencumbered software released into the public domain.; In jurisdictions that recognize copyright laws, the author or authors; of this software dedicate any and all copyright interest in the; software to the public domain. We make this dedication for the benefit",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed LICENSE after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "robust-predicates",
+      "lockIntegrity": "sha512-NS3levdsRIUOmiJ8FZWCP7LG3QpJyrs/TE0Zpf1yvZu8cAJJ6QMW92H1c7kWpdIHo8RvmLxN/o2JXTKHp74lUA==",
+      "noticeNormalizedSha256": "88d9b4eb60579c191ec391ca04c16130572d7eedc4a86daa58bf28c6e14c9bcd"
+    },
+    {
+      "id": "splaytree",
+      "path": "node_modules/splaytree",
+      "component": "splaytree",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/splaytree/-/splaytree-3.2.3.tgz",
+      "commit": null,
+      "version": "3.2.3",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/splaytree-3.2.3-README-MIT.txt",
+      "copyrightHolder": "Copyright (c) 2019 Alexander Milevski <info@w8r.name>; The above copyright notice and this permission notice shall be included in all; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed Readme.md after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "splaytree",
+      "lockIntegrity": "sha512-7OXrNWzy6CK+r7Ch9OLPBDTKfB6XlWHjX4P0RU5B3IgFuWPeYN0XtRtlexGRjgbQxpfaUve6jTAwBGWuGntz/w==",
+      "noticeNormalizedSha256": "ba6a09ed78a28536852d504086e7dd0e1f9c090a27c460bc9f301ee5783927dd"
+    },
+    {
+      "id": "flatbush",
+      "path": "node_modules/flatbush",
+      "component": "flatbush",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/flatbush/-/flatbush-4.6.2.tgz",
+      "commit": null,
+      "version": "4.6.2",
+      "licenseExpression": "ISC",
+      "noticePath": "LICENSES/flatbush-4.6.2-ISC.txt",
+      "copyrightHolder": "Copyright (c) 2022, Vladimir Agafonkin; with or without fee is hereby granted, provided that the above copyright notice",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed LICENSE after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "flatbush",
+      "lockIntegrity": "sha512-nNT7MFJ58Q4IAm3aYsEg+zgZGpdRcmR1i4U+aa8c+r91jmYZg7FTQwNnIMC0FyBqVZTbClKdAnrJkKkfp1BOvw==",
+      "noticeNormalizedSha256": "08a9d45b1300baf1925a966bcbec26cf9bd4137883d96b79089cba2c72d872bc"
+    },
+    {
+      "id": "flatqueue",
+      "path": "node_modules/flatqueue",
+      "component": "flatqueue",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/flatqueue/-/flatqueue-3.1.0.tgz",
+      "commit": null,
+      "version": "3.1.0",
+      "licenseExpression": "ISC",
+      "noticePath": "LICENSES/flatqueue-3.1.0-ISC.txt",
+      "copyrightHolder": "Copyright (c) 2025, Volodymyr Agafonkin; with or without fee is hereby granted, provided that the above copyright notice",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed LICENSE after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "flatqueue",
+      "lockIntegrity": "sha512-Ia4qIYrrsEqIRx3c3XhkT+QDLQuUV5ovsr6ah1rIgKT5wclhoGK3lAMS1bWRAWxlx7wtlTBpV7QXB5d9fOSRxA==",
+      "noticeNormalizedSha256": "dda6815257c8b5dd1c557507e0f49b592001a515fe4e9f152a2e7683f9d3a3b5"
+    },
+    {
+      "id": "opentype.js",
+      "path": "node_modules/opentype.js",
+      "component": "opentype.js",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/opentype.js/-/opentype.js-1.3.4.tgz",
+      "commit": null,
+      "version": "1.3.4",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/opentype.js-1.3.4-MIT.txt",
+      "copyrightHolder": "Copyright (c) 2020 Frederik De Bleser; The above copyright notice and this permission notice shall be included in all; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed LICENSE after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "opentype.js",
+      "lockIntegrity": "sha512-d2JE9RP/6uagpQAVtJoF0pJJA/fgai89Cc50Yp0EJHk+eLp6QQ7gBoblsnubRULNY132I0J1QKMJ+JTbMqz4sw==",
+      "noticeNormalizedSha256": "a5b87c9bc191e7f9c06b07bd7cbbed3ed846dfdb50e859484b2c245aa1ab2e61"
+    },
+    {
+      "id": "tiny-inflate",
+      "path": "node_modules/tiny-inflate",
+      "component": "tiny-inflate",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/tiny-inflate/-/tiny-inflate-1.0.3.tgz",
+      "commit": null,
+      "version": "1.0.3",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/tiny-inflate-1.0.3-MIT.txt",
+      "copyrightHolder": "Copyright (c) 2015-present Devon Govett; The above copyright notice and this permission notice shall be included in all; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed LICENSE after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "tiny-inflate",
+      "lockIntegrity": "sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==",
+      "noticeNormalizedSha256": "c0df7f551401f8f80197ff31bf69b8cd23727d127423403282514d242a3ab132"
+    },
+    {
+      "id": "string.prototype.codepointat",
+      "path": "node_modules/string.prototype.codepointat",
+      "component": "string.prototype.codepointat",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/string.prototype.codepointat/-/string.prototype.codepointat-0.2.1.tgz",
+      "commit": null,
+      "version": "0.2.1",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/string.prototype.codepointat-0.2.1-MIT.txt",
+      "copyrightHolder": "Mathias Bynens",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed LICENSE-MIT.txt matches retained notice after CRLF/LF normalization. Its package version and license are locked; inclusion is determined by the actual module graph, not installation alone.",
+      "packageName": "string.prototype.codepointat",
+      "lockIntegrity": "sha512-2cBVCj6I4IOvEnjgO/hWqXjqBGsY+zwPmHl12Srk9IXSZ56Jwwmy+66XO5Iut/oQVR7t5ihYdLB0GMa4alEUcg==",
+      "installedNoticePath": "node_modules/string.prototype.codepointat/LICENSE-MIT.txt",
+      "noticeNormalizedSha256": "483acb265f182907d1caf6cff9c16c96f31325ed23792832cc5d8b12d5f88c8a"
+    },
+    {
+      "id": "earcut",
+      "path": "node_modules/three/src/extras/lib/earcut.js",
+      "component": "Mapbox Earcut embedded by Three.js",
+      "originType": "upstream-embedded",
+      "aiAssisted": null,
+      "sourceUrl": "https://github.com/mapbox/earcut/tree/v3.0.1",
+      "commit": null,
+      "version": "3.0.1",
+      "licenseExpression": "ISC",
+      "noticePath": "LICENSES/earcut-3.0.1-ISC.txt",
+      "copyrightHolder": "Mapbox",
+      "modified": null,
+      "patchEvidence": "Embedded or bundled by Three.js 0.180.0; installed bytes are pinned, without asserting an upstream patch history.",
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Actual Three.js module/source location and retained full notice identified. This record verifies the installed embedded copy, not an unknown original upstream commit.",
+      "activationModules": [
+        "node_modules/three/build/three.core.js",
+        "node_modules/three/src/extras/lib/earcut.js"
+      ],
+      "noticeNormalizedSha256": "324139c19d87af03fda38afea1590e00ca354c4159bdb2ae9e9cec070cfa46a8",
+      "sourceFiles": [
+        {
+          "path": "node_modules/three/src/extras/lib/earcut.js",
+          "sha256": "16b9da88d31f192fc8f5db09b08a337ce7694fae37fe36e9afaa9e7294fea9b0"
+        },
+        {
+          "path": "node_modules/three/build/three.core.js",
+          "sha256": "eb077d2417f61d3e6d9264c317cabc4ea35769ed6b0ab533067292a550784c20"
+        }
+      ]
+    },
+    {
+      "id": "modelcontextprotocol-sdk",
+      "path": "node_modules/@modelcontextprotocol/sdk",
+      "component": "@modelcontextprotocol/sdk",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/@modelcontextprotocol/sdk/-/sdk-1.30.0.tgz",
+      "commit": null,
+      "version": "1.30.0",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/mcp-sdk-1.30.0-MIT.txt",
+      "copyrightHolder": "Copyright (c) 2024 Anthropic, PBC; The above copyright notice and this permission notice shall be included in all; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "agent-host",
+        "dev-only"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed LICENSE after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "@modelcontextprotocol/sdk",
+      "lockIntegrity": "sha512-xKd8OIzlqNzcqcNumGAa6g+PW2kjD5vrpcKOnfldAUPP3j7lnqMPwlTXQm8gF+UwH72z0lqaRbjr9hqGz0eITA==",
+      "noticeNormalizedSha256": "5e13dbbc1d120fc2a03cecde7c91424ae2d7de11b63d58ded2f4431e261ee50d"
+    },
+    {
+      "id": "ws",
+      "path": "node_modules/ws",
+      "component": "ws",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/ws/-/ws-8.21.3.tgz",
+      "commit": null,
+      "version": "8.21.3",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/ws-8.21.3-MIT.txt",
+      "copyrightHolder": "Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>; Copyright (c) 2013 Arnout Kazemier and contributors; Copyright (c) 2016 Luigi Pinca and contributors; The above copyright notice and this permission notice shall be included in all",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "agent-host",
+        "dev-only"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed LICENSE after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "ws",
+      "lockIntegrity": "sha512-201TZ/kPWxoPr/OKWjquZR1SWKXcvxdH+e1xrx89b3YbmzLMFCLfnaG1HFIgWzJOEWZ7MvpK++odZufgYR50Rw==",
+      "noticeNormalizedSha256": "2b29dcfe0d6471f7e8c92c5fb38c9f93edee10330937055440192f1832b1ecef"
+    },
+    {
+      "id": "zod",
+      "path": "node_modules/zod",
+      "component": "zod",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://registry.npmjs.org/zod/-/zod-4.6.5.tgz",
+      "commit": null,
+      "version": "4.6.5",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/zod-4.6.5-MIT.txt",
+      "copyrightHolder": "Copyright (c) 2025 Colin McDonnell; The above copyright notice and this permission notice shall be included in all; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER",
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "agent-host",
+        "dev-only"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Installed package version matches lockfile; installed declared license recorded. Retained notice equals installed LICENSE after CRLF/LF normalization; no byte-identical claim across checkout line endings. Actual bundled module versions remain checked by build inventory.",
+      "packageName": "zod",
+      "lockIntegrity": "sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==",
+      "noticeNormalizedSha256": "3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8"
+    },
+    {
+      "id": "libredwg",
+      "path": "cad-viewer/{bindings,wasm}/libredwg-web.*",
+      "component": "LibreDWG browser parser",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://github.com/LibreDWG/libredwg/tree/e405fcff2eaff86b8389222b7e99529284e7ea0a",
+      "commit": "e405fcff2eaff86b8389222b7e99529284e7ea0a",
+      "version": "0.14.8556 / libredwg-web 0.7.9",
+      "licenseExpression": "GPL-3.0-or-later",
+      "noticePath": "CORRESPONDING_SOURCE.md",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "blocked",
+      "evidence": "Retained source subset and historical hashes; clean native rebuild and complete matching-source closure not verified.",
+      "activationArtifacts": [
+        "cad-viewer/wasm/libredwg-web.wasm"
+      ]
+    },
+    {
+      "id": "legacy-viewer",
+      "path": "cad-viewer/**",
+      "component": "Inherited CAD viewer and importer",
+      "originType": "mixed",
+      "aiAssisted": null,
+      "sourceUrl": "https://github.com/mlightcad/cad-viewer",
+      "commit": null,
+      "version": null,
+      "licenseExpression": "MIT AND LGPL-2.1",
+      "noticePath": "LICENSE.md",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "dev-only"
+      ],
+      "evidenceStatus": "needs-review",
+      "evidence": "Historical attribution retained. This directory is not a blanket permission for new WebCAD code; copying it into another package requires rescoping."
+    },
+    {
+      "id": "method-adaptation",
+      "path": "src/modeling-guidance.js; webcad-skills/**",
+      "component": "text-to-cad method adaptation",
+      "originType": "mixed",
+      "aiAssisted": null,
+      "sourceUrl": "https://github.com/earthtojake/text-to-cad",
+      "commit": null,
+      "version": "0.7.19",
+      "licenseExpression": "MIT",
+      "noticePath": "webcad-skills/references/text-to-cad-adaptation.md",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web",
+        "dev-only"
+      ],
+      "evidenceStatus": "needs-review",
+      "evidence": "Adaptation note states Chinese re-expression; source fingerprints do not establish a blanket authorization for all rewritten application files."
+    },
+    {
+      "id": "studio-hdr",
+      "path": "public/render-assets/studio-small-09.bin",
+      "component": "Studio Small 09",
+      "originType": "upstream",
+      "aiAssisted": null,
+      "sourceUrl": "https://polyhaven.com/a/studio_small_09",
+      "commit": null,
+      "version": null,
+      "licenseExpression": "CC0-1.0",
+      "noticePath": "public/render-assets/studio-small-09.LICENSE.txt",
+      "copyrightHolder": "Sergej Majboroda / Poly Haven",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Existing asset attribution identifies the unmodified HDR renamed for MIME handling.",
+      "sha256": "e7cfda5f4e98e623db12b8bfd0184e048488e4855d9c83e2751fb44a32e80c45"
+    },
+    {
+      "id": "antique-texture",
+      "path": "public/render-assets/antique-metal-reference.jpg",
+      "component": "Antique metal reference texture",
+      "originType": "mixed",
+      "aiAssisted": null,
+      "sourceUrl": null,
+      "commit": null,
+      "version": null,
+      "licenseExpression": null,
+      "noticePath": "docs/compliance/LICENSE_DECISION.md",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "blocked",
+      "evidence": "Used by src/metal-materials.js; no source, creator or redistribution grant found in retained notices.",
+      "sha256": "191b602d3fcd6367e67162a7b4b2410fba1c1b308b6cc70f66abcf6b0c041af1"
+    },
+    {
+      "id": "examples",
+      "path": "public/{examples,trial-samples}/**",
+      "component": "Public model examples and trial samples",
+      "originType": "mixed",
+      "aiAssisted": null,
+      "sourceUrl": null,
+      "commit": null,
+      "version": null,
+      "licenseExpression": null,
+      "noticePath": "docs/compliance/LICENSE_DECISION.md",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "needs-review",
+      "evidence": "Actual static-copy model files still require a rights/source review; generated previews are tracked separately.",
+      "pathPrefixes": [
+        "public/examples/",
+        "public/trial-samples/"
+      ]
+    },
+    {
+      "id": "test-images",
+      "path": "tests/fixtures/relief-images/**",
+      "component": "Wikimedia-derived relief fixtures",
+      "originType": "mixed",
+      "aiAssisted": null,
+      "sourceUrl": null,
+      "commit": null,
+      "version": null,
+      "licenseExpression": "CC-BY-SA-4.0 AND CC0-1.0 AND LicenseRef-Public-Domain",
+      "noticePath": "tests/fixtures/relief-images/README.md",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "dev-only"
+      ],
+      "evidenceStatus": "needs-review",
+      "evidence": "Retained per-image source pages and license labels; attribution/full-text verification is pending. Excluded from static dist by directory placement."
+    },
+    {
+      "id": "fonts",
+      "path": "cad-data/open/fonts/**",
+      "component": "Basic, Tenor Sans and VT323",
+      "originType": "mixed",
+      "aiAssisted": null,
+      "sourceUrl": null,
+      "commit": null,
+      "version": null,
+      "licenseExpression": "OFL-1.1",
+      "noticePath": "cad-data/open/README.md",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "dev-only"
+      ],
+      "evidenceStatus": "needs-review",
+      "evidence": "Retained font licenses; not copied by current Vite config. Re-evaluate if copied to a public package."
+    },
+    {
+      "id": "optional-python",
+      "path": "tools/logo-vector-import.py",
+      "component": "PyMuPDF/MuPDF and vector conversion",
+      "originType": "mixed",
+      "aiAssisted": null,
+      "sourceUrl": null,
+      "commit": null,
+      "version": "requirements: 1.26.4",
+      "licenseExpression": "AGPL-3.0-or-later OR LicenseRef-Artifex-Commercial",
+      "noticePath": "LICENSES/PyMuPDF-1.26.4-COPYING.txt",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "services"
+      ],
+      "evidenceStatus": "blocked",
+      "evidence": "Actual PDF/AI branch imports PyMuPDF. Deployment version, matching MuPDF source and commercial entitlement not established. Service use must be reviewed even when not copied into static dist."
+    },
+    {
+      "id": "services-native",
+      "path": "services/WebCADServices/**",
+      "component": "Optional native OCCT/Manifold and service code",
+      "originType": "mixed",
+      "aiAssisted": null,
+      "sourceUrl": null,
+      "commit": null,
+      "version": null,
+      "licenseExpression": null,
+      "noticePath": "CORRESPONDING_SOURCE.md",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "services"
+      ],
+      "evidenceStatus": "needs-review",
+      "evidence": "Separate deployment review required; not included in static package approval."
+    },
+    {
+      "id": "build-tools",
+      "path": "package-lock.json",
+      "component": "Build and development dependency closure",
+      "originType": "mixed",
+      "aiAssisted": null,
+      "sourceUrl": null,
+      "commit": null,
+      "version": null,
+      "licenseExpression": null,
+      "noticePath": "CORRESPONDING_SOURCE.md",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "dev-only"
+      ],
+      "evidenceStatus": "needs-review",
+      "evidence": "Lockfile identifies dependency bytes; build tools are not automatically browser-distributed. Actual module graph determines inclusion."
+    },
+    {
+      "id": "fflate-embedded",
+      "path": "node_modules/three/examples/jsm/libs/fflate.module.js",
+      "component": "fflate embedded by Three.js",
+      "originType": "upstream-embedded",
+      "aiAssisted": null,
+      "sourceUrl": "https://github.com/101arrowz/fflate/tree/v0.8.2",
+      "commit": null,
+      "version": "0.8.2",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/fflate-0.8.2-MIT.txt",
+      "copyrightHolder": "Arjun Barrett",
+      "modified": null,
+      "patchEvidence": "Embedded or bundled by Three.js 0.180.0; installed bytes are pinned, without asserting an upstream patch history.",
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Actual Three.js module/source location and retained full notice identified. This record verifies the installed embedded copy, not an unknown original upstream commit.",
+      "activationModules": [
+        "node_modules/three/examples/jsm/libs/fflate.module.js"
+      ],
+      "noticeNormalizedSha256": "805f6cb28bb8b6d3a0badd83c93bccd9671fa01a3b4b92b7042b0743325ac243",
+      "sourceFiles": [
+        {
+          "path": "node_modules/three/examples/jsm/libs/fflate.module.js",
+          "sha256": "209a4412eb48ce609edb4391992a792ffcc3983d30ee7e2b0b89a8c470f3cd8a"
+        }
+      ]
+    },
+    {
+      "id": "svg-numbers-embedded",
+      "path": "node_modules/three/examples/jsm/loaders/SVGLoader.js",
+      "component": "svg-numbers fragment in Three.js SVGLoader",
+      "originType": "upstream-embedded",
+      "aiAssisted": null,
+      "sourceUrl": "https://github.com/ppvg/svg-numbers",
+      "commit": null,
+      "version": "unversioned embedded copy in three 0.180.0",
+      "licenseExpression": "MIT",
+      "noticePath": "LICENSES/svg-numbers-MIT.txt",
+      "copyrightHolder": "Peter-Paul van Gemerden",
+      "modified": null,
+      "patchEvidence": "Embedded or bundled by Three.js 0.180.0; installed bytes are pinned, without asserting an upstream patch history.",
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Actual Three.js module/source location and retained full notice identified. This record verifies the installed embedded copy, not an unknown original upstream commit.",
+      "activationModules": [
+        "node_modules/three/examples/jsm/loaders/SVGLoader.js"
+      ],
+      "noticeNormalizedSha256": "94bf05d174a5097c436b8d49702c4ff7f50261c6da6bbd3b9164c8b4669decfa",
+      "sourceFiles": [
+        {
+          "path": "node_modules/three/examples/jsm/loaders/SVGLoader.js",
+          "sha256": "90aa8d9c60b4f93f2a482669f5761a530479049a5c42f4bcd32575a43d7a119e"
+        }
+      ]
+    },
+    {
+      "id": "studio-hdr-notice",
+      "path": "public/render-assets/studio-small-09.LICENSE.txt",
+      "component": "Studio Small 09 attribution text",
+      "originType": "upstream-notice",
+      "aiAssisted": null,
+      "sourceUrl": "https://polyhaven.com/a/studio_small_09",
+      "commit": null,
+      "version": null,
+      "licenseExpression": "CC0-1.0",
+      "noticePath": "public/render-assets/studio-small-09.LICENSE.txt",
+      "copyrightHolder": "Sergej Majboroda / Poly Haven",
+      "modified": false,
+      "patchEvidence": "Embedded or bundled by Three.js 0.180.0; installed bytes are pinned, without asserting an upstream patch history.",
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "evidence": "Companion attribution identifies the unmodified HDR, creator and CC0 source. This notice text is not an unreviewed media file.",
+      "noticeNormalizedSha256": "318d33d03e4776bafe1ae0935cd751d61e1084625721fc1c0fa8229a63e1bb69",
+      "activationArtifacts": [
+        "render-assets/studio-small-09.LICENSE.txt"
+      ],
+      "sha256": "1098432d8dedbc5afab1527849cb7c86b454a23c5501d36626cb65358b0889e8",
+      "normalizedSha256": "318d33d03e4776bafe1ae0935cd751d61e1084625721fc1c0fa8229a63e1bb69"
+    },
+    {
+      "id": "quick-model-previews",
+      "path": "public/quick-model-previews/**",
+      "component": "Referenced generated quick-model previews",
+      "originType": "generated",
+      "aiAssisted": null,
+      "sourceUrl": null,
+      "commit": null,
+      "version": null,
+      "licenseExpression": null,
+      "noticePath": "docs/compliance/LICENSE_DECISION.md",
+      "copyrightHolder": "pending",
+      "modified": null,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "needs-review",
+      "provenanceStatus": "verified-generated-source-and-bytes",
+      "evidence": "Referenced image/guide bytes match the committed source manifest. The authoring scripts build catalog defaults and rasterize those meshes; no geometry was regenerated for this review. This establishes source lineage, not a new rights grant. Application authorization remains pending. Unreferenced PNGs are intentionally not admitted by this record.",
+      "files": [
+        {
+          "path": "public/quick-model-previews/alloyEyelet-c0e2f4912057.png",
+          "sha256": "c0e2f49120570c6223654209d86d21309e3e43d360f13ee5f5a0849cc506f706",
+          "modelKind": "alloyEyelet",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/alloyEyelet-guide-99bdd46fcd07.png",
+          "sha256": "99bdd46fcd0708b93755db71419515b9ddb53d70b3c92e8c40d1d8c19b9ede9d",
+          "modelKind": "alloyEyelet",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/arcBandPlate-81728b4ff978.png",
+          "sha256": "81728b4ff978ce32808f93f26b88343554d55d101351d61b3640357a11c9048d",
+          "modelKind": "arcBandPlate",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/arcBandPlate-guide-4fa1a5a7b983.png",
+          "sha256": "4fa1a5a7b983e1c9add999a4097606468c416886290538522e49861477e8fbbb",
+          "modelKind": "arcBandPlate",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/archedBridge-c21784f0b22b.png",
+          "sha256": "c21784f0b22b95fb933a5e9de4ac64ea0cdfa3c2a5498dac4330e088a21c518b",
+          "modelKind": "archedBridge",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/archedBridge-guide-ee09028a6268.png",
+          "sha256": "ee09028a62689dfe943390019329044056b53935b3f3ae91f288b1b2cb548668",
+          "modelKind": "archedBridge",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/archedTwinWindowPlate-539f673a3ff6.png",
+          "sha256": "539f673a3ff65347a2278ee642ef6f5ea03c0f7ab2b4ff8d6b298be382848249",
+          "modelKind": "archedTwinWindowPlate",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/archedTwinWindowPlate-guide-a6edbf948987.png",
+          "sha256": "a6edbf94898759a592484d2959f34019163d9cd2765b93d5c8bdb2cea2d11bce",
+          "modelKind": "archedTwinWindowPlate",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/bossPlate-080780167573.png",
+          "sha256": "0807801675731b116d87cda9c4203944e8289196b246761e29d63f071404c7b8",
+          "modelKind": "bossPlate",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/bossPlate-guide-831dd220992b.png",
+          "sha256": "831dd220992b224f97cdd1396dae6f4e9ed3c0d9a11d364e3f5d81edaf2d0a03",
+          "modelKind": "bossPlate",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/bowedTwinWindowPlate-99ad0f2349ef.png",
+          "sha256": "99ad0f2349ef5b0025575b3424b9cd30aaa47070f74ac6734f91dfa403a43fdf",
+          "modelKind": "bowedTwinWindowPlate",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/bowedTwinWindowPlate-guide-025bea63edae.png",
+          "sha256": "025bea63edae4adb9eaf103930056d545a4939a1d7f88f5cfd7dbffc794e8439",
+          "modelKind": "bowedTwinWindowPlate",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/buckleTongue-dc8b26ca1ce4.png",
+          "sha256": "dc8b26ca1ce4007e0ff1797753434d9d66e4eb05d43d74a431c8bf934c881ebd",
+          "modelKind": "buckleTongue",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/buckleTongue-guide-ea8aa641d0a8.png",
+          "sha256": "ea8aa641d0a8ee85136941c7965de31c8139e207729bb1e726789bc806bbc7b8",
+          "modelKind": "buckleTongue",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/capsuleWire-d162e93ff862.png",
+          "sha256": "d162e93ff8629b4c796dfec92bd0a77b9bcd7d02173c8b6a049adfb3c137a66f",
+          "modelKind": "capsuleWire",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/capsuleWire-guide-74e564fc658f.png",
+          "sha256": "74e564fc658f38bd566b0db55e47e689449787bc929d6ec157b5d10bb36ef298",
+          "modelKind": "capsuleWire",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/counterboreTool-5bc4f709a0ef.png",
+          "sha256": "5bc4f709a0efa3eb4b4d76768ca4baf567a0fac16d0f0cfe8449bce7799eed78",
+          "modelKind": "counterboreTool",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/counterboreTool-guide-9c0835d17825.png",
+          "sha256": "9c0835d17825c95c95c89e97456a324a02dd2084590bd1a358ca0fa7d05aa080",
+          "modelKind": "counterboreTool",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/dBarBuckle-8c05a15eb457.png",
+          "sha256": "8c05a15eb45750c3ef173f2de0ad40e9c24cc08a5856e8fc43108b83201f9b8a",
+          "modelKind": "dBarBuckle",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/dBarBuckle-guide-4b643bc778ee.png",
+          "sha256": "4b643bc778ee96b6a0fab347aea2ac9a58d3501ec3c9275848d4d770216d56f5",
+          "modelKind": "dBarBuckle",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/dBuckle-2980d57c1604.png",
+          "sha256": "2980d57c1604cc4ff641dd2c2c9a96354aad150b22cea31b564b116e27bea2b1",
+          "modelKind": "dBuckle",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/dBuckle-guide-0f0f165ecc56.png",
+          "sha256": "0f0f165ecc564c5747db46af6043b27a2ba3d287117bb76161c97f953b4d6065",
+          "modelKind": "dBuckle",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/dFlatFrame-1c217bf57546.png",
+          "sha256": "1c217bf5754626d45e50f22f10bc3b381d8961ed3825dee33dcc39b1fbdc0df5",
+          "modelKind": "dFlatFrame",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/dFlatFrame-guide-61820591f54e.png",
+          "sha256": "61820591f54ef14f9ba0ac75aa8671480768e95a3a3daa7ac4602707df2d75e8",
+          "modelKind": "dFlatFrame",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/domedPin-756673de2f48.png",
+          "sha256": "756673de2f48f8ba742217c8aa8dd37aeac5266dd7a755349febbcecb03210c4",
+          "modelKind": "domedPin",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/domedPin-guide-12f92921cf6b.png",
+          "sha256": "12f92921cf6b41762486253a76bba767bddc2453d0cb37402ea2342654a5be1a",
+          "modelKind": "domedPin",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ellipseBar-3c1da42865f1.png",
+          "sha256": "3c1da42865f138ade42c1ab0dfe5b0244013c7cae7311fef2958d8350acb511f",
+          "modelKind": "ellipseBar",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ellipseBar-guide-19b708622be3.png",
+          "sha256": "19b708622be37a1905e18e36a8b88307d99c33fa0c6bf691870e115b793b321b",
+          "modelKind": "ellipseBar",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ellipseOpenWire-f99a5b5845c1.png",
+          "sha256": "f99a5b5845c1588e7c43f20f0ac52abe81dcbe30fd0fcdf302953f5b9941bb87",
+          "modelKind": "ellipseOpenWire",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ellipseOpenWire-guide-c88d01c5befb.png",
+          "sha256": "c88d01c5befb492f5ae5816ddb9545295873c2904b4fe0b20a75fc0672b8c731",
+          "modelKind": "ellipseOpenWire",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ellipseSectionRectFrame-3c95dd3fd343.png",
+          "sha256": "3c95dd3fd343a77ea33b05e2e9d5402e964024fcb7aa40de1bfa99bb2328b0eb",
+          "modelKind": "ellipseSectionRectFrame",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ellipseSectionRectFrame-guide-49e55ab66f8e.png",
+          "sha256": "49e55ab66f8ee6e015d424bbba7fa97a790b2526fb21b2560fcfa7773fb95e2f",
+          "modelKind": "ellipseSectionRectFrame",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ellipseSectionRing-8ba2a22de1cf.png",
+          "sha256": "8ba2a22de1cfe6e9e2d72e27aae94b2c68a04d35359e4a8644aaabba88b68226",
+          "modelKind": "ellipseSectionRing",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ellipseSectionRing-guide-b1d68e238121.png",
+          "sha256": "b1d68e238121f5f017844aa41f60da3b4a617362b23389612905bf48bad62b72",
+          "modelKind": "ellipseSectionRing",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/flangedBushing-9ddb92e5dddd.png",
+          "sha256": "9ddb92e5dddd3bb9419d644ce3b6c677077131666fa9547e9c7c730a3e48b1ef",
+          "modelKind": "flangedBushing",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/flangedBushing-guide-53a809c10b01.png",
+          "sha256": "53a809c10b01f1c62c91601157d8f1c080a8669f437e5d3ed3463097568beffa",
+          "modelKind": "flangedBushing",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/flatFrame-b64b2ae37c23.png",
+          "sha256": "b64b2ae37c23183029f4f469b95270b0828e28e949e8994504e632d20ac22dd6",
+          "modelKind": "flatFrame",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/flatFrame-guide-7580faeb8f39.png",
+          "sha256": "7580faeb8f39db46ea0631a90b12a091321c9b1cf26cc3e38492294e6d22f812",
+          "modelKind": "flatFrame",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/fourHolePlate-a251540e1984.png",
+          "sha256": "a251540e198454ed19d2f1e2ee7ce953f4d46c5412144a97ac5a949f9817d8d2",
+          "modelKind": "fourHolePlate",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/fourHolePlate-guide-0bf1f754f77f.png",
+          "sha256": "0bf1f754f77f4b87c75ac651df73348db9c828ac912a045a7110d4e161230ac3",
+          "modelKind": "fourHolePlate",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/frameEyelet-358b0238cfc4.png",
+          "sha256": "358b0238cfc45d3738539224eb36a21edca355746eaf7d15ea8e1a40a86bcc21",
+          "modelKind": "frameEyelet",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/frameEyelet-guide-48cd1d0df950.png",
+          "sha256": "48cd1d0df950221ae4cee84f37be5243ce2a3fa5cc2a6f1f069d09c1a6ffb899",
+          "modelKind": "frameEyelet",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/gableOpenFrame-b85c246b8202.png",
+          "sha256": "b85c246b82021937b2aaa06c7801933f0b383ba2abab1417cc7b8c18ce1ed649",
+          "modelKind": "gableOpenFrame",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/gableOpenFrame-guide-339af1ee03b1.png",
+          "sha256": "339af1ee03b179303c7a537ca8d59db5c4ac46ce27d7b71c790652e499163544",
+          "modelKind": "gableOpenFrame",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/groundChain-926bd6986651.png",
+          "sha256": "926bd698665121339d75ec0b04a686fa957cfb643a4bcbe1745e830e21bcd582",
+          "modelKind": "groundChain",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/groundChain-guide-290efa2bfeac.png",
+          "sha256": "290efa2bfeac4e95ef17490fa25a56b003e365b36bbaca66a6f90c35abfa982d",
+          "modelKind": "groundChain",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/hangingRod-e7886cf2ea43.png",
+          "sha256": "e7886cf2ea43d88c8dfc16ecc14d68b343207db996104dae3da80ed51027e4bc",
+          "modelKind": "hangingRod",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/hangingRod-guide-cdb78d4c59a7.png",
+          "sha256": "cdb78d4c59a7a2901c2fa17bcb5448cb41ad67213740d0aba22b14ab34a73fd8",
+          "modelKind": "hangingRod",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ironFoot-0f8e223ce992.png",
+          "sha256": "0f8e223ce99254f1da55be0056bd9002e7d3d0731648b9978781b3a03126011a",
+          "modelKind": "ironFoot",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ironFoot-guide-d7f665010d46.png",
+          "sha256": "d7f665010d46ca795115dd094ff48e6b07f32443585dd0dc13a02074f961ed21",
+          "modelKind": "ironFoot",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/keyRing-ba77fc46a8d1.png",
+          "sha256": "ba77fc46a8d1952d8ddc4959c46ca07335524d5f7b9dcfad6f34a9e3c92d80ac",
+          "modelKind": "keyRing",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/keyRing-guide-1f11390b23dd.png",
+          "sha256": "1f11390b23ddb90901f280e71c55a4d0311f40f5257d9034e789c9572601e2d6",
+          "modelKind": "keyRing",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/mountingPlate-00535d4c8406.png",
+          "sha256": "00535d4c840665bb57817669119446d412d798f6c2856d46abf6d52bc928c98e",
+          "modelKind": "mountingPlate",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/mountingPlate-guide-87742115fe88.png",
+          "sha256": "87742115fe8856fafbb2224b8cf8269adf84cee9f384df25ff1a13b37667e166",
+          "modelKind": "mountingPlate",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/mushroomRivet-4aa94907dd77.png",
+          "sha256": "4aa94907dd776f5322ffe83d1ba941a049ff7127542897e1e176016145d63cec",
+          "modelKind": "mushroomRivet",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/mushroomRivet-guide-e1c9f2f779fe.png",
+          "sha256": "e1c9f2f779fede075a334c9750d919709f89920db6c09da30c7c83a2811cc8be",
+          "modelKind": "mushroomRivet",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/nippleStud-9c1869737fd0.png",
+          "sha256": "9c1869737fd0465ac806235f843c369afa283a88158edc1f8e69a7a83e29aeef",
+          "modelKind": "nippleStud",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/nippleStud-guide-eea3af71b768.png",
+          "sha256": "eea3af71b7680ad40088a5047b110d3c7dd800e79eba774e8d55f2c0daa65390",
+          "modelKind": "nippleStud",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/oChain-f532d37e3dc5.png",
+          "sha256": "f532d37e3dc5cf7ca7f9d94ed1e26edb2008b54aba6dd35c878f49e5ffda2636",
+          "modelKind": "oChain",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/oChain-guide-0b96c6ca1fbe.png",
+          "sha256": "0b96c6ca1fbe1eb2e7016ea9c39c94c86d43550b935cb419cf02d50ad9100d4f",
+          "modelKind": "oChain",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/openArcRing-0dd202c69466.png",
+          "sha256": "0dd202c69466853e18fc5057ddfe940ec81f3a7a6af6babd22a801246485bb52",
+          "modelKind": "openArcRing",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/openArcRing-guide-c141f351d740.png",
+          "sha256": "c141f351d74085981f5534c90522e8bd5590d07826f43b43a040ebf5290c4f9c",
+          "modelKind": "openArcRing",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ovalBuckle-2b14d888f9ec.png",
+          "sha256": "2b14d888f9ecf356fc6819b8fed6abd56742dc7a868267850d1e6f9ba2291928",
+          "modelKind": "ovalBuckle",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ovalBuckle-guide-8d88b76779d2.png",
+          "sha256": "8d88b76779d2e75bcf03a193b25d4b309940a44870558ffc208c6c7d9349463f",
+          "modelKind": "ovalBuckle",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/profileLoop-bb6c56e8ce76.png",
+          "sha256": "bb6c56e8ce767b422f62d8735ed4f3f9fb682b36052f7d364766476463d8f312",
+          "modelKind": "profileLoop",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/profileLoop-guide-7cfc95a0da55.png",
+          "sha256": "7cfc95a0da55f2fd36873b17df6eb9cd9a15d28d18603af7cd91275c5d455111",
+          "modelKind": "profileLoop",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/pullCoreBar-af472651d5ce.png",
+          "sha256": "af472651d5ce7a110cb3d36137bd6afcfad2efd6a98a48ff4677958881e6bb64",
+          "modelKind": "pullCoreBar",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/pullCoreBar-guide-d3e36528f8f4.png",
+          "sha256": "d3e36528f8f4650107a35e878868d9622dda5094f48047d3cef4c6ef1a761a4a",
+          "modelKind": "pullCoreBar",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/rectBadge-e86a1a7f537c.png",
+          "sha256": "e86a1a7f537caaeca4aa90ab5db60814c5440bc79aeed65dea9e834026e98f64",
+          "modelKind": "rectBadge",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/rectBadge-guide-5a6879d37c29.png",
+          "sha256": "5a6879d37c29196be4c00cdfe0cbc4afee13a850c273da33b788e6c8d1b390cb",
+          "modelKind": "rectBadge",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/rectBuckle-a65923d33055.png",
+          "sha256": "a65923d330556d328a0fe6ad52c6def799af0b0ac7d7b05ba1d84548354ea64d",
+          "modelKind": "rectBuckle",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/rectBuckle-guide-afea5fc3866d.png",
+          "sha256": "afea5fc3866dc4eec75966de480c68eacbde17aa145a8769f381fe060ea62730",
+          "modelKind": "rectBuckle",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ring-8d666cb5c1de.png",
+          "sha256": "8d666cb5c1def2375e11be1aa201536cfeabb80092d2e1e5389bb645222dfd03",
+          "modelKind": "ring",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ring-guide-d8dfc94f0eb6.png",
+          "sha256": "d8dfc94f0eb63749fea58e22b41bb02fe9d9af212ce6e23fba0f9ec92802d775",
+          "modelKind": "ring",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ringBar-0e5e3fbefed4.png",
+          "sha256": "0e5e3fbefed4686510973373869b7719b598d9892eca37b337bb1449cedaee35",
+          "modelKind": "ringBar",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/ringBar-guide-ecbdd880292c.png",
+          "sha256": "ecbdd880292c8f0345253337610853129b94f60ace719980d97934accd4ecb6c",
+          "modelKind": "ringBar",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/roundBadge-e333d31f9ebb.png",
+          "sha256": "e333d31f9ebb9f64432a024d9f0c130b9e8551bee523501a58df29213eb917c7",
+          "modelKind": "roundBadge",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/roundBadge-guide-d65b8dbd711b.png",
+          "sha256": "d65b8dbd711b1e1524dc8f1c7db39453ef9277df2734b53d9d243249bdd4025f",
+          "modelKind": "roundBadge",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/roundedBossTray-f3603e8d7dee.png",
+          "sha256": "f3603e8d7deea975e962aa1c7bc2a2060fd56692bd10c3da814e62525e9bba39",
+          "modelKind": "roundedBossTray",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/roundedBossTray-guide-8b846c48fdef.png",
+          "sha256": "8b846c48fdef46a11e0e4111fbbba0958c192e56016ed41ec6c79126f7840d9a",
+          "modelKind": "roundedBossTray",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/roundedFlatFrame-ed251470937f.png",
+          "sha256": "ed251470937f6bae816159129a935c4cc41a9e57c3a2c82d3432453df7395103",
+          "modelKind": "roundedFlatFrame",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/roundedFlatFrame-guide-d94d34823a49.png",
+          "sha256": "d94d34823a49ed9d2df82057bb7ca49fb0f5bf2a011b93078140544759f98db3",
+          "modelKind": "roundedFlatFrame",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/screw-0e8850f0bbcc.png",
+          "sha256": "0e8850f0bbccf649651c3a7f36f03716b01b2901ffa1e5e3c172da885b1b4962",
+          "modelKind": "screw",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/screw-guide-af46d0c04a5d.png",
+          "sha256": "af46d0c04a5d6a6fcc9b364c3db05a3424170efb4db4f6c8f7deec1954300a59",
+          "modelKind": "screw",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/sliderBuckle-fbf5dfd5c772.png",
+          "sha256": "fbf5dfd5c7724c7988f51113bd88b7ffeb2e78deea2c458f7aa34772f444e728",
+          "modelKind": "sliderBuckle",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/sliderBuckle-guide-de9055571481.png",
+          "sha256": "de905557148137537ab5e45946f82b29e37f395238d90fd317bdd54c30a7564f",
+          "modelKind": "sliderBuckle",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/spring-44b1aec9bb85.png",
+          "sha256": "44b1aec9bb85a9f289bae22456abee94722604ac1ce56ec3739bf1309deaf075",
+          "modelKind": "spring",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/spring-guide-7cc1714dcbb4.png",
+          "sha256": "7cc1714dcbb40dedbec9f9e56d5b0428e6fc0aee5bc806eb3a86d580d99ba8d2",
+          "modelKind": "spring",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/squareArchedBridge-130680bf052b.png",
+          "sha256": "130680bf052bb72767247234127ecc28706755f0d2e42a4d4db55b1b69e25d3d",
+          "modelKind": "squareArchedBridge",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/squareArchedBridge-guide-09d2cd030481.png",
+          "sha256": "09d2cd03048188b060df741b716bbd77c40d1665716a1411b7eb216cb400962f",
+          "modelKind": "squareArchedBridge",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/thinWallTray-f539cbe0871c.png",
+          "sha256": "f539cbe0871c202a1ff618bf242e96aa644f55e1c7f54f6406ea8ff686c1a0d9",
+          "modelKind": "thinWallTray",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/thinWallTray-guide-61cb8bae6a1b.png",
+          "sha256": "61cb8bae6a1bcbd2b326f7e47352675abac99cf8c11769eed2e27dc2b858b5f1",
+          "modelKind": "thinWallTray",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/threadedSleeve-83a1e602d4f2.png",
+          "sha256": "83a1e602d4f2534056809effba1f12a989e725899790c5ed8a075dda3a34cdf5",
+          "modelKind": "threadedSleeve",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/threadedSleeve-guide-09016a30c17c.png",
+          "sha256": "09016a30c17cd376d12e20e5f6b3abcb5f007216c40a8e3877247a6818475552",
+          "modelKind": "threadedSleeve",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/tube-c6c4af6a9d26.png",
+          "sha256": "c6c4af6a9d26c3da53924db6359566c1eb6619d7844cb1e3496cf7b9427253c4",
+          "modelKind": "tube",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/tube-guide-6cdf279543b8.png",
+          "sha256": "6cdf279543b846e96027f04b8750f41edc47a43a2a80c2530a631cabe0ffb700",
+          "modelKind": "tube",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/twinWindowPlate-d088ba676cb9.png",
+          "sha256": "d088ba676cb9b4338fe52fd8e33f74e4e75d424be4e865db1ba64ef7a5fd82ed",
+          "modelKind": "twinWindowPlate",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/twinWindowPlate-guide-464c1b859ac0.png",
+          "sha256": "464c1b859ac00a8e27c98bdb13d802018bad5d85dcd41b1d5c76a5c4174b0a73",
+          "modelKind": "twinWindowPlate",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/twistedChain-0dda000d8876.png",
+          "sha256": "0dda000d88769e9387eda88cae70bc92ce4503bfb45a71c50bc3e03ba841669b",
+          "modelKind": "twistedChain",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/twistedChain-guide-48bcd14b7dd6.png",
+          "sha256": "48bcd14b7dd6634177fec96638ec95e6bdeb246cf3268547ff5d8217999e0010",
+          "modelKind": "twistedChain",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/twoPieceEyelet-311ad9677e46.png",
+          "sha256": "311ad9677e46a7d166a4858991d4c26c7b92338963477d7e8ccf7441584463fe",
+          "modelKind": "twoPieceEyelet",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/twoPieceEyelet-guide-b9e5cba11ad0.png",
+          "sha256": "b9e5cba11ad00489101cdf3cdef26257b48a2052950c4ef517c0a1547a297948",
+          "modelKind": "twoPieceEyelet",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/uEndHolePlate-abfc9b44cb51.png",
+          "sha256": "abfc9b44cb5100e88b2cc728b8e9d26a8aa3e72260614c608c9661d4c5d8344d",
+          "modelKind": "uEndHolePlate",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/uEndHolePlate-guide-a4fe2f54899f.png",
+          "sha256": "a4fe2f54899fd38c6587c5ecc25b0b76b0fdf88bc5d193c02d31702c9d1a7431",
+          "modelKind": "uEndHolePlate",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/uStrapClip-22f5eacefd62.png",
+          "sha256": "22f5eacefd62d04e6649f539d492075ca1073b28fe51c24c880c7462e283b64b",
+          "modelKind": "uStrapClip",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/uStrapClip-guide-1b068cf203b7.png",
+          "sha256": "1b068cf203b76cb45df61cc9b0cbe351d7bc247ecd29f7a9e8fe615b7a30f6d0",
+          "modelKind": "uStrapClip",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/washer-4ceca344aa07.png",
+          "sha256": "4ceca344aa070dca6dbbb61e3e6f51f3dac2c61e41afab18b5822c251cdd45ce",
+          "modelKind": "washer",
+          "role": "image",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        },
+        {
+          "path": "public/quick-model-previews/washer-guide-29976097a829.png",
+          "sha256": "29976097a8299668daab20193785c163ec7d37d3a7a6fa2b81a3a34b65ca901b",
+          "modelKind": "washer",
+          "role": "guide",
+          "generatedFrom": [
+            "src/quick-models/catalog.js",
+            "src/quick-models/preview-assets.js",
+            "scripts/generate-quick-model-previews.mjs",
+            "scripts/render-quick-model-previews.py"
+          ]
+        }
+      ],
+      "sourceFiles": [
+        {
+          "path": "src/quick-models/catalog.js",
+          "normalizedSha256": "d3c325df510742dda2bf6727533630fbf8a0bda15454eed652b81507d1a544d1"
+        },
+        {
+          "path": "src/quick-models/preview-assets.js",
+          "normalizedSha256": "1c3c2b5c8d5db89c97a9f695b0afb79a581fb182932378b6cabe172d03d323a3"
+        },
+        {
+          "path": "scripts/generate-quick-model-previews.mjs",
+          "normalizedSha256": "2942367fd88ad0f0ddbe83f4ae7c152e0393b8280daf64588c48da469ca007ac"
+        },
+        {
+          "path": "scripts/render-quick-model-previews.py",
+          "normalizedSha256": "1d2788350d38a462dccf597d5e6ff9d51b31e09782d8a420a21b233b1ff54c50"
+        }
+      ]
+    }
+  ],
+  "reviewedInventorySha256": "870f74e91fd40033d35e989e1e2ea2882657749890eb725194b7318d2dfc63e1",
+  "reviewScope": "Source provenance and candidate inclusion only; application authorization and native corresponding-source closure remain unresolved."
+}

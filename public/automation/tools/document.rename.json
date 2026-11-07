@@ -8,7 +8,7 @@
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.61.1",
+  "version": "1.63.2",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -259,6 +259,18 @@
         "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
       },
       {
+        "id": "getPerformanceState",
+        "chooseWhen": "只读前台交互样本、逻辑帧渲染提交与显示策略，不运行性能测试或几何。"
+      },
+      {
+        "id": "configurePerformance",
+        "chooseWhen": "设置当前页自动显示、恢复上限和手动锁档，不修改工程或导出精度。"
+      },
+      {
+        "id": "acknowledgePerformanceAdvisory",
+        "chooseWhen": "回应组合建议的延后、无安全候选、拒绝或过期；不执行group/union/fuse。"
+      },
+      {
         "id": "redraw",
         "chooseWhen": "重绘当前显示，不重建特征历史。"
       },
@@ -282,5 +294,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e9ba1a7fe02578b1d01f6ded5d6de05922b86b317bfbae4dc5d96e48ec1df817"
+  "docsHash": "sha256:ff22502893b70f63826339b68ad8c42fbbcc2e13bdf38bcc2c33750b18c9573e"
 }

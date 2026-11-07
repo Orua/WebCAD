@@ -1,10 +1,14 @@
 # WebCAD
 
-面向小五金零件的浏览器三维作图软件。通过草图、参数化模型和实体加工，完成框扣、圆环、挂钩、牌件、板件、轴套等零件的建模，并保存工程或导出 CAD 文件。
+面向小五金零件的浏览器三维作图软件。通过草图、参数化模型和实体加工，快速完成单次建模、核对最终形体、保存工程或导出精确 STEP。
 
 基础建模在浏览器内运行，使用 Replicad / OpenCascade WebAssembly 计算精确几何，Three.js 显示模型。可以人工独立使用，也可以按需接入 Agent 自动化和 Services 转换、复杂几何计算。
 
 [在线使用](https://goldenfu.cn/webcad/) · [使用手册](docs/USER-GUIDE.zh-CN.md) · [页面 API](docs/PAGE-API.zh-CN.md) · [许可说明](LICENSE.md)
+
+[English](README.en.md) · [快速开始](docs/QUICKSTART.md) · [构建与发布门禁](docs/BUILD.md) · [贡献](CONTRIBUTING.md) · [安全与隐私](SECURITY.md) · [变更记录](CHANGELOG.md)
+
+当前在线链接保持原地址。本轮独立匿名公开版、无 Agent 操作台的构建及新演示地址尚待实现和实际验收，不能将已有静态页面入口视为这些事项已通过。公开分发仍受[许可决策与材料缺口](docs/compliance/LICENSE_DECISION.md)阻塞；开发构建通过不代表已获公开发布批准。
 
 ## 能做什么
 
@@ -64,7 +68,7 @@ CLI / MCP 代码保留作开发兼容工具。正常使用静态页面和人工�
 
 ## 从源码构建
 
-需要 Node.js 与 npm；Node.js 版本需满足已锁定的 Vite 依赖要求。
+需要 Node.js 22.12+（或兼容的较新受支持版本）与 npm；已锁定 Vite 包的 engines 声明是最终依据。
 
 ```sh
 npm ci
@@ -80,9 +84,12 @@ npm run build
 ```sh
 npm run test:contracts
 node --test scripts/open-source.test.mjs
+node --test scripts/license-policy.test.mjs
 ```
 
 测试分组、私有夹具和浏览器验收有不同前提；单元测试通过不代表任意真实模型或生产环境已经验收。
+
+准备公开分发时，在同一候选输出上执行 `node scripts/verify-public-release.mjs dist public-web`，先跑原有发布完整性检查，再按实际组件、静态复制文件和[来源清单](docs/compliance/source-license-map.json)核对许可范围。当前未闭合项会使该门禁失败；开发阶段的 `npm run build` 不因此被当作公开发布批准。详见[验证口径](docs/VALIDATION.md)与[公开版交付边界](docs/PUBLIC-DEPLOYMENT.md)。
 
 ## 开源组件与许可
 

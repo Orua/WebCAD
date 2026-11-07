@@ -12,6 +12,9 @@ export const READ_METHODS = new Set(['getBatchReceipt','connect','info','getStat
   'fitProfile','traceTwinWindow','planAlignment','getUILayout','getQuickModelUsage','inspectRound','getModelLibrary','resolveModelLibrary']);
 export const VIEW_METHODS = new Set(['setMetalMaterials','setView','setRenderQuality','setDisplayPreferences','selectRectangle','redraw','capture','getEvidenceImage','updateModelLibrary','markLocation']);
 READ_METHODS.add('getDebugReport');
+READ_METHODS.add('getPerformanceState');
+VIEW_METHODS.add('configurePerformance');
+VIEW_METHODS.add('acknowledgePerformanceAdvisory');
 VIEW_METHODS.add('setDebugPanel');
 export const DISCOVERY_METHODS = new Set(['getBatchReceipt','connect','info','getState','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage','getModelLibrary']);
 export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.edit','feature.rename','document.rename',

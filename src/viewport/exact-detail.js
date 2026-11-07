@@ -7,6 +7,18 @@ export class ExactDisplayDetail {
   constructor(viewport){this.viewport=viewport;this.pending=false;this.lastError=null;this.nextRequest=0;}
   attach(entry){
     if(!entry.body.adaptiveDisplay)return;
+    const {body,mesh}=entry,faces=body.faceGroups,adaptive=body.adaptiveDisplay;
+    // Exact planar polygons have no screen-dependent refinement. Reuse the
+    // installed indexed surface instead of allocating one draw object per face.
+    // Require complete, contiguous coverage; mixed/limited/unsupported displays
+    // retain the original per-face path and all original topology/picking data.
+    let cursor=0;
+    const planar=Array.isArray(faces)&&faces.length>0&&!adaptive.heavy&&!adaptive.heavyFaceIds?.length&&!(adaptive.splinePoles>0)&&
+      !body.displayPatches&&!body.displayReport?.untriangulatedFaceIds?.length&&body.geometryType!=='rawMesh'&&
+      !Array.isArray(mesh.material)&&mesh.geometry.index?.count===body.indices.length&&!mesh.geometry.groups.length&&
+      mesh.geometry.drawRange.start===0&&mesh.geometry.drawRange.count>=body.indices.length&&
+      faces.every(face=>{if(face.exactPolygon!==true||face.start!==cursor||!Number.isInteger(face.count)||face.count<=0||face.count%3)return false;cursor+=face.count;return true;})&&cursor===body.indices.length;
+    if(planar){entry.exactDisplay={planarBatch:true,group:null,patches:[],faceCount:faces.length};return;}
     const group=new THREE.Group(),base=entry.mesh.geometry,positions=base.attributes.position;
     const patches=entry.body.faceGroups.map(({start,count,faceId,exactPolygon})=>{
       const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',positions);geometry.setAttribute('normal',base.attributes.normal);
@@ -24,11 +36,20 @@ export class ExactDisplayDetail {
   update(active){
     const v=this.viewport,now=performance.now(),height=Math.max(1,v.host.clientHeight),candidates=[];
     const frustum=new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(v.camera.projectionMatrix,v.camera.matrixWorldInverse));
-    let visibleFaces=0,culledFaces=0,triangles=0,fullTriangles=0,refinedTriangles=0,totalFaces=0,screenErrorBudgetPx=0,approximate=false,budgetLimited=false;
+    let visibleFaces=0,culledFaces=0,triangles=0,fullTriangles=0,refinedTriangles=0,totalFaces=0,screenErrorBudgetPx=0,approximate=false,budgetLimited=false,planarBatchedBodies=0;
     const all=[];
     for(const entry of v.objects.values()){
       if(!entry.exactDisplay)continue;
       screenErrorBudgetPx=Math.max(screenErrorBudgetPx,active?4:({draft:2,standard:1,fine:.5,ultra:.25}[entry.body.adaptiveDisplay.requestedQuality]??1));
+      if(entry.exactDisplay.planarBatch){
+        // Keep mesh.visible independent of camera culling: evidence capture uses
+        // an isolated camera and must still see the full retained surface.
+        entry.mesh.visible=true;entry.mesh.material.wireframe=v.mode==='wire';
+        if(!entry.mesh.geometry.boundingSphere)entry.mesh.geometry.computeBoundingSphere();
+        const sphere=entry.mesh.geometry.boundingSphere.clone().applyMatrix4(entry.mesh.matrixWorld),count=entry.mesh.geometry.index.count/3,faces=entry.exactDisplay.faceCount;
+        totalFaces+=faces;fullTriangles+=count;planarBatchedBodies++;approximate=true;
+        if(entry.root.visible&&frustum.intersectsSphere(sphere)){visibleFaces+=faces;triangles+=count;}else culledFaces+=faces;
+      }else{
       entry.mesh.visible=false;entry.exactDisplay.group.visible=true;
       for(const p of entry.exactDisplay.patches){
         totalFaces++;fullTriangles+=p.base.index.count/3;all.push(p);refinedTriangles+=p.fine?.index.count/3||0;
@@ -42,6 +63,7 @@ export class ExactDisplayDetail {
         triangles+=p.piece.geometry.index.count/3;approximate=true;
         if(!active&&!p.exactPolygon&&!entry.exactDisplay.blocked&&!p.limited&&p.tolerance>wanted*1.01)candidates.push({entry,p,wanted,priority:sphere.radius/mmPerPixel});
         budgetLimited ||= p.limited;
+      }
       }
       // Suppress subpixel edge annotations, not source edges or surface silhouettes.
       entry.edges.visible=!active&&(!entry.body.indices.length||v.mode!=='solid'||v.selectionMode==='edge');
@@ -84,7 +106,7 @@ export class ExactDisplayDetail {
     }
     return totalFaces?{phase:active?'interactive-preview':this.pending||candidates.length&&!budgetLimited?'refining-visible':'screen-detail',
       adaptiveExact:true,approximate,sourceChanged:false,totalFaces,visibleFaces,culledFaces,previewTriangles:triangles,fullTriangles,patchCount:totalFaces,
-      refinedTriangles,pending:this.pending,budgetLimited,screenErrorBudgetPx,
-      selectionSource:'base-display-mesh; exact BRep topology',culling:'face bounding-sphere frustum; no occlusion inference',refinementError:this.lastError}:null;
+      refinedTriangles,pending:this.pending,budgetLimited,screenErrorBudgetPx,planarBatchedBodies,
+      selectionSource:'base-display-mesh; exact BRep topology',culling:planarBatchedBodies?'body bounding-sphere for planar batches; face bounding-sphere otherwise; no occlusion inference':'face bounding-sphere frustum; no occlusion inference',refinementError:this.lastError}:null;
   }
 }

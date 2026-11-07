@@ -18,7 +18,7 @@
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。",
   "category": "command",
-  "version": "1.61.1",
+  "version": "1.63.2",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -299,6 +299,18 @@
         "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
       },
       {
+        "id": "getPerformanceState",
+        "chooseWhen": "只读前台交互样本、逻辑帧渲染提交与显示策略，不运行性能测试或几何。"
+      },
+      {
+        "id": "configurePerformance",
+        "chooseWhen": "设置当前页自动显示、恢复上限和手动锁档，不修改工程或导出精度。"
+      },
+      {
+        "id": "acknowledgePerformanceAdvisory",
+        "chooseWhen": "回应组合建议的延后、无安全候选、拒绝或过期；不执行group/union/fuse。"
+      },
+      {
         "id": "redraw",
         "chooseWhen": "重绘当前显示，不重建特征历史。"
       },
@@ -322,5 +334,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:10afcb57a5f0cb5a77589a2e2f1baf9771f327e0a16c2d65febd7f9e72b675ce"
+  "docsHash": "sha256:8e13cadb78712a02bdf82c49fbcb3b703c6e74344f3d91d2a36ac20cd8f5bc01"
 }

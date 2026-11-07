@@ -1,8 +1,9 @@
 """M02 standalone STEP reader and explicit eight-edge native reference.
 
-Sections are measured from actual BRep intersections. Boolean material comparison,
-closed shell topology and the target's exact convex offset reach supplement samples;
-sampling alone is not advertised as a continuous maximum-error proof.
+Sections are measured from actual BRep intersections. Closed-shell topology and
+complete trimmed analytic supports establish the convex tube boundary. Boolean
+differences are diagnostic only: independently serialized coincident periodic
+surfaces can report a full-volume difference even for the frozen standard itself.
 """
 import argparse
 import json
@@ -14,12 +15,62 @@ from OCP.BRepOffsetAPI import BRepOffsetAPI_MakePipe
 from OCP.BRepAlgoAPI import BRepAlgoAPI_Section, BRepAlgoAPI_Fuse
 from OCP.BRepAdaptor import BRepAdaptor_Curve
 from OCP.BRep import BRep_Tool
-from OCP.GeomAbs import GeomAbs_Plane
+from OCP.GeomAbs import GeomAbs_Plane, GeomAbs_Cylinder, GeomAbs_Torus
 from OCP.TopAbs import TopAbs_EDGE
 from OCP.TopTools import TopTools_ListOfShape
 from OCP.gp import gp_Circ, gp_Pln
 
 CURVE_SAMPLES = 48
+
+
+def analytic_supports(shape):
+    """Match the complete trimmed boundary to the eight analytic target supports.
+
+    STEP may split faces: accumulate area and bounds per support, not face IDs.
+    All dimensions come from the frozen specification, never the test output.
+    This avoids Boolean equality of coincident periodic faces as an oracle.
+    """
+    targets = [
+        ('bottom', 'cylinder', (0, -12, 0), (1, 0, 0), 112*math.pi, (-14, -14, -2, 14, -10, 2)),
+        ('right', 'cylinder', (20, 0, 0), (0, 1, 0), 48*math.pi, (18, -6, -2, 22, 6, 2)),
+        ('top', 'cylinder', (0, 12, 0), (1, 0, 0), 112*math.pi, (-14, 10, -2, 14, 14, 2)),
+        ('left', 'cylinder', (-20, 0, 0), (0, 1, 0), 48*math.pi, (-22, -6, -2, -18, 6, 2)),
+        ('bottom-right', 'torus', (14, -6, 0), (0, 0, 1), 12*math.pi**2, (14, -14, -2, 22, -6, 2)),
+        ('top-right', 'torus', (14, 6, 0), (0, 0, 1), 12*math.pi**2, (14, 6, -2, 22, 14, 2)),
+        ('top-left', 'torus', (-14, 6, 0), (0, 0, 1), 12*math.pi**2, (-22, 6, -2, -14, 14, 2)),
+        ('bottom-left', 'torus', (-14, -6, 0), (0, 0, 1), 12*math.pi**2, (-22, -14, -2, -14, -6, 2)),
+    ]
+    groups = {name: dict(faceCount=0, areaMm2=0, bounds=None) for name, *_ in targets}
+    unmatched = []
+    explorer = base.TopExp_Explorer(shape, base.TopAbs_FACE)
+    while explorer.More():
+        face = base.TopoDS.Face_s(explorer.Current());explorer.Next()
+        surface = base.BRepAdaptor_Surface(face, True)
+        kind = 'cylinder' if surface.GetType() == GeomAbs_Cylinder else 'torus' if surface.GetType() == GeomAbs_Torus else None
+        if kind is None:
+            unmatched.append(str(surface.GetType()));continue
+        primitive = surface.Cylinder() if kind == 'cylinder' else surface.Torus()
+        location, direction = primitive.Location(), primitive.Axis().Direction()
+        p = (location.X(), location.Y(), location.Z());d = (direction.X(), direction.Y(), direction.Z())
+        radius_ok = abs(primitive.Radius()-2) <= base.LENGTH_TOLERANCE if kind == 'cylinder' else abs(primitive.MajorRadius()-6) <= base.LENGTH_TOLERANCE and abs(primitive.MinorRadius()-2) <= base.LENGTH_TOLERANCE
+        matches = []
+        for name, expected_kind, center, axis, _, _ in targets:
+            delta = [a-b for a, b in zip(p, center)];projection = sum(a*b for a, b in zip(delta, axis))
+            distance = math.sqrt(sum((v-projection*t)**2 for v, t in zip(delta, axis))) if kind == 'cylinder' else math.dist(p, center)
+            aligned = abs(abs(sum(a*b for a, b in zip(d, axis)))-1) <= 1e-9
+            if kind == expected_kind and radius_ok and aligned and distance <= base.LENGTH_TOLERANCE:
+                matches.append(name)
+        if len(matches) != 1:
+            unmatched.append(dict(kind=kind, matches=matches));continue
+        group = groups[matches[0]];group['faceCount'] += 1
+        properties = base.GProp_GProps();base.BRepGProp.SurfaceProperties_s(face, properties);group['areaMm2'] += properties.Mass()
+        box = base.bounds(face);values = [box[k] for k in ('minX', 'minY', 'minZ', 'maxX', 'maxY', 'maxZ')]
+        group['bounds'] = values if group['bounds'] is None else [(min if i < 3 else max)(old, value) for i, (old, value) in enumerate(zip(group['bounds'], values))]
+    for name, _, _, _, expected_area, expected_bounds in targets:
+        group = groups[name];group['expectedAreaMm2'] = expected_area;group['expectedBounds'] = expected_bounds
+        group['matches'] = bool(group['faceCount'] and abs(group['areaMm2']-expected_area) <= expected_area*1e-4 and all(abs(a-b) <= base.LENGTH_TOLERANCE for a, b in zip(group['bounds'], expected_bounds)))
+    return dict(matches=not unmatched and all(group['matches'] for group in groups.values()), groups=groups, unmatched=unmatched,
+                scope='every boundary face matches a frozen cylinder/torus support; trimmed area and bounds checked per support, allowing face subdivision', areaRelativeTolerance=1e-4)
 
 
 def reference(variant='reference'):
@@ -125,8 +176,13 @@ def inspect(shape):
     solid = base.TopoDS.Solid_s(solids.FindKey(1))
     target = reference()
     missing, extra = base.volume(base.cut(target, solid)), base.volume(base.cut(solid, target))
-    equivalent = missing <= base.DIFFERENCE_VOLUME_TOLERANCE and extra <= base.DIFFERENCE_VOLUME_TOLERANCE
-    difference = dict(missingMaterialMm3=missing, extraMaterialMm3=extra, toleranceMm3=base.DIFFERENCE_VOLUME_TOLERANCE, withinTolerance=equivalent)
+    boolean_equivalent = missing <= base.DIFFERENCE_VOLUME_TOLERANCE and extra <= base.DIFFERENCE_VOLUME_TOLERANCE
+    support = analytic_supports(solid)
+    expected_volume = 4*math.pi*(80+12*math.pi)
+    equivalent = support['matches'] and abs(geometry['volume']-expected_volume) <= expected_volume*1e-4
+    geometry['analyticSupports'] = support
+    difference = dict(missingMaterialMm3=missing, extraMaterialMm3=extra, toleranceMm3=base.DIFFERENCE_VOLUME_TOLERANCE, withinTolerance=boolean_equivalent,
+                      acceptanceSource='independent analytic supports, trimmed areas/bounds, sections and volume', acceptanceDependsOnBoolean=False)
     geometry['referenceDifference'] = difference
     frames = [dict(**frame, **section(solid, frame)) for frame in oracle.frames()]
     measured_centerline = oracle.centerline_measurements(frames)
@@ -139,7 +195,7 @@ def inspect(shape):
             caps.append(base.bounds(face))
         explorer.Next()
     def check(verdict, evidence):
-        return dict(checkerId='ocp-m02-closed-wire-1', **{'pass': verdict}, evidence=evidence)
+        return dict(checkerId='ocp-m02-closed-wire-2', **{'pass': verdict}, evidence=evidence)
     verdicts = [item.get('verdict') for item in frames]
     diameter = False if False in verdicts else None if None in verdicts else True
     geometry['checks']['closedPath'] = check(equivalent and shells.Extent() == 1 and all(shell_closed) and not caps,
@@ -148,11 +204,11 @@ def inspect(shape):
         continuousMaximumErrorCertified=False, localSelectionRadiusMm=8, uncovered='between sampled section/curve parameters; global material differences checked separately'))
     centerline_verdict = False if not equivalent else measured_centerline['matches'] if measured_centerline.get('available') else None
     geometry['checks']['centerline'] = check(centerline_verdict,
-        dict(measurements=measured_centerline, referenceDifference=difference, scope='centers fitted from actual tube sections; 40x24 path envelope and four R6 corners, not outer solid bounds'))
+        dict(measurements=measured_centerline, analyticSupports=support, referenceDifference=difference, scope='centers fitted from actual tube sections; 40x24 path envelope and four R6 corners, not outer solid bounds'))
     geometry['checks']['selfIntersection'] = check(valid and equivalent,
         dict(brepValid=valid, referenceDifference=difference, targetGeometryProof=dict(convexSimpleRoundedRectangle=True, minimumOffsetReachMm=6, wireRadiusMm=2,
              offsetMarginMm=4, opposedStraightSeparationMm=24),
-             scope='valid BRep and whole-solid material equivalence within fixed tolerance to the independently constructed simple convex tube; target offsets remain regular for radius 2 below reach 6',
+             analyticSupports=support, scope='valid closed BRep with all trimmed analytic supports, areas, bounds and volume matching the simple convex target; target offsets remain regular for radius 2 below reach 6',
              generalPurposeSelfIntersectionSolver=False))
     return geometry
 

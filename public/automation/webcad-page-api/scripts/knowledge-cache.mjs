@@ -18,8 +18,11 @@ function validateManifest(m,c){
   if(m.archive){
     const legacy=[...names,'agent-kit.json','webcad-page-api/SKILL.md','webcad-page-api/references/connection.md','webcad-page-api/scripts/page-client.mjs','webcad-page-api/scripts/knowledge-cache.mjs','webcad-page-api/scripts/static-archive.mjs','remote-agent.json','remote-agent/host-adapter.js','remote-agent/runtime-contract.json','remote-agent/layout-planner.py.txt'];
     const allowed=[...legacy,'remote-agent/logo-preparer.js'];
+    // Public builds deliberately omit executable host/remote-agent adapters.
+    // Accept only that exact finite documentation set, never an arbitrary subset.
+    const publicDocs=[...names,'webcad-page-api/SKILL.md','webcad-page-api/references/connection.md'];
     const a=m.archive;
-    if(a.url!=='agent-bundle.zip'||a.format!=='zip'||!Array.isArray(a.files)||!((a.files.length===legacy.length&&a.files.every(f=>legacy.includes(f.name)))||(a.files.length===allowed.length&&a.files.every(f=>allowed.includes(f.name))))||new Set(a.files.map(f=>f.name)).size!==a.files.length)fail('KNOWLEDGE_INVALID','Invalid unified ZIP descriptor.');
+    if(a.url!=='agent-bundle.zip'||a.format!=='zip'||!Array.isArray(a.files)||![legacy,allowed,publicDocs].some(set=>a.files.length===set.length&&a.files.every(f=>set.includes(f.name)))||new Set(a.files.map(f=>f.name)).size!==a.files.length)fail('KNOWLEDGE_INVALID','Invalid unified ZIP descriptor.');
     for(const f of [a,...a.files])if(!Number.isSafeInteger(f.sizeBytes)||f.sizeBytes<1||f.sizeBytes>16*1024*1024||!/^sha256:[a-f0-9]{64}$/.test(f.sha256))fail('KNOWLEDGE_INVALID','Invalid unified ZIP file.');
   }
 }

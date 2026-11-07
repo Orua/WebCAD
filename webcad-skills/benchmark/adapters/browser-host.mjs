@@ -1,3 +1,6 @@
+import {bentSectionCaseIds,bentSectionToolIds,s05Recipe,observeBentSection} from './bent-section-cases.mjs';
+import {spatialSweepCaseIds,spatialSweepToolIds,s04Recipe,observeSpatialSweep} from './spatial-sweep-cases.mjs';
+import {sampleCoordinates} from './host-math.mjs';
 import {twistCaseIds,twistToolIds,s01Recipe,observeTwistCase} from './twist-cases.mjs';
 import {assertModelHistoryArgs,executeModelHistory} from './model-history.mjs';
 import {createHash,randomUUID} from 'node:crypto';
@@ -12,12 +15,12 @@ import {ellipseCaseIds,ellipseToolIds,s02Recipe,observeEllipseCase} from './elli
 import {bendCaseIds,bendToolIds,m03Recipe,observeBendCase} from './bend-cases.mjs';
 import {radialHoleCaseIds,radialHoleToolIds,runRadialHoleCase,observeRadialHoleCase} from './radial-hole-cases.mjs';
 import {closedWireCaseIds,closedWireToolIds,m02Recipe,observeClosedWireCase} from './closed-wire-cases.mjs';
-const hostCaseIds=[...twistCaseIds,...basicCaseIds,...compositeCaseIds,...sectionCaseIds,...surfaceCaseIds,...ellipseCaseIds,...bendCaseIds,...radialHoleCaseIds,...closedWireCaseIds];
+const hostCaseIds=[...bentSectionCaseIds,...spatialSweepCaseIds,...twistCaseIds,...basicCaseIds,...compositeCaseIds,...sectionCaseIds,...surfaceCaseIds,...ellipseCaseIds,...bendCaseIds,...radialHoleCaseIds,...closedWireCaseIds];
 
 const hash=value=>createHash('sha256').update(value instanceof Uint8Array?value:typeof value==='string'?value:JSON.stringify(value)).digest('hex');
 const fail=(code)=>{throw Object.assign(Error(code),{code});};
 const terminal=new Set(['completed','partial','failed','canceled','cancelled']);
-const readMethods=new Set(['getState','getTools','getTool','readDocs','searchTools','measure','queryGeometry','inspectDesign','getHistory']);
+const readMethods=new Set(['getState','getTools','getTool','readDocs','searchTools','measure','queryGeometry','inspectDesign','getHistory','getDebugReport']);
 export function assertLocalTaskUrl(url){
  const parsed=new URL(url);
  if(parsed.origin!=='http://localhost'||parsed.pathname!=='/webcad/')fail('TASK_LOCALHOST_WEBCAD_REQUIRED');
@@ -60,6 +63,20 @@ export function b01AnalyticReference(){
  return {status:'UNVERIFIED',analyticStatus:Object.values(checks).every(Boolean)?'PASS':'FAIL',checks,volume:4800-32*Math.PI,reason:'Independent reference BRep, calibrated checker and STEP round-trip not yet supplied'};
 }
 function matchingContext(a,b){return a&&b&&['sessionId','documentId','documentInstanceId','expectedRevision'].every(k=>a[k]===b[k]);}
+export async function readCompleteSelection(client,query){
+ const selection=await client.readLocal({...query,maxChars:64000});
+ const items=[];
+ for(const item of selection.items){
+  if(item.status==='read'){items.push(item);continue;}
+  if(item.reason!=='CHAR_BUDGET')fail('COMPLETE_SELECTED_KNOWLEDGE_REQUIRED');
+  const followup=await client.readLocal({[item.kind==='tool'?'toolIds':'docIds']:[item.id],maxChars:64000});
+  if(followup.catalogHash!==selection.catalogHash||followup.docsHash!==selection.docsHash)fail('KNOWLEDGE_CHANGED_DURING_SELECTION');
+  const complete=followup.items.find(result=>result.id===item.id);
+  if(complete?.status!=='read')fail('COMPLETE_SELECTED_KNOWLEDGE_REQUIRED');
+  items.push(complete);
+ }
+ return {...selection,items};
+}
 
 /**
  * openPage -> {owned:true,url,send,close}; each call creates an isolated task page.
@@ -87,9 +104,10 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
     return page.send(method,params);
    };
    const client=createPageClient({send,knowledge});
-   const connection=await client.connect({toolIds:[...new Set([...basicToolIds,...Object.values(twistToolIds).flat(),...Object.values(compositeToolIds).flat(),...Object.values(sectionToolIds).flat(),...Object.values(surfaceToolIds).flat(),...Object.values(ellipseToolIds).flat(),...Object.values(bendToolIds).flat(),...Object.values(radialHoleToolIds).flat(),...Object.values(closedWireToolIds).flat()])],includeContracts:true});
+   const connection=await client.connect({toolIds:[...new Set([...basicToolIds,...Object.values(bentSectionToolIds).flat(),...Object.values(spatialSweepToolIds).flat(),...Object.values(twistToolIds).flat(),...Object.values(compositeToolIds).flat(),...Object.values(sectionToolIds).flat(),...Object.values(surfaceToolIds).flat(),...Object.values(ellipseToolIds).flat(),...Object.values(bendToolIds).flat(),...Object.values(radialHoleToolIds).flat(),...Object.values(closedWireToolIds).flat()])],includeContracts:true});
    if(connection.canExecute!==true||connection.bodyCount!==0)fail('EMPTY_EXECUTABLE_TASK_PAGE_REQUIRED');
    if(connection.knowledgeStatus?.status!=='ready')fail('VERIFIED_LIVE_KNOWLEDGE_REQUIRED');
+   await record?.({event:'page-bound',buildId:connection.buildId,pageApiVersion:connection.pageApiVersion,catalogHash:connection.catalogHash,docsHash:connection.docsHash,documentInstanceId:connection.context.documentInstanceId,knowledgeStatus:connection.knowledgeStatus.status});
    return {page,client,connection,lifecycle};
   }catch(error){await page.close();throw error;}
  }
@@ -105,11 +123,12 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
   const state=await bound.client.getState();
   const session={...bound,caseId:input?.caseId??'B01',documentInstanceId:state.context.documentInstanceId,llmSessionId:randomUUID(),initialStateHash:hash(state),bodyCount:state.summary.bodyCount,busy:state.summary.busy,pending:new Map(),unknown:[],resources:new Map(),accepting:true,lastGeometryFailed:false};
   sessions.add(session);
+  session.debugReport=()=>session.client.call('getDebugReport',{limit:100,includeState:true,source:'agent'});
   session.knowledge=async({group,signal}={})=>{
    signal?.throwIfAborted();
-   const workflow=session.caseId==='S06'?'api.workflow':session.caseId==='B02'||session.caseId==='M01'?'api.modeling.workflows.axisymmetric':session.caseId==='B03'?'api.modeling.workflows.finishing':'api.modeling.workflows.solid-section';
-   const toolIds=twistToolIds[session.caseId]??closedWireToolIds[session.caseId]??radialHoleToolIds[session.caseId]??bendToolIds[session.caseId]??ellipseToolIds[session.caseId]??surfaceToolIds[session.caseId]??sectionToolIds[session.caseId]??compositeToolIds[session.caseId]??(session.caseId==='B02'?['cylinder','cut']:session.caseId==='B03'?['box','transform','fillet','history.undo','history.redo']:['box','transform','multiHole']);
-   const selection=await session.client.readLocal({docIds:group==='A'?['api.run']:['api.modeling.start','api.modeling.guide',workflow,'api.run'],toolIds,maxChars:64000});
+   const workflow=session.caseId==='S05'?'api.guide.sweep-loft':session.caseId==='S04'?'api.guide.sweep-loft':session.caseId==='S06'?'api.workflow':session.caseId==='B02'||session.caseId==='M01'?'api.modeling.workflows.axisymmetric':session.caseId==='B03'?'api.modeling.workflows.finishing':'api.modeling.workflows.solid-section';
+   const toolIds=bentSectionToolIds[session.caseId]??spatialSweepToolIds[session.caseId]??twistToolIds[session.caseId]??closedWireToolIds[session.caseId]??radialHoleToolIds[session.caseId]??bendToolIds[session.caseId]??ellipseToolIds[session.caseId]??surfaceToolIds[session.caseId]??sectionToolIds[session.caseId]??compositeToolIds[session.caseId]??(session.caseId==='B02'?['cylinder','cut']:session.caseId==='B03'?['box','transform','fillet','history.undo','history.redo']:['box','transform','multiHole']);
+   const selection=await readCompleteSelection(session.client,{docIds:group==='A'?['api.run','api.workflow']:['api.modeling.start','api.modeling.guide',workflow,'api.run','api.workflow'],toolIds});
    if(selection.items.some(item=>item.status!=='read'))fail('COMPLETE_SELECTED_KNOWLEDGE_REQUIRED');
    const files=selection.items.map(({id,kind,text,card},order)=>({docId:id,kind,order,sha256:hash(text??card),chars:(text??JSON.stringify(card)).length,status:'read',exposure:id.startsWith('api.modeling')?'group-B-method':'shared-contract'}));
    const text=item=>item.text??JSON.stringify(item.card);
@@ -125,6 +144,10 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
   session.execute=async(call,{signal}={})=>{
    signal?.throwIfAborted();if(!session.accepting)fail('SESSION_STOPPED');
    const {method,args={}}=parseCall(call);
+   if(method==='sampleCoordinates'){
+    try{const result=sampleCoordinates(args);await record({event:'host-coordinate-computation',args,result});return result;}
+    catch(error){return {status:'failed',error:{code:'HOST_COORDINATE_INPUT_INVALID',message:error.message}};}
+   }
    if(method==='files.capabilities')return session.client.call(method,{});
    if(method==='files.export'||method==='files.save'){
     if(method==='files.export'&&!['step','brep','stl'].includes(args.format))return {status:'failed',error:{code:'HOST_EXPORT_FORMAT_UNAVAILABLE',message:'Use step, brep or stl.'}};
@@ -150,7 +173,7 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
    if(method!=='run'){
     if(!readMethods.has(method))return {status:'failed',error:{code:'MODEL_METHOD_NOT_ALLOWED',message:'Use the advertised WebCAD methods; no call was dispatched.'}};
     const current=await context(session);
-    try{return await session.client.call(method,{...args,...(['getState','getTools','getTool','readDocs','searchTools'].includes(method)?{}:{context:current})});}
+    try{return await session.client.call(method,{...args,...(['getState','getTools','getTool','readDocs','searchTools','getDebugReport'].includes(method)?{}:{context:current})});}
     catch(error){
      // A read-only page validation failure is a tool result the model can correct.
      // A lost transport remains unknown and must not be replayed.
@@ -175,6 +198,8 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
    return modelTransport.request({...request,messages,llmSessionId:session.llmSessionId});
   };
   session.runDeterministic=async({input:task,maxToolCalls,signal})=>{
+   if(task.caseId==='S05'){if(maxToolCalls<1)fail('TOOL_BUDGET_EXHAUSTED');return runSteps(session,s05Recipe(),{key:`s05-${randomUUID()}`,signal});}
+   if(task.caseId==='S04'){if(maxToolCalls<1)fail('TOOL_BUDGET_EXHAUSTED');return runSteps(session,s04Recipe(),{key:`s04-${randomUUID()}`,signal});}
    if(task.caseId==='S01'){if(maxToolCalls<1)fail('TOOL_BUDGET_EXHAUSTED');return runSteps(session,s01Recipe(),{key:`t03-S01-${randomUUID()}`,signal});}
    if(task.caseId==='M02'){
     if(maxToolCalls<1)fail('TOOL_BUDGET_EXHAUSTED');
@@ -241,7 +266,7 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
   await record({event:'page-request',request});
   const receipt=await session.client.run(steps,{context:request.context,idempotencyKey:key});
   await record({event:'page-receipt',requestKey:key,receipt});
-  session.lastGeometryFailed=receipt.status==='failed';
+  session.lastGeometryFailed=['failed','partial'].includes(receipt.status)&&/^(?:GEOMETRY_INVALID|KERNEL_|OCCT_|BOOLEAN_)/.test(receipt.error?.code??'');
   if(terminal.has(receipt.status))session.pending.delete(key);
   return receipt;
  }
@@ -282,18 +307,18 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
    try{
     const info=await client.call('info');
     const sourceCommit=/^([a-f0-9]{40})(?:-|$)/.exec(connection.buildId??'')?.[1]??null;
-    return {page:{buildId:connection.buildId,sourceCommit,catalogHash:connection.catalogHash,docsHash:connection.docsHash,wasmHash:runtime.wasmHash??null,browser:runtime.browser??null,os:runtime.os??null,device:runtime.device??null,toolSetHash:hash({methods:[...readMethods,'run','execute:history.undo/redo'],catalogHash:connection.catalogHash}),pageApiVersion:info.pageApiVersion??connection.pageApiVersion,canExecute:connection.canExecute,documentInstanceId:connection.context.documentInstanceId,knowledge:connection.knowledgeStatus},model:modelTransport?.identity??null,realModel:Boolean(modelTransport?.request&&modelTransport?.authorized),authorizedPageChannel:true,supportsAbort:true,supportsReconcile:true};
+    return {page:{buildId:connection.buildId,sourceCommit,catalogHash:connection.catalogHash,docsHash:connection.docsHash,wasmHash:runtime.wasmHash??null,browser:runtime.browser??null,os:runtime.os??null,device:runtime.device??null,toolSetHash:hash({methods:[...readMethods,'run','execute:history.undo/redo','host.sampleCoordinates','files.capabilities','files.export','files.save','files.read','files.download'],catalogHash:connection.catalogHash}),pageApiVersion:info.pageApiVersion??connection.pageApiVersion,canExecute:connection.canExecute,documentInstanceId:connection.context.documentInstanceId,knowledge:connection.knowledgeStatus},model:modelTransport?.identity??null,realModel:Boolean(modelTransport?.request&&modelTransport?.authorized),authorizedPageChannel:true,supportsAbort:true,supportsReconcile:true};
    }finally{await page.close();}
   },
   async validateReference({fixture}){
    if(!hostCaseIds.includes(fixture.caseId))return {status:'UNVERIFIED',reason:'HOST_CASE_MAPPING_NOT_IMPLEMENTED'};
-   if(!referenceValidator)return twistCaseIds.includes(fixture.caseId)||closedWireCaseIds.includes(fixture.caseId)||radialHoleCaseIds.includes(fixture.caseId)||bendCaseIds.includes(fixture.caseId)||compositeCaseIds.includes(fixture.caseId)||sectionCaseIds.includes(fixture.caseId)||surfaceCaseIds.includes(fixture.caseId)||ellipseCaseIds.includes(fixture.caseId)?{status:'UNVERIFIED',reason:'INDEPENDENT_REFERENCE_VALIDATOR_REQUIRED'}:{...b01AnalyticReference(),reason:'INDEPENDENT_REFERENCE_VALIDATOR_REQUIRED'};
+   if(!referenceValidator)return bentSectionCaseIds.includes(fixture.caseId)||spatialSweepCaseIds.includes(fixture.caseId)||twistCaseIds.includes(fixture.caseId)||closedWireCaseIds.includes(fixture.caseId)||radialHoleCaseIds.includes(fixture.caseId)||bendCaseIds.includes(fixture.caseId)||compositeCaseIds.includes(fixture.caseId)||sectionCaseIds.includes(fixture.caseId)||surfaceCaseIds.includes(fixture.caseId)||ellipseCaseIds.includes(fixture.caseId)?{status:'UNVERIFIED',reason:'INDEPENDENT_REFERENCE_VALIDATOR_REQUIRED'}:{...b01AnalyticReference(),reason:'INDEPENDENT_REFERENCE_VALIDATOR_REQUIRED'};
    return referenceValidator({fixture});
   },
   openSession:makeSession,
   async inspect({session,caseId,signal}){
    if(!hostCaseIds.includes(caseId))fail('OBSERVATION_MAPPING_NOT_IMPLEMENTED');
-   const observe=s=>caseId==='B01'?observeB01(s):twistCaseIds.includes(caseId)?observeTwistCase({caseId,session:s,context,record}):closedWireCaseIds.includes(caseId)?observeClosedWireCase({caseId,session:s,context,record}):radialHoleCaseIds.includes(caseId)?observeRadialHoleCase({caseId,session:s,context,record}):bendCaseIds.includes(caseId)?observeBendCase({caseId,session:s,context,record}):ellipseCaseIds.includes(caseId)?observeEllipseCase({caseId,session:s,context,record}):surfaceCaseIds.includes(caseId)?observeSurfaceCase({caseId,session:s,context,record}):sectionCaseIds.includes(caseId)?observeSectionCase({caseId,session:s,context,record}):compositeCaseIds.includes(caseId)?observeCompositeCase({caseId,session:s,context,record}):observeAdditionalBasicCase({caseId,session:s,context,record});
+   const observe=s=>caseId==='B01'?observeB01(s):bentSectionCaseIds.includes(caseId)?observeBentSection({session:s,context,record}):spatialSweepCaseIds.includes(caseId)?observeSpatialSweep({session:s,context,record}):twistCaseIds.includes(caseId)?observeTwistCase({caseId,session:s,context,record}):closedWireCaseIds.includes(caseId)?observeClosedWireCase({caseId,session:s,context,record}):radialHoleCaseIds.includes(caseId)?observeRadialHoleCase({caseId,session:s,context,record}):bendCaseIds.includes(caseId)?observeBendCase({caseId,session:s,context,record}):ellipseCaseIds.includes(caseId)?observeEllipseCase({caseId,session:s,context,record}):surfaceCaseIds.includes(caseId)?observeSurfaceCase({caseId,session:s,context,record}):sectionCaseIds.includes(caseId)?observeSectionCase({caseId,session:s,context,record}):compositeCaseIds.includes(caseId)?observeCompositeCase({caseId,session:s,context,record}):observeAdditionalBasicCase({caseId,session:s,context,record});
    signal?.throwIfAborted();const observed=await observe(session);
    const step=await artifact(session,'files.export',{format:'step',ids:observed.exportBodyIds??(await session.client.getState()).bodies.map(b=>b.id)},caseId+'.step');
    const project=await artifact(session,'files.save',{},caseId+'.webcad');
@@ -358,7 +383,7 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
      }
     }catch{result.lastConfirmedProjectSha256=null;}
     return result;
-   }finally{const cleanup=await session.stopAndReconcile();if(result){result.cleanup=cleanup;if(cleanup.status!=='terminal')result.status='BLOCKED';}}
+   }finally{if(result?.status!=='PASS')try{await record?.({event:'failure-debug-report',report:await session.debugReport()});}catch{}const cleanup=await session.stopAndReconcile();if(result){result.cleanup=cleanup;if(cleanup.status!=='terminal')result.status='BLOCKED';}}
   },
   runB01Diagnostic:options=>adapter.runBasicDiagnostic({...options,caseId:'B01'}),
   async reconcileOpenSessions(){

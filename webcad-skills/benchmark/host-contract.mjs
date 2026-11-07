@@ -32,8 +32,9 @@
  *
  * Framework fake adapters must set testing:true; formal runs reject that flag.
  * A method A run that loads methodology is contaminated, never a clean A success.
- * Baseline/AB complex cases require successful B01/B02/B03 chains in the same run;
- * do not pass a historical chain receipt from a different build or model.
+ * Full baseline/AB complex cases require their planned basic chains to pass.
+ * Explicit single-case follow-ups do not reschedule unrelated prerequisites;
+ * the stage owner retains matching prior acceptance evidence separately.
  */
 export const hostContractVersion='1.0.0';
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:ebd59f49f6c2a239bea713a1c4953f437ff1ad91ad186b2d2e6e13115a7aa34a",
-  "docsHash": "sha256:66c1c5160353bab8e54d05c514cd3bafabb4e5c785e59ab2d0cf9ef37bcb9054",
+  "catalogHash": "sha256:58403a9efa746923ab5bc70ea3e3c1926fd8d40c2e172b5963bbb7d148dca01f",
+  "docsHash": "sha256:638f7043756a285623af7a6e46e164180a7fb7a26f6fefb1a710636e5a310a13",
   "bootstrapDocIds": [
     "api.reading-map",
     "api.knowledge-cache",
@@ -16,6 +16,34 @@
   },
   "selectionPolicy": "Read api.reading-map once; route by task; read only readFirst; compare selectionGuide; fetch selected complete cards. docs/tools are candidates, not mandatory bulk reads. Exact UI actions use routes.json. Live IDs come from the page.",
   "routes": [
+    {
+      "id": "adaptive-performance",
+      "title": "交互性能与显示策略",
+      "keywords": [
+        "性能",
+        "卡顿",
+        "帧率",
+        "自动显示",
+        "锁档",
+        "组合建议",
+        "performance",
+        "LOD"
+      ],
+      "docs": [
+        "api.performance",
+        "api.workspace"
+      ],
+      "tools": [
+        "getPerformanceState",
+        "configurePerformance",
+        "acknowledgePerformanceAdvisory",
+        "setRenderQuality",
+        "group"
+      ],
+      "note": "Read qualified foreground interaction samples. Object count is advisory only. Display changes preserve precise geometry/export quality. No model call or compound/union/fuse runs automatically; any authorized grouping needs fresh context and semantic checks.",
+      "readFirst": "api.performance",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
+    },
     {
       "id": "agent-contracts",
       "title": "页面 API 与 Agent 调用契约",
