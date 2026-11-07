@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 667 --strictPort",
+    "build:public": "node scripts/build-profile.mjs public",
+    "build:integrated": "node scripts/build-profile.mjs integrated",
     "build": "node scripts/generate-operation-errors.mjs && node scripts/generate-page-docs.mjs && node scripts/generate-reference-coverage.mjs && vite build && node scripts/verify-release.mjs",
     "agent": "npm run build && node scripts/serve.mjs",
     "agent:cli": "node scripts/webcad-agent.mjs",
@@ -12,6 +14,8 @@
     "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
     "test": "node scripts/test.mjs portable",
     "test:contracts": "node scripts/test.mjs contracts",
+    "test:agent-benchmark": "node webcad-skills/benchmark/cli.mjs",
+    "test:agent-benchmark:selftest": "node --test webcad-skills/benchmark/selftest.test.mjs && node webcad-skills/tests/model-session.test.mjs",
     "test:kernel": "node scripts/test.mjs kernel",
     "test:mcp": "node scripts/test.mjs mcp",
     "test:e2e": "node scripts/test.mjs e2e",
