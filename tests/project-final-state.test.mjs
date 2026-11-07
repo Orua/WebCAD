@@ -29,6 +29,31 @@ test('disk save has only final BRep/mesh, preserving transformed geometry, ids, 
   }finally{kernel.dispose();}
 });
 
+test('cold final-state projects retain a profile face beside a solid',async()=>{
+ const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});
+ const kernel=new CadKernel(oc);kernel.quality='draft';
+ const doc={version:4,documentId:'profile-final',name:'profile and solid',features:[
+  {id:'profile',op:'sketchProfile',params:{profileVersion:1,entities:[{id:'rect',type:'rectangle',originMm:[20,0],widthMm:1,heightMm:15}],loops:[{id:'outer',edges:[{entityId:'rect',reversed:false}]}],regions:[{id:'area',outerLoopId:'outer',holeLoopIds:[]}],output:'face'},refs:[]},
+  {id:'solid',op:'box',params:{width:4,depth:5,height:6},refs:[]}
+ ],imports:{},hidden:['profile']};
+ try{
+  const before=await kernel.rebuild(doc),saved=finalStateProject(doc,kernel.finalShapeSources());
+  const reopened=await decodeProject(encodeProjectV4(saved));
+  const hashes=Object.fromEntries(Object.entries(reopened.binaryAssets).map(([key,bytes])=>[key,binaryHash(bytes)]));
+  const cold=new CadKernel(oc);cold.quality='draft';
+  try{
+   const after=await cold.rebuild(reopened);
+   assert.deepEqual(after.bodies.map(b=>b.id),before.bodies.map(b=>b.id));
+   assert.deepEqual(reopened.hidden,['profile']);
+   assert.equal(cold.measure('profile').solidCount,0);
+   assert(Math.abs(cold.measure('profile').area-15)<1e-8);
+   assert.equal(cold.measure('solid').solidCount,1);
+   assert(Math.abs(cold.measure('solid').volume-120)<1e-8);
+   for(const [key,bytes] of Object.entries(reopened.binaryAssets))assert.equal(binaryHash(bytes),hashes[key]);
+  }finally{cold.dispose();}
+ }finally{kernel.dispose();}
+});
+
 test('timeline defaults are bounded to twenty and old larger limits are reduced',()=>{
  let doc={version:2,documentId:'d',features:[],imports:{},name:'0'};
  for(let i=1;i<35;i++){const next={...doc,name:String(i)};recordTimeline(doc,next);doc=next;}

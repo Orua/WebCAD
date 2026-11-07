@@ -4049,5 +4049,18 @@
       "Existing fittedSurface default behavior",
       "Actual localhost S09 STEP G0/G1 plus neighboring S10 case"
     ]
+  },
+  "finalStateProfileRestore": {
+    "localImpact": "Keep exact imported face and path topology when restoring final-state BRep snapshots; do not force non-solid source profiles into a 3D wrapper.",
+    "servicesImpact": "None: browser-local import and project restoration only.",
+    "logoImpact": "None: no source artwork or conversion changes.",
+    "contractImpact": "Existing import/project public API and arguments unchanged; shared validity checks still reject invalid geometry.",
+    "documentImpact": "Existing final-state projects containing retained profile faces reopen without changing original embedded bytes, identities or hidden state.",
+    "cacheImpact": "Rebuild local frontend and Worker together; static contract hashes may remain unchanged.",
+    "requiredTests": [
+      "Cold final-state profile face plus solid with unchanged bytes and hidden state",
+      "Existing final-state solid/mesh and imported BRep history tests",
+      "Native Codex S11 original saved project through maintained localhost"
+    ]
   }
 }
