@@ -4,11 +4,11 @@
 
 基础建模在浏览器内运行，使用 Replicad / OpenCascade WebAssembly 计算精确几何，Three.js 显示模型。可以人工独立使用，也可以按需接入 Agent 自动化和 Services 转换、复杂几何计算。
 
-[在线使用](https://goldenfu.cn/webcad/) · [使用手册](docs/USER-GUIDE.zh-CN.md) · [页面 API](docs/PAGE-API.zh-CN.md) · [许可说明](LICENSE.md)
+[在线使用](https://goldenfu.cn/webcad/public/) · [集成工作台入口](https://goldenfu.cn/AI/WebCAD/WebCADWorkspace.aspx) · [使用手册](docs/USER-GUIDE.zh-CN.md) · [页面 API](docs/PAGE-API.zh-CN.md) · [许可说明](LICENSE.md)
 
 [English](README.en.md) · [快速开始](docs/QUICKSTART.md) · [构建与发布门禁](docs/BUILD.md) · [贡献](CONTRIBUTING.md) · [安全与隐私](SECURITY.md) · [变更记录](CHANGELOG.md)
 
-当前在线链接保持原地址。已提供 public / integrated 两种构建：public 不包含 Agent 操作台，默认仅本地计算；用户可显式连接支持访客隔离的同源计算端。公开候选的建模、修改、撤销、保存重开与 STEP 往返已通过发布前检查，新公开地址及服务器上线尚未验收。正式分发须通过[精确范围与发布检查](docs/compliance/LICENSE_DECISION.md)，不能把候选检查当作线上交付。
+公开版已在公司官网上线，不含 Agent 操作台，默认仅本地计算；可显式连接支持独立访客隔离的同源计算端。1.63.4 已完成实际匿名建模、修改、撤销、保存冷重开和 STEP 往返，匹配后台的真实计算与跨访客隔离也已验收。集成版保留原工作台入口。分发按[精确范围与发布检查](docs/compliance/LICENSE_DECISION.md)执行。
 
 ## 能做什么
 
@@ -104,7 +104,7 @@ node --test scripts/license-policy.test.mjs
 
 构建会自动生成 `open-source-notices.html` 和 `open-source/`。页面右下角的“开源许可”入口可查看本次构建的组件清单、许可文本、构建标识、分发文件哈希，以及受限的工作源码快照。源码快照有明确收录范围，不替代完整第三方内核对应源或全部重建材料。
 
-当前仍有 OCCT / WASM 完整对应源、工具链和替换重链接材料等缺口；可选 Python 转换器使用的 PyMuPDF 也需按实际部署核对其授权。生成材料和校验通过表示工程记录一致，不代表所有许可义务已完成。具体证据与范围见上述说明文件。
+固定的 OCCT、绑定生成器、LibreDWG、Manifold 及相关依赖来源和本地保留改动已整理为[源码材料包](https://goldenfu.cn/webcad/source-materials/native-source-materials-8f0eb6ab1079.zip)，并核对公开下载哈希。原生内核重编、替换及逐字节复现尚未执行；可选 Python/PyMuPDF 的部署范围仍须单独核对。具体来源、构建说明和边界见上述文件。
 
 ## 技术结构
 

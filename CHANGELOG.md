@@ -1,13 +1,14 @@
 # Changelog
 
-## 1.63.4 — prepared, live release pending
+## 1.63.4 — released 2026-11-08
 
 - Restore exact profile faces and paths from final-state projects without forcing them into a 3D wrapper.
 - Allow performance recovery after CPU load improves; defer busy display actions without consuming the attempt.
 - Add independently owned, expiring visitor compute sessions and quotas; retain explicit internal bearer ownership.
 - Public builds retain explicit same-origin computation without reading internal settings or credentials. Legacy shared-principal compute endpoints are rejected before upload.
 - Retain the explicitly approved antique reference and original appearance; use an original procedural atlas only if reference loading fails.
-- Pin acquired native source materials and retain upstream notices; keep rights facts, candidate verification and actual deployment separate.
+- Publish the public editor separately from the retained integrated workspace; verify anonymous modeling, persisted visitor isolation and actual source downloads.
+- Pin acquired native source materials and retain upstream notices; native recompilation remains separately unexecuted.
 
 
 ## Unreleased
