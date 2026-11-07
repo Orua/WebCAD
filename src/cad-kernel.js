@@ -532,8 +532,10 @@ export class CadKernel {
         if (item.format === 'iges') throw new Error('此内核不支持 IGES 编辑，请先在原 CAD 软件另存为 STEP');
         if (item.format === 'stl') throw new Error('STL 是三角网格，不能作为精确实体编辑；请使用 STEP 或 BREP');
         const bytes = exactSourceBytes(item,this.binaryAssets);
-        if (item.format === 'step') {const imported=(await cad.importSTEP(new Blob([bytes]))).asShape3D();imported.sourceBytes=bytes.length;return imported;}
-        if (item.format === 'brep') return cad.deserializeShape(new TextDecoder().decode(bytes)).asShape3D();
+        if (item.format === 'step') {const imported=await cad.importSTEP(new Blob([bytes]));imported.sourceBytes=bytes.length;return imported;}
+        // Final-state projects also contain exact profile faces and paths.
+        // Keep their topology type; the shared rebuild validation checks validity.
+        if (item.format === 'brep') return cad.deserializeShape(new TextDecoder().decode(bytes));
         throw new Error('导入格式不受支持');
       }
       case 'transform': case 'copy':
