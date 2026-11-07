@@ -3,6 +3,7 @@ import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {createMetalOcclusionUniforms,metalOcclusionShader} from './viewport/metal-occlusion.js';
 import {PRODUCT_STUDIO_SHADER} from './viewport/product-studio.js';
+import {createProceduralAntiqueAtlas} from './procedural-antique-atlas.js';
 
 // CadViewer's reference uses linear RGB, unit exposure, and a +0.15 turn
 // longitude offset in its HDR sampler. Keep finish data separate from sRGB UI colours.
@@ -118,10 +119,20 @@ export class MetalMaterials {
         return true;
       })(),
       (async()=>{
-        const texture=await new THREE.TextureLoader().loadAsync(`${base}render-assets/antique-metal-reference.jpg`);
+        const atlas=createProceduralAntiqueAtlas();
+        let texture=new THREE.DataTexture(atlas.data,atlas.width,atlas.height,THREE.RGBAFormat,THREE.UnsignedByteType);
+        texture.name=atlas.recipeVersion;texture.needsUpdate=true;
+        // The maintainer-approved reference remains the normal appearance.
+        // Keep the source-owned atlas as a usable fallback on a missing image.
+        try {
+          const reference=await new THREE.TextureLoader().loadAsync(`${base}render-assets/antique-metal-reference.jpg`);
+          texture.dispose();texture=reference;
+        } catch(error) {
+          if(!this.disposed)this.onError?.('古铜／古银参考纹理未能加载，暂用程序纹理；原材质设置和工程保留。'+(error.message||''));
+        }
         if(this.disposed){texture.dispose();return false;}
-        // The original atlas is sampled as reference luminance in sRGB byte space.
-        // Its color is never used directly as linear lighting input.
+        // Match the existing shader's two luminance bands. Finish color and
+        // lighting stay in their existing material parameters.
         texture.colorSpace=THREE.NoColorSpace;
         texture.wrapS=texture.wrapT=THREE.ClampToEdgeWrapping;
         texture.generateMipmaps=false;texture.minFilter=texture.magFilter=THREE.LinearFilter;
@@ -129,7 +140,7 @@ export class MetalMaterials {
         this.atlas=texture; return true;
       })(),
     ]);
-    results.forEach((result,i)=>{if(result.status==='rejected'&&!this.disposed)this.onError?.(`${i===0?'金属 HDR 环境':'古铜／古银参考纹理'}加载失败，请确认 render-assets 文件完整并刷新页面。${result.reason?.message||''}`);});
+    results.forEach((result,i)=>{if(result.status==='rejected'&&!this.disposed)this.onError?.(`${i===0?'金属 HDR 环境加载失败，请确认 render-assets 文件完整':'古铜／古银纹理生成失败'}，可保存工程后刷新页面。${result.reason?.message||''}`);});
     if(!this.disposed) for(const [material,state] of this.materials)this.apply(material,state.key,state.options);
     return {environment:!!this.environment,antique:!!this.atlas};
   }

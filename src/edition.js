@@ -6,7 +6,7 @@ export const PUBLIC_EDITION = EDITION === 'public';
 export const EDITION_CAPABILITIES = Object.freeze({edition:EDITION, localPageApi:true,
   agentWorkspace:!PUBLIC_EDITION, hostChannels:!PUBLIC_EDITION,
   servicesPolicy:PUBLIC_EDITION?'explicit-same-origin-visitor-session':'explicit-configuration',
-  publicDistribution:'pending-license-gate'});
+  publicDistribution:'requires-scoped-publication-check'});
 export function requireIntegratedCapability(){
   if(PUBLIC_EDITION)throw Object.assign(new Error('此版本不提供 Agent 工作台。本地建模和文件导出仍可使用。'),{code:'CAPABILITY_UNAVAILABLE'});
 }

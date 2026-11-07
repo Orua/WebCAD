@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.63.4 · sha256:d690057e8ff90efeb813e11adc4327defa737ed3a79c7b26dc73eac54cd711ab
+API 1.63.4 · sha256:01a6393e6e0a9bf9bfa2e37a96250d0ad75c3c9c6517a60703de80cebf79935e
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 

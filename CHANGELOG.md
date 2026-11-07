@@ -6,6 +6,7 @@
 - Allow performance recovery after CPU load improves; defer busy display actions without consuming the attempt.
 - Add independently owned, expiring visitor compute sessions and quotas; retain explicit internal bearer ownership.
 - Public builds retain explicit same-origin computation without reading internal settings or credentials. Legacy shared-principal compute endpoints are rejected before upload.
+- Retain the explicitly approved antique reference and original appearance; use an original procedural atlas only if reference loading fails.
 - Pin acquired native source materials and retain upstream notices; keep rights facts, candidate verification and actual deployment separate.
 
 
