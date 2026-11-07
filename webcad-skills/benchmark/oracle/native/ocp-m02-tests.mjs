@@ -10,7 +10,7 @@ try{
   const requiredFailure={'wrong-wire':'wireDiameter','wrong-corner':'centerline','wrong-envelope':'centerline','open-gap':'closedPath','shifted-center':'centerline','crossbar':'selfIntersection'}[variant];
   runs.push({caseId:'M02',variant,status:variant==='reference'?result.geometryStatus:result.judgment.status==='FAIL'&&failed.includes(requiredFailure)?'EXPECTED_REJECTION':'FAIL',
    referenceSha256:result.referenceSha256,measuredVolume:result.geometry.volume,failedAssertions:failed,requiredFailure,
-   selfIntersectionScope:'valid BRep plus fixed-tolerance material equivalence to independently constructed non-overlapping target; not a general self-intersection solver'});
+   selfIntersectionScope:'valid closed BRep plus all analytic supports, trimmed areas/bounds, volume and measured sections; not a general self-intersection solver'});
  }
  const passed=runs.every(row=>row.status==='PASS'||row.status==='EXPECTED_REJECTION');
  console.log(JSON.stringify({recordType:'REAL_OCP_M02_REFERENCE_TEST_NOT_PRODUCT_BASELINE',status:passed?'PASS':'FAIL',runs},null,2));process.exitCode=passed?0:1;

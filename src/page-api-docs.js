@@ -1,3 +1,4 @@
+import {EDITION_CAPABILITIES,PUBLIC_EDITION} from './edition.js';
 import {withPreparationContract,FILE_PREPARATION_SCHEMAS} from './tool-call-contracts.js';
 import {LOGO_MACHINING_SCHEMA} from './logo-machining-optimization.js';
 import {AGENT_RUNTIME_GUIDANCE} from './agent-runtime-guidance.js';
@@ -37,7 +38,7 @@ import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-in
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
 import {LOGO_RASTER_SCHEMA} from './logo-raster-options.js';
 import {ERROR_RECOVERY_VERSION,errorRecoveryCatalogDoc,errorRecovery} from './error-recovery.js';
-const PAGE_DOC_VERSION = '1.61.1';
+const PAGE_DOC_VERSION = '1.63.2';
 const EXAMPLE_CONTEXT={sessionId:'<live sessionId>',documentId:'<live documentId>',documentInstanceId:'<live documentInstanceId>',expectedRevision:0};
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
@@ -72,12 +73,13 @@ const commandSpecs={...EDITOR_ACTIONS,
 function commandCard(id){const s=commandSpecs[id];return {mcpCall:{tool:'webcad_submit',method:'execute',action:id},...(id==='body.appearance'?{metalExample:{action:id,args:{bodyIds:['<live bodyId>'],finish:'light-gold'}},appearanceGuide:'金属颜色由 finish 预设选择；仅修改 color 并使用 design 是普通原色。使用 allowedFinishes 中已有的金属无需先读取或重写全局材质配置。'}:{}),...(id==="feature.addMany"?{inputSchema:FEATURE_PLAN_SCHEMA,executionPolicy:{atomic:true,revisionCount:1,undoSteps:1,geometryRebuilds:1},docs:"api.feature-plan"}:{}),id,title:s.title,description:s.description,category:'command',version:PAGE_DOC_VERSION,implementationStatus:s.status??'implemented',contractStatus:'page-command',runtimeAvailability:s.status==='unavailable'?'unavailable':'requires_ready_page',inputContract:'execute({context,idempotencyKey,action:"'+id+'",args}); '+s.description,fields:s.fields,documentLimits:DOCUMENT_LIMITS,errorCodes:['PARAM_SCHEMA_INVALID','PARAM_RANGE_INVALID','INSTANCE_MISMATCH','DOCUMENT_MISMATCH','REVISION_CONFLICT','IDEMPOTENCY_KEY_REUSED','CAPABILITY_UNAVAILABLE','PREVIEW_ACTIVE','STALE_REFERENCE','UI_TASK_ACTIVE','GEOMETRY_INVALID','SIZE_LIMIT'],errorModel:'CommandService returns failed/not_committed with error.code, message, path and recoveryAction; operation and downstream rebuild errors also follow the selected operation card. Unknown outcome requires state inspection before retry.',stateReadback:['getState'],...(['body.align','history.restore'].includes(id)?{errorCodes:['PARAM_SCHEMA_INVALID','STALE_REFERENCE','INSTANCE_MISMATCH','REVISION_CONFLICT','UI_TASK_ACTIVE','GEOMETRY_INVALID','SIZE_LIMIT',...(id==='history.restore'?['HISTORY_INVALID']:[])],stateReadback:['getState','getHistory']}:{}),allowedFinishes:id.includes('appearance')?FINISH_KEYS:undefined,minimalExample:s.example?{action:id,args:s.example}:undefined,outputContract:'检查 status/revisionAfter/warnings；读回 getState。'+(id.startsWith('reference.')?'参考元数据不重建几何。':['body.align','history.restore','body.explode'].includes(id)?'经同一 Worker 重建；committed 回执 validation.geometry=passed，no_change 为 unchanged；几何通过后仍须检查当前渲染修订。':''),docs:id==='feature.addMany'?'api.feature-plan':id.startsWith('reference.')?'api.references':'api.editor'};}
 export const EXAMPLES=Object.freeze([]);
 const PAGE_METHODS = Object.freeze(['reliefWizard','prepareToolCall','prepareOperation','applyPreparedOperation','getDebugReport','setDebugPanel','getMetalMaterials','setMetalMaterials','getMaterials','measureMass','reliefDesignFit','prepareReliefDesignRelief','reliefDesignReference','reliefDesignField','readLogo','reviewLogo','logoWizard','getBatchReceipt','probeBlendRadius','recoverKernel','sampleMeshRelief','getModelLibrary','updateModelLibrary','resolveModelLibrary','planPatternMachining','decideServicesWait','recoverServicesJob','prepareReliefTopologyUpgrade','sampleReliefHeight','prepareReliefSculpt','readRelief','getHistory','planAlignment','selectRectangle','createDrawing','exportDrawing','getQuickModelUsage','copySelection','pasteSelection','createRequestContext','getUILayout','setRenderQuality','invoke','submit','getJob','cancelJob','waitFor','awaitJob','connect', 'info', 'getState', 'searchTools', 'getTools', 'getTool', 'readDocs', 'queryGeometry','queryReferences','resolvePlacement',
-  'execute', 'measure', 'measureRelation', 'inspectDesign', 'inspectPrintability', 'inspectProfile','prepareProfileEdit','inspectConstraints', 'projectProfile', 'inspectFit', 'inspectThickness', 'inspectDraft', 'inspectRound', 'readVector', 'connectVector', 'fitProfile', 'traceTwinWindow', 'executeText', 'setDisplayPreferences','getAgentPanel','configureAgentPanel','setAgentPanel','markLocation', 'getServices', 'setServices', 'getServicesCapabilities', 'getServicesRouting', 'clearServicesCredential', 'getServicesJob', 'getServicesRequest', 'cancelServicesJob', 'getLogoConverter', 'setLogoConverter', 'convertLogoPdf', 'setView', 'redraw', 'capture', 'getEvidenceImage', 'run']);
+  'execute', 'measure', 'measureRelation', 'inspectDesign', 'inspectPrintability', 'inspectProfile','prepareProfileEdit','inspectConstraints', 'projectProfile', 'inspectFit', 'inspectThickness', 'inspectDraft', 'inspectRound', 'readVector', 'connectVector', 'fitProfile', 'traceTwinWindow', 'executeText', 'setDisplayPreferences','getAgentPanel','configureAgentPanel','setAgentPanel','markLocation', 'getServices', 'setServices', 'getServicesCapabilities', 'getServicesRouting', 'clearServicesCredential', 'getServicesJob', 'getServicesRequest', 'cancelServicesJob', 'getLogoConverter', 'setLogoConverter', 'convertLogoPdf', 'setView', 'redraw', 'capture', 'getEvidenceImage', 'run','getPerformanceState','configurePerformance','acknowledgePerformanceAdvisory']);
 const FILE_METHODS = Object.freeze(Object.keys(FILE_ARGUMENT_KEYS));
 const RELIEF_TAXONOMY = `浮雕 Agent 决策表\n输入/目标 | 工具 | 输出 | 限制\n作者制作的灰度高度图，毛发/纹理、打印 | meshHeightfieldRelief | 封闭网格/STL | 2049/边，1900000采样\n高度图局部抬高/压低/平滑/压平 | heightfieldSculpt，feature.edit追加params.sculpt | 网格/STL | 512笔，20000点\n网格与实体合并/挖出 | transform定位，再meshBoolean | 网格/STL | 2–16封闭实体\n恒深矢量LOGO | logo | BRep/STEP | 单精确面\n小图案或分层矢量、精确STEP | readRelief→relief | BRep/STEP | 4–65采样，32层\n精确浮雕局部修整 | reliefSculpt，prepareReliefSculpt→feature.edit | BRep | 7–65局部网格，128笔\n外凸圆柱浮雕 | relief | BRep | 外凸、角宽≤90°、总高≤R×20%、无旋转\n层间肩部过渡 | reliefShoulder | BRep | 需要Services\n已有STL局部修高 | sampleMeshRelief→meshReliefEdit | 网格 | 200000三角面\n圆形起伏底板 | meshReliefPlate | 网格 | 200000三角面\n照片/光影参考 | 先人工制作高度图，再meshHeightfieldRelief | 不直接加工 | 禁止把照片亮度当几何深度\nheightfieldSculpt和reliefSculpt是发现入口，执行真实feature.edit/prepareReliefSculpt，并非独立建模op。`;
 const RUN_TRANSPORT_GUIDE = '兼容 MCP 宿主 调用 webcad_submit：method、requestKey、args 在外层；完整 run 请求放在 args 内。外层 requestKey 不会代替 args.idempotencyKey，run 不接受 key 字段；不要把 method、requestKey 或第二层 args 放进 run 请求。页面直接调用 api.run 时只传 args 的内容。替换示例 context 为当前 requestContext，保留两个层次，不自动改写 revision 或重试未知结果。参数拒绝先读 error.details.path/missingFields/allowedFields/commitState，按已读契约修正；不要把报错的简称当成字段，也不要输出全量 index。';
 
 const PAGE_DOCS = Object.freeze({
+  'api.performance':`交互显示性能\ngetPerformanceState()只读当前工程实例/geometryRevision、独立perfSeq、有效性与原因、最多1200帧采样、前台/可见/交互标志、总/可见对象、内部实体/面/边、唯一模型显示三角形、多pass提交三角形、drawCalls和CPU提交P50/P95；GPU无来源为null。工具/LLM等待独立，不作GPU时间。\n仅前台可见真实交互5秒且60样本后判负载；后台、空闲缓存、同步截图、初始化、resize/context-loss、几何和预览忙均不计入。500ms评估一次，不逐帧同步Agent。\ninitial-1是未校准参数，不是实测成绩。默认auto；对象150只观察、300建议、500提高建议优先级；P95>40ms且CPU提交P95>=12ms才降一档，30秒冷却，同修订继续慢先诊断而不反复remesh；P95<24ms累计30秒有效交互可恢复一档，升级间隔至少60秒，不超过preferredQuality。\nconfigurePerformance({context,settings:{mode,preferredQuality,manualLock,allowAgentGrouping}})至少一项，设置仅本页会话。manualLock或manual禁止自动调档；setRenderQuality手动设置会更新preferred，自动降档不改preferred。所有调档只重网格，不重放造型历史、dirty或撤销，保留选择；失败保持原显示，版本过期不安装。截图排除采样，STEP/BREP用原精确形体，STL用独立导出网格，源网格保持原资产。\n建议绑定工程实例和观测revision，最多32条，按实例+负载级别+结构阶段去重；同级增加实体不重复通知，拒绝在该阶段保留。acknowledgePerformanceAdvisory用当前context和advisoryId回执deferred/no-safe-candidates/declined/stale。allowAgentGrouping仅为候选授权标志，程序不执行组合；无Agent/公开版不发模型请求。已授权Agent只在当前批次结束后按语义结构、有效材质/显隐、后续加工需求选择安全候选，用新鲜context/IDs/幂等键调用group；检查映射、内部实体数、bounds、成员形体/体积/面积、外观/显隐与STEP读回，重查拓扑。失败仅在仍拥有最后编辑时回滚；无改善停止。禁止自动union/fuse。\n开发单测不代表G5；真实2×2独立/compound×preferred/draft、同机每格至少3次交错、几何不变量与监测自身开销须另行冻结证据和实测。`,
   'api.agent-contracts': `# 页面 API 与 Agent 调用边界
 
 先 connect，比较 pageApiVersion/catalogHash/docsHash，下载并校验 onboarding.knowledge 的完整包；只缓存静态合同。每次写入使用最新 requestContext，实体和拓扑编号必须来自当前工程修订。
@@ -353,7 +355,10 @@ const METHOD_DETAILS = Object.freeze({
   updateModelLibrary:['快捷工具 显示顺序 上移 下移 恢复顺序 固定定义','updateModelLibrary({context,expectedLibraryRevision,operation:move|restore,id?,index?})。move传内置id和移动后零起始index；restore恢复默认顺序。工具定义只读，不接受entry、library、脚本、upsert、remove或import。','status=applied、revision、entries、readOnlyDefinitions:true、allowedOperations、persistence、context；只写当前源localStorage排序，不改工程revision或历史。陈旧排序写入返回LIBRARY_REVISION_CONFLICT；存储失败明确拒绝；损坏排序可显式restore且expectedLibraryRevision=-1恢复。'],
   resolveModelLibrary:['模型库 生成 参数 契约 常用模型','resolveModelLibrary({context,id,expectedLibraryRevision,params?:参数覆盖})','status=read、op:quickModel、params（已解析默认值）、refs:[]、name、entryId、libraryRevision、context。作为run的add args提交，保留同一CommandService/Worker/预览/撤销/保存链。删除库条目后已有工程仍可编辑。'],
   getUILayout:['界面 布局 配置 选项卡 模型库','getUILayout({includeModelLibrary?:boolean})','当前版本化tabs/groups/controls/header/panels/current。includeModelLibrary:true追加modelLibrary完整实时字段与生成合同，兼容远程MCP的getUILayout只读通道。'],
-  setRenderQuality:['显示 精度 网格 曲面 公差','setRenderQuality({context,quality:"draft"|"standard"|"fine"|"ultra"})','status=applied、context、renderQuality、display；只重新网格化。详见 api.workspace。'],
+  getPerformanceState:['性能 交互 帧率 采样 自动显示 组合建议','getPerformanceState()，无参数。','只读性能快照：documentInstanceId/geometryRevision/perfSeq、validity/reasonCodes、window、frameIntervalMs P50/P95、CPU submit、GPU=null、全部/可见对象和实体/面/边、唯一显示三角形/多pass提交三角形/drawCalls、preferred/effective、策略状态、最多32条建议与事件。仅前台可见真实交互计入5秒/60样本；截图/缓存/几何忙排除。initial-1参数未校准，不能作为G5实测通过。组合只读建议不调用模型，无Agent仍可自动显示管理。'],
+  configurePerformance:['性能 自动显示 锁档 画质 偏好','configurePerformance({context,settings:{mode?:"auto"|"manual",preferredQuality?:"draft"|"standard"|"fine"|"ultra",manualLock?:boolean,allowAgentGrouping?:boolean}})','只修改本页会话显示策略，不改工程revision/dirty/撤销或导出精度。默认auto、standard、manualLock=false、allowAgentGrouping=false。preferred仅为恢复上限；setRenderQuality手动调档同时更新preferred。锁档只建议不自动调档；allowAgentGrouping只是授权候选标志，本实现不自动执行组合。自动降一档需有效P95>40ms且实测CPU提交P95>=12ms；30秒冷却，恢复<24ms有效交互30秒且升级间隔60秒。'],
+  acknowledgePerformanceAdvisory:['性能 建议 拒绝 延后 过期','acknowledgePerformanceAdvisory({context,advisoryId,status:"deferred"|"no-safe-candidates"|"declined"|"stale"})','回应只读组合建议；不执行几何命令。按工程实例+负载级别+阶段去重，拒绝不会因每次revision重复提示。实际group必须已授权、当前批次结束且读取新鲜context/IDs/幂等键，保留内部实体/位置/外观/显隐并刷新拓扑；union/fuse不用于自动优化。'],
+  setRenderQuality:['显示 精度 网格 曲面 公差','setRenderQuality({context,quality:"draft"|"standard"|"fine"|"ultra"})','status=applied、context、renderQuality、display；只重新网格化并更新preferredQuality，保留当前选择。详见 api.workspace、getPerformanceState。'],
   invoke:['统一 错误 调用','invoke({method,args}); public method name or files.*.','返回原方法结果；抛错转换为结构化失败。详见 api.reliability。'],
   submit:['异步 任务 超时 后台 回执','submit({jobId,method,args}); method=run/execute/queryGeometry/measure/measureRelation/inspectProfile/prepareProfileEdit/inspectConstraints/projectProfile/inspectFit/inspectThickness/inspectDraft/setView/setRenderQuality/files.save/files.export/files.import.','立即返回 jobId/status；参数中保留原 context 和幂等键；详见 api.reliability。'],
   getJob:['任务 状态 轮询 结果','getJob({jobId})','任务 status/progress/phase/elapsedMs/result；result 保留原提交回执。'],
@@ -427,6 +432,9 @@ reliefDesignFit:['浮雕 设计 B样条 拟合 控制极点 保护 误差','reli
 function methodCard(name) {
   const [synonyms, input, output] = METHOD_DETAILS[name];
   const errors = {
+    getPerformanceState:['PARAM_SCHEMA_INVALID'],
+    configurePerformance:['PARAM_SCHEMA_INVALID','INSTANCE_MISMATCH'],
+    acknowledgePerformanceAdvisory:['PARAM_SCHEMA_INVALID','INSTANCE_MISMATCH','STALE_REFERENCE'],
     getDebugReport:['PARAM_SCHEMA_INVALID'],setDebugPanel:['PARAM_SCHEMA_INVALID','INSTANCE_MISMATCH','CAPABILITY_UNAVAILABLE'],
     markLocation:['PARAM_SCHEMA_INVALID','INSTANCE_MISMATCH','REVISION_CONFLICT','LOCATION_NO_HIT','STALE_REFERENCE','UI_TASK_ACTIVE','AGENT_COMPOSER_UNAVAILABLE','AGENT_PANEL_TIMEOUT'],
     reviewLogo:['PARAM_SCHEMA_INVALID','RESOURCE_EXPIRED','RESOURCE_LIMIT','INSTANCE_MISMATCH','CAPABILITY_UNAVAILABLE','LOGO_REVIEW_STALE','LOGO_WIZARD_BUSY','LOGO_SELECTION_INVALID','LOGO_MIN_VERTICES','LOGO_EMPTY','LOGO_CONTOUR_INVALID','LOGO_REVIEW_REQUIRED','LOGO_UNDO_EMPTY'],
@@ -547,6 +555,7 @@ function methodCard(name) {
     ...(['createRequestContext','invoke','submit','getJob','cancelJob'].includes(name)?{docs:'api.reliability'}:{}),
     ...(['getModelLibrary','updateModelLibrary','resolveModelLibrary'].includes(name)?{docs:'api.model-library'}:{}),
     ...(['getUILayout','setRenderQuality'].includes(name)?{docs:'api.workspace'}:{}),
+    ...(['getPerformanceState','configurePerformance','acknowledgePerformanceAdvisory'].includes(name)?{docs:'api.performance'}:{}),
     ...(['getModelLibrary','updateModelLibrary','resolveModelLibrary'].includes(name)?{remoteCompatibility:{read:'getUILayout({includeModelLibrary:true}).modelLibrary',manage:'setView({context,modelLibraryChange:{expectedLibraryRevision,operation:move|restore,id?,index?}})',create:'Use entries[].execution with run/add; current context and unique key required.'}}:{}),
     ...(name === 'setView' || name === 'redraw' || name === 'capture' ? { docs: 'api.views' } : {}),
     ...(name==='getEvidenceImage'?{docs:'api.evidence',executionPolicy:{readOnly:true,geometryComputed:false,automatic:'off',maxImageBytes:1048576,cacheEntries:12,cacheBytes:8388608},minimalExample:{context:{sessionId:'current-page',documentId:'current-document',documentInstanceId:'current-instance',expectedRevision:0},viewId:'iso',maxWidth:640,format:'webp'}}:{}),
@@ -652,18 +661,18 @@ function pageCards() {
     return withReadingGuide(withToolSelection(withPreparationContract(named)));
   });
 }
-export const pageCatalogHash = contractHash({ searchVersion: SEARCH_VERSION, cards: pageCards(), uiRoutes:UI_API_ROUTES, knowledgeRoutes:KNOWLEDGE_ROUTES, productFamilies:PRODUCT_FAMILIES, fileLimits: FILE_LIMITS });
+export const pageCatalogHash = contractHash({ edition:EDITION_CAPABILITIES, searchVersion: SEARCH_VERSION, cards: pageCards(), uiRoutes:UI_API_ROUTES, knowledgeRoutes:KNOWLEDGE_ROUTES, productFamilies:PRODUCT_FAMILIES, fileLimits: FILE_LIMITS });
 export const pageDocsHash = contractHash({ pageCatalogHash, pageDocs: PAGE_DOCS, agentProtocol:AGENT_CONTRACT, onboarding:AGENT_ONBOARDING, legacyReadable: [...LEGACY_READABLE], legacyDocsHash });
 const cardsById = new Map(pageCards().map(card => [card.id, { ...card, docsHash: contractHash(card) }]));
 export function listPublicToolCards(){return [...cardsById.values()].map(card=>structuredClone(card));}
 const toolIndex = createToolIndex([...cardsById.values()]);
 
 export function discoveryMetadata() {
-  return { searchVersion: SEARCH_VERSION, pageApiVersion:PAGE_DOC_VERSION, apiVersion, entrypoint: 'window.webcad.api.connect',
+  return { edition:EDITION_CAPABILITIES, searchVersion: SEARCH_VERSION, pageApiVersion:PAGE_DOC_VERSION, apiVersion, entrypoint: 'window.webcad.api.connect',
     toolCount: pageCards().filter(card => !card.legacyOnly).length, categories: [...new Set(pageCards().map(card => card.category))],
-    catalogHash: pageCatalogHash, docsHash: pageDocsHash,agentProtocol:AGENT_CONTRACT,agentSoftware:{manifestUrl:'automation/remote-agent.json',adapterVersion:2},
+    catalogHash: pageCatalogHash, docsHash: pageDocsHash,agentProtocol:AGENT_CONTRACT,agentSoftware:PUBLIC_EDITION?{available:false,reason:'public-edition'}:{manifestUrl:'automation/remote-agent.json',adapterVersion:2},
     quickstart: 'automation/quickstart.md', manifest: 'automation/manifest.json',
-    onboarding:structuredClone(AGENT_ONBOARDING),
+    onboarding:PUBLIC_EDITION?{...structuredClone(AGENT_ONBOARDING),startUrl:'automation/index.md',bootstrapUrl:'automation/manifest.json',localKit:{available:false,reason:'public-edition'}}:structuredClone(AGENT_ONBOARDING),
     errorRecovery:{version:ERROR_RECOVERY_VERSION,docId:'api.error-recovery',fields:['error.userMessage','error.recovery'],automaticRetry:false,rawError:'audit-only; explain evidence before replying to the user'},
     snapshot: 'automation/index.json', offlineLibrary: 'automation/tool-library.mjs',
     protocol: { surface:'window.webcad.api', legacySurface:false, authority:'live page contracts',
@@ -682,12 +691,12 @@ export function discoveryMetadata() {
 }
 
 export function infoMetadata({ buildId = 'unreported', browserReady = false } = {}) {
-  return { product: 'WebCAD', buildId, apiVersion, pageApiVersion: PAGE_DOC_VERSION, transport: 'in-page',
+  return { product: 'WebCAD', edition:EDITION_CAPABILITIES, buildId, apiVersion, pageApiVersion: PAGE_DOC_VERSION, transport: 'in-page',
     entrypoint: 'window.webcad.api', catalogHash: pageCatalogHash, docsHash: pageDocsHash, discovery: discoveryMetadata(),agentProtocol:AGENT_CONTRACT,
     units: { length: 'mm', angle: 'degrees', volume: 'mm^3', scale: 'dimensionless' },
     ready: browserReady, modeling: browserReady ? 'available' : 'not_ready',
     methods: [...PAGE_METHODS], filesMethods: [...FILE_METHODS],
-    examples:EXAMPLES,knowledge:{agentStart:AGENT_ONBOARDING.startUrl,agentBootstrap:AGENT_ONBOARDING.bootstrapUrl,agentKit:AGENT_ONBOARDING.localKit.manifestUrl,requiredManifest:AGENT_ONBOARDING.knowledge.manifestUrl,taskRoutes:AGENT_ONBOARDING.knowledge.routingUrl,quickstart:'automation/quickstart.md',manifest:'automation/manifest.json',markdown:'automation/knowledge.md',json:'automation/index.json'},
+    examples:EXAMPLES,knowledge:{agentStart:PUBLIC_EDITION?'automation/index.md':AGENT_ONBOARDING.startUrl,agentBootstrap:PUBLIC_EDITION?'automation/manifest.json':AGENT_ONBOARDING.bootstrapUrl,...(!PUBLIC_EDITION?{agentKit:AGENT_ONBOARDING.localKit.manifestUrl}:{}),requiredManifest:AGENT_ONBOARDING.knowledge.manifestUrl,taskRoutes:AGENT_ONBOARDING.knowledge.routingUrl,quickstart:'automation/quickstart.md',manifest:'automation/manifest.json',markdown:'automation/knowledge.md',json:'automation/index.json'},
     docs: [...new Set([...Object.keys(PAGE_DOCS), ...LEGACY_READABLE])].sort(),
     fileLimits: FILE_LIMITS,
     strictOperations: [...migratedOperationIds], otherOperations: 'advisory; actual page adapter and kernel result determine availability',
@@ -717,7 +726,7 @@ export function searchTools(input = {}, runtime = {}) {
     selectionGuide:structuredClone(card.selectionGuide), readFirst:card.readingGuide,
     category: card.category, contractStatus: card.contractStatus, strictContract: card.strictContract === true,
     availabilityScope:'page', executionAvailability:'unknown', executionCheck:{methods:['getServicesCapabilities','getServicesRouting'],requires:'current operation input and routing policy'},
-    runtimeAvailability: card.runtimeAvailability === 'unavailable' ? 'unavailable'
+    runtimeAvailability: PUBLIC_EDITION&&['configureAgentPanel','setAgentPanel','markLocation','setServicesConfig'].includes(card.id)?'unavailable':card.runtimeAvailability === 'unavailable' ? 'unavailable'
       : !input.sessionId ? 'unknown' : runtime.browserReady === true ? 'available' : runtime.browserReady === false ? 'not_ready' : 'unknown' }); }),
     total: matches.length, nextCursor: offset + limit < matches.length ? `${scope}:${offset + limit}` : null, catalogHash: pageCatalogHash };
 }
@@ -742,7 +751,7 @@ export function getTool(input) {
   }
   if (input.version !== undefined && input.version !== card.version)
     contractError('OPERATION_VERSION_UNSUPPORTED', 'input.version', 'Requested version is not registered.', 'READ_TOOL_CONTRACT');
-  return structuredClone(card);
+  return {...structuredClone(card),...(PUBLIC_EDITION&&['configureAgentPanel','setAgentPanel','markLocation','setServicesConfig'].includes(card.id)?{runtimeAvailability:'unavailable',unavailableReason:'public-edition'}:{})};
 }
 
 export function getTools(input) {

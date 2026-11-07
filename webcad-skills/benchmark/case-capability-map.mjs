@@ -33,7 +33,7 @@ export async function collectCaseCapabilityMap({getTool}){
  return {recordType:'READ_ONLY_TOOL_ROUTES_NOT_GEOMETRY_ACCEPTANCE',cases:cases.map(input=>{
   const ids=routes[input.caseId],missingTools=ids.filter(id=>!cards.get(id));
   return {caseId:input.caseId,status:'NOT_RUN',candidateTools:ids,missingTools,contractStatus:missingTools.length?'BLOCKED':'REGISTERED_NOT_EXECUTED',
-   deterministicRecipe:['B01','B02','B03','M01','M02','M03','M04','M05','S01','S02','S03','S06'].includes(input.caseId)?'browser-host':'NOT_IMPLEMENTED',
-   independentStepReader:['B01','B02','B03','M01','M02','M03','M04','M05','S01','S02','S03','S06'].includes(input.caseId)?'OCP-reader':'NOT_IMPLEMENTED',requiredAssertions:required[input.caseId],reference:readiness(input.caseId),condition:conditions[input.caseId]??'Use exact input dimensions and independent STEP readback; live assertions remain separate.'};
+   deterministicRecipe:['B01','B02','B03','M01','M02','M03','M04','M05','S01','S02','S03','S04','S05','S06'].includes(input.caseId)?'browser-host':'NOT_IMPLEMENTED',
+   independentStepReader:['B01','B02','B03','M01','M02','M03','M04','M05','S01','S02','S03','S04','S05','S06'].includes(input.caseId)?'OCP-reader':'NOT_IMPLEMENTED',requiredAssertions:required[input.caseId],reference:readiness(input.caseId),condition:conditions[input.caseId]??'Use exact input dimensions and independent STEP readback; live assertions remain separate.'};
  })};
 }

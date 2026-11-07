@@ -1,4 +1,44 @@
 {
+  "explicitPolylineSectionVertices": {
+    "localImpact": "Keep the supplied polygon vertices for explicit polyline section lofts; uniform perimeter resampling previously clipped corners as section aspect ratios changed.",
+    "servicesImpact": "No corresponding curveSweep implementation found in the configured Services sources. Server capability gates, compiled-artifact import and authorization are unchanged.",
+    "logoImpact": "None: no vector/logo source changes.",
+    "nativeImpact": "Browser OCCT receives exact polygon wires; no WASM/native binary replacement or new external dependency.",
+    "contractImpact": "Page API 1.63.2 documents explicit polyline vertex preservation and loftReport per-station sampling/preservation readback. Omitted interpolation retains legacy behavior.",
+    "documentImpact": "Explicit source corners and units survive section construction; newly rebuilt topology must be queried afresh. Saved final BRep data is not rewritten.",
+    "cacheImpact": "Regenerate the entire finite knowledge snapshot and tool cards; invalidate catalog/docs caches by their live hashes.",
+    "requiredTests": ["Noncommensurate rectangle and irregular triangle source area", "Original S05 boundary/volume and STEP readback", "Affected S01 explicit-polygon regression", "Real Agent S05 plus a related valid variant"]
+  },
+  "curveSweepRoundRadiusPreflight": {
+    "localImpact": "Reject a missing explicit radius for round arc/spline/segments sweeps before dispatching the geometry worker. Do not infer it from the square-section size.",
+    "servicesImpact": "No service implementation, routing or authorization changes; valid geometry inputs retain their meaning.",
+    "logoImpact": "None: vector and logo inputs are unchanged.",
+    "nativeImpact": "None: no kernel algorithm or native binary change.",
+    "contractImpact": "Page API 1.63.1: conditional radius requirement, exact params.radius error path and distinct round/square parameter descriptions.",
+    "documentImpact": "Rejected inputs do not commit geometry or history; existing valid sweeps and projects keep their dimensions.",
+    "cacheImpact": "Regenerate complete public tool cards and finite knowledge bundles; clients rediscover catalog/docs hashes.",
+    "requiredTests": ["Original missing-radius request rejects before compute", "Valid explicit round radius and section/spine exemptions", "Same-package localhost validation and real M03 retry"]
+  },
+  "planarAdaptiveDisplayBatch": {
+    "localImpact": "Reuse the original indexed mesh for fully covered exact planar polygons without heavy/refinement requirements. Avoid per-face display objects after compound aggregation crosses the existing adaptive face-count threshold.",
+    "servicesImpact": "None: no routing or service changes.",
+    "logoImpact": "None: no vector or source geometry changes.",
+    "nativeImpact": "None: no kernel or tolerance changes.",
+    "contractImpact": "Existing display detail reports planarBatchedBodies and body-level culling granularity; no new operation or parameter. Adaptive edge batching remains disabled.",
+    "documentImpact": "Original mesh/indices/faceGroups, BRep, topology IDs, source assets and exports remain unchanged. One body material retains live selection, clipping, wireframe and transparency. Hidden body roots remain authoritative.",
+    "cacheImpact": "No new geometry cache or generated knowledge source; renderer candidate requires a new build identity. Prior 5001-call degradation evidence remains valid for its candidate.",
+    "requiredTests": ["Real Three.js planar draw-object count, indexed raycast/face selection, material/clipping/visibility, evidence capture restoration, mixed/heavy/incomplete fallback", "Existing edge-batching/metal/performance-viewport regressions", "Coordinator candidate build and targeted browser contrast; not run by the source task"]
+  },
+  "adaptivePerformance1630": {
+    "localImpact": "Bounded foreground interaction sampling, logical-frame multipass counters, serialized display-only quality policy and read-only compound advisories. Compatible non-adaptive technical edges share render batches while original topology/picking objects remain unchanged.",
+    "servicesImpact": "None: no service protocol or routing changes; busy/preview periods are excluded.",
+    "logoImpact": "None: source vectors and geometry are unchanged.",
+    "nativeImpact": "None: no native binary changes.",
+    "contractImpact": "Page API 1.63.0: getPerformanceState, configurePerformance, acknowledgePerformanceAdvisory; public and integrated behavior share local display management without model calls.",
+    "documentImpact": "Sampling/settings/quality do not change geometry revision, dirty or undo. No compound/union/fuse is automatically executed; exports keep independent geometry precision.",
+    "cacheImpact": "Regenerate all cards, routes and finite knowledge bundles with matching catalog/docs hashes before publishing.",
+    "requiredTests": ["performance-preparation", "performance-runtime", "performance-api", "performance-viewport", "edge-batching", "page-context-policy", "agent-interface-coverage", "metal-occlusion", "public-edition", "Candidate browser acceptance and calibrated 2x2 measurements remain separate gates"]
+  },
   "agentContractReview1611": {
     "localImpact": "Fix tangent-arc continuity, open thin-plate shell feasibility and arbitrary volume-ratio rejection of valid explicit blends.",
     "servicesImpact": "none: browser-only implementation",

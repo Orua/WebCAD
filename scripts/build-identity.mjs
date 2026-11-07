@@ -41,5 +41,7 @@ export function readBuildIdentity(root){
   const changed=git(['status','--porcelain=v1','-z','--untracked-files=all','--no-renames','--',...inputs]).split('\0')
     .filter(Boolean).map(row=>row.slice(3).replaceAll('\\','/'));
   const dirty=changed.some(path=>!excluded(path));
-  return {buildId:`${commit}-src-${sourceHash.slice(0,16)}${dirty?'-working':''}`,commit,sourceHash,sourceFileCount:paths.length,dirty};
+  const edition=process.env.WEBCAD_EDITION||'integrated';
+  if(!['public','integrated'].includes(edition))throw new Error('Invalid WebCAD edition');
+  return {edition,buildId:`${commit}${edition==='public'?'-public':''}-src-${sourceHash.slice(0,16)}${dirty?'-working':''}`,commit,sourceHash,sourceFileCount:paths.length,dirty};
 }

@@ -1,8 +1,10 @@
+import {PUBLIC_EDITION,requireIntegratedCapability} from '../edition.js';
 const KEY='webcad.services.v1',OLD='webcad.logoConverter.v1',AUTH='webcad.services.credential.v1';
 export const serviceError=(code,message,extra={})=>Object.assign(new Error(message),{code,...extra});
 function storage(){try{if(!globalThis.localStorage)throw 0;return globalThis.localStorage;}catch{throw serviceError('CAPABILITY_UNAVAILABLE','浏览器本地存储不可用');}}
 function credentials(){try{return globalThis.sessionStorage;}catch{return null;}}
 export function defaultServicesConfig(){
+ if(PUBLIC_EDITION)return {enabled:false,url:''};
  // 部署方可在页面初始化前注入 WEBCAD_DEPLOYMENT_CONFIG.services；启用须显式声明。
  const config=globalThis.WEBCAD_DEPLOYMENT_CONFIG?.services;
  if(config===undefined)return {enabled:false,url:''};
@@ -29,8 +31,9 @@ export function normalizeServicesConfig(input){
  }
  return {version:1,enabled,url,authMode,computeMode:'auto',localTimeoutMs,serverWaitMs,allowGeometryUploads:enabled,authProfileId:authMode==='siteSession'?'same-origin':'dedicated-services'};
 }
-export function getServicesCredential(){const config=getServicesConfig();try{const saved=JSON.parse(credentials()?.getItem(AUTH)||'null');return saved?.url===config.url?saved.credential:'';}catch{return '';}}
+export function getServicesCredential(){if(PUBLIC_EDITION)return '';const config=getServicesConfig();try{const saved=JSON.parse(credentials()?.getItem(AUTH)||'null');return saved?.url===config.url?saved.credential:'';}catch{return '';}}
 export function getServicesConfig(){
+ if(PUBLIC_EDITION)return {...normalizeServicesConfig({enabled:false,url:''}),configured:false,hasCredential:false,storage:'public-edition',credentialStorage:'none',allowGeometryUploads:false};
  const raw=storage().getItem(KEY);let saved;try{saved=JSON.parse(raw||'null');}catch{throw serviceError('SERVICES_CONFIG_INVALID','Services 配置损坏，请重新设置');}
  let config=saved?normalizeServicesConfig(saved):normalizeServicesConfig(defaultServicesConfig());
  let auth;try{auth=JSON.parse(credentials()?.getItem(AUTH)||'null');}catch{}
@@ -50,10 +53,11 @@ export function getServicesConfig(){
  return {...config,configured:!!(config.enabled&&config.url),hasCredential:!!(auth?.url===config.url&&auth.credential),authorizationRestored,migrationRequired:!saved&&!!storage().getItem(OLD),credentialStorage:config.authMode==='siteSession'?'none':'sessionStorage',storage:saved?'localStorage':'deployment-default'};
 }
 export function saveServicesConfig(input){
+ requireIntegratedCapability();
  const previous=getServicesConfig(),value=normalizeServicesConfig({localTimeoutMs:previous.localTimeoutMs,serverWaitMs:previous.serverWaitMs,...input}),store=storage(),auth=credentials();
  if(previous.url!==value.url||!value.enabled)auth?.removeItem(AUTH);
  if(input.credential&&value.enabled){if(!auth)throw serviceError('CAPABILITY_UNAVAILABLE','会话存储不可用，无法保存授权');auth.setItem(AUTH,JSON.stringify({url:value.url,credential:input.credential}));}
  // Old values remain untouched as migration backup and never authorize Services.
  store.setItem(KEY,JSON.stringify(value));return getServicesConfig();
 }
-export function clearServicesCredential(){credentials()?.removeItem(AUTH);return getServicesConfig();}
+export function clearServicesCredential(){requireIntegratedCapability();credentials()?.removeItem(AUTH);return getServicesConfig();}

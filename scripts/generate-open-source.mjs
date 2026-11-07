@@ -5,8 +5,10 @@ import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname, isAbsolute, relative, resolve} from 'node:path';
 import {zipSync, unzipSync} from 'three/addons/libs/fflate.module.js';
 import {fingerprintBuildInputs, readBuildIdentity} from './build-identity.mjs';
+import {auditLicensePolicy} from './license-policy.mjs';
 
-const documents=['LICENSE.md','THIRD_PARTY_NOTICES.md','CORRESPONDING_SOURCE.md'];
+const documents=['LICENSE.md','THIRD_PARTY_NOTICES.md','CORRESPONDING_SOURCE.md',
+  'docs/compliance/source-license-map.json','docs/compliance/LICENSE_DECISION.md'];
 const browserPackages=['three','replicad','replicad-opencascadejs','manifold-3d','polygon-clipping'];
 const localPackages=['@modelcontextprotocol/sdk','ws','zod'];
 const slash=path=>path.replaceAll('\\','/');
@@ -63,7 +65,7 @@ function licenseFiles(directory,name){
 const blockedPath=path=>/(^|\/)(?:\.git|node_modules|agent|webcad-skills|bin|obj|cache|data|logs|screenshots|quick-model-previews|trial-samples|examples)(\/|$)/i.test(path)||/(^|\/)(?:\.env(?:\..*)?|.*(?:secret|credential|private.key|local.settings|appsettings\.local).*)$/i.test(path);
 export function snapshotAllowed(path){
   if(blockedPath(path))return false;
-  if(!(/^(?:src|scripts|tests|docs|skills|contracts|corresponding-source|LICENSES|tools)\//.test(path)||documents.includes(path)||['index.html','package.json','package-lock.json','vite.config.mjs','PROJECT.md','README.md','.gitignore','.gitattributes','web.config'].includes(path)||path==='public/vector-dwg-worker.js'))return false;
+  if(!(/^(?:src|scripts|tests|docs|skills|contracts|corresponding-source|LICENSES|tools)\//.test(path)||documents.includes(path)||['index.html','package.json','package-lock.json','vite.config.mjs','PROJECT.md','README.md','README.en.md','CONTRIBUTING.md','SECURITY.md','CHANGELOG.md','.gitignore','.gitattributes','web.config'].includes(path)||path==='public/vector-dwg-worker.js'))return false;
   return /\.(?:[cm]?js|jsx|ts|tsx|json|md|txt|css|html|py|ps1|cmd|c|cpp|cc|h|hpp|in|yml|yaml|cmake|toml|xml|config|sh|spec|inc|i)$/i.test(path)||/(?:^|\/)(?:COPYING|LICENSE|AUTHORS|Makefile|CMakeLists\.txt|\.gitignore|\.gitattributes)$/.test(path);
 }
 function assertNoSecret(path,bytes){
@@ -145,18 +147,27 @@ export async function generateOpenSource({root,outputDirectory,identity=readBuil
     delete item.directory;
   }
   const supplemental=[
-    ['fflate (three embedded)','0.8.2','MIT','node_modules/three/examples/jsm/libs/fflate.module.js',['LICENSES/fflate-0.8.2-MIT.txt']],
-    ['svg-numbers (three SVGLoader embedded)','unversioned embedded copy','MIT','node_modules/three/examples/jsm/loaders/SVGLoader.js',['LICENSES/svg-numbers-MIT.txt']],
-    ['LibreDWG','0.14.8556 / libredwg-web 0.7.9','GPL-3.0-or-later','cad-viewer/wasm/libredwg-web.wasm',['LICENSES/GPL-3.0-or-later.txt']],
-    ['OCCT exception (retained legacy notice)','1.0','LGPL-2.1 exception','cad-viewer/vendor/occt-import-js/OCCT_LGPL_EXCEPTION.txt',['cad-viewer/vendor/occt-import-js/license.occt.txt','cad-viewer/vendor/occt-import-js/license.occt-import-js.txt','cad-viewer/vendor/occt-import-js/OCCT_LGPL_EXCEPTION.txt']],
-    ['Studio Small 09 / Sergej Majboroda / Poly Haven','unmodified HDR','CC0-1.0','public/render-assets/studio-small-09.bin',['public/render-assets/studio-small-09.LICENSE.txt','LICENSES/CC0-1.0.txt']],
-    ['PyMuPDF (optional local Python)','1.26.4 requirement; not deployed-version evidence','AGPL-3.0 OR Artifex commercial','tools/logo-vector-import.py',['LICENSES/PyMuPDF-1.26.4-COPYING.txt','LICENSES/PyMuPDF-1.26.4-AGPL-3.0.txt']],
+    ['fflate (three embedded)','0.8.2','MIT','node_modules/three/examples/jsm/libs/fflate.module.js',['LICENSES/fflate-0.8.2-MIT.txt'],{modules:['node_modules/three/examples/jsm/libs/fflate.module.js']}],
+    ['svg-numbers (three SVGLoader embedded)','unversioned embedded copy','MIT','node_modules/three/examples/jsm/loaders/SVGLoader.js',['LICENSES/svg-numbers-MIT.txt'],{modules:['node_modules/three/examples/jsm/loaders/SVGLoader.js']}],
+    ['Earcut (three embedded)','3.0.1','ISC','node_modules/three/src/extras/lib/earcut.js',['LICENSES/earcut-3.0.1-ISC.txt'],{modules:['node_modules/three/build/three.core.js','node_modules/three/src/extras/lib/earcut.js']}],
+    ['LibreDWG','0.14.8556 / libredwg-web 0.7.9','GPL-3.0-or-later','cad-viewer/wasm/libredwg-web.wasm',['LICENSES/GPL-3.0-or-later.txt'],{artifacts:['cad-viewer/wasm/libredwg-web.wasm']}],
+    ['OCCT exception (retained legacy notice)','1.0','LGPL-2.1 exception','cad-viewer/vendor/occt-import-js/OCCT_LGPL_EXCEPTION.txt',['cad-viewer/vendor/occt-import-js/license.occt.txt','cad-viewer/vendor/occt-import-js/license.occt-import-js.txt','cad-viewer/vendor/occt-import-js/OCCT_LGPL_EXCEPTION.txt'],{artifacts:['cad-viewer/vendor/occt-import-js/occt-import-js.wasm']}],
+    ['Studio Small 09 / Sergej Majboroda / Poly Haven','unmodified HDR','CC0-1.0','public/render-assets/studio-small-09.bin',['public/render-assets/studio-small-09.LICENSE.txt','LICENSES/CC0-1.0.txt'],{artifacts:['render-assets/studio-small-09.bin']}],
+    ['PyMuPDF (optional local Python)','1.26.4 requirement; not deployed-version evidence','AGPL-3.0 OR Artifex commercial','tools/logo-vector-import.py',['LICENSES/PyMuPDF-1.26.4-COPYING.txt','LICENSES/PyMuPDF-1.26.4-AGPL-3.0.txt'],{service:true}],
   ];
+  const bundledModulePaths=new Set([...packages.values()].filter(item=>item.scope.includes('browser-bundled'))
+    .flatMap(item=>item.modules.map(file=>'node_modules/'+item.name+'/'+file.path)));
   const components=[];
-  for(const [name,version,license,input,notices] of supplemental){
+  for(const [name,version,license,input,notices,activation] of supplemental){
     const files=[];
     for(const file of notices){const path='open-source/retained/'+file;const bytes=readFileSync(resolve(root,file));await put(path,bytes);files.push(describe(path,bytes));}
-    components.push({name,version,license,input:describe(input,readFileSync(resolve(root,input))),licenseFiles:files});
+    const browserDistributed=Boolean(activation.modules?.some(path=>bundledModulePaths.has(path))||
+      activation.artifacts?.some(path=>existsSync(resolve(outputDirectory,path))));
+    components.push({name,version,license,input:describe(input,readFileSync(resolve(root,input))),licenseFiles:files,
+      browserDistributed,distributionScopes:activation.service?['services']:browserDistributed?['public-web','integrated-web']:['dev-only'],
+      presenceEvidence:activation.service?'optional service usage requires deployed-runtime review':browserDistributed?
+        {modules:activation.modules?.filter(path=>bundledModulePaths.has(path))||[],artifacts:activation.artifacts||[]}:
+        'retained source/notice only; absent from this browser graph and static runtime'});
   }
   const candidatePaths=[...new Set(git(root,['ls-files','-c','-o','--exclude-standard','-z']).split('\0').filter(Boolean))].sort();
   const archive={},sourceFiles=[];
@@ -188,9 +199,11 @@ export async function generateOpenSource({root,outputDirectory,identity=readBuil
     .map(path=>describe(path,readFileSync(resolve(outputDirectory,path))));
   const inventory={schemaVersion:1,identity,packages:[...packages.values()].sort((a,b)=>(a.name+'@'+a.version).localeCompare(b.name+'@'+b.version)),components,artifacts,runtimes:runtimeEvidence(root,artifacts),gaps};
   await put('open-source/inventory.json',encode(inventory));
+  await put('open-source/distribution-policy.json',encode({schemaVersion:1,identity,
+    scopes:['public-web','integrated-web'].map(scope=>auditLicensePolicy(root,inventory,scope))}));
   const rows=inventory.packages.map(p=>`<tr><td>${escape(p.name)}</td><td>${escape(p.version)}</td><td>${escape(p.declaredLicense)}</td><td>${escape(p.scope.join(', '))}</td><td>${p.licenseFiles.map(f=>`<a href="./${escape(f.path)}">${escape(f.path.split('/').at(-1))}</a>`).join(' · ')}</td></tr>`).join('');
   const retained=components.map(c=>`<li>${escape(c.name)} — ${escape(c.version)} — ${escape(c.license)}：${c.licenseFiles.map(f=>`<a href="./${escape(f.path)}">${escape(f.path.split('/').at(-1))}</a>`).join(' · ')}</li>`).join('');
-  const html=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'"><title>WebCAD 开源许可与构建源码</title><style>body{max-width:1120px;margin:2rem auto;padding:0 1rem;font:16px/1.7 system-ui;color:#243246;background:#fafbfc}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccd4dd;padding:.5rem;text-align:left}code,td{overflow-wrap:anywhere}a{color:#1259a0}.warning{background:#fff1d1;padding:1rem}pre{white-space:pre-wrap}</style></head><body><a href="./">返回 WebCAD</a><h1>开源许可与构建源码</h1><p class="warning">本页为工程证据，不是法律合规结论。保留原始版权、各文件许可及既有组合分发声明；不将所有新增代码统一改为 GPL。完整第三方对应源尚有缺口。</p><p>Build ID：<code>${escape(identity.buildId)}</code><br>工作源码 SHA-256：<code>${identity.sourceHash}</code><br>基础提交：<a href="${escape(source.baseCommitUrl)}">${identity.commit}</a>（${identity.dirty?'working：该提交不等于当前工作字节':'Git 工作输入未修改；仍以指纹和快照为准'}）</p><ul>${documents.map(f=>`<li><a href="./open-source/${f}">${f}</a></li>`).join('')}<li><a href="./open-source/inventory.json">实际构建依赖、分发文件 SHA-256 清单</a></li><li><a href="./open-source/build-source.json">构建来源及缺口</a></li><li><a href="./open-source/build-inputs.json">完整 build identity 输入指纹</a></li><li><a href="./open-source/source-snapshot.json">受限源码快照逐文件清单</a> · <a href="./open-source/working-source.zip">下载工作源码快照（不含全部第三方内核）</a></li></ul><h2>实际安装包与构建模块图</h2><p>browser-bundled 来自 Vite 主构建与 Worker 模块图；local-node/build-tool 不属于浏览器运行库。安装包原文中的版权及 NOTICE 保持不变。声明的 npm 依赖并不自动等于浏览器实际打包依赖。</p><table><thead><tr><th>组件</th><th>安装版本</th><th>声明许可</th><th>范围</th><th>完整原文</th></tr></thead><tbody>${rows}</tbody></table><h2>内嵌组件与保留声明</h2><p>Manifold: Copyright 2021 The Manifold Authors. — Apache-2.0；使用 Open CASCADE Technology，保留 LGPL 及原有 exception，不将旧 exception 当作当前内核版本的证明。</p><ul>${retained}</ul><h2>未齐材料与验证边界</h2><ul>${gaps.map(g=>`<li><strong>${escape(g.id)} (${escape(g.status)})</strong>：${escape(g.detail)}</li>`).join('')}</ul></body></html>\n`;
+  const html=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'"><title>WebCAD 开源许可与构建源码</title><style>body{max-width:1120px;margin:2rem auto;padding:0 1rem;font:16px/1.7 system-ui;color:#243246;background:#fafbfc}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccd4dd;padding:.5rem;text-align:left}code,td{overflow-wrap:anywhere}a{color:#1259a0}.warning{background:#fff1d1;padding:1rem}pre{white-space:pre-wrap}</style></head><body><a href="./">返回 WebCAD</a><h1>开源许可与构建源码</h1><p class="warning">本页为工程证据，不是法律合规结论。保留原始版权、各文件许可及既有组合分发声明；不将所有新增代码统一改为 GPL。完整第三方对应源尚有缺口。</p><p>Build ID：<code>${escape(identity.buildId)}</code><br>工作源码 SHA-256：<code>${identity.sourceHash}</code><br>基础提交：<a href="${escape(source.baseCommitUrl)}">${identity.commit}</a>（${identity.dirty?'working：该提交不等于当前工作字节':'Git 工作输入未修改；仍以指纹和快照为准'}）</p><ul>${documents.map(f=>`<li><a href="./open-source/${f}">${f}</a></li>`).join('')}<li><a href="./open-source/inventory.json">实际构建依赖、分发文件 SHA-256 清单</a></li><li><a href="./open-source/distribution-policy.json">分发范围审计与公开发布阻塞项</a></li><li><a href="./open-source/build-source.json">构建来源及缺口</a></li><li><a href="./open-source/build-inputs.json">完整 build identity 输入指纹</a></li><li><a href="./open-source/source-snapshot.json">受限源码快照逐文件清单</a> · <a href="./open-source/working-source.zip">下载工作源码快照（不含全部第三方内核）</a></li></ul><h2>实际安装包与构建模块图</h2><p>browser-bundled 来自 Vite 主构建与 Worker 模块图；local-node/build-tool 不属于浏览器运行库。安装包原文中的版权及 NOTICE 保持不变。声明的 npm 依赖并不自动等于浏览器实际打包依赖。</p><table><thead><tr><th>组件</th><th>安装版本</th><th>声明许可</th><th>范围</th><th>完整原文</th></tr></thead><tbody>${rows}</tbody></table><h2>内嵌组件与保留声明</h2><p>Manifold: Copyright 2021 The Manifold Authors. — Apache-2.0；使用 Open CASCADE Technology，保留 LGPL 及原有 exception，不将旧 exception 当作当前内核版本的证明。</p><ul>${retained}</ul><h2>未齐材料与验证边界</h2><ul>${gaps.map(g=>`<li><strong>${escape(g.id)} (${escape(g.status)})</strong>：${escape(g.detail)}</li>`).join('')}</ul></body></html>\n`;
   await put('open-source-notices.html',html);
   await put('cad-viewer/open-source-notices.html','<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>WebCAD 开源许可</title><a href="../open-source-notices.html">查看本次 WebCAD 构建的完整开源许可与源码材料</a></html>\n');
   if(readBuildIdentity(root).buildId!==identity.buildId)fail('生成过程中源码已变化，请重新构建');
@@ -214,6 +227,9 @@ export async function verifyOpenSource({root,outputDirectory,requireHomeLink=tru
   const actualMaterials=walk(outputDirectory).filter(p=>p.startsWith('open-source/')||p==='open-source-notices.html'||p==='cad-viewer/open-source-notices.html');
   if(actualMaterials.some(p=>p!=='open-source/manifest.json'&&!paths.has(p))||actualMaterials.length!==paths.size+1)fail('开源材料存在未登记或遗留文件');
   const inventory=await load('open-source/inventory.json'),source=await load('open-source/build-source.json');
+  const policyReport=await load('open-source/distribution-policy.json');
+  const expectedPolicy={schemaVersion:1,identity,scopes:['public-web','integrated-web'].map(scope=>auditLicensePolicy(root,inventory,scope))};
+  if(JSON.stringify(policyReport)!==JSON.stringify(expectedPolicy))fail('分发范围审计报告过期或被改写');
   if(JSON.stringify(inventory.identity)!==JSON.stringify(identity)||source.buildId!==identity.buildId||source.sourceHash!==identity.sourceHash)fail('源码/依赖清单身份不一致');
   if(source.baseCommitUrl!==`https://github.com/Orua/WebCAD/tree/${identity.commit}`||source.baseCommitIsExactWorkingSource!==!identity.dirty)fail('基础提交被冒称工作源码');
   if(JSON.stringify(inventory.gaps)!==JSON.stringify(gaps)||JSON.stringify(source.gaps)!==JSON.stringify(gaps))fail('源码缺口声明遗漏');

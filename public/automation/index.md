@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.61.1 · 操作目录 sha256:ebd59f49f6c2a239bea713a1c4953f437ff1ad91ad186b2d2e6e13115a7aa34a
+API 1.63.2 · 操作目录 sha256:58403a9efa746923ab5bc70ea3e3c1926fd8d40c2e172b5963bbb7d148dca01f
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -105,6 +105,9 @@ API 1.61.1 · 操作目录 sha256:ebd59f49f6c2a239bea713a1c4953f437ff1ad91ad186b
 - `capture`
 - `getEvidenceImage`
 - `run`
+- `getPerformanceState`
+- `configurePerformance`
+- `acknowledgePerformanceAdvisory`
 
 ## 文件方法
 
@@ -364,6 +367,9 @@ API 1.61.1 · 操作目录 sha256:ebd59f49f6c2a239bea713a1c4953f437ff1ad91ad186b
 - `capture` · page-method · capture({context,maxWidth?:64..4096,format?:"png"|"webp",quality?:0<q<=1}); 建议 maxWidth:800,format:"webp"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:"capture",args:{context,maxWidth:800,format:"webp"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。
 - `getEvidenceImage` · page-method · getEvidenceImage({context:{sessionId,documentId,documentInstanceId,expectedRevision},evidenceId?,viewId?:iso|front|top|right,maxWidth?:64..1024,format?:png|webp,quality?}); 默认640px WebP，三视图分别读相同revision和displaySignature。
 - `run` · page-method · run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:"api.run"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。
+- `getPerformanceState` · page-method · getPerformanceState()，无参数。
+- `configurePerformance` · page-method · configurePerformance({context,settings:{mode?:"auto"|"manual",preferredQuality?:"draft"|"standard"|"fine"|"ultra",manualLock?:boolean,allowAgentGrouping?:boolean}})
+- `acknowledgePerformanceAdvisory` · page-method · acknowledgePerformanceAdvisory({context,advisoryId,status:"deferred"|"no-safe-candidates"|"declined"|"stale"})
 - `document.materials` · page-command · 设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。
 - `feature.compileServices` · page-command · 按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。
 - `body.align` · page-command · 按世界轴平移对齐。完整例 args:{bodyIds:[移动实体ID],target:{kind:"body",bodyId:基准实体ID},axes:["Y"],sourceSide:"center",targetSide:"center",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。

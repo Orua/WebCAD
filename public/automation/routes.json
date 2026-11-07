@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.61.1",
-  "buildId": "b62ed786cb9c04c681c3d625d94b9c44825e38bd-src-3d74abd32eb05da3-working",
-  "catalogHash": "sha256:ebd59f49f6c2a239bea713a1c4953f437ff1ad91ad186b2d2e6e13115a7aa34a",
-  "docsHash": "sha256:66c1c5160353bab8e54d05c514cd3bafabb4e5c785e59ab2d0cf9ef37bcb9054",
+  "pageApiVersion": "1.63.2",
+  "buildId": "b75b4a1ac47ea68bf432a57feb6150961201ab45-src-6788750a76e08041-working",
+  "catalogHash": "sha256:58403a9efa746923ab5bc70ea3e3c1926fd8d40c2e172b5963bbb7d148dca01f",
+  "docsHash": "sha256:638f7043756a285623af7a6e46e164180a7fb7a26f6fefb1a710636e5a310a13",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -887,6 +887,15 @@
       "method": "prepareProfileEdit",
       "usage": "选择 sketchProfile 来源；prepareProfileEdit mode=trimCircle，明确两个交点与 keepSide，再 feature.edit 提交。"
     },
+    "performanceSettings": {
+      "tools": [
+        "getPerformanceState",
+        "configurePerformance",
+        "acknowledgePerformanceAdvisory"
+      ],
+      "method": "configurePerformance",
+      "usage": "设置自动显示、preferredQuality与manualLock；getPerformanceState读有效交互样本和只读组合建议，不自动调用模型或union/fuse。"
+    },
     "perPartMetal": {
       "tools": [
         "body.appearance"
@@ -1528,6 +1537,7 @@
     }
   },
   "labels": {
+    "performanceSettings": "getPerformanceState / configurePerformance / acknowledgePerformanceAdvisory",
     "debug": "getDebugReport / setDebugPanel",
     "debugReport": "getDebugReport",
     "agentPanelFloating": "getAgentPanel / setAgentPanel",

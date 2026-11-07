@@ -2,7 +2,7 @@
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.61.1",
+  "version": "1.63.2",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -22,7 +22,7 @@
     "公差"
   ],
   "inputContract": "setRenderQuality({context,quality:\"draft\"|\"standard\"|\"fine\"|\"ultra\"})",
-  "outputContract": "status=applied、context、renderQuality、display；只重新网格化。详见 api.workspace。",
+  "outputContract": "status=applied、context、renderQuality、display；只重新网格化并更新preferredQuality，保留当前选择。详见 api.workspace、getPerformanceState。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -193,6 +193,18 @@
         "chooseWhen": "相机、投影、显示、选择及剖切视图；不移动几何或执行切割。"
       },
       {
+        "id": "getPerformanceState",
+        "chooseWhen": "只读前台交互样本、逻辑帧渲染提交与显示策略，不运行性能测试或几何。"
+      },
+      {
+        "id": "configurePerformance",
+        "chooseWhen": "设置当前页自动显示、恢复上限和手动锁档，不修改工程或导出精度。"
+      },
+      {
+        "id": "acknowledgePerformanceAdvisory",
+        "chooseWhen": "回应组合建议的延后、无安全候选、拒绝或过期；不执行group/union/fuse。"
+      },
+      {
         "id": "redraw",
         "chooseWhen": "重绘当前显示，不重建特征历史。"
       },
@@ -216,5 +228,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8e9a4005fc5df6d7288811575b8be7db79f12e248f53e8c3259b7b5ec79b070f"
+  "docsHash": "sha256:b17a4653a8b45d639ff1d57663fbc1ceae022232442d452c2c906bdd80ba4aa5"
 }

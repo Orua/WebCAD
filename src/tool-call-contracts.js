@@ -14,6 +14,9 @@ const body=(properties={},required=[])=>context({bodyId:str,...properties},['bod
 // runtime validators. Complex source, geometry, permissions and conditional
 // lifecycle checks still run at the real target. Never ask for host credentials.
 export const METHOD_PREPARATION_SCHEMAS={
+ getPerformanceState:schema({}),
+ configurePerformance:context({settings:{type:'object',additionalProperties:false,anyOf:['mode','preferredQuality','manualLock','allowAgentGrouping'].map(key=>({required:[key]})),properties:{mode:{enum:['auto','manual']},preferredQuality:{enum:['draft','standard','fine','ultra']},manualLock:bool,allowAgentGrouping:bool}}},['settings']),
+ acknowledgePerformanceAdvisory:context({advisoryId:{type:'string',minLength:1},status:{enum:['deferred','no-safe-candidates','declined','stale']}},['advisoryId','status']),
  ...Object.fromEntries(['getModelLibrary','getHistory','getQuickModelUsage','info','getAgentPanel','getServices','getServicesCapabilities','getServicesRouting','getLogoConverter'].map(name=>[name,schema()])),
  recoverKernel:context({stopRunning:bool}),
  updateModelLibrary:context({expectedLibraryRevision:{type:'integer',minimum:-1},operation:{enum:['move','restore']},id:str,index:integer},['expectedLibraryRevision','operation']),

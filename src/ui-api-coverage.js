@@ -2,6 +2,7 @@ import { listOperations } from './operation-registry.js';
 
 // This is the UI-to-public-API inventory, also used by the UI and build gate.
 export const UI_API_ROUTES = Object.freeze({
+  performanceSettings:{tools:['getPerformanceState','configurePerformance','acknowledgePerformanceAdvisory'],method:'configurePerformance',usage:'设置自动显示、preferredQuality与manualLock；getPerformanceState读有效交互样本和只读组合建议，不自动调用模型或union/fuse。'},
   debug:{tools:['getDebugReport','setDebugPanel'],method:'setDebugPanel',usage:'设置最后一项Debug。setDebugPanel({context,visible:true|false})打开或关闭独立诊断窗口，不关闭编辑草稿、不提交工程；getDebugReport({source?,level?,query?,afterSequence?,limit?:1..1500,includeState?:true})读取脱敏日志和当前状态。复制AI数据取最近操作/错误和当前快照，下载支持完整JSON、日志JSONL、错误JSONL和状态JSON；数据由同一只读接口提供。'},
   debugReport:{tools:['getDebugReport'],method:'getDebugReport',usage:'按source/level/query筛选。复制/下载为宿主clipboard/download动作，API返回相同诊断数据供宿主保存；不宣称已写盘。不读取服务器磁盘日志。'},
   agentPanelFloating:{tools:['getAgentPanel','setAgentPanel'],method:'setAgentPanel',usage:'折叠且思考时只显示透明背景、无可见文字的可拖动机器人动画，其余时间隐藏；普通展开按钮在空闲时保留。setAgentPanel({context,layout:{collapsed:false}})展开，layout.floatingPosition:{xPx,yPx}按画布CSS像素移位；getAgentPanel().floating读回实际位置及活动状态。拖动不触发展开，不取消任务，不修改工程。'},

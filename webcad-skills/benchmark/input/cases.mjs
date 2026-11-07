@@ -12,7 +12,7 @@ const specs = [
  ['S02','solid','For t=z/40 in [0,1], centered horizontal ellipses have semiaxes a=10-4*t and b=4+2*t. No twist. End is circle radius 6.'],
  ['S03','solid','For z=0..40, horizontal circular sections have center (6*sin(pi*z/40),0,z), radius 5-2*z/40. Sections remain parallel to XY.'],
  ['S04','solid','Cubic Bezier path controls (0,0,0),(15,0,10),(-10,10,25),(5,0,40). Sweep radius 2 circles normal to local tangent; close both ends.'],
- ['S05','solid','XY arc centerline radius 20, angle 0..90 degrees. At t=angle/90 radial width is 4+2*t and Z height 3+t; centered sections with no extra twist.'],
+ ['S05','solid','Rectangular cross sections on an XY arc centerline radius 20, angle 0..90 degrees. At t=angle/90 radial width is 4+2*t and Z height 3+t; centered sections with no extra twist.'],
  ['S06','surface','Open surface for u,t in [0,1]: x=(2*u-1)*(10+2*sin(pi*t)), y=40*t, z=5*sin(pi*t)+2*(2*u-1)^2. Retain all boundaries.'],
  ['S07','surface','Open saddle x,y in [-10,10], z=(x*x-y*y)/100. Remove projected disk x*x+y*y<9 to form a hole.'],
  ['S08','surface','Open patch for u,v in [0,1]: x=20*u, y=20*v, z=3*v*sin(pi*u)+2*sin(pi*v). Match all boundaries and interior.'],
@@ -22,6 +22,6 @@ const specs = [
  ['S12','solid','Sphere radius 20 centered at origin, keep z>=10. Drill Z through hole diameter 4 at x=5,y=0. Apply R0.5 only to spherical-side hole rim; leave bottom hole rim sharp.'],
 ];
 export const cases = Object.freeze(specs.map(([caseId,targetType,specification])=>Object.freeze({
- caseId,caseVersion:'1.0.0',units:'mm',coordinateFrame:'world-right-handed',targetType,specification,
+ caseId,caseVersion:caseId==='S05'?'1.0.1':'1.0.0',units:'mm',coordinateFrame:'world-right-handed',targetType,specification,
  delivery:'Save final project; export actual STEP bytes, reimport into a separate document and check geometry again.',
 })));

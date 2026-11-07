@@ -2,7 +2,7 @@
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.61.1",
+  "version": "1.63.2",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -207,5 +207,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:45f3015a8602f59a8e6ae3a14808bab746f50e3fe362c86e642bab198cade2e4"
+  "docsHash": "sha256:8534c8224d27ada49bc71b74b1cbe0a01f4f3649830dae27660ddaa056eab034"
 }

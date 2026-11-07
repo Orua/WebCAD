@@ -7,7 +7,7 @@
   "id": "files.reattach",
   "title": "files.reattach",
   "category": "file",
-  "version": "1.61.1",
+  "version": "1.63.2",
   "contextPolicy": "none",
   "label": "reattach",
   "synonyms": [
@@ -207,5 +207,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:41a210c3759831f835eeeaf0bc8ce9338b04c3c6ab1cecd2efda0ee22a5ecce5"
+  "docsHash": "sha256:222724e238c04ba306b93be489d370b2cdba990e7b52955f75553bac2e40dea5"
 }

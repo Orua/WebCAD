@@ -2,7 +2,7 @@
   "id": "getMetalMaterials",
   "title": "getMetalMaterials",
   "category": "page-method",
-  "version": "1.61.1",
+  "version": "1.63.2",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -100,6 +100,18 @@
         "chooseWhen": "调整显示网格质量，不改变精确几何精度。"
       },
       {
+        "id": "getPerformanceState",
+        "chooseWhen": "只读前台交互样本、逻辑帧渲染提交与显示策略，不运行性能测试或几何。"
+      },
+      {
+        "id": "configurePerformance",
+        "chooseWhen": "设置当前页自动显示、恢复上限和手动锁档，不修改工程或导出精度。"
+      },
+      {
+        "id": "acknowledgePerformanceAdvisory",
+        "chooseWhen": "回应组合建议的延后、无安全候选、拒绝或过期；不执行group/union/fuse。"
+      },
+      {
         "id": "redraw",
         "chooseWhen": "重绘当前显示，不重建特征历史。"
       },
@@ -123,5 +135,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e8cd6ac27f19f99cb345714f5c224d280244fdb8373e6a2694ca814ef9bbe3ef"
+  "docsHash": "sha256:b8fd6a2d1058083f0eed8f00ed4726fe0faf75c2bf0579710a9794bd1e22004e"
 }

@@ -69,7 +69,7 @@ export function classifyRunError(error,{modelingFinished=false}={}){
  if(/^(?:MODEL_HTTP_|TRANSPORT_|PERMISSION|UNAUTHORIZED|FORBIDDEN|UNKNOWN_OUTCOME|UNRESOLVED_ORIGINAL_JOB)/.test(reason))return 'BLOCKED';
  // These explicit readback errors prove the completed task lacks its required single body.
  // Do not apply this rule to an initial empty document, or to arbitrary inspect exceptions.
- if(modelingFinished&&['B01_REQUIRES_SINGLE_BODY','BASIC_SINGLE_BODY_REQUIRED'].includes(reason))return 'FAIL';
+ if(modelingFinished&&['B01_REQUIRES_SINGLE_BODY','BASIC_SINGLE_BODY_REQUIRED','SPATIAL_SWEEP_SINGLE_SOLID_REQUIRED','BENT_SECTION_SINGLE_SOLID_REQUIRED','M02_SINGLE_SOLID_RESULT_REQUIRED'].includes(reason))return 'FAIL';
  return /DEADLINE|BUDGET_EXHAUSTED/.test(reason)?'FAIL':'BLOCKED';
 }
 export async function runBenchmark({plan,adapter,preflightOnly=false,record=async()=>{},checkpoint=async()=>{}}){
@@ -91,7 +91,10 @@ export async function runBenchmark({plan,adapter,preflightOnly=false,record=asyn
  const instances=new Set(),modelSessions=new Set();
  for(const run of report.runs){
   if(stop){run.reason='PRIOR_RUN_UNRESOLVED_OR_BUDGET';continue;}
-  if(plan.layer==='L2'&&!run.caseId.startsWith('B')&&!['B01','B02','B03'].every(id=>report.runs.some(r=>r.caseId===id&&r.group===run.group&&r.status==='PASS'))){run.status='BLOCKED';run.reason='THREE_BASIC_CHAIN_RUNS_NOT_PASSED';continue;}
+  // A full baseline retains its planned prerequisites. An explicitly isolated
+  // follow-up must not silently schedule unrelated basic cases again.
+  const plannedBasics=['B01','B02','B03'].filter(id=>report.runs.some(r=>r.caseId===id));
+  if(plan.layer==='L2'&&!run.caseId.startsWith('B')&&!plannedBasics.every(id=>report.runs.some(r=>r.caseId===id&&r.group===run.group&&r.status==='PASS'))){run.status='BLOCKED';run.reason='THREE_BASIC_CHAIN_RUNS_NOT_PASSED';continue;}
   const fixture=plan.fixtures.find(c=>c.caseId===run.caseId);
   // A validation receipt is produced by the evaluator, never by the modeling session.
   let validation;
@@ -113,7 +116,7 @@ export async function runBenchmark({plan,adapter,preflightOnly=false,record=asyn
    if(run.group==='B'&&(!knowledge.content||!knowledge.files.length))throw Error('KNOWLEDGE_NOT_LOADED');
    await emit({event:'knowledge-exposure',...run,knowledge});
    const calls=new Set();let alternatives=0,contaminated=run.group==='A'&&Boolean(knowledge.content);
-   const result=plan.layer==='L1'?await raceAbort(session.runDeterministic({input,signal:controller.signal,maxToolCalls:plan.budget.maxToolCalls}),controller.signal):await raceAbort(modelSession({task:JSON.stringify(input),group:run.group,modelId:identity.model.modelId,toolIdentity:identity.page.toolSetHash,initialStateId:session.documentInstanceId,knowledge,signal:controller.signal,maxRounds:plan.budget.maxRounds,maxToolCalls:plan.budget.maxToolCalls,
+   const result=plan.layer==='L1'?await raceAbort(session.runDeterministic({input,signal:controller.signal,maxToolCalls:plan.budget.maxToolCalls}),controller.signal):await raceAbort(modelSession({task:JSON.stringify({...input,acceptanceTolerance:fixture.tolerance}),group:run.group,modelId:identity.model.modelId,toolIdentity:identity.page.toolSetHash,initialStateId:session.documentInstanceId,knowledge,signal:controller.signal,maxRounds:plan.budget.maxRounds,maxToolCalls:plan.budget.maxToolCalls,
     record:emit,model:async request=>{
      let response;
      try{response=await raceAbort(session.model({...request,remainingBudget:{tokens:plan.budget.totalTokens===null?null:plan.budget.totalTokens-usageTokens,cost:plan.budget.totalCost===null?null:plan.budget.totalCost-usageCost,accountingMode:plan.budget.accountingMode}}),controller.signal);}
@@ -174,7 +177,8 @@ export async function runBenchmark({plan,adapter,preflightOnly=false,record=asyn
    run.status=classifyRunError(error,{modelingFinished});run.reason=error.message;
    if(!session){stop=true;report.unknownJobs.push({reason:'SESSION_OPEN_OUTCOME_UNRESOLVED'});}
   }finally{
-   clearTimeout(timer);controller.abort();
+   clearTimeout(timer);
+   if(run.status!=='PASS'&&typeof session?.debugReport==='function')try{await emit({event:'failure-debug-report',report:await raceAbort(session.debugReport(),AbortSignal.timeout(5000))});}catch{}controller.abort();
    // Always reconcile before the next case. No automatic retry of a write.
    if(session){
     try{run.cleanup=await raceAbort(session.stopAndReconcile(),AbortSignal.timeout(10000));}

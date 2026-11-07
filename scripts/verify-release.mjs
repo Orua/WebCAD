@@ -1,8 +1,11 @@
+import {PUBLIC_EDITION} from '../src/edition.js';
+import {assertPublicModules,verifyPublicOutput} from './edition-build.mjs';
 import {verifyQuickModelPreviews} from './quick-model-preview-contracts.mjs';
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {readBuildIdentity} from './build-identity.mjs';
 import {verifyOpenSource} from './generate-open-source.mjs';
+import {checkLicensePolicy} from './license-policy.mjs';
 import { infoMetadata, getTool, readDocs } from '../src/page-api-docs.js';
 import {assertAutomationParity} from '../src/automation-parity.js';
 import {auditAgentInterfaces} from './agent-interface-audit.mjs';
@@ -20,6 +23,15 @@ const root = resolve(import.meta.dirname, '..');
 const json = async path => JSON.parse(await readFile(resolve(root, path), 'utf8'));
 const outputDirectory=resolve(root,process.argv[2]||process.env.WEBCAD_DIST_DIR||'dist');
 const outputJson=path=>json(resolve(outputDirectory,path));
+// Standalone verification must follow the candidate profile, including when invoked
+// by the license gate without a build-profile environment.
+let candidateEdition='integrated';
+try{candidateEdition=(await outputJson('edition.json')).edition;}catch(error){if(error.code!=='ENOENT')throw error;}
+if(!['public','integrated'].includes(candidateEdition))throw Error('Invalid candidate edition');
+if(candidateEdition!==(PUBLIC_EDITION?'public':'integrated')){
+ const child=spawnSync(process.execPath,[process.argv[1],outputDirectory],{cwd:root,env:{...process.env,WEBCAD_EDITION:candidateEdition},stdio:'inherit',windowsHide:true});
+ if(child.error)throw child.error;process.exit(child.status??1);
+}
 const metadata = infoMetadata();
 assertAutomationParity();
 await auditAgentInterfaces(root);
@@ -68,6 +80,7 @@ for (const path of ['docs/USER-GUIDE.zh-CN.md', 'automation/frame-placement.js',
   'automation/clevis-practice.js',
   'automation/quickstart.md', 'automation/knowledge.md', 'automation/tool-library.mjs',
   'llms.txt']) await readFile(resolve(outputDirectory, path));
+if(!PUBLIC_EDITION){
 const bootstrap=await outputJson('automation/agent-start.json');
 if(bootstrap.pageApiVersion!==metadata.pageApiVersion||bootstrap.catalogHash!==metadata.catalogHash||bootstrap.docsHash!==metadata.docsHash)
   throw new Error('Agent entry differs from current page contracts');
@@ -79,6 +92,16 @@ for(const file of [...kit.files,kit.installer]){
   if(typeof file.url!=='string'||file.url.includes('..')||file.url.startsWith('/')||file.url.includes(':'))throw new Error('Invalid agent kit URL');
   const bytes=await readFile(resolve(outputDirectory,'automation',file.url));
   if(file.sha256!==`sha256:${createHash('sha256').update(bytes).digest('hex')}`||file.sizeBytes!==bytes.length)throw new Error(`Agent kit file verification failed: ${file.url}`);
+}
+}else{
+ const edition=await outputJson('edition.json'), graph=await outputJson('build-modules.json');
+ if(edition.edition!=='public'||edition.buildId!==buildId||edition.agentWorkspace||edition.hostChannels)throw Error('Invalid public capability manifest');
+ assertPublicModules(graph.modules);
+ await verifyPublicOutput(outputDirectory);
+ for(const path of ['automation/install-agent.ps1','automation/agent-kit.json','automation/remote-agent.json']){
+   try{await readFile(resolve(outputDirectory,path));}catch(error){if(error.code==='ENOENT')continue;throw error;}
+   throw Error('Host software leaked into public build: '+path);
+ }
 }
 // Contract and skill text changes must ship in the same complete knowledge ZIP.
 const knowledgeManifest=await outputJson('automation/agent-knowledge.json');
@@ -107,4 +130,10 @@ if(!isDeepStrictEqual(routes.routes,UI_API_ROUTES))throw new Error('Agent operat
 verifyOperationContracts();
 for(const method of metadata.methods)if(!cards.get(method)?.contextPolicy)throw Error(`Missing method contextPolicy: ${method}`);
 const contextTest=spawnSync(process.execPath,['--test','tests/page-context-policy.test.mjs'],{cwd:root,encoding:'utf8',windowsHide:true});if(contextTest.status!==0)throw Error('Runtime context policy check failed: '+contextTest.stdout+contextTest.stderr);
-console.log(`Release gate passed: ${report.operations.length} operations, ${report.executeActions.length} actions, ${report.uiRoutes.length} UI routes; agent entry, kit and operation contracts verified`);
+if(process.env.WEBCAD_DISTRIBUTION_SCOPE){
+  checkLicensePolicy(root,outputDirectory,process.env.WEBCAD_DISTRIBUTION_SCOPE);
+}else{
+  const policy=await outputJson('open-source/distribution-policy.json');
+  console.log('Distribution approval: '+policy.scopes.map(item=>`${item.scope}=${item.allowed?'APPROVED':'BLOCKED'}`).join(', ')+'; use verify-public-release.mjs before publication');
+}
+console.log(`Release integrity gate passed: ${report.operations.length} operations, ${report.executeActions.length} actions, ${report.uiRoutes.length} UI routes; ${PUBLIC_EDITION?'public module/asset boundary':'agent entry and kit'} and operation contracts verified (distribution approval is separate)`);

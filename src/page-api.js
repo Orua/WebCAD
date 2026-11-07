@@ -1,3 +1,4 @@
+import {EDITION_CAPABILITIES,PUBLIC_EDITION,requireIntegratedCapability} from './edition.js';
 import {getMetalMaterials,DEFAULT_METAL_CONFIG,validateMetalMaterials} from './metal-presets.js';
 import {meshReliefSampleSchema} from './mesh/relief-sample.js';
 import {METAL_DENSITIES,materialWeight} from './material-density.js';
@@ -29,6 +30,7 @@ import {createPageWait} from './page-wait.js';
 import {traceDebug,makeDebugReport} from './debug-journal.js';
 import {LIMITS} from './limits.js';
 import {renderQuality} from './render-quality.js';
+import {PERFORMANCE_SETTINGS_SCHEMA} from './performance/contracts.js';
 import {UI_LAYOUT} from './ui-layout.js';
 import {validateReferenceQuery} from './reference-query.js';
 import {readVectorInput,selectVector} from './browser-vector-input.js';
@@ -80,7 +82,7 @@ export function createPageAPI(host){
   const requestPolicies=new WeakMap();
   const current=()=>host.state();
   const evidence=createVisualEvidence({state:current,signature:()=>host.evidenceSignature?.()??'unsupported',capture:opts=>{if(!host.evidenceCapture)throw Object.assign(Error('This host does not support isolated evidence capture.'),{code:'CAPABILITY_UNAVAILABLE'});return host.evidenceCapture(opts);}});
-  const stateObserver=createStateObserver({key:()=>host.revisionKey?host.revisionKey():JSON.stringify(current().context),context:()=>current().context,subscribe:host.subscribeState});
+  const stateObserver=createStateObserver({key:()=>JSON.stringify([host.revisionKey?host.revisionKey():JSON.stringify(current().context),host.performanceVersion?.()??0]),context:()=>current().context,subscribe:host.subscribeState});
   const failure=e=>withErrorRecovery({status:e.status==='unknown'||e.commitState==='unknown'?'unknown':'failed',commitState:e.commitState==='unknown'||e.status==='unknown'?'unknown':'not_committed',error:{...(e.jobId?{jobId:e.jobId}:{}),...(e.idempotencyKey?{idempotencyKey:e.idempotencyKey}:{}),...(e.stage?{stage:e.stage}:{}),...(e.diagnosticsRef?{diagnosticsRef:e.diagnosticsRef}:{}),...(e.supportBinding?{supportBinding:boundedDiagnosticReport(e.supportBinding)}:{}),...(e.details?{details:boundedDiagnosticReport(e.details)}:{}),...(e.report?{report:boundedDiagnosticReport(e.report)}:{}),code:e.code||'PARAM_SCHEMA_INVALID',message:e.message,path:e.path??null,retryable:e.retryable===true,recoveryAction:e.recoveryAction||((e.commitState==='unknown'||e.status==='unknown')?'RECONCILE_ORIGINAL_REQUEST':null)||(e.code==='REVISION_CONFLICT'?'READ_STATE_AND_REPLAN':'READ_TOOL_AND_CORRECT_PARAMS')},context:current().context});
   const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
   function check(input,keys,requiredContext=true,allowBusy=false){
@@ -193,12 +195,12 @@ export function createPageAPI(host){
     finally{cached.artifactPending=false;}
   }
   const api={
-    markLocation:guarded(async input=>{check(input,['context','screen','active']);if(input.screen!==undefined&&input.active!==undefined)fail('PARAM_SCHEMA_INVALID','screen and active are mutually exclusive');if(input.active!==undefined&&typeof input.active!=='boolean')fail('PARAM_SCHEMA_INVALID','active must be boolean');if(input.screen!==undefined&&(!Array.isArray(input.screen)||input.screen.length!==2||input.screen.some(v=>typeof v!=='number'||!Number.isFinite(v)||v<0||v>1)))fail('PARAM_SCHEMA_INVALID','screen must be normalized viewport coordinates [u,v], 0–1');return {...await host.locationMarker(input),context:current().context};}),
-    getAgentPanel:()=>window.webcad.assistantPanel.get(),
+    markLocation:guarded(async input=>{requireIntegratedCapability();check(input,['context','screen','active']);if(input.screen!==undefined&&input.active!==undefined)fail('PARAM_SCHEMA_INVALID','screen and active are mutually exclusive');if(input.active!==undefined&&typeof input.active!=='boolean')fail('PARAM_SCHEMA_INVALID','active must be boolean');if(input.screen!==undefined&&(!Array.isArray(input.screen)||input.screen.length!==2||input.screen.some(v=>typeof v!=='number'||!Number.isFinite(v)||v<0||v>1)))fail('PARAM_SCHEMA_INVALID','screen must be normalized viewport coordinates [u,v], 0–1');return {...await host.locationMarker(input),context:current().context};}),
+    getAgentPanel:()=>PUBLIC_EDITION?{available:false,visible:false,phase:'unavailable',reason:'public-edition'}:window.webcad.assistantPanel.get(),
     getDebugReport:guarded(input=>{check(input,['source','level','query','afterSequence','limit','includeState'],false,true);return {status:'read',...(host.debugReport?host.debugReport(input):makeDebugReport(null,input))};}),
     setDebugPanel:guarded(input=>{check(input,['context','visible'],'identity',true);if(!host.setDebugPanel)fail('CAPABILITY_UNAVAILABLE','Debug panel is unavailable in this host');return {status:'applied',open:host.setDebugPanel(input.visible),context:current().context};}),
-    configureAgentPanel:guarded(async input=>{check(input,['context','url']);if(typeof input.url!=='string')fail('PARAM_SCHEMA_INVALID','url must be a string');return window.webcad.assistantPanel.configure(input.url);}),
-    setAgentPanel:guarded(async input=>{check(input,['context','visible','layout']);if(input.visible!==undefined&&typeof input.visible!=='boolean')fail('PARAM_SCHEMA_INVALID','visible must be boolean');if(input.visible===undefined&&input.layout===undefined)fail('PARAM_SCHEMA_INVALID','visible or layout is required');if(input.layout!==undefined){if(input.visible!==undefined)fail('PARAM_SCHEMA_INVALID','Change visibility and layout in separate requests');return window.webcad.assistantPanel.setLayout(input.layout);}return input.visible?window.webcad.assistantPanel.enter():window.webcad.assistantPanel.exit();}),
+    configureAgentPanel:guarded(async input=>{requireIntegratedCapability();check(input,['context','url']);if(typeof input.url!=='string')fail('PARAM_SCHEMA_INVALID','url must be a string');return window.webcad.assistantPanel.configure(input.url);}),
+    setAgentPanel:guarded(async input=>{requireIntegratedCapability();check(input,['context','visible','layout']);if(input.visible!==undefined&&typeof input.visible!=='boolean')fail('PARAM_SCHEMA_INVALID','visible must be boolean');if(input.visible===undefined&&input.layout===undefined)fail('PARAM_SCHEMA_INVALID','visible or layout is required');if(input.layout!==undefined){if(input.visible!==undefined)fail('PARAM_SCHEMA_INVALID','Change visibility and layout in separate requests');return window.webcad.assistantPanel.setLayout(input.layout);}return input.visible?window.webcad.assistantPanel.enter():window.webcad.assistantPanel.exit();}),
     getHistory:()=>host.history(),
     planAlignment:guarded(async input=>{check(input,['context','bodyIds','target','axes','sourceSide','targetSide','group','gapMm']);return {status:'read',...host.planAlignment(input),context:current().context};}),
     selectRectangle:guarded(async input=>{check(input,['context','rect','mode','additive']);if(input.additive!==undefined&&typeof input.additive!=='boolean')fail('PARAM_SCHEMA_INVALID','additive must be boolean');return host.selectRectangle(input);}),
@@ -245,7 +247,7 @@ export function createPageAPI(host){
       const results=queries.map(query=>({query,...searchTools({query,limit,sessionId:s.context.sessionId},{browserReady:s.summary.kernelReady})}));
       const ids=[...new Set([...toolIds,...results.flatMap(result=>result.items.map(item=>item.id))])];
       const blockers=[...(!s.summary.kernelReady?['KERNEL_LOADING']:[]),...(s.summary.busy?['BUSY']:[]),...(s.preview?.active||s.preview?.computing?['PREVIEW_ACTIVE']:[])];
-      const response={product:'WebCAD',buildId:host.buildId,transport:'in-page',...metadata,
+      const response={product:'WebCAD',buildId:host.buildId,transport:'in-page',...metadata,edition:EDITION_CAPABILITIES,
         context:{...s.context},requestContext:{...identity,expectedRevision:revision},
         ...(s.referenceSystem?.workFrame?{reference:{version:1,workFrame:{origin:[...s.referenceSystem.workFrame.origin],quaternion:[...s.referenceSystem.workFrame.quaternion],locked:s.referenceSystem.workFrame.locked,frameVersion:s.referenceSystem.workFrame.frameVersion},placementVersion:1}}:{}),
         ready:s.summary.kernelReady,busy:s.summary.busy,preview:{active:s.preview?.active===true,computing:s.preview?.computing===true},
@@ -300,9 +302,10 @@ export function createPageAPI(host){
       rememberBodies(state);
       // compact omits the heavy display descriptor (agents only need it for capture/redraw).
       let out=stateInput.compact?{...state,stateSeq:stateObserver.version(),requestContext:req}:{...state,stateSeq:stateObserver.version(),requestContext:req,display:host.display()};
+      if(host.performanceSummary)out.performance=host.performanceSummary();
       if(sinceRevision!==undefined){
         if(sinceRevision===out.context?.revision)return {status:'read',unchanged:true,unchangedScope:'geometry',context:out.context,requestContext:req,stateSeq:out.stateSeq,sinceRevision,
-          ...Object.fromEntries(['summary','selection','preview','referenceSystem','references','hostControl','kernelProgress'].filter(key=>out[key]!==undefined).map(key=>[key,out[key]]))};
+          ...Object.fromEntries(['summary','selection','preview','referenceSystem','references','hostControl','kernelProgress','performance'].filter(key=>out[key]!==undefined).map(key=>[key,out[key]]))};
         out={...out,sinceRevision,changes:bodyChanges(sinceRevision,state)};
       }
       if(fields)out=Object.fromEntries(Object.entries(out).filter(([k])=>['status','context','requestContext','stateSeq','changes','sinceRevision'].includes(k)||fields.includes(k)));
@@ -322,6 +325,9 @@ export function createPageAPI(host){
     queryReferences:guarded(async input=>{check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);const request=validateReferenceQuery(input),result=await host.references(request);check(input,['context','bodyIds','kind','filter','limit','offset','requireUnique']);return result;}),
     resolvePlacement:guarded(async input=>{check(input,['context','op','params','refs','placement']);if(typeof input.op!=='string'||!Array.isArray(input.refs)||input.refs.some(id=>typeof id!=='string')||!input.params||typeof input.params!=='object')fail('PARAM_SCHEMA_INVALID','op, params and refs required');const result=await host.resolvePlacement(input);check(input,['context','op','params','refs','placement']);return result;}),
     setRenderQuality:guarded(async input=>{check(input,['context','quality']);renderQuality(input.quality);await host.quality(input.quality);check(input,['context','quality']);return {status:'applied',context:current().context,renderQuality:current().renderQuality,display:host.display()};}),
+    getPerformanceState:guarded(input=>{if(Object.keys(input).length)fail('PARAM_SCHEMA_INVALID','getPerformanceState takes no arguments');return {status:'read',context:current().context,...host.performance()};}),
+    configurePerformance:guarded(input=>{check(input,['context','settings'],'identity',true);validateSchema(PERFORMANCE_SETTINGS_SCHEMA,input.settings);return {status:'applied',context:current().context,performance:host.configurePerformance(input.settings)};}),
+    acknowledgePerformanceAdvisory:guarded(input=>{check(input,['context','advisoryId','status'],'identity',true);if(typeof input.advisoryId!=='string'||!['deferred','no-safe-candidates','declined','stale'].includes(input.status))fail('PARAM_SCHEMA_INVALID','Provide advisoryId and a supported response status');return {status:'applied',context:current().context,advisory:host.acknowledgePerformance(input)};}),
     sampleMeshRelief:guarded(async input=>{
       const keys=['context','bodyId','inputGeometryHash','support','pointsMm'],s=check(input,keys),{context,...args}=input;validateSchema(meshReliefSampleSchema,args);
       if(!s.bodies.some(b=>b.id===input.bodyId))fail('STALE_REFERENCE','Unknown current mesh body');
@@ -745,6 +751,7 @@ export function createPageAPI(host){
       for(const [key,values] of Object.entries({display:['solid','edges','wire','transparentEdges'],gizmo:['off','translate','rotate'],selectionMode:['view','body','face','edge'],language:['zh','en'],temporaryDisplay:['normal','selectedOnly','transparentOthers']}))if(input[key]!==undefined&&!values.includes(input[key]))fail('PARAM_SCHEMA_INVALID',`Unknown ${key}`);
       if(input.gizmo!==undefined&&input.gizmo!=='off'&&input.selectionMode!==undefined&&input.selectionMode!=='body')fail('SELECTION_CONFLICT','Move/rotate handles require body selection; omit selectionMode or use body','selectionMode');
       for(const key of ['grid','snap','anchorVisible','toolbar','focus'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);
+      if(PUBLIC_EDITION&&input.workspace==='agent')requireIntegratedCapability();
       if(input.workspace!==undefined&&!['modeling','library','agent'].includes(input.workspace))fail('PARAM_SCHEMA_INVALID','workspace must be modeling/library/agent');
       if(input.libraryMode!==undefined&&!['cards','list'].includes(input.libraryMode))fail('PARAM_SCHEMA_INVALID','libraryMode must be cards/list');
       if(input.panels!==undefined&&(!input.panels||typeof input.panels!=='object'||Array.isArray(input.panels)||Object.entries(input.panels).some(([key,value])=>!['left','right'].includes(key)||typeof value!=='boolean')))fail('PARAM_SCHEMA_INVALID','panels requires left/right booleans');
@@ -835,7 +842,7 @@ export function createPageAPI(host){
     const original=api[name];api[name]=(...args)=>{try{const request=pageInput(args[0]??{});validatePageInput(name,request);return original(request,...args.slice(1));}catch(error){if(name==='getState')throw error;return failure(error);}};
   }
   api.contextPolicies=Object.freeze(Object.fromEntries([...Object.keys(api).filter(k=>typeof api[k]==='function'),...Object.keys(files).map(k=>'files.'+k)].map(name=>[name,contextPolicy(name)])));
-  const quiet=new Set(['getDebugReport','setDebugPanel','info','getState','getUILayout','getAgentPanel','getJob','waitFor','getBatchReceipt','searchTools','getTools','getTool','readDocs','createRequestContext']);
+  const quiet=new Set(['getDebugReport','setDebugPanel','getPerformanceState','info','getState','getUILayout','getAgentPanel','getJob','waitFor','getBatchReceipt','searchTools','getTools','getTool','readDocs','createRequestContext']);
   for(const name of Object.keys(api))if(typeof api[name]==='function'){
     const original=api[name];api[name]=explained(quiet.has(name)?original:(...args)=>traceDebug(name==='connect'?'agent':'api',name,args[0],()=>original(...args)));
   }

@@ -353,6 +353,9 @@ export function validateOperationRefs(op, refs) {
 export function validateOperationExample(op, params) {
   assertPatternExecution(op,params);
   const card = getOperation(op);
+  if(op==='curveSweep'&&params&&['arc','spline','segments'].includes(params.pathType)&&(params.section??'round')==='round'&&!Object.hasOwn(params,'radius')){
+    contractError('PARAM_SCHEMA_INVALID','params.radius','圆截面必须显式提供 radius（半径，毫米）；sectionSize 是倒角方线的边长，不能代替 radius。请读取 curveSweep 工具卡后修正参数。');
+  }
   try { return card.strictContract ? normalizeOperationParams(op, params) : validateSchema(card.inputSchema, params); }
   catch(error){
     if(op==='quickModel'&&error.message==='Exactly one alternative is required.'&&!Object.hasOwn(QUICK_MODELS,params?.kind))contractError('PARAM_SCHEMA_INVALID','params.kind','quickModel 的 kind 不在目录中。请 getTool({id:"quickModel"}) 读取 templates[].kind；常见有 dBuckle、tube、washer、ring。box、pin、cylinder 不是 kind。');

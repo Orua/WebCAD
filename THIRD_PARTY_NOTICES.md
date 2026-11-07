@@ -1,5 +1,11 @@
 # Third-party notices
 
+## Distribution review status
+
+The retained notices below are preserved. The [scope map](docs/compliance/source-license-map.json) adds explicit source, notice and review status for actual browser packages, copied resources and optional runtimes. Twelve JavaScript package notices were compared with existing installed package metadata and retained text (CRLF/LF normalized); this does not claim a new clean installation or native rebuild. Build-time module-graph and runtime hashes remain authoritative for the candidate bytes.
+
+`public/render-assets/antique-metal-reference.jpg` is referenced by the application but has no established creator/source/redistribution grant in the retained material. Examples, trial models and preview media also require per-file provenance review. They remain release blockers, alongside application authorization and matching native-source gaps. No unsupported attribution or permission is invented. See [pending decisions](docs/compliance/LICENSE_DECISION.md) and the generated `open-source/distribution-policy.json`; an unrelated dev-only gap does not itself block a static browser scope.
+
 ## mlightcad/cad-viewer
 
 This project is derived from [mlightcad/cad-viewer](https://github.com/mlightcad/cad-viewer), which is distributed under the MIT License. The retained license text is in [`LICENSES/MIT.txt`](LICENSES/MIT.txt).
