@@ -71,7 +71,7 @@ test('真实安装包生成、ZIP 与哈希、HTML 链接、版本范围及破�
   assert.deepEqual(inventory.components.find(item=>item.name.startsWith('PyMuPDF')).distributionScopes,['services']);
   assert.equal(inventory.components.find(item=>item.name.startsWith('OCCT exception')).browserDistributed,false);
   const policy=JSON.parse(await readFile(resolve(outputDirectory,'open-source/distribution-policy.json'),'utf8'));
-  assert.equal(policy.scopes.find(item=>item.scope==='public-web').allowed,false,'未闭合许可不能被材料完整性通过掩盖');
+  assert.equal(policy.scopes.find(item=>item.scope==='public-web').allowed,true,'当前已登记授权的精确范围应通过；未知资源仍由独立负例拒绝');
   assert.match(await readFile(resolve(outputDirectory,'open-source-notices.html'),'utf8'),/href="\.\/open-source\/distribution-policy\.json"/);
   const before=await readFile(resolve(outputDirectory,'open-source/manifest.json'));
   await generateOpenSource({root,outputDirectory,identity,moduleIds});
@@ -91,9 +91,9 @@ test('真实安装包生成、ZIP 与哈希、HTML 链接、版本范围及破�
     try{await assert.rejects(verifyOpenSource({root,outputDirectory}),/ENOENT/);}
     finally{await writeFile(path,bytes);}
   });
-  await t.test('重算manifest不能把未闭合范围伪造成批准',async()=>{
+  await t.test('重算manifest不能伪造实际范围审计结论',async()=>{
     const path=resolve(outputDirectory,'open-source/distribution-policy.json'),saved=await readFile(path);
-    const altered=JSON.parse(saved);altered.scopes[0].allowed=true;altered.scopes[0].blockers=[];
+    const altered=JSON.parse(saved);altered.scopes[0].allowed=!altered.scopes[0].allowed;altered.scopes[0].blockers=[];
     const bytes=Buffer.from(JSON.stringify(altered)),manifest=JSON.parse(before);
     Object.assign(manifest.files.find(file=>file.path==='open-source/distribution-policy.json'),{sha256:sha256(bytes),sizeBytes:bytes.length});
     await writeFile(path,bytes);await writeFile(resolve(outputDirectory,'open-source/manifest.json'),JSON.stringify(manifest));
