@@ -1,5 +1,25 @@
 # Third-party notices
 
+## Component overview / 组件概览
+
+This notice covers multiple scopes: browser modeling, retained viewer components, optional Node tools and optional conversion services. A dependency appearing here is not a claim that it runs in every browser build. The actual generated module/file inventory identifies the distributed bytes. Copyright remains with each upstream rights holder; no uniform WebCAD ownership or license is asserted.
+
+本说明分别记录浏览器建模、保留的查看器、可选 Node 工具及转换服务。列出依赖不代表所有构建都运行该依赖；实际分发以生成的模块与文件清单为准。版权归各上游权利人，未统一改写为 WebCAD 所有。
+
+| Scope / 范围 | Projects / 项目 | Terms / 许可 |
+| --- | --- | --- |
+| Browser modeling / 浏览器建模 | Replicad; replicad-opencascadejs / OCCT; Three.js; Manifold; polygon-clipping | MIT; LGPL-2.1-only / applicable OCCT exception; MIT; Apache-2.0; MIT |
+| Retained viewer / 保留查看器 | mlightcad/cad-viewer; LibreDWG/libredwg-web; occt-import-js; SHX parser | MIT; GPL-3.0-or-later; LGPL-2.1; retained MIT notice |
+| Embedded dependencies / 嵌入与传递依赖 | fflate, Earcut, svg-numbers, flatbush, flatqueue, opentype.js, tiny-inflate, codepointat, robust-predicates, splaytree, Clipper2 | MIT / ISC / Unlicense / BSL-1.0, by component |
+| Guidance / 指导材料 | text-to-cad 0.7.19 | MIT, © 2026 Thompson Labs LLC |
+| Resources / 资源 | Poly Haven studio HDR; Basic, Tenor Sans, VT323 fonts | CC0-1.0; SIL OFL-1.1 |
+| Optional Node / 可选 Node 工具 | MCP SDK; ws; zod | MIT |
+| Optional Python / 可选 Python 转换 | ezdxf; svgelements; Shapely; PyMuPDF | MIT; MIT; BSD-3-Clause; AGPL-3.0 or Artifex commercial |
+| Optional LogoVector / 可选服务 | Newtonsoft.Json; StbImageSharp; PdfPig | MIT; Unlicense OR MIT; Apache-2.0 |
+| Build / 构建 | Vite | MIT |
+
+Optional LogoVector package versions and service-specific notices are recorded in [its notice file](services/WebCADServices/modules/LogoVector/THIRD_PARTY_NOTICES.md). Its build-only .NET reference assemblies are separate from runtime distribution. Browser build notices also collect the actual included transitive packages; this overview does not replace their full texts.
+
 ## Distribution review status
 
 The retained notices below are preserved. The [scope map](docs/compliance/source-license-map.json) adds explicit source, notice and review status for actual browser packages, copied resources and optional runtimes. Twelve JavaScript package notices were compared with existing installed package metadata and retained text (CRLF/LF normalized); this does not claim a new clean installation or native rebuild. Build-time module-graph and runtime hashes remain authoritative for the candidate bytes.

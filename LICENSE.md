@@ -15,7 +15,17 @@ See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for component paths and [
 
 No single license in this file overrides the license notices attached to individual third-party files.
 
-## WebCAD 实际构建分发
+## Current WebCAD scope (English)
+
+WebCAD is a multi-license repository. The viewer terms above remain in force; they do not automatically relicense every modeling, Agent or Services file. Original copyrights belong to their respective rights holders. The maintainer's recorded approval covers continued publication under existing scoped terms, without selecting a new uniform license or copyright holder.
+
+The main modeling stack is Replicad (MIT), replicad-opencascadejs (LGPL-2.1-only), OpenCascade (LGPL-2.1 with its applicable exception), Three.js (MIT), Manifold (Apache-2.0) and polygon-clipping (MIT). The retained viewer also uses the MIT cad-viewer code, GPL-3.0-or-later LibreDWG and LGPL-2.1 occt-import-js. Adapted text-to-cad guidance retains its MIT notice and Copyright (c) 2026 Thompson Labs LLC. See [third-party notices](THIRD_PARTY_NOTICES.md) for versions, paths, transitive libraries, resources and optional service dependencies.
+
+Optional Python conversion invokes PyMuPDF under its AGPL-3.0 / Artifex commercial dual-license offering; no commercial entitlement is established here. It is separate from the static frontend and must be reviewed for the actual service deployment.
+
+Builds generate notices, the actual module/file inventory, full retained license texts and source hashes. Existing scope authorization is recorded in the [scope decisions](docs/compliance/LICENSE_DECISION.md). Every changed public candidate must pass `node scripts/verify-public-release.mjs <candidate-directory> public-web`; a successful development build alone does not approve a release. Native source availability, native rebuilding/relinking and byte-identical reproduction are distinct claims; the latter checks remain unexecuted. See [corresponding source](CORRESPONDING_SOURCE.md).
+
+## 中文：WebCAD 实际构建分发
 
 上文保留的是既有 viewer 的组合分发许可声明及上游权利，不是对本次所有新增源码重新授权。不得删除或改写上游版权，不将新脚本、Services、宿主或独立第三方组件一律标记为 GPL。各文件的原许可继续有效。
 
@@ -27,6 +37,6 @@ WebCAD 的 Vite 构建自动生成根目录 `./open-source-notices.html` 与 `./
 
 ## 分发范围与待决授权
 
-[来源与许可清单](docs/compliance/source-license-map.json)分别记录原始来源、AI 辅助状态、许可、权利主体、证据状态及 public-web / integrated-web / agent-host / services / dev-only 范围。未知主体保持 pending；本说明没有替新增应用代码选择版权人或统一授予 MIT。维护者需确认的文件范围和工程材料列于[待决事项](docs/compliance/LICENSE_DECISION.md)。
+[来源与许可清单](docs/compliance/source-license-map.json)分别记录原始来源、AI 辅助状态、许可、权利主体、证据状态及 public-web / integrated-web / agent-host / services / dev-only 范围。已记录维护者对新增应用工作按现有范围条款继续公开分发的授权；未知或新增材料不能自动继承该授权。本说明没有替新增应用代码选择版权人或统一授予 MIT。具体授权、文件范围和工程材料列于[范围与授权记录](docs/compliance/LICENSE_DECISION.md)。
 
-当前公开分发未获门禁批准。构建生成 `open-source/distribution-policy.json`，保留阻塞项；`npm run build` 校验材料完整性，不替代公开授权。公开发布须运行 `node scripts/verify-public-release.mjs <候选目录> public-web`，相关范围未闭合时拒绝。可选服务不因未复制到静态包而自动免审；公开功能一旦调用该服务，须审查该次实际部署范围。
+已有范围授权不等于未来所有候选包自动获批。构建生成 `open-source/distribution-policy.json`，记录当前候选的许可检查结果与阻塞项；`npm run build` 校验材料完整性，不替代公开授权。公开发布须运行 `node scripts/verify-public-release.mjs <候选目录> public-web`，相关范围未闭合时拒绝。可选服务不因未复制到静态包而自动免审；公开功能一旦调用该服务，须审查该次实际部署范围。
