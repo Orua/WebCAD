@@ -28,6 +28,28 @@ test('authorization failures remain explicit',async()=>{
  const client=createServicesClient({config,credential:'wrong',fetchImpl:async()=>Response.json({code:'UNAUTHORIZED',message:'denied'},{status:401})});
  await assert.rejects(client.handshake(),error=>error.code==='UNAUTHORIZED'&&error.httpStatus===401);
 });
+test('visitor writes reject a legacy shared-principal server before uploading bytes',async()=>{
+ const previous=globalThis.location;globalThis.location=new URL('https://example.invalid/webcad/');
+ try{
+  const methods=[];
+  const client=createServicesClient({config:{url:'/cadservices/api.ashx',authMode:'siteSession'},fetchImpl:async(url,options)=>{methods.push(options.method);return response(url);}});
+  await assert.rejects(client.upload(new File([new Uint8Array([1,2,3])],'sample.svg')),{code:'SERVICES_PROTOCOL_MISMATCH'});
+  assert.deepEqual(methods,['GET']);
+ }finally{if(previous===undefined)delete globalThis.location;else globalThis.location=previous;}
+});
+test('an accepted isolated visitor handshake is reused and sends no internal bearer',async()=>{
+ const previous=globalThis.location;globalThis.location=new URL('https://example.invalid/webcad/');
+ try{
+  const calls=[];
+  const client=createServicesClient({config:{url:'/cadservices/api.ashx',authMode:'siteSession'},fetchImpl:async(url,options)=>{
+   calls.push({url,options});assert.equal(options.credentials,'same-origin');assert.equal(options.headers.Authorization,undefined);
+   if(options.method==='GET')return response(url,{visitorIsolationVersion:1});
+   return Response.json({jobId:'test',execution:'queued'});
+  }});
+  await client.submit('logo/inspect',{},'one');await client.submit('logo/inspect',{},'two');
+  assert.deepEqual(calls.map(c=>c.options.method),['GET','POST','POST']);
+ }finally{if(previous===undefined)delete globalThis.location;else globalThis.location=previous;}
+});
 
 test('relative and same-origin settings infer website authorization; cross-origin retains bearer',()=>{
  const previous=globalThis.location;

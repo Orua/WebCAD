@@ -2,7 +2,7 @@
   "id": "readLogo",
   "title": "readLogo",
   "category": "page-method",
-  "version": "1.63.3",
+  "version": "1.63.4",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -343,5 +343,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f054d2d285ea0698ecef4e62b08f88ed7acf1ac7a06e5871f7153ced4c6b9acb"
+  "docsHash": "sha256:bb3d4bffe4a4a843b863b8012b49097338b6fd1bc2e498a30fafa65582466d74"
 }

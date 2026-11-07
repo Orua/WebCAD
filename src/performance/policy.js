@@ -25,9 +25,9 @@ export function createPerformancePolicy(overrides={}){
   let context=null,sequence=0,pending=null,lastTime=-Infinity,lastAction=null,lastChangeMs=-Infinity,lastUpgradeMs=-Infinity,
     downgraded=false,freshAfterMs=-Infinity,attempted=new Set(),recoveryMs=0,recoveryEndMs=null;
   const copy=value=>value===null?null:structuredClone(value);
-  function evaluate(snapshot,{nowMs,preferredQuality='standard',effectiveQuality=preferredQuality,mode='auto',manualLock=false,allowAgentGrouping=false,displayLoadConfirmed=false}={}){
+  function evaluate(snapshot,{nowMs,preferredQuality='standard',effectiveQuality=preferredQuality,mode='auto',manualLock=false,allowAgentGrouping=false,displayLoadConfirmed=false,blocked=false}={}){
     if(!Number.isFinite(nowMs)||nowMs<0||nowMs<lastTime||!qualities.includes(preferredQuality)||!qualities.includes(effectiveQuality)||!['auto','manual'].includes(mode)||
-      ![manualLock,allowAgentGrouping,displayLoadConfirmed].every(value=>typeof value==='boolean'))throw Error('INVALID_PERFORMANCE_INPUT');
+      ![manualLock,allowAgentGrouping,displayLoadConfirmed,blocked].every(value=>typeof value==='boolean'))throw Error('INVALID_PERFORMANCE_INPUT');
     lastTime=nowMs;
     const validContext=typeof snapshot?.documentInstanceId==='string'&&snapshot.documentInstanceId.length>0&&Number.isSafeInteger(snapshot.geometryRevision)&&snapshot.geometryRevision>=0;
     const key=validContext?JSON.stringify([snapshot.documentInstanceId,snapshot.geometryRevision]):null;
@@ -44,13 +44,16 @@ export function createPerformancePolicy(overrides={}){
     // outcome is unknown. Never silently replace an in-flight request.
     if(manualLock||mode==='manual'){recoveryMs=0;recoveryEndMs=null;return {...out,state:'manual-locked',reasonCodes:['MANUAL_POLICY'],pendingActionId:pending?.actionId??null};}
     if(pending)return {...out,state:'optimizing',reasonCodes:['AWAITING_ACTION_RECONCILIATION']};
+    if(blocked){recoveryMs=0;recoveryEndMs=null;return {...out,state:'deferred',reasonCodes:['DOCUMENT_BUSY']};}
     const window=snapshot?.window,p95=snapshot?.frameIntervalMs?.p95;
     if(!validContext||snapshot?.valid!==true||snapshot.foreground!==true||snapshot.visible!==true||snapshot.interactive!==true||
       !window||!Number.isInteger(window.sampleCount)||window.sampleCount<policy.minSamples||!Number.isFinite(window.interactionMs)||window.interactionMs<policy.minInteractionMs||!Number.isFinite(window.startMs)||!Number.isFinite(window.endMs)||
       window.startMs<0||window.startMs>window.endMs||window.startMs<freshAfterMs||window.endMs>nowMs||nowMs-window.endMs>1000||!Number.isFinite(p95)||p95<=0){
       recoveryMs=0;recoveryEndMs=null;return {...out,reasonCodes:['INSUFFICIENT_VALID_INTERACTION']};
     }
-    if(!displayLoadConfirmed){recoveryMs=0;recoveryEndMs=null;return {...out,state:level==='normal'?'normal':'observe',reasonCodes:['DISPLAY_BOTTLENECK_UNCONFIRMED']};}
+    // A confirmed display bottleneck is required to lower quality. Recovery
+    // must still work after the optimization has made CPU submission cheap.
+    if(!displayLoadConfirmed&&p95>policy.slowP95Ms){recoveryMs=0;recoveryEndMs=null;return {...out,state:level==='normal'?'normal':'observe',reasonCodes:['DISPLAY_BOTTLENECK_UNCONFIRMED']};}
     // Accumulate successive qualifying windows without retaining >1200 frames.
     // Repeated reads add zero time; gaps and invalid windows break recovery.
     if(p95<policy.recoverP95Ms){

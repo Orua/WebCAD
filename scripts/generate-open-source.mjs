@@ -8,7 +8,7 @@ import {fingerprintBuildInputs, readBuildIdentity} from './build-identity.mjs';
 import {auditLicensePolicy} from './license-policy.mjs';
 
 const documents=['LICENSE.md','THIRD_PARTY_NOTICES.md','CORRESPONDING_SOURCE.md',
-  'docs/compliance/source-license-map.json','docs/compliance/LICENSE_DECISION.md'];
+  'docs/compliance/source-license-map.json','docs/compliance/LICENSE_DECISION.md','corresponding-source/native-materials.json','corresponding-source/NATIVE-BUILD.md'];
 const browserPackages=['three','replicad','replicad-opencascadejs','manifold-3d','polygon-clipping'];
 const localPackages=['@modelcontextprotocol/sdk','ws','zod'];
 const slash=path=>path.replaceAll('\\','/');
@@ -92,9 +92,9 @@ function runtimeEvidence(root,artifacts){
   });
 }
 const gaps=[
-  {id:'occt-modeling-source',status:'missing',detail:'replicad-opencascadejs 1.1.0 包含生成 JS/WASM，不含完整 OCCT/opencascade.js 内核源、全部生成器/补丁/镜像 digest。包 gitHead 仅标识 replicad 仓库，不能证明内核精确版本；未完成内核重编译与替换/重链接验证。'},
-  {id:'libredwg-rebuild',status:'unverified',detail:'随包保留已有 LibreDWG 源码子集、绑定和构建脚本；本轮未重编译，不宣称全部第三方/工具链源已齐或可逐字节复现。历史记录的源提交和运行文件哈希单独核对。'},
-  {id:'manifold-native-closure',status:'unverified',detail:'manifold 安装包提供 Apache-2.0 全文，但不包含完整 C++ 内核及所有静态编入依赖的完整来源/配置记录。未凭 npm 版本声称其原生依赖许可闭包已齐。'},
+  {id:'occt-modeling-source',status:'pinned-materials-acquired-rebuild-unexecuted',detail:'已取得准确replicad绑定、opencascade.js生成器/补丁、OCCT及声明依赖的完整源码；固定URL/版本/归档哈希见corresponding-source/native-materials.json。未执行内核重编与替换验收；不以取得材料或镜像tag冒称逐字节复现。'},
+  {id:'libredwg-rebuild',status:'unverified',detail:'已取得固定LibreDWG/libredwg-web完整上游、匹配zlib源，并比对保留配置、构建脚本及修改；来源哈希见native-materials.json。本轮未重编，不宣称逐字节复现或已完成源码服务上线。'},
+  {id:'manifold-native-closure',status:'unverified',detail:'准确源码提交、官方npm包字节和锁文件已核对；保留Apache-2.0全文及实际Clipper2依赖声明，完整源归档已固定。原生重编与独立链接图仍未执行；不把Apache组件完整原生源码重建当作新增分发门槛。'},
   {id:'pymupdf-service',status:'separate-runtime-review-required',detail:'tools/logo-vector-import.py 的 PDF/AI 路径真实调用 PyMuPDF；1.26.4 安装 COPYING 仅双许可声明，另附该版本官方 AGPL-3.0 全文。Python/MuPDF 不在静态 dist；未核实实际部署的解释器、服务使用路径、完整 MuPDF 对应源及商业授权，不以“不在浏览器”免除服务许可审查。'},
   {id:'snapshot-scope',status:'partial-by-design',detail:'应用快照只收录白名单文本源码和已有 LibreDWG 子集；排除数据、secret、历史 agent、图片缓存、服务/宿主配置、第三方二进制、生成文档和依赖安装目录。完整 build identity 输入另外仅记哈希；该快照不是完整产品或全部第三方内核 Corresponding Source。'},
 ];
@@ -151,7 +151,10 @@ export async function generateOpenSource({root,outputDirectory,identity=readBuil
     ['svg-numbers (three SVGLoader embedded)','unversioned embedded copy','MIT','node_modules/three/examples/jsm/loaders/SVGLoader.js',['LICENSES/svg-numbers-MIT.txt'],{modules:['node_modules/three/examples/jsm/loaders/SVGLoader.js']}],
     ['Earcut (three embedded)','3.0.1','ISC','node_modules/three/src/extras/lib/earcut.js',['LICENSES/earcut-3.0.1-ISC.txt'],{modules:['node_modules/three/build/three.core.js','node_modules/three/src/extras/lib/earcut.js']}],
     ['LibreDWG','0.14.8556 / libredwg-web 0.7.9','GPL-3.0-or-later','cad-viewer/wasm/libredwg-web.wasm',['LICENSES/GPL-3.0-or-later.txt'],{artifacts:['cad-viewer/wasm/libredwg-web.wasm']}],
+    ['Modeling OCCT 8.0.1 exception','1.0','LGPL-2.1 exception','LICENSES/OCCT-modeling-8.0.1-exception.txt',['LICENSES/OCCT-modeling-8.0.1-exception.txt'],{modules:['node_modules/replicad-opencascadejs/dist/replicad_single.js']}],
     ['OCCT exception (retained legacy notice)','1.0','LGPL-2.1 exception','cad-viewer/vendor/occt-import-js/OCCT_LGPL_EXCEPTION.txt',['cad-viewer/vendor/occt-import-js/license.occt.txt','cad-viewer/vendor/occt-import-js/license.occt-import-js.txt','cad-viewer/vendor/occt-import-js/OCCT_LGPL_EXCEPTION.txt'],{artifacts:['cad-viewer/vendor/occt-import-js/occt-import-js.wasm']}],
+    ['text-to-cad method adaptation','0.7.19','MIT','src/modeling-guidance.js',['LICENSES/text-to-cad-0.7.19-MIT.txt'],{artifacts:['automation/docs/api.modeling.guide.md']}],
+    ['Clipper2 (Manifold native dependency)','46f639177fe418f9689e8ddb74f08a870c71f5b4','BSL-1.0','LICENSES/Clipper2-Boost-1.0.txt',['LICENSES/Clipper2-Boost-1.0.txt'],{modules:['node_modules/manifold-3d/manifold.js','node_modules/manifold-3d/manifold.wasm']}],
     ['Studio Small 09 / Sergej Majboroda / Poly Haven','unmodified HDR','CC0-1.0','public/render-assets/studio-small-09.bin',['public/render-assets/studio-small-09.LICENSE.txt','LICENSES/CC0-1.0.txt'],{artifacts:['render-assets/studio-small-09.bin']}],
     ['PyMuPDF (optional local Python)','1.26.4 requirement; not deployed-version evidence','AGPL-3.0 OR Artifex commercial','tools/logo-vector-import.py',['LICENSES/PyMuPDF-1.26.4-COPYING.txt','LICENSES/PyMuPDF-1.26.4-AGPL-3.0.txt'],{service:true}],
   ];

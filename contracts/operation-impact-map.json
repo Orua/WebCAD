@@ -4062,5 +4062,20 @@
       "Existing final-state solid/mesh and imported BRep history tests",
       "Native Codex S11 original saved project through maintained localhost"
     ]
+  },
+  "anonymousComputeIsolation1634": {
+    "localImpact": "Public edition retains explicit same-origin compute settings in a separate storage key; no internal credentials or Agent startup.",
+    "servicesImpact": "Signed per-visitor compute session, persisted ownership/rate/queue/storage limits and cancellation-before-expiry cleanup. Explicit internal bearer principal preserved.",
+    "logoImpact": "Existing Logo worker and geometry algorithms unchanged; results scoped by visitor.",
+    "contractImpact": "API 1.63.4 documents public compute and exposes anonymousCompute/isolationVersion and session expiry. Regenerate both profile knowledge bundles.",
+    "documentImpact": "Current document remains authority. Installed geometry persists in user project; temporary anonymous inputs/results expire after two hours.",
+    "cacheImpact": "Existing internal checkpoint caches unchanged; visitors do not write durable internal layer caches.",
+    "requiredTests": [
+      "Real signed session, cross-owner job/asset/artifact/request/cancel rejection",
+      "Quotas, tamper, expiry cancellation and cleanup with internal data preserved",
+      "Public poisoned legacy storage and integrated settings regressions",
+      "Two actual browser visitors on existing localhost computation endpoint",
+      "Public page explicit non-Agent computation, save/reopen and exact STEP readback"
+    ]
   }
 }

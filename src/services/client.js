@@ -36,17 +36,19 @@ export function servicesRequestTimeoutMs(phase,{bytes=0}={}){
 
 export function createServicesClient({config,credential,fetchImpl=globalThis.fetch,now=Date.now,delay=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){
  const read=()=>config?normalizeServicesConfig(config):getServicesConfig();
- let defaultWaitHandler=null;
+ let defaultWaitHandler=null,visitorReadyFor='';
  async function sendRequest(route,{method='GET',body,headers={},binary=false,timeoutMs,idempotencyKey}={}){
   const settings=read();if(!settings.enabled||!settings.url)throw serviceError('CAPABILITY_UNAVAILABLE','请先连接后台计算');
-  let existing='';if(credential===undefined){const saved=getServicesConfig();if(settings.url===saved.url)existing=getServicesCredential();}
-  const auth=credential??existing,siteSession=settings.authMode==='siteSession';if(!auth&&!siteSession)throw serviceError('SERVICES_AUTH_REQUIRED','请在“计算设置”连接后台计算');
+  const siteSession=settings.authMode==='siteSession';
+  let existing='';if(!siteSession&&credential===undefined){const saved=getServicesConfig();if(settings.url===saved.url)existing=getServicesCredential();}
+  const auth=credential??existing;if(!auth&&!siteSession)throw serviceError('SERVICES_AUTH_REQUIRED','请在“计算设置”连接后台计算');
+  if(siteSession&&method!=='GET'&&visitorReadyFor!==settings.url)await handshake();
   if(!/^\/v1\/[a-zA-Z0-9/_-]+$/.test(route))throw serviceError('PARAM_SCHEMA_INVALID','Services 路由无效');
   const url=new URL(settings.url);url.searchParams.set('route',route);let response;
   const bodyBytes=body?.byteLength??(typeof body==='string'?new TextEncoder().encode(body).length:body?.length??0);
   const limit=Number.isFinite(timeoutMs)&&timeoutMs>0?timeoutMs:60000;
   const began=now(),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),limit);
-  try{response=await fetchImpl(url.href,{method,body,headers:{...headers,...(siteSession?{'X-WebCAD-Compute':'1'}:{Authorization:`Bearer ${auth}`})},redirect:'error',credentials:'omit',cache:'no-store',signal:controller.signal});}catch{clearTimeout(timer);const elapsedMs=Math.max(0,now()-began);throw serviceError('SERVICES_CONNECTION_UNKNOWN',servicesConnectionTimeoutMessage({op:route,elapsedMs,timeoutMs:limit,bytes:bodyBytes,idempotencyKey}),{observation:'unknown',op:route,elapsedMs,timeoutMs:limit,bodyBytes,bodySizeClass:servicesBodySizeClass(bodyBytes),...(idempotencyKey?{idempotencyKey}:{})});}
+  try{response=await fetchImpl(url.href,{method,body,headers:{...headers,...(siteSession?{'X-WebCAD-Compute':'1'}:{Authorization:`Bearer ${auth}`})},redirect:'error',credentials:siteSession?'same-origin':'omit',cache:'no-store',signal:controller.signal});}catch{clearTimeout(timer);const elapsedMs=Math.max(0,now()-began);throw serviceError('SERVICES_CONNECTION_UNKNOWN',servicesConnectionTimeoutMessage({op:route,elapsedMs,timeoutMs:limit,bytes:bodyBytes,idempotencyKey}),{observation:'unknown',op:route,elapsedMs,timeoutMs:limit,bodyBytes,bodySizeClass:servicesBodySizeClass(bodyBytes),...(idempotencyKey?{idempotencyKey}:{})});}
   try{
   if(!response.ok){let error;try{error=await response.json();}catch{}const fallback=response.status===404?'后台计算接口未找到，请核对当前计算地址':response.status===401?(siteSession?'同域计算版本尚未就绪，请核对 Services 发布':'计算端专用授权无效，请检查设置'):`后台计算请求失败（HTTP ${response.status}）`;throw serviceError(error?.code??'SERVICES_REQUEST_FAILED',error?.message??fallback,{httpStatus:response.status,supportBinding:error?.supportBinding,stage:error?.stage,diagnosticsRef:error?.diagnosticsRef,commitState:error?.commitState??error?.commit,recoveryAction:error?.recoveryAction});}
   return binary?new Uint8Array(await response.arrayBuffer()):await response.json();
@@ -59,11 +61,12 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
   }
   return traceDebug('services',route,{method:options.method||'GET',timeoutMs:options.timeoutMs,bytes},()=>sendRequest(route,options));
  }
- async function capabilities(){const value=await request('/v1/capabilities',{timeoutMs:servicesRequestTimeoutMs('capabilities')});if(value.protocolVersion!=='1.0'||!value.supportedClientProtocolRange?.includes('1.0'))throw serviceError('SERVICES_PROTOCOL_MISMATCH','Services 协议版本不兼容');return value;}
+ async function capabilities(){const value=await request('/v1/capabilities',{timeoutMs:servicesRequestTimeoutMs('capabilities')});if(value.protocolVersion!=='1.0'||!value.supportedClientProtocolRange?.includes('1.0'))throw serviceError('SERVICES_PROTOCOL_MISMATCH','Services 协议版本不兼容');if(read().authMode==='siteSession'&&value.anonymousCompute?.isolationVersion!==1)throw serviceError('SERVICES_PROTOCOL_MISMATCH','本站计算尚未发布访客隔离版本，请更新 Services 后再连接');return value;}
  async function handshake(){
   const challenge=globalThis.crypto.randomUUID().replaceAll('-',''),started=now();
   const value=await request('/v1/hello/'+challenge,{timeoutMs:5000});
   if(value.service!=='webcad-services'||value.protocolVersion!=='1.0'||value.handshakeVersion!==1||value.challenge!==challenge||value.authorized!==true)throw serviceError('SERVICES_PROTOCOL_MISMATCH','计算接口握手格式不匹配，请核对 Services 版本');
+  const settings=read();if(settings.authMode==='siteSession'){if(value.visitorIsolationVersion!==1)throw serviceError('SERVICES_PROTOCOL_MISMATCH','本站计算尚未发布访客隔离版本，请更新 Services 后再连接');visitorReadyFor=settings.url;}
   return {status:'connected',protocolVersion:value.protocolVersion,gatewayBuildId:value.gatewayBuildId,elapsedMs:Math.max(0,now()-started)};
  }
  async function upload(file,{kind='logo'}={}){if(!['logo','brep','mesh','raster'].includes(kind)||file.size<1||file.size>(kind==='mesh'?128:20)*1024*1024)throw serviceError('SIZE_LIMIT','源资产超过当前 Services 的 20 MiB 输入上限');const bytes=new Uint8Array(await file.arrayBuffer()),hash=await sha256(bytes),asset=await request('/v1/assets',{method:'POST',body:bytes,headers:{'Content-Type':'application/octet-stream','X-File-Name':encodeURIComponent(file.name),'X-Asset-Kind':kind},timeoutMs:servicesRequestTimeoutMs('upload',{bytes:bytes.length})});if(asset.sha256!==hash||asset.bytes!==bytes.length)throw serviceError('ARTIFACT_CORRUPT','上传源文件哈希不一致');return asset;}

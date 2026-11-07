@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "description": "Pinned upstream source/material archives. Exact downloaded bytes verified; this manifest does not claim a completed native rebuild or a new application license.",
+  "archives": [
+    {
+      "url": "https://codeload.github.com/sgenoud/replicad/tar.gz/e4b05f67dc4e2393a876ce8c5064a9c93db05bf1",
+      "version": "replicad-opencascadejs 1.1.0 / e4b05f67dc4e2393a876ce8c5064a9c93db05bf1",
+      "bytes": 17426998,
+      "sha256": "92180710da11a6e67ab75eaac8b494b29d32011415c22e29f7fecb1c796da783",
+      "name": "replicad-e4b05f67.tar.gz"
+    },
+    {
+      "url": "https://codeload.github.com/taucad/opencascade.js/tar.gz/ebd263f1",
+      "version": "ebd263f15337b440b391492af073662707e86482",
+      "bytes": 4447881,
+      "sha256": "80fa8bfb0d7b39bf434d0ff15b106d89944808b860b57089b5b97993e120f213",
+      "name": "opencascadejs-ebd263f1.tar.gz"
+    },
+    {
+      "url": "https://codeload.github.com/LibreDWG/libredwg/tar.gz/e405fcff2eaff86b8389222b7e99529284e7ea0a",
+      "version": "0.14.8556 / e405fcff2eaff86b8389222b7e99529284e7ea0a",
+      "bytes": 25273204,
+      "sha256": "22a3401ccf9fc8c336a88e7a5dff96b6a773e8c566930ae96ab74cfa0c4d336d",
+      "name": "libredwg-e405fcff.tar.gz"
+    },
+    {
+      "url": "https://codeload.github.com/mlightcad/libredwg-web/tar.gz/b70b5573a6bf2345e5fb10f2adff7fb74a8123c5",
+      "version": "v0.7.9 / b70b5573a6bf2345e5fb10f2adff7fb74a8123c5",
+      "bytes": 23621657,
+      "sha256": "af350d628535a2842262af5b49d50568b6dae62854667e13bb9f161b26c00431",
+      "name": "libredwg-web-b70b5573.tar.gz"
+    },
+    {
+      "url": "https://registry.npmjs.org/manifold-3d/-/manifold-3d-3.5.4.tgz",
+      "version": "3.5.4",
+      "bytes": 721465,
+      "sha256": "cf57c91fcd33b6315bff28e424ac8c5f04acb5410e9dd8e9886838303910c568",
+      "name": "manifold-3d-3.5.4.tgz"
+    },
+    {
+      "url": "https://codeload.github.com/madler/zlib/tar.gz/refs/tags/v1.3.2",
+      "version": "1.3.2",
+      "bytes": 1566911,
+      "sha256": "b99a0b86c0ba9360ec7e78c4f1e43b1cbdf1e6936c8fa0f6835c0cd694a495a1",
+      "name": "zlib-v1.3.2.tar.gz"
+    },
+    {
+      "url": "https://codeload.github.com/Open-Cascade-SAS/OCCT/tar.gz/b8f597c677811d1f9f4d8a97f5ae2825c0353a42",
+      "version": "OCCT 8.0.1 / b8f597c677811d1f9f4d8a97f5ae2825c0353a42",
+      "bytes": 45131814,
+      "sha256": "dba62b81078dd43cec23feba89432be301582341001edad1b93342ad8bda35ea",
+      "name": "occt-b8f597c6.tar.gz"
+    },
+    {
+      "url": "https://codeload.github.com/Tencent/rapidjson/tar.gz/24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
+      "version": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
+      "bytes": 1116703,
+      "sha256": "2d2601a82d2d3b7e143a3c8d43ef616671391034bc46891a9816b79cf2d3e7a8",
+      "name": "rapidjson-24b5e7a8.tar.gz"
+    },
+    {
+      "url": "https://codeload.github.com/freetype/freetype/tar.gz/de8b92dd7ec634e9e2b25ef534c54a3537555c11",
+      "version": "FreeType VER-2-13-0 / de8b92dd7ec634e9e2b25ef534c54a3537555c11",
+      "bytes": 2496556,
+      "sha256": "14791d34053acf30394912a8b963277bee60b35fbb3038795d86555ba0415a44",
+      "name": "freetype-de8b92dd.tar.gz"
+    },
+    {
+      "url": "https://codeload.github.com/AngusJohnson/Clipper2/tar.gz/46f639177fe418f9689e8ddb74f08a870c71f5b4",
+      "version": "46f639177fe418f9689e8ddb74f08a870c71f5b4",
+      "bytes": 716581,
+      "sha256": "73f5783e0c88299976334f48e3e356c756b96212c652ecc8bceec3bd99455bcb",
+      "name": "clipper2-46f63917.tar.gz"
+    },
+    {
+      "url": "https://github.com/elalish/manifold/archive/refs/tags/v3.5.4.zip",
+      "version": "3.5.4 / ce50d78021d64507f89e8c9fc2c2e51018117857",
+      "bytes": 31074873,
+      "sha256": "5efa97c2cd9673294be10fd6725dfc5bcc43b7fd5dd4a115a6d1b48cad1788bb",
+      "name": "manifold-v3.5.4.zip"
+    }
+  ],
+  "retainedOverlay": "corresponding-source/libredwg-web-20260805",
+  "nativeRebuildExecuted": false,
+  "byteIdenticalRebuildRequired": false
+}

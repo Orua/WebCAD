@@ -6,9 +6,9 @@ import {createPerformanceSampler} from '../src/performance/sampling.js';
 function fixture({cpu=15,objects=300}={}){
   let time=6000,context={documentInstanceId:'doc',geometryRevision:1,blocked:false},calls=[],changes=0;
   let sampler=createPerformanceSampler();
-  const feed=(start,end,interval=100)=>{for(let t=start;t<=end;t+=interval)sampler.record({timestampMs:t,...context,foreground:true,visible:true,interactive:true,
+  const feed=(start,end,interval=100,submit=cpu)=>{for(let t=start;t<=end;t+=interval)sampler.record({timestampMs:t,...context,foreground:true,visible:true,interactive:true,
     frameSource:'animation-frame',cachedFrameReused:false,capture:false,kernelBusy:false,previewBusy:false,initializing:false,resizing:false,contextLost:false,
-    cpuSubmitMs:cpu,visibleObjectCount:objects});time=end;};
+    cpuSubmitMs:submit,visibleObjectCount:objects});time=end;};
   feed(0,6000);
   const runtime=createPerformanceRuntime({getSnapshot:()=>sampler.snapshot(),getContext:()=>context,now:()=>time,onChange:()=>changes++,changeQuality:async(action,control)=>{
     calls.push(action);assert.equal(control.isCurrent(),true);sampler=createPerformanceSampler();return {status:'applied'};
@@ -32,7 +32,21 @@ test('manual lock and busy geometry prevent display changes; user quality update
   f.runtime.setEffectiveQuality('fine',{manual:true});assert.equal(f.runtime.state().preferredQuality,'fine');
   f.runtime.setEffectiveQuality('standard');assert.equal(f.runtime.state().preferredQuality,'fine');
   f.runtime.configure({manualLock:false});f.context.blocked=true;await f.runtime.tick();assert.equal(f.calls.length,0);
-  assert.ok(f.runtime.state().events.some(e=>e.type==='display-quality-failed'));
+  assert.equal(f.runtime.state().automaticState,'deferred');
+});
+test('cheap CPU windows after automatic downgrade still recover to the preferred quality',async()=>{
+ const f=fixture();await f.runtime.tick();assert.equal(f.runtime.state().effectiveQuality,'draft');
+ for(let start=6020;start<51000;start+=5000){f.feed(start,start+4980,20,1);await f.runtime.tick();}
+ assert.equal(f.runtime.state().effectiveQuality,'standard');
+ assert.equal(f.runtime.state().preferredQuality,'standard');
+ assert.deepEqual(f.calls.map(c=>c.direction),['downgrade','upgrade']);
+});
+test('busy deferral does not consume the first display attempt',async()=>{
+ const f=fixture();f.context.blocked=true;await f.runtime.tick();
+ assert.equal(f.calls.length,0);assert.equal(f.runtime.state().automaticState,'deferred');
+ f.context.blocked=false;await f.runtime.tick();assert.equal(f.calls.length,1);
+ assert.equal(f.runtime.state().effectiveQuality,'draft');
+ assert.equal(f.runtime.state().events.filter(e=>e.type==='display-quality-failed').length,0);
 });
 test('in-flight requests are serialized, settings invalidation is visible before installation',async()=>{
   let resolve,control,calls=0,time=6000;

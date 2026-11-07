@@ -54,8 +54,11 @@ export function evaluateLicensePolicy(policy, {scope, packages = [], copiedFiles
     licenseRecordApplies(r, {packages, copiedFiles, moduleFiles, artifactPaths, inventoryKnown}));
   const blockers = relevant.filter(r => r.evidenceStatus !== 'verified').map(r => `${r.id}: ${r.evidenceStatus}`);
   for (const record of relevant.filter(r => r.evidenceStatus === 'verified')) {
-    if (!record.licenseExpression || !record.noticePath || typeof record.evidence !== 'string' || !record.evidence.trim() ||
-        typeof record.copyrightHolder !== 'string' || !record.copyrightHolder.trim() || record.copyrightHolder === 'pending')
+    const parent=record.rightsParent?relevant.find(r=>r.id===record.rightsParent):null;
+    if(record.rightsParent&&(!parent||parent.evidenceStatus!=='verified'||parent.rightsParent))blockers.push(`${record.id}: rights parent is not approved`);
+    const rights=parent??record;
+    if (!rights.licenseExpression || !record.noticePath || typeof record.evidence !== 'string' || !record.evidence.trim() ||
+        typeof rights.copyrightHolder !== 'string' || !rights.copyrightHolder.trim() || rights.copyrightHolder === 'pending')
       blockers.push(`${record.id}: approval lacks supporting evidence`);
   }
   for (const pkg of packages) {

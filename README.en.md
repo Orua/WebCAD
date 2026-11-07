@@ -17,7 +17,7 @@ The default project stores final BRep or complete meshes, object identity, appea
 
 The workbench includes primitives, hardware templates, profiles, extrusion/revolution, sweep/loft, booleans, holes, arrays and selected rounding, shelling, relief and inspection tools. Availability depends on input geometry and configured capabilities. Complex surfaces, dense relief and difficult fillets have limits; a successful tool receipt alone is not manufacturing approval.
 
-Manual local modeling uses the static frontend. The **separate anonymous public build without the Agent console is planned and has not been accepted here**. Existing demo links in the Chinese README are retained; this change does not attest their anonymous access or deploy a new site. See [public deployment status](docs/PUBLIC-DEPLOYMENT.md).
+Manual local modeling uses the static frontend. Separate public and integrated builds are available. Public excludes Agent startup and defaults to local computation; explicit same-origin remote computation requires the visitor-isolated endpoint. Candidate creation, editing, undo, final-state reopening and STEP round trip have passed pre-release checks. Existing demo links are retained; candidate checks do not certify a new deployed public site. See [public deployment status](docs/PUBLIC-DEPLOYMENT.md).
 
 `window.webcad.api.connect(...)` discovers the current Page API and knowledge bundle. The host must already have an authorized page execution channel; the API does not grant that channel to arbitrary chat sidebars. CLI/MCP compatibility tools are optional development tools. See [Agent runtime](docs/AGENT-RUNTIME.zh-CN.md) and [Page API](docs/PAGE-API.zh-CN.md).
 

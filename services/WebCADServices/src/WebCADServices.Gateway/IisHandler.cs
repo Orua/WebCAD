@@ -59,9 +59,24 @@ namespace WebCADServices.Gateway
                 }
                 if (request.HttpMethod == "OPTIONS") { if (string.IsNullOrEmpty(origin)) throw new ServiceError("ORIGIN_FORBIDDEN", "Origin is required", 403);response.StatusCode = 204;return; }
                 string header = request.Headers["Authorization"],credential = header != null && header.StartsWith("Bearer ", StringComparison.Ordinal) ? header.Substring(7) : null;
-                // Same-origin computation has no website login, cookie or signed-token dependency.
-                // Keep the configured internal principal so existing jobs/assets retain their owner.
-                if (sameOrigin) credential = IisRuntime.ConfiguredCredential();
+                // Only an explicit bearer retains the internal owner of existing jobs.
+                // Anonymous same-origin visitors receive independent compute-only identities.
+                if (sameOrigin && string.IsNullOrEmpty(header))
+                {
+                    const string cookieName="WebCAD.ComputeSession.v1";
+                    string value=request.Cookies[cookieName]?.Value,owner;long expires;
+                    string secret=IisRuntime.ConfiguredCredential();
+                    if (!AnonymousSession.TryValidate(value,secret,DateTime.UtcNow,out owner,out expires))
+                    {
+                        if (request.HttpMethod!="GET") throw new ServiceError("SESSION_REQUIRED","Connect to the compute endpoint before submitting input",401);
+                        LimitSessionIssue(request.UserHostAddress);
+                        value=AnonymousSession.Issue(secret,DateTime.UtcNow);
+                        AnonymousSession.TryValidate(value,secret,DateTime.UtcNow,out owner,out expires);
+                        response.Cookies.Add(new HttpCookie(cookieName,value){HttpOnly=true,Secure=request.IsSecureConnection,SameSite=SameSiteMode.Strict,Path=VirtualPathUtility.GetDirectory(request.Path),Expires=DateTime.UtcNow.AddSeconds(AnonymousSession.LifetimeSeconds)});
+                    }
+                    context.Items["WebCAD.VisitorExpires"]=expires;
+                    credential=value;
+                }
                 if (string.IsNullOrEmpty(credential)) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
                 string route = request.QueryString["route"] ?? "/v1/health";
                 if (!System.Text.RegularExpressions.Regex.IsMatch(route, "^/v1/[a-zA-Z0-9/_-]+$")) throw new ServiceError("ROUTE_NOT_FOUND", "Invalid route", 404);
@@ -72,12 +87,13 @@ namespace WebCADServices.Gateway
                     string challenge = route.Substring("/v1/hello/".Length);
                     if (!System.Text.RegularExpressions.Regex.IsMatch(challenge, "^[a-f0-9]{32}$")) throw new ServiceError("REQUEST_INVALID", "Invalid handshake challenge", 400);
                     IisRuntime.AuthorizeCredential(credential);
-                    Write(context, WireResponse.Json(new { service = "webcad-services", protocolVersion = Protocol.Version, handshakeVersion = 1, challenge, authorized = true, gatewayBuildId = BuildId }));return;
+                    Write(context, WireResponse.Json(new { service = "webcad-services", protocolVersion = Protocol.Version, handshakeVersion = 1, challenge, authorized = true, gatewayBuildId = BuildId, visitorIsolationVersion=1, visitorSessionSeconds=AnonymousSession.LifetimeSeconds }));return;
                 }
                 var runtime = IisRuntime.Get(credential);
                 var authorized = runtime.Handle(new WireRequest { Method = "GET", Route = "/v1/health", Credential = credential });
                 if (authorized.Status != 200) { Write(context, authorized);return; }
                 int resourceBudget=Protocol.ResourceBudget(route,request.Headers["X-Asset-Kind"],request.Headers["X-File-Name"]);
+                if(credential.StartsWith("anon1.",StringComparison.Ordinal))resourceBudget=Math.Min(resourceBudget,Protocol.MaxUpload);
                 if (request.ContentLength > resourceBudget) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);
                 byte[] body;
                 using (var input = request.GetBufferlessInputStream())
@@ -93,7 +109,27 @@ namespace WebCADServices.Gateway
             catch (UnauthorizedAccessException) { Write(context, WireResponse.Json(new ServiceError("IIS_STORAGE_FORBIDDEN", "Site identity cannot access the private Services data or runtime", 503).Body("iis-dll"), 503)); }
             catch (Exception) { Write(context, WireResponse.Json(new ServiceError("IIS_RUNTIME_UNAVAILABLE", "Services DLL configuration or runtime is unavailable", 503).Body("iis-dll"), 503)); }
         }
-        static void Write(HttpContext context, WireResponse result) { context.Response.StatusCode = result.Status;context.Response.ContentType = result.ContentType;context.Response.OutputStream.Write(result.Body, 0, result.Body.Length); }
+        static void Write(HttpContext context, WireResponse result)
+        {
+            if (context.Items["WebCAD.VisitorExpires"] is long expires && result.ContentType=="application/json")
+            {
+                var value=Newtonsoft.Json.Linq.JObject.Parse(Encoding.UTF8.GetString(result.Body));
+                value["computeSessionExpiresAt"]=DateTimeOffset.FromUnixTimeSeconds(expires).UtcDateTime.ToString("o");
+                result.Body=Encoding.UTF8.GetBytes(value.ToString(Newtonsoft.Json.Formatting.None));
+            }
+            context.Response.StatusCode = result.Status;context.Response.ContentType = result.ContentType;context.Response.OutputStream.Write(result.Body, 0, result.Body.Length);
+        }
+        static void LimitSessionIssue(string address)
+        {
+            string key="webcad-compute-issue:"+Protocol.Hash(Encoding.UTF8.GetBytes(address??"unknown"));
+            lock (IssueGate)
+            {
+                int count=(int?)HttpRuntime.Cache[key]??0;
+                if(count>=10)throw new ServiceError("RATE_LIMIT","Too many new compute sessions; try again later",429);
+                HttpRuntime.Cache.Insert(key,count+1,null,DateTime.UtcNow.AddMinutes(10),System.Web.Caching.Cache.NoSlidingExpiration);
+            }
+        }
+        static readonly object IssueGate=new object();
     }
     internal sealed class IisRuntime : IRegisteredObject
     {
@@ -119,8 +155,7 @@ namespace WebCADServices.Gateway
             {
                 if (current != null) return current.runtime;
                 string token=ConfiguredCredential();
-                byte[] a = Encoding.UTF8.GetBytes(token),b = Encoding.UTF8.GetBytes(supplied ?? "");int diff = a.Length ^ b.Length;for (int i = 0;i < a.Length;i++) diff |= a[i] ^ (i < b.Length ? b[i] : 0);
-                if (diff != 0) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
+                AuthorizeCredential(supplied);
                 current = new IisRuntime(token);return current.runtime;
             }
         }
@@ -128,7 +163,8 @@ namespace WebCADServices.Gateway
         {
             byte[] a = Encoding.UTF8.GetBytes(ConfiguredCredential()),b = Encoding.UTF8.GetBytes(supplied ?? "");
             int diff = a.Length ^ b.Length;for (int i = 0;i < a.Length;i++) diff |= a[i] ^ (i < b.Length ? b[i] : 0);
-            if (diff != 0) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
+            string owner;long expires;
+            if (diff != 0 && !AnonymousSession.TryValidate(supplied,ConfiguredCredential(),DateTime.UtcNow,out owner,out expires)) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
         }
         internal static string ConfiguredCredential()
         {

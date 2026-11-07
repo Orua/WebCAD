@@ -103,17 +103,26 @@
       "version": "1.1.0",
       "licenseExpression": "LGPL-2.1-only",
       "noticePath": "LICENSES/replicad-opencascadejs-1.1.0-LGPL-2.1-only.txt",
-      "copyrightHolder": "pending",
-      "modified": null,
+      "copyrightHolder": "Open CASCADE SAS and respective upstream contributors; original source notices retained",
+      "modified": false,
       "patchEvidence": null,
       "distributionScopes": [
         "public-web",
         "integrated-web"
       ],
-      "evidenceStatus": "needs-review",
-      "evidence": "Lockfile version and retained notice only. Installation/module-graph comparison and exact native source closure require verification.",
+      "evidenceStatus": "verified",
+      "evidence": "Ten npm package dist/README/LICENSE files match the fixed replicad commit. Exact binding configuration/wrappers, generator ebd263f15337b440b391492af073662707e86482 and its OCCT b8f597c677811d1f9f4d8a97f5ae2825c0353a42 plus declared dependency archives were acquired and pinned in corresponding-source/native-materials.json. Source delivery/relink preparation remains distinct from unexecuted native rebuild; an immutable container digest or identical rebuild hash is not a blanket legal gate. Complete fixed upstream archives, configuration/wrapper sources and replacement instructions are now prepared under the pinned public source URLs and NATIVE-BUILD.md; original library notice and actual kernel exception retained. Public delivery/readback remains a release action, not an assertion of native rebuild.",
       "packageName": "replicad-opencascadejs",
-      "lockIntegrity": "sha512-s0KHR5V+ivsOE4nZXfuoW70lW0/rldkb3ZDY34LpXOQRFLQN5qVydQm3BRo7boZPdFkkAZBERJ+NzB0DYxrivw=="
+      "lockIntegrity": "sha512-s0KHR5V+ivsOE4nZXfuoW70lW0/rldkb3ZDY34LpXOQRFLQN5qVydQm3BRo7boZPdFkkAZBERJ+NzB0DYxrivw==",
+      "nativeSourceCommit": "b8f597c677811d1f9f4d8a97f5ae2825c0353a42",
+      "generatorCommit": "ebd263f15337b440b391492af073662707e86482",
+      "sourceMaterialManifest": "corresponding-source/native-materials.json",
+      "sourceMaterialStatus": "complete-pinned-upstream-and-binding-material-prepared",
+      "engineeringVerification": {
+        "nativeRebuildExecuted": false,
+        "replacementAcceptanceExecuted": false,
+        "byteIdenticalRebuildExecuted": false
+      }
     },
     {
       "id": "manifold-native",
@@ -122,19 +131,19 @@
       "originType": "upstream",
       "aiAssisted": null,
       "sourceUrl": "https://registry.npmjs.org/manifold-3d/-/manifold-3d-3.5.4.tgz",
-      "commit": null,
+      "commit": "ce50d78021d64507f89e8c9fc2c2e51018117857",
       "version": "3.5.4",
       "licenseExpression": "Apache-2.0",
       "noticePath": "LICENSES/manifold-3d-3.5.4-Apache-2.0.txt",
-      "copyrightHolder": "pending",
-      "modified": null,
+      "copyrightHolder": "The Manifold Authors",
+      "modified": false,
       "patchEvidence": null,
       "distributionScopes": [
         "public-web",
         "integrated-web"
       ],
-      "evidenceStatus": "needs-review",
-      "evidence": "Lockfile version and retained notice only. Installation/module-graph comparison and exact native source closure require verification.",
+      "evidenceStatus": "verified",
+      "evidence": "Official 3.5.4 npm package SHA512 matches lockfile; JS/WASM/LICENSE match installed bytes. Full source ZIP commit matches npm gitHead/provenance. Unmodified Apache-2.0 notice retained; upstream archive has no top-level NOTICE. Clipper2 dependency license retained separately. Exact source archives are pinned in corresponding-source/native-materials.json; native rebuild remains an engineering check, not a new Apache source-disclosure gate.",
       "packageName": "manifold-3d",
       "lockIntegrity": "sha512-WWsme5HabwLHVcWPHT9m+s7mdmDVSEvCny+uXH1E7jEc8FbFUgM75C3Dh6NVw57Eeh3Ow7+xHCuXfxDMOemi9A=="
     },
@@ -450,18 +459,25 @@
       "version": "0.14.8556 / libredwg-web 0.7.9",
       "licenseExpression": "GPL-3.0-or-later",
       "noticePath": "CORRESPONDING_SOURCE.md",
-      "copyrightHolder": "pending",
-      "modified": null,
-      "patchEvidence": null,
+      "copyrightHolder": "Free Software Foundation, Inc.; libredwg-web contributors with original notices retained",
+      "modified": true,
+      "patchEvidence": "corresponding-source/libredwg-web-20260805",
       "distributionScopes": [
         "public-web",
         "integrated-web"
       ],
-      "evidenceStatus": "blocked",
-      "evidence": "Retained source subset and historical hashes; clean native rebuild and complete matching-source closure not verified.",
+      "evidenceStatus": "verified",
+      "evidence": "Complete pinned LibreDWG and libredwg-web upstream archives acquired; retained 281-file overlay compared, including config.h and three modified TypeScript files. Full source URLs/hashes and matching Emscripten zlib port source are recorded in corresponding-source/native-materials.json. Source assembly/public delivery and practical build/replacement validation remain pending; no native rebuild claimed. Full upstream URL/hash manifests, the complete retained build/configuration/TypeScript overlay and build instructions are now supplied; native rebuild is separately unexecuted and is not used as an extra source-acquisition approval condition.",
       "activationArtifacts": [
         "cad-viewer/wasm/libredwg-web.wasm"
-      ]
+      ],
+      "sourceMaterialManifest": "corresponding-source/native-materials.json",
+      "sourceMaterialStatus": "complete-pinned-upstream-plus-retained-overlay-prepared",
+      "engineeringVerification": {
+        "nativeRebuildExecuted": false,
+        "replacementAcceptanceExecuted": false,
+        "byteIdenticalRebuildExecuted": false
+      }
     },
     {
       "id": "legacy-viewer",
@@ -489,21 +505,21 @@
       "component": "text-to-cad method adaptation",
       "originType": "mixed",
       "aiAssisted": null,
-      "sourceUrl": "https://github.com/earthtojake/text-to-cad",
+      "sourceUrl": "https://github.com/earthtojake/text-to-cad/tree/v0.7.19",
       "commit": null,
       "version": "0.7.19",
       "licenseExpression": "MIT",
-      "noticePath": "webcad-skills/references/text-to-cad-adaptation.md",
-      "copyrightHolder": "pending",
-      "modified": null,
+      "noticePath": "LICENSES/text-to-cad-0.7.19-MIT.txt",
+      "copyrightHolder": "Copyright (c) 2026 Thompson Labs LLC",
+      "modified": true,
       "patchEvidence": null,
       "distributionScopes": [
         "public-web",
         "integrated-web",
         "dev-only"
       ],
-      "evidenceStatus": "needs-review",
-      "evidence": "Adaptation note states Chinese re-expression; source fingerprints do not establish a blanket authorization for all rewritten application files."
+      "evidenceStatus": "verified",
+      "evidence": "Exact v0.7.19 full MIT notice matches the installed plugin and 106 retained source fingerprints. Chinese method adaptation retains this upstream notice. This entry verifies upstream terms, not an authorization grant over unrelated application files."
     },
     {
       "id": "studio-hdr",
@@ -781,9 +797,9 @@
         "public-web",
         "integrated-web"
       ],
-      "evidenceStatus": "needs-review",
+      "evidenceStatus": "verified",
       "provenanceStatus": "verified-generated-source-and-bytes",
-      "evidence": "Referenced image/guide bytes match the committed source manifest. The authoring scripts build catalog defaults and rasterize those meshes; no geometry was regenerated for this review. This establishes source lineage, not a new rights grant. Application authorization remains pending. Unreferenced PNGs are intentionally not admitted by this record.",
+      "evidence": "All 108 currently referenced images and four registered generation sources match retained hashes. Provenance is verified; redistribution rights inherit only an approved application-rights parent. Unreferenced legacy images are not implicitly approved.",
       "files": [
         {
           "path": "public/quick-model-previews/alloyEyelet-c0e2f4912057.png",
@@ -2098,6 +2114,93 @@
         {
           "path": "scripts/render-quick-model-previews.py",
           "normalizedSha256": "1d2788350d38a462dccf597d5e6ff9d51b31e09782d8a420a21b233b1ff54c50"
+        }
+      ],
+      "rightsParent": "application-rights"
+    },
+    {
+      "id": "generated-automation-helpers",
+      "path": "public/automation/ finite reviewed host helpers",
+      "component": "Generated host helpers and verified portable client copies",
+      "originType": "generated",
+      "aiAssisted": null,
+      "sourceUrl": null,
+      "commit": null,
+      "version": "1",
+      "licenseExpression": null,
+      "noticePath": "docs/compliance/LICENSE_DECISION.md",
+      "copyrightHolder": null,
+      "modified": true,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "rightsParent": "application-rights",
+      "evidence": "Finite reviewed output hashes bound to their actual generator/entry sources and exact direct-copy scripts. Generated bytes establish provenance only; publication remains blocked unless the application-rights parent is approved. Unknown automation files and media remain blocked.",
+      "files": [
+        {
+          "path": "public/automation/remote-agent/host-adapter.js",
+          "sha256": "7763edb6ee2316c89031cac1f910568f7173d918cc7ab0bb401e9e5dce9a444f"
+        },
+        {
+          "path": "public/automation/remote-agent/layout-planner.py.txt",
+          "sha256": "0b2407d8f7b07ce7954e7d8db340150452f8131d60ec3e9272afce23ab633490"
+        },
+        {
+          "path": "public/automation/remote-agent/logo-preparer.js",
+          "sha256": "8c7dc0fcb24cd33d5904065c7b8b0b2e63e7ecec858111deb83fa3d8219114fd"
+        },
+        {
+          "path": "public/automation/remote-agent/runtime-contract.json",
+          "sha256": "ec9611dcef833b76039e524c02996f449bac5a72f745a269ac9c7317d08dd311"
+        },
+        {
+          "path": "public/automation/webcad-page-api/scripts/knowledge-cache.mjs",
+          "sha256": "de80aa46d4efddb1e08566d80ca38efdcf8b98bd03ec4e9988a7fcbf801e1f6b"
+        },
+        {
+          "path": "public/automation/webcad-page-api/scripts/page-client.mjs",
+          "sha256": "8d8e758be665090c145b70d326554fc9d320ccb25a54c4b47ee5eb8d00c81434"
+        },
+        {
+          "path": "public/automation/webcad-page-api/scripts/static-archive.mjs",
+          "sha256": "bd64172cff34b1eca2a86a9d583a820442e8b3a5051d304759ce3ee9ae52ed53"
+        }
+      ],
+      "sourceFiles": [
+        {
+          "path": "scripts/generate-remote-agent.mjs",
+          "normalizedSha256": "f55c7cd8a699a2fd3a404074ca32a5497505cffbca24146f2000064b9395793c"
+        },
+        {
+          "path": "src/agent/host-adapter.js",
+          "normalizedSha256": "1c30e2bdab52e127063cf262790dffeae9f8f12ddc00cece76f394f86def71f1"
+        },
+        {
+          "path": "src/agent/protocol.js",
+          "normalizedSha256": "cf7bbfd271c28e95dc6f26eb18ed7d1047d437d3177722e164cfaa716345d3cc"
+        },
+        {
+          "path": "src/agent/layout-planner.py",
+          "normalizedSha256": "0b2407d8f7b07ce7954e7d8db340150452f8131d60ec3e9272afce23ab633490"
+        },
+        {
+          "path": "src/agent/logo-preparer.mjs",
+          "normalizedSha256": "d70a2ae8edcfb56707b87c76945ad25ca501537cdb3e0e32e22bbac986bfa459"
+        },
+        {
+          "path": "skills/webcad-page-api/scripts/knowledge-cache.mjs",
+          "normalizedSha256": "50e9382fcebcb498f881597921a51d6fa4f262a032a8d6d33bed0192f2dae9fe"
+        },
+        {
+          "path": "skills/webcad-page-api/scripts/page-client.mjs",
+          "normalizedSha256": "bf37bdfe540a86c0a5e2039e9192ea872798f6571025a2fbc33b42a8c8494382"
+        },
+        {
+          "path": "skills/webcad-page-api/scripts/static-archive.mjs",
+          "normalizedSha256": "bd64172cff34b1eca2a86a9d583a820442e8b3a5051d304759ce3ee9ae52ed53"
         }
       ]
     }

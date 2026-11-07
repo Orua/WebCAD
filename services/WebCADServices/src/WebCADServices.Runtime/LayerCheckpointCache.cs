@@ -13,15 +13,21 @@ namespace WebCADServices.Runtime
     sealed class LayerCheckpointCache
     {
         readonly string root;
+        readonly bool visitor;
         const long Budget = 256L * 1024 * 1024;
         public LayerCheckpointCache(string dataRoot,string owner,string build)
         {
+            visitor=AnonymousSession.IsOwner(owner);
+            // Visitor results live in expiring job/artifact storage, not the
+            // durable internal cache. Idempotent job results remain reusable.
+            if(visitor)return;
             root=Path.Combine(dataRoot,"layer-cache",Hash(new JArray(owner,build)));Directory.CreateDirectory(root);
         }
         static JToken Canonical(JToken token) => token is JObject obj ? new JObject(obj.Properties().OrderBy(p=>p.Name,StringComparer.Ordinal).Select(p=>new JProperty(p.Name,Canonical(p.Value)))) : token is JArray arr ? new JArray(arr.Select(Canonical)) : token.DeepClone();
         public static string Hash(JToken value) => Protocol.Hash(Encoding.UTF8.GetBytes(Canonical(value).ToString(Formatting.None)));
         public string Read(string key)
         {
+            if(visitor)return null;
             var receipt=Path.Combine(root,key+".json");if(!File.Exists(receipt))return null;
             JObject meta;try{meta=JObject.Parse(File.ReadAllText(receipt));}catch(JsonException){Quarantine(key);throw new ServiceError("LAYER_CACHE_CORRUPT","Layer checkpoint receipt was quarantined; inspect the original job before a controlled rebuild",409);}var path=Path.Combine(root,key+".brep");
             if((string)meta["key"]!=key||(string)meta["format"]!="occt-text-brep-v1"||!File.Exists(path)||new FileInfo(path).Length!=(long?)meta["bytes"]||new FileInfo(path).Length>Protocol.MaxUpload||Protocol.Hash(File.ReadAllBytes(path))!=(string)meta["sha256"]){Quarantine(key);throw new ServiceError("LAYER_CACHE_CORRUPT","Stored checkpoint was quarantined; inspect the original job before a controlled rebuild",409);}
@@ -29,6 +35,7 @@ namespace WebCADServices.Runtime
         }
         public void Publish(string key,string source)
         {
+            if(visitor)return;
             if(!File.Exists(source))return;
             var size=new FileInfo(source).Length;if(size>Protocol.MaxUpload)return;
             // A previously verified prefix stays authoritative. A crash between

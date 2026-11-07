@@ -106,3 +106,9 @@ Three.js 附带 `examples/jsm/libs/fflate.module.js` 自报版本为 **0.8.2**�
 ## 许可文本取证来源
 
 现有 LICENSES 原文均保留；补充安装包副本不改写版权。fflate 来自 `https://raw.githubusercontent.com/101arrowz/fflate/v0.8.2/LICENSE`；svg-numbers 来自 `https://raw.githubusercontent.com/ppvg/svg-numbers/master/LICENSE`（仅许可证取证，不是源码版本认定）；CC0 全文来自 SPDX license-list-data v3.26.0 的 `text/CC0-1.0.txt`。原文随包保留并在材料 manifest 中记录 SHA-256，构建不依赖联网。
+
+## text-to-cad method adaptation and Manifold dependency material
+
+The Chinese modeling guidance retains the upstream text-to-cad v0.7.19 attribution, **Copyright (c) 2026 Thompson Labs LLC**, and its complete unchanged [MIT license](LICENSES/text-to-cad-0.7.19-MIT.txt). This identifies the upstream adapted material; it does not relicense unrelated application or service files.
+
+The fixed Manifold 3.5.4 source includes its Clipper2 dependency at 46f639177fe418f9689e8ddb74f08a870c71f5b4. The complete unchanged [Boost Software License 1.0](LICENSES/Clipper2-Boost-1.0.txt) is retained. Original embedded header notices and Apache-2.0 texts remain unchanged. Exact acquired archive URLs and SHA-256 are listed in [native materials](corresponding-source/native-materials.json); native recompilation and final deployment are separate, unexecuted checks.
