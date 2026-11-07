@@ -1,4 +1,4 @@
-import {mkdir,readFile,readdir,copyFile,writeFile} from 'node:fs/promises';
+import {mkdir,readFile,readdir,copyFile,writeFile,lstat,unlink} from 'node:fs/promises';
 import {resolve,dirname} from 'node:path';
 import {createHash} from 'node:crypto';
 import {listOperations} from '../src/operation-registry.js';
@@ -17,6 +17,15 @@ export const PUBLIC_ASSET_RULES=Object.freeze([
   /^automation\/webcad-page-api\/(?:SKILL\.md|references\/connection\.md)$/,
 ]);
 const referencedPreviews=new Set(Object.values(QUICK_MODEL_PREVIEWS).flatMap(asset=>[asset.image,asset.guide]));
+async function pruneUnusedPreviewCopies(out){
+  const directory=resolve(out,'quick-model-previews');
+  const info=await lstat(directory).catch(error=>{if(error.code==='ENOENT')return null;throw error;});
+  if(!info)return;
+  if(info.isSymbolicLink()||!info.isDirectory())throw Error('Preview output must be a real build directory');
+  for(const entry of await readdir(directory,{withFileTypes:true})){
+    if(entry.isFile()&&/\.png$/i.test(entry.name)&&!referencedPreviews.has('quick-model-previews/'+entry.name))await unlink(resolve(directory,entry.name));
+  }
+}
 export function publicAssetAllowed(path){return !path.split('/').some(p=>p==='..'||p.startsWith('.'))&&
   (!path.startsWith('quick-model-previews/')||referencedPreviews.has(path))&&PUBLIC_ASSET_RULES.some(rule=>rule.test(path));}
 export function assertPublicModules(modules){
@@ -72,6 +81,7 @@ export function editionBuildPlugin(root,identity){
     },
     async closeBundle(){
       if(isPublic)await copyAllowed(root,out);
+      else await pruneUnusedPreviewCopies(out);
       const moduleIds=[...modules].map(id=>id.replaceAll('\\','/')).map(id=>id.startsWith(root.replaceAll('\\','/')+'/')?id.slice(root.length+1):id.includes('/node_modules/')?'node_modules/'+id.split('/node_modules/').at(-1):id.startsWith('\0')?'virtual-module':'external-module').sort();
       const capabilities={schemaVersion:1,edition:identity.edition,buildId:identity.buildId,
         agentWorkspace:!isPublic,hostChannels:!isPublic,localPageApi:true,

@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
-import {publicAssetAllowed,assertPublicModules,assertPublicOutputPaths} from '../scripts/edition-build.mjs';
+import {publicAssetAllowed,assertPublicModules,assertPublicOutputPaths,editionBuildPlugin} from '../scripts/edition-build.mjs';
+import {mkdir,mkdtemp,writeFile,access} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {tmpdir} from 'node:os';
 import {knowledgeBundleNames} from '../scripts/generate-agent-knowledge.mjs';
 
 function inEdition(edition,body){
@@ -120,6 +123,18 @@ test('public preview copying uses the current catalog and excludes unreferenced 
  for(const path of referenced)assert.equal(publicAssetAllowed(path),true,path);
  assert.equal(publicAssetAllowed('quick-model-previews/obsolete-000000000000.png'),false);
  assert.throws(()=>assertPublicOutputPaths(['quick-model-previews/obsolete-000000000000.png'],[]),/Unapproved or stale/);
+});
+test('integrated output drops only unreferenced preview copies and retains source assets',async()=>{
+ const {QUICK_MODEL_PREVIEWS}=await import('../src/quick-models/preview-assets.js');
+ const reference=Object.values(QUICK_MODEL_PREVIEWS)[0].image;
+ const output=await mkdtemp((process.env.WEBCAD_TEST_TEMP_DIR||tmpdir())+'/preview-copy-');
+ await mkdir(resolve(output,'quick-model-previews'),{recursive:true});
+ await writeFile(resolve(output,'quick-model-previews','unused-old-preview.png'),'disposable copied output');
+ await writeFile(resolve(output,reference),'referenced copied output');
+ const plugin=editionBuildPlugin(process.cwd(),{edition:'integrated',buildId:'test'});
+ plugin.configResolved({root:process.cwd(),build:{outDir:output}});await plugin.closeBundle();
+ await assert.rejects(access(resolve(output,'quick-model-previews','unused-old-preview.png')),{code:'ENOENT'});
+ await access(resolve(output,reference));await access(resolve(process.cwd(),'public',reference));
 });
 test('public output rejects stale bundles and unapproved configuration',()=>{
   assert.doesNotThrow(()=>assertPublicOutputPaths(['index.html','assets/current.js','edition.json'],['assets/current.js']));
