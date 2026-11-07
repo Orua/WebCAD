@@ -86,7 +86,7 @@ export function editionBuildPlugin(root,identity){
       const capabilities={schemaVersion:1,edition:identity.edition,buildId:identity.buildId,
         agentWorkspace:!isPublic,hostChannels:!isPublic,localPageApi:true,
         services:isPublic?'explicit-same-origin-visitor-session':'explicit-configuration',
-        distributionGate:'NOT_ACCEPTED',browserAcceptance:'NOT_RUN',
+        distributionGate:'REQUIRES_SCOPE_VERIFICATION',browserAcceptance:'NOT_RUN',
         unavailableMethods:isPublic?['configureAgentPanel','setAgentPanel','markLocation']:[]};
       await writeFile(resolve(out,'edition.json'),JSON.stringify(capabilities,null,2)+'\n');
       await writeFile(resolve(out,'build-modules.json'),JSON.stringify({edition:identity.edition,modules:moduleIds,emittedFiles:[...emittedFiles].sort()},null,2)+'\n');

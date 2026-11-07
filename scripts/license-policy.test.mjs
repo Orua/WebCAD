@@ -85,13 +85,14 @@ test('generated text exemption does not admit arbitrary archives, JSON or media'
   for (const path of ['automation/private.zip','automation/private.json','automation/photo.jpg','docs/private.md',
     'automation/remote-agent/unreviewed.js']) assert.equal(isGeneratedPublicMaterial(path),false,path);
 });
-test('checked-in public policy honestly remains blocked and has readable evidence', () => {
+test('maintainer-scoped authorization and exact image grant retain existing terms', () => {
   const policy = JSON.parse(readFileSync(resolve(root, 'docs/compliance/source-license-map.json')));
   const result = evaluateLicensePolicy(policy, {scope:'public-web'});
-  assert.equal(result.allowed, false);
-  assert.ok(result.blockers.some(b => b.startsWith('application-rights:')));
+  assert.equal(result.allowed, true);
+  assert.ok(!result.blockers.some(b => b.startsWith('application-rights:')));
+  assert.equal(policy.records.find(r=>r.id==='application-rights').licenseExpression,'LicenseRef-Repository-Scoped-Terms');
   assert.ok(!result.blockers.some(b => b.startsWith('occt-modeling:')));assert.ok(policy.records.find(r=>r.id==='occt-modeling').engineeringVerification.nativeRebuildExecuted===false);
-  assert.ok(result.blockers.some(b => b.startsWith('antique-texture:')));
+  assert.equal(policy.records.find(r=>r.id==='antique-texture').licenseExpression,'LicenseRef-Maintainer-Supplied-Reference-Grant');
   for (const r of policy.records) {
     assert.ok(existsSync(resolve(root, r.noticePath)), r.id);
     if (r.noticeNormalizedSha256) assert.equal(createHash('sha256').update(

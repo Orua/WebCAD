@@ -4077,5 +4077,19 @@
       "Two actual browser visitors on existing localhost computation endpoint",
       "Public page explicit non-Agent computation, save/reopen and exact STEP readback"
     ]
+  },
+  "proceduralAntiqueAtlas": {
+    "localImpact": "Retain the maintainer-approved antique photo as the normal appearance and use original procedural luminance grain/pitting only if image loading fails. Existing antique material IDs, color/lighting settings and layout unchanged.",
+    "servicesImpact": "None: client-only material generation.",
+    "logoImpact": "None: no artwork or CAD source changes.",
+    "contractImpact": "Existing appearance API and parameters unchanged; generated knowledge/build metadata refreshed.",
+    "documentImpact": "Existing finish references remain valid; exact geometry, source colors and save data unchanged.",
+    "cacheImpact": "Approved original JPEG retained with exact recorded hash; source-owned fallback uses no extra image asset.",
+    "requiredTests": [
+      "Deterministic two-band luminance/pitting and actual Three.js texture",
+      "Existing metal/selection/material persistence tests",
+      "One bounded baseline/candidate material screenshot and geometry check",
+      "Release inventory rejects legacy photo reintroduction"
+    ]
   }
 }

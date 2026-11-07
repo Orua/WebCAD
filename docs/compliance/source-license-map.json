@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "baseline": "a5442ddaec3ca627e6dfe43118e2b89c3b6ba70b",
-  "decision": "Public distribution is BLOCKED pending evidence; this map grants no new rights.",
+  "decision": "Evaluate the actual scoped artifact/source inventory under retained terms. Legacy denied resources remain blocked if reintroduced; this map grants no new blanket rights.",
   "records": [
     {
       "id": "application-rights",
@@ -12,9 +12,9 @@
       "sourceUrl": null,
       "commit": null,
       "version": null,
-      "licenseExpression": null,
+      "licenseExpression": "LicenseRef-Repository-Scoped-Terms",
       "noticePath": "LICENSE.md",
-      "copyrightHolder": "pending",
+      "copyrightHolder": "Respective source contributors; original upstream notices retained",
       "modified": null,
       "patchEvidence": null,
       "distributionScopes": [
@@ -24,8 +24,8 @@
         "services",
         "dev-only"
       ],
-      "evidenceStatus": "needs-review",
-      "evidence": "Existing multi-license statement preserves upstream rights but supplies no confirmed holder/authorization for all new code. See LICENSE_DECISION.md.",
+      "evidenceStatus": "verified",
+      "evidence": "Maintainer-authorized continued public maintenance and completion of the existing release workflow under LICENSE.md scoped terms. This records publication authorization, not a new repository-wide MIT/GPL grant, a new uniform copyright holder or approval of separately unreviewed external assets. Combined viewer and independently licensed files retain their existing terms.",
       "files": [
         {
           "path": "public/automation/webcad-page-api/references/connection.md",
@@ -552,18 +552,21 @@
       "sourceUrl": null,
       "commit": null,
       "version": null,
-      "licenseExpression": null,
+      "licenseExpression": "LicenseRef-Maintainer-Supplied-Reference-Grant",
       "noticePath": "docs/compliance/LICENSE_DECISION.md",
-      "copyrightHolder": "pending",
-      "modified": null,
+      "copyrightHolder": "Respective rights holder; maintainer confirms permission for this supplied reference",
+      "modified": false,
       "patchEvidence": null,
       "distributionScopes": [
         "public-web",
         "integrated-web"
       ],
-      "evidenceStatus": "blocked",
-      "evidence": "Used by src/metal-materials.js; no source, creator or redistribution grant found in retained notices.",
-      "sha256": "191b602d3fcd6367e67162a7b4b2410fba1c1b308b6cc70f66abcf6b0c041af1"
+      "evidenceStatus": "verified",
+      "evidence": "Maintainer explicitly confirmed the supplied antique reference may be publicly distributed with this project. Approval is bound to the recorded SHA-256; no origin URL, different creator identity or grant over other images is invented. Original bytes and normal material appearance are retained; original procedural data is used only when loading fails.",
+      "sha256": "191b602d3fcd6367e67162a7b4b2410fba1c1b308b6cc70f66abcf6b0c041af1",
+      "activationArtifacts": [
+        "render-assets/antique-metal-reference.jpg"
+      ]
     },
     {
       "id": "examples",
@@ -2236,6 +2239,34 @@
         {
           "path": "skills/webcad-page-api/scripts/static-archive.mjs",
           "normalizedSha256": "bd64172cff34b1eca2a86a9d583a820442e8b3a5051d304759ce3ee9ae52ed53"
+        }
+      ]
+    },
+    {
+      "id": "antique-procedural",
+      "path": "src/procedural-antique-atlas.js",
+      "component": "Original procedural antique brass/silver luminance atlas",
+      "originType": "generated",
+      "aiAssisted": true,
+      "sourceUrl": null,
+      "commit": null,
+      "version": "procedural-antique-atlas-1",
+      "licenseExpression": null,
+      "noticePath": "LICENSE.md",
+      "copyrightHolder": null,
+      "modified": false,
+      "patchEvidence": null,
+      "distributionScopes": [
+        "public-web",
+        "integrated-web"
+      ],
+      "evidenceStatus": "verified",
+      "rightsParent": "application-rights",
+      "evidence": "Self-contained deterministic noise and pitting source, with no imported photo or pixels. Existing antique material IDs, lighting/color parameters and BRep are preserved. Rendering consumes the generated DataTexture; no generated bitmap is committed.",
+      "sourceFiles": [
+        {
+          "path": "src/procedural-antique-atlas.js",
+          "sha256": "75b74e1b612bf49da9b9fadec7719a27418794fa528a13b51f79d760ce202657"
         }
       ]
     }
