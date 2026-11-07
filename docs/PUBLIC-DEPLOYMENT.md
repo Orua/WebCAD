@@ -1,8 +1,8 @@
 # Public deployment / 公开版交付边界
 
-Status: **pending implementation and acceptance**. This documentation does not deploy a site, change the existing demo URL or assert anonymous access is working.
+Status: **public candidate implemented and locally pre-release tested; live deployment pending**. Candidate checks use isolated browser interception on the existing localhost origin; they do not certify deployed-site HTTP, backend cookie handling or a new demo URL.
 
-The planned public frontend provides manual modeling without an Agent console. It must preserve local modeling, final-geometry save/open and precise STEP export where the input is an exact solid. Optional computation needs an explicit public capability boundary; public access must not weaken protected Agent/service authentication.
+The public frontend provides manual modeling without an Agent console. It must preserve local modeling, final-geometry save/open and precise STEP export where the input is an exact solid. Optional computation needs an explicit public capability boundary; public access must not weaken protected Agent/service authentication.
 
 Before publication:
 
@@ -15,3 +15,9 @@ Before publication:
 Resource rules: retain reviewed HDR attribution and full notices; do not copy private drawings, evidence folders or historical packages. The antique-metal texture and model/preview assets need provenance review before distribution. Services using PyMuPDF need their own scope review even when no Python files are in the static output.
 
 Rollback restores the preceding verified program package and matching notices. Do not overwrite project files, cookies, user settings or persistent service jobs. Follow deployment-specific instructions and authorization separately; this checklist is not permission to publish.
+
+## Visitor compute contract
+
+The public build reads only its dedicated compute settings, starts with computation disabled, and accepts no internal bearer or cross-origin compute address. Explicit connection requires an isolation-version-1 handshake before input upload. Legacy shared-principal endpoints are rejected. The backend uses signed compute-only visitor sessions, per-owner job/asset/result access, bounded request/storage/queue limits and two-hour expiration. Expired work is cancelled before its temporary files are removed; existing internal bearer-owned data is retained. See [Services](services/README.md).
+
+Persisted ownership/limits/expiration and a real controlled Logo worker conversion have passed isolated runtime tests. Actual IIS cookie/session and cross-browser acceptance remain required after deploying the matching DLLs. An execution-policy rejection of deployment must not be bypassed or reported as installation success. The current public distribution check still requires actual application-scope and reference-texture rights facts.

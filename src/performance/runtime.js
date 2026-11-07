@@ -47,7 +47,7 @@ export function createPerformanceRuntime({getSnapshot,getContext,changeQuality,o
     // Attribution is conservative: measured CPU submit cost, not object count,
     // LLM latency or an invented GPU timer, establishes a display bottleneck.
     const displayLoadConfirmed=snapshot.valid&&snapshot.cpuSubmitMs.p95>=12;
-    decision=planner.evaluate(snapshot,{nowMs:atMs,...settings,effectiveQuality,displayLoadConfirmed});
+    decision=planner.evaluate(snapshot,{nowMs:atMs,...settings,effectiveQuality,displayLoadConfirmed,blocked:context.blocked===true});
     const recommendation=decision.groupingRecommendation;
     if(recommendation){
       const key=JSON.stringify([documentId,decision.observation,context.structureStage??'document']);

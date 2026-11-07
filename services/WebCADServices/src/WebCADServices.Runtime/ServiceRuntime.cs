@@ -40,12 +40,23 @@ namespace WebCADServices.Runtime
         {
             try
             {
-                if (!Auth(request.Credential)) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
+                string visitorOwner; long visitorExpires;
+                bool visitor = AnonymousSession.TryValidate(request.Credential, token, DateTime.UtcNow, out visitorOwner, out visitorExpires);
+                if (!visitor && !Auth(request.Credential)) throw new ServiceError("UNAUTHORIZED", "Services authorization required", 401);
                 if (stopping) throw new ServiceError("SERVICE_STOPPING", "Service is stopping; reconcile the original request after reconnecting", 503);
                 if (request.Body != null && request.Body.Length > Protocol.ResourceBudget(request.Route,request.AssetKind,request.FileName)) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);
                 // Dedicated credential is one principal; user-provided userid is never authority.
-                string owner = Protocol.Hash(Encoding.UTF8.GetBytes(token));
+                string owner = visitor ? visitorOwner : Protocol.Hash(Encoding.UTF8.GetBytes(token));
                 string route = request.Route ?? "", method = request.Method;
+                if (visitor)
+                {
+                    store.VisitAnonymous(owner,visitorExpires,method);
+                    if (route=="/v1/compute/jobs" && method=="POST")
+                    {
+                        var op=(string)Protocol.Parse(request.Body,Protocol.MaxNativePlan)["operation"];
+                        if (!new[]{"transform","cut","reliefShoulder","round","relief","reliefDesign","reliefSourceConvert","deform","mesh.inspect","mesh.translate"}.Contains(op)) throw new ServiceError("OPERATION_UNAVAILABLE","Operation is not approved for public computation",403);
+                    }
+                }
                 if (route == "/v1/health" && method == "GET") { bool dispatchersAlive = scheduler.IsAlive && nativeScheduler.IsAlive && meshScheduler.IsAlive; bool ready = !stopping && !storageUnavailable && dispatchersAlive && File.Exists(worker) && (!serviceMode || NativeAdapter.Acceptance != null); return WireResponse.Json(new { status = ready ? "healthy" : "degraded", protocolVersion = Protocol.Version, hostMode = runtimeMode, dispatchersAlive, storageAvailable = !storageUnavailable, queue = storageUnavailable ? null : store.QueueHealth(), logoAvailable = File.Exists(worker), nativeAccepted = NativeAdapter.Acceptance != null }, ready ? 200 : 503); }
                 if (route == "/v1/capabilities" && method == "GET") return WireResponse.Json(Capabilities(owner));
                 if (route == "/v1/assets" && method == "POST") return WireResponse.Json(store.AddAsset(owner, request.FileName, request.Body, request.AssetKind ?? "logo"), 201);
@@ -98,6 +109,7 @@ namespace WebCADServices.Runtime
         JObject Capabilities(string owner) => JObject.FromObject(new
         {
             protocolVersion = Protocol.Version, supportedClientProtocolRange = new[] { "1.0" }, serviceBuildId = "sha256:" + Protocol.Hash(File.ReadAllBytes(typeof(ServiceRuntime).Assembly.Location)), hostBuildId = "sha256:" + Protocol.Hash(File.ReadAllBytes((System.Reflection.Assembly.GetEntryAssembly() ?? typeof(ServiceRuntime).Assembly).Location)),
+            anonymousCompute = new { isolationVersion=1, sessionLifetimeSeconds=AnonymousSession.LifetimeSeconds, maxUploadBytes=Protocol.MaxUpload, maxSessionUploadBytes=64*1024*1024, maxSessionResultBytes=128*1024*1024, maxActiveJobs=2, maxSessionJobs=10, requestsPerMinute=180, writesPerMinute=20 },
             mesh = MeshAdapter.Capabilities(),
             logo = new { engineBuildId = LogoBuildId(), enabled = File.Exists(worker), pdfRasterRenderer = PdfRasterRendererAvailable(), formats = new[] { "logo-json", "svg-restricted", "pdf", "pdf-compatible-ai", "dxf-restricted", "png", "jpeg", "bmp" }, restrictions = new[] { "monochrome", "explicit physical dimensions", "manual review for raster/reconstructed linework", "no DWG" }, maxSourceBytes = Protocol.MaxUpload, acceptanceStatus = "local JSON/FURLA PDF accepted; IIS and production identity gates pending" },
             operations = NativeOperations(), unavailableOperations = TbdOperations(), geometryExchange = new { supportedFormats = NativeAdapter.Acceptance==null?new string[0]:new[]{"occt-text-brep-v1"}, testedKernelPairs = NativeAdapter.Acceptance==null?new object[0]:new object[]{new { producerKernelBuildId=NativeAdapter.BuildId, consumerKernelBuildId=(string)NativeAdapter.Acceptance["consumerKernelBuildId"],codec="occt-text-brep-v1",brepVersion=3 }}, blockers = NativeAdapter.Acceptance==null?new[] { "NATIVE_BRIDGE_NOT_ACCEPTED" }:new string[0] },
@@ -175,7 +187,7 @@ namespace WebCADServices.Runtime
         }
         JObject ClaimNext(string engine)
         {
-            try { var row = store.Claim(engine); storageUnavailable = false; return row; }
+            try { store.PruneAnonymous(); var row = store.Claim(engine); storageUnavailable = false; return row; }
             catch (Exception) { storageUnavailable = true; Thread.Sleep(1000); return null; }
         }
         // A storage retry repeats only the receipt write, never the computation.

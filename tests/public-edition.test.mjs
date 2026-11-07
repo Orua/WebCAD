@@ -18,8 +18,8 @@ test('public startup ignores poisoned private storage and deployment defaults',(
     assert.equal(settings.getServicesConfig().configured,false);
     assert.equal(settings.getServicesConfig().allowGeometryUploads,false);
     assert.equal(settings.getServicesCredential(),'');
-    assert.throws(()=>settings.saveServicesConfig({enabled:true,url:'/private'}),{code:'CAPABILITY_UNAVAILABLE'});
-    assert.throws(()=>settings.clearServicesCredential(),{code:'CAPABILITY_UNAVAILABLE'});
+    assert.throws(()=>settings.saveServicesConfig({enabled:true,url:'/private'}),{code:'PARAM_SCHEMA_INVALID'});
+    assert.equal(settings.clearServicesCredential().hasCredential,false);
     const host=await import('./src/editions/public-host.js');
     assert.equal(host.createAssistantPanel().get().visible,false);
     assert.equal(host.createHostControl().get().locked,false);
@@ -27,6 +27,25 @@ test('public startup ignores poisoned private storage and deployment defaults',(
     assert.throws(()=>host.createAssistantPanel().enter(),{code:'CAPABILITY_UNAVAILABLE'});
   `);
 });
+test('public compute settings isolate old credentials and permit only explicit same-origin visitors',()=>{
+ inEdition('public',`
+  import assert from 'node:assert/strict';
+  const values=new Map([['webcad.services.v1','private'],['webcad.services.credential.v1','secret']]);
+  globalThis.localStorage={getItem:key=>{assert.equal(key,'webcad.public.services.v1');return values.get(key)||null;},setItem:(key,value)=>values.set(key,value)};
+  globalThis.sessionStorage=new Proxy({}, {get(){throw Error('internal credentials accessed')}});
+  globalThis.WEBCAD_DEPLOYMENT_CONFIG=new Proxy({}, {get(){throw Error('internal defaults accessed')}});
+  globalThis.location=new URL('https://example.invalid/webcad/');
+  const s=await import('./src/services/settings.js');
+  assert.equal(s.getServicesConfig().enabled,false);
+  assert.throws(()=>s.saveServicesConfig({enabled:true,url:'https://other.invalid/api'}),{code:'PARAM_SCHEMA_INVALID'});
+  assert.throws(()=>s.saveServicesConfig({enabled:true,url:'/cadservices/api.ashx',credential:'private'}),{code:'PARAM_SCHEMA_INVALID'});
+  const configured=s.saveServicesConfig({enabled:true,url:'/cadservices/api.ashx'});
+  assert.equal(configured.authMode,'siteSession');assert.equal(configured.configured,true);assert.equal(s.getServicesCredential(),'');
+  assert.equal(values.get('webcad.services.v1'),'private');assert.equal(values.get('webcad.services.credential.v1'),'secret');
+  s.saveServicesConfig({enabled:false,url:''});assert.equal(s.getServicesConfig().allowGeometryUploads,false);
+ `);
+});
+
 test('integrated Services settings retain explicit configuration semantics',()=>{
   inEdition('integrated',`
     import assert from 'node:assert/strict';

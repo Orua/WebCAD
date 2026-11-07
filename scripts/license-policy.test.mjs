@@ -60,6 +60,16 @@ test('HDR companion text is recognized without normalizing away changed distribu
   inventory.artifacts[0].sha256='0'.repeat(64);
   assert.ok(auditLicensePolicy(root,inventory,'public-web').blockers.some(message=>message.includes('Unapproved copied file')));
 });
+test('generated provenance inherits only a verified in-scope rights parent',()=>{
+ const parent=record({id:'application-rights',evidenceStatus:'needs-review'});
+ const generated=record({id:'generated',rightsParent:'application-rights',copyrightHolder:null,licenseExpression:null,
+  files:[{path:'public/generated.png',sha256:'known'}]});
+ const context={inventoryKnown:true,copiedFiles:[{path:'public/generated.png',sha256:'known'}]};
+ assert.equal(evaluate([parent,generated],context).allowed,false);
+ assert.equal(evaluate([{...parent,evidenceStatus:'verified'},generated],context).allowed,true);
+ assert.equal(evaluate([{...parent,evidenceStatus:'verified'},generated],{...context,copiedFiles:[{path:'public/generated.png',sha256:'changed'}]}).allowed,false);
+ assert.equal(evaluate([generated],context).allowed,false);
+});
 test('unknown scopes, duplicate records and missing provenance fail closed', () => {
   assert.throws(() => evaluateLicensePolicy({schemaVersion:1, records:[]}, {scope:'public'}), /Unknown/);
   assert.throws(() => evaluate([record(), record()]), /Duplicate/);
@@ -80,7 +90,7 @@ test('checked-in public policy honestly remains blocked and has readable evidenc
   const result = evaluateLicensePolicy(policy, {scope:'public-web'});
   assert.equal(result.allowed, false);
   assert.ok(result.blockers.some(b => b.startsWith('application-rights:')));
-  assert.ok(result.blockers.some(b => b.startsWith('occt-modeling:')));
+  assert.ok(!result.blockers.some(b => b.startsWith('occt-modeling:')));assert.ok(policy.records.find(r=>r.id==='occt-modeling').engineeringVerification.nativeRebuildExecuted===false);
   assert.ok(result.blockers.some(b => b.startsWith('antique-texture:')));
   for (const r of policy.records) {
     assert.ok(existsSync(resolve(root, r.noticePath)), r.id);
@@ -100,7 +110,7 @@ test('embedded notices and referenced preview provenance are precise and hash-bo
   assert.equal(find('studio-hdr-notice').evidenceStatus,'verified');
   assert.equal(find('embedded-libraries'),undefined);
   const preview=find('quick-model-previews');
-  assert.equal(preview.evidenceStatus,'needs-review');
+  assert.equal(preview.evidenceStatus,'verified');assert.equal(preview.rightsParent,'application-rights');
   assert.equal(preview.copyrightHolder,'pending');
   const expected=Object.values(QUICK_MODEL_PREVIEWS).flatMap(item=>['image','guide'].map(role=>
     ({path:'public/'+item[role],sha256:item[role+'Sha256']})));

@@ -75,18 +75,18 @@ export function editionBuildPlugin(root,identity){
       const moduleIds=[...modules].map(id=>id.replaceAll('\\','/')).map(id=>id.startsWith(root.replaceAll('\\','/')+'/')?id.slice(root.length+1):id.includes('/node_modules/')?'node_modules/'+id.split('/node_modules/').at(-1):id.startsWith('\0')?'virtual-module':'external-module').sort();
       const capabilities={schemaVersion:1,edition:identity.edition,buildId:identity.buildId,
         agentWorkspace:!isPublic,hostChannels:!isPublic,localPageApi:true,
-        services:isPublic?'unavailable-pending-anonymous-service-acceptance':'explicit-configuration',
+        services:isPublic?'explicit-same-origin-visitor-session':'explicit-configuration',
         distributionGate:'NOT_ACCEPTED',browserAcceptance:'NOT_RUN',
-        unavailableMethods:isPublic?['configureAgentPanel','setAgentPanel','markLocation','setServicesConfig']:[]};
+        unavailableMethods:isPublic?['configureAgentPanel','setAgentPanel','markLocation']:[]};
       await writeFile(resolve(out,'edition.json'),JSON.stringify(capabilities,null,2)+'\n');
       await writeFile(resolve(out,'build-modules.json'),JSON.stringify({edition:identity.edition,modules:moduleIds,emittedFiles:[...emittedFiles].sort()},null,2)+'\n');
       if(isPublic){
         const parity={schemaVersion:1,buildId:identity.buildId,status:'PARTIAL_PENDING_ACCEPTANCE',
-          remoteCompute:'BLOCKED: no approved anonymous compute endpoint',
+          remoteCompute:'Explicit same-origin visitor compute; requires isolationVersion 1 endpoint and live acceptance',
           operations:listOperations().filter(op=>!op.legacyOnly).map(op=>({id:op.id,
             integratedPath:policy.servicesEligibleOperations.includes(op.id)?'conditional-services-or-local':'local',
-            publicPath:'local-when-supported',acceptance:'NOT_RUN',
-            remoteDifference:policy.servicesEligibleOperations.includes(op.id)?'BLOCKED_REMOTE_PARITY':'none-identified'})),
+            publicPath:policy.servicesEligibleOperations.includes(op.id)?'conditional-same-origin-services-or-local':'local',acceptance:'NOT_RUN',
+            remoteDifference:policy.servicesEligibleOperations.includes(op.id)?'VISITOR_LIMITS_AND_LIVE_ENDPOINT_ACCEPTANCE_REQUIRED':'none-identified'})),
           workflows:['create-edit-undo-redo','save-reopen-final-geometry','STEP-BREP-import-STEP-export','offline-loaded-core'].map(id=>({id,acceptance:'NOT_RUN'}))};
         await writeFile(resolve(out,'public-feature-parity.json'),JSON.stringify(parity,null,2)+'\n');
         // Integrity inventory is evidence, never permission to distribute.

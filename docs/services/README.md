@@ -30,7 +30,9 @@ For a direct ERP mount, build with `scripts/build-services.ps1 -ParentApplicatio
 
 # Unified Services
 
-当前运行与授权边界（2026-10-26）：本机只使用 `http://localhost/webcad/`，生产为 `https://goldenfu.cn/webcad/`。Services 是本仓库独立的 ASHX/DLL 模块，默认同域直连 `/cadservices/api.ashx`，同域计算不使用网站登录、Cookie、网站签名或 `Web.dll`；原有内部任务主体保持不变，因此任务、资产和幂等键仍可对账。跨域计算端保留专用 Bearer 授权及 Origin 边界。旧 `/AI/WebCAD/WebCADCompute.ashx` 仅作为不依赖生产系统程序集的兼容转发入口。Agent 工作台另由 `host/Goldenluck.WebCADHost` 维护，仍有账号权限要求。以下带日期的验收笔记仅描述当时结果，不是当前运行入口或新架构的验收证明。
+当前运行与授权边界（2026-11-07）：同域 `/cadservices/api.ashx` 不要求网站登录。浏览器计算使用独立、不可猜测且签名校验的 HttpOnly / SameSite=Strict 访客 Cookie，服务端不信任网站 Cookie 或用户输入的 userId；每个浏览器会话的 job、asset、artifact 和幂等键相互隔离。显式 Services Bearer 仍访问原有内部主体和旧作业，不迁移或删除内部数据。跨域保留专用 Bearer 和 Origin 边界。公开版设置独立存储且默认关闭，不读取内部旧设置或助手地址；只允许用户显式开启同源计算。Agent 工作台仍有原有账号权限要求。
+
+访客会话有效期2小时，响应带 `computeSessionExpiresAt`；能力返回 `anonymousCompute`。访客每个上传最多20 MiB，累计64 MiB；结果累计128 MiB；同时2个任务、累计10个；每分钟180次请求/20次写入。全局访客临时输入/产物上限1 GiB、活动任务32、会话128。过期先取消排队/运行任务，等待受控工作进程结束后清理该访客的输入、结果与作业目录；内部持久数据不参与清理，访客不写长期层缓存。保留现有操作/参数白名单、资源类型及Worker限制，不接受脚本、可执行路径或任意URL。请在会话过期前将已安装几何保存为工程。
 
 The browser remains the sole document authority. Optional Services computes immutable snapshots; the UI and Agent share one Services setting, client, public page API and existing CommandService. Supported local modeling continues without Services.
 

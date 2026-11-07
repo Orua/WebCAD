@@ -1,5 +1,6 @@
-import {PUBLIC_EDITION,requireIntegratedCapability} from '../edition.js';
+import {PUBLIC_EDITION} from '../edition.js';
 const KEY='webcad.services.v1',OLD='webcad.logoConverter.v1',AUTH='webcad.services.credential.v1';
+const PUBLIC_KEY='webcad.public.services.v1';
 export const serviceError=(code,message,extra={})=>Object.assign(new Error(message),{code,...extra});
 function storage(){try{if(!globalThis.localStorage)throw 0;return globalThis.localStorage;}catch{throw serviceError('CAPABILITY_UNAVAILABLE','浏览器本地存储不可用');}}
 function credentials(){try{return globalThis.sessionStorage;}catch{return null;}}
@@ -26,6 +27,10 @@ export function normalizeServicesConfig(input){
  parsed.searchParams.delete('route');url=parsed.href;}
  if(enabled&&!url)throw serviceError('PARAM_SCHEMA_INVALID','启用 Services 须填写地址');
  if(authMode===undefined)authMode=url&&globalThis.location&&new URL(url).origin===globalThis.location.origin?'siteSession':'bearer';
+ if(PUBLIC_EDITION){
+  if(input.credential||input.authMode==='bearer'||url&&(!globalThis.location||new URL(url).origin!==globalThis.location.origin))throw serviceError('PARAM_SCHEMA_INVALID','公开版仅连接本站独立访客计算，不接受内部凭据或跨域地址');
+  authMode='siteSession';
+ }
  if(authMode==='siteSession'&&url){
   if(!globalThis.location||new URL(url).origin!==globalThis.location.origin)throw serviceError('PARAM_SCHEMA_INVALID','免鉴权连接仅限当前同域计算入口');
  }
@@ -33,7 +38,12 @@ export function normalizeServicesConfig(input){
 }
 export function getServicesCredential(){if(PUBLIC_EDITION)return '';const config=getServicesConfig();try{const saved=JSON.parse(credentials()?.getItem(AUTH)||'null');return saved?.url===config.url?saved.credential:'';}catch{return '';}}
 export function getServicesConfig(){
- if(PUBLIC_EDITION)return {...normalizeServicesConfig({enabled:false,url:''}),configured:false,hasCredential:false,storage:'public-edition',credentialStorage:'none',allowGeometryUploads:false};
+ if(PUBLIC_EDITION){
+  let raw;try{raw=globalThis.localStorage?.getItem(PUBLIC_KEY);}catch{}
+  let saved;try{saved=JSON.parse(raw||'null');}catch{throw serviceError('SERVICES_CONFIG_INVALID','公开版计算配置损坏，请重新设置');}
+  const config=normalizeServicesConfig(saved??{enabled:false,url:''});
+  return {...config,configured:!!(config.enabled&&config.url),hasCredential:false,storage:saved?'public-localStorage':'public-edition',credentialStorage:'compute-only-HttpOnly-cookie'};
+ }
  const raw=storage().getItem(KEY);let saved;try{saved=JSON.parse(raw||'null');}catch{throw serviceError('SERVICES_CONFIG_INVALID','Services 配置损坏，请重新设置');}
  let config=saved?normalizeServicesConfig(saved):normalizeServicesConfig(defaultServicesConfig());
  let auth;try{auth=JSON.parse(credentials()?.getItem(AUTH)||'null');}catch{}
@@ -53,11 +63,14 @@ export function getServicesConfig(){
  return {...config,configured:!!(config.enabled&&config.url),hasCredential:!!(auth?.url===config.url&&auth.credential),authorizationRestored,migrationRequired:!saved&&!!storage().getItem(OLD),credentialStorage:config.authMode==='siteSession'?'none':'sessionStorage',storage:saved?'localStorage':'deployment-default'};
 }
 export function saveServicesConfig(input){
- requireIntegratedCapability();
+ if(PUBLIC_EDITION){
+  const previous=getServicesConfig(),value=normalizeServicesConfig({localTimeoutMs:previous.localTimeoutMs,serverWaitMs:previous.serverWaitMs,...input});
+  storage().setItem(PUBLIC_KEY,JSON.stringify(value));return getServicesConfig();
+ }
  const previous=getServicesConfig(),value=normalizeServicesConfig({localTimeoutMs:previous.localTimeoutMs,serverWaitMs:previous.serverWaitMs,...input}),store=storage(),auth=credentials();
  if(previous.url!==value.url||!value.enabled)auth?.removeItem(AUTH);
  if(input.credential&&value.enabled){if(!auth)throw serviceError('CAPABILITY_UNAVAILABLE','会话存储不可用，无法保存授权');auth.setItem(AUTH,JSON.stringify({url:value.url,credential:input.credential}));}
  // Old values remain untouched as migration backup and never authorize Services.
  store.setItem(KEY,JSON.stringify(value));return getServicesConfig();
 }
-export function clearServicesCredential(){requireIntegratedCapability();credentials()?.removeItem(AUTH);return getServicesConfig();}
+export function clearServicesCredential(){if(!PUBLIC_EDITION)credentials()?.removeItem(AUTH);return getServicesConfig();}

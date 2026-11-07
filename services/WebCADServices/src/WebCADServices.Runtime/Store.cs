@@ -9,7 +9,7 @@ using WebCADServices.Contracts;
 namespace WebCADServices.Runtime
 {
     // Host owns the database. Every mutation uses a database transaction, never an in-memory queue.
-    public sealed class Store : IDisposable
+    public sealed partial class Store : IDisposable
     {
         readonly SQLiteConnection db;
         readonly FileStream hostLease;
@@ -33,6 +33,7 @@ namespace WebCADServices.Runtime
             Execute("CREATE INDEX IF NOT EXISTS jobs_execution_queue ON jobs(owner,engine,state)");
             Execute("CREATE TABLE IF NOT EXISTS client_keys(owner TEXT NOT NULL,idem TEXT NOT NULL,payload_hash TEXT NOT NULL,job TEXT NOT NULL,PRIMARY KEY(owner,idem)); INSERT OR IGNORE INTO client_keys(owner,idem,payload_hash,job) SELECT owner,idem,COALESCE(payload_hash,''),id FROM jobs;");
             EnsureColumn("client_keys","binding_json","TEXT");
+            Execute("CREATE TABLE IF NOT EXISTS anonymous_sessions(owner TEXT PRIMARY KEY,expires INTEGER NOT NULL,window INTEGER NOT NULL,reads INTEGER NOT NULL,writes INTEGER NOT NULL)");
             Execute("UPDATE jobs SET state='interrupted',error='Host restarted during execution; inspect job before retry' WHERE state='running'");
             }catch{db?.Dispose();hostLease.Dispose();throw;}
         }
@@ -80,8 +81,14 @@ namespace WebCADServices.Runtime
             if (!new[] { "logo", "brep", "mesh", "raster" }.Contains(kind)) throw new ServiceError("PARAM_SCHEMA_INVALID", "Unknown asset role");
             if (bytes == null || bytes.Length == 0 || bytes.Length > (kind=="mesh"?Protocol.MaxMeshSource:Protocol.MaxUpload)) throw new ServiceError("SIZE_LIMIT", "Resource limit is 20 MiB", 413);
             if (string.IsNullOrEmpty(name) || name.Length > 160 || name != Path.GetFileName(name) || name.Contains("\\") || name.Contains("/")) throw new ServiceError("PARAM_SCHEMA_INVALID", "Source name must be a display filename");
-            string id = Guid.NewGuid().ToString("N"), sha = Protocol.Hash(bytes); Atomic(Path.Combine(Root, "assets", id), bytes);
-            lock (gate) Execute("INSERT INTO assets(id,owner,name,sha,bytes,kind) VALUES(@p0,@p1,@p2,@p3,@p4,@p5)", id, owner, name, sha, bytes.Length, kind);
+            string id = Guid.NewGuid().ToString("N"), sha = Protocol.Hash(bytes);
+            lock (gate)
+            {
+                AnonymousAssetBudget(owner, bytes.Length);
+                string path=Path.Combine(Root,"assets",id); Atomic(path,bytes);
+                try { Execute("INSERT INTO assets(id,owner,name,sha,bytes,kind) VALUES(@p0,@p1,@p2,@p3,@p4,@p5)", id, owner, name, sha, bytes.Length, kind); }
+                catch { File.Delete(path); throw; }
+            }
             return new JObject { ["assetId"] = id, ["sha256"] = sha, ["bytes"] = bytes.Length };
         }
         public JObject Submit(string owner, string idem, JObject request, JObject clientRequest = null)
@@ -133,6 +140,7 @@ namespace WebCADServices.Runtime
                         if(retryLogo)AssertWorkerStopped((string)same["id"]);
                         if(!retryLogo){if(new[]{"failed","terminated","interrupted"}.Contains((string)same["state"]))throw new ServiceError("KNOWN_INPUT_FAILED","This exact computation already failed; inspect job "+(string)same["id"]+" before another strategy",409);Execute("INSERT INTO client_keys(owner,idem,payload_hash,job,binding_json) VALUES(@p0,@p1,@p2,@p3,@p4)",owner,idem,payloadHash,(string)same["id"],binding?.ToString(Newtonsoft.Json.Formatting.None));transaction.Commit();return Accepted(same,idem,binding,true);}
                     }
+                    AnonymousJobBudget(owner);
                     string id = Guid.NewGuid().ToString("N");
                     Execute("INSERT INTO jobs(id,owner,idem,fingerprint,request,state,created,payload_hash,engine) VALUES(@p0,@p1,@p2,@p3,@p4,'queued',@p5,@p6,@p7)", id, owner, idem, fingerprint, canonical, DateTime.UtcNow.ToString("o"), payloadHash, ((string)request["operation"]).StartsWith("logo.") ? "logo" : ((string)request["operation"]).StartsWith("mesh.")?"mesh":"occt");
                     Execute("INSERT INTO client_keys(owner,idem,payload_hash,job,binding_json) VALUES(@p0,@p1,@p2,@p3,@p4)",owner,idem,payloadHash,id,binding?.ToString(Newtonsoft.Json.Formatting.None));
@@ -181,13 +189,12 @@ namespace WebCADServices.Runtime
         public JObject Publish(string owner, string jobId, string fingerprint, JObject value)
         {
             var bytes = Encoding.UTF8.GetBytes(value.ToString(Newtonsoft.Json.Formatting.None)); string id = Guid.NewGuid().ToString("N"), sha = Protocol.Hash(bytes);
-            Atomic(Path.Combine(Root, "artifacts", id), bytes);
-            lock (gate) Execute("INSERT INTO artifacts VALUES(@p0,@p1,@p2,@p3)", id, owner, sha, bytes.Length);
+            AddArtifact(owner,id,bytes,sha);
             return new JObject { ["jobId"] = jobId, ["inputFingerprint"] = fingerprint, ["artifactId"] = id, ["artifactSha256"] = sha, ["bytes"] = bytes.Length, ["format"] = "webcad-logo-result-v1", ["expiresAt"] = JValue.CreateNull(), ["commit"] = "notCommitted" };
         }
         public JObject PublishMesh(string owner,byte[] bytes)
         {
-            MeshAdapter.CheckCodec(bytes);string id=Guid.NewGuid().ToString("N"),sha=Protocol.Hash(bytes);Atomic(Path.Combine(Root,"artifacts",id),bytes);lock(gate)Execute("INSERT INTO artifacts VALUES(@p0,@p1,@p2,@p3)",id,owner,sha,bytes.Length);
+            MeshAdapter.CheckCodec(bytes);string id=Guid.NewGuid().ToString("N"),sha=Protocol.Hash(bytes);AddArtifact(owner,id,bytes,sha);
             return new JObject{["artifactId"]=id,["sha256"]=sha,["bytes"]=bytes.Length,["format"]=MeshAdapter.Codec,["geometryType"]="rawMesh"};
         }
         // Non-BRep native artifacts (relief height grid JSON, STEP export) share the artifact table.
@@ -198,7 +205,7 @@ namespace WebCADServices.Runtime
         public JObject PublishGeometry(string owner,byte[] bytes)
         {
             if(bytes.Length>Protocol.MaxGeometryUpload)throw new ServiceError("RESULT_TOO_LARGE", "Geometry result exceeds server artifact budget");
-            string id=Guid.NewGuid().ToString("N"),sha=Protocol.Hash(bytes);Atomic(Path.Combine(Root,"artifacts",id),bytes);lock(gate)Execute("INSERT INTO artifacts VALUES(@p0,@p1,@p2,@p3)",id,owner,sha,bytes.Length);
+            string id=Guid.NewGuid().ToString("N"),sha=Protocol.Hash(bytes);AddArtifact(owner,id,bytes,sha);
             return new JObject { ["artifactId"]=id,["sha256"]=sha,["bytes"]=bytes.Length,["format"]="occt-text-brep-v1",["brepVersion"]=3 };
         }
         public JObject Result(string owner, string id)

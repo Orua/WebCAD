@@ -8,7 +8,7 @@
 
 [English](README.en.md) · [快速开始](docs/QUICKSTART.md) · [构建与发布门禁](docs/BUILD.md) · [贡献](CONTRIBUTING.md) · [安全与隐私](SECURITY.md) · [变更记录](CHANGELOG.md)
 
-当前在线链接保持原地址。本轮独立匿名公开版、无 Agent 操作台的构建及新演示地址尚待实现和实际验收，不能将已有静态页面入口视为这些事项已通过。公开分发仍受[许可决策与材料缺口](docs/compliance/LICENSE_DECISION.md)阻塞；开发构建通过不代表已获公开发布批准。
+当前在线链接保持原地址。已提供 public / integrated 两种构建：public 不包含 Agent 操作台，默认仅本地计算；用户可显式连接支持访客隔离的同源计算端。公开候选的建模、修改、撤销、保存重开与 STEP 往返已通过发布前检查，新公开地址及服务器上线尚未验收。正式分发仍须完成[权利范围确认与发布检查](docs/compliance/LICENSE_DECISION.md)，不能把候选检查当作线上交付。
 
 ## 能做什么
 

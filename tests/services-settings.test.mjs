@@ -145,14 +145,14 @@ test('an empty IIS 404 is a computation path error, never a successful capabilit
  await assert.rejects(client.capabilities(),error=>error.httpStatus===404&&error.code==='SERVICES_REQUEST_FAILED'&&error.message.includes('计算接口未找到'));
 });
 
-test('same-origin compute omits cookies and bearer while custom endpoints retain explicit authorization',async()=>{
+test('same-origin compute retains the isolated visitor cookie while custom endpoints retain explicit authorization',async()=>{
  const previous=globalThis.location;
  try{
   globalThis.location=new URL('https://goldenfu.cn/webcad/');globalThis.localStorage=memory();globalThis.sessionStorage=memory();
-  const calls=[];const fetchImpl=async(url,options)=>{calls.push({url,options});return Response.json({protocolVersion:'1.0',supportedClientProtocolRange:['1.0']});};
+  const calls=[];const fetchImpl=async(url,options)=>{calls.push({url,options});return Response.json({protocolVersion:'1.0',supportedClientProtocolRange:['1.0'],anonymousCompute:{isolationVersion:1}});};
   await createServicesClient({config:{url:'/cadservices/api.ashx',authMode:'siteSession'},fetchImpl}).capabilities();
   assert.equal(new URL(calls[0].url).pathname,'/cadservices/api.ashx');
-  assert.equal(calls[0].options.credentials,'omit');assert.equal(calls[0].options.headers.Authorization,undefined);
+  assert.equal(calls[0].options.credentials,'same-origin');assert.equal(calls[0].options.headers.Authorization,undefined);
   await createServicesClient({config:{url:'https://compute.invalid/api.ashx'},credential:'explicit-test-only',fetchImpl}).capabilities();
   assert.equal(calls[1].options.headers.Authorization,'Bearer explicit-test-only');assert.equal(calls[1].options.credentials,'omit');
  }finally{if(previous===undefined)delete globalThis.location;else globalThis.location=previous;}

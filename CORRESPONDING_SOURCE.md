@@ -75,3 +75,9 @@ This document is an engineering record of the distributed source and notices; it
 The build also publishes `open-source/docs/compliance/source-license-map.json`, its pending-decision document and `open-source/distribution-policy.json`. The report evaluates actual browser packages and copied public resource hashes against the reviewed map for `public-web` and `integrated-web`. The original release-integrity check verifies these materials against the current working source; an unresolved scope remains visibly blocked even when byte-integrity checks pass.
 
 Run `node scripts/verify-public-release.mjs <candidate-directory> public-web` before publishing. It runs the existing release checks and then requires scope approval. Optional host/service deployments require their own actual inventories; static inventory does not approve their runtime or network behavior. See [build instructions](docs/BUILD.md) and [pending decisions](docs/compliance/LICENSE_DECISION.md). A clean application build, native-kernel rebuild/replacement, real-model acceptance and deployment are separate results; none is inferred from this documentation.
+
+## 2026-11-07 固定原生材料补齐
+
+[原生材料清单](corresponding-source/native-materials.json)记录已取得的完整上游归档URL、准确版本、字节数和SHA-256。[构建与替换说明](corresponding-source/NATIVE-BUILD.md)连接实际绑定、配置、上游补丁和保留的LibreDWG改动。可在仓库外运行 `node scripts/fetch-corresponding-source.mjs <材料目录>` 下载并逐个核对；已有正确文件直接复用，哈希不符拒绝。
+
+replicad绑定固定到e4b05f67dc4e2393a876ce8c5064a9c93db05bf1，生成器为ebd263f15337b440b391492af073662707e86482，其OCCT为b8f597c677811d1f9f4d8a97f5ae2825c0353a42。已取得完整LibreDWG/libredwg-web源及匹配zlib版本，并识别保留的config.h和三处TypeScript修改。Manifold精确提交为ce50d78021d64507f89e8c9fc2c2e51018117857；官方npm包与安装字节/锁文件相符。上文“缺完整上游源”的历史状态由本节材料清单更新；尚未执行的原生重编、重链接/替换验证与正式公开材料上线保持未验证。固定镜像digest及逐字节相同重编是额外工程证据，不与对应源码和适用的构建/替换材料混作同一门槛。
