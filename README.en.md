@@ -1,6 +1,6 @@
 # WebCAD
 
-[中文](README.md) · [Quick start](docs/QUICKSTART.md) · [Build](docs/BUILD.md) · [License](LICENSE.md)
+[Live public editor](https://goldenfu.cn/webcad/public/) · [中文](README.md) · [Quick start](docs/QUICKSTART.md) · [Build](docs/BUILD.md) · [License](LICENSE.md)
 
 WebCAD is a browser CAD workbench for small hardware parts. Create a part manually or through an authorized Page API host, check it, save the final geometry and export it. Replicad/OpenCascade WebAssembly performs local precise modeling; Three.js displays the result. Optional Services provide selected conversions and complex computations.
 
@@ -35,6 +35,6 @@ Serve the complete `dist/` tree over HTTPS or localhost; preserve relative asset
 
 ## Licensing and participation
 
-This is a multi-license repository. Existing viewer distribution terms and upstream notices remain in force; no repository-wide MIT grant for new code is introduced. Matching native source/toolchain materials and some resource provenance remain unresolved. A passing integrity check is not permission to publish. See [third-party notices](THIRD_PARTY_NOTICES.md), [corresponding source](CORRESPONDING_SOURCE.md), [scope map](docs/compliance/source-license-map.json) and [open decisions](docs/compliance/LICENSE_DECISION.md).
+This is a multi-license repository. Existing viewer distribution terms and upstream notices remain in force; no repository-wide MIT grant for new code is introduced. Pinned native source materials and retained local build inputs are available; native rebuild/relink and byte-identical reproduction remain unexecuted. A passing integrity check is not permission to publish. See [third-party notices](THIRD_PARTY_NOTICES.md), [corresponding source](CORRESPONDING_SOURCE.md), [scope map](docs/compliance/source-license-map.json) and [open decisions](docs/compliance/LICENSE_DECISION.md).
 
 [Contributing](CONTRIBUTING.md) · [Security and privacy](SECURITY.md) · [Validation](docs/VALIDATION.md) · [Changes](CHANGELOG.md)
