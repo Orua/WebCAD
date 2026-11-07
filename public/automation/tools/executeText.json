@@ -2,7 +2,7 @@
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.63.2",
+  "version": "1.63.3",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -107,5 +107,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:29639b32da85f51c55007a32a4b9fcf197b7734465d72e5a3ee619450a2bbfae"
+  "docsHash": "sha256:ff8ce7a1f8d29c549283717735168c0eaa42923f3509bee54b504752375b8584"
 }

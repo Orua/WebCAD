@@ -43,6 +43,15 @@
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
+      },
+      "interpolation": {
+        "type": "string",
+        "enum": [
+          "approximate",
+          "uniformCubic"
+        ],
+        "default": "approximate",
+        "description": "approximate preserves the legacy chord-length fit. uniformCubic interpolates equally spaced row/column parameters with a clamped tensor B-spline of degree up to three."
       }
     },
     "required": [
@@ -79,7 +88,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Rectangular grid with consistent row/column correspondence, not unordered point-cloud reconstruction. Verifies point-to-face residuals. Output is one face, zero solids; thicken a selected face to obtain a solid.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Rectangular grid with consistent row/column correspondence, not unordered point-cloud reconstruction. Verifies point-to-face residuals. uniformCubic requires samples at equally spaced source parameters; it preserves polynomial coordinate fields of degree up to three, but does not promise arbitrary prescribed boundary tangents, absence of overshoot or global error. Output is one face, zero solids; thicken a selected face to obtain a solid.",
   "title": "Fit a single B-spline face to a structured point grid",
   "category": "surface",
   "synonyms": [
@@ -89,7 +98,7 @@
     "拟合曲面"
   ],
   "description": "Fit a single B-spline face to a structured point grid",
-  "schemaHash": "sha256:51275810f62059702f94a098690093939e8e5e7c1d5e55030509cb5f45e892ca",
+  "schemaHash": "sha256:dcd1649ce993da174c8a26b40fb0bf4dc25eed31e504b45ef0c0ae8c9113a6bf",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -149,7 +158,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Rectangular grid with consistent row/column correspondence, not unordered point-cloud reconstruction. Verifies point-to-face residuals. Output is one face, zero solids; thicken a selected face to obtain a solid.",
+    "Rectangular grid with consistent row/column correspondence, not unordered point-cloud reconstruction. Verifies point-to-face residuals. uniformCubic requires samples at equally spaced source parameters; it preserves polynomial coordinate fields of degree up to three, but does not promise arbitrary prescribed boundary tangents, absence of overshoot or global error. Output is one face, zero solids; thicken a selected face to obtain a solid.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "exampleNotes": {
@@ -315,7 +324,7 @@
   "contract": {
     "purpose": "Fit a single B-spline face to a structured point grid",
     "whenToUse": [
-      "Rectangular grid with consistent row/column correspondence, not unordered point-cloud reconstruction. Verifies point-to-face residuals. Output is one face, zero solids; thicken a selected face to obtain a solid."
+      "Rectangular grid with consistent row/column correspondence, not unordered point-cloud reconstruction. Verifies point-to-face residuals. uniformCubic requires samples at equally spaced source parameters; it preserves polynomial coordinate fields of degree up to three, but does not promise arbitrary prescribed boundary tangents, absence of overshoot or global error. Output is one face, zero solids; thicken a selected face to obtain a solid."
     ],
     "whenNotToUse": [
       {
@@ -342,6 +351,15 @@
         "default": {
           "behavior": "omitted; retain the operation source default"
         }
+      },
+      "interpolation": {
+        "meaning": "approximate preserves the legacy chord-length fit. uniformCubic interpolates equally spaced row/column parameters with a clamped tensor B-spline of degree up to three.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "approximate"
       }
     },
     "refs": {
@@ -574,7 +592,7 @@
   },
   "purpose": "Fit a single B-spline face to a structured point grid",
   "whenToUse": [
-    "Rectangular grid with consistent row/column correspondence, not unordered point-cloud reconstruction. Verifies point-to-face residuals. Output is one face, zero solids; thicken a selected face to obtain a solid."
+    "Rectangular grid with consistent row/column correspondence, not unordered point-cloud reconstruction. Verifies point-to-face residuals. uniformCubic requires samples at equally spaced source parameters; it preserves polynomial coordinate fields of degree up to three, but does not promise arbitrary prescribed boundary tangents, absence of overshoot or global error. Output is one face, zero solids; thicken a selected face to obtain a solid."
   ],
   "whenNotToUse": [
     {
@@ -932,5 +950,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:632416e3c5db4c181997e88e26c93b6dcedfa0aa0e3b4cef193f0cfe8eeb3696"
+  "docsHash": "sha256:6b2ad7290c9f69fb42f761aff652487ba330d27f5a9ad685f0081bff4fffbf21"
 }
