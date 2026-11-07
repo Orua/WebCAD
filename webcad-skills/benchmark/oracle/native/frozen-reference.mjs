@@ -13,18 +13,18 @@ export function createFrozenReferenceValidator({entries}={}){
  if(!Array.isArray(entries))throw Error('FROZEN_REFERENCE_ENTRIES_REQUIRED');
  const pinned=new Map();
  for(const entry of entries){
-  if(!['B01','B02','B03','M01','M02','M03','M04','M05','S01','S02','S03','S04','S05','S06'].includes(entry.caseId)||pinned.has(entry.caseId)||!isAbsolute(entry.receiptPath??'')||!isAbsolute(entry.stepPath??'')||!entry.sourceHash||!entry.oracleHash||!entry.oracleVersion)throw Error('FROZEN_REFERENCE_ENTRY_INVALID');
+  if(!['B01','B02','B03','M01','M02','M03','M04','M05','S01','S02','S03','S04','S05','S06','S07','S08','S09','S10','S11','S12'].includes(entry.caseId)||pinned.has(entry.caseId)||!isAbsolute(entry.receiptPath??'')||!isAbsolute(entry.stepPath??'')||!entry.sourceHash||!entry.oracleHash||!entry.oracleVersion)throw Error('FROZEN_REFERENCE_ENTRY_INVALID');
   pinned.set(entry.caseId,Object.freeze({...entry}));
  }
  return async({fixture})=>{
   const entry=pinned.get(fixture.caseId);
   if(!entry)return {status:'UNVERIFIED',reason:'NO_FROZEN_REFERENCE_FOR_CASE'};
   if(['sourceHash','oracleHash','oracleVersion'].some(key=>entry[key]!==fixture[key]))return {status:'UNVERIFIED',reason:'FROZEN_REFERENCE_FIXTURE_VERSION_MISMATCH'};
-  if(fixture.caseId==='S05'||fixture.caseId==='S04'||fixture.caseId==='S01'||fixture.caseId==='S06'||fixture.caseId==='S02'||fixture.caseId==='M03'||fixture.caseId==='M05'||fixture.caseId==='M02'){
+  if(['S07','S08','S09','S10','S11','S12'].includes(fixture.caseId)||fixture.caseId==='S05'||fixture.caseId==='S04'||fixture.caseId==='S01'||fixture.caseId==='S06'||fixture.caseId==='S02'||fixture.caseId==='M03'||fixture.caseId==='M05'||fixture.caseId==='M02'){
    const [raw,bytes]=await Promise.all([readFile(entry.receiptPath,'utf8'),readFile(entry.stepPath)]);
    const receipt=JSON.parse(raw),referenceSha256=hash(bytes),sourceHashes={},sourceVerification={};
-   const surface=fixture.caseId==='S06';
-   for(const name of fixture.caseId==='S05'?['ocp_s05_reader.py','s05_math.py','ocp_s04_reader.py','s04_math.py','m02_math.py','ocp_reader.py']:fixture.caseId==='S04'?['ocp_s04_reader.py','s04_math.py','m02_math.py','ocp_reader.py']:fixture.caseId==='S01'?['ocp_s01_reader.py','s01_math.py','ocp_reader.py']:surface?['ocp_s06_reader.py','s06_math.py','ocp_reader.py']:fixture.caseId==='M02'?['ocp_m02_reader.py','m02_math.py','ocp_reader.py']:fixture.caseId==='M05'?['ocp_m05_reader.py','m05_math.py','ocp_reader.py']:fixture.caseId==='M03'?['ocp_m03_reader.py','m03_math.py','ocp_reader.py']:['ocp_s02_reader.py','s02_math.py','ocp_reader.py']){
+   const surface=['S06','S07','S08','S09'].includes(fixture.caseId);
+   for(const name of ['S11','S12'].includes(fixture.caseId)?['ocp_shell_detail_reader.py','ocp_s06_reader.py','s06_math.py','ocp_reader.py']:['S09','S10'].includes(fixture.caseId)?['ocp_sewn_reader.py','ocp_s06_reader.py','s06_math.py','ocp_reader.py']:['S07','S08'].includes(fixture.caseId)?['ocp_graph_reader.py','graph_surface_math.py','ocp_s06_reader.py','s06_math.py','ocp_reader.py']:fixture.caseId==='S05'?['ocp_s05_reader.py','s05_math.py','ocp_s04_reader.py','s04_math.py','m02_math.py','ocp_reader.py']:fixture.caseId==='S04'?['ocp_s04_reader.py','s04_math.py','m02_math.py','ocp_reader.py']:fixture.caseId==='S01'?['ocp_s01_reader.py','s01_math.py','ocp_reader.py']:surface?['ocp_s06_reader.py','s06_math.py','ocp_reader.py']:fixture.caseId==='M02'?['ocp_m02_reader.py','m02_math.py','ocp_reader.py']:fixture.caseId==='M05'?['ocp_m05_reader.py','m05_math.py','ocp_reader.py']:fixture.caseId==='M03'?['ocp_m03_reader.py','m03_math.py','ocp_reader.py']:['ocp_s02_reader.py','s02_math.py','ocp_reader.py']){
     const verification=verifySourceHash(await readFile(new URL('./'+name,import.meta.url)),receipt.sourceHashes?.[name]);sourceHashes[name]=verification.rawSha256;sourceVerification[name]=verification;
    }
    if(receipt.caseId!==fixture.caseId||receipt.variant!=='reference'||receipt.geometryStatus!=='PASS'||receipt.referenceSha256!==referenceSha256||Object.entries(sourceVerification).some(([name,verification])=>!verification.matches||receipt.geometry?.reader?.sourceHashes?.[name]!==verification.receiptSha256))return {status:'UNVERIFIED',reason:'FROZEN_SAMPLED_REFERENCE_RECEIPT_OR_DEPENDENCIES_MISMATCH'};

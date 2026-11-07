@@ -2,7 +2,7 @@
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.63.2",
+  "version": "1.63.3",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -112,5 +112,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:35443d6e7eeac6faa25bb5e0d17652ef5de8876787c69502cf6f8e9ffe303a7e"
+  "docsHash": "sha256:2f454e01abb55cae095d01fff3d01d33098daad30c9eb9d896609915dfbc8f6b"
 }

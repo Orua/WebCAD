@@ -1,3 +1,4 @@
+import {uniformSurfaceGrid} from './uniform-surface-grid.js';
 const dispose = value => { try { value?.delete?.(); } catch {} };
 
 function validate(params) {
@@ -12,24 +13,32 @@ function validate(params) {
   }));
   const tolerance = params.tolerance ?? 0.01;
   if (typeof tolerance !== 'number' || !Number.isFinite(tolerance) || tolerance < 1e-5 || tolerance > 0.5) throw new Error('tolerance 必须在 1e-5 到 0.5 mm 之间');
-  return { points, rows: points.length, cols, tolerance };
+  const interpolation=params.interpolation??'approximate';
+  if(!['approximate','uniformCubic'].includes(interpolation))throw new Error('interpolation must be approximate or uniformCubic');
+  return { points, rows: points.length, cols, tolerance, interpolation };
 }
 
 export function buildFittedSurface(params, cad) {
-  const { points, rows, cols, tolerance } = validate(params);
+  const { points, rows, cols, tolerance, interpolation } = validate(params);
   const oc = cad?.getOC?.();
   if (!oc) throw new Error('OpenCascade runtime is not initialized');
   let array, fitter, surface, maker, face, wrapped, result; const handles = [];
   try {
     array = new oc.NCollection_Array2_gp_Pnt(1, rows, 1, cols);
+    const grid=interpolation==='uniformCubic'?uniformSurfaceGrid(points):null;
     for (let i = 0; i < rows; i++) for (let j = 0; j < cols; j++) {
-      const [x, y, z] = points[i][j];
+      const [x, y, z] = (grid?.poles??points)[i][j];
       const point = new oc.gp_Pnt(x, y, z); handles.push(point); array.SetValue(i + 1, j + 1, point);
     }
     const degree = Math.min(3, rows - 1, cols - 1);
-    fitter = new oc.GeomAPI_PointsToBSplineSurface(array, 1, degree, oc.GeomAbs_Shape.GeomAbs_C2, tolerance);
-    if (!fitter.IsDone()) throw new Error('BSpline surface fitting failed');
-    surface = fitter.Surface();
+    if(grid){
+      const vector=(type,values)=>{const a=new type(1,values.length);handles.push(a);values.forEach((v,i)=>a.SetValue(i+1,v));return a;};
+      surface=new oc.Geom_BSplineSurface(array,vector(oc.NCollection_Array1_double,grid.u.knots),vector(oc.NCollection_Array1_double,grid.v.knots),vector(oc.NCollection_Array1_int,grid.u.multiplicities),vector(oc.NCollection_Array1_int,grid.v.multiplicities),grid.u.degree,grid.v.degree,false,false);
+    }else{
+      fitter = new oc.GeomAPI_PointsToBSplineSurface(array, 1, degree, oc.GeomAbs_Shape.GeomAbs_C2, tolerance);
+      if (!fitter.IsDone()) throw new Error('BSpline surface fitting failed');
+      surface = fitter.Surface();
+    }
     maker = new oc.BRepBuilderAPI_MakeFace(surface, tolerance);
     if (!maker.IsDone()) throw new Error('fitted surface face construction failed');
     face = maker.Face();

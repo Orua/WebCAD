@@ -1,3 +1,7 @@
+import {m05CommittedCutScope} from './radial-hole-receipts.mjs';
+import {sewnSurfaceCaseIds,sewnSurfaceToolIds,sewnSurfaceRecipe,observeSewnSurface} from './sewn-surface-cases.mjs';
+import {shellDetailCaseIds,shellDetailToolIds,runShellDetail,observeShellDetail} from './shell-detail-cases.mjs';
+import {graphSurfaceCaseIds,graphSurfaceToolIds,runGraphSurface,observeGraphSurface} from './graph-surface-cases.mjs';
 import {bentSectionCaseIds,bentSectionToolIds,s05Recipe,observeBentSection} from './bent-section-cases.mjs';
 import {spatialSweepCaseIds,spatialSweepToolIds,s04Recipe,observeSpatialSweep} from './spatial-sweep-cases.mjs';
 import {sampleCoordinates} from './host-math.mjs';
@@ -15,7 +19,7 @@ import {ellipseCaseIds,ellipseToolIds,s02Recipe,observeEllipseCase} from './elli
 import {bendCaseIds,bendToolIds,m03Recipe,observeBendCase} from './bend-cases.mjs';
 import {radialHoleCaseIds,radialHoleToolIds,runRadialHoleCase,observeRadialHoleCase} from './radial-hole-cases.mjs';
 import {closedWireCaseIds,closedWireToolIds,m02Recipe,observeClosedWireCase} from './closed-wire-cases.mjs';
-const hostCaseIds=[...bentSectionCaseIds,...spatialSweepCaseIds,...twistCaseIds,...basicCaseIds,...compositeCaseIds,...sectionCaseIds,...surfaceCaseIds,...ellipseCaseIds,...bendCaseIds,...radialHoleCaseIds,...closedWireCaseIds];
+const hostCaseIds=[...sewnSurfaceCaseIds,...shellDetailCaseIds,...graphSurfaceCaseIds,...bentSectionCaseIds,...spatialSweepCaseIds,...twistCaseIds,...basicCaseIds,...compositeCaseIds,...sectionCaseIds,...surfaceCaseIds,...ellipseCaseIds,...bendCaseIds,...radialHoleCaseIds,...closedWireCaseIds];
 
 const hash=value=>createHash('sha256').update(value instanceof Uint8Array?value:typeof value==='string'?value:JSON.stringify(value)).digest('hex');
 const fail=(code)=>{throw Object.assign(Error(code),{code});};
@@ -104,7 +108,7 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
     return page.send(method,params);
    };
    const client=createPageClient({send,knowledge});
-   const connection=await client.connect({toolIds:[...new Set([...basicToolIds,...Object.values(bentSectionToolIds).flat(),...Object.values(spatialSweepToolIds).flat(),...Object.values(twistToolIds).flat(),...Object.values(compositeToolIds).flat(),...Object.values(sectionToolIds).flat(),...Object.values(surfaceToolIds).flat(),...Object.values(ellipseToolIds).flat(),...Object.values(bendToolIds).flat(),...Object.values(radialHoleToolIds).flat(),...Object.values(closedWireToolIds).flat()])],includeContracts:true});
+   const connection=await client.connect({toolIds:[...new Set([...basicToolIds,...Object.values(sewnSurfaceToolIds).flat(),...Object.values(shellDetailToolIds).flat(),...Object.values(graphSurfaceToolIds).flat(),...Object.values(bentSectionToolIds).flat(),...Object.values(spatialSweepToolIds).flat(),...Object.values(twistToolIds).flat(),...Object.values(compositeToolIds).flat(),...Object.values(sectionToolIds).flat(),...Object.values(surfaceToolIds).flat(),...Object.values(ellipseToolIds).flat(),...Object.values(bendToolIds).flat(),...Object.values(radialHoleToolIds).flat(),...Object.values(closedWireToolIds).flat()])],includeContracts:true});
    if(connection.canExecute!==true||connection.bodyCount!==0)fail('EMPTY_EXECUTABLE_TASK_PAGE_REQUIRED');
    if(connection.knowledgeStatus?.status!=='ready')fail('VERIFIED_LIVE_KNOWLEDGE_REQUIRED');
    await record?.({event:'page-bound',buildId:connection.buildId,pageApiVersion:connection.pageApiVersion,catalogHash:connection.catalogHash,docsHash:connection.docsHash,documentInstanceId:connection.context.documentInstanceId,knowledgeStatus:connection.knowledgeStatus.status});
@@ -126,8 +130,8 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
   session.debugReport=()=>session.client.call('getDebugReport',{limit:100,includeState:true,source:'agent'});
   session.knowledge=async({group,signal}={})=>{
    signal?.throwIfAborted();
-   const workflow=session.caseId==='S05'?'api.guide.sweep-loft':session.caseId==='S04'?'api.guide.sweep-loft':session.caseId==='S06'?'api.workflow':session.caseId==='B02'||session.caseId==='M01'?'api.modeling.workflows.axisymmetric':session.caseId==='B03'?'api.modeling.workflows.finishing':'api.modeling.workflows.solid-section';
-   const toolIds=bentSectionToolIds[session.caseId]??spatialSweepToolIds[session.caseId]??twistToolIds[session.caseId]??closedWireToolIds[session.caseId]??radialHoleToolIds[session.caseId]??bendToolIds[session.caseId]??ellipseToolIds[session.caseId]??surfaceToolIds[session.caseId]??sectionToolIds[session.caseId]??compositeToolIds[session.caseId]??(session.caseId==='B02'?['cylinder','cut']:session.caseId==='B03'?['box','transform','fillet','history.undo','history.redo']:['box','transform','multiHole']);
+   const workflow=sewnSurfaceCaseIds.includes(session.caseId)||shellDetailCaseIds.includes(session.caseId)?'api.workflow':graphSurfaceCaseIds.includes(session.caseId)?'api.workflow':session.caseId==='S05'?'api.guide.sweep-loft':session.caseId==='S04'?'api.guide.sweep-loft':session.caseId==='S06'?'api.workflow':session.caseId==='B02'||session.caseId==='M01'?'api.modeling.workflows.axisymmetric':session.caseId==='B03'?'api.modeling.workflows.finishing':'api.modeling.workflows.solid-section';
+   const toolIds=sewnSurfaceToolIds[session.caseId]??shellDetailToolIds[session.caseId]??graphSurfaceToolIds[session.caseId]??bentSectionToolIds[session.caseId]??spatialSweepToolIds[session.caseId]??twistToolIds[session.caseId]??closedWireToolIds[session.caseId]??radialHoleToolIds[session.caseId]??bendToolIds[session.caseId]??ellipseToolIds[session.caseId]??surfaceToolIds[session.caseId]??sectionToolIds[session.caseId]??compositeToolIds[session.caseId]??(session.caseId==='B02'?['cylinder','cut']:session.caseId==='B03'?['box','transform','fillet','history.undo','history.redo']:['box','transform','multiHole']);
    const selection=await readCompleteSelection(session.client,{docIds:group==='A'?['api.run','api.workflow']:['api.modeling.start','api.modeling.guide',workflow,'api.run','api.workflow'],toolIds});
    if(selection.items.some(item=>item.status!=='read'))fail('COMPLETE_SELECTED_KNOWLEDGE_REQUIRED');
    const files=selection.items.map(({id,kind,text,card},order)=>({docId:id,kind,order,sha256:hash(text??card),chars:(text??JSON.stringify(card)).length,status:'read',exposure:id.startsWith('api.modeling')?'group-B-method':'shared-contract'}));
@@ -198,6 +202,9 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
    return modelTransport.request({...request,messages,llmSessionId:session.llmSessionId});
   };
   session.runDeterministic=async({input:task,maxToolCalls,signal})=>{
+   if(sewnSurfaceCaseIds.includes(task.caseId)){if(maxToolCalls<1)fail('TOOL_BUDGET_EXHAUSTED');return runSteps(session,sewnSurfaceRecipe(task.caseId),{key:'sewn-'+randomUUID(),signal});}
+   if(shellDetailCaseIds.includes(task.caseId))return runShellDetail({caseId:task.caseId,session,context,record,runSteps:(steps,options)=>runSteps(session,steps,options),signal,maxToolCalls});
+   if(graphSurfaceCaseIds.includes(task.caseId))return runGraphSurface({caseId:task.caseId,session,context,record,runSteps:(steps,options)=>runSteps(session,steps,options),signal,maxToolCalls});
    if(task.caseId==='S05'){if(maxToolCalls<1)fail('TOOL_BUDGET_EXHAUSTED');return runSteps(session,s05Recipe(),{key:`s05-${randomUUID()}`,signal});}
    if(task.caseId==='S04'){if(maxToolCalls<1)fail('TOOL_BUDGET_EXHAUSTED');return runSteps(session,s04Recipe(),{key:`s04-${randomUUID()}`,signal});}
    if(task.caseId==='S01'){if(maxToolCalls<1)fail('TOOL_BUDGET_EXHAUSTED');return runSteps(session,s01Recipe(),{key:`t03-S01-${randomUUID()}`,signal});}
@@ -264,8 +271,10 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
   if(session.pending.has(key))fail('DUPLICATE_KEY_RECONCILE_REQUIRED');
   signal?.throwIfAborted();session.pending.set(key,request);
   await record({event:'page-request',request});
+  if(session.caseId==='M05')(session.committedEvents??=[]).push(structuredClone({event:'page-request',request}));
   const receipt=await session.client.run(steps,{context:request.context,idempotencyKey:key});
   await record({event:'page-receipt',requestKey:key,receipt});
+  if(session.caseId==='M05')session.committedEvents.push(structuredClone({event:'page-receipt',requestKey:key,receipt}));
   session.lastGeometryFailed=['failed','partial'].includes(receipt.status)&&/^(?:GEOMETRY_INVALID|KERNEL_|OCCT_|BOOLEAN_)/.test(receipt.error?.code??'');
   if(terminal.has(receipt.status))session.pending.delete(key);
   return receipt;
@@ -312,13 +321,13 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
   },
   async validateReference({fixture}){
    if(!hostCaseIds.includes(fixture.caseId))return {status:'UNVERIFIED',reason:'HOST_CASE_MAPPING_NOT_IMPLEMENTED'};
-   if(!referenceValidator)return bentSectionCaseIds.includes(fixture.caseId)||spatialSweepCaseIds.includes(fixture.caseId)||twistCaseIds.includes(fixture.caseId)||closedWireCaseIds.includes(fixture.caseId)||radialHoleCaseIds.includes(fixture.caseId)||bendCaseIds.includes(fixture.caseId)||compositeCaseIds.includes(fixture.caseId)||sectionCaseIds.includes(fixture.caseId)||surfaceCaseIds.includes(fixture.caseId)||ellipseCaseIds.includes(fixture.caseId)?{status:'UNVERIFIED',reason:'INDEPENDENT_REFERENCE_VALIDATOR_REQUIRED'}:{...b01AnalyticReference(),reason:'INDEPENDENT_REFERENCE_VALIDATOR_REQUIRED'};
+   if(!referenceValidator)return sewnSurfaceCaseIds.includes(fixture.caseId)||shellDetailCaseIds.includes(fixture.caseId)||graphSurfaceCaseIds.includes(fixture.caseId)||bentSectionCaseIds.includes(fixture.caseId)||spatialSweepCaseIds.includes(fixture.caseId)||twistCaseIds.includes(fixture.caseId)||closedWireCaseIds.includes(fixture.caseId)||radialHoleCaseIds.includes(fixture.caseId)||bendCaseIds.includes(fixture.caseId)||compositeCaseIds.includes(fixture.caseId)||sectionCaseIds.includes(fixture.caseId)||surfaceCaseIds.includes(fixture.caseId)||ellipseCaseIds.includes(fixture.caseId)?{status:'UNVERIFIED',reason:'INDEPENDENT_REFERENCE_VALIDATOR_REQUIRED'}:{...b01AnalyticReference(),reason:'INDEPENDENT_REFERENCE_VALIDATOR_REQUIRED'};
    return referenceValidator({fixture});
   },
   openSession:makeSession,
   async inspect({session,caseId,signal}){
    if(!hostCaseIds.includes(caseId))fail('OBSERVATION_MAPPING_NOT_IMPLEMENTED');
-   const observe=s=>caseId==='B01'?observeB01(s):bentSectionCaseIds.includes(caseId)?observeBentSection({session:s,context,record}):spatialSweepCaseIds.includes(caseId)?observeSpatialSweep({session:s,context,record}):twistCaseIds.includes(caseId)?observeTwistCase({caseId,session:s,context,record}):closedWireCaseIds.includes(caseId)?observeClosedWireCase({caseId,session:s,context,record}):radialHoleCaseIds.includes(caseId)?observeRadialHoleCase({caseId,session:s,context,record}):bendCaseIds.includes(caseId)?observeBendCase({caseId,session:s,context,record}):ellipseCaseIds.includes(caseId)?observeEllipseCase({caseId,session:s,context,record}):surfaceCaseIds.includes(caseId)?observeSurfaceCase({caseId,session:s,context,record}):sectionCaseIds.includes(caseId)?observeSectionCase({caseId,session:s,context,record}):compositeCaseIds.includes(caseId)?observeCompositeCase({caseId,session:s,context,record}):observeAdditionalBasicCase({caseId,session:s,context,record});
+   const observe=s=>sewnSurfaceCaseIds.includes(caseId)?observeSewnSurface({caseId,session:s,context,record}):shellDetailCaseIds.includes(caseId)?observeShellDetail({caseId,session:s,context,record}):graphSurfaceCaseIds.includes(caseId)?observeGraphSurface({caseId,session:s,context,record}):caseId==='B01'?observeB01(s):bentSectionCaseIds.includes(caseId)?observeBentSection({session:s,context,record}):spatialSweepCaseIds.includes(caseId)?observeSpatialSweep({session:s,context,record}):twistCaseIds.includes(caseId)?observeTwistCase({caseId,session:s,context,record}):closedWireCaseIds.includes(caseId)?observeClosedWireCase({caseId,session:s,context,record}):radialHoleCaseIds.includes(caseId)?observeRadialHoleCase({caseId,session:s,context,record}):bendCaseIds.includes(caseId)?observeBendCase({caseId,session:s,context,record}):ellipseCaseIds.includes(caseId)?observeEllipseCase({caseId,session:s,context,record}):surfaceCaseIds.includes(caseId)?observeSurfaceCase({caseId,session:s,context,record}):sectionCaseIds.includes(caseId)?observeSectionCase({caseId,session:s,context,record}):compositeCaseIds.includes(caseId)?observeCompositeCase({caseId,session:s,context,record}):observeAdditionalBasicCase({caseId,session:s,context,record});
    signal?.throwIfAborted();const observed=await observe(session);
    const step=await artifact(session,'files.export',{format:'step',ids:observed.exportBodyIds??(await session.client.getState()).bodies.map(b=>b.id)},caseId+'.step');
    const project=await artifact(session,'files.save',{},caseId+'.webcad');
@@ -340,6 +349,10 @@ export function createBrowserBenchmarkAdapter({openPage,knowledge,runtime={},mod
     // Readback of the actual re-exported imported document, not the original bytes twice.
     const reread=await artifact(roundTripSession,'files.export',{format:'step'},caseId+'-roundtrip.step');
     const reimportGeometry=independentReader?await independentReader({bytes:reread.bytes,caseId,stage:'roundtrip-export'}):reimported.geometry;
+    if(caseId==='M05'&&!session.workflowChecks?.cutScope){
+     const workflow=m05CommittedCutScope({events:session.committedEvents,finalGeometry:originalGeometry,documentInstanceId:session.documentInstanceId,finalRevision:observed.revision});
+     originalGeometry.checks.cutScope=workflow;reimportGeometry.checks.cutScope=workflow;await record({event:'m05-committed-cut-scope',check:workflow});
+    }
     if(caseId==='M05'&&session.workflowChecks?.cutScope){
      const workflow=session.workflowChecks.cutScope;
      if(workflow.evidence.documentInstanceId!==session.documentInstanceId||workflow.evidence.finalContext.expectedRevision!==observed.revision)fail('M05_SCOPE_EVIDENCE_REVISION_MISMATCH');
