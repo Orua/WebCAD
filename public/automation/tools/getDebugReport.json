@@ -2,7 +2,7 @@
   "id": "getDebugReport",
   "title": "getDebugReport",
   "category": "page-method",
-  "version": "1.63.6",
+  "version": "1.63.7",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -104,5 +104,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:59bed8fe9741033c47345156633f9a35bfed5cc4c97e827100f96018f49ce324"
+  "docsHash": "sha256:ec71637acdbcc87ed7b1ac0288dfbadf07b41f7a33ce48b459c0c28a1b9fc3ba"
 }

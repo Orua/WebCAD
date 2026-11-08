@@ -2,7 +2,7 @@
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.63.6",
+  "version": "1.63.7",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -362,5 +362,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:3697bb2f976609d60a11a17d9dce15a08ed9145e3ae472907cf339937a2e662e"
+  "docsHash": "sha256:9a84068fdd134f77d1712d7cd0a2f102a30f95b5bf099d381a3a5e67807b127d"
 }

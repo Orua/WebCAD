@@ -134,9 +134,18 @@ export function buildSectionCurveLoft(params,cad){
   const sampled=resolved.map(s=>profilePoints(s));
   mark('wires');
   const wires=resolved.map((s,i)=>(s.profile?.kind??'ellipse')==='ellipse'?makeEllipseWire(s,cad,hold):s.profile?.kind==='spline'&&s.profile.interpolation==='periodicSpline'?makePeriodicWire(s,cad,hold):makeWire(s,sampled[i],cad,hold));
+  // These generated profiles already share the same angular vertex order.
+  // Native compatibility remaps/splits their vertices and can destroy that
+  // correspondence as aspect ratios change. Keep it only for other profiles.
+  const profileKind=resolved[0].profile?.kind;
+  const edgeCounts=wires.map(w=>{const edges=w.edges;try{return edges.length;}finally{edges.forEach(dispose);}});
+  const orderedProfiles=['superellipse','asymmetric','airfoil'].includes(profileKind)&&resolved.every((s,i)=>s.profile?.kind===profileKind&&sampled[i].length===sampled[0].length&&edgeCounts[i]===sampled[i].length);
+  const nativeCompatibility=params.autoAlign!==false&&!orderedProfiles;
+  diagnostics.correspondence=orderedProfiles?'ordered-parametric-vertices':nativeCompatibility?'native-compatibility':'explicit-order';
+  diagnostics.profileEdgeCounts=edgeCounts;diagnostics.nativeCompatibility=nativeCompatibility;
   mark('builder');
   const builder=hold(new (cad.getOC().BRepOffsetAPI_ThruSections)(true,false,1e-6));builder.SetMaxDegree(degree);
-  if(typeof builder.CheckCompatibility==='function')builder.CheckCompatibility(params.autoAlign!==false);
+  if(typeof builder.CheckCompatibility==='function')builder.CheckCompatibility(nativeCompatibility);
   const addPoint=(side)=>{
     const source=side==='start'?stations[0]:stations.at(-1),cap=capShape(params[`${side}Cap`]);
     const sign=side==='start'?-1:1,roundLength=cap.kind==='round'?cap.lengthMm:0,step=roundLength||Math.max(1e-4,Math.hypot(...stations.at(side==='start'?1:-2).centerMm.map((v,i)=>v-source.centerMm[i]))*.5);
@@ -157,7 +166,9 @@ export function buildSectionCurveLoft(params,cad){
    // failure must never replace the authoritative IsDone=false diagnosis.
    try{const status=builder.GetStatus();const value=status?.value??status;if(typeof value==='number'||typeof value==='string')diagnostics.nativeStatus=value;else diagnostics.nativeStatusUnavailable=true;}
    catch{diagnostics.nativeStatusUnavailable=true;}
-   fail('LOFT_BUILD_FAILED','多截面放样构造未完成；原模型保持。内核未提供可靠的数值失败原因。');
+   const status=diagnostics.nativeStatus;
+   const reason=String(status).endsWith('_ProfilesInconsistent')?'截面顶点或边的对应关系不一致':String(status).endsWith('_NotSameTopology')?'截面开闭或拓扑类型不一致':String(status).endsWith('_WrongUsage')?'点截面的使用顺序不满足内核要求':null;
+   fail('LOFT_BUILD_FAILED',`多截面放样构造未完成${reason?`：${reason}`:''}；原模型保持。${status!==undefined?`内核状态：${status}。`:'内核未提供可读状态。'}具体截面位置尚未确认。`);
   }
   mark('shape');const raw=hold(builder.Shape());
   if(raw.IsNull())fail('LOFT_SHAPE_EMPTY','放样构造返回空形状；原模型保持。');

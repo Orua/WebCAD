@@ -2,7 +2,7 @@
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.63.6",
+  "version": "1.63.7",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -126,5 +126,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:55070682e7e79d64b18bd303e7a0dbc5c37bbe2ff4c46f673fb28b77640e3a14"
+  "docsHash": "sha256:c3306305ec5fca53531c24456a5cff6b428739c2dc3a7a6063bae854839207a6"
 }

@@ -2,7 +2,7 @@
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.63.6",
+  "version": "1.63.7",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -215,5 +215,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0d4456077e17cbab54db6bd08b78af04ec3ebeedb357e74f38d4d35ffe3c61a0"
+  "docsHash": "sha256:332e84fca10b3c3c055a088c292109248bceb4736ddecf3bd194b991a46f885b"
 }

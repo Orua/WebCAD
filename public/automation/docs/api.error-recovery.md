@@ -355,13 +355,13 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 代码：`lease_revoked`、`task_binding_mismatch`、`task_ended`
 
-### unclassified
+### section-loft
 
-操作未能完成，目前没有足够证据确定安全恢复方式。
+多截面放样未完成或返回空形状。
 
-保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
+读取原回执的report.diagnostics.phase、nativeStatus、correspondence及profileEdgeCounts，核对截面顺序与对应关系；保留原参数和工程，不能仅凭失败状态自动改尺寸或重算。
 
-代码：`LOFT_BUILD_FAILED`、`LOFT_SHAPE_EMPTY`、`QUEUE_LIMIT`、`RATE_LIMIT`、`SESSION_EXPIRED`、`SESSION_REQUIRED`、`STORAGE_LIMIT`
+代码：`LOFT_BUILD_FAILED`、`LOFT_SHAPE_EMPTY`
 
 ### material
 
@@ -418,6 +418,14 @@ PDF页面渲染或渲染底图校验未通过。
 保留当前页面工程，先检查浏览器存储和原保存回执；不能宣称已保存或自动重算几何。
 
 代码：`PROJECT_STORE_FAILED`
+
+### host-capacity
+
+宿主的任务队列、调用频率或存储达到限制。
+
+保留原任务回执，核对当前队列与存储；不要重复提交几何或自动删除资料。
+
+代码：`QUEUE_LIMIT`、`RATE_LIMIT`、`STORAGE_LIMIT`
 
 ### recovery-denied
 
@@ -506,6 +514,14 @@ Services 浮雕响应与请求、哈希或误差不一致。
 查询原任务并选择继续等待同一作业或受控停止；不自动重新提交。
 
 代码：`SERVICES_WAIT_DECISION_REQUIRED`、`SERVICES_WAIT_NOT_PENDING`
+
+### host-session
+
+宿主会话尚未建立或已经过期。
+
+重新核对宿主登录与工程绑定；不要重放原写入。
+
+代码：`SESSION_EXPIRED`、`SESSION_REQUIRED`
 
 ### unsaved
 
