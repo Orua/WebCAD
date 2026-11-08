@@ -819,7 +819,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Explicit spline interpolation:polyline instead preserves each ordered input vertex and corner; use consistent vertex correspondence across stations. loftReport.stationsResolved reports profileSampleCount and preservesPolylineVertices. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. pathType:sections does not accept closed:true；开放 stations 可以，首尾重合且 closed:false 是伪闭，闭合变径用 segments 加 widthLaw。闭合非平面折线若在折角处切向不连续，会拒绝并说明分段扫掠拓扑无效；同一平面、对边整体抬起、以及圆滑非平面闭合可以。单段 segments 不能配 widthLaw，至少 2 段。Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Explicit spline interpolation:polyline instead preserves each ordered input vertex and corner; use consistent vertex correspondence across stations. loftReport.stationsResolved reports profileSampleCount and preservesPolylineVertices. Section lofts check IsDone before Shape: LOFT_BUILD_FAILED means construction did not finish and no geometry was committed; LOFT_SHAPE_EMPTY means the returned shape was null. Error report.diagnostics exposes phase, stage timings, stationCount, profileKinds, degree, capKinds, buildElapsedMs and available nativeStatus. nativeStatusUnavailable is explicit when the shipped binding cannot marshal its enum; no numeric cause is inferred. Successful loftReport.diagnostics contains validity, solidCount and timing readback. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. pathType:sections does not accept closed:true；开放 stations 可以，首尾重合且 closed:false 是伪闭，闭合变径用 segments 加 widthLaw。闭合非平面折线若在折角处切向不连续，会拒绝并说明分段扫掠拓扑无效；同一平面、对边整体抬起、以及圆滑非平面闭合可以。单段 segments 不能配 widthLaw，至少 2 段。Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path.",
   "title": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
   "category": "creation",
   "synonyms": [
@@ -836,7 +836,7 @@
     "沿路径圆管"
   ],
   "description": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
-  "schemaHash": "sha256:43bfba23fbfd077d06191fd6555f162fbcb12c77aa34ec4203b14456889c9394",
+  "schemaHash": "sha256:45bd9f2ee4f2d264b0baa8706dac08d06c4d9493adf302a1376c2561ed7e6fb1",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -897,7 +897,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Explicit spline interpolation:polyline instead preserves each ordered input vertex and corner; use consistent vertex correspondence across stations. loftReport.stationsResolved reports profileSampleCount and preservesPolylineVertices. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. pathType:sections does not accept closed:true；开放 stations 可以，首尾重合且 closed:false 是伪闭，闭合变径用 segments 加 widthLaw。闭合非平面折线若在折角处切向不连续，会拒绝并说明分段扫掠拓扑无效；同一平面、对边整体抬起、以及圆滑非平面闭合可以。单段 segments 不能配 widthLaw，至少 2 段。Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path.",
+    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Explicit spline interpolation:polyline instead preserves each ordered input vertex and corner; use consistent vertex correspondence across stations. loftReport.stationsResolved reports profileSampleCount and preservesPolylineVertices. Section lofts check IsDone before Shape: LOFT_BUILD_FAILED means construction did not finish and no geometry was committed; LOFT_SHAPE_EMPTY means the returned shape was null. Error report.diagnostics exposes phase, stage timings, stationCount, profileKinds, degree, capKinds, buildElapsedMs and available nativeStatus. nativeStatusUnavailable is explicit when the shipped binding cannot marshal its enum; no numeric cause is inferred. Successful loftReport.diagnostics contains validity, solidCount and timing readback. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. pathType:sections does not accept closed:true；开放 stations 可以，首尾重合且 closed:false 是伪闭，闭合变径用 segments 加 widthLaw。闭合非平面折线若在折角处切向不连续，会拒绝并说明分段扫掠拓扑无效；同一平面、对边整体抬起、以及圆滑非平面闭合可以。单段 segments 不能配 widthLaw，至少 2 段。Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "exampleNotes": {
@@ -970,7 +970,14 @@
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
-    "SIZE_LIMIT"
+    "SIZE_LIMIT",
+    "CONTINUITY_UNSUPPORTED",
+    "LOFT_BUILD_FAILED",
+    "LOFT_COMPLEXITY",
+    "LOFT_GUIDE_UNSUPPORTED",
+    "LOFT_POINT_CAP_UNSUPPORTED",
+    "LOFT_SHAPE_EMPTY",
+    "LOFT_VOLUME_MISMATCH"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -995,7 +1002,7 @@
   "contract": {
     "purpose": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
     "whenToUse": [
-      "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Explicit spline interpolation:polyline instead preserves each ordered input vertex and corner; use consistent vertex correspondence across stations. loftReport.stationsResolved reports profileSampleCount and preservesPolylineVertices. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. pathType:sections does not accept closed:true；开放 stations 可以，首尾重合且 closed:false 是伪闭，闭合变径用 segments 加 widthLaw。闭合非平面折线若在折角处切向不连续，会拒绝并说明分段扫掠拓扑无效；同一平面、对边整体抬起、以及圆滑非平面闭合可以。单段 segments 不能配 widthLaw，至少 2 段。Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path."
+      "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Explicit spline interpolation:polyline instead preserves each ordered input vertex and corner; use consistent vertex correspondence across stations. loftReport.stationsResolved reports profileSampleCount and preservesPolylineVertices. Section lofts check IsDone before Shape: LOFT_BUILD_FAILED means construction did not finish and no geometry was committed; LOFT_SHAPE_EMPTY means the returned shape was null. Error report.diagnostics exposes phase, stage timings, stationCount, profileKinds, degree, capKinds, buildElapsedMs and available nativeStatus. nativeStatusUnavailable is explicit when the shipped binding cannot marshal its enum; no numeric cause is inferred. Successful loftReport.diagnostics contains validity, solidCount and timing readback. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. pathType:sections does not accept closed:true；开放 stations 可以，首尾重合且 closed:false 是伪闭，闭合变径用 segments 加 widthLaw。闭合非平面折线若在折角处切向不连续，会拒绝并说明分段扫掠拓扑无效；同一平面、对边整体抬起、以及圆滑非平面闭合可以。单段 segments 不能配 widthLaw，至少 2 段。Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path."
     ],
     "whenNotToUse": [
       {
@@ -1395,6 +1402,41 @@
         "code": "SIZE_LIMIT",
         "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CONTINUITY_UNSUPPORTED",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "LOFT_BUILD_FAILED",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "LOFT_COMPLEXITY",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "LOFT_GUIDE_UNSUPPORTED",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "LOFT_POINT_CAP_UNSUPPORTED",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "LOFT_SHAPE_EMPTY",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "LOFT_VOLUME_MISMATCH",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
       }
     ],
     "examples": {
@@ -1475,11 +1517,13 @@
       "curve Sweep operation"
     ],
     "status": "experimental",
-    "sourcePaths": []
+    "sourcePaths": [
+      "src/section-curve-loft.js"
+    ]
   },
   "purpose": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
   "whenToUse": [
-    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Explicit spline interpolation:polyline instead preserves each ordered input vertex and corner; use consistent vertex correspondence across stations. loftReport.stationsResolved reports profileSampleCount and preservesPolylineVertices. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. pathType:sections does not accept closed:true；开放 stations 可以，首尾重合且 closed:false 是伪闭，闭合变径用 segments 加 widthLaw。闭合非平面折线若在折角处切向不连续，会拒绝并说明分段扫掠拓扑无效；同一平面、对边整体抬起、以及圆滑非平面闭合可以。单段 segments 不能配 widthLaw，至少 2 段。Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path."
+    "Arc needs exactly 3 noncollinear points. Spline approximates 3–30 ordered points. Segments use line endpoints or arc start/middle/end, with exact shared endpoints. Sections mode accepts 2–64 explicit stations, custom ellipse/superellipse/asymmetric/NACA airfoil/closed spline profiles, seamAngleDeg and station startAngleDeg. Legacy profiles are sampled into 64 corresponding points. Explicit spline interpolation:polyline instead preserves each ordered input vertex and corner; use consistent vertex correspondence across stations. loftReport.stationsResolved reports profileSampleCount and preservesPolylineVertices. Section lofts check IsDone before Shape: LOFT_BUILD_FAILED means construction did not finish and no geometry was committed; LOFT_SHAPE_EMPTY means the returned shape was null. Error report.diagnostics exposes phase, stage timings, stationCount, profileKinds, degree, capKinds, buildElapsedMs and available nativeStatus. nativeStatusUnavailable is explicit when the shipped binding cannot marshal its enum; no numeric cause is inferred. Successful loftReport.diagnostics contains validity, solidCount and timing readback. Custom spline points2d default to literal millimetres and legacy polyline interpolation; station widthMm/depthMm do not rescale that mode. Set coordinateMode:normalized to fit the profile bounds to the station width/depth. Set interpolation:periodicSpline for a true smooth closed periodic B-spline; default polyline retains historical geometry. Normalized profiles must have nonzero extent on both axes. autoAlign defaults true; false disables OCCT compatibility reordering. volumeCheck defaults warn and reports measured/estimated volume and suspect stations; error rejects ratios outside 0.85–1.15. Flat caps are the default; point caps use OCCT AddVertex; round caps insert three shrinking sections. Spine mode accepts pointsMm, count 2–64, uniform/curvature distribution, spline width/depth/roll laws and upHint; it constructs a discrete rotation-minimizing frame. Current ThruSections OCCT build cannot constrain guide curves or G1/G2 continuity; those requests fail explicitly. Result must be one valid positive-volume solid. pathType:sections does not accept closed:true；开放 stations 可以，首尾重合且 closed:false 是伪闭，闭合变径用 segments 加 widthLaw。闭合非平面折线若在折角处切向不连续，会拒绝并说明分段扫掠拓扑无效；同一平面、对边整体抬起、以及圆滑非平面闭合可以。单段 segments 不能配 widthLaw，至少 2 段。Round sections are centered on the path: before placement, a planar path at constant Z=z and radius r spans z±r. profileSweep does not move a saved section onto the path."
   ],
   "whenNotToUse": [
     {
@@ -1541,6 +1585,41 @@
       "code": "SIZE_LIMIT",
       "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CONTINUITY_UNSUPPORTED",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "LOFT_BUILD_FAILED",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "LOFT_COMPLEXITY",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "LOFT_GUIDE_UNSUPPORTED",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "LOFT_POINT_CAP_UNSUPPORTED",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "LOFT_SHAPE_EMPTY",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "LOFT_VOLUME_MISMATCH",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
     }
   ],
   "routing": {
@@ -1829,5 +1908,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:78677a26f0090b8302305f1e91233ece04c197b0168ec761ef9f3803d7df2be1"
+  "docsHash": "sha256:481eef9097fd77459cadda8b3940b7d4436d9e9f5e0b7d1d51327015d0d1a4c3"
 }

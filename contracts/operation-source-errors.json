@@ -1,4 +1,19 @@
 {
+  "curveSweep": {
+    "sourcePaths": [
+      "src/section-curve-loft.js"
+    ],
+    "codes": [
+      "CONTINUITY_UNSUPPORTED",
+      "LOFT_BUILD_FAILED",
+      "LOFT_COMPLEXITY",
+      "LOFT_GUIDE_UNSUPPORTED",
+      "LOFT_POINT_CAP_UNSUPPORTED",
+      "LOFT_SHAPE_EMPTY",
+      "LOFT_VOLUME_MISMATCH",
+      "PARAM_SCHEMA_INVALID"
+    ]
+  },
   "tap": {
     "sourcePaths": [
       "src/modeling/manufacturing/tap-tool.js"

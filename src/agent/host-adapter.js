@@ -64,6 +64,8 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
     onStateChange();
     result=withErrorRecovery(await transferTree(entry,result,entry.command.payload.method));
     entry.result=structuredClone(result);
+    // A settled original job is a new receipt, even if its timeout was delivered.
+    entry.reported=false;entry.deliveryReceipt=null;entry.deliveryBlocked=false;entry.reportError=null;
     log('command-result',{...identity(entry.command),pageJobId:entry.jobId,status:result?.status,commitState:result?.commitState,error:result?.error},['failed','unknown','partial'].includes(result?.status)?'error':'info');
     if(endedTasks.has(entry.command.taskId)&&![...commands.values()].some(item=>item!==entry&&item.command.taskId===entry.command.taskId&&pending(item)))activeTask=null;
     void sendResult(entry);
@@ -94,32 +96,47 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
     if(entry.resultReportPromise)return entry.resultReportPromise;
     entry.resultReportPromise=(async()=>{
       const deliveryFailure=error=>['RESOURCE_LIMIT','RESULT_TOO_LARGE'].includes(error?.code)||error?.status===413||error?.statusCode===413;
-      const smallReceipt=()=>({status:editsDocument(entry.command.payload)?'unknown':'failed',
-        ...(editsDocument(entry.command.payload)?{commitState:'unknown'}:{}),context:entry.result?.context,
-        originalStatus:entry.result?.status,originalCommitState:entry.result?.commitState,
-        error:{code:'RESULT_TOO_LARGE',message:'Result delivery exceeded the transport limit. Original execution is retained; query only required IDs/fields. Do not replay CAD.',retryable:false},
-        delivery:{status:'failed',originalResultRetained:true,maxResultBytes:LIMITS.transport.maxResultBytes}});
       try{
-        if(new TextEncoder().encode(JSON.stringify(entry.result)).length>LIMITS.transport.maxResultBytes){entry.deliveryReceipt=smallReceipt();}
-        await report('result',entry.command,{result:entry.deliveryReceipt||entry.result});entry.reported=true;entry.reportError=null;log('result-delivered',{...identity(entry.command),status:entry.deliveryReceipt?.status||entry.result?.status});return true;
-      }
-      catch(error){
-        entry.reportError={code:error.code||'RESULT_REPORT_FAILED',message:error.message};log('result-delivery-failed',{...identity(entry.command),error},'error');
-        if(deliveryFailure(error)){
-          // Retry a small terminal notice once, never the oversized result again.
-          if(!entry.deliveryReceipt){
-            entry.deliveryReceipt=smallReceipt();
-            try{await report('result',entry.command,{result:entry.deliveryReceipt});entry.reported=true;return true;}
-            catch(noticeError){entry.reportError={code:noticeError.code||'RESULT_REPORT_FAILED',message:noticeError.message};}
+        // Serialize receipt versions: an in-flight unknown must not acknowledge
+        // or archive the later terminal result before that result reaches the host.
+        while(!entry.reported&&!entry.deliveryBlocked){
+          const result=entry.result;
+          let deliveryReceipt=null;
+          const smallReceipt=()=>({status:editsDocument(entry.command.payload)?'unknown':'failed',
+            ...(editsDocument(entry.command.payload)?{commitState:'unknown'}:{}),context:result?.context,
+            originalStatus:result?.status,originalCommitState:result?.commitState,
+            error:{code:'RESULT_TOO_LARGE',message:'Result delivery exceeded the transport limit. Original execution is retained; query only required IDs/fields. Do not replay CAD.',retryable:false},
+            delivery:{status:'failed',originalResultRetained:true,maxResultBytes:LIMITS.transport.maxResultBytes}});
+          try{
+            if(new TextEncoder().encode(JSON.stringify(result)).length>LIMITS.transport.maxResultBytes)deliveryReceipt=smallReceipt();
+            await report('result',entry.command,{result:deliveryReceipt||result});
+          }catch(error){
+            log('result-delivery-failed',{...identity(entry.command),error},'error');
+            if(entry.result!==result)continue;
+            entry.reportError={code:error.code||'RESULT_REPORT_FAILED',message:error.message};
+            if(!deliveryFailure(error))return false;
+            // Retry only a small notice, never geometry or the oversized result.
+            if(!deliveryReceipt){
+              deliveryReceipt=smallReceipt();
+              try{await report('result',entry.command,{result:deliveryReceipt});}
+              catch(noticeError){
+                if(entry.result!==result)continue;
+                entry.reportError={code:noticeError.code||'RESULT_REPORT_FAILED',message:noticeError.message};
+                entry.deliveryBlocked=true;return false;
+              }
+            }else{entry.deliveryBlocked=true;return false;}
           }
-          entry.deliveryBlocked=true;
+          log('result-delivered',{...identity(entry.command),status:(deliveryReceipt||result)?.status});
+          if(entry.result!==result)continue;
+          entry.deliveryReceipt=deliveryReceipt;entry.reported=true;entry.reportError=null;
         }
-        return false;
-      }
-      finally{entry.resultReportPromise=null;if(endedTasks.has(entry.command.taskId)&&![...commands.values()].some(item=>item.command.taskId===entry.command.taskId&&pending(item)))activeTask=null;archiveFinished();onStateChange();}
+        return entry.reported;
+      }finally{entry.resultReportPromise=null;if(endedTasks.has(entry.command.taskId)&&![...commands.values()].some(item=>item.command.taskId===entry.command.taskId&&pending(item)))activeTask=null;archiveFinished();onStateChange();}
     })();
     return entry.resultReportPromise;
   }
+
+  const settledJobResult=job=>job.result||(job.status==='cancelled'?{status:'failed',commitState:'not_committed',error:{code:'JOB_CANCELLED',message:'Queued page job was cancelled before execution'},context:job.context||api.getState({compact:true,fields:['context']}).context}:null);
 
   async function monitor(entry) {
     let job=api.getJob({jobId:entry.jobId});
@@ -133,7 +150,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
       else if(typeof api.waitFor==='function')await api.waitFor({jobId:entry.jobId,timeoutMs:Math.floor(Math.max(0,Math.min(25000,entry.command.deadline*1000-now())))});else await wait(250);
       job=api.getJob({jobId:entry.jobId});
     }
-    return finish(entry,job.result || {status:job.status==='cancelled'?'failed':'unknown',error:{code:job.status==='cancelled'?'JOB_CANCELLED':'JOB_RESULT_UNAVAILABLE'},context:api.getState({compact:true,fields:['context']}).context});
+    return finish(entry,settledJobResult(job) || {status:'unknown',error:{code:'JOB_RESULT_UNAVAILABLE'},context:api.getState({compact:true,fields:['context']}).context});
   }
 
   async function execute(entry) {
@@ -213,7 +230,8 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
   async function reconcilePending(){
     for(const entry of commands.values())if(entry.submitted && entry.result?.status==='unknown'){
       const job=api.getJob({jobId:entry.jobId});
-      if(!['queued','running'].includes(job.status) && job.result && job.result.status!=='unknown')await finish(entry,job.result);
+      const result=settledJobResult(job);
+      if(!['queued','running'].includes(job.status) && result && result.status!=='unknown')await finish(entry,result);
     }
   }
 

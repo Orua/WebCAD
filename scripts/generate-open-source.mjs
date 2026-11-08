@@ -1,6 +1,6 @@
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
-import {existsSync, lstatSync, readFileSync, readdirSync, realpathSync} from 'node:fs';
+import {existsSync, lstatSync, readFileSync, readdirSync, realpathSync,statSync} from 'node:fs';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname, isAbsolute, relative, resolve} from 'node:path';
 import {zipSync, unzipSync} from 'three/addons/libs/fflate.module.js';
@@ -23,13 +23,17 @@ function safePath(path){
   if(typeof path!=='string'||!path||path.includes('\\')||path.includes(':')||isAbsolute(path)||path.split('/').some(p=>!p||p==='.'||p==='..'))fail(`不安全路径 ${path}`);
   return path;
 }
-function walk(root,part=''){
+function walk(root,part='',packageLinks=false,ancestors=new Set()){
+  const current=realpathSync(resolve(root,part));
+  if(ancestors.has(current))fail(`安装包链接形成目录循环 ${part}`);
+  const parents=new Set([...ancestors,current]);
   const result=[];
   for(const item of readdirSync(resolve(root,part),{withFileTypes:true})){
     const path=part?part+'/'+item.name:item.name;
-    if(item.isSymbolicLink())fail(`分发材料不得包含符号链接 ${path}`);
-    if(item.isDirectory())result.push(...walk(root,path));
-    else if(item.isFile())result.push(path);
+    if(item.isSymbolicLink()&&!packageLinks)fail(`分发材料不得包含符号链接 ${path}`);
+    const kind=item.isSymbolicLink()?statSync(resolve(root,path)):item;
+    if(kind.isDirectory())result.push(...walk(root,path,packageLinks,parents));
+    else if(kind.isFile())result.push(path);
   }
   return result.sort();
 }
@@ -39,25 +43,36 @@ function packageAt(root,name){
   return {directory,metadata};
 }
 const packageRoots=new Map();
+function lockedPackage(lock,key){
+  const entry=lock.packages?.[key];
+  if(!entry?.link)return entry;
+  const target=lock.packages?.[safePath(entry.resolved)];
+  if(!target||target.link)fail(`本地依赖缺少明确的锁定包：${key}`);
+  return {...target,resolved:entry.resolved};
+}
 function packageForModule(root,id){
   const path=slash(id).replace(/^\0/,'').split('?')[0];
   if(!isAbsolute(path)||!existsSync(path))return null;
   if(!packageRoots.has(root)){
     const lock=parse(readFileSync(resolve(root,'package-lock.json')));
-    packageRoots.set(root,Object.keys(lock.packages).filter(p=>p.includes('node_modules/')&&existsSync(resolve(root,p,'package.json'))).map(p=>{
+    packageRoots.set(root,Object.keys(lock.packages).filter(p=>p.includes('node_modules/')&&existsSync(resolve(root,p,'package.json'))).flatMap(p=>{
       const directory=resolve(root,p);
-      return {directory,real:slash(realpathSync(directory)),logical:slash(directory),metadata:parse(readFileSync(resolve(directory,'package.json')))};
+      const record={directory,real:slash(realpathSync(directory)),logical:slash(directory),metadata:parse(readFileSync(resolve(directory,'package.json'))),modulePrefix:''};
+      // A linked package may also keep its generated dist on external storage.
+      // Preserve package identity and relative module paths across that link.
+      const aliases=readdirSync(directory,{withFileTypes:true}).filter(child=>child.isSymbolicLink()).map(child=>({...record,real:slash(realpathSync(resolve(directory,child.name))),logical:slash(resolve(directory,child.name)),modulePrefix:child.name+'/'}));
+      return [record,...aliases];
     }).sort((a,b)=>b.real.length-a.real.length));
   }
   for(const record of packageRoots.get(root)){
     const base=[record.logical,record.real].find(base=>path.toLowerCase().startsWith(base.toLowerCase()+'/'));
-    if(base)return {...record,modulePath:path.slice(base.length+1)};
+    if(base)return {...record,modulePath:record.modulePrefix+path.slice(base.length+1)};
   }
   if(path.includes('/node_modules/'))fail(`无法识别构建依赖 ${id}`);
   return null;
 }
 function licenseFiles(directory,name){
-  const paths=walk(directory).filter(path=>/^(?:licen[cs]e|copying|notice)(?:[.\-_]|$)/i.test(path.split('/').at(-1))&&!path.includes('node_modules/'));
+  const paths=walk(directory,'',true).filter(path=>/^(?:licen[cs]e|copying|notice)(?:[.\-_]|$)/i.test(path.split('/').at(-1))&&!path.includes('node_modules/'));
   if(!paths.length&&name==='splaytree')paths.push('Readme.md');
   if(!paths.length)fail(`${name} 安装包缺少完整许可`);
   return paths;
@@ -65,6 +80,7 @@ function licenseFiles(directory,name){
 const blockedPath=path=>/(^|\/)(?:\.git|node_modules|agent|webcad-skills|bin|obj|cache|data|logs|screenshots|quick-model-previews|trial-samples|examples)(\/|$)/i.test(path)||/(^|\/)(?:\.env(?:\..*)?|.*(?:secret|credential|private.key|local.settings|appsettings\.local).*)$/i.test(path);
 export function snapshotAllowed(path){
   if(blockedPath(path))return false;
+  if(/^vendor\/replicad-opencascadejs\/(?:package\.json|README\.md|LICENSE)$/.test(path))return true;
   if(!(/^(?:src|scripts|tests|docs|skills|contracts|corresponding-source|LICENSES|tools)\//.test(path)||documents.includes(path)||['index.html','package.json','package-lock.json','vite.config.mjs','PROJECT.md','README.md','README.en.md','CONTRIBUTING.md','SECURITY.md','CHANGELOG.md','.gitignore','.gitattributes','web.config'].includes(path)||path==='public/vector-dwg-worker.js'))return false;
   return /\.(?:[cm]?js|jsx|ts|tsx|json|md|txt|css|html|py|ps1|cmd|c|cpp|cc|h|hpp|in|yml|yaml|cmake|toml|xml|config|sh|spec|inc|i)$/i.test(path)||/(?:^|\/)(?:COPYING|LICENSE|AUTHORS|Makefile|CMakeLists\.txt|\.gitignore|\.gitattributes)$/.test(path);
 }
@@ -118,7 +134,7 @@ export async function generateOpenSource({root,outputDirectory,identity=readBuil
     const {directory,metadata}=record,key=metadata.name+'@'+metadata.version;
     let item=packages.get(key);
     if(!item){
-      const entry=lock.packages?.[slash(relative(root,directory))];
+      const entry=lockedPackage(lock,slash(relative(root,directory)));
       if(!entry||entry.version!==metadata.version)fail(`${key} 与 package-lock 不一致`);
       item={name:metadata.name,version:metadata.version,declaredLicense:metadata.license||null,scope:[],modules:[],directory,
         lock:{integrity:entry.integrity||null,resolved:entry.resolved||null},upstream:upstream(metadata),licenseFiles:[]};
@@ -248,7 +264,7 @@ export async function verifyOpenSource({root,outputDirectory,requireHomeLink=tru
   for(const name of browserPackages)if(!inventory.packages.some(p=>p.name===name&&p.scope.includes('browser-bundled')))fail(`缺少构建依赖 ${name}`);
   const lock=parse(readFileSync(resolve(root,'package-lock.json')));
   for(const item of inventory.packages){
-    const {directory,metadata}=packageAt(root,item.name),entry=lock.packages['node_modules/'+item.name];
+    const {directory,metadata}=packageAt(root,item.name),entry=lockedPackage(lock,'node_modules/'+item.name);
     if(metadata.version!==item.version||metadata.license!==item.declaredLicense||entry.version!==item.version||item.lock.integrity!==(entry.integrity||null))fail(`安装版本或许可变化 ${item.name}`);
     const base='open-source/packages/'+item.name.replaceAll('/','__')+'@'+item.version+'/';
     const expected=['package.json',...licenseFiles(directory,item.name)].sort();

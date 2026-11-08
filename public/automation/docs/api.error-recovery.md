@@ -355,6 +355,14 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 代码：`lease_revoked`、`task_binding_mismatch`、`task_ended`
 
+### unclassified
+
+操作未能完成，目前没有足够证据确定安全恢复方式。
+
+保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
+
+代码：`LOFT_BUILD_FAILED`、`LOFT_SHAPE_EMPTY`、`QUEUE_LIMIT`、`RATE_LIMIT`、`SESSION_EXPIRED`、`SESSION_REQUIRED`、`STORAGE_LIMIT`
+
 ### material
 
 操作没有产生要求的材料变化，或厚度/材料余量未被证明。
@@ -410,14 +418,6 @@ PDF页面渲染或渲染底图校验未通过。
 保留当前页面工程，先检查浏览器存储和原保存回执；不能宣称已保存或自动重算几何。
 
 代码：`PROJECT_STORE_FAILED`
-
-### unclassified
-
-操作未能完成，目前没有足够证据确定安全恢复方式。
-
-保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
-
-代码：`QUEUE_LIMIT`、`RATE_LIMIT`、`SESSION_EXPIRED`、`SESSION_REQUIRED`、`STORAGE_LIMIT`
 
 ### recovery-denied
 

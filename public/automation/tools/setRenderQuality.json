@@ -2,7 +2,7 @@
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.63.4",
+  "version": "1.63.6",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -228,5 +228,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d27a5e9d33ee14c70d88bf08da3ebb9b9f0fd727a45d3f7de32947da164bc04a"
+  "docsHash": "sha256:e4588bcde9cca5b34db5096245f37c0b05cf3df1628887f90a9bc561dea080ca"
 }

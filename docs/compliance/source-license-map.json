@@ -2214,7 +2214,7 @@
         },
         {
           "path": "src/agent/host-adapter.js",
-          "normalizedSha256": "1c30e2bdab52e127063cf262790dffeae9f8f12ddc00cece76f394f86def71f1"
+          "normalizedSha256": "e729530683b1bdf258365d32666b6a252ae89997f9babed980d0254b77c664a0"
         },
         {
           "path": "src/agent/protocol.js",

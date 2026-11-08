@@ -127,9 +127,14 @@ export function buildSectionCurveLoft(params,cad){
  });
  const resolved=expandCaps(prepared,params);
  const held=[],hold=v=>{held.push(v);return v;};let result;
+ const started=performance.now(),timings={};let phase='profiles',phaseStarted=started;
+ const mark=next=>{timings[phase]=performance.now()-phaseStarted;phase=next;phaseStarted=performance.now();};
+ const diagnostics={stationCount:stations.length,resolvedStationCount:resolved.length,profileKinds:[...new Set(stations.map(s=>s.profile?.kind??'ellipse'))],degree,capKinds:{start:capShape(params.startCap).kind,end:capShape(params.endCap).kind},timings};
  try{
   const sampled=resolved.map(s=>profilePoints(s));
+  mark('wires');
   const wires=resolved.map((s,i)=>(s.profile?.kind??'ellipse')==='ellipse'?makeEllipseWire(s,cad,hold):s.profile?.kind==='spline'&&s.profile.interpolation==='periodicSpline'?makePeriodicWire(s,cad,hold):makeWire(s,sampled[i],cad,hold));
+  mark('builder');
   const builder=hold(new (cad.getOC().BRepOffsetAPI_ThruSections)(true,false,1e-6));builder.SetMaxDegree(degree);
   if(typeof builder.CheckCompatibility==='function')builder.CheckCompatibility(params.autoAlign!==false);
   const addPoint=(side)=>{
@@ -140,19 +145,41 @@ export function buildSectionCurveLoft(params,cad){
     const vertex=hold(cad.makeVertex(p));if(side==='start')builder.AddVertex(vertex.wrapped);
     else builder.AddVertex(vertex.wrapped);
   };
+  mark('start-cap');
   if(['point','round'].includes(capShape(params.startCap).kind))addPoint('start');
+  mark('add-wires');
   wires.forEach(w=>builder.AddWire(w.wrapped));
+  mark('end-cap');
   if(['point','round'].includes(capShape(params.endCap).kind))addPoint('end');
-  builder.Build();result=cad.cast(builder.Shape());
+  mark('build');builder.Build();diagnostics.buildElapsedMs=performance.now()-phaseStarted;
+  if(!builder.IsDone()){
+   // Some shipped bindings expose GetStatus but cannot marshal its enum. Its
+   // failure must never replace the authoritative IsDone=false diagnosis.
+   try{const status=builder.GetStatus();const value=status?.value??status;if(typeof value==='number'||typeof value==='string')diagnostics.nativeStatus=value;else diagnostics.nativeStatusUnavailable=true;}
+   catch{diagnostics.nativeStatusUnavailable=true;}
+   fail('LOFT_BUILD_FAILED','多截面放样构造未完成；原模型保持。内核未提供可靠的数值失败原因。');
+  }
+  mark('shape');const raw=hold(builder.Shape());
+  if(raw.IsNull())fail('LOFT_SHAPE_EMPTY','放样构造返回空形状；原模型保持。');
+  result=cad.cast(raw);
+  mark('validity');
   const analyzer=hold(new (cad.getOC().BRepCheck_Analyzer)(result.wrapped,true,false,false));if(!analyzer.IsValid())throw new Error('多截面放样拓扑无效，请检查截面顺序、自交及宽深');
-  const solids=result.solids;let volume;try{if(solids.length!==1)throw new Error('多截面放样须得到一个实体');volume=cad.measureVolume(result);if(volume<=1e-9)throw new Error('多截面放样须得到一个正体积实体');}finally{solids.forEach(dispose)}
+  diagnostics.valid=true;mark('solids');
+  const solids=result.solids;let volume;try{diagnostics.solidCount=solids.length;if(solids.length!==1)throw new Error('多截面放样须得到一个实体');mark('volume');volume=cad.measureVolume(result);if(!Number.isFinite(volume)||volume<=1e-9)throw new Error('多截面放样须得到一个正体积实体');}finally{solids.forEach(dispose)}
+  mark('volume-estimate');
   let estimate=0;for(let i=0;i<resolved.length-1;i++){const a=sampled[i],b=sampled[i+1],dist=Math.hypot(...resolved[i+1].centerMm.map((v,j)=>v-resolved[i].centerMm[j]));const tangent=unit(resolved[i+1].centerMm.map((v,j)=>v-resolved[i].centerMm[j]));const projected=Math.abs(dot(tangent,unit(resolved[i].normal.map((v,j)=>v+resolved[i+1].normal[j]))));estimate+=(areaOf(a)+areaOf(b))/2*dist*Math.max(projected,.05);}
   const ratio=estimate>1e-12?volume/estimate:null;let suspectStations=[];
   if(resolved.length>2){const turns=resolved.slice(1,-1).map((s,j)=>{const a=unit(resolved[j+1].centerMm.map((v,k)=>v-resolved[j].centerMm[k])),b=unit(resolved[j+2].centerMm.map((v,k)=>v-resolved[j+1].centerMm[k]));return {i:j+1,angleDeg:Math.acos(Math.max(-1,Math.min(1,dot(a,b))))*180/Math.PI};}).sort((a,b)=>b.angleDeg-a.angleDeg);suspectStations=turns.slice(0,3).filter(x=>x.angleDeg>0).map(x=>x.i);}
   const mismatch=ratio!==null&&(ratio<.85||ratio>1.15),report={volumeMm3:volume,estimatedVolumeMm3:estimate,ratio,suspectStations,stationsResolved:resolved.map((s,i)=>({i,startAngleDeg:s.startAngleDeg,directionSign:s.directionSign,profileKind:s.profile?.kind??'ellipse',profileSampleCount:sampled[i].length,preservesPolylineVertices:s.profile?.kind==='spline'&&s.profile.interpolation==='polyline'})),orthogonalizedStations,autoAlign:params.autoAlign!==false,warning:resolved.length>=32?{code:'LOFT_COMPLEXITY',stationCount:resolved.length,degree}:null};
   if(mismatch){report.warning={code:'LOFT_VOLUME_MISMATCH',ratio,estimatedVolumeMm3:estimate,volumeMm3:volume,suspectStations};if((params.volumeCheck??'warn')==='error')fail('LOFT_VOLUME_MISMATCH',`放样体积与截面估算不一致（ratio=${ratio.toFixed(3)}）`,report);}
   if(params.volumeCheck==='off')report.warning=null;
+  mark('complete');report.diagnostics={...diagnostics,phase:'complete',elapsedMs:performance.now()-started};
   result.loftReport=report;const complete=result;result=null;return complete;
- }catch(error){if(error?.report)throw error;throw Object.assign(error,{report:{orthogonalizedStations,stationsResolved:prepared.map((s,i)=>({i,startAngleDeg:s.startAngleDeg,directionSign:s.directionSign}))}});}
+ }catch(error){
+  timings[phase]=performance.now()-phaseStarted;
+  const nativeDetailAvailable=!!error?.message&&!String(error.message).includes('WebAssembly.Exception');
+  const wrapped=error instanceof Error?error:new Error('几何内核未提供可读异常详情。',{cause:error});
+  throw Object.assign(wrapped,{code:error?.code||'GEOMETRY_INVALID',report:{...error?.report,orthogonalizedStations,stationsResolved:prepared.map((s,i)=>({i,startAngleDeg:s.startAngleDeg,directionSign:s.directionSign})),diagnostics:{...diagnostics,phase,elapsedMs:performance.now()-started,exceptionType:error?.constructor?.name??typeof error,nativeDetailAvailable:error?.code==='LOFT_BUILD_FAILED'?false:nativeDetailAvailable}}});
+ }
  finally{dispose(result);held.reverse().forEach(dispose);}
 }

@@ -2,7 +2,7 @@
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.63.4",
+  "version": "1.63.6",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -39,12 +39,6 @@
     "CAPABILITY_UNAVAILABLE"
   ],
   "docs": "api.relief",
-  "inputSchema": {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {},
-    "required": []
-  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -150,5 +144,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f133ab65432504e004f28eb4e29a19b7cf94fa870e57314bb875dbd69b9ad8e5"
+  "docsHash": "sha256:424802205ee16aa81718fe13ca734cf01c6f2d56fd87e4e87e372a03a6696df4"
 }

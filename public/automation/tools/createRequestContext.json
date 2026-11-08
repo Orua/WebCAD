@@ -2,7 +2,7 @@
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.63.4",
+  "version": "1.63.6",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -32,12 +32,6 @@
     "REVISION_CONFLICT"
   ],
   "docs": "api.reliability",
-  "inputSchema": {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {},
-    "required": []
-  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -111,5 +105,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b3f6337a327df3469e9b40f562055c4c4670f4dda1379ade7362fd6ef7d3cfd8"
+  "docsHash": "sha256:7705ad306aafd2f7135f3ca9578af6bc083e5488030959971bd49d1635d119c7"
 }

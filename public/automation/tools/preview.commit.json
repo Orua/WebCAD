@@ -8,7 +8,7 @@
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。",
   "category": "command",
-  "version": "1.63.4",
+  "version": "1.63.6",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -226,5 +226,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:41ae0ab55fcd5c676a4392876bca8c41f5479f2b62eb4f21110e23dd9b4a90b1"
+  "docsHash": "sha256:cce00dd98725335761b4a658a6a976023bfad1c529124af03b954cfc9f9bf534"
 }

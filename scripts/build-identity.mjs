@@ -7,9 +7,10 @@ import {resolve} from 'node:path';
 // timestamps must not change identity when the same source is rebuilt.
 const inputs=['src','scripts','docs','skills','LICENSES','public','contracts','services','host',
   'cad-viewer/bindings','cad-viewer/wasm','cad-viewer/open-source-notices.html',
-  'index.html','package.json','package-lock.json','vite.config.mjs','PROJECT.md'];
+  'index.html','package.json','package-lock.json','vite.config.mjs','PROJECT.md',
+  'vendor/replicad-opencascadejs/package.json','vendor/replicad-opencascadejs/README.md','vendor/replicad-opencascadejs/LICENSE'];
 const generated=['public/automation','public/docs','public/llms.txt'];
-const excluded=path=>generated.some(prefix=>path===prefix||path.startsWith(prefix+'/'));
+const excluded=path=>generated.some(prefix=>path===prefix||path.startsWith(prefix+'/'))||/(?:^|\/)__pycache__(?:\/|$)|\.pyc$/.test(path);
 
 export function fingerprintBuildInputs(root){
   const paths=[];

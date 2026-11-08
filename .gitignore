@@ -54,6 +54,7 @@ cad-data/open/licenses/*
 
 # WebCAD generated build and automated test artifacts
 dist/
+/vendor/replicad-opencascadejs/dist/
 playwright-report/
 test-results/
 .env
@@ -66,6 +67,7 @@ services/**/obj/
 
 # Generated finite Agent runtime assets are built from canonical src/agent.
 public/automation/remote-agent/
+/public/automation/agent-bundle.zip
 
 # Private maintainer instructions, history evidence and real product fixtures
 AGENTS.md
