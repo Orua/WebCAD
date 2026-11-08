@@ -41,6 +41,26 @@ test('section loft rejects invalid degree before building',()=>{
 });
 
 const straight=(count=3,profile)=>Array.from({length:count},(_,i)=>({centerMm:[0,0,i*5],normal:[0,0,1],widthDirection:[1,0,0],widthMm:2,depthMm:2,...(profile?{profile}:{})}));
+test('ordered parametric profiles preserve correspondence through changing aspect ratios and a point cap',()=>{
+ const stations=straight(5,{kind:'superellipse',exponent:3}).map((s,i)=>({...s,widthMm:[.7,4,12,18,10][i],depthMm:[.6,3,6,5,2][i]}));
+ const shape=buildSectionCurveLoft({stations,loftDegree:3,autoAlign:true,startCap:{kind:'point',pointMm:[0,0,-.75]}},cad);
+ try{
+  const d=shape.loftReport.diagnostics;
+  assert.equal(d.correspondence,'ordered-parametric-vertices');assert.equal(d.nativeCompatibility,false);
+  assert.deepEqual(d.profileEdgeCounts,[64,64,64,64,64]);assert.equal(d.solidCount,1);assert.equal(d.valid,true);
+  assert.ok(cad.measureVolume(shape)>0);assert.ok(Math.abs(shape.boundingBox.bounds[0][2]+.75)<1e-5);
+ }finally{shape.delete();}
+});
+test('native section status is readable in the failure message and serializable diagnostics',()=>{
+ class Inconsistent {
+  SetMaxDegree(){} CheckCompatibility(){} AddWire(){} Build(){} IsDone(){return false;}
+  GetStatus(){return 'BRepFill_ThruSectionErrorStatus_ProfilesInconsistent';} delete(){}
+ }
+ assert.throws(()=>buildSectionCurveLoft({stations:straight()}, {...cad,getOC:()=>({...oc,BRepOffsetAPI_ThruSections:Inconsistent})}),e=>{
+  assert.match(e.message,/ProfilesInconsistent/);assert.match(e.message,/对应关系不一致/);
+  assert.equal(e.report.diagnostics.correspondence,'native-compatibility');return true;
+ });
+});
 test('unfinished build never reads Shape or measures and preserves diagnostics when status binding fails',()=>{
  let shapeCalls=0,measureCalls=0,deleted=0;
  class Unfinished {

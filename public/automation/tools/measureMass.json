@@ -2,7 +2,7 @@
   "id": "measureMass",
   "title": "measureMass",
   "category": "page-method",
-  "version": "1.63.6",
+  "version": "1.63.7",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -93,5 +93,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0504a81ce4731609596abf24cb13a6cf80d674e8385fee9ef2e00f16a830ea2c"
+  "docsHash": "sha256:bcf8a440be3e2f097ddec3ed6d646a6bd29e0085cfe696c54cd8a068f30c3572"
 }

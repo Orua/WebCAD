@@ -5,6 +5,9 @@ import {debugJournal} from './debug-journal.js';
 // changes an argument, clears a guard, commits/undoes geometry, or cancels a job.
 const rule=(id,codes,reason,next,tools=[],options={})=>({id,codes:new Set(codes.split(' ').filter(Boolean)),reason,next,tools,...options});
 const rules=[
+  rule('section-loft','LOFT_BUILD_FAILED LOFT_SHAPE_EMPTY','多截面放样未完成或返回空形状。','读取原回执的report.diagnostics.phase、nativeStatus、correspondence及profileEdgeCounts，核对截面顺序与对应关系；保留原参数和工程，不能仅凭失败状态自动改尺寸或重算。',['getState','getJob','getTool'],{hardStop:true}),
+  rule('host-session','SESSION_REQUIRED SESSION_EXPIRED','宿主会话尚未建立或已经过期。','重新核对宿主登录与工程绑定；不要重放原写入。',['connect'],{hardStop:true}),
+  rule('host-capacity','QUEUE_LIMIT RATE_LIMIT STORAGE_LIMIT','宿主的任务队列、调用频率或存储达到限制。','保留原任务回执，核对当前队列与存储；不要重复提交几何或自动删除资料。',['getState','getJob'],{hardStop:true}),
   rule('project-store','PROJECT_STORE_FAILED','当前工程的本地存储写入失败。','保留当前页面工程，先检查浏览器存储和原保存回执；不能宣称已保存或自动重算几何。',['getState'],{hardStop:true}),
   rule('relief-services-response','SERVICES_RESPONSE_INVALID','Services 浮雕响应与请求、哈希或误差不一致。','保留当前工程，核对原任务与返回产物；不提交、不自动重算或回退。',['getServicesJob','getState'],{hardStop:true}),
   rule('relief-services-required','RELIEF_DESIGN_SERVICES_REQUIRED','临时控制网需要 Services 完成首次拟合。','保留当前设计并检查 Services 能力；如需本地执行，由用户明确选择浏览器拟合后重新准备。',['reliefDesignFit','getServicesCapabilities'],{hardStop:true}),

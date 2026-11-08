@@ -2,7 +2,7 @@
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.63.6",
+  "version": "1.63.7",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -220,5 +220,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:ecd75f84a6e8dc7060f79769e2fc545818bd75855762f941a1cdae6dbbcdae1c"
+  "docsHash": "sha256:8e335abbc203c4c3e943fb755b1c26b6773e07d1eb1afc0ea3af7394926ce11a"
 }
