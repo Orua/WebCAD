@@ -2,7 +2,7 @@
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.63.4",
+  "version": "1.63.6",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -36,12 +36,6 @@
     "SERVICES_CONNECTION_UNKNOWN",
     "SERVICES_PROTOCOL_MISMATCH"
   ],
-  "inputSchema": {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {},
-    "required": []
-  },
   "preparationSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -147,5 +141,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9ff973e527accc695538959e91e0402d29992a40f1a7c654f3f035fdb8027901"
+  "docsHash": "sha256:1f22a238539e4776afe5f66fddb5a2eec1d9eae6a12aee07f9a07b03f9830920"
 }

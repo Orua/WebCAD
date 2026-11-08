@@ -8,7 +8,7 @@
   "title": "修改参数",
   "description": "args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.63.4",
+  "version": "1.63.6",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -266,5 +266,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6cdeab403182316c016c0f748523c4178f885c6a936e156d20e0d2b5624a8778"
+  "docsHash": "sha256:5b64e158a7896357ba7d465bdd63cd370b56f344bc7b5a4317e750789155ee3b"
 }

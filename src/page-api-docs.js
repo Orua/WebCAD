@@ -38,7 +38,7 @@ import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-in
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
 import {LOGO_RASTER_SCHEMA} from './logo-raster-options.js';
 import {ERROR_RECOVERY_VERSION,errorRecoveryCatalogDoc,errorRecovery} from './error-recovery.js';
-const PAGE_DOC_VERSION = '1.63.4';
+const PAGE_DOC_VERSION = '1.63.6';
 const EXAMPLE_CONTEXT={sessionId:'<live sessionId>',documentId:'<live documentId>',documentInstanceId:'<live documentInstanceId>',expectedRevision:0};
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
@@ -285,6 +285,7 @@ const mapPageText = value => typeof value === 'string' ? pageWording(value)
     : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, mapPageText(item)])) : value;
 
 function agentMethodRoute(id){
+  if(id==='getJob')return {tool:'host-only',method:id,agentCallable:false,reason:'Page job IDs belong to the host adapter. Observe the original broker command with webcad_job.',alternative:{tool:'webcad_job',arguments:{commandId:'<original commandId>',waitSeconds:25}},identityNote:'commandId is the broker receipt ID, not pageJobId. Never pass pageJobId as commandId or route getJob through webcad_read.'};
   const tool=AGENT_CONTRACT.methodTools[id];
   if(tool)return {tool,method:id,args:'Same inputSchema; webcad_submit also takes requestKey outside args'};
   if(id==='convertLogoPdf')return {tool:'host-only',method:id,reason:'Legacy binary adapter; PDF conversion is publicly available through readLogo with sessionFileId.',agentCallable:false,alternative:{tool:'webcad_read',method:'readLogo',args:{context:'<live context>',sessionFileId:'<current conversation PDF file ID>',page:1,allowUpload:true,reviewPolicy:'automatic'}}};

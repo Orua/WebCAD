@@ -9,6 +9,13 @@ const context=(properties={},required=[])=>schema({context:IDENTITY_CONTEXT_SCHE
 const shape=(keys,required='')=>schema(fields(keys.split(' ').filter(Boolean)),required.split(' ').filter(Boolean));
 const scoped=(keys,required='')=>context(fields(keys.split(' ').filter(Boolean)),required.split(' ').filter(Boolean));
 const body=(properties={},required=[])=>context({bodyId:str,...properties},['bodyId',...required]);
+// A host preparation restriction is not the public signature of that method.
+const JOB_ID_SCHEMA={type:'string',minLength:1,maxLength:80};
+export const HOST_CALL_SCHEMAS={
+ getJob:schema({jobId:JOB_ID_SCHEMA},['jobId']),
+ cancelJob:schema({jobId:JOB_ID_SCHEMA},['jobId']),
+ awaitJob:schema({jobId:JOB_ID_SCHEMA,timeoutMs:{type:'integer',minimum:0,maximum:25000}},['jobId']),
+};
 
 // These are read-only preparation contracts, not replacements for the original
 // runtime validators. Complex source, geometry, permissions and conditional
@@ -85,10 +92,12 @@ export function preparationSchema(card){
 export function withPreparationContract(card){
  const operation=!!card.refsSchema&&!['import','remove'].includes(card.id),target=operation?'prepareOperation':'prepareToolCall';
  const input=preparationSchema(card);
- const fillInput=!card.inputSchema&&input&&(card.category==='file'||card.category==='page-method'||card.category==='command');
+ const placeholder=card.category==='page-method'&&input&&Object.keys(input.properties??{}).length===0&&card.mcpCall?.agentCallable===false;
+ const publicInput=HOST_CALL_SCHEMAS[card.id]||(!placeholder?input:null);
+ const fillInput=!card.inputSchema&&publicInput&&(card.category==='file'||card.category==='page-method'||card.category==='command');
  const action=card.mcpCall?.action;
  const callSchema=action&&input?context({context:{...IDENTITY_CONTEXT_SCHEMA,required:[...IDENTITY_CONTEXT_SCHEMA.required,'expectedRevision']},idempotencyKey:{...str,maxLength:80},action:{const:action},args:input},['idempotencyKey','action','args']):null;
  const commandContract=callSchema?{argsSchema:input,callSchema,inputSchema:callSchema}:{};
  const examples=Object.fromEntries(['minimalExample','normalExample'].filter(field=>action&&card[field]?.action===action).map(field=>[field,{context:{sessionId:'<live sessionId>',documentId:'<live documentId>',documentInstanceId:'<live documentInstanceId>',expectedRevision:0},idempotencyKey:'<fresh command key>',...card[field]}]));
- return {...card,...(fillInput?{inputSchema:input}:{}),...commandContract,...examples,...(input&&!card.inputSchema?{preparationSchema:input}:{}),preparation:{method:target,readOnly:true,geometryComputed:false,missingParameters:'needs_input/questions/answerPath',callShape:operation?'prepareOperation({context,op,params})':'prepareToolCall({toolId,context,args})',example:operation?{op:card.id,params:{}}:{toolId:card.id,context:'<live context>',args:{}},docs:'api.prepare-tools',validation:'Published input structure only; original target retains source, permission, lifecycle and geometry checks.'}};
+ return {...card,...(fillInput?{inputSchema:publicInput}:{}),...commandContract,...examples,...(input&&!card.inputSchema?{preparationSchema:input}:{}),preparation:{method:target,readOnly:true,geometryComputed:false,missingParameters:'needs_input/questions/answerPath',callShape:operation?'prepareOperation({context,op,params})':'prepareToolCall({toolId,context,args})',example:operation?{op:card.id,params:{}}:{toolId:card.id,context:'<live context>',args:{}},docs:'api.prepare-tools',validation:'Published input structure only; original target retains source, permission, lifecycle and geometry checks.'}};
 }

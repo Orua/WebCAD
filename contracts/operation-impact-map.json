@@ -1,4 +1,35 @@
 {
+  "genericToolDiagnosticsAndJobContracts": {
+    "localImpact": "Check section loft construction before reading Shape; preserve stage diagnostics. Publish actual page job argument schemas independently of host-only preparation restrictions.",
+    "servicesImpact": "No Services geometry routing changes. Agent broker waiting and unknown-write protection are separate source changes, not deployed to the production Agent.",
+    "logoImpact": "None: no logo source or conversion changes.",
+    "nativeImpact": "Pinned OCCT 8.0.1/Emscripten 5.0.1 pair rebuilt from matching upstream objects with complete BRepFill_ThruSectionErrorStatus binding; original 501 exports retained. No numerical algorithm, source profile, cap or tolerance changes.",
+    "contractImpact": "LOFT_BUILD_FAILED and LOFT_SHAPE_EMPTY plus phase/timing readback; getJob/cancelJob/awaitJob real page schemas and original-command host route.",
+    "documentImpact": "Failed builds remain atomic; no geometry parameters, source data or project format changes.",
+    "cacheImpact": "Regenerate finite knowledge ZIP, routing and manifests together; verify hashes.",
+    "requiredTests": [
+      "Unfinished build does not call Shape/cast/measure",
+      "Existing valid section loft and volume checks",
+      "Job schema boundary and host-only preparation tests",
+      "Broker unknown waiting, registration race, cancellation and new-key protection",
+      "One targeted localhost browser check"
+    ]
+  },
+  "agentSettledReceiptReset": {
+    "localImpact": "Resend the final original page-job receipt after a delivered or in-flight unknown timeout; release settled editing ownership so a later task can execute.",
+    "servicesImpact": "None: existing Agent broker already accepts unknown-to-terminal receipt updates; no Services routing or backend deployment required.",
+    "logoImpact": "None: no logo processing changes.",
+    "nativeImpact": "None: no geometry or kernel changes.",
+    "contractImpact": "Existing command IDs, idempotency, receipt shapes and unknown-outcome protections are preserved; no new public operation.",
+    "documentImpact": "Original geometry is never replayed; only a confirmed terminal result releases the unknown edit reservation. Saved projects are unchanged.",
+    "cacheImpact": "Rebuild the distributed host adapter and complete finite knowledge bundle using the same release package.",
+    "requiredTests": [
+      "Delivered and in-flight unknown to failed/completed/cancelled receipt transitions",
+      "Next task dispatch without replaying old geometry",
+      "Existing adapter transport regressions",
+      "Localhost browser failure then successful creation"
+    ]
+  },
   "explicitPolylineSectionVertices": {
     "localImpact": "Keep the supplied polygon vertices for explicit polyline section lofts; uniform perimeter resampling previously clipped corners as section aspect ratios changed.",
     "servicesImpact": "No corresponding curveSweep implementation found in the configured Services sources. Server capability gates, compiled-artifact import and authorization are unchanged.",

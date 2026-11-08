@@ -2,7 +2,7 @@
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.63.4",
+  "version": "1.63.6",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -35,8 +35,21 @@
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
-    "properties": {},
-    "required": []
+    "properties": {
+      "jobId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      },
+      "timeoutMs": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 25000
+      }
+    },
+    "required": [
+      "jobId"
+    ]
   },
   "preparationSchema": {
     "type": "object",
@@ -103,5 +116,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4f5692c56e7e5b2b474d4b89d48ee7dc71f33afbce85a18f073aac7680d495a2"
+  "docsHash": "sha256:88e4bdcb47f385cba728f0e4a65f758d954670ca8f9b88fb6dd2ba3ee9d42ae5"
 }

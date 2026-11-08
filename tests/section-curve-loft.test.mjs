@@ -5,6 +5,15 @@ import init from 'replicad-opencascadejs';
 import * as cad from 'replicad';
 import {buildSectionCurveLoft} from '../src/section-curve-loft.js';
 const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});cad.setOC(oc);
+test('matched kernel returns serializable native ThruSections statuses',()=>{
+ const builder=new oc.BRepOffsetAPI_ThruSections(true,false,1e-6);
+ try{
+  assert.equal(builder.GetStatus(),oc.BRepFill_ThruSectionErrorStatus.BRepFill_ThruSectionErrorStatus_NotDone);
+  builder.Build();assert.equal(builder.IsDone(),false);
+  assert.equal(builder.GetStatus(),oc.BRepFill_ThruSectionErrorStatus.BRepFill_ThruSectionErrorStatus_WrongUsage);
+  assert.equal(JSON.parse(JSON.stringify(builder.GetStatus())),builder.GetStatus());
+ }finally{builder.delete();}
+});
 test('bounded degree keeps a symmetric rounded frame within its measured envelope',async()=>{
   const right=[
     [2.304,2.5,5,1,0],[7.467,2.5,5.001,1,.015],
@@ -32,8 +41,24 @@ test('section loft rejects invalid degree before building',()=>{
 });
 
 const straight=(count=3,profile)=>Array.from({length:count},(_,i)=>({centerMm:[0,0,i*5],normal:[0,0,1],widthDirection:[1,0,0],widthMm:2,depthMm:2,...(profile?{profile}:{})}));
+test('unfinished build never reads Shape or measures and preserves diagnostics when status binding fails',()=>{
+ let shapeCalls=0,measureCalls=0,deleted=0;
+ class Unfinished {
+  SetMaxDegree(){} CheckCompatibility(){} AddWire(){} Build(){} IsDone(){return false;}
+  GetStatus(){throw Error('unbound enum');}
+  Shape(){shapeCalls++;throw Error('must not call');} delete(){deleted++;}
+ }
+ const fake={...cad,getOC:()=>({...oc,BRepOffsetAPI_ThruSections:Unfinished}),measureVolume:()=>{measureCalls++;}};
+ assert.throws(()=>buildSectionCurveLoft({stations:straight(),loftDegree:3},fake),e=>{
+  assert.equal(e.code,'LOFT_BUILD_FAILED');
+  const d=e.report.diagnostics;assert.equal(d.phase,'build');assert.equal(d.nativeStatusUnavailable,true);
+  assert.equal(d.nativeDetailAvailable,false);assert.equal(d.stationCount,3);assert.equal(d.degree,3);
+  assert.ok(d.buildElapsedMs>=0);assert.ok(d.timings.wires>=0);return true;
+ });
+ assert.equal(shapeCalls,0);assert.equal(measureCalls,0);assert.equal(deleted,1);
+});
 test('UP-18 explicit seam, compatibility switch and measured volume diagnostic',()=>{
  const shape=buildSectionCurveLoft({stations:straight(),seamAngleDeg:90,autoAlign:false},cad);
- try{assert.equal(shape.loftReport.stationsResolved[0].startAngleDeg,90);assert.equal(shape.loftReport.autoAlign,false);assert.ok(Math.abs(shape.loftReport.ratio-1)<.08);}finally{shape.delete();}
+ try{assert.equal(shape.loftReport.stationsResolved[0].startAngleDeg,90);assert.equal(shape.loftReport.autoAlign,false);assert.ok(Math.abs(shape.loftReport.ratio-1)<.08);assert.equal(shape.loftReport.diagnostics.phase,'complete');assert.equal(shape.loftReport.diagnostics.valid,true);}finally{shape.delete();}
  assert.throws(()=>buildSectionCurveLoft({stations:straight().map((s,i)=>({...s,widthMm:i===1?8:2})),volumeCheck:'error'},cad),e=>e.code==='LOFT_VOLUME_MISMATCH'&&e.report.ratio>1.15);
 });

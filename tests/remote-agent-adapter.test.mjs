@@ -319,3 +319,63 @@ test('task retirement preserves unreported results until acknowledged without re
   assert.equal((await adapter.receive(envelope(payload))).status,'already_reported');
   assert.equal(counts().submits,1);assert.equal(reports.filter(x=>x.kind==='result').length,1);
 });
+
+// Reproduce the browser log: timeout delivered, original job settles, next task edits.
+for(const terminal of ['failed','committed','cancelled'])for(const inFlight of [false,true]){
+ test(`settled ${terminal} replaces ${inFlight?'in-flight':'delivered'} timeout and permits the next task`,async()=>{
+  let clock=1000,submits=0,job={status:'running'},release;
+  const gate=new Promise(resolve=>{release=resolve;});
+  const ledger=new Map(),delivered=[];
+  const api={connect(){},getState:()=>({context}),invoke:async()=>({status:'read',context}),
+   submit(){submits++;if(submits===1)clock=31000;},getJob:()=>job,cancelJob(){}};
+  const adapter=createHostAdapter({api,session,now:()=>clock,report:async(kind,command,body)=>{
+   if(kind!=='result')return;
+   const receipt=body.result;
+   if(receipt.status==='unknown'&&inFlight)await gate;
+   ledger.set(command.commandId,receipt.status);delivered.push(receipt.status);
+  }});
+  const first={...envelope(payload),deadline:30};
+  assert.equal((await adapter.receive(first)).status,'unknown');
+  if(!inFlight)await adapter.retryReports();
+  adapter.endTask('task');
+  assert.equal(adapter.state().editing,true,'unknown geometry remains protected');
+  assert.equal(adapter.state().pending.length,1);
+  const status=terminal==='cancelled'?'failed':terminal;
+  job={status:terminal,result:{status,commitState:terminal==='committed'?'committed':'not_committed',context,
+   ...(status==='failed'?{error:{code:terminal==='cancelled'?'JOB_CANCELLED':'GEOMETRY_INVALID'}}:{})}};
+  await adapter.reconcilePending();
+  assert.equal(adapter.state().editing,false,'terminal geometry releases canvas before transport');
+  if(inFlight){assert.equal(adapter.state().pending.length,1,'retain terminal receipt until host acknowledgement');release();}
+  await adapter.retryReports();
+  assert.deepEqual(delivered,['unknown',status]);
+  assert.equal(ledger.get(first.commandId),status,'host must receive the final outcome');
+  assert.equal(adapter.state().pending.length,0);
+  assert.equal(adapter.state().activeTask,null);
+  const second={...envelope(payload),taskId:'next-task',commandId:'b'.repeat(32),deadline:100};
+  assert.equal((await adapter.receive(second)).status,status);
+  await adapter.retryReports();
+  assert.equal(submits,2,'next task submits once; original geometry is never replayed');
+  assert.equal((await adapter.receive(first)).status,'already_reported');
+ });
+}
+
+test('real queued cancellation without a result settles its timeout and frees the next task',async()=>{
+ let clock=1000,submits=0,invokes=0;
+ const reports=[];
+ const api={connect(){},getState:()=>({context}),invoke:async()=>{invokes++;return {status:'committed',context};}};
+ const jobs=createPageJobs(api);Object.assign(api,jobs);
+ api.submit=input=>{submits++;const job=jobs.submit(input);if(submits===1)clock=31000;return job;};
+ const adapter=createHostAdapter({api,session,now:()=>clock,report:async(kind,command,body)=>{if(kind==='result')reports.push(body.result);}});
+ const first={...envelope(payload),deadline:30};
+ assert.equal((await adapter.receive(first)).status,'unknown');await adapter.retryReports();
+ adapter.endTask('task');
+ assert.equal(api.getJob({jobId:'wc_'+first.commandId}).status,'cancelled');
+ assert.equal(api.getJob({jobId:'wc_'+first.commandId}).result,undefined);
+ await adapter.retryReports();
+ assert.deepEqual(reports.map(r=>r.status),['unknown','failed']);
+ assert.equal(reports[1].error.code,'JOB_CANCELLED');assert.equal(reports[1].commitState,'not_committed');
+ assert.equal(adapter.state().pending.length,0);assert.equal(adapter.state().editing,false);
+ const next={...envelope(payload),taskId:'next-task',commandId:'c'.repeat(32),deadline:100};
+ assert.equal((await adapter.receive(next)).status,'committed');await adapter.retryReports();
+ assert.equal(submits,2);assert.equal(invokes,1,'cancelled job is never executed or replayed');
+});

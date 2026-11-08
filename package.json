@@ -34,7 +34,7 @@
     "manifold-3d": "^3.5.4",
     "polygon-clipping": "0.15.7",
     "replicad": "1.1.0",
-    "replicad-opencascadejs": "1.1.0",
+    "replicad-opencascadejs": "file:vendor/replicad-opencascadejs",
     "three": "^0.180.0",
     "ws": "^8.21.3",
     "zod": "^4.6.5"

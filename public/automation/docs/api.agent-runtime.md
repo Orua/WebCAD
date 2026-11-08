@@ -7,6 +7,20 @@ WebCAD是Agent适配代码与方法白名单的唯一维护源。window.webcad.a
 
 多配件任务按 api.modeling.methods.staged-assembly 交付规划和当前批次，续轮沿用实际用户授权、最新规划和工程回执，不将自动提醒当成确认。
 
+## 目标交付与一次纠偏
+
+模型回合结束、工具终态和用户目标完成分别表达。原生宿主 cadOutcome.deliveryState 为 completed、blocked、waiting 或 canceled；不能从 task.status=completed 推断工程已完成。创建目标需要已有真实 geometry commit，改名或空白保存不能替代。用户要求的量测、图片、文件交付按其真实回执核对；未要求时不追加截图、导出或保存。普通对话和只读问题不要求创建实体。
+
+宿主在回收工具授权前检查已提交证据和原 pending 作业；unknown 只等待原 commandId，不换键重算。缺少交付证据且原授权仍有明确下一步时，同任务最多一次纠偏续行；仍无进展则明确 blocked。真实几何失败不自动重算，用户停止优先。多阶段任务沿已接受计划继续，未完成步骤不得用“稍后继续”的最终回复掩盖。
+
+原生宿主可在当前请求 metadata.cadDeliveryGoal 声明 kind=conversation/engineering/file、effect=geometry/document 和 requiredEvidence=[measurement,image,file]，作为交付检查条件而非扩大权限。续轮只恢复同会话目标来源，始终重新核对当前工程身份和 revision；不恢复旧拓扑指针。
+
+## 所选完整契约一次取得
+
+webcad_docs(getTools,{ids:[本轮所需工具]}) 批量读取完整卡及 mcpCall，按真实入口执行。宿主可同回合附上 executionContext 和完整 executionWorkflows；这些来自已有新鲜快照与已校验知识包，不产生新的页面查询。目录不等于完整参数卡。delivery.contextGeneration 和卡版本/hash只记录本上下文已交付资料；显式读取始终可取完整内容，fresh=true 强制恢复完整卡/章节。getTools 只接收工具ID，不接收文档ID、cursor或limitChars；缺少章节才用 readDocs。压缩或 live hash变化后允许重新取得，不能因为服务器曾发送就只返回 not_modified。
+
+简单明确创建优先一个含必要量测的写批次，目标为不超过5次模型工具调用；不强制截断，也不省略必须参数。统计区分模型响应、工具调用、实际页面命令、建模批次和内核执行，不能靠隐藏调用达标。
+
 已明确操作且命中prepared-operations路线时，先读prepareOperation/applyPreparedOperation两张短卡即可；准备摘要通过后直接按nextCall应用，不必读api.run或底层长卡。需要选择建模方法的复杂任务才先读api.modeling.start，再按agent-routing.json选一个modeling.*分支。工厂产品、图纸、材料或工艺事实按需读生产知识库，不先遍历业务整库。单纯询问安装状态只报告缓存回执，不调用无关CAD工具。
 
 已绑定宿主提供了本页当前快照及已校验契约时直接复用，不要求每轮重复connect。未绑定、版本变化或连接失效时才握手/恢复；不刷新未保存工程。目录摘要仅用于发现：简化入口读两张准备卡；直接使用run时才读取底层操作卡及api.run，按需分页取完整内容。参数、批次上限和单位取当前契约，不从名称或旧提示猜测。

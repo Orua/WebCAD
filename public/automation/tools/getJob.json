@@ -2,7 +2,7 @@
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.63.4",
+  "version": "1.63.6",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -11,8 +11,16 @@
   "mcpCall": {
     "tool": "host-only",
     "method": "getJob",
-    "reason": "original receipt via webcad_job",
-    "agentCallable": false
+    "agentCallable": false,
+    "reason": "Page job IDs belong to the host adapter. Observe the original broker command with webcad_job.",
+    "alternative": {
+      "tool": "webcad_job",
+      "arguments": {
+        "commandId": "<original commandId>",
+        "waitSeconds": 25
+      }
+    },
+    "identityNote": "commandId is the broker receipt ID, not pageJobId. Never pass pageJobId as commandId or route getJob through webcad_read."
   },
   "description": "getJob({jobId})",
   "synonyms": [
@@ -35,8 +43,16 @@
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
-    "properties": {},
-    "required": []
+    "properties": {
+      "jobId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80
+      }
+    },
+    "required": [
+      "jobId"
+    ]
   },
   "preparationSchema": {
     "type": "object",
@@ -111,5 +127,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e3cad78de88122a16f4ec667024b60d1f6a93cc6299d22cc025d591bf904dbf2"
+  "docsHash": "sha256:3498e5fd5316b187a947b806ff2aa48d475e1b127b9db68edfa10b80d4ae7d09"
 }
