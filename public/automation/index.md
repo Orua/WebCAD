@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.63.7 · 操作目录 sha256:0fef1947a750a699ae140c6884237dcfdb479009517581f41b03ae0e9ff3ab35
+API 1.63.7 · 操作目录 sha256:9f1dfe9edd548d29e4344fb7216744b43a6d292da9f9e37ff341f0b6b863e987
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -366,7 +366,7 @@ API 1.63.7 · 操作目录 sha256:0fef1947a750a699ae140c6884237dcfdb479009517581
 - `redraw` · page-method · redraw({context}); 不接受额外字段。
 - `capture` · page-method · capture({context,maxWidth?:64..4096,format?:"png"|"webp",quality?:0<q<=1}); 建议 maxWidth:800,format:"webp"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:"capture",args:{context,maxWidth:800,format:"webp"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。
 - `getEvidenceImage` · page-method · getEvidenceImage({context:{sessionId,documentId,documentInstanceId,expectedRevision},evidenceId?,viewId?:iso|front|top|right,maxWidth?:64..1024,format?:png|webp,quality?}); 默认640px WebP，三视图分别读相同revision和displaySignature。
-- `run` · page-method · run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:"api.run"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。
+- `run` · page-method · run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须取得 api.run 的本上下文代完整正文并读取所用操作完整卡；executionWorkflows 已提供完整 api.run 时直接复用，仅缺失或分页未完时 readDocs({docId:"api.run"}) 补齐；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。
 - `getPerformanceState` · page-method · getPerformanceState()，无参数。
 - `configurePerformance` · page-method · configurePerformance({context,settings:{mode?:"auto"|"manual",preferredQuality?:"draft"|"standard"|"fine"|"ultra",manualLock?:boolean,allowAgentGrouping?:boolean}})
 - `acknowledgePerformanceAdvisory` · page-method · acknowledgePerformanceAdvisory({context,advisoryId,status:"deferred"|"no-safe-candidates"|"declined"|"stale"})

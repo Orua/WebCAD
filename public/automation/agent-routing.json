@@ -1,7 +1,48 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:0fef1947a750a699ae140c6884237dcfdb479009517581f41b03ae0e9ff3ab35",
-  "docsHash": "sha256:8c9cbe1d69105bcfed264c6ca3f08e7394be6a9745f33ce671babf761f2697b3",
+  "catalogHash": "sha256:9f1dfe9edd548d29e4344fb7216744b43a6d292da9f9e37ff341f0b6b863e987",
+  "docsHash": "sha256:4d15a212f7fa58700d3d8d6ebecd7c67c4530520a128d42b41946048e2d81530",
+  "workflowDelivery": {
+    "schemaVersion": 1,
+    "coreDocIds": [
+      "api.execution-core"
+    ],
+    "requiredDocIdsByTool": {
+      "run": [
+        "api.run"
+      ],
+      "files.save": [
+        "api.run"
+      ],
+      "advancedLoft": [
+        "api.workflow"
+      ],
+      "curveSweep": [
+        "api.workflow"
+      ],
+      "guidedLoft": [
+        "api.workflow"
+      ],
+      "loft": [
+        "api.workflow"
+      ],
+      "profileLoft": [
+        "api.workflow"
+      ],
+      "profileSweep": [
+        "api.workflow"
+      ],
+      "quickModel": [
+        "api.workflow"
+      ],
+      "referenceLoft": [
+        "api.workflow"
+      ],
+      "sweep": [
+        "api.workflow"
+      ]
+    }
+  },
   "bootstrapDocIds": [
     "api.reading-map",
     "api.knowledge-cache",

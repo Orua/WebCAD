@@ -1,9 +1,9 @@
 {
   "version": "1.63.7",
-  "buildId": "42b53bec23ae002354c0d9a5c82583347f53930a-src-78ee724f9f48e584-working",
+  "buildId": "846aa5f002e90487389e560621a00456ccc04809-src-339a21b2e646cd6e-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:0fef1947a750a699ae140c6884237dcfdb479009517581f41b03ae0e9ff3ab35",
-  "docsHash": "sha256:8c9cbe1d69105bcfed264c6ca3f08e7394be6a9745f33ce671babf761f2697b3",
+  "catalogHash": "sha256:9f1dfe9edd548d29e4344fb7216744b43a6d292da9f9e37ff341f0b6b863e987",
+  "docsHash": "sha256:4d15a212f7fa58700d3d8d6ebecd7c67c4530520a128d42b41946048e2d81530",
   "apiMethods": [
     "reliefWizard",
     "prepareToolCall",
@@ -2167,7 +2167,7 @@
       "title": "run",
       "category": "page-method",
       "version": "1.63.7",
-      "docsHash": "sha256:faa83a0f730a623b5deddc45af5ce583ec1976543f431762330bba35046e2d03",
+      "docsHash": "sha256:7cae3d558868b34099a0749eba85b6e9083f05209c9711a8f46e66dba80bccd0",
       "url": "tools/run.json"
     },
     {
@@ -2654,6 +2654,11 @@
       "id": "api.execute",
       "docsHash": "sha256:56fbda3eca33311facc53784ec9fcb730876e0e8e6f41ac652c207795ad33ae2",
       "url": "docs/api.execute.md"
+    },
+    {
+      "id": "api.execution-core",
+      "docsHash": "sha256:f2af9e6d73372911ccc7b8a01c686f67ae40b896784c86d34188a905db37e469",
+      "url": "docs/api.execution-core.md"
     },
     {
       "id": "api.feature-plan",
