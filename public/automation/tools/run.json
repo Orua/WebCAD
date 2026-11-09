@@ -572,7 +572,7 @@
       }
     }
   },
-  "description": "run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:\"api.run\"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。",
+  "description": "run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须取得 api.run 的本上下文代完整正文并读取所用操作完整卡；executionWorkflows 已提供完整 api.run 时直接复用，仅缺失或分页未完时 readDocs({docId:\"api.run\"}) 补齐；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。",
   "synonyms": [
     "run",
     "批量",
@@ -581,7 +581,7 @@
     "指令",
     "无CLI"
   ],
-  "inputContract": "run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:\"api.run\"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。",
+  "inputContract": "run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须取得 api.run 的本上下文代完整正文并读取所用操作完整卡；executionWorkflows 已提供完整 api.run 时直接复用，仅缺失或分页未完时 readDocs({docId:\"api.run\"}) 补齐；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。",
   "outputContract": "completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false，失败保留前序已提交步骤。后续操作前核对实时状态。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -664,5 +664,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:faa83a0f730a623b5deddc45af5ce583ec1976543f431762330bba35046e2d03"
+  "docsHash": "sha256:7cae3d558868b34099a0749eba85b6e9083f05209c9711a8f46e66dba80bccd0"
 }

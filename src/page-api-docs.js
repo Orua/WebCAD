@@ -118,7 +118,13 @@ prepareOperation对当前字段明确标注unit:mm且没有同名Mm字段时，�
   'api.modeling-pitfalls': MODELING_PITFALLS,
   'api.blend-radius':'语义圆角使用selector:{seamBetween:{a:特征ID,b:特征ID}}、edgesNear:{pointMm,radiusMm,sharpOnly}或facesFromFeature:{featureId,role}，每次重建由当前OCCT历史解析，不保存面号。smoothTransition/fillet的radius可为正数或{maxMm,minMm,stepRatio:0.75,maxAttempts:6}，区间内只重用同一来源，不重建前缀；回执radiusSearchReport写明实际半径与逐次结果。probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?,maxAttempts?})只读当前独立BRep副本，不改变revision、历史和选择；feasibleMaxMm为最多6个下降样本中的最大可行半径，不是认证全局最大值。全部失败返回feasibility:infeasible、feasibleMaxMm:null和tried；不自动应用。优先给用户允许的区间，回显radiusUsedMm。',
   'api.relief-taxonomy': RELIEF_TAXONOMY,
-  'api.agent-runtime':'WebCAD是Agent适配代码与方法白名单的唯一维护源。window.webcad.agent.createHostAdapter由当前页面构建提供，宿主不复制protocol.js。connect返回agentProtocol与agentSoftware；后端按buildId、catalogHash、docsHash、contractHash下载有限软件包，逐文件核对SHA256/长度。版本改变暂停新写入、核对原回执、重握手和重新准备知识；不刷新未保存工程，不重放未知命令。files.save独立于几何内核并读取最后已提交版本，包括计算、预览或恢复期间。recoverKernel使用当前context；stopRunning默认false。连接recover:true要求宿主恢复通道；内核未就绪时另用recoverKernel，不伪造ready。仅本地运算超过localTimeoutMs改为等待提醒，继续同一计算而非终止或建议不存在的Services；初始化仍有保护时限。远程作业仍遵循Services能力及原jobId/等待决定。固定件优先group复合体；它减少对象管理但不会减少三角面/曲面，union仅用于应成为同一实体的接触材料，不融合钻石和环体改变来源。files.save默认只保存最终对象的精确BRep或完整网格，不保存建模配方和timeline；会话仍保留最近20次撤销及20状态/512KiB时间线。重开后可继续加工最终对象，不能编辑保存前的参数历史。保存读取最后提交时预备的最终快照，不等待正在运行的内核。钻石布局在已下载的layout-planner.py上由webcad_docs(method=planLayout,args={layout})计算，不使用shell或浏览器内核。先按源几何读出毫米尺寸和轴系；规划器不猜图。返回world positions/normals/quaternions、实际间距与sourceBinding。使用完整copy/transform/placement卡批量插入，一次feature.addMany重建，只提交有界分组；错误核对原回执再继续未完成项。' + AGENT_RUNTIME_GUIDANCE,
+  'api.execution-core': `核心执行约束（从 api.agent-runtime、api.run、api.workflow 的跨工具强制规则整理；完整专题仍可通过 readDocs 获取）。每次任务绑定当前页面返回的 buildId、catalogHash、docsHash、contractHash、documentInstanceId 与 revision；静态知识按已校验哈希缓存，实体状态、拓扑标识和旧引用不跨修订复用。已知精确ID直接 getTools，未知能力才 route，再读取完整卡；参数、单位、默认值、引用和执行入口以当前卡及 schema 为准，不猜工具或设计事实。
+
+任何写入都使用当前 getState/context 的 sessionId、documentId、documentInstanceId 和 expectedRevision，并使用新唯一 idempotencyKey。相同键和请求只读取原回执；状态为 unknown、连接中断或版本变化时先查询原 commandId/回执并核对页面状态，绝不换键重放。页面命令提交、页面几何 revision、渲染完成 revision、生成文件字节、宿主磁盘读回和发布是不同状态；不得用其中一个代替其他验收。
+
+按当前卡限制拆分有界批次，预先规划依赖和检查点。检查 created/completed/failed/partial/unknown 与 completedStepIds、unattemptedStepIds；失败后只规划未完成部分，不能重复已提交步骤。每次影响几何的写入后读取原回执与新 context/revision；关键尺寸用精确查询核对，视觉需要时对同一 revision 取图。不要把预览或命令 completed 当作最终保存成功。
+
+保存或导出只走当前完整文件卡与实际宿主通道；检查结果哈希、附件/保存确认及所要求的磁盘读回。失败、未知或不完整结果保持原工程与证据，按当前恢复卡操作；不会由成功的页面计算自动推断文件已落盘。原 api.agent-runtime、api.run、api.workflow 保留完整可读；宿主 planLayout 规划器使用时按需读取 api.agent-runtime，复杂操作及专题故障按需 readDocs.\n\n以下为同版本发布的通用运行规则全文，属于本核心说明。` + AGENT_RUNTIME_GUIDANCE,  'api.agent-runtime':'WebCAD是Agent适配代码与方法白名单的唯一维护源。window.webcad.agent.createHostAdapter由当前页面构建提供，宿主不复制protocol.js。connect返回agentProtocol与agentSoftware；后端按buildId、catalogHash、docsHash、contractHash下载有限软件包，逐文件核对SHA256/长度。版本改变暂停新写入、核对原回执、重握手和重新准备知识；不刷新未保存工程，不重放未知命令。files.save独立于几何内核并读取最后已提交版本，包括计算、预览或恢复期间。recoverKernel使用当前context；stopRunning默认false。连接recover:true要求宿主恢复通道；内核未就绪时另用recoverKernel，不伪造ready。仅本地运算超过localTimeoutMs改为等待提醒，继续同一计算而非终止或建议不存在的Services；初始化仍有保护时限。远程作业仍遵循Services能力及原jobId/等待决定。固定件优先group复合体；它减少对象管理但不会减少三角面/曲面，union仅用于应成为同一实体的接触材料，不融合钻石和环体改变来源。files.save默认只保存最终对象的精确BRep或完整网格，不保存建模配方和timeline；会话仍保留最近20次撤销及20状态/512KiB时间线。重开后可继续加工最终对象，不能编辑保存前的参数历史。保存读取最后提交时预备的最终快照，不等待正在运行的内核。钻石布局在已下载的layout-planner.py上由webcad_docs(method=planLayout,args={layout})计算，不使用shell或浏览器内核。先按源几何读出毫米尺寸和轴系；规划器不猜图。返回world positions/normals/quaternions、实际间距与sourceBinding。使用完整copy/transform/placement卡批量插入，一次feature.addMany重建，只提交有界分组；错误核对原回执再继续未完成项。' + AGENT_RUNTIME_GUIDANCE,
   'api.exact-source-assets':'STEP/STP/BREP/BRP 每源128MiB，通过files.register的真实二进制资源导入；UI打开与插入预览共用。原字节按SHA-256存于v4 ZIP资产，别名归一step/brep；导入当前曲面实体不会恢复来源软件的鼻眼等语义或特征配方。v4工程总512MiB、JSON元数据20MiB、2000特征；旧JSON/v3仍20MiB并继续可读。当前会话在全部保留状态都不再引用源资产后回收；默认保存仅保留最终对象必需的几何资产，不承诺保留导入原件、配方或时间线。STEP/BREP导出也走二进制资源，不在Agent回执内回传base64。IGES及Logo转换预算不变，Services精确检查点仍独立20MiB。128MiB是输入预算而非全范围性能保证；真实内核失败/超时保留原工程。读取files.capabilities().typedByteBudgets并使用唯一idempotencyKey以便安全取回同次导入回执。',
   'api.mesh-relief-edit':'meshReliefPlate创建可复用底板：widthMm/depthMm/thicknessMm/spacingMm及bumps，中心XY、正面0、背面负厚度；bumps明确中心、高度、平顶半径及外半径，叠加是相加，导出仍为网格。创建和编辑都通过同一CommandService及Worker。网格局部修高meshReliefEdit通过feature.add或preview.start/commit调用。先getTool读取严格契约，getState.bodies[].meshReport.geometryHash绑定当前源，expectedRevision绑定文档。support显式毫米原点、单位xAxis/normal；seedMm为当前正面上的世界点；region为支撑XY核心半径和过渡宽，protectedRegions为硬保护圆。scaleHeight按支撑基面缩放局部高度；offset沿法向毫米增量；flatten指定基面高度；replace传field:{originMm:[U,V],sizeMm:[宽,高],heightsMm:二维毫米高度矩阵}，行沿正V，双线性目标在核心替换旧面、过渡带混合，绝非max覆盖。replace也可传profile代替field：segments为二维三次Bezier控制点，stations按近似弧长比例0到1列出sectionMm横向毫米/高度毫米样点，正横向为路径左边；endTaperMm控制首尾收尖，baseHeightMm为路径外基面，curveToleranceMm控制路径弦偏差，maxSourceSpacingMm为源采样门禁。截面和纵向线性插值，无高度插值过冲；首尾为三次平滑收尖。也可用deformation:{pivotMm,translationMm,scale:[正U比例,正V比例],angleDeg,sourceRegion:{centerMm,radiusMm},baseHeightMm,maxSourceSpacingMm}局部移动/收窄/旋转；只对sourceRegion内不可变原网格逆变换采样，域外用显式baseHeightMm，避免复制邻件；保留峰高、固定拓扑及保护域，存在重采样误差，需独立验收，间距门禁不证明精度。layers模式按数组顺序合成1—16层，每层id唯一且enabled明确。surface层声明role=macro/detail：add/remove使用正heightMm及attachment=followHeight，表示沿法向的相对增减；replace使用attachment=absolute及heightMm/field/profile之一，表示绝对目标。freeze层regions冻结此后各层对应区域；全局保护作用于全部层。每层region必须在总域内。通过feature.edit修改原特征的整个layers数组，从该特征不可变输入重算；顺序与启停写入工程。细节随动限高度方向，不承诺横向或切向自动附着。强制targets检查最终合成，任一层失败整次不提交；edit.layers回读逐层结果，最小厚度为各层影响域保守下限，并非全模型厚度证书。profile、field、deformation、value、layers互斥；原特征跨模式变更涉及参数删除时新建派生操作。源三角面间距超出目标网格间距拒绝RELIEF_RESOLUTION_INSUFFICIENT，不自动重网格。仅正向单值、闭合一致定向网格，固定XY、Float64，不改拓扑。投影面片重叠区域的顶点及受影响顶点/重心检查底面厚度和近邻穿入，不能据此宣称任意三维自交验证。sampleMeshRelief读取当前正式网格支撑坐标下全部交点高度，可数值核对截面、底面与峰谷；空命中和多层交点显式返回。可选targets:{pointMm,heightMm,toleranceMm}数组为强制验收点，保护/域与目标冲突返回RELIEF_CONSTRAINT_CONFLICT及targets索引，不提交。meshReport.edit.constraints回读实测偏差。meshReport.edit读回输入/输出hash、影响量、保护差和实际最小厚度。最多20万三角面、2万修改点、1200万射线测试，超限保留源；分区不能免除相邻壳检查。历史撤销恢复原配方/源，不刷反向笔触。精确BRep与STEP继续使用曲面工具，本操作不会将网格伪装STEP。',
   'api.mesh-assets':`完整网格承载：files.register({name,data})支持完整二进制STL和webcad-mesh-f64-u32-v1文件；files.import({context,resourceId,units,placement?,idempotencyKey})声明STL单位mm/cm/m/in，mesh格式固定mm。STL最多128MiB/2百万面，mesh字节最多384MiB/4百万结果面；这些是配置上限，实测范围看当前阶段报告，不能冒充全上限性能通过。只读源字节按SHA-256存储，不自动焊接近邻、删面、补孔或修复方向。rawMesh不冒充solidMesh/BRep；面积和包围盒来自正式Float64几何，体积及实体资格未知为null/未核。显示使用独立Float32坐标与previewOrigin，不能据预览导出或测量。保真STL未变换时导出原字节；明确变换的STL量化误差大于.005mm则拒绝，正式几何仍保留。网格不能导出精确STEP/BRep，也不能用精确面边编号或机械工具。混合/未结合组件不能冒充单一实体导出。
@@ -366,7 +372,7 @@ const METHOD_DETAILS = Object.freeze({
   getJob:['任务 状态 轮询 结果','getJob({jobId})','任务 status/progress/phase/elapsedMs/result；result 保留原提交回执。'],
   cancelJob:['任务 取消','cancelJob({jobId})','cancelled 布尔；运行中拒绝取消且继续可查原回执。'],
   connect: ['连接 发现 工具 缓存', 'connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。只读，内核启动期间可用。', '当前 context/requestContext、canExecute/blockers/nextAction、版本与迁移说明、实体引用和完整工具契约。搜索自动附带卡最多64000字符，contractIdsOmitted 和 contractReadPolicy 明示省略项；显式 toolIds 与按需 getTools 不受字符预算限制。ready 仅为内核状态；canExecute 才计入 busy/preview。详见 api.workflow。'],
-  run: ['批量 AI JSON 指令 无CLI', 'run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须 readDocs({docId:"api.run"}) 并读取所用操作完整卡；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。', 'completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false，失败保留前序已提交步骤。后续操作前核对实时状态。'],
+  run: ['批量 AI JSON 指令 无CLI', 'run({context,idempotencyKey,steps}); 每步必须有唯一 id 和 method，可选 args/stage。add.args 只接受 op/params/refs/name/placement，不接受 opVersion/schemaHash；版本字段由页面补充。执行前必须取得 api.run 的本上下文代完整正文并读取所用操作完整卡；executionWorkflows 已提供完整 api.run 时直接复用，仅缺失或分页未完时 readDocs({docId:"api.run"}) 补齐；本卡概览不替代完整执行契约。不要传 atomic：atomic:true 会被 PARAM_SCHEMA_INVALID 拒绝。api.run 始终 atomic:false，中途失败会保留已经提交的步骤。需要同一修订里原子提交多个特征时用 feature.addMany，见 api.feature-plan。', 'completed/partial/failed/unknown、逐步回执、progress/recovery、elapsedMs、回执时的 context/requestContext/summary/display；atomic=false，失败保留前序已提交步骤。后续操作前核对实时状态。'],
   info: ['页面信息 构建 就绪', 'info() 无参数。', '构建/API 版本、in-page transport、当前 context、URL、display、就绪状态和能力。'],
   getQuickModelUsage: ['快捷模型 使用频率 常用模型 五个 弹簧 螺丝 丝筒 半圆钉', 'getQuickModelUsage({}={})；只读本浏览器累计成功创建次数，不要求几何上下文，预览期间也可读取。', 'status=read、version、counts、topKinds（最多5）、maxVisible=5、storage（localStorage或memory）、context。只统计新提交的快捷模型，预览/失败/取消/参数修改/撤销重做/打开工程均不增加。次数相同按简单模型优先的目录顺序。剩余模型通过快捷模型面板访问。'],
   getBatchReceipt: ['批次回执 结果未知 幂等 UNKNOWN_OUTCOME', 'getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.', 'status=read, found, receipt (original per-step result or null), recovery. found:false can mean pending/expired/reloaded; it never proves rollback. Read original job/state before replanning; see api.modeling-pitfalls.'],
@@ -664,7 +670,24 @@ function pageCards() {
   });
 }
 export const pageCatalogHash = contractHash({ edition:EDITION_CAPABILITIES, searchVersion: SEARCH_VERSION, cards: pageCards(), uiRoutes:UI_API_ROUTES, knowledgeRoutes:KNOWLEDGE_ROUTES, productFamilies:PRODUCT_FAMILIES, fileLimits: FILE_LIMITS });
-export const pageDocsHash = contractHash({ pageCatalogHash, pageDocs: PAGE_DOCS, agentProtocol:AGENT_CONTRACT, onboarding:AGENT_ONBOARDING, legacyReadable: [...LEGACY_READABLE], legacyDocsHash });
+export const WORKFLOW_DELIVERY = Object.freeze({
+  schemaVersion: 1,
+  coreDocIds: ['api.execution-core'],
+  requiredDocIdsByTool: Object.freeze({
+    run: ['api.run'],
+    'files.save': ['api.run'],
+    advancedLoft: ['api.workflow'],
+    curveSweep: ['api.workflow'],
+    guidedLoft: ['api.workflow'],
+    loft: ['api.workflow'],
+    profileLoft: ['api.workflow'],
+    profileSweep: ['api.workflow'],
+    quickModel: ['api.workflow'],
+    referenceLoft: ['api.workflow'],
+    sweep: ['api.workflow'],
+  }),
+});
+export const pageDocsHash = contractHash({ pageCatalogHash, pageDocs: PAGE_DOCS, workflowDelivery: WORKFLOW_DELIVERY, agentProtocol:AGENT_CONTRACT, onboarding:AGENT_ONBOARDING, legacyReadable: [...LEGACY_READABLE], legacyDocsHash });
 const cardsById = new Map(pageCards().map(card => [card.id, { ...card, docsHash: contractHash(card) }]));
 export function listPublicToolCards(){return [...cardsById.values()].map(card=>structuredClone(card));}
 const toolIndex = createToolIndex([...cardsById.values()]);
@@ -694,7 +717,7 @@ export function discoveryMetadata() {
 
 export function infoMetadata({ buildId = 'unreported', browserReady = false } = {}) {
   return { product: 'WebCAD', edition:EDITION_CAPABILITIES, buildId, apiVersion, pageApiVersion: PAGE_DOC_VERSION, transport: 'in-page',
-    entrypoint: 'window.webcad.api', catalogHash: pageCatalogHash, docsHash: pageDocsHash, discovery: discoveryMetadata(),agentProtocol:AGENT_CONTRACT,
+    entrypoint: 'window.webcad.api', catalogHash: pageCatalogHash, docsHash: pageDocsHash, workflowDelivery: WORKFLOW_DELIVERY, discovery: discoveryMetadata(),agentProtocol:AGENT_CONTRACT,
     units: { length: 'mm', angle: 'degrees', volume: 'mm^3', scale: 'dimensionless' },
     ready: browserReady, modeling: browserReady ? 'available' : 'not_ready',
     methods: [...PAGE_METHODS], filesMethods: [...FILE_METHODS],

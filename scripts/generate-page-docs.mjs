@@ -43,6 +43,15 @@ for(const control of Object.values(UI_LAYOUT.controls))for(const [,value] of con
 for(const [action,route] of Object.entries(UI_API_ROUTES))for(const id of route.tools){
   if(!cards.some(card=>card.id===id))throw new Error(`UI action ${action} lacks public tool documentation: ${id}`);
 }
+const workflowPolicy=metadata.workflowDelivery;
+if(!workflowPolicy||workflowPolicy.schemaVersion!==1||!Array.isArray(workflowPolicy.coreDocIds)||!workflowPolicy.coreDocIds.length||!workflowPolicy.requiredDocIdsByTool||typeof workflowPolicy.requiredDocIdsByTool!=='object'||Array.isArray(workflowPolicy.requiredDocIdsByTool))
+  throw new Error('Invalid workflowDelivery metadata.');
+for(const id of workflowPolicy.coreDocIds){if(typeof id!=='string'||!docs[id]?.trim())throw new Error(`workflowDelivery core document is missing or empty: ${id}`);}
+for(const [toolId,docIds] of Object.entries(workflowPolicy.requiredDocIdsByTool)){
+  if(!cards.some(card=>card.id===toolId))throw new Error(`workflowDelivery references unknown tool: ${toolId}`);
+  if(!Array.isArray(docIds)||!docIds.length)throw new Error(`workflowDelivery has no required docs for tool: ${toolId}`);
+  for(const id of docIds)if(typeof id!=='string'||!docs[id]?.trim())throw new Error(`workflowDelivery references unknown or empty document: ${id}`);
+}
 const index = { generatedFrom: 'src/page-api-docs.js and src/operation-registry.js',
   metadata, cards, docs, docMetadata };
 await mkdir(target, { recursive: true });
