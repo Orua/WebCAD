@@ -69,7 +69,7 @@ const groups = {
     'arched-bridge','edge-blend','relief-fillet-261024-v2','mill-fillet-fallback','edge-picking','hanging-rod','key-ring','mushroom-rivet',
     'nipple-stud','pull-core-bar','section-curve-loft','two-piece-eyelet','quick-installation-models',
     'agent-profile-contract',
-    'drag-snap','drag-snap-controller','render-quality','display-budget-kernel','profile-edit','profile-editing','profile-primitives','profile-inspection','fit-inspection','thickness-inspection','relation-measure','boolean-roles','hole-wizard','draft-tools',
+    'drag-snap','drag-snap-controller','render-quality','display-budget-kernel','profile-edit','profile-editing','profile-primitives','profile-inspection','fit-inspection','thickness-inspection','relation-measure','relation-sample','boolean-roles','hole-wizard','draft-tools',
     'advanced-integration', 'advanced-kernel', 'advanced-loft', 'align-kernel', 'curve-sweep', 'revolve-feedback',
     'kernel-postconditions','quick-model-parity','section-polyline-vertices','uniform-surface-grid',
     'curved-logo', 'projected-logo', 'fitted-surface', 'geometry-query', 'nearest-brep', 'group-explode',

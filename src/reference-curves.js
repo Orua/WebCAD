@@ -58,44 +58,59 @@ export function sectionSampleParameters(lengths, samples) {
   return lengths.map(length => Math.max(1, Math.round(samples * length / total)));
 }
 
-function sectionResult(result, edges, mode, samples, cad) {
-  if (mode === 'edges') return result;
+function sectionTolerance(result) {
   const box = result.boundingBox;
   let diagonal = 1;
   try { const [[a, b, c], [d, e, f]] = box.bounds; diagonal = Math.max(Math.hypot(d-a, e-b, f-c), 1); } finally { dispose(box); }
-  const tolerance = Math.max(1e-6, diagonal * 1e-6, 1e-4);
+  return Math.max(1e-6, diagonal * 1e-6, 1e-4);
+}
+// Ordered sample points per connected section chain (shared by polyline
+// output and the planeSample measurement).
+export function sampleSectionChains(result, edges, samples, cad) {
+  const tolerance = sectionTolerance(result);
   const items = edges.map(edge => ({ edge, start: tuple(edge.startPoint), end: tuple(edge.endPoint), length: cad.measureLength ? cad.measureLength(edge) : 1 }));
-  const chains = chainSectionEdges(items, tolerance), built = [];
+  const chains = chainSectionEdges(items, tolerance), out = [];
+  for (const chain of chains) {
+    const counts = sectionSampleParameters(chain.items.map(item => item.length), samples), points = [];
+    chain.items.forEach((item, index) => {
+      const n = counts[index];
+      for (let k = 0; k < n; k++) {
+        const t = k / n, position = item.reversed ? 1 - t : t;
+        points.push(tuple(item.edge.pointAt(position)));
+      }
+    });
+    const last = chain.items.at(-1);
+    if (!chain.closed) points.push(last.reversed ? last.start : last.end);
+    const distinct = points.filter((point, index) => index === 0 || !close(point, points[index - 1], tolerance));
+    if (chain.closed && distinct.length > 2 && close(distinct[0], distinct.at(-1), tolerance)) distinct.pop();
+    if (distinct.length < 2) continue;
+    out.push({ closed: !!chain.closed && distinct.length > 2, points: distinct, lengthMm: chain.items.reduce((n, item) => n + item.length, 0), chain });
+  }
+  return { chains: out, tolerance };
+}
+function sectionResult(result, edges, mode, samples, cad) {
+  if (mode === 'edges') return result;
+  const built = [];
   try {
-    for (const chain of chains) {
-      if (mode === 'wire') {
+    if (mode === 'wire') {
+      const tolerance = sectionTolerance(result);
+      const items = edges.map(edge => ({ edge, start: tuple(edge.startPoint), end: tuple(edge.endPoint), length: cad.measureLength ? cad.measureLength(edge) : 1 }));
+      for (const chain of chainSectionEdges(items, tolerance)) {
         try { built.push(cad.assembleWire(chain.items.map(item => item.edge))); }
         catch { chain.items.forEach(item => built.push(item.edge.clone ? item.edge.clone() : item.edge)); }
-        continue;
       }
-      const counts = sectionSampleParameters(chain.items.map(item => item.length), samples), points = [];
-      chain.items.forEach((item, index) => {
-        const n = counts[index];
-        for (let k = 0; k < n; k++) {
-          const t = k / n, position = item.reversed ? 1 - t : t;
-          points.push(tuple(item.edge.pointAt(position)));
-        }
-      });
-      const last = chain.items.at(-1);
-      if (!chain.closed) points.push(last.reversed ? last.start : last.end);
-      const distinct = points.filter((point, index) => index === 0 || !close(point, points[index - 1], tolerance));
-      if (chain.closed && distinct.length > 2 && close(distinct[0], distinct.at(-1), tolerance)) distinct.pop();
-      if (distinct.length < 2) continue;
-      const lines = [];
-      for (let i = 0; i < distinct.length - 1; i++) lines.push(cad.makeLine(distinct[i], distinct[i + 1]));
-      if (chain.closed && distinct.length > 2) lines.push(cad.makeLine(distinct.at(-1), distinct[0]));
-      try { built.push(cad.assembleWire(lines)); } finally { lines.forEach(dispose); }
+    } else {
+      for (const { closed, points } of sampleSectionChains(result, edges, samples, cad).chains) {
+        const lines = [];
+        for (let i = 0; i < points.length - 1; i++) lines.push(cad.makeLine(points[i], points[i + 1]));
+        if (closed) lines.push(cad.makeLine(points.at(-1), points[0]));
+        try { built.push(cad.assembleWire(lines)); } finally { lines.forEach(dispose); }
+      }
     }
     if (!built.length) fail('截面没有可连接的交线');
     return cad.makeCompound(built);
   } finally { built.forEach(dispose); dispose(result); }
 }
-
 export function extractPlaneSection(shape, { plane, offset = 0, frame, result: resultMode = 'edges', samples = PLANE_SECTION_SAMPLES.default } = {}, cad) {
   if (!shape || !cad?.makeCompound) fail('缺少源形状或 CAD 适配器');
   if (!['XY', 'XZ', 'YZ'].includes(plane)) fail('截面平面必须是 XY、XZ 或 YZ');

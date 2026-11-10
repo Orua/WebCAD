@@ -459,13 +459,21 @@ export function createPageAPI(host){
       return {status:'read',source:'exact-planar-normal',units:{angle:'degrees'},context:current().context,bodyId:input.bodyId,...result};
     }),
     measureRelation:guarded(async input=>{
-      check(input,['context','mode','first','second','face','pointWorld']);
-      if(!['shortest','centerDistance','axisAlignment','pointFace','parallelFaces'].includes(input.mode))fail('PARAM_SCHEMA_INVALID','未知关系测量模式');
+      check(input,['context','mode','first','second','face','pointWorld','plane','offset','samples','includePoints','direction']);
+      if(!['shortest','centerDistance','axisAlignment','pointFace','parallelFaces','planeSample','rayHits'].includes(input.mode))fail('PARAM_SCHEMA_INVALID','未知关系测量模式');
+      const modeKeys={planeSample:['plane','offset','samples','includePoints'],rayHits:['direction']},extra=['plane','offset','samples','includePoints','direction'].filter(key=>input[key]!==undefined&&!(modeKeys[input.mode]??[]).includes(key));
+      if(extra.length)fail('PARAM_SCHEMA_INVALID',`${input.mode} 不接受字段：${extra.join(', ')}`);
       const validRef=ref=>{if(!ref||typeof ref!=='object'||Object.keys(ref).some(key=>!['bodyId','kind','topologyId'].includes(key))||!['body','edge','face'].includes(ref.kind))return false;const body=current().bodies.find(item=>item.id===ref.bodyId);if(!body)return false;return ref.kind==='body'?ref.topologyId===undefined:Number.isSafeInteger(ref.topologyId)&&ref.topologyId>=0&&ref.topologyId<(ref.kind==='edge'?body.edgeCount:body.faceCount);};
       if(input.mode==='pointFace'){if(!validRef(input.face)||input.face.kind!=='face'||!Array.isArray(input.pointWorld)||input.pointWorld.length!==3||input.pointWorld.some(v=>!Number.isFinite(v)))fail('STALE_REFERENCE','需要当前有限面和明确的世界坐标点');}
+      else if(input.mode==='planeSample'||input.mode==='rayHits'){
+        if(!validRef(input.first)||input.first.kind!=='body'||input.second!==undefined)fail('STALE_REFERENCE',`${input.mode} 需要一个当前实体 first:{bodyId,kind:"body"}`);
+        if(input.mode==='planeSample'&&(!['XY','XZ','YZ'].includes(input.plane)||(input.offset!==undefined&&!Number.isFinite(input.offset))||(input.samples!==undefined&&!(Number.isInteger(input.samples)&&input.samples>=4&&input.samples<=512))||(input.includePoints!==undefined&&typeof input.includePoints!=='boolean')))fail('PARAM_SCHEMA_INVALID','planeSample 需要 plane:XY|XZ|YZ，offset 有限，samples 为 4–512 整数');
+        const vec3=v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite);
+        if(input.mode==='rayHits'&&(!vec3(input.pointWorld)||!vec3(input.direction)||Math.hypot(...input.direction)<1e-12))fail('PARAM_SCHEMA_INVALID','rayHits 需要世界坐标 pointWorld 与非零 direction');
+      }
       else if(!validRef(input.first)||!validRef(input.second))fail('STALE_REFERENCE','需要两个当前有效的实体或拓扑引用');
-      const result=await host.measureRelation(input);check(input,['context','mode','first','second','face','pointWorld']);
-      return {status:'read',source:'exact-brep',units:{length:'mm',angle:'degrees'},context:current().context,...result};
+      const result=await host.measureRelation(input);check(input,['context','mode','first','second','face','pointWorld','plane','offset','samples','includePoints','direction']);
+      return {status:'read',source:input.mode==='planeSample'?'exact-section-sampled':'exact-brep',units:{length:'mm',angle:'degrees',area:'mm2'},context:current().context,...result};
     }),
     sampleReliefHeight:guarded(async input=>{
       const s=check(input,['context','featureId','point','draft','layerIndex','samples','patchId']);

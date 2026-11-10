@@ -7,6 +7,6 @@ export function bodyWarnings(bodies){
   return bodies.flatMap(body=>[
     ...(body.displayReport?.untriangulatedFaceIds.length?[{code:'DISPLAY_INCOMPLETE',bodyId:body.id,faceIds:body.displayReport.untriangulatedFaceIds,message:`显示网格不完整（${body.displayReport.untriangulatedFaceIds.length}个面），导出前请检查`}]:[]),
     ...(body.displayReport?.volumeErrorRatio>.02?[{code:'DISPLAY_VOLUME_MISMATCH',bodyId:body.id,ratio:body.displayReport.volumeErrorRatio,message:'显示网格与精确实体体积不一致，请检查显示和导出结果'}]:[]),
-    ...(body.loftReport?.warning?[{...body.loftReport.warning,bodyId:body.id}]:[]),...(body.warnings||[])
+    ...(body.loftReport?.warning?[{...body.loftReport.warning,bodyId:body.id}]:[]),...(body.loftReport?.envelopeWarning?[{...body.loftReport.envelopeWarning,bodyId:body.id}]:[]),...(body.warnings||[])
   ]);
 }

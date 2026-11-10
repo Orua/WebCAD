@@ -1,4 +1,5 @@
 import {resultDisplayNames} from './boolean-naming.js';
+import {normalizeExtrudeHoles,holeTopologyOk} from './extrude-holes.js';
 import {buildTap} from './modeling/manufacturing/tap-tool.js';
 import {sampleMeshRelief} from './mesh/relief-sample.js';
 import {exactSourceBytes} from './exact-source.js';
@@ -508,7 +509,14 @@ export class CadKernel {
       }
       case 'extrude': {
         const h = finite(p, 'height'); if (!h) throw new Error('拉伸距离不能为 0');
-        const drawing = profile(p), sketch = drawing.sketchOnPlane(planeName(p));
+        const holes = normalizeExtrudeHoles(p.holes);
+        let drawing = profile(p);
+        for (const hole of holes) {
+          const raw = profile(hole), placed = hole.profile === 'polygon' ? raw : raw.translate(hole.center[0], hole.center[1]);
+          drawing = drawing.cut(placed);
+        }
+        if (!holeTopologyOk(drawing.innerShape, holes.length, cad.CompoundBlueprint)) throw Object.assign(new Error('孔轮廓须完全位于外轮廓内且互不相交、互不接触；当前结果不是「一个外轮廓 + 每孔一个内环」，未生成'), {code:'EXTRUDE_HOLE_INVALID', path:'params.holes', details:{holes:holes.length, loops:drawing.innerShape?.blueprints?.length ?? null}});
+        const sketch = drawing.sketchOnPlane(planeName(p));
         try { return sketch.extrude(h); } finally { dispose(sketch); dispose(drawing); }
       }
       case 'revolve': {
