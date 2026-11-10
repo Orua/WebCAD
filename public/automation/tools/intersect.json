@@ -7,6 +7,10 @@
       "keepTools": {
         "type": "boolean",
         "description": "Keep original tools"
+      },
+      "renameTarget": {
+        "type": "boolean",
+        "description": "Name the result body after this boolean step instead of keeping the target body name"
       }
     },
     "required": [],
@@ -41,7 +45,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied.",
   "title": "Common volume of bodies",
   "category": "modification",
   "synonyms": [
@@ -55,7 +59,7 @@
     "boolean intersection"
   ],
   "description": "Common volume of bodies",
-  "schemaHash": "sha256:89c12ff74f733522adb52e3beb3d3f26f7eb1b0d7316bd2fb60945de588dde5e",
+  "schemaHash": "sha256:ecb85f75e2709080ebd3e4d5b40a401cafcf7655b3674cbd76a739f4a98a2865",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -116,7 +120,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied."
+    "refs[0] is the explicit target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -180,7 +184,7 @@
   "contract": {
     "purpose": "Common volume of bodies",
     "whenToUse": [
-      "refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied."
+      "refs[0] is the explicit target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied."
     ],
     "whenNotToUse": [
       {
@@ -191,6 +195,17 @@
     "params": {
       "keepTools": {
         "meaning": "Keep original tools",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "renameTarget": {
+        "meaning": "Name the result body after this boolean step instead of keeping the target body name",
         "unit": "none",
         "range": [
           null,
@@ -327,7 +342,7 @@
   },
   "purpose": "Common volume of bodies",
   "whenToUse": [
-    "refs[0] is the explicit target. Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied."
+    "refs[0] is the explicit target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each common is checked with adaptive exact-BRep volume integration: result volume must not exceed either input (tolerance 1e-7 mm³ + 1e-8 times the smaller input volume). A violation returns GEOMETRY_INVALID and preserves the prior model, even if BRepCheck reports valid. No automatic alternative Boolean is applied."
   ],
   "whenNotToUse": [
     {
@@ -694,5 +709,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:51cb10b266e3e7520eadb542930de78119ef5c3226c7c3c4d1356c1ee49007fd"
+  "docsHash": "sha256:701a54b463900a4382c132e837edc96b4043325450a6a49a68dae493ddf4f1de"
 }

@@ -8,6 +8,10 @@
         "type": "boolean",
         "description": "Keep original tools"
       },
+      "renameTarget": {
+        "type": "boolean",
+        "description": "Name the result body after this boolean step instead of keeping the target body name"
+      },
       "blendRadiusMm": {
         "type": "number",
         "description": "Requested seam radius (mm)",
@@ -73,7 +77,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range.",
   "title": "Subtract other bodies from first",
   "category": "modification",
   "synonyms": [
@@ -91,7 +95,7 @@
     "subtract"
   ],
   "description": "Subtract other bodies from first",
-  "schemaHash": "sha256:44a5e4f74cd6e35b45b75371d603cd758bff4922a1b6785c3951e54ab0a64f64",
+  "schemaHash": "sha256:f99705815de34b8cabc1a6556d785adcc74e8a1ac76ff1de335d68bdffd66122",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -152,7 +156,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+    "refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -216,7 +220,7 @@
   "contract": {
     "purpose": "Subtract other bodies from first",
     "whenToUse": [
-      "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+      "refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
     ],
     "whenNotToUse": [
       {
@@ -227,6 +231,17 @@
     "params": {
       "keepTools": {
         "meaning": "Keep original tools",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "renameTarget": {
+        "meaning": "Name the result body after this boolean step instead of keeping the target body name",
         "unit": "none",
         "range": [
           null,
@@ -396,7 +411,7 @@
   },
   "purpose": "Subtract other bodies from first",
   "whenToUse": [
-    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+    "refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
   ],
   "whenNotToUse": [
     {
@@ -771,5 +786,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:4d8d2c6799fc93c1d00ec214431a1f88c0ae1da66d01e1c17b59eb692b634ffc"
+  "docsHash": "sha256:b5d07cf3f7b247b5381be45edf0a9ab8ba520eff9a5bff60fd3b3e17b72a8ea5"
 }

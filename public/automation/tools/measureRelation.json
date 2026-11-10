@@ -2,7 +2,7 @@
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -12,7 +12,7 @@
     "method": "measureRelation",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
+  "description": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\"|\"planeSample\"|\"rayHits\",first?,second?,face?,pointWorld?,plane?,offset?,samples?,includePoints?,direction?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。planeSample：first 为实体，plane XY|XZ|YZ + offset（世界坐标）+ samples 4–512（默认 64），一次返回该截面的环数、每环长度/面积/平面内宽高与总范围（includePoints:true 才附采样点），用于取机身某站位的宽高，不必建截面特征再 queryGeometry。rayHits：first 为实体，pointWorld 起点 + direction 方向，返回沿射线按距离排序的全部精确交点（hitCount、hits[{pointWorld,distanceMm}]、firstHit），用于量蒙皮某处到中心线的距离。",
   "synonyms": [
     "measureRelation",
     "几何关系测量",
@@ -22,8 +22,8 @@
     "有限对象最短距离",
     "平行面"
   ],
-  "inputContract": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\",first?,second?,face?,pointWorld?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。",
-  "outputContract": "分别返回有限 B-Rep 最短距离和见证点、两圆心距/轴夹角/同轴偏差、点到裁剪面的距离或平行面法向距离；只读。",
+  "inputContract": "measureRelation({context,mode:\"shortest\"|\"centerDistance\"|\"axisAlignment\"|\"pointFace\"|\"parallelFaces\"|\"planeSample\"|\"rayHits\",first?,second?,face?,pointWorld?,plane?,offset?,samples?,includePoints?,direction?})；引用形式 {bodyId,kind:\"body\"|\"edge\"|\"face\",topologyId?}。planeSample：first 为实体，plane XY|XZ|YZ + offset（世界坐标）+ samples 4–512（默认 64），一次返回该截面的环数、每环长度/面积/平面内宽高与总范围（includePoints:true 才附采样点），用于取机身某站位的宽高，不必建截面特征再 queryGeometry。rayHits：first 为实体，pointWorld 起点 + direction 方向，返回沿射线按距离排序的全部精确交点（hitCount、hits[{pointWorld,distanceMm}]、firstHit），用于量蒙皮某处到中心线的距离。",
+  "outputContract": "分别返回有限 B-Rep 最短距离和见证点、两圆心距/轴夹角/同轴偏差、点到裁剪面的距离、平行面法向距离、截面采样量测或射线交点；只读。planeSample 未穿过实体时 intersects:false、loopCount:0，不报错。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -75,7 +75,9 @@
           "centerDistance",
           "axisAlignment",
           "pointFace",
-          "parallelFaces"
+          "parallelFaces",
+          "planeSample",
+          "rayHits"
         ]
       },
       "first": {
@@ -88,6 +90,32 @@
         "type": "object"
       },
       "pointWorld": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "plane": {
+        "enum": [
+          "XY",
+          "XZ",
+          "YZ"
+        ]
+      },
+      "offset": {
+        "type": "number"
+      },
+      "samples": {
+        "type": "integer",
+        "minimum": 4,
+        "maximum": 512
+      },
+      "includePoints": {
+        "type": "boolean"
+      },
+      "direction": {
         "type": "array",
         "minItems": 3,
         "maxItems": 3,
@@ -142,7 +170,9 @@
           "centerDistance",
           "axisAlignment",
           "pointFace",
-          "parallelFaces"
+          "parallelFaces",
+          "planeSample",
+          "rayHits"
         ]
       },
       "first": {
@@ -155,6 +185,32 @@
         "type": "object"
       },
       "pointWorld": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "plane": {
+        "enum": [
+          "XY",
+          "XZ",
+          "YZ"
+        ]
+      },
+      "offset": {
+        "type": "number"
+      },
+      "samples": {
+        "type": "integer",
+        "minimum": 4,
+        "maximum": 512
+      },
+      "includePoints": {
+        "type": "boolean"
+      },
+      "direction": {
         "type": "array",
         "minItems": 3,
         "maxItems": 3,
@@ -231,5 +287,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c77d49427446248797823e5bbcabce7b29c27851c6f48ec2b6aaaac0d9e99101"
+  "docsHash": "sha256:48755960556cee88e9b2e6304472d97d5ccf7db2eaa40eada0f17c3075356ab6"
 }

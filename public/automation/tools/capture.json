@@ -2,7 +2,7 @@
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -58,6 +58,12 @@
         "type": "number",
         "exclusiveMinimum": 0,
         "maximum": 1
+      },
+      "detail": {
+        "enum": [
+          "settled",
+          "current"
+        ]
       }
     },
     "required": [
@@ -69,7 +75,7 @@
     "method": "capture",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "capture({context,maxWidth?:64..4096,format?:\"png\"|\"webp\",quality?:0<q<=1}); 建议 maxWidth:800,format:\"webp\"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:\"capture\",args:{context,maxWidth:800,format:\"webp\"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。",
+  "description": "capture({context,maxWidth?:64..4096,format?:\"png\"|\"webp\",quality?:0<q<=1,detail?:\"settled\"|\"current\"}); 建议 maxWidth:800,format:\"webp\"；复杂场景用 detail:\"current\"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:\"capture\",args:{context,maxWidth:800,format:\"webp\"})。后台标签页也同步渲染；取帧超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放；同步出图耗时见 renderMs，慢时有 CAPTURE_SLOW 警告。",
   "synonyms": [
     "capture",
     "截图",
@@ -79,7 +85,7 @@
     "当前画面",
     "视口"
   ],
-  "inputContract": "capture({context,maxWidth?:64..4096,format?:\"png\"|\"webp\",quality?:0<q<=1}); 建议 maxWidth:800,format:\"webp\"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:\"capture\",args:{context,maxWidth:800,format:\"webp\"})。后台标签页也同步渲染；超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放。",
+  "inputContract": "capture({context,maxWidth?:64..4096,format?:\"png\"|\"webp\",quality?:0<q<=1,detail?:\"settled\"|\"current\"}); 建议 maxWidth:800,format:\"webp\"；复杂场景用 detail:\"current\"。这是WebCAD原生视口截图工具，不需要Agent截桌面；包含当前可见P编号标注，不含侧栏。原生Agent调用webcad_view(method:\"capture\",args:{context,maxWidth:800,format:\"webp\"})。后台标签页也同步渲染；取帧超过10s返回CAPTURE_TIMEOUT，不循环等待或自动重放；同步出图耗时见 renderMs，慢时有 CAPTURE_SLOW 警告。",
   "outputContract": "status=read、实际mime=image/png或image/webp、dataUrl、width/height、当前context和匹配修订的display；原生宿主转为MCP image内容并保存截图附件。生成图像、宿主落盘、模型收到图像是不同证明层级。不改几何/history/dirty。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -195,5 +201,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c7ed98040daa9532a07600ce92328efdc16b50a5ddaadeb7bee554a5b7ca7628"
+  "docsHash": "sha256:dde421caffd599f630b2bcaec8691a2b2cd187b41d97932881b99e695416badf"
 }

@@ -7,7 +7,7 @@
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -16,7 +16,7 @@
   ],
   "description": "save({context,name?}); complete current context. Save committed data even while busy, previewing or the kernel is unavailable. Normally final BRep/typed mesh with ids/appearance/visibility/material/anchors; if final checkpoints are unavailable, retain the original committed recipe and embedded assets in a recovery project. Codec failure uses direct encoding; no geometry recomputation. name may omit .webcad.",
   "inputContract": "save({context,name?}); complete current context. Save committed data even while busy, previewing or the kernel is unavailable. Normally final BRep/typed mesh with ids/appearance/visibility/material/anchors; if final checkpoints are unavailable, retain the original committed recipe and embedded assets in a recovery project. Codec failure uses direct encoding; no geometry recomputation. name may omit .webcad.",
-  "outputContract": "status=generated native project resource with exact source snapshot; optional report.saveMode=recovery and report.reason. Not a disk save; use write/download and verify the receipt.",
+  "outputContract": "status=generated native project resource with exact source snapshot; optional report.saveMode=recovery and report.reason. Not a disk save; use write/download and verify the receipt. name only names the generated artifact: it never changes the live project title (use execute document.rename) and generation never clears dirty (only files.confirmWritten / a verified host write receipt does). resourceId (art_*) lives in page memory for at most 1800 s and dies immediately with the tab or renderer; after a crash reopen the project in a new tab with ?document=<documentId> (local IndexedDB recovery) or from the written file, never from an old resourceId. Receipt fields documentNameChanged:false and dirtyCleared:false state this explicitly.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -215,5 +215,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:b1705f2e6f3c301998e325e29a319d0b91db18ccc178135a81a49d568f02a82a"
+  "docsHash": "sha256:523277d024d41f29f85eb8d5eadafc018c5055a8847383fecdd9d5c279080d7e"
 }

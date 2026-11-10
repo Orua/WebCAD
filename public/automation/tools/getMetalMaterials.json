@@ -2,7 +2,7 @@
   "id": "getMetalMaterials",
   "title": "getMetalMaterials",
   "category": "page-method",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -19,7 +19,7 @@
     "method": "getMetalMaterials",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "getMetalMaterials()",
+  "description": "getMetalMaterials()；只管外观饰面（design 与各金属），不含密度。没有透明/玻璃饰面；design 体可用 body.appearance 的 roughness 0–1 做哑光。任一可见实体用金属饰面会把全场切到金属光照，design 体变暗（METAL_LIGHTING_GLOBAL，display.metalRendering.sceneLighting）。金属饰面忽略 color（COLOR_IGNORED_BY_METAL_FINISH）。",
   "synonyms": [
     "getMetalMaterials",
     "金属",
@@ -30,7 +30,7 @@
     "配置",
     "列表"
   ],
-  "inputContract": "getMetalMaterials()",
+  "inputContract": "getMetalMaterials()；只管外观饰面（design 与各金属），不含密度。没有透明/玻璃饰面；design 体可用 body.appearance 的 roughness 0–1 做哑光。任一可见实体用金属饰面会把全场切到金属光照，design 体变暗（METAL_LIGHTING_GLOBAL，display.metalRendering.sceneLighting）。金属饰面忽略 color（COLOR_IGNORED_BY_METAL_FINISH）。",
   "outputContract": "status:read、configuration、defaults、colorSpace:linear-srgb。完整配置version:1/styles/materials，defaults可恢复内置值；见api.metal-materials。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -135,5 +135,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a51be223f5ecb1793184459681b1d16544ec1f73f1bc3118613b17ccb083f2d5"
+  "docsHash": "sha256:77946ac0b803f15f2dd0d6f97d5ab0b6cf8d0a777b44a11ec310f77713daeda1"
 }

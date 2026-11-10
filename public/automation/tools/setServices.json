@@ -2,7 +2,7 @@
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -13,14 +13,14 @@
     "reason": "host service credentials and upload consent",
     "agentCallable": false
   },
-  "description": "setServices({context,url,authMode?:\"siteSession\"|\"bearer\",credential?,enabled?,computeMode?:\"local\"|\"auto\"|\"serverPreferred\",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；填写地址即启用，空地址保存即停用；相对/同域地址自动siteSession，跨域自动bearer。启用前GET /v1/hello/{32位随机十六进制challenge}，5秒限时，校验service:webcad-services、protocolVersion:1.0、handshakeVersion:1、challenge回显、authorized:true及gatewayBuildId；不启动几何内核、不检查任务队列或完整能力。本地提醒1–600秒、服务器提醒1–900秒，均用整数毫秒。配置即授权支持的复杂运算发送到该端；简单运算本地。支持HTTPS或内网HTTP，HTTPS页面不可直连HTTP。保留现有同域与专用授权边界。",
+  "description": "setServices({context,url,authMode?:\"siteSession\"|\"bearer\",credential?,enabled?,computeMode?:\"local\"|\"auto\"|\"serverPreferred\",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；填写地址即启用，空地址保存即停用；相对/同域地址自动siteSession，跨域自动bearer。启用前GET /v1/hello/{32位随机十六进制challenge}，5秒限时，校验service:webcad-services、protocolVersion:1.0、handshakeVersion:1、challenge回显、authorized:true及gatewayBuildId；不启动几何内核、不检查任务队列或完整能力。本地提醒1–600秒、服务器提醒1–900秒，均用整数毫秒。localTimeoutMs 只是提醒；普通提交重建（圆角、倒角、抽壳、布尔、放样等）另有硬超时 max(3×localTimeoutMs,180秒)、上限900秒，到期终止内核并返回 KERNEL_TIMEOUT/not_committed，自动从最后已提交工程恢复内核（revision 递增，旧拓扑选择失效，未提交的候选不保留）。配置即授权支持的复杂运算发送到该端；简单运算本地。支持HTTPS或内网HTTP，HTTPS页面不可直连HTTP。保留现有同域与专用授权边界。",
   "synonyms": [
     "setServices",
     "Services",
     "唯一服务",
     "设置"
   ],
-  "inputContract": "setServices({context,url,authMode?:\"siteSession\"|\"bearer\",credential?,enabled?,computeMode?:\"local\"|\"auto\"|\"serverPreferred\",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；填写地址即启用，空地址保存即停用；相对/同域地址自动siteSession，跨域自动bearer。启用前GET /v1/hello/{32位随机十六进制challenge}，5秒限时，校验service:webcad-services、protocolVersion:1.0、handshakeVersion:1、challenge回显、authorized:true及gatewayBuildId；不启动几何内核、不检查任务队列或完整能力。本地提醒1–600秒、服务器提醒1–900秒，均用整数毫秒。配置即授权支持的复杂运算发送到该端；简单运算本地。支持HTTPS或内网HTTP，HTTPS页面不可直连HTTP。保留现有同域与专用授权边界。",
+  "inputContract": "setServices({context,url,authMode?:\"siteSession\"|\"bearer\",credential?,enabled?,computeMode?:\"local\"|\"auto\"|\"serverPreferred\",allowGeometryUploads?,localTimeoutMs?:60000,serverWaitMs?:180000})；填写地址即启用，空地址保存即停用；相对/同域地址自动siteSession，跨域自动bearer。启用前GET /v1/hello/{32位随机十六进制challenge}，5秒限时，校验service:webcad-services、protocolVersion:1.0、handshakeVersion:1、challenge回显、authorized:true及gatewayBuildId；不启动几何内核、不检查任务队列或完整能力。本地提醒1–600秒、服务器提醒1–900秒，均用整数毫秒。localTimeoutMs 只是提醒；普通提交重建（圆角、倒角、抽壳、布尔、放样等）另有硬超时 max(3×localTimeoutMs,180秒)、上限900秒，到期终止内核并返回 KERNEL_TIMEOUT/not_committed，自动从最后已提交工程恢复内核（revision 递增，旧拓扑选择失效，未提交的候选不保留）。配置即授权支持的复杂运算发送到该端；简单运算本地。支持HTTPS或内网HTTP，HTTPS页面不可直连HTTP。保留现有同域与专用授权边界。",
   "outputContract": "status=applied、connection:{status:connected,protocolVersion,gatewayBuildId,elapsedMs}；停用时connection:null。仅证明连接/协议/授权，不代表计算能力或几何成功；不改工程，失败不保存。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -141,5 +141,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a8674d5478606dd085fd13f2a42a994cc1615bdb6c9bba5d5e449b07a00fe226"
+  "docsHash": "sha256:e22866ce2a80a828eebedde4ffe1be257ee209ac7d1453f8ae8271b8756142d3"
 }

@@ -2,7 +2,7 @@
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -72,6 +72,18 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 2048
+      },
+      "fields": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 32,
+        "items": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9]{0,47}$"
+        }
+      },
+      "includeSpline": {
+        "type": "boolean"
       }
     },
     "required": [
@@ -85,7 +97,7 @@
     "method": "queryGeometry",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。",
+  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?,fields?,includeSpline?})。fields 只投影每项返回字段（总是带 kind/topologyId，不改变匹配、计数和令牌）；includeSpline:false 把 spline 摘要缩成 poleCount/poleCountU/poleCountV。列很多截面边时用 fields:[\"startPoint\",\"endPoint\",\"lengthMidpoint\"],includeSpline:false。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。",
   "synonyms": [
     "queryGeometry",
     "几何查询",
@@ -93,7 +105,7 @@
     "边",
     "选择令牌"
   ],
-  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?})。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。",
+  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?,fields?,includeSpline?})。fields 只投影每项返回字段（总是带 kind/topologyId，不改变匹配、计数和令牌）；includeSpline:false 把 spline 摘要缩成 poleCount/poleCountU/poleCountV。列很多截面边时用 fields:[\"startPoint\",\"endPoint\",\"lengthMidpoint\"],includeSpline:false。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。",
   "outputContract": "精确 B-Rep 候选项、surfaceClass、pointOnFace/closestPoint、歧义信息、快照绑定的 selectionToken 与当前 context；expectedCount 不符时不生成令牌。刻字落点用 pointOnFace，不要用柱面 center。柱面 pointOnFace 若落在周期接缝上会改到面参数中点，并带 periodicSeamAvoided。边的 periodicSeam 标出接缝。singleFace 等深可以沿周期接缝分成两侧再偏移；跨真实边界仍拒绝。connectedFaces 只做凹刻。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -171,5 +183,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:447fa94efc6b5f1a1f6ee475b670642ccc81f5379af986f82452b6b7fa69b757"
+  "docsHash": "sha256:9c718eef60ac3e20262ed3a83ecab7e911cf94c5b848fef4596ffdb19a319688"
 }
