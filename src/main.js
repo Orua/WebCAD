@@ -274,7 +274,7 @@ async function changeDisplayQuality(quality,{automatic=false,isCurrent=()=>true}
     performanceRuntime.setEffectiveQuality(quality,{manual:!automatic});
     setStatus('显示网格已更新 · '+RENDER_QUALITIES[quality].label+' · '+qualityState().triangleCount.toLocaleString()+' 三角面');
     return {status:'applied'};
-  }catch(error){if(instance===documentInstanceId&&expected===revision){bodies=previousBodies;qualityKey=previousQuality;viewport.setBodies(previousBodies,documentModel.hidden);applyAppearance();viewport.setSelection(selection,topology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});}throw error;}finally{setBusy(false);}
+  }catch(error){if(instance===documentInstanceId&&expected===revision){bodies=previousBodies;qualityKey=previousQuality;viewport.setBodies(previousBodies,documentModel.hidden);applyAppearance();viewport.setSelection(selection,topology);viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});}if(!error.code)Object.assign(error,{code:'DISPLAY_REFINEMENT_FAILED'});throw error;}finally{setBusy(false);}
 }
 
 // Agent batch display deferral: per-step display upload, UI refresh and DOM
