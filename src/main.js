@@ -1,3 +1,4 @@
+import {rebuildHardTimeoutMs,kernelRequestTimers} from './kernel-timeout.js';
 import {PUBLIC_EDITION,EDITION_CAPABILITIES} from './edition.js';
 import * as editionHost from '#webcad-host';
 const {createHostControl,installHostInteractionGuard,createAssistantPanel}=editionHost;
@@ -109,7 +110,7 @@ Object.assign(labels,{sketchProfile:'绘制轮廓',profileOffset:'等距偏移 /
 const pending=new Map();
 let loadingDepth=0;const loadingTracker=createLoadingTracker();
 let worker,recoveryPromise=null,kernelProgress=null,kernelPerformance=null,pendingServicesWait=null,displayCoarsen=1;
-function rejectPending(error){for(const job of pending.values()){clearTimeout(job.timer);job.reject(error);}pending.clear();}
+function rejectPending(error){for(const job of pending.values()){clearTimeout(job.timer);clearTimeout(job.hardTimer);job.reject(error);}pending.clear();}
 function createWorker(){
   const instance=new Worker(new URL('./cad-worker.js',import.meta.url),{type:'module'});
   instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;if(result.kind==='progress'){
@@ -119,7 +120,7 @@ function createWorker(){
     job.progress=kernelProgress;
     if(result.progress.kind==='rebuild'){const p=result.progress;if(p.partial){try{viewport.addProgressiveMesh(p.partial);}catch{}delete p.partial;}const fraction=loadingTracker.update(p);if(busy)ui.setBusyProgress?.(fraction);return;}
     return;
-  }clearTimeout(job.timer);pending.delete(result.requestId);kernelProgress=null;if(!result.ok)viewport.setErrorPoints(result.details?.pointsMm||[]);if(result.ok)job.resolve(result);else {const error=Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report,details:result.details});if(kernelFailure(error))kernelReady=false;job.reject(error);}};
+  }clearTimeout(job.timer);clearTimeout(job.hardTimer);pending.delete(result.requestId);kernelProgress=null;if(!result.ok)viewport.setErrorPoints(result.details?.pointsMm||[]);if(result.ok)job.resolve(result);else {const error=Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report,details:result.details});if(kernelFailure(error))kernelReady=false;job.reject(error);}};
   instance.onerror=event=>{if(instance!==worker)return;const error=Object.assign(new Error(event.message||'CAD 内核异常，请保存工程后刷新页面。'),{code:'KERNEL_CRASHED'});rejectPending(error);kernelReady=false;ui?.showError(error);};
   instance.onmessageerror=()=>{if(instance!==worker)return;const error=Object.assign(new Error('CAD Worker 消息无法解码；已提交工程仍保留，请恢复内核后继续。'),{code:'WORKER_MESSAGE_ERROR',commitState:'not_committed'});rejectPending(error);instance.terminate();kernelReady=false;worker=createWorker();refresh();};
   return instance;
@@ -128,25 +129,28 @@ debugJournal.setContextProvider(()=>({documentId:documentModel.documentId,docume
 worker=createWorker();
 function request(type,payload={},{hardTimeoutMs}={}){return traceDebug('kernel',type,{requestId:requestSequence+1,...payload,document:payload.document?{revision,featureCount:payload.document.features?.length,lastFeature:payload.document.features?.at(-1)}:undefined},()=>new Promise((resolve,reject)=>{
   if(type==='rebuild'&&displayCoarsen>1&&payload.displayCoarsen===undefined)payload={...payload,displayCoarsen};
-  const requestId=++requestSequence,instance=worker,started=Date.now(),timeoutMs=type==='ready'?45000:hardTimeoutMs||getServicesConfig().localTimeoutMs;kernelProgress=null;
-  const job={resolve,reject,timer:null,pulse:()=>{
+  const requestId=++requestSequence,instance=worker,started=Date.now(),timers=kernelRequestTimers(type,{localTimeoutMs:getServicesConfig().localTimeoutMs,hardTimeoutMs});kernelProgress=null;
+  const hardStop=()=>{
+    if(instance!==worker||!pending.has(requestId))return;
+    // A stalled worker holds the wasm heap; terminate it. rebuild() restores the
+    // last committed document; nothing from this request is committed.
+    const error=Object.assign(new Error(`本地计算超过 ${Math.round(timers.hardMs/1000)} 秒硬超时，内核已终止；本次操作未提交`),{code:'KERNEL_TIMEOUT',commitState:'not_committed',timeoutMs:timers.hardMs,operation:type});
+    worker.terminate();worker=createWorker();rejectPending(error);kernelReady=false;
+  };
+  const job={resolve,reject,timer:null,hardTimer:timers.hardMs?setTimeout(hardStop,timers.hardMs):null,pulse:()=>{
     if(job.reminded)return;
     clearTimeout(job.timer);
+    if(type==='ready'){
+      job.timer=setTimeout(()=>{if(instance!==worker)return;const error=Object.assign(new Error('建模内核初始化超时；工程仍可保存，可请求恢复内核。'),{code:'KERNEL_START_TIMEOUT',commitState:'not_committed'});worker.terminate();rejectPending(error);kernelReady=false;refresh();},Math.max(0,started+timers.startMs-Date.now()));
+      return;
+    }
+    if(!timers.softMs)return;
     job.timer=setTimeout(()=>{
       if(instance!==worker)return;
-      if(hardTimeoutMs){
-        // Large imports: a stalled worker holds the wasm heap; terminate it so recovery can retry coarser.
-        const error=Object.assign(new Error('本地计算超时，内核已终止'),{code:'KERNEL_TIMEOUT',commitState:'not_committed'});
-        worker.terminate();worker=createWorker();rejectPending(error);kernelReady=false;return;
-      }
-      if(type!=='ready'){
-        job.reminded=true;setStatus('本地计算已超过 '+timeoutMs/1000+' 秒，仍在执行原任务；可保存当前已提交工程。');return;
-      }
-      const error=Object.assign(new Error('建模内核初始化超时；工程仍可保存，可请求恢复内核。'),{code:'KERNEL_START_TIMEOUT',commitState:'not_committed'});
-      worker.terminate();rejectPending(error);kernelReady=false;refresh();
-    },Math.max(0,started+timeoutMs-Date.now()));
+      job.reminded=true;setStatus('本地计算已超过 '+timers.softMs/1000+' 秒，仍在执行原任务'+(timers.hardMs?`；到 ${Math.round(timers.hardMs/1000)} 秒将终止并回到已提交工程`:'')+'；可保存当前已提交工程。');
+    },Math.max(0,started+timers.softMs-Date.now()));
   }};
-  pending.set(requestId,job);job.pulse();try{instance.postMessage({requestId,type,...payload});}catch(error){clearTimeout(job.timer);pending.delete(requestId);reject(Object.assign(error,{code:error.code||'WORKER_SEND_FAILED',commitState:'not_committed'}));}
+  pending.set(requestId,job);job.pulse();try{instance.postMessage({requestId,type,...payload});}catch(error){clearTimeout(job.timer);clearTimeout(job.hardTimer);pending.delete(requestId);reject(Object.assign(error,{code:error.code||'WORKER_SEND_FAILED',commitState:'not_committed'}));}
 }));}
 function restartWorker(error){
   if(recoveryPromise)return recoveryPromise;
@@ -432,7 +436,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     const previewSignature=JSON.stringify({imports:next.imports||{},features:next.features.map(geometryFeatureRecord)});
     let result;
     if(previewKernelCache&&previewKernelCache.signature===previewSignature)result=previewKernelCache.result;
-    else result=await request('rebuild',{document:next},{hardTimeoutMs});
+    else result=await request('rebuild',{document:next},{hardTimeoutMs:hardTimeoutMs??rebuildHardTimeoutMs(getServicesConfig().localTimeoutMs)});
     previewKernelCache=null;
     if(result.stats.checkpointCandidates?.length){
       // Pending features are not in the committed timeline yet. Bake their
