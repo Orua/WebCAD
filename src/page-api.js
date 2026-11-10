@@ -106,7 +106,7 @@ export function createPageAPI(host){
     if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(name=>!keys.includes(name)))fail('PARAM_SCHEMA_INVALID',`Unexpected files.${key} arguments`);
     return traceDebug('api','files.'+key,input,()=>rawFiles[key](normalizeRequest(input)));
   })]));
-  const viewKeys=['context','interactionPhase','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels','toolbar','workspace','libraryMode','focus','modelLibraryChange'];
+  const viewKeys=['context','interactionPhase','direction','projection','fit','selectedIds','section','display','grid','snap','gizmo','selectionMode','camera','language','temporaryDisplay','anchorVisible','panels','toolbar','workspace','libraryMode','focus','header','modelLibraryChange'];
   const pasteReceipts=new Map();
   const vectorCache=new Map();
   const drawingCache=new Map();
@@ -750,12 +750,12 @@ export function createPageAPI(host){
       if(input.interactionPhase!==undefined&&!['start','update','end'].includes(input.interactionPhase))fail('PARAM_SCHEMA_INVALID','interactionPhase must be start/update/end');
       for(const [key,values] of Object.entries({display:['solid','edges','wire','transparentEdges'],gizmo:['off','translate','rotate'],selectionMode:['view','body','face','edge'],language:['zh','en'],temporaryDisplay:['normal','selectedOnly','transparentOthers']}))if(input[key]!==undefined&&!values.includes(input[key]))fail('PARAM_SCHEMA_INVALID',`Unknown ${key}`);
       if(input.gizmo!==undefined&&input.gizmo!=='off'&&input.selectionMode!==undefined&&input.selectionMode!=='body')fail('SELECTION_CONFLICT','Move/rotate handles require body selection; omit selectionMode or use body','selectionMode');
-      for(const key of ['grid','snap','anchorVisible','toolbar','focus'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);
+      for(const key of ['grid','snap','anchorVisible','toolbar','focus','header'])if(input[key]!==undefined&&typeof input[key]!=='boolean')fail('PARAM_SCHEMA_INVALID',`${key} must be boolean`);
       if(PUBLIC_EDITION&&input.workspace==='agent')requireIntegratedCapability();
       if(input.workspace!==undefined&&!['modeling','library','agent'].includes(input.workspace))fail('PARAM_SCHEMA_INVALID','workspace must be modeling/library/agent');
       if(input.libraryMode!==undefined&&!['cards','list'].includes(input.libraryMode))fail('PARAM_SCHEMA_INVALID','libraryMode must be cards/list');
       if(input.panels!==undefined&&(!input.panels||typeof input.panels!=='object'||Array.isArray(input.panels)||Object.entries(input.panels).some(([key,value])=>!['left','right'].includes(key)||typeof value!=='boolean')))fail('PARAM_SCHEMA_INVALID','panels requires left/right booleans');
-      if(input.camera!==undefined){const c=input.camera;if(!c||typeof c!=='object'||Object.keys(c).some(k=>!['position','target'].includes(k))||[c.position,c.target].some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v)))||c.position.every((v,i)=>v===c.target[i]))fail('PARAM_SCHEMA_INVALID','camera requires distinct finite XYZ position and target');}
+      if(input.camera!==undefined){const c=input.camera;if(!c||typeof c!=='object'||Object.keys(c).some(k=>!['position','target','up'].includes(k))||[c.position,c.target].some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v)))||c.position.every((v,i)=>v===c.target[i]))fail('PARAM_SCHEMA_INVALID','camera requires distinct finite XYZ position and target');if(c.up!==undefined&&c.up!=='inherit'){const view=c.position.map((v,i)=>c.target[i]-v),cross=[view[1]*c.up?.[2]-view[2]*c.up?.[1],view[2]*c.up?.[0]-view[0]*c.up?.[2],view[0]*c.up?.[1]-view[1]*c.up?.[0]];if(!Array.isArray(c.up)||c.up.length!==3||c.up.some(v=>!Number.isFinite(v))||Math.hypot(...c.up)<1e-9||Math.hypot(...cross)<1e-9*Math.hypot(...view)*Math.hypot(...c.up))fail('PARAM_SCHEMA_INVALID','camera.up must be a finite non-zero XYZ vector not parallel to the view direction, or "inherit"');}}
       if(input.direction&&!['top','bottom','front','back','left','right','side','iso'].includes(input.direction))fail('PARAM_SCHEMA_INVALID','Unknown view');
       if(input.projection&&!['orthographic','perspective'].includes(input.projection))fail('PARAM_SCHEMA_INVALID','Unknown projection');
       if(input.fit!==undefined&&typeof input.fit!=='boolean')fail('PARAM_SCHEMA_INVALID','fit must be boolean');
@@ -795,8 +795,9 @@ export function createPageAPI(host){
       return evidence.read(input);
     }),
     capture:guarded(async input=>{
-      check(input,['context','maxWidth','format','quality']);
+      check(input,['context','maxWidth','format','quality','detail']);
       const format=input.format??'png';
+      if(input.detail!==undefined&&!['settled','current'].includes(input.detail))fail('PARAM_SCHEMA_INVALID','detail must be settled or current');
       if(!['png','webp'].includes(format))fail('PARAM_SCHEMA_INVALID','format must be png or webp');
       if(input.maxWidth!==undefined&&(!Number.isInteger(input.maxWidth)||input.maxWidth<64||input.maxWidth>4096))fail('PARAM_RANGE_INVALID','maxWidth must be 64..4096');
       if(input.quality!==undefined&&!(typeof input.quality==='number'&&input.quality>0&&input.quality<=1))fail('PARAM_RANGE_INVALID','quality must be 0..1');
@@ -809,15 +810,15 @@ export function createPageAPI(host){
       const frameStarted=performance.now();
       await Promise.race([host.frame(),new Promise((_,reject)=>{captureTimer=setTimeout(()=>reject(Object.assign(new Error(`No rendered frame within ${LIMITS.transport.captureTimeoutMs} ms; geometry is unaffected. Do not poll webcad_job for this capture; retry once later or report the view as unconfirmed.`),{code:'CAPTURE_TIMEOUT'})),LIMITS.transport.captureTimeoutMs);})]).finally(()=>clearTimeout(captureTimer));
       const frameMs=Math.round(performance.now()-frameStarted);
-      check(input,['context','maxWidth','format','quality']);
+      check(input,['context','maxWidth','format','quality','detail']);
       const display=host.display(),state=current();
       if(display.status!=='rendered'||['documentId','documentInstanceId','revision'].some(k=>display.rendered?.[k]!==state.context[k]))fail('DISPLAY_FAILED','Rendered frame does not match the committed model; call redraw');
-      const shot=host.capture({maxWidth:input.maxWidth,format,quality:input.quality??(format==='webp'?0.8:undefined)});
+      const shot=host.capture({maxWidth:input.maxWidth,format,quality:input.quality??(format==='webp'?0.8:undefined),detail:input.detail??'settled'});
       const dataUrl=typeof shot==='string'?shot:shot.dataUrl;
       const mime=typeof shot==='string'?'image/png':shot.mime;
       return {status:'read',mime,dataUrl,context:current().context,requestContext:requestContext(current().context),display:host.display(),
         displayWaitMs:prepared.displayWaitMs??0,frameMs,flushedDeferred:prepared.flushedDeferred===true,scope:shot.scope||'modeling-viewport',
-        ...(input.maxWidth?{maxWidth:input.maxWidth}:{}),...(shot.width?{width:shot.width,height:shot.height}:{}),...(shot.viewportCss?{viewportCss:shot.viewportCss,pixelRatio:shot.pixelRatio}:{}),format};
+        ...(input.maxWidth?{maxWidth:input.maxWidth}:{}),...(shot.width?{width:shot.width,height:shot.height}:{}),...(shot.viewportCss?{viewportCss:shot.viewportCss,pixelRatio:shot.pixelRatio}:{}),...(Number.isFinite(shot.renderMs)?{renderMs:shot.renderMs,detailSource:shot.detailSource}:{}),...(shot.renderMs>LIMITS.transport.captureTimeoutMs?{warnings:[{code:'CAPTURE_SLOW',renderMs:shot.renderMs,message:`Synchronous settled render took ${shot.renderMs} ms (frame budget ${LIMITS.transport.captureTimeoutMs} ms only covers frame acquisition). Use detail:"current" for heavy scenes.`}]}:{}),format};
     }),files:Object.freeze(files),
   };
   operationPreparation=createOperationPreparation({state:current,getCard:getTool,normalize:normalizeOperationParams,execute:input=>api.execute(input),

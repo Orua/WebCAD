@@ -273,7 +273,7 @@ export function createUI(root,callbacks={}) {
  syncPanelButtons();
  app.style.setProperty('--panel-left',UI_LAYOUT.panels.left+'px');app.style.setProperty('--panel-right',UI_LAYOUT.panels.right+'px');
  const messages=createMessagePresenter(root);
- let workspaceLayout={version:1,workspace:'modeling',toolbar:true,libraryMode:'cards',focus:false};
+ let workspaceLayout={version:1,workspace:'modeling',toolbar:true,libraryMode:'cards',focus:false,header:true};
  try{const saved=JSON.parse(localStorage.getItem('webcad.workspace.v1')||'null');if(saved?.version===1)workspaceLayout={...workspaceLayout,toolbar:typeof saved.toolbar==='boolean'?saved.toolbar:true,libraryMode:['cards','list'].includes(saved.libraryMode)?saved.libraryMode:'cards'};}catch{}
  let beforeFocus=null;
  const libraryRoot=element('section',{class:'central-workspace model-library-workspace',hidden:true,'aria-label':'快捷模型',role:'dialog','aria-modal':'false'});
@@ -296,8 +296,8 @@ export function createUI(root,callbacks={}) {
   if(input.workspace!==undefined&&input.workspace!==workspaceLayout.workspace&&(frameDraft||propertyDraftDirty||dialog?.dataset.taskPanel==='true'))throw Object.assign(new Error('请先应用或取消当前任务，再切换工作区'),{code:'UI_TASK_ACTIVE'});
   if(input.focus===false&&workspaceLayout.focus&&beforeFocus){api.setPanels(beforeFocus.panels);input={toolbar:beforeFocus.toolbar,...input};beforeFocus=null;}
   if(input.focus===true){if(api.hasActiveTask())throw Object.assign(new Error('请先结束当前任务'),{code:'UI_TASK_ACTIVE'});if(!workspaceLayout.focus)beforeFocus={toolbar:workspaceLayout.toolbar,panels:api.getPanels()};input={...input,workspace:'modeling',toolbar:false};api.setPanels({left:false,right:false});}
-  for(const key of ['workspace','toolbar','libraryMode','focus'])if(input[key]!==undefined)workspaceLayout[key]=input[key];
-  app.dataset.workspace=workspaceLayout.workspace;app.classList.toggle('tools-hidden',!workspaceLayout.toolbar);app.classList.toggle('canvas-focus',workspaceLayout.focus);
+  for(const key of ['workspace','toolbar','libraryMode','focus','header'])if(input[key]!==undefined)workspaceLayout[key]=input[key];
+  app.dataset.workspace=workspaceLayout.workspace;app.classList.toggle('header-hidden',workspaceLayout.header===false);app.classList.toggle('tools-hidden',!workspaceLayout.toolbar);app.classList.toggle('canvas-focus',workspaceLayout.focus);
   syncPanelButtons();
   libraryRoot.hidden=workspaceLayout.workspace!=='library';
   iconButtonContent(toolbarToggle,workspaceLayout.toolbar?'toolbarHide':'toolbarShow');toolbarToggle.title=workspaceLayout.toolbar?'收起工具':'展开工具';toolbarToggle.setAttribute('aria-label',toolbarToggle.title);toolbarToggle.setAttribute('aria-expanded',String(workspaceLayout.toolbar));iconButtonContent(focusToggle,workspaceLayout.focus?'exitFocus':'focusCanvas');focusToggle.title=workspaceLayout.focus?'退出专注':'专注画布';focusToggle.setAttribute('aria-label',focusToggle.title);focusToggle.setAttribute('aria-pressed',String(workspaceLayout.focus));

@@ -34,7 +34,7 @@ const groups = {
     'mechanical-tools-contracts','mechanical-page-api','profile-constraints','profile-constraint-history',
     'modeling-precision', 'workspace-upgrade', 'anchor-clearance', 'anchor-lineage', 'align-mode', 'frame-orientation', 'webcad-shortcuts', 'dimension-adapter',
     'tool-discovery', 'native-watch-revision', 'agent-onboarding', 'agent-kit', 'browser-logo-input', 'page-batch', 'page-api', 'browser-files', 'artifact-store', 'command-service', 'document-identity', 'logo-import-request', 'operation-registry', 'position-table', 'profile-projection',
-    'parameter-calculator', 'parameter-error-message', 'named-parameters', 'recovery-isolation', 'recovery-consent', 'save-identity', 'boolean-identity', 'selection-contract', 'selection-assists',
+    'parameter-calculator', 'parameter-error-message', 'named-parameters', 'recovery-isolation', 'recovery-consent', 'save-identity', 'boolean-identity', 'view-contract', 'selection-contract', 'selection-assists',
     'tool-state', 'viewport-transform', 'orthographic-fit', 'dfam-inspection', 'profile-fitting', 'text-commands',
     'debug-journal', 'cad-completion', 'logo-endpoint-adaptation', 'logo-host-preparer', 'logo-placement-guide', 'native-state-projection', 'relief-reference', 'relief-photo-convert', 'relief-quality-fit-accuracy', 'state-facts', 'visual-evidence',
     'batch-capable-parity','tool-examples-schema','sweep-continuity','curve-sweep-contract','job-call-contracts','public-knowledge-cache','receipt-compact','procedural-antique-atlas','edge-batching',
