@@ -66,7 +66,7 @@ const commandDefinitions={
  'body.align':['bodyIds target axes sourceSide targetSide group gapMm','bodyIds target'],
  'history.restore':['stateId','stateId'],'document.reliefDesign':['id expectedDraftRevision draft remove','id expectedDraftRevision'],
  'document.rename':['name','name'],'feature.rename':['featureId name','featureId name'],'body.visibility':['bodyIds visible','bodyIds visible'],
- 'body.appearance':['bodyIds finish color','bodyIds'],'document.appearance':['finish','finish'],'body.explode':['bodyId','bodyId'],
+ 'body.appearance':['bodyIds finish color roughness','bodyIds'],'document.appearance':['finish','finish'],'body.explode':['bodyId','bodyId'],
  'reference.setWorkFrame':['origin quaternion sourceLabel','origin quaternion'],'reference.resetWorkFrame':['scope','scope'],
  'reference.setLocked':['locked','locked'],'reference.saveFrame':['name frame frameId expectedFrameVersion','name frame'],
  'reference.activateFrame':['frameId expectedFrameVersion','frameId expectedFrameVersion'],'reference.renameFrame':['frameId expectedFrameVersion name','frameId expectedFrameVersion name'],

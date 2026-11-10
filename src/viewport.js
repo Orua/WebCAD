@@ -1,3 +1,4 @@
+import {applyDesignSurface,sceneLightingState} from './surface-overrides.js';
 import * as THREE from 'three';
 import {orthographicFitExtent} from './viewport/fit-bounds.js';
 import {installRectangleSelection,rectangleCandidates} from './viewport/rectangle-selection.js';
@@ -179,7 +180,8 @@ export class CADViewport {
     const az=p.lightAzimuth*Math.PI/180,el=p.lightElevation*Math.PI/180;
     this.studioLights?.[1].position.set(100*Math.cos(el)*Math.cos(az),100*Math.cos(el)*Math.sin(az),100*Math.sin(el));
     this.studioLights?.[2].position.set(-100*Math.cos(az),-100*Math.sin(az),50);
-    for(const [id,entry] of this.objects){entry.mesh.userData.defaultColor=p.defaultColor;entry.mesh.userData.baseColor=this.partColors[id]||p.defaultColor;this.metals.apply(entry.mesh.material,this.partFinishes[id]||key,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor,displayPreferences:p});}
+    for(const [id,entry] of this.objects){entry.mesh.userData.defaultColor=p.defaultColor;entry.mesh.userData.baseColor=this.partColors[id]||p.defaultColor;this.metals.apply(entry.mesh.material,this.partFinishes[id]||key,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor,displayPreferences:p});applyDesignSurface(entry.mesh.material,this.partFinishes[id]||key,this.partSurfaces?.[id]);}
+    this.sceneLighting=sceneLightingState(key,this.partFinishes,[...this.objects.keys()].filter(id=>!this.hidden?.includes(id)));
     this.setSelection(this.selected,this.topology);
     return METAL_FINISHES[key].label;
   }
@@ -421,7 +423,7 @@ export class CADViewport {
     else this.frameSource=await new Promise(resolve=>{let timer=null;const done=source=>{if(timer!==null)clearTimeout(timer);timer=null;resolve(source);};
       requestAnimationFrame(()=>done('animation-frame'));timer=setTimeout(()=>done('timer-fallback'),fallbackMs);});
     this.renderFrame();return this.displayState();}
-  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
+  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,sceneLighting:this.sceneLighting?.mode||'design',designBodiesUnderMetalLighting:this.sceneLighting?.designBodiesUnderMetalLighting||0,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
   evidenceSignature(){return evidenceDisplaySignature(this);}
   evidenceCapture(opts){return captureEvidence(this,opts);}
   screenshot(opts={}){
