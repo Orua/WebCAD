@@ -26,6 +26,21 @@ test('transitive indexed descendants return the actual affected features and lea
   });assert.deepEqual(next,snapshot);
 });
 
+test('a signed logo face does not block an upstream edit of a different contributor',()=>{
+  const old={features:[
+    {id:'wing',op:'loft',params:{height:20},refs:[]},
+    {id:'tail',op:'loft',params:{height:12},refs:[]},
+    {id:'body',op:'union',params:{},refs:['wing','tail']},
+    {id:'mark',op:'logo',params:{faceId:10,placementVersion:2,point:[1,2,3],targetFaceSignature:'sha256:wing-face'},refs:['body']},
+    {id:'groove',op:'faceGroove',params:{faceId:4,lengthMm:8,widthMm:2,depthMm:0.3,targetFaceSignature:'sha256:wing-skin'},refs:['body']},
+  ]};
+  const next=structuredClone(old);next.features[1].params.height=31;
+  assert.doesNotThrow(()=>assertHistoryEditSafe(old,next));
+  const unsigned=structuredClone(old);delete unsigned.features[3].params.targetFaceSignature;
+  const blocked=structuredClone(unsigned);blocked.features[1].params.height=31;
+  assert.throws(()=>assertHistoryEditSafe(unsigned,blocked),error=>error.code==='UNSAFE_LEGACY_REFERENCE'&&error.affectedFeatureIds.includes('mark'));
+});
+
 test('placement changes use the same guard; rename, no-op and own radius edit do not invalidate source selectors',()=>{
   const old=document(),next=structuredClone(old);next.features[1].placement={frameSnapshot:{origin:[1,0,0]}};
   assert.throws(()=>assertHistoryEditSafe(old,next),{code:'UNSAFE_LEGACY_REFERENCE'});

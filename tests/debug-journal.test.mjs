@@ -15,6 +15,18 @@ test('journal retains ordered stages, filters and refresh continuity within expl
  assert.equal(journal.read({source:'services',query:'known-job'}).matching,1);assert.equal(journal.read({level:'error',afterSequence:3}).matching,1);
  journal.flush();const recovered=createDebugJournal({storage,maxEvents:3});assert.equal(recovered.read().coverage.restored,true);assert.equal(recovered.record('ui','next'),5);
 });
+test('kernel progress coalesces to one slot so errors stay in the ring',()=>{
+ const journal=createDebugJournal({storage:null,maxEvents:8});
+ journal.record('kernel','rebuild',{phase:'start'});
+ for(let i=0;i<40;i++)journal.record('kernel','progress',{phase:'feature',featureId:'f'+i,completed:i,total:40},'info',{coalesceKey:'kernel:rebuild:1'});
+ journal.record('kernel','error',{code:'GEOMETRY_INVALID'},'error');
+ for(let i=0;i<40;i++)journal.record('kernel','progress',{phase:'complete',reused:12,recomputed:1,elapsedMs:20},'info',{coalesceKey:'kernel:rebuild:1'});
+ const read=journal.read({limit:50});
+ assert.equal(read.events.filter(event=>event.action==='progress').length,1);
+ assert.equal(read.events.filter(event=>event.level==='error').length,1);
+ assert.equal(read.events.find(event=>event.action==='progress').data.phase,'complete');
+ assert.equal(read.coverage.dropped,0);
+});
 test('redaction preserves exact error field and invalid values while removing credentials, query tickets and binary data',()=>{
  const error=Object.assign(new Error('A finite JSON value is required.'),{code:'PARAM_SCHEMA_INVALID',path:'params.source.servicesEvidence.inspectionJobId',details:{validation:{actualCount:2001}}});
  const original={error,params:{source:{inspectionJobId:undefined},depth:NaN,scale:Infinity},credential:'private-key',url:'https://user:pass@example.com/a?ticket=private-ticket#secret',headers:{Authorization:'Bearer private-bearer',Cookie:'session=a; other=b'},base64:'private-image',binaryAssets:{secret:'private-geometry'},data:new Uint8Array([1,2])};

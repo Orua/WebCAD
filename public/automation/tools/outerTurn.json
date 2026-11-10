@@ -13,6 +13,27 @@
         "quantityKind": "index",
         "quantizationPolicy": "none"
       },
+      "targetFaceSignature": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Stable face signature captured when the feature is created. Rebuild remaps faceId from it when a later Boolean renumbers faces."
+      },
+      "targetFaceCenter": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "targetFaceOriginFeatureIds": {
+        "type": "array",
+        "maxItems": 8,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
       "diameterMm": {
         "type": "number",
         "exclusiveMinimum": 0,
@@ -66,7 +87,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Removes material outside the specified centered diameter within the explicit depth interval. The outside cutter encloses the source cross-section; remainder below depth is retained. It does not add material or create a lathe toolpath.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. A degree-1 or higher BSpline is accepted only when every control pole lies on that same plane. Curved ruled/loft faces are refused (CAPABILITY_UNAVAILABLE); this tool does not project a recess onto a curved surface. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is uniform along the plane normal. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. When targetFaceSignature is stored, an upstream edit remaps the face instead of failing UNSAFE_LEGACY_REFERENCE. Removes material outside the specified centered diameter within the explicit depth interval. The outside cutter encloses the source cross-section; remainder below depth is retained. It does not add material or create a lathe toolpath.",
   "title": "Turn the outside of a selected planar section to diameter",
   "category": "modification",
   "synonyms": [
@@ -76,7 +97,7 @@
     "外车"
   ],
   "description": "Turn the outside of a selected planar section to diameter",
-  "schemaHash": "sha256:1a9869768a8775e25eb3e747eb9a60120867efd301bc52e1fef8e12b120270a1",
+  "schemaHash": "sha256:0266d28dd7c6fbf63381c70e20a5ee17e61df67dae162d6b4f94488288ee247f",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -136,7 +157,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Removes material outside the specified centered diameter within the explicit depth interval. The outside cutter encloses the source cross-section; remainder below depth is retained. It does not add material or create a lathe toolpath."
+    "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. A degree-1 or higher BSpline is accepted only when every control pole lies on that same plane. Curved ruled/loft faces are refused (CAPABILITY_UNAVAILABLE); this tool does not project a recess onto a curved surface. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is uniform along the plane normal. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. When targetFaceSignature is stored, an upstream edit remaps the face instead of failing UNSAFE_LEGACY_REFERENCE. Removes material outside the specified centered diameter within the explicit depth interval. The outside cutter encloses the source cross-section; remainder below depth is retained. It does not add material or create a lathe toolpath."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -211,7 +232,7 @@
   "contract": {
     "purpose": "Turn the outside of a selected planar section to diameter",
     "whenToUse": [
-      "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Removes material outside the specified centered diameter within the explicit depth interval. The outside cutter encloses the source cross-section; remainder below depth is retained. It does not add material or create a lathe toolpath."
+      "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. A degree-1 or higher BSpline is accepted only when every control pole lies on that same plane. Curved ruled/loft faces are refused (CAPABILITY_UNAVAILABLE); this tool does not project a recess onto a curved surface. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is uniform along the plane normal. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. When targetFaceSignature is stored, an upstream edit remaps the face instead of failing UNSAFE_LEGACY_REFERENCE. Removes material outside the specified centered diameter within the explicit depth interval. The outside cutter encloses the source cross-section; remainder below depth is retained. It does not add material or create a lathe toolpath."
     ],
     "whenNotToUse": [
       {
@@ -227,6 +248,39 @@
           0,
           null
         ]
+      },
+      "targetFaceSignature": {
+        "meaning": "Stable face signature captured when the feature is created. Rebuild remaps faceId from it when a later Boolean renumbers faces.",
+        "unit": "none",
+        "range": [
+          1,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetFaceCenter": {
+        "meaning": "targetFaceCenter: Turn the outside of a selected planar section to diameter",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetFaceOriginFeatureIds": {
+        "meaning": "targetFaceOriginFeatureIds: Turn the outside of a selected planar section to diameter",
+        "unit": "none",
+        "range": [
+          null,
+          8
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       },
       "diameterMm": {
         "meaning": "Finished outer diameter",
@@ -383,7 +437,7 @@
   },
   "purpose": "Turn the outside of a selected planar section to diameter",
   "whenToUse": [
-    "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Removes material outside the specified centered diameter within the explicit depth interval. The outside cutter encloses the source cross-section; remainder below depth is retained. It does not add material or create a lathe toolpath."
+    "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. A degree-1 or higher BSpline is accepted only when every control pole lies on that same plane. Curved ruled/loft faces are refused (CAPABILITY_UNAVAILABLE); this tool does not project a recess onto a curved surface. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is uniform along the plane normal. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. When targetFaceSignature is stored, an upstream edit remaps the face instead of failing UNSAFE_LEGACY_REFERENCE. Removes material outside the specified centered diameter within the explicit depth interval. The outside cutter encloses the source cross-section; remainder below depth is retained. It does not add material or create a lathe toolpath."
   ],
   "whenNotToUse": [
     {
@@ -772,5 +826,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ba88e365ff056c3e1d0018dc68cded828b60fff8764d247d440d94c720958359"
+  "docsHash": "sha256:6f20b247b3cdc258712e873e1ede984d57642c6ea6460a2a728d4cb41d6923db"
 }

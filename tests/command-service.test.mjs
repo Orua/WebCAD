@@ -266,6 +266,19 @@ test('UP-11/13: feature.edit contract errors name the edited feature card and st
  }
  const ok=await t.service.execute({context:t.context(),idempotencyKey:'thickness',action:'feature.edit',args:{featureId:'f1',opVersion:box.version,schemaHash:box.schemaHash,params:{height:5}}});
  assert.notEqual(ok.status,'failed');assert.equal(t.calls,2,'the correct box card reaches edit_feature');
+ const filled=await t.service.execute({context:t.context(),idempotencyKey:'auto-contract',action:'feature.edit',args:{featureId:'f1',params:{height:6}}});
+ assert.notEqual(filled.status,'failed',JSON.stringify(filled.error));assert.equal(t.calls,3,'omitted opVersion/schemaHash is filled from the box card');
+});
+test('preview commit accepts generation and names an unknown field',async()=>{
+ const original={id:'original',op:'box',params:{width:10,depth:8,height:3},refs:[]},state={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[original],bodies:[{id:'original'}],kernelReady:true,busy:false,preview:false,referenceSystem:createReferenceSystem()};
+ const service=createCommandService({snapshot:()=>structuredClone(state),execute:async(command,args)=>{if(command==='preview_feature'){state.preview=true;state.previewInfo=args.previewIdentity;state.previewDraft={...original,params:args.params};}else if(command==='preview.commit'){state.features=[state.previewDraft];state.revision++;state.preview=false;state.previewInfo=null;}else throw Error(command);}}),context=()=>({sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:state.revision});
+ const box=getOperation('box');
+ const start=await service.execute({context:context(),idempotencyKey:'prev',action:'preview.start',args:{op:'box',opVersion:box.version,schemaHash:box.schemaHash,params:{width:4,depth:4,height:4},refs:[]}});
+ assert.equal(start.status,'previewing',JSON.stringify(start));assert.equal(typeof start.generation,'number');
+ const wrong=await service.execute({context:context(),idempotencyKey:'bad-field',action:'preview.commit',args:{previewId:start.previewId,notGeneration:start.generation}});
+ assert.equal(wrong.status,'failed');assert.equal(wrong.error.details.unknownField,'notGeneration');assert.ok(wrong.error.details.expectedFields.includes('expectedGeneration'));
+ const committed=await service.execute({context:context(),idempotencyKey:'commit-alias',action:'preview.commit',args:{previewId:start.previewId,generation:start.generation}});
+ assert.equal(committed.status,'committed',JSON.stringify(committed.error));assert.equal(state.revision,2);
 });
 test('UP-11/13: published static tool cards carry the runtime schemaHash for every operation',async()=>{
  const {listOperations}=await import('../src/operation-registry.js');const fs=await import('node:fs');
