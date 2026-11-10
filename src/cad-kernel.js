@@ -334,7 +334,7 @@ export class CadKernel {
       }
       case 'badge': return buildBadge(source(),p,cad);
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
-      case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0,frame},cad);
+      case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0,frame,result:p.result??'edges',samples:p.samples??64},cad);
       case 'faceBoundary': return extractFaceBoundary(source(),p.faceId,cad,{boundary:p.boundary??'all'});
       case 'extractFaces': {
         const shape=source(),all=shape.faces,ids=p.faceIds;

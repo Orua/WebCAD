@@ -19,6 +19,16 @@ import {validateStateProjection,projectStateRows} from './state-projection.js';
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
 const canonical=value=>JSON.stringify(value,(_k,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
+// Projection only: matching, counts, tokens and cursors are unchanged.
+// includeSpline:false keeps only spline.poleCount* so long section edge lists stay small.
+export function slimQueryItems(items,fields,includeSpline=true){
+  return items.map(item=>{
+    let out=item;
+    if(includeSpline===false&&item.spline){const {spline,...rest}=item;out={...rest,...(spline.poleCount!==undefined?{poleCount:spline.poleCount}:{}),...(spline.poleCountU!==undefined?{poleCountU:spline.poleCountU,poleCountV:spline.poleCountV}:{})};}
+    if(Array.isArray(fields)){const keep=new Set(['kind','topologyId',...fields]);if(includeSpline===false){if(keep.has('spline'))['poleCount','poleCountU','poleCountV'].forEach(k=>keep.add(k));}out=Object.fromEntries(Object.entries(out).filter(([key])=>keep.has(key)));}
+    return out;
+  });
+}
 export function domainError(code,path,message,recoveryAction='NONE') {
   return Object.assign(new Error(message),{code,path,retryable:false,recoveryAction});
 }
@@ -120,26 +130,29 @@ export function createCommandService(adapter) {
   }
   async function queryGeometry(input){
     const requestId=uid();let s;
-    try{s=snapshot();object(input,['context','bodyId','kind','filter','requireUnique','expectedCount','limit','cursor'],'input');context(input.context,s);available(s);
+    try{s=snapshot();object(input,['context','bodyId','kind','filter','requireUnique','expectedCount','limit','cursor','fields','includeSpline'],'input');context(input.context,s);available(s);
       string(input.bodyId,'bodyId');if(!s.bodies.some(b=>b.id===input.bodyId))fail('STALE_REFERENCE','bodyId','Body is not current');
       if(!['face','edge'].includes(input.kind))fail('PARAM_SCHEMA_INVALID','kind','Expected face or edge');
       if(input.requireUnique!==undefined&&typeof input.requireUnique!=='boolean')fail('PARAM_SCHEMA_INVALID','requireUnique','Expected boolean');
       if(input.expectedCount!==undefined)integer(input.expectedCount,'expectedCount',1,100000);
       const limit=input.limit??20;integer(limit,'limit',1,100);
+      if(input.includeSpline!==undefined&&typeof input.includeSpline!=='boolean')fail('PARAM_SCHEMA_INVALID','includeSpline','Expected boolean');
+      if(input.fields!==undefined&&(!Array.isArray(input.fields)||!input.fields.length||input.fields.length>32||input.fields.some(f=>typeof f!=='string'||!/^[A-Za-z][A-Za-z0-9]{0,47}$/.test(f))))fail('PARAM_SCHEMA_INVALID','fields','Expected 1-32 item field names');
+      const slim=items=>slimQueryItems(items,input.fields,input.includeSpline);
       const filter=clone(input.filter??{});finiteTree(filter,'filter');
       object(filter,input.kind==='face'?['surfaceType','normal','atExtreme','bounds']:['curveType','lengthRangeMm','radiusRangeMm','onFaceToken','bounds','adjacentSurfaceTypes','loopIndex'],'filter');
       if(filter.onFaceToken!==undefined){const t=token(filter.onFaceToken,s,input.bodyId,'face');if(t.ids.length!==1)fail('AMBIGUOUS_SELECTION','filter.onFaceToken','One face is required');await verifyToken(t);filter.onFaceId=t.ids[0];delete filter.onFaceToken;}
       const result=await adapter.query({bodyId:input.bodyId,kind:input.kind,filter});
       context(input.context,snapshot());available(snapshot());
       if(result.matchCount===0||input.expectedCount!==undefined&&input.expectedCount!==result.matchCount){const e=domainError(result.matchCount===0?'NO_MATCH':'SELECTION_COUNT_CHANGED','filter',result.matchCount===0?'No geometry matches':'Geometry match count differs from expectedCount','QUERY_GEOMETRY_AGAIN');e.report={stage:'selection',attemptCount:0,matchCount:result.matchCount,expectedCount:input.expectedCount??null,filter:clone(input.filter??{})};throw e;}
-      if((input.requireUnique??true)&&result.matchCount>1){const shown=Math.min(limit,result.matchCount),kindLabel=input.kind==='face'?'面':'边';const r=errorResult(domainError('AMBIGUOUS_SELECTION','filter',`匹配到 ${result.matchCount} 个${kindLabel}。查询默认要求唯一结果；要列出候选请传 requireUnique:false，或收窄 filter。本次仍返回前 ${shown} 项供查看，没有生成 selectionToken。`,'REFINE_QUERY'),requestId,s);return {...r,matchCount:result.matchCount,items:result.items.slice(0,limit),ambiguous:true,requireUnique:true,listingHint:'requireUnique:false',context:contextOf(s)};}
+      if((input.requireUnique??true)&&result.matchCount>1){const shown=Math.min(limit,result.matchCount),kindLabel=input.kind==='face'?'面':'边';const r=errorResult(domainError('AMBIGUOUS_SELECTION','filter',`匹配到 ${result.matchCount} 个${kindLabel}。查询默认要求唯一结果；要列出候选请传 requireUnique:false，或收窄 filter。本次仍返回前 ${shown} 项供查看，没有生成 selectionToken。`,'REFINE_QUERY'),requestId,s);return {...r,matchCount:result.matchCount,items:slim(result.items.slice(0,limit)),ambiguous:true,requireUnique:true,listingHint:'requireUnique:false',context:contextOf(s)};}
       const fingerprint=canonical({context:input.context,bodyId:input.bodyId,kind:input.kind,filter,requireUnique:input.requireUnique??true,expectedCount:input.expectedCount,limit});
       let offset=0;
       if(input.cursor!==undefined){string(input.cursor,'cursor',2048);const c=cursors.get(input.cursor);if(!c||c.fingerprint!==fingerprint)fail('STALE_REFERENCE','cursor','Cursor does not match this snapshot/query');offset=c.offset;}
       if(tokens.size>=1000||cursors.size>=1000)fail('RESOURCE_LIMIT','query','Selection cache is full; reload to start a new instance');
       const selectionToken=uid();tokens.set(selectionToken,{documentInstanceId:s.documentInstanceId,revision:s.revision,bodyId:input.bodyId,kind:input.kind,ids:result.items.map(x=>x.topologyId),geometryFingerprint:result.geometryFingerprint});
       let nextCursor=null;if(offset+limit<result.matchCount){nextCursor=uid();cursors.set(nextCursor,{fingerprint,offset:offset+limit});}
-      return {status:'read',context:contextOf(s),bodyId:input.bodyId,kind:input.kind,matchCount:result.matchCount,items:result.items.slice(offset,offset+limit),selectionToken,nextCursor,ambiguous:result.matchCount>1,geometryFingerprint:result.geometryFingerprint};
+      return {status:'read',context:contextOf(s),bodyId:input.bodyId,kind:input.kind,matchCount:result.matchCount,items:slim(result.items.slice(offset,offset+limit)),...(input.fields||input.includeSpline===false?{itemProjection:{fields:input.fields?['kind','topologyId',...input.fields.filter(f=>!['kind','topologyId'].includes(f))]:'all',includeSpline:input.includeSpline!==false}}:{}),selectionToken,nextCursor,ambiguous:result.matchCount>1,geometryFingerprint:result.geometryFingerprint};
     }catch(e){return errorResult(e,requestId,s);}
   }
   async function executeOnce(input,options){

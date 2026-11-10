@@ -21,10 +21,87 @@ export function extractFaceBoundary(shape, faceId, cad, { boundary = 'all' } = {
   } finally { edges?.forEach(dispose); dispose(wire); dispose(face); }
 }
 
-export function extractPlaneSection(shape, { plane, offset = 0, frame } = {}, cad) {
+export const PLANE_SECTION_RESULTS = Object.freeze(['edges', 'wire', 'polyline']);
+export const PLANE_SECTION_SAMPLES = Object.freeze({ default: 64, min: 4, max: 512 });
+
+const tuple = value => { try { return value.toTuple(); } finally { dispose(value); } };
+const close = (a, b, tol) => Math.hypot(a[0]-b[0], a[1]-b[1], a[2]-b[2]) <= tol;
+
+// Greedy endpoint chaining of section edges. Each chain is an ordered list of
+// {edge, reversed}; closed reports whether the last end meets the first start.
+export function chainSectionEdges(items, tolerance) {
+  const left = items.map((item, index) => ({ ...item, index }));
+  const chains = [];
+  while (left.length) {
+    const first = left.shift(), chain = [{ ...first, reversed: false }];
+    let head = first.start, tail = first.end, grown = true;
+    while (grown && left.length) {
+      grown = false;
+      for (let i = 0; i < left.length; i++) {
+        const item = left[i];
+        if (close(item.start, tail, tolerance)) { chain.push({ ...item, reversed: false }); tail = item.end; }
+        else if (close(item.end, tail, tolerance)) { chain.push({ ...item, reversed: true }); tail = item.start; }
+        else if (close(item.end, head, tolerance)) { chain.unshift({ ...item, reversed: false }); head = item.start; }
+        else if (close(item.start, head, tolerance)) { chain.unshift({ ...item, reversed: true }); head = item.end; }
+        else continue;
+        left.splice(i, 1); grown = true; break;
+      }
+    }
+    chains.push({ items: chain, closed: close(head, tail, tolerance) });
+  }
+  return chains;
+}
+
+// Distribute a per-loop sample budget over chained edges by length.
+export function sectionSampleParameters(lengths, samples) {
+  const total = lengths.reduce((a, b) => a + b, 0) || 1;
+  return lengths.map(length => Math.max(1, Math.round(samples * length / total)));
+}
+
+function sectionResult(result, edges, mode, samples, cad) {
+  if (mode === 'edges') return result;
+  const box = result.boundingBox;
+  let diagonal = 1;
+  try { const [[a, b, c], [d, e, f]] = box.bounds; diagonal = Math.max(Math.hypot(d-a, e-b, f-c), 1); } finally { dispose(box); }
+  const tolerance = Math.max(1e-6, diagonal * 1e-6, 1e-4);
+  const items = edges.map(edge => ({ edge, start: tuple(edge.startPoint), end: tuple(edge.endPoint), length: cad.measureLength ? cad.measureLength(edge) : 1 }));
+  const chains = chainSectionEdges(items, tolerance), built = [];
+  try {
+    for (const chain of chains) {
+      if (mode === 'wire') {
+        try { built.push(cad.assembleWire(chain.items.map(item => item.edge))); }
+        catch { chain.items.forEach(item => built.push(item.edge.clone ? item.edge.clone() : item.edge)); }
+        continue;
+      }
+      const counts = sectionSampleParameters(chain.items.map(item => item.length), samples), points = [];
+      chain.items.forEach((item, index) => {
+        const n = counts[index];
+        for (let k = 0; k < n; k++) {
+          const t = k / n, position = item.reversed ? 1 - t : t;
+          points.push(tuple(item.edge.pointAt(position)));
+        }
+      });
+      const last = chain.items.at(-1);
+      if (!chain.closed) points.push(last.reversed ? last.start : last.end);
+      const distinct = points.filter((point, index) => index === 0 || !close(point, points[index - 1], tolerance));
+      if (chain.closed && distinct.length > 2 && close(distinct[0], distinct.at(-1), tolerance)) distinct.pop();
+      if (distinct.length < 2) continue;
+      const lines = [];
+      for (let i = 0; i < distinct.length - 1; i++) lines.push(cad.makeLine(distinct[i], distinct[i + 1]));
+      if (chain.closed && distinct.length > 2) lines.push(cad.makeLine(distinct.at(-1), distinct[0]));
+      try { built.push(cad.assembleWire(lines)); } finally { lines.forEach(dispose); }
+    }
+    if (!built.length) fail('截面没有可连接的交线');
+    return cad.makeCompound(built);
+  } finally { built.forEach(dispose); dispose(result); }
+}
+
+export function extractPlaneSection(shape, { plane, offset = 0, frame, result: resultMode = 'edges', samples = PLANE_SECTION_SAMPLES.default } = {}, cad) {
   if (!shape || !cad?.makeCompound) fail('缺少源形状或 CAD 适配器');
   if (!['XY', 'XZ', 'YZ'].includes(plane)) fail('截面平面必须是 XY、XZ 或 YZ');
   if (!Number.isFinite(offset)) fail('截面 offset 必须是有限数值');
+  if (!PLANE_SECTION_RESULTS.includes(resultMode)) fail('result 必须是 edges、wire 或 polyline');
+  if (!Number.isInteger(samples) || samples < PLANE_SECTION_SAMPLES.min || samples > PLANE_SECTION_SAMPLES.max) fail(`samples 必须是 ${PLANE_SECTION_SAMPLES.min}–${PLANE_SECTION_SAMPLES.max} 的整数`);
   let planeFace, drawing, sketch, builder, box;
   try {
     box = shape.boundingBox; const [[minX,minY,minZ],[maxX,maxY,maxZ]] = box.bounds;
@@ -44,8 +121,9 @@ export function extractPlaneSection(shape, { plane, offset = 0, frame } = {}, ca
     if (!builder.IsDone?.() || builder.Shape?.().IsNull?.()) fail('截面未穿过实体');
     const result = cad.cast(builder.Shape()), resultEdges = result?.edges || [];
     if (!resultEdges.length) { resultEdges.forEach(dispose); dispose(result); fail('截面没有交线'); }
-    resultEdges.forEach(dispose);
-    return result;
+    if (resultMode === 'edges') { resultEdges.forEach(dispose); return result; }
+    try { return sectionResult(result, resultEdges, resultMode, samples, cad); }
+    finally { resultEdges.forEach(dispose); }
   } finally {
     dispose(builder); dispose(planeFace); dispose(sketch); dispose(drawing); dispose(box);
   }
