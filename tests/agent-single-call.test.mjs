@@ -31,7 +31,7 @@ test('write receipts carry a reusable requestContext; capture supports maxWidth/
   assert.match(cs,/requestContext:\{sessionId:afterCtx\.sessionId/);
   assert.match(cs,/compact/);
   const api=readFileSync(new URL('../src/page-api.js',import.meta.url),'utf8');
-  assert.match(api,/check\(input,\['context','maxWidth','format','quality'\]\)/);
+  assert.match(api,/check\(input,\['context','maxWidth','format','quality','detail'\]\)/);
   const vp=readFileSync(new URL('../src/viewport.js',import.meta.url),'utf8');
   assert.match(vp,/image\/webp/);
 });

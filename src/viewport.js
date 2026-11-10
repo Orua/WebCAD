@@ -1,3 +1,4 @@
+import {applyDesignSurface,sceneLightingState} from './surface-overrides.js';
 import * as THREE from 'three';
 import {orthographicFitExtent} from './viewport/fit-bounds.js';
 import {installRectangleSelection,rectangleCandidates} from './viewport/rectangle-selection.js';
@@ -179,7 +180,8 @@ export class CADViewport {
     const az=p.lightAzimuth*Math.PI/180,el=p.lightElevation*Math.PI/180;
     this.studioLights?.[1].position.set(100*Math.cos(el)*Math.cos(az),100*Math.cos(el)*Math.sin(az),100*Math.sin(el));
     this.studioLights?.[2].position.set(-100*Math.cos(az),-100*Math.sin(az),50);
-    for(const [id,entry] of this.objects){entry.mesh.userData.defaultColor=p.defaultColor;entry.mesh.userData.baseColor=this.partColors[id]||p.defaultColor;this.metals.apply(entry.mesh.material,this.partFinishes[id]||key,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor,displayPreferences:p});}
+    for(const [id,entry] of this.objects){entry.mesh.userData.defaultColor=p.defaultColor;entry.mesh.userData.baseColor=this.partColors[id]||p.defaultColor;this.metals.apply(entry.mesh.material,this.partFinishes[id]||key,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor,displayPreferences:p});applyDesignSurface(entry.mesh.material,this.partFinishes[id]||key,this.partSurfaces?.[id]);}
+    this.sceneLighting=sceneLightingState(key,this.partFinishes,[...this.objects.keys()].filter(id=>!this.hidden?.includes(id)));
     this.setSelection(this.selected,this.topology);
     return METAL_FINISHES[key].label;
   }
@@ -332,13 +334,15 @@ export class CADViewport {
   clearProgressiveMesh(){if(!this.progressRoot)return;for(const mesh of this.progressRoot.children)mesh.geometry.dispose();this.progressRoot.clear();}
   fit(box=this.bounds()){const center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());this.span=Math.max(size.x,size.y,size.z,5);const dir=this.camera.position.clone().sub(this.controls.target).normalize();const aspect=this.camera.aspect||1;const legacyExtent=this.span*Math.max(1,1/aspect)*1.55;const extent=this.camera.isOrthographicCamera?orthographicFitExtent(box,this.camera,aspect,legacyExtent):legacyExtent;const distance=extent/(2*Math.tan(THREE.MathUtils.degToRad(35/2)));if(this.camera.isOrthographicCamera){this.camera.top=extent/2;this.camera.bottom=-extent/2;this.camera.left=-extent*aspect/2;this.camera.right=extent*aspect/2;this.camera.zoom=1;}this.controls.target.copy(center);this.camera.position.copy(center).addScaledVector(dir,distance);this.camera.near=Math.max(.001,this.span/10000);this.camera.far=Math.max(10000,this.span*500);this.camera.updateProjectionMatrix();this.controls.update();this.updateHud();}
   setProjection(mode,{fit=true}={}){const old=this.camera,aspect=old.aspect||1;if((mode==='orthographic')===!!old.isOrthographicCamera)return;const cam=mode==='orthographic'?new THREE.OrthographicCamera(-50,50,50,-50,.01,100000):new THREE.PerspectiveCamera(35,aspect,.01,100000);cam.aspect=aspect;cam.position.copy(old.position);cam.up.copy(old.up);cam.quaternion.copy(old.quaternion);this.camera=cam;this.gizmo.camera=cam;this.anchorGizmo.camera=cam;this.controls.object=cam;this.controls.update();if(fit){this.fit();return;}const distance=Math.max(cam.position.distanceTo(this.controls.target),1);if(cam.isOrthographicCamera){const extent=2*distance*Math.tan(THREE.MathUtils.degToRad(35/2));cam.top=extent/2;cam.bottom=-extent/2;cam.left=-extent*aspect/2;cam.right=extent*aspect/2;cam.zoom=1;}cam.near=Math.max(.001,(this.span||distance)/10000);cam.far=Math.max(10000,(this.span||distance)*500);cam.updateProjectionMatrix();}
-  setCamera({position,target}){
+  setCamera({position,target,up}={}){
     // Drain residual orbit/pan deltas before installing an absolute pose.
+    // R7-012: an explicit camera uses Z-up unless up is given; up:'inherit'
+    // keeps the previous roll (e.g. after a top/bottom view).
     const damping=this.controls.enableDamping;this.controls.enableDamping=false;
-    try{this.controls.update();this.camera.position.fromArray(position);this.controls.target.fromArray(target);this.controls.update();}
+    try{this.controls.update();if(Array.isArray(up))this.camera.up.fromArray(up).normalize();else if(up!=='inherit')this.camera.up.set(0,0,1);this.camera.position.fromArray(position);this.controls.target.fromArray(target);this.controls.update();}
     finally{this.controls.enableDamping=damping;}
   }
-  view(direction='iso'){const vectors={iso:[1,-1,.85],front:[0,-1,0],back:[0,1,0],top:[0,0,1],bottom:[0,0,-1],left:[-1,0,0],right:[1,0,0]};const distance=this.camera.position.distanceTo(this.controls.target);this.camera.up.set(0,0,1);if(direction==='top'||direction==='bottom')this.camera.up.set(0,1,0);const target=this.bounds().getCenter(new THREE.Vector3());this.setCamera({position:target.clone().addScaledVector(new THREE.Vector3(...(vectors[direction]||vectors.iso)).normalize(),distance).toArray(),target:target.toArray()});this.fit();}
+  view(direction='iso'){const vectors={iso:[1,-1,.85],front:[0,-1,0],back:[0,1,0],top:[0,0,1],bottom:[0,0,-1],left:[-1,0,0],right:[1,0,0]};const distance=this.camera.position.distanceTo(this.controls.target);this.camera.up.set(0,0,1);if(direction==='top'||direction==='bottom')this.camera.up.set(0,1,0);const target=this.bounds().getCenter(new THREE.Vector3());this.setCamera({position:target.clone().addScaledVector(new THREE.Vector3(...(vectors[direction]||vectors.iso)).normalize(),distance).toArray(),target:target.toArray(),up:'inherit'});this.fit();}
   updateLanguage(){this.updateHud();this.renderer.domElement.setAttribute('aria-label',say('三维建模视口','3D modeling viewport'));if(this.measuring)this.startMeasure();if(this.sketch)this.startSketch({...this.sketch});}
   updateHud(){if(!this.sketch)this.hud.textContent=this.selectionMode==='view'?say('查看','View'):this.selectionMode==='edge'?say('选边','Edge'):this.selectionMode==='face'?say('选面','Face'):say('选实体','Body');}
   startMeasure(){this.cancelTask();this.measuring=[];this.callbacks.onInteraction?.('measure');this.overlay.style.display='block';this.overlay.innerHTML=`<strong>${say('两点测距','Point distance')}</strong><p>${say('点击两个位置，靠近端点/中点/圆心时吸附。选边或面后点测量可测精确几何。','Click two points. Snap to endpoints, midpoints and circle centers. Select an edge or face for exact geometry measures.')}</p><div data-measure>${say('请选择第一个点','Select first point')}</div><button type="button" data-cancel>${say('结束测量','Finish')}</button>`;this.overlay.querySelector('[data-cancel]').onclick=()=>this.cancelTask();}
@@ -419,11 +423,15 @@ export class CADViewport {
     else this.frameSource=await new Promise(resolve=>{let timer=null;const done=source=>{if(timer!==null)clearTimeout(timer);timer=null;resolve(source);};
       requestAnimationFrame(()=>done('animation-frame'));timer=setTimeout(()=>done('timer-fallback'),fallbackMs);});
     this.renderFrame();return this.displayState();}
-  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
+  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,sceneLighting:this.sceneLighting?.mode||'design',designBodiesUnderMetalLighting:this.sceneLighting?.designBodiesUnderMetalLighting||0,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
   evidenceSignature(){return evidenceDisplaySignature(this);}
   evidenceCapture(opts){return captureEvidence(this,opts);}
   screenshot(opts={}){
-    this.renderFrame(true);
+    // R7-003: renderFrame(true) is synchronous and cannot be pre-empted by a
+    // timer. detail:'current' reuses the current display state instead of
+    // forcing the settled full-detail pass; renderMs is reported either way.
+    const renderStarted=performance.now(),settled=opts.detail!=='current';
+    this.renderFrame(settled);const renderMs=Math.round(performance.now()-renderStarted);
     const canvas=this.renderer.domElement,format=opts.format==='webp'?'image/webp':'image/png',quality=opts.quality;
     const scale=opts.maxWidth&&canvas.width>opts.maxWidth?opts.maxWidth/canvas.width:1,w=Math.max(1,Math.round(canvas.width*scale)),h=Math.max(1,Math.round(canvas.height*scale));
     const off=document.createElement('canvas');off.width=w;off.height=h;const ctx=off.getContext('2d');ctx.drawImage(canvas,0,0,w,h);
@@ -431,7 +439,7 @@ export class CADViewport {
     // public viewport image so the Agent sees the user's numbered locations.
     for(const {marker,label} of this.locationMarkers||[]){if(label.hidden)continue;const p=new THREE.Vector3(...marker.point).project(this.camera),x=(p.x+1)*w/2,y=(1-p.y)*h/2;ctx.font='600 11px system-ui';ctx.textAlign='center';const width=ctx.measureText(marker.label).width+10;ctx.fillStyle='#155e75';ctx.fillRect(x-width/2,y-22,width,16);ctx.strokeStyle='#fff';ctx.strokeRect(x-width/2,y-22,width,16);ctx.fillStyle='#fff';ctx.fillText(marker.label,x,y-10);}
     const cssWidth=this.host?.clientWidth||w,cssHeight=this.host?.clientHeight||h;
-    return {mime:format,dataUrl:off.toDataURL(format,quality),width:w,height:h,scope:'modeling-viewport',viewportCss:{width:cssWidth,height:cssHeight},pixelRatio:this.renderer.getPixelRatio()};
+    return {mime:format,dataUrl:off.toDataURL(format,quality),width:w,height:h,scope:'modeling-viewport',viewportCss:{width:cssWidth,height:cssHeight},pixelRatio:this.renderer.getPixelRatio(),renderMs,detailSource:settled?'settled-full-display-detail':'current-display-state'};
   }
   destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();for(const entry of this.objects.values())this.exactDisplayDetail.release(entry);this.disposeObject(this.scene);this.metalOcclusion.dispose();this.metals.dispose();this.renderer.dispose();}
 }

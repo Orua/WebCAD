@@ -8,15 +8,15 @@
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "contextPolicy": "none",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
     "new"
   ],
-  "description": "new({context}); complete current context; dirty replacement is always rejected by page API. Default name: 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits); no explicit name argument.",
-  "inputContract": "new({context}); complete current context; dirty replacement is always rejected by page API. Default name: 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits); no explicit name argument.",
+  "description": "new({context,name?}); complete current context; dirty replacement is always rejected by page API (a new tab opening ?document=<id> is the non-destructive way to reach another project). name (1–120 characters, trimmed) becomes the live title; omitted, the default is 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits).",
+  "inputContract": "new({context,name?}); complete current context; dirty replacement is always rejected by page API (a new tab opening ?document=<id> is the non-destructive way to reach another project). name (1–120 characters, trimmed) becomes the live title; omitted, the default is 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits).",
   "outputContract": "New document identity and instance on commit; getState().summary.name reads the generated name. Existing opened projects and user renames retain their names.",
   "units": {
     "length": "mm",
@@ -26,7 +26,8 @@
   "contractStatus": "browser-file-adapter",
   "runtimeAvailability": "requires_ready_page",
   "argumentKeys": [
-    "context"
+    "context",
+    "name"
   ],
   "unknownFields": "rejected",
   "errorModel": "Direct page file scripts throw or reject with error.code. MCP callers follow mcpCall; invoke is not an Agent method. Page-script invoke({method:\"files.new\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
@@ -103,7 +104,8 @@
           "documentId",
           "documentInstanceId"
         ]
-      }
+      },
+      "name": {}
     },
     "required": [
       "context"
@@ -143,7 +145,8 @@
           "documentId",
           "documentInstanceId"
         ]
-      }
+      },
+      "name": {}
     },
     "required": [
       "context"
@@ -200,5 +203,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:33e69998a3c6b6b929ac9ac6b609168e050cff37833863813e491aff3e2568cc"
+  "docsHash": "sha256:d25b74d06309e9f74a1da639b6b0cfa1cd9875b2bf541c496b00067e3955e437"
 }

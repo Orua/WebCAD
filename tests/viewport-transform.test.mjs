@@ -79,3 +79,16 @@ assert.equal(v.skipSnapBodyId,'moved','the next free adjustment belongs to the a
 assert.equal(v.objects.get('b').root.matrix.elements[12],0,'later selection receives no transform preview');
 v.disposeObject(v.modelRoot);
 console.log('PASS viewport object reuse, pending transform, failure rollback');
+// R7-012: an explicit camera after bottom/top no longer inherits the 90° roll.
+{
+  const cam=Object.create(CADViewport.prototype);
+  cam.camera=new THREE.PerspectiveCamera();cam.controls={enableDamping:true,target:new THREE.Vector3(),update(){}};
+  cam.camera.up.set(0,1,0);
+  cam.setCamera({position:[100,-80,90],target:[0,0,0]});
+  assert.deepEqual(cam.camera.up.toArray(),[0,0,1],'explicit camera defaults to Z-up');
+  cam.camera.up.set(0,1,0);cam.setCamera({position:[0,0,100],target:[0,0,0],up:'inherit'});
+  assert.deepEqual(cam.camera.up.toArray(),[0,1,0],'inherit keeps the roll');
+  cam.setCamera({position:[0,0,100],target:[0,0,0],up:[2,0,0]});
+  assert.deepEqual(cam.camera.up.toArray(),[1,0,0],'explicit up is normalized');
+  assert.equal(cam.controls.enableDamping,true);
+}

@@ -1,10 +1,24 @@
 // Display-only tessellation budget for imported / heavy exact BReps.
 // Face count alone misses single huge B-spline faces (e.g. a 628x503-pole relief
 // in 6 faces), which made BRepMesh exhaust the 32-bit wasm heap at .08 mm.
+// Already-adaptive shapes that are not yet heavy (totalPoles>=4096, single face
+// below 20000) used to inherit fine=0.025 / ultra=0.008 on remesh and could
+// crash the renderer; those requests stay at the budgeted standard tolerance.
+import {RENDER_QUALITIES} from '../../render-quality.js';
 const dispose=v=>{try{v?.delete?.();}catch{}};
 export const DISPLAY_BUDGET=Object.freeze({heavyFacePoles:20000,heavyShapePoles:60000,heavySourceBytes:8*1024*1024,
   // Display chord targets as a fraction of the bounding-box diagonal.
-  heavyDiagonalFraction:1/128,maxTolerance:5,coarsenFactor:4,streamTriangleBatch:60000});
+  heavyDiagonalFraction:1/128,maxTolerance:5,coarsenFactor:4,streamTriangleBatch:60000,adaptivePoles:4096});
+const emptyFaceMesh=()=>({vertices:new Float32Array(),normals:new Float32Array(),triangles:new Uint32Array()});
+const PRESERVED_DISPLAY_CODES=new Set(['DISPLAY_REFINEMENT_FAILED','RESOURCE_LIMIT','PARAM_SCHEMA_INVALID','STALE_DISPLAY','STALE_REFERENCE','CAPABILITY_UNAVAILABLE','KERNEL_CRASHED','KERNEL_TIMEOUT']);
+export function isWasmMemoryError(error){
+  const message=String(error?.message||error||''),name=String(error?.name||'');
+  return name==='RuntimeError'||/memory access out of bounds|out of memory|Cannot enlarge memory|Cannot grow WebAssembly memory|Aborted\(|wasm memory|heap out of memory/i.test(message);
+}
+export function displayRefinementError(error){
+  if(error&&PRESERVED_DISPLAY_CODES.has(error.code))return error;
+  return Object.assign(new Error(error?.message||String(error||'显示网格细化失败')),{code:'DISPLAY_REFINEMENT_FAILED',cause:error});
+}
 function splinePoles(face,oc){
   if(!['BSPLINE_SURFACE','BEZIER_SURFACE'].includes(face.geomType))return 0;
   let adaptor,surface;
@@ -15,14 +29,24 @@ function splinePoles(face,oc){
 export function displayComplexity(shape,faces,oc,{sourceBytes=0,coarsen=1,faceThreshold=200,requested}={}){
   const poles=faces.map(face=>splinePoles(face,oc)),totalPoles=poles.reduce((a,b)=>a+b,0);
   const heavyFaces=new Set(poles.flatMap((n,i)=>n>=DISPLAY_BUDGET.heavyFacePoles?[i]:[]));
+  const largeFaces=new Set(poles.flatMap((n,i)=>n>=DISPLAY_BUDGET.adaptivePoles?[i]:[]));
   const heavy=heavyFaces.size>0||totalPoles>=DISPLAY_BUDGET.heavyShapePoles||sourceBytes>=DISPLAY_BUDGET.heavySourceBytes||coarsen>1;
   // Dense relief faces need streamed faces and direct edge polylines; meshEdges would tessellate the same surface again.
-  const adaptive=heavy||totalPoles>=4096||faces.length>=faceThreshold;
+  const adaptive=heavy||totalPoles>=DISPLAY_BUDGET.adaptivePoles||faces.length>=faceThreshold||largeFaces.size>0;
+  // fine/ultra on already-adaptive, not-yet-heavy splines is unsafe: remesh must
+  // not go finer than the budgeted standard display tolerance.
+  const standard=RENDER_QUALITIES.standard;
+  const unsafeRequestedTolerance=!!(adaptive&&!heavy&&requested&&requested.tolerance<standard.tolerance);
   let diagonal=0;
   if(heavy){const box=shape.boundingBox;try{const [a,b]=box.bounds;diagonal=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);}finally{dispose(box);}}
-  const base=heavy?Math.max(requested.tolerance,diagonal*DISPLAY_BUDGET.heavyDiagonalFraction):requested.tolerance;
+  const base=heavy?Math.max(requested.tolerance,diagonal*DISPLAY_BUDGET.heavyDiagonalFraction)
+    :unsafeRequestedTolerance?standard.tolerance
+    :requested.tolerance;
   const tolerance=Math.min(DISPLAY_BUDGET.maxTolerance,base*coarsen);
-  return {adaptive,heavy,heavyFaces,poles,totalPoles,diagonal,tolerance,angularTolerance:heavy?Math.max(.5,requested.angularTolerance):requested.angularTolerance};
+  const angularTolerance=heavy?Math.max(.5,requested.angularTolerance)
+    :unsafeRequestedTolerance?Math.max(standard.angularTolerance,requested.angularTolerance)
+    :requested.angularTolerance;
+  return {adaptive,heavy,heavyFaces,largeFaces,poles,totalPoles,diagonal,tolerance,angularTolerance,unsafeRequestedTolerance};
 }
 // Mesh face by face so progress and partial geometry can be streamed while only
 // one face's triangulation grows at a time. Returns the same shape as
@@ -33,12 +57,12 @@ const concat=(parts,key,Type,offsetKey)=>{const out=new Type(parts.reduce((n,m)=
 // Dense spline display: sample the exact surface across its knot domain. For
 // trimmed faces, scan-convert their real parameter-space edge curves (including
 // holes) instead of reverting to the old nearly flat coarse mesh.
-export function meshDenseRectangle(face,oc){
+export function meshDenseRectangle(face,oc,options={}){
  if(!oc||face.geomType!=='BSPLINE_SURFACE')return null;
  const edges=face.edges;let a,s;
  try{
   a=new oc.BRepAdaptor_Surface(face.wrapped,false);s=a.BSpline();
-  const nu=s.NbUPoles(),nv=s.NbVPoles();if(nu*nv<4096)return null;
+  const nu=s.NbUPoles(),nv=s.NbVPoles();if(!options.fallback&&nu*nv<DISPLAY_BUDGET.adaptivePoles)return null;
   const u0=a.FirstUParameter(),u1=a.LastUParameter(),v0=a.FirstVParameter(),v1=a.LastVParameter();
   const point=(u,v)=>{const p=a.Value(u,v);try{return [p.X(),p.Y(),p.Z()];}finally{dispose(p);}};
   const ends=edges.flatMap(e=>{const p=e.startPoint,q=e.endPoint;try{return [p.toTuple(),q.toTuple()];}finally{dispose(p);dispose(q);}});
@@ -77,10 +101,27 @@ export function meshDenseRectangle(face,oc){
  }finally{edges.forEach(dispose);dispose(s);dispose(a);}
 }
 
+
+function meshFaceSafely(face,settings,oc){
+  try{
+    const dense=meshDenseRectangle(face,oc);
+    if(dense?.triangles?.length)return dense;
+  }catch(error){if(isWasmMemoryError(error))throw displayRefinementError(error);}
+  try{
+    const mesh=face.mesh(settings);
+    if(mesh?.triangles?.length)return mesh;
+  }catch(error){if(isWasmMemoryError(error))throw displayRefinementError(error);}
+  try{
+    const fallback=meshDenseRectangle(face,oc,{fallback:true});
+    if(fallback?.triangles?.length)return fallback;
+  }catch(error){if(isWasmMemoryError(error))throw displayRefinementError(error);}
+  return emptyFaceMesh();
+}
+
 export function meshFacesProgressively(faces,settings,onBatch,oc){
   const parts=[],faceGroups=[];let batchStart=0,batchTriangles=0,indexCount=0;
   faces.forEach((face,i)=>{
-    const m=meshDenseRectangle(face,oc)??face.mesh(settings),count=m.triangles.length;
+    const m=meshFaceSafely(face,settings,oc),count=m.triangles.length;
     parts.push(m);faceGroups.push({start:indexCount,count,faceId:face.hashCode});indexCount+=count;batchTriangles+=count/3;
     if(onBatch&&(batchTriangles>=DISPLAY_BUDGET.streamTriangleBatch||i===faces.length-1)){
       const batch=parts.slice(batchStart);batchStart=parts.length;batchTriangles=0;
