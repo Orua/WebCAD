@@ -90,8 +90,14 @@ function acceptMilled(shape,result,R,material){
   }finally{solids.forEach(dispose);}
   const sourceVolume=cad.measureVolume(shape),resultVolume=cad.measureVolume(result);
   const epsilon=Math.max(1e-6,sourceVolume*1e-8);
+  // A Boolean that reports success but leaves the solid unchanged is not a fillet.
+  // 'combined' used to skip this, so a loft mill fallback could commit a no-op.
+  if(!(Math.abs(resultVolume-sourceVolume)>epsilon))fail('铣削回退未改变几何');
   if(material==='remove'&&resultVolume>sourceVolume+epsilon)fail('减料圆角不得增加材料');
   if(material==='add'&&resultVolume<sourceVolume-epsilon)fail('加料圆角不得减少材料');
+}
+export function assertMillVolumeChanged(shape,result,material='combined'){
+  acceptMilled(shape,result,0,material);
 }
 
 function complementaryTool(shape,{edgeId,radiusMm}){

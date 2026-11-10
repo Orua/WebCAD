@@ -95,7 +95,7 @@ let qualityKey='standard';
 function qualityState(){return {quality:qualityKey,...RENDER_QUALITIES[qualityKey],triangleCount:bodies.reduce((n,b)=>n+b.indices.length/3,0),source:'viewer-tessellation',adaptive:bodies.some(b=>!!b.adaptiveDisplay)};}
 let undoStack=[],redoStack=[],requestSequence=0,status='正在启动精确建模内核…';
 let modelClipboard=null;
-let revision=0,previewNext=null,previewIdentity=null,previewScopeReport=null,previewGeneration=0,previewComputing=false,aiStatus='in-page',agentBridge=null;
+let revision=0,previewNext=null,previewIdentity=null,previewScopeReport=null,previewKernelCache=null,previewGeneration=0,previewComputing=false,aiStatus='in-page',agentBridge=null;
 let previewComputingOwner=null;
 const hostControl=createHostControl(state=>{const entering=state.locked&&!viewport.interactionLocked,previewOwner=previewComputing?previewComputingOwner:previewIdentity?.owner??'ui';viewport.setInteractionLocked(state.locked);ui.setHostControl(state);if(entering&&(previewNext||previewComputing)&&previewOwner==='ui')void cancelPreview().catch(reportError);refresh();});
 function assertHumanEditing(){if(hostControl.get().locked)throw Object.assign(new Error('Agent 正在控制工程，释放控制后可编辑。'),{code:'HOST_INTERACTION_LOCKED'});}
@@ -113,7 +113,9 @@ function rejectPending(error){for(const job of pending.values()){clearTimeout(jo
 function createWorker(){
   const instance=new Worker(new URL('./cad-worker.js',import.meta.url),{type:'module'});
   instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;if(result.kind==='progress'){
-    kernelProgress={...result.progress,requestId:result.requestId,updatedAt:Date.now()};job.pulse();const progress=result.progress,key=[progress.kind,progress.phase,progress.stage,progress.featureId].join(':');if(job.debugProgressKey!==key||Date.now()-(job.debugProgressAt||0)>2000){job.debugProgressKey=key;job.debugProgressAt=Date.now();debugJournal.record('kernel','progress',{requestId:result.requestId,kind:progress.kind,phase:progress.phase,stage:progress.stage,featureId:progress.featureId,current:progress.current,total:progress.total,index:progress.index,regionIndex:progress.regionIndex});}
+    kernelProgress={...result.progress,requestId:result.requestId,updatedAt:Date.now()};job.pulse();const progress=result.progress;
+    // One journal slot per in-flight request. Per-feature progress used to fill the ring and drop errors.
+    debugJournal.record('kernel','progress',{requestId:result.requestId,kind:progress.kind,phase:progress.phase,label:progress.label,completed:progress.completed,total:progress.total,reused:progress.reused,recomputed:progress.recomputed,elapsedMs:progress.elapsedMs,cache:progress.cache,featureCount:progress.featureCount},'info',{coalesceKey:`kernel:${progress.kind||'progress'}:${result.requestId}`});
     job.progress=kernelProgress;
     if(result.progress.kind==='rebuild'){const p=result.progress;if(p.partial){try{viewport.addProgressiveMesh(p.partial);}catch{}delete p.partial;}const fraction=loadingTracker.update(p);if(busy)ui.setBusyProgress?.(fraction);return;}
     return;
@@ -427,12 +429,22 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
     if(record&&!newInstance&&!restoring&&next.documentId===documentModel.documentId){routed=await routeChangedFeature(next,{signal,expectedRevision:expectedRevision??revision});next=routed.next;}
     localBegan=performance.now();
-    let result=await request('rebuild',{document:next},{hardTimeoutMs});
+    const previewSignature=JSON.stringify({imports:next.imports||{},features:next.features.map(geometryFeatureRecord)});
+    let result;
+    if(previewKernelCache&&previewKernelCache.signature===previewSignature)result=previewKernelCache.result;
+    else result=await request('rebuild',{document:next},{hardTimeoutMs});
+    previewKernelCache=null;
     if(result.stats.checkpointCandidates?.length){
       // Pending features are not in the committed timeline yet. Bake their
       // geometry first; pushUndo records the complete transaction exactly once.
       const baked=await request('bakeProject',{document:next,options:{recordHistory:false}});
-      try{assertDocumentCapacity(baked.document,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});next=baked.document;}catch(error){if(error.code!=='SIZE_LIMIT')throw error;}
+      try{
+        assertDocumentCapacity(baked.document,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
+        next=baked.document;
+        // Checkpoint metadata changes the geometry signature. Adopt it so the
+        // next append reuses in-memory shapes instead of rebuilding the prefix.
+        await request('adoptHistorySignature',{document:next});
+      }catch(error){if(error.code!=='SIZE_LIMIT')throw error;}
     }
     try{checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
     try{if(!restoring)await synchronizeBodyAnchors(documentModel,next,bodies,result.bodies,async bodyId=>(await request('queryGeometry',{bodyId,kind:'edge',filter:{}})).geometryFingerprint);checkTransaction(signal,expectedRevision);}catch(error){await request('rebuild',{document:documentModel});throw error;}
@@ -455,7 +467,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     if(newInstance||documentModel.documentId!==next.documentId){documentInstanceId=crypto.randomUUID();projectFileHandle=null;}
     documentModel=next;bodies=result.bodies;committedFinalSources=result.finalSources;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;committed=true;
     debugJournal.record('runtime','geometry-committed',{revision,origin,historyLabel,featureCount:next.features.length,bodyCount:bodies.length,bodies:bodies.slice(-12).map(b=>({id:b.id,volume:b.volume,bounds:b.bounds,solidCount:b.solidCount,shellCount:b.shellCount})),displayConfirmation:'separate',fileWriteConfirmation:'separate'});
-    kernelPerformance={totalMs:performance.now()-localBegan,...(result.parallelRebuild?{parallelRebuild:result.parallelRebuild}:{}),perFeatureMs:result.perFeatureMs||[],compiledReuse:result.compiledReuse||[],compiledInvalidated:result.compiledInvalidated||[],slowest:(result.perFeatureMs||[]).slice().sort((a,b)=>b.ms-a.ms).slice(0,10)};
+    kernelPerformance={totalMs:performance.now()-localBegan,cacheHit:result.cacheHit||null,...(result.parallelRebuild?{parallelRebuild:result.parallelRebuild}:{}),perFeatureMs:result.perFeatureMs||[],compiledReuse:result.compiledReuse||[],compiledInvalidated:result.compiledInvalidated||[],slowest:(result.perFeatureMs||[]).slice().sort((a,b)=>b.ms-a.ms).slice(0,10)};
     for(const feature of newQuickModels){try{recordQuickModelUse(feature.params.kind);}catch(error){debugJournal.record('runtime','quick-model-usage-skipped',{kind:feature.params?.kind,message:error?.message},'warn');}}
     lastWarnings=bodyWarnings(bodies);dirty=true;if(save)void autosave(); // selection-origin
     // Agent writes never replace the user's selection. Only ids that no longer
@@ -537,6 +549,7 @@ async function addFeature(op,params={},options={}){
   const refs=options.refs??[];
   if(migratedOperationIds.includes(op))params=normalizeOperationParams(op,params);
   params=await resolveLogoParams(op,params,refs,options);
+  params=await stampMachiningFace(op,params,refs,options);
   const {next,id}=featureDocument(op,params,refs,options.name,options.placement);
   const insertOps=['vectorProfile','box','sphere','cylinder','cone','torus','extrude','revolve','copy','mirror','linearPattern','circularPattern','quickModel','sweep','loft'];
   const select=options.origin==='agent'?undefined:Object.hasOwn(options,'select')?options.select:insertOps.includes(op)?undefined:id;
@@ -558,7 +571,15 @@ async function resolveLogoParams(op,params,refs,options={}){
   if(params.targetSurfaceType!==undefined&&!sameSurfaceType(params.targetSurfaceType,face.geomType))throw Object.assign(new Error('目标面类型已改变，请重新选面'),{code:'STALE_REFERENCE'});
   if(params.targetGeometryFingerprint!==undefined&&params.targetGeometryFingerprint!==face.geometryFingerprint)throw Object.assign(new Error('目标实体几何已改变，请重新选面'),{code:'STALE_REFERENCE'});
   if(params.targetFaceSignature!==undefined&&params.targetFaceSignature!==face.stableFaceSignature)throw Object.assign(new Error('目标面几何已改变，请重新选面'),{code:'STALE_REFERENCE'});
-  return {...params,targetSurfaceType:face.geomType,targetFaceArea:face.areaMm2,targetFaceCenter:face.center,targetFaceSignature:face.stableFaceSignature,targetGeometryFingerprint:face.geometryFingerprint};
+  return {...params,targetSurfaceType:face.geomType,targetFaceArea:face.areaMm2,targetFaceCenter:face.center,targetFaceSignature:face.stableFaceSignature,targetFaceOriginFeatureIds:face.originFeatureIds||[],targetGeometryFingerprint:face.geometryFingerprint};
+}
+async function stampMachiningFace(op,params,refs,options={}){
+  if(!['faceGroove','innerTurn','outerTurn'].includes(op)&&!(op==='logo'&&params.placementVersion===2))return params;
+  if(typeof params.targetFaceSignature==='string'&&params.targetFaceSignature)return params;
+  if(refs.length!==1||!Number.isInteger(params.faceId))return params;
+  const face=await request('logoTarget',{bodyId:refs[0],faceId:params.faceId});
+  checkTransaction(options.signal,options.expectedRevision);
+  return {...params,targetFaceSignature:face.stableFaceSignature,targetFaceCenter:face.center,targetFaceOriginFeatureIds:face.originFeatureIds||[]};
 }
 async function editFeature(id,params,name,options={}){
   if(busy)return;
@@ -604,12 +625,12 @@ async function previewFeature(op,params,explicitRefs,name,placement,identity=nul
   const generation=++previewGeneration;previewComputing=true;previewComputingOwner=identity?.owner??'ui';setBusy(true,'预览 / Preview…');
   try{const routed=await routeChangedFeature(next,{expectedRevision:revision});next=routed.next;const result=await request('rebuild',{document:next});
     if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);return false;}
-    previewNext=next;previewIdentity=identity;const previewBody=result.bodies.find(body=>body.id===(editId??next.features.at(-1)?.id));previewScopeReport=op==='meshReliefEdit'?previewBody?.meshReport?.edit||null:['relief','reliefShoulder'].includes(op)?previewBody?.reliefReport||null:op==='refineShape'?previewBody?.refineReport||null:op==='round'?previewBody?.roundReport||null:op==='rounding'?previewBody?.roundingReport||null:op==='roundEnd'?previewBody?.endRoundingReport||null:null;
+    previewNext=next;previewIdentity=identity;previewKernelCache={signature:JSON.stringify({imports:next.imports||{},features:next.features.map(geometryFeatureRecord)}),result};const previewBody=result.bodies.find(body=>body.id===(editId??next.features.at(-1)?.id));previewScopeReport=op==='meshReliefEdit'?previewBody?.meshReport?.edit||null:['relief','reliefShoulder'].includes(op)?previewBody?.reliefReport||null:op==='refineShape'?previewBody?.refineReport||null:op==='round'?previewBody?.roundReport||null:op==='rounding'?previewBody?.roundingReport||null:op==='roundEnd'?previewBody?.endRoundingReport||null:null;
     viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);
     if(previewScopeReport&&op==='rounding'){const sourceBody=bodies.find(body=>body.id===refs[0]);viewport.setScopeOverlay(sourceBody?.edges,previewScopeReport.requestedSelection,previewScopeReport.expandedSelection);}
     if(op==='round'&&previewScopeReport){previewScopeReport={...previewScopeReport,previewBodyId:previewBody.id,sourceBodyId:refs[0]};viewport.setRoundGuide(previewScopeReport);if(previewScopeReport.mode==='edge')viewport.setScopeOverlay(bodies.find(b=>b.id===refs[0])?.edges,params.edgeIds||[],params.edgeIds||[]);}
     if(!bodies.length)viewport.fit();setStatus('预览未保存 · 应用或取消 / Preview: apply or cancel');return previewScopeReport?{[['relief','reliefShoulder'].includes(op)?'reliefReport':op==='refineShape'?'refineReport':op==='round'?'roundReport':op==='roundEnd'?'endRoundingReport':'roundingReport']:clone(previewScopeReport)}:true;}
-  catch(error){if(error.code==='PREVIEW_CANCELLED')return false;previewScopeReport=null;if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;previewScopeReport=previousScopeReport;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{previewNext=null;previewIdentity=null;await request('rebuild',{document:documentModel});viewport.setBodies(bodies,documentModel.hidden);}throw error;}
+  catch(error){previewKernelCache=null;if(error.code==='PREVIEW_CANCELLED')return false;previewScopeReport=null;if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;previewScopeReport=previousScopeReport;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{previewNext=null;previewIdentity=null;await request('rebuild',{document:documentModel});viewport.setBodies(bodies,documentModel.hidden);}throw error;}
   finally{previewComputing=false;if(recoveryPromise)await recoveryPromise.catch(()=>{});setBusy(false);}
 }
 async function previewFile(fileImport,identity,update=false){
@@ -620,11 +641,11 @@ async function previewFile(fileImport,identity,update=false){
   assertDocumentCapacity(next,{includeTimeline:false,reserveBytes:DOCUMENT_LIMITS.preflightReserveBytes});
   if(!identity||identity.owner==='ui')assertHumanEditing();
   const generation=++previewGeneration;previewComputing=true;previewComputingOwner=identity?.owner??'ui';setBusy(true,'文件插入预览 / File preview…');
-  try{const result=await request('rebuild',{document:next});if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;previewScopeReport=null;viewport.clearScopeOverlay();viewport.setBodies(bodies,documentModel.hidden);return false;}previewNext=next;previewIdentity=identity;previewScopeReport=null;viewport.clearScopeOverlay();viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);setStatus('文件插入预览未保存 · 应用或取消');return true;}
-  catch(error){if(error.code==='PREVIEW_CANCELLED')return false;if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);}throw error;}
+  try{const result=await request('rebuild',{document:next});if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;previewKernelCache=null;previewScopeReport=null;viewport.clearScopeOverlay();viewport.setBodies(bodies,documentModel.hidden);return false;}previewNext=next;previewIdentity=identity;previewKernelCache={signature:JSON.stringify({imports:next.imports||{},features:next.features.map(geometryFeatureRecord)}),result};previewScopeReport=null;viewport.clearScopeOverlay();viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);setStatus('文件插入预览未保存 · 应用或取消');return true;}
+  catch(error){previewKernelCache=null;if(error.code==='PREVIEW_CANCELLED')return false;if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);}throw error;}
   finally{previewComputing=false;if(recoveryPromise)await recoveryPromise.catch(()=>{});setBusy(false);}
 }
-async function cancelPreview(){viewport.clearRoundGuide();previewGeneration++;previewScopeReport=null;viewport.clearScopeOverlay();if(previewComputing){previewNext=null;previewIdentity=null;setBusy(true,'取消并恢复内核 / Cancel and recover kernel…');try{await restartWorker(Object.assign(new Error('Preview cancelled'),{code:'PREVIEW_CANCELLED'}));}finally{setBusy(false);}return;}if(!previewNext)return;setBusy(true,'取消预览 / Cancel preview…');try{await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);}finally{setBusy(false);}}
+async function cancelPreview(){viewport.clearRoundGuide();previewGeneration++;previewScopeReport=null;previewKernelCache=null;viewport.clearScopeOverlay();if(previewComputing){previewNext=null;previewIdentity=null;setBusy(true,'取消并恢复内核 / Cancel and recover kernel…');try{await restartWorker(Object.assign(new Error('Preview cancelled'),{code:'PREVIEW_CANCELLED'}));}finally{setBusy(false);}return;}if(!previewNext)return;setBusy(true,'取消预览 / Cancel preview…');try{await request('rebuild',{document:documentModel});previewNext=null;previewIdentity=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);}finally{setBusy(false);}}
 
 function safeName(name){return (name||'WebCAD').replace(/[<>:"/\\|?*\x00-\x1f]/g,'_').replace(/\.{2,}/g,'_').replace(/[. ]+$/g,'').slice(0,120)||'WebCAD';}
 function download(data,name,mime='application/octet-stream'){
@@ -1174,6 +1195,7 @@ async function executeAI(command,args={},options={}){
     const next=clone(documentModel);
     for(const feature of args.features){
       if(!Object.hasOwn(labels,feature.op))throw Object.assign(new Error('Unsupported feature operation'),{code:'CAPABILITY_UNAVAILABLE'});
+      feature.params=await stampMachiningFace(feature.op,feature.params||{},feature.refs||[],options);
       next.features.push(clone(feature));
       if(next.appearance?.[feature.refs[0]])next.appearance[feature.id]=next.appearance[feature.refs[0]];
       if(next.colors?.[feature.refs[0]])next.colors[feature.id]=next.colors[feature.refs[0]];
@@ -1199,7 +1221,8 @@ const commandService=createCommandService({
   query:args=>request('queryGeometry',args),
 });
 const pageAPI=createPageAPI({
-  performance:()=>performanceRuntime.state(),
+  performance:()=>({...performanceRuntime.state(),kernelRebuild:kernelPerformance}),
+  revisionStamp:()=>({context:{sessionId:pageSessionId,documentId:documentModel.documentId,documentInstanceId,revision},summary:{name:documentModel.name,featureCount:documentModel.features.length,bodyCount:bodies.length,busy:busy||!!recoveryPromise,kernelReady,dirty:!!dirty},preview:{active:!!previewNext,computing:!!previewComputing},display:viewport.displayState(),bodies:bodies.map(body=>({id:body.id,name:body.name,bounds:body.bounds,volume:body.volume,solidCount:body.solidCount}))}),
   performanceSummary:()=>performanceRuntime.summary(),
   performanceVersion:()=>performanceRuntime.version(),
   configurePerformance:settings=>performanceRuntime.configure(settings),
@@ -1268,6 +1291,7 @@ const pageAPI=createPageAPI({
   measureRelation:input=>request('measureRelation',{input}),
   reliefDesignSupport:(featureId,faceId)=>request('reliefDesignSupport',{featureId,faceId}),
   displayBatch:Object.freeze({begin:beginDisplayBatch,end:endDisplayBatch,endDeferred:endDisplayBatchDeferred,flush:flushDisplayBatch}),
+  prepareDisplay:()=>{const started=performance.now(),pending=!!deferredDisplay;flushDisplayBatch();return {displayWaitMs:Math.round(performance.now()-started),flushedDeferred:pending};},
   display:()=>viewport.displayState(),frame:()=>{flushDisplayBatch();if(lastWarnings.some(w=>w.code==='DISPLAY_FAILED'))throw Object.assign(new Error('Display failed; call redraw'),{code:'DISPLAY_FAILED'});viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});return viewport.frame();},capture:(opts)=>viewport.screenshot(opts),
   evidenceSignature:()=>{flushDisplayBatch();if(lastWarnings.some(w=>w.code==='DISPLAY_FAILED'))throw Object.assign(Error('Display failed; call redraw.'),{code:'DISPLAY_FAILED'});viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});return viewport.evidenceSignature();},
   evidenceCapture:opts=>viewport.evidenceCapture(opts),
@@ -1291,7 +1315,8 @@ const pageAPI=createPageAPI({
     // Preserve camera -> projection -> direction -> fit precedence.
     if(input.camera)viewport.setCamera(input.camera);
     if(input.section)viewport.setSection(input.section);
-    if(input.projection)viewport.setProjection(input.projection);
+    // An explicit camera must survive a projection change. setProjection used to fit and discard it.
+    if(input.projection)viewport.setProjection(input.projection,{fit:!input.camera});
     if(input.direction)viewport.view(input.direction==='side'?'right':input.direction);
     if(input.fit)viewport.fit();
     viewport.setSelection(selectedIds,selectedTopology);refresh();await viewport.frame();

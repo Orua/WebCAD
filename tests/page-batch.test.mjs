@@ -211,6 +211,13 @@ test('preview control batches remain blocked while the worker or preview compute
   }
 });
 
+test('revisionStamp serves batch checks so full getState is not repeated per step',async()=>{
+  const f=fixture();let full=0;const original=f.api.getState;f.api.getState=()=>{full++;return original();};
+  const run=createPageBatch(f.api,{revisionStamp:()=>original()});
+  const request=f.request();request.idempotencyKey='stamped';
+  assert.equal((await run(request)).status,'completed');
+  assert.equal(full,0);
+});
 test('a batch defers display to one flush, flushing before view/export steps and on failure',async()=>{
   const log=[];const display={begin:()=>log.push('begin'),end:()=>log.push('end'),flush:()=>log.push('flush')};
   const f=fixture(display);const ok=await f.run(f.request());

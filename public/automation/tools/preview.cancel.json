@@ -6,13 +6,13 @@
   },
   "id": "preview.cancel",
   "title": "取消预览",
-  "description": "新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
+  "description": "新版 args:{previewId,expectedGeneration}。generation 是 expectedGeneration 的别名。仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.63.7",
+  "version": "1.64.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
-  "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
+  "inputContract": "execute({context,idempotencyKey,action:\"preview.cancel\",args}); 新版 args:{previewId,expectedGeneration}。generation 是 expectedGeneration 的别名。仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "documentLimits": {
     "maxFeatures": 2000,
     "maxBytes": 209715200,
@@ -234,5 +234,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b97294d13ddb8cbcc6003ec4597ce953abadfb19dbd18edbec1d32c44f333401"
+  "docsHash": "sha256:abedc5dac5579b1a73b04ef59c894d5163c9217fcdae01e5a4e8ec53ae1d52fc"
 }

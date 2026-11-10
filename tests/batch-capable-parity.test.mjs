@@ -10,7 +10,9 @@ test('every tool card batchCapable matches the runtime batch allowlist',()=>{
   assert.ok(report.toolCount>=287);
   const cards=listPublicToolCards();
   assert.deepEqual(BATCH_METHODS.filter(name=>!cards.some(card=>card.id===name)).sort(),['add','addMany']);
-  assert.equal(cards.filter(card=>card.batchCapable).length,BATCH_METHODS.length-2);
+  assert.equal(cards.filter(card=>card.batchCapable).length,BATCH_METHODS.length-1);
+  const addMany=cards.find(card=>card.id==='feature.addMany');
+  assert.equal(addMany.batchCapable,true);assert.equal(addMany.batchMethod,'addMany');
   assert.equal(cards.find(card=>card.id==='getDebugReport').batchCapable,false);
   assert.equal(cards.find(card=>card.id==='files.read').batchCapable,false);
   assert.equal(cards.find(card=>card.id==='files.save').batchCapable,true);

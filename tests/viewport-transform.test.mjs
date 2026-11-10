@@ -37,6 +37,21 @@ assert.ok(Math.abs(rotation.rz-90)<1e-7);assert.ok(Math.abs(rotation.x-30)<1e-7)
 v.gizmo.object=v.gizmoProxy;v.gizmoMode='translate';
 assert.equal(v.getTransformState().canDrag,true);
 v.selected=[];assert.equal(v.getTransformState().blocker,'NO_SELECTION');
+{
+  const pose=Object.create(CADViewport.prototype);
+  const perspective=new THREE.PerspectiveCamera(35,1.6,.01,1000);
+  perspective.position.set(10,20,30);
+  const controls={target:new THREE.Vector3(1,2,3),object:perspective,update(){}};
+  let fitted=0;
+  Object.assign(pose,{camera:perspective,span:20,gizmo:{camera:perspective},anchorGizmo:{camera:perspective},controls,fit(){fitted++;}});
+  pose.setProjection('orthographic',{fit:false});
+  assert.equal(fitted,0);
+  assert.equal(pose.camera.isOrthographicCamera,true);
+  assert.deepEqual(pose.camera.position.toArray(),[10,20,30]);
+  assert.deepEqual(pose.controls.target.toArray(),[1,2,3]);
+  pose.setProjection('perspective');
+  assert.equal(fitted,1);
+}
 v.selected=['moved','b'];assert.equal(v.getTransformState().blocker,'MULTIPLE_SELECTION');
 v.selected=['moved'];moved.root.visible=false;assert.equal(v.getTransformState().blocker,'HIDDEN_SELECTION');
 moved.root.visible=true;v.transformPending=true;assert.equal(v.getTransformState().blocker,'BUSY');

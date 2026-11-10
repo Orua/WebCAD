@@ -13,6 +13,27 @@
         "quantityKind": "index",
         "quantizationPolicy": "none"
       },
+      "targetFaceSignature": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Stable face signature captured when the feature is created. Rebuild remaps faceId from it when a later Boolean renumbers faces."
+      },
+      "targetFaceCenter": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "targetFaceOriginFeatureIds": {
+        "type": "array",
+        "maxItems": 8,
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
       "lengthMm": {
         "type": "number",
         "exclusiveMinimum": 0,
@@ -36,6 +57,14 @@
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
+      },
+      "offsetXMm": {
+        "type": "number",
+        "description": "Face-local X offset in mm from the area centroid. Default 0."
+      },
+      "offsetYMm": {
+        "type": "number",
+        "description": "Face-local Y offset in mm from the area centroid. Default 0."
       }
     },
     "required": [
@@ -75,7 +104,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Rectangle is centered at face area centroid; X is projected world X, falling back to world Y. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. A degree-1 or higher BSpline is accepted only when every control pole lies on that same plane. Curved ruled/loft faces are refused (CAPABILITY_UNAVAILABLE); this tool does not project a recess onto a curved surface. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is uniform along the plane normal. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. When targetFaceSignature is stored, an upstream edit remaps the face instead of failing UNSAFE_LEGACY_REFERENCE. Rectangle is centered at face area centroid plus offsetXMm/offsetYMm; X is projected world X, falling back to world Y. Depth is the prism height along the inward normal, so a fully contained recess removes length×width×depth. If the rectangle crosses the face boundary, removal is smaller and the result carries warning PARTIAL_RECESS. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot.",
   "title": "Mill a rectangular recess from a selected planar face",
   "category": "modification",
   "synonyms": [
@@ -85,7 +114,7 @@
     "锣槽"
   ],
   "description": "Mill a rectangular recess from a selected planar face",
-  "schemaHash": "sha256:d7b4a83374c45b9b7937c3f7922bc6298d25089d4f6651a5f6921f89c56a15b2",
+  "schemaHash": "sha256:4b8dc299a0c3c06510778c8a0e6d36732aded38077ef20cdc765d7d51bd03786",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -145,7 +174,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Rectangle is centered at face area centroid; X is projected world X, falling back to world Y. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot."
+    "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. A degree-1 or higher BSpline is accepted only when every control pole lies on that same plane. Curved ruled/loft faces are refused (CAPABILITY_UNAVAILABLE); this tool does not project a recess onto a curved surface. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is uniform along the plane normal. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. When targetFaceSignature is stored, an upstream edit remaps the face instead of failing UNSAFE_LEGACY_REFERENCE. Rectangle is centered at face area centroid plus offsetXMm/offsetYMm; X is projected world X, falling back to world Y. Depth is the prism height along the inward normal, so a fully contained recess removes length×width×depth. If the rectangle crosses the face boundary, removal is smaller and the result carries warning PARTIAL_RECESS. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -223,7 +252,7 @@
   "contract": {
     "purpose": "Mill a rectangular recess from a selected planar face",
     "whenToUse": [
-      "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Rectangle is centered at face area centroid; X is projected world X, falling back to world Y. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot."
+      "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. A degree-1 or higher BSpline is accepted only when every control pole lies on that same plane. Curved ruled/loft faces are refused (CAPABILITY_UNAVAILABLE); this tool does not project a recess onto a curved surface. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is uniform along the plane normal. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. When targetFaceSignature is stored, an upstream edit remaps the face instead of failing UNSAFE_LEGACY_REFERENCE. Rectangle is centered at face area centroid plus offsetXMm/offsetYMm; X is projected world X, falling back to world Y. Depth is the prism height along the inward normal, so a fully contained recess removes length×width×depth. If the rectangle crosses the face boundary, removal is smaller and the result carries warning PARTIAL_RECESS. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot."
     ],
     "whenNotToUse": [
       {
@@ -239,6 +268,39 @@
           0,
           null
         ]
+      },
+      "targetFaceSignature": {
+        "meaning": "Stable face signature captured when the feature is created. Rebuild remaps faceId from it when a later Boolean renumbers faces.",
+        "unit": "none",
+        "range": [
+          1,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetFaceCenter": {
+        "meaning": "targetFaceCenter: Mill a rectangular recess from a selected planar face",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "targetFaceOriginFeatureIds": {
+        "meaning": "targetFaceOriginFeatureIds: Mill a rectangular recess from a selected planar face",
+        "unit": "none",
+        "range": [
+          null,
+          8
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       },
       "lengthMm": {
         "meaning": "Long side in stable face X direction",
@@ -263,6 +325,28 @@
           0,
           null
         ]
+      },
+      "offsetXMm": {
+        "meaning": "Face-local X offset in mm from the area centroid. Default 0.",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "offsetYMm": {
+        "meaning": "Face-local Y offset in mm from the area centroid. Default 0.",
+        "unit": "mm",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       }
     },
     "refs": {
@@ -406,7 +490,7 @@
   },
   "purpose": "Mill a rectangular recess from a selected planar face",
   "whenToUse": [
-    "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is measured inward from that plane. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. Rectangle is centered at face area centroid; X is projected world X, falling back to world Y. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot."
+    "Select one actual planar face of one solid; origin is its exact area centroid, axis points inward along the reversed outward normal. A degree-1 or higher BSpline is accepted only when every control pole lies on that same plane. Curved ruled/loft faces are refused (CAPABILITY_UNAVAILABLE); this tool does not project a recess onto a curved surface. No active reference frame is reapplied. Requires material removal and one valid remaining solid. Depth is uniform along the plane normal. Nonplanar faces, ambiguous sources, an empty result or disjoint remaining solids are refused; failure preserves the source. Face IDs are revision-local; queryGeometry first. When targetFaceSignature is stored, an upstream edit remaps the face instead of failing UNSAFE_LEGACY_REFERENCE. Rectangle is centered at face area centroid plus offsetXMm/offsetYMm; X is projected world X, falling back to world Y. Depth is the prism height along the inward normal, so a fully contained recess removes length×width×depth. If the rectangle crosses the face boundary, removal is smaller and the result carries warning PARTIAL_RECESS. Cutter may meet the outer boundary; this is an actual rectangular recess, not a capsule slot."
   ],
   "whenNotToUse": [
     {
@@ -795,5 +879,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c5fdf8cb1b12e8a5080023e4b4342d6bd3b7f6c798996ae96010a7e2ea3e1dd7"
+  "docsHash": "sha256:d2a1a0823f2db0d71f104ff30224916d0554ae8f28852249322d9205fa9574f2"
 }

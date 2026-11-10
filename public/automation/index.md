@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.63.7 · 操作目录 sha256:9f1dfe9edd548d29e4344fb7216744b43a6d292da9f9e37ff341f0b6b863e987
+API 1.64.0 · 操作目录 sha256:e54bfaa3c867242c64749c5c1f023427d6e4a1a329c6c58d074c117dbd71e86b
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -391,16 +391,16 @@ API 1.63.7 · 操作目录 sha256:9f1dfe9edd548d29e4344fb7216744b43a6d292da9f9e3
 - `reference.setBodyAnchor` · page-command · args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。
 - `reference.deleteBodyAnchor` · page-command · args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。
 - `feature.add` · page-command · args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。
-- `feature.addMany` · page-command · args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。
-- `feature.edit` · page-command · args:{featureId,opVersion,schemaHash,params,name?,placement?}；opVersion/schemaHash 取被编辑特征 op 的工具卡（如 box 卡），不是本卡；params 为补丁，placement 提供时完整替换。
+- `feature.addMany` · page-command · args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。api.run 里用 method:addMany（本卡 batchCapable=true，batchMethod=addMany），不要逐步 add。
+- `feature.edit` · page-command · args:{featureId,params,name?,placement?,opVersion?,schemaHash?}；省略 opVersion/schemaHash 时按被编辑特征的 op 当前工具卡自动补齐，显式传入且不一致才报错。params 为补丁，placement 提供时完整替换。
 - `feature.remove` · page-command · args:{bodyIds}，不可使用历史已替换 ID。
 - `history.undo` · page-command · args:{}；撤销一个已提交步骤。
 - `history.redo` · page-command · args:{}；重做一个步骤。
 - `document.refresh` · page-command · args:{}；重建当前历史。
 - `preview.start` · page-command · 普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。预览编号在 result.preview.previewId，同时在回执顶层提供 previewId、generation、baseRevision 别名。提交前工程 revision 不变。
 - `preview.update` · page-command · args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。
-- `preview.commit` · page-command · 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤。
-- `preview.cancel` · page-command · 新版 args:{previewId,expectedGeneration}；仅旧版 UI 预览允许 args:{}。取消不增加 revision。
+- `preview.commit` · page-command · 新版 args:{previewId,expectedGeneration}。preview.start 回执的 generation 可作为 expectedGeneration 的别名。字段名错误时 error.details.unknownField 与 expected 会指出应使用的字段。仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤，并复用预览已算出的形状。
+- `preview.cancel` · page-command · 新版 args:{previewId,expectedGeneration}。generation 是 expectedGeneration 的别名。仅旧版 UI 预览允许 args:{}。取消不增加 revision。
 - `document.parameters` · page-command · 通过 execute 的 document.parameters 动作合并命名定义和特征数值路径绑定，原子重建并形成一个撤销步骤。
 - `files.capabilities` · browser-file-adapter · capabilities(); no arguments.
 - `files.register` · browser-file-adapter · register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.

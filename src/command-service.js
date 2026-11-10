@@ -13,6 +13,7 @@ import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 import {archiveReceiptResult,unresolvedReceipt} from './receipt-archive.js';
 import {withErrorRecovery} from './error-recovery.js';
 import {commitFacts} from './commit-facts.js';
+import {compactWriteReceipt} from './receipt-compact.js';
 import {validateStateProjection,projectStateRows} from './state-projection.js';
 
 const clone=structuredClone;
@@ -24,7 +25,22 @@ export function domainError(code,path,message,recoveryAction='NONE') {
 function fail(code,path,message,recovery){throw domainError(code,path,message,recovery);}
 function object(value,keys,path){
   if(!value||typeof value!=='object'||Array.isArray(value))fail('PARAM_SCHEMA_INVALID',path,'Expected an object');
-  for(const k of Object.keys(value))if(!keys.includes(k))fail('PARAM_SCHEMA_INVALID',`${path}.${k}`,'Unknown field');
+  for(const k of Object.keys(value))if(!keys.includes(k)){
+    const expected=k==='generation'&&keys.includes('expectedGeneration')?'expectedGeneration':undefined;
+    const error=domainError('PARAM_SCHEMA_INVALID',`${path}.${k}`,expected?`Unknown field "${k}". Use ${expected}. preview.start returns generation; commit, update and cancel require expectedGeneration.`:`Unknown field "${k}". Expected: ${keys.join(', ')}.`);
+    error.details={unknownField:k,...(expected?{expected}:{}),expectedFields:keys};
+    throw error;
+  }
+}
+function aliasPreviewGeneration(args){
+  if(!args||typeof args!=='object'||args.generation===undefined)return;
+  if(args.expectedGeneration===undefined){args.expectedGeneration=args.generation;delete args.generation;return;}
+  if(args.generation!==args.expectedGeneration){
+    const error=domainError('PARAM_SCHEMA_INVALID','args.generation','generation 与 expectedGeneration 不一致。preview.start 返回 generation，commit/update/cancel 使用 expectedGeneration。');
+    error.details={unknownField:'generation',expected:'expectedGeneration'};
+    throw error;
+  }
+  delete args.generation;
 }
 function string(value,path,max=150){if(typeof value!=='string'||!value.length||value.length>max)fail('PARAM_SCHEMA_INVALID',path,`Expected nonempty string (max ${max})`);}
 function finiteTree(v,path='args'){if(typeof v==='number'&&!Number.isFinite(v))fail('PARAM_SCHEMA_INVALID',path,'Number must be finite');if(v&&typeof v==='object')for(const[k,x]of Object.entries(v))finiteTree(x,`${path}.${k}`);}
@@ -178,6 +194,7 @@ export function createCommandService(adapter) {
           command=input.action==='preview.start'?'preview_feature':'add_feature';args={op,params:a.params,refs,name:a.name,placement:resolvePlacement(newFeaturePlacement(a.placement,s.referenceSystem,op),s.referenceSystem,op,a.params),placementExplicit:a.placement!==undefined,...(input.action==='preview.start'?{previewIdentity:{previewId:uid(),generation:1,baseRevision:s.revision,owner:options.fromUI?'ui':'api'}}:{})};break;
         }
         case 'preview.update':{
+          aliasPreviewGeneration(a);
           object(a,['previewId','expectedGeneration','patch'],'args');string(a.previewId,'args.previewId',128);integer(a.expectedGeneration,'args.expectedGeneration',1);
           if(!s.previewInfo||!s.previewDraft||s.previewInfo.previewId!==a.previewId||s.previewInfo.generation!==a.expectedGeneration)fail('STALE_REFERENCE','args.previewId','Preview identity or generation changed','READ_STATE_AND_REPLAN');
           object(a.patch,['params','placement'],'args.patch');if(!Object.keys(a.patch).length)fail('PARAM_SCHEMA_INVALID','args.patch','Preview patch must change params or placement');
@@ -194,8 +211,9 @@ export function createCommandService(adapter) {
           object(a,['featureId','opVersion','schemaHash','params','name','placement'],'args');string(a.featureId,'args.featureId');
           const index=s.features.findIndex(f=>f.id===a.featureId);if(index<0)fail('STALE_REFERENCE','args.featureId','Unknown feature');
           const feature=s.features[index];op=feature.op;
-          // The contract is the edited feature's own operation card, not the feature.edit card.
-          // Validation stays strict; the error only names which card to read.
+          // Same as run/add: omit opVersion/schemaHash and the edited operation's current card fills them.
+          // An explicit mismatch is still rejected.
+          if(a.opVersion===undefined||a.schemaHash===undefined){const card=getOperation(op);if(a.opVersion===undefined)a.opVersion=card.version;if(a.schemaHash===undefined)a.schemaHash=card.schemaHash;}
           try{contract(op,a);}catch(e){if(['SCHEMA_MISMATCH','OPERATION_VERSION_UNSUPPORTED'].includes(e.code))throw Object.assign(e,{message:`feature.edit 需要被编辑特征的 ${op} 工具卡的 opVersion/schemaHash（不是 feature.edit 卡）；请 getTool({id:'${op}'}) 后重试。`,details:{featureId:a.featureId,op,toolId:op,field:e.path}});throw e;}
           const merged=['transform','copy'].includes(op)&&a.params?.mode&&!feature.params.mode?a.params:{...feature.params,...a.params};
           const params=migratedOperationIds.includes(op)?normalizeOperationPatch(op,feature.params,a.params):parameters(op,merged,{creation:false});if(['transform','copy'].includes(op)&&params.mode&&a.placement===undefined&&!feature.placement)fail('FRAME_INVALID','args.placement',SPATIAL_MODE_PLACEMENT_MESSAGE);if(a.name!==undefined)string(a.name,'args.name',120);await verifyNamedPlacement(a.placement,s,feature.refs||[]);
@@ -208,6 +226,7 @@ export function createCommandService(adapter) {
         case 'feature.remove':object(a,['bodyIds'],'args');ids(a.bodyIds,'args.bodyIds',true);if(a.bodyIds.some(id=>!s.bodies.some(b=>b.id===id)))fail('STALE_REFERENCE','args.bodyIds','Body is not current');refs=a.bodyIds;command='remove';args={ids:refs};break;
         case 'history.undo':case 'history.redo':case 'document.refresh':object(a,[],'args');command=input.action.split('.')[1];args={};break;
         case 'preview.commit':case 'preview.cancel':{
+          aliasPreviewGeneration(a);
           if(s.previewInfo){object(a,['previewId','expectedGeneration'],'args');string(a.previewId,'args.previewId',128);integer(a.expectedGeneration,'args.expectedGeneration',1);if(a.previewId!==s.previewInfo.previewId||a.expectedGeneration!==s.previewInfo.generation)fail('STALE_REFERENCE','args.previewId','Preview identity or generation changed','READ_STATE_AND_REPLAN');}
           else object(a,[],'args');command=input.action;args=clone(a);break;
         }
@@ -237,6 +256,7 @@ export function createCommandService(adapter) {
       if(args?.fileImport?.placement)result.resolvedPlacement={...describeResolvedPlacement('import',{},args.fileImport.placement),geometryValidated:false,referenceQuality:'provided-coordinates',binding:'snapshot'};
       if(input.action.startsWith('preview.')){if(['preview.start','preview.update'].includes(input.action))result={...result,status:after.preview?'previewing':'no_change',commitState:'not_committed',validation:{geometry:after.preview?'previewed':'cancelled',placement:args.placement||args.fileImport?.placement?'passed':'not_applicable'}};result.preview={active:!!after.preview,computing:!!after.previewComputing,...(after.previewInfo?{previewId:after.previewInfo.previewId,generation:after.previewInfo.generation,baseRevision:after.previewInfo.baseRevision}: {}),...(after.previewScope?{scope:clone(after.previewScope)}:{})};if(result.preview.previewId){result.previewId=result.preview.previewId;result.generation=result.preview.generation;result.baseRevision=result.preview.baseRevision;}}
       if(result.status==='committed')result.facts=commitFacts(s,after,result);
+      result=compactWriteReceipt(result);
       receipts.set(key,{fingerprint,result:clone(result)});return result;
     }catch(e){
       const now=snapshot();let result=errorResult(e,requestId,now);
@@ -244,7 +264,7 @@ export function createCommandService(adapter) {
       if(featurePlan&&e.featureId)result.error.featureKey=Object.keys(featurePlan.featureIds).find(key=>featurePlan.featureIds[key]===e.featureId);
       if(e.commitState!=='not_committed'&&revisionBefore!==undefined&&now.documentInstanceId===s.documentInstanceId&&now.revision!==revisionBefore)result={status:'unknown',requestId,idempotencyKey:key,commitState:'unknown',error:{code:'RESULT_UNKNOWN',path:'result',message:e.message||String(e),retryable:false,recoveryAction:'READ_STATE_AND_REPLAN'}};
       // Preserve an existing receipt even on a conflicting reuse.
-      result=withErrorRecovery(result);
+      result=compactWriteReceipt(withErrorRecovery(result));
       if(key&&fingerprint&&!receipts.has(key)&&!archivedReceipts.has(key)&&makeReceiptRoom())receipts.set(key,{fingerprint,result:clone(result)});
       return result;
     }

@@ -1,5 +1,5 @@
 import {listPublicToolCards} from './page-api-docs.js';
-import {BATCH_METHODS} from './page-batch.js';
+import {BATCH_METHODS,cardBatchCapable} from './page-batch.js';
 import {ADD_STEP_SCHEMA} from './page-input-contracts.js';
 import {validateSchema} from './contracts/operation-schema.js';
 import {getOperation} from './operation-registry.js';
@@ -19,8 +19,8 @@ function problem(list,error,label){
 export function assertAutomationParity(cards=listPublicToolCards()){
   const problems=[];
   for(const card of cards){
-    if(card.batchCapable!==BATCH_METHODS.includes(card.id))
-      problems.push(`${card.id} batchCapable=${String(card.batchCapable)} but allowlist=${BATCH_METHODS.includes(card.id)}`);
+    if(card.batchCapable!==cardBatchCapable(card.id))
+      problems.push(`${card.id} batchCapable=${String(card.batchCapable)} but allowlist=${cardBatchCapable(card.id)}`);
     for(const field of ['minimalExample','normalExample']){
       const example=card[field];
       if(!example)continue;

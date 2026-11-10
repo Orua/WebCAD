@@ -55,7 +55,7 @@ import { buildFaceThickness } from './surface-thickness.js';
 import { extractPlaneSection, extractFaceBoundary } from './reference-curves.js';
 import { sewFaces, surfaceTrim, diagnoseSurface } from './surface-repair.js';
 import { queryShapeGeometry } from './geometry-query.js';
-import { logoFaceSignature } from './logo-face-signature.js';
+import { logoFaceSignature, remapSignedFace } from './logo-face-signature.js';
 import { buildReferenceExtrude } from './reference-profile-extrude.js';
 import { buildReferenceLoft } from './reference-profile-loft.js';
 import { buildSmoothTransition } from './smooth-transition.js';
@@ -433,6 +433,7 @@ export class CadKernel {
       }
       case 'logo': {
         const shape=source();
+        if(p.targetFaceSignature){const faceId=remapSignedFace(shape,p,cad);if(faceId!==p.faceId)p={...p,faceId};}
         if(p.projectionMode==='connectedFaces'&&p.placementVersion!==2)throw new Error('跨相连面投影需要 placementVersion:2 和明确放置点');
         if(p.placementVersion===2){
           const faces=shape.faces;
@@ -827,6 +828,12 @@ export class CadKernel {
       return {bodies,quality};
     } catch(error) {this.quality=previous;throw error;}
   }
+  adoptHistorySignature(document){
+    if(!document||!Array.isArray(document.features))throw new Error('无效的 WebCAD 工程');
+    this.historySignature=document.features.map(geometryFeatureSignature);
+    this.importsSignature=JSON.stringify(document.imports||{});
+    return {features:this.historySignature.length};
+  }
   reportRebuildProgress(phase,label,details={}){
     if(this.rebuildStarted===undefined)return;
     this.onProgress?.({kind:'rebuild',phase,label,elapsedMs:Math.round(performance.now()-this.rebuildStarted),...details});
@@ -909,11 +916,29 @@ export class CadKernel {
     const nextRenderCache = new Map();
     const compiledReuse=[],compiledInvalidated=[],perFeatureMs=[];
     try {
+      // Same recipe as the shapes already in memory: return the display cache.
+      // Appending a feature still falls through and rebuilds only the suffix.
+      if(prefix===signatures.length&&signatures.length===this.historySignature.length&&this.active.size&&this.renderCache.size>=this.active.size){
+        const byId=new Map(features.map(feature=>[feature.id,feature]));
+        const cachedBodies=[];
+        let complete=true;
+        for(const [id] of this.active){
+          const cached=this.renderCache.get(id),feature=byId.get(id);
+          if(!cached||!feature){complete=false;break;}
+          cachedBodies.push({...cached.body,name:feature.name||feature.id});
+        }
+        if(complete&&cachedBodies.length===this.active.size){
+          const timings=features.map(feature=>({featureId:feature.id,op:feature.op,ms:0,reused:true,checkpoint:false}));
+          this.lastFeatureTimings=timings;this.lastCompiledInvalidated=[];
+          this.reportRebuildProgress('complete','重建完成',{featureCount:features.length,reused:features.length,recomputed:0,cache:'incremental-prefix'});
+          return {bodies:cachedBodies,renderVersion:String(this.renderVersion),compiledReuse:[],compiledInvalidated:[],perFeatureMs:timings,cacheHit:'incremental-prefix',stats:{bodies:cachedBodies.length,solids:cachedBodies.reduce((n,b)=>n+(b.solidCount||0),0),volume:cachedBodies.some(b=>b.metricsDeferred)?null:cachedBodies.reduce((n,b)=>n+(b.volume||0),0),checkpointCandidates:[]}};
+        }
+      }
       for (let index = 0; index < features.length; index++) {
         const feature = features[index];
         const featureStarted=performance.now();
         current = feature.id;
-        this.reportRebuildProgress('feature','重建特征',{featureId:current,completed:index,total:features.length});
+        if(index>=prefix)this.reportRebuildProgress('feature','重建特征',{featureId:current,completed:index,total:features.length,reused:prefix,recomputed:features.length-prefix});
         if (!current || ids.has(current)) throw new Error('特征 ID 缺失或重复');
         ids.add(current);
         let shape;
@@ -954,7 +979,7 @@ export class CadKernel {
         }
         if (shape) {
           next.set(current, shape);
-          this.reportRebuildProgress('validation','校验几何',{featureId:current});
+          if(!reused.has(current))this.reportRebuildProgress('validation','校验几何',{featureId:current,completed:index,total:features.length});
           if (!reused.has(current)&&shape.geometryType!=='mesh') {
             if (shape.isNull) throw new Error('操作生成空模型，请检查尺寸和实体交集');
             const faces = shape.faces; const hasFaces = faces.length > 0; faces.forEach(dispose);
@@ -1000,7 +1025,7 @@ export class CadKernel {
       this.shapes = next; this.active = active; this.historySignature = signatures; this.importsSignature = importsSignature; this.renderCache = nextRenderCache;
       this.lastFeatureTimings=perFeatureMs;
       this.lastCompiledInvalidated=compiledInvalidated;
-      this.reportRebuildProgress('complete','重建完成');
+      this.reportRebuildProgress('complete','重建完成',{featureCount:features.length,reused:reused.size,recomputed:features.length-reused.size});
       return { bodies, renderVersion: String(this.renderVersion), compiledReuse,compiledInvalidated,perFeatureMs,stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.some(b=>b.metricsDeferred)?null:bodies.reduce((n, b) => n + (b.volume || 0), 0),checkpointCandidates:perFeatureMs.filter(row=>row.ms>1000).map(row=>row.featureId) } };
     } catch (error) {
       next.forEach((shape, id) => { if (!reused.has(id)) dispose(shape); });
@@ -1036,7 +1061,9 @@ export class CadKernel {
       if(!Number.isInteger(faceId)||faceId<0||!faces[faceId])throw new Error('目标面已失效，请重新选面');
       const face=faces[faceId],center=face.center;
       let point;try{point=center.toTuple();}finally{dispose(center);}
-      return {bodyId,faceId,geomType:face.geomType,areaMm2:cad.measureArea(face),center:point,stableFaceSignature:logoFaceSignature(face,cad),geometryFingerprint:await this.geometryFingerprint(shape)};
+      const origin=shape.faceOrigins?.[faceId];
+      const originFeatureIds=origin?[...new Set([...(origin.featureIds||[]),...(origin.featureId?[origin.featureId]:[])])].filter(Boolean):[];
+      return {bodyId,faceId,geomType:face.geomType,areaMm2:cad.measureArea(face),center:point,stableFaceSignature:logoFaceSignature(face,cad),originFeatureIds,geometryFingerprint:await this.geometryFingerprint(shape)};
     }finally{faces.forEach(dispose);}
   }
   async queryGeometry(bodyId, kind, filter = {}) {

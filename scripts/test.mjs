@@ -37,7 +37,7 @@ const groups = {
     'parameter-calculator', 'parameter-error-message', 'named-parameters', 'recovery-isolation', 'recovery-consent', 'selection-contract', 'selection-assists',
     'tool-state', 'viewport-transform', 'orthographic-fit', 'dfam-inspection', 'profile-fitting', 'text-commands',
     'debug-journal', 'cad-completion', 'logo-endpoint-adaptation', 'logo-host-preparer', 'logo-placement-guide', 'native-state-projection', 'relief-reference', 'relief-photo-convert', 'relief-quality-fit-accuracy', 'state-facts', 'visual-evidence',
-    'batch-capable-parity','tool-examples-schema','sweep-continuity',
+    'batch-capable-parity','tool-examples-schema','sweep-continuity','curve-sweep-contract','job-call-contracts','public-knowledge-cache','receipt-compact','procedural-antique-atlas','edge-batching',
   ],
   kernel: [
     'core-tools-regressions','d-buckle-boundary','history-compatibility','keyring-history','rod-junction','source-free-junction',
@@ -71,7 +71,7 @@ const groups = {
     'agent-profile-contract',
     'drag-snap','drag-snap-controller','render-quality','profile-edit','profile-editing','profile-primitives','profile-inspection','fit-inspection','thickness-inspection','relation-measure','boolean-roles','hole-wizard','draft-tools',
     'advanced-integration', 'advanced-kernel', 'advanced-loft', 'align-kernel', 'curve-sweep', 'revolve-feedback',
-    'kernel-postconditions','quick-model-parity',
+    'kernel-postconditions','quick-model-parity','section-polyline-vertices','uniform-surface-grid',
     'curved-logo', 'projected-logo', 'fitted-surface', 'geometry-query', 'nearest-brep', 'group-explode',
     'hardware-templates', 'igs-tools', 'igs30-slot', 'igs30-templates', 'multi-pocket', 'multi-boss', 'dwg-ring-bar', 'dwg-rounded-frame', 'dwg-compact-rect', 'dwg-chamfered-section', 'dwg-compact-slider', 'dwg-figure-eight-capsule', 'dwg-u-end-hole-plate', 'dwg-twin-window-plate', 'dwg-small-twin-window', 'dwg-spline-twin-window', 'dwg-ellipse-bar', 'dwg-ellipse-open-wire', 'dwg-ellipse-u-wire', 'dwg-analytic-arc-profile', 'dwg-profile-loop', 'dwg-capsule-wire', 'dwg-arc-band-plate', 'dwg-ellipse-section-ring', 'dwg-flat-washer', 'dwg-polar-hole-ring', 'dwg-bowed-twin-window', 'dwg-arched-twin-window', 'dwg-d-flat-frame', 'dwg-gable-open-frame', 'dwg-ellipse-section-rect',
     'incremental-rebuild', 'kernel', 'logo-draft', 'logo-kernel', 'logo-model',

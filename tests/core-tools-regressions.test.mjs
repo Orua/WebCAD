@@ -55,12 +55,12 @@ test('formal website defaults survive a new tab without storing or exposing the 
   const disabled=getServicesConfig();assert.equal(disabled.enabled,false);assert.equal(disabled.configured,false);assert.equal(disabled.url,'');
   globalThis.WEBCAD_DEPLOYMENT_CONFIG={services:{enabled:true,url:'/subdir/compute/api.ashx',authMode:'siteSession'}};
   const config=getServicesConfig();assert.equal(config.enabled,true);assert.equal(config.configured,true);assert.equal(config.authMode,'siteSession');assert.equal(config.url,'https://cad.invalid/subdir/compute/api.ashx');assert.equal(config.hasCredential,false);assert.equal(config.credentialStorage,'none');assert.equal(config.storage,'deployment-default');assert.equal('credential' in config,false);
-  const requests=[];const client=createServicesClient({fetchImpl:async(url,options)=>{requests.push({url,options});return Response.json({protocolVersion:'1.0',supportedClientProtocolRange:['1.0']});}});
+  const requests=[];const client=createServicesClient({fetchImpl:async(url,options)=>{requests.push({url,options});return Response.json({protocolVersion:'1.0',supportedClientProtocolRange:['1.0'],anonymousCompute:{isolationVersion:1}});}});
   await client.capabilities();
   globalThis.sessionStorage=memory();assert.deepEqual(getServicesConfig(),config);await client.capabilities();assert.equal(requests.length,2);
   for(const {url,options}of requests){
    const endpoint=new URL(url);assert.equal(endpoint.origin+endpoint.pathname,config.url);assert.equal(endpoint.searchParams.get('route'),'/v1/capabilities');
-   assert.equal(options.credentials,'omit');assert.equal(options.headers.Authorization,undefined);assert.equal(options.headers['X-WebCAD-Compute'],'1');assert.equal(options.redirect,'error');
+   assert.equal(options.credentials,'same-origin');assert.equal(options.headers.Authorization,undefined);assert.equal(options.headers['X-WebCAD-Compute'],'1');assert.equal(options.redirect,'error');
   }
   assert.equal(localStorage.getItem('webcad.services.v1'),null);assert.equal(sessionStorage.getItem('webcad.services.credential.v1'),null);
   const oldUrl='https://legacy-compute.invalid/api.ashx',saved=JSON.stringify({enabled:true,url:oldUrl,authMode:'bearer',localTimeoutMs:90000,serverWaitMs:240000});

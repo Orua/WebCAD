@@ -6,6 +6,7 @@ import {validatePageInput} from './page-input-contracts.js';
 import {archiveReceiptResult} from './receipt-archive.js';
 import {withErrorRecovery} from './error-recovery.js';
 import {batchFacts} from './commit-facts.js';
+import {compactWriteReceipt} from './receipt-compact.js';
 const methods = new Set(['add','execute','connect','info','getState','searchTools','getTools','getTool','readDocs',
   'getQuickModelUsage','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
   'files.import','files.save','files.export','files.release']);
@@ -32,6 +33,11 @@ contextual.add('inspectDesign');
 for(const method of ['getModelLibrary','updateModelLibrary','resolveModelLibrary'])methods.add(method);
 for(const method of ['updateModelLibrary','resolveModelLibrary'])contextual.add(method);
 export const BATCH_METHODS=Object.freeze([...methods]);
+// feature.addMany is the command card for the addMany batch step. The card id
+// and the run method differ; both must say the fast path is batch-capable.
+export function cardBatchCapable(id){
+  return BATCH_METHODS.includes(id)||(id==='feature.addMany'&&BATCH_METHODS.includes('addMany'));
+}
 const bad = (code,message,path) => { throw Object.assign(new Error(message),{code,...(path?{path}:{})}); };
 const plain = x => x && typeof x==='object' && !Array.isArray(x);
 const keys = (x,allowed) => { if(!plain(x)||Object.keys(x).some(k=>!allowed.includes(k)))bad('PARAM_SCHEMA_INVALID','Unexpected object fields'); };
@@ -46,7 +52,7 @@ function safe(value,depth=0){
 }
 // Steps that read or change the rendered view see the committed model first.
 const DISPLAY_STEPS=new Set(['setView','setRenderQuality','setDisplayPreferences','redraw','files.save','files.export']);
-export function createPageBatch(api,{display}={}){
+export function createPageBatch(api,{display,revisionStamp}={}){
   const receipts=new Map(),archivedReceipts=new Map(),failedAttempts=new Map();let tail=Promise.resolve(),instance;
   const unresolved=receipt=>receipt?.status==='unknown'||receipt?.commitState==='unknown'||receipt?.results?.some(item=>unresolved(item.result));
   const archiveReceipt=(key,value)=>{archivedReceipts.set(key,{fingerprint:value.fingerprint,result:{...archiveReceiptResult(value.result),idempotencyKey:key,archivedAt:Date.now()}});};
@@ -64,7 +70,8 @@ export function createPageBatch(api,{display}={}){
       return ids.map(id=>{const b=(s.bodies||[]).find(body=>body.id===id);if(!b?.bounds?.min||!b?.bounds?.max)return null;
         return {id,center:[0,1,2].map(i=>round((b.bounds.min[i]+b.bounds.max[i])/2)),size:[0,1,2].map(i=>round(b.bounds.max[i]-b.bounds.min[i]))};}).filter(Boolean);};
     const startedAt=performance.now();
-    const finish=(status,error)=>{const s=api.getState();const receipt=withErrorRecovery({status,idempotencyKey:key,atomic:false,results,
+    const readLive=()=>typeof revisionStamp==='function'?revisionStamp():api.getState();
+    const finish=(status,error)=>{const s=readLive();const receipt=withErrorRecovery({status,idempotencyKey:key,atomic:false,results,
       requestContext:context(s.context),
       progress:{completedStepIds:results.filter(item=>!['failed','unknown'].includes(item.result?.status)).map(item=>item.id),
         failedStepId:status==='completed'||error?.code==='BATCH_CANCELLED'?null:activeStepId,
@@ -76,13 +83,13 @@ export function createPageBatch(api,{display}={}){
       elapsedMs:Math.round(performance.now()-startedAt),context:s.context,bodyBounds:touchedBounds(s),
       summary:s.summary,display:s.display,
       displayMatchesContext:s.display?.status==='rendered'&&['documentId','documentInstanceId','revision'].every(k=>s.display.rendered?.[k]===s.context[k])});
-      receipt.facts=batchFacts(s,receipt,Array.isArray(input?.steps)?input.steps:[],beforeState);return receipt;};
+      receipt.facts=batchFacts(s,receipt,Array.isArray(input?.steps)?input.steps:[],beforeState);return compactWriteReceipt(receipt);};
     try{
       safe(input);
       if(plain(input)&&Object.hasOwn(input,'atomic'))bad('PARAM_SCHEMA_INVALID','api.run does not accept atomic. Batches always run with atomic:false: a failed step keeps earlier committed steps. Use feature.addMany for one atomic multi-feature commit.');
       keys(input,['context','idempotencyKey','steps']);
       const signature=JSON.stringify(input);if(signature.length>3*1024*1024)bad('RESOURCE_LIMIT','Batch exceeds 3 MiB');fingerprint=contractHash(signature);
-      const now=api.getState();beforeState={bodies:(now.bodies||[]).map(body=>({id:body.id}))};
+      const now=readLive();beforeState={bodies:(now.bodies||[]).map(body=>({id:body.id}))};
       if(instance!==now.context.documentInstanceId){receipts.clear();archivedReceipts.clear();failedAttempts.clear();instance=now.context.documentInstanceId;}
       key=input.idempotencyKey;
       if(typeof key!=='string'||!key.length||key.length>80)bad('PARAM_SCHEMA_INVALID','idempotencyKey: 1..80 characters');
@@ -98,7 +105,7 @@ export function createPageBatch(api,{display}={}){
       keys(input.context,['sessionId','documentId','documentInstanceId','expectedRevision']);
       let expected={...input.context};
       const check=(allowPreview=false,recoverySave=false)=>{
-        const s=api.getState();
+        const s=readLive();
         for(const k of ['sessionId','documentId','documentInstanceId'])if(expected[k]!==s.context[k])bad('INSTANCE_MISMATCH','Read the current page state');
         if(expected.expectedRevision!==s.context.revision)bad('REVISION_CONFLICT','Document changed; read state and replan');
         if(!recoverySave&&(!s.summary.kernelReady||s.summary.busy||(s.preview.active&&!allowPreview)||s.preview.computing))bad('CAPABILITY_UNAVAILABLE','Wait for kernel/preview to finish');
