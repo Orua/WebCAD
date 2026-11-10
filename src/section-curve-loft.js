@@ -103,6 +103,22 @@ function expandCaps(stations,params){
  }
  return list;
 }
+// R7-011: a high-degree ThruSections may bulge outside the hull of its own
+// stations. Default degree stays 8 (compatibility); this only reports it.
+export const LOFT_ENVELOPE_TOLERANCE={fraction:.03,minMm:.5};
+export function stationEnvelope(stations,sampled,extraPoints=[]){
+ const min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];
+ const add=p=>p.forEach((v,k)=>{if(v<min[k])min[k]=v;if(v>max[k])max[k]=v;});
+ stations.forEach((s,i)=>{const y=cross(s.normal,s.widthDirection);for(const [a,b] of sampled[i])add(s.centerMm.map((c,k)=>c+a*s.widthDirection[k]+b*y[k]));});
+ extraPoints.forEach(add);return {min,max};
+}
+export function loftEnvelopeWarning(envelope,bounds,degree){
+ if(!bounds)return null;const [bMin,bMax]=bounds,diag=Math.hypot(...envelope.max.map((v,k)=>v-envelope.min[k]));
+ const toleranceMm=Math.max(LOFT_ENVELOPE_TOLERANCE.minMm,diag*LOFT_ENVELOPE_TOLERANCE.fraction);
+ const overshootMm=[0,1,2].map(k=>Math.max(0,envelope.min[k]-bMin[k],bMax[k]-envelope.max[k]));const worst=Math.max(...overshootMm);
+ if(!(worst>toleranceMm))return null;
+ return {code:'LOFT_ENVELOPE_EXCEEDED',degree,overshootMm,maxOvershootMm:worst,toleranceMm,stationEnvelope:envelope,resultBounds:{min:bMin,max:bMax},suggestion:degree>2?'loftDegree:2 通常可去掉截面之间的外鼓；或在外鼓处加密截面。':'在外鼓处加密截面或检查截面顺序。'};
+}
 export function buildSectionCurveLoft(params,cad){
  let stations=params.stations;
  if(!Array.isArray(stations)||stations.length<2||stations.length>64)throw new Error('多截面模式需要 2–64 个有序截面');
@@ -126,7 +142,7 @@ export function buildSectionCurveLoft(params,cad){
   return {...s,normal,widthDirection:x,startAngleDeg,directionSign};
  });
  const resolved=expandCaps(prepared,params);
- const held=[],hold=v=>{held.push(v);return v;};let result;
+ const held=[],hold=v=>{held.push(v);return v;};let result;const capPoints=[];
  const started=performance.now(),timings={};let phase='profiles',phaseStarted=started;
  const mark=next=>{timings[phase]=performance.now()-phaseStarted;phase=next;phaseStarted=performance.now();};
  const diagnostics={stationCount:stations.length,resolvedStationCount:resolved.length,profileKinds:[...new Set(stations.map(s=>s.profile?.kind??'ellipse'))],degree,capKinds:{start:capShape(params.startCap).kind,end:capShape(params.endCap).kind},timings};
@@ -151,7 +167,7 @@ export function buildSectionCurveLoft(params,cad){
     const sign=side==='start'?-1:1,roundLength=cap.kind==='round'?cap.lengthMm:0,step=roundLength||Math.max(1e-4,Math.hypot(...stations.at(side==='start'?1:-2).centerMm.map((v,i)=>v-source.centerMm[i]))*.5);
     const inferred=source.centerMm.map((v,i)=>v+sign*step*source.normal[i]);const p=cap.pointMm??inferred;if(!point(p))throw new Error(`${side}Cap.pointMm 必须是有限 XYZ`);
     if(typeof builder.AddVertex!=='function'||typeof cad.makeVertex!=='function')fail('LOFT_POINT_CAP_UNSUPPORTED','当前 OCCT 构建没有 AddVertex/makeVertex，无法生成点收尾',{capability:'AddVertex',supported:false});
-    const vertex=hold(cad.makeVertex(p));if(side==='start')builder.AddVertex(vertex.wrapped);
+    capPoints.push(p);const vertex=hold(cad.makeVertex(p));if(side==='start')builder.AddVertex(vertex.wrapped);
     else builder.AddVertex(vertex.wrapped);
   };
   mark('start-cap');
@@ -184,6 +200,7 @@ export function buildSectionCurveLoft(params,cad){
   const mismatch=ratio!==null&&(ratio<.85||ratio>1.15),report={volumeMm3:volume,estimatedVolumeMm3:estimate,ratio,suspectStations,stationsResolved:resolved.map((s,i)=>({i,startAngleDeg:s.startAngleDeg,directionSign:s.directionSign,profileKind:s.profile?.kind??'ellipse',profileSampleCount:sampled[i].length,preservesPolylineVertices:s.profile?.kind==='spline'&&s.profile.interpolation==='polyline'})),orthogonalizedStations,autoAlign:params.autoAlign!==false,warning:resolved.length>=32?{code:'LOFT_COMPLEXITY',stationCount:resolved.length,degree}:null};
   if(mismatch){report.warning={code:'LOFT_VOLUME_MISMATCH',ratio,estimatedVolumeMm3:estimate,volumeMm3:volume,suspectStations};if((params.volumeCheck??'warn')==='error')fail('LOFT_VOLUME_MISMATCH',`放样体积与截面估算不一致（ratio=${ratio.toFixed(3)}）`,report);}
   if(params.volumeCheck==='off')report.warning=null;
+  mark('envelope');try{const box=hold(result.boundingBox);report.envelopeWarning=loftEnvelopeWarning(stationEnvelope(resolved,sampled,capPoints),box.bounds,degree);}catch{report.envelopeWarning=null;report.envelopeCheck='unavailable';}
   mark('complete');report.diagnostics={...diagnostics,phase:'complete',elapsedMs:performance.now()-started};
   result.loftReport=report;const complete=result;result=null;return complete;
  }catch(error){

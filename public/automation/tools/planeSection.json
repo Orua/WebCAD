@@ -18,6 +18,24 @@
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
+      },
+      "result": {
+        "type": "string",
+        "enum": [
+          "edges",
+          "wire",
+          "polyline"
+        ],
+        "default": "edges"
+      },
+      "samples": {
+        "type": "integer",
+        "minimum": 4,
+        "maximum": 512,
+        "default": 64,
+        "unit": "1",
+        "quantityKind": "scalar",
+        "quantizationPolicy": "none"
       }
     },
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -52,16 +70,16 @@
     "scale": "dimensionless"
   },
   "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 在明确平面上提取当前精确实体截线；不消耗源实体。",
-  "title": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+  "title": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。result 默认 edges（保持原样的精确交线复合体，曲面放样上可能碎成几十条短边）；wire 把首尾相接的交线连成少量精确线框；polyline 按 samples（默认 64，4–512）每个环采样成直线折线，只作参考、不是精确交线。只读测量请改用 measureRelation mode:\"planeSample\"，不会留下特征。",
   "category": "reference",
   "synonyms": [
     "planeSection",
-    "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+    "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。result 默认 edges（保持原样的精确交线复合体，曲面放样上可能碎成几十条短边）；wire 把首尾相接的交线连成少量精确线框；polyline 按 samples（默认 64，4–512）每个环采样成直线折线，只作参考、不是精确交线。只读测量请改用 measureRelation mode:\"planeSample\"，不会留下特征。",
     "plane Section operation",
     "提取真实截面"
   ],
-  "description": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
-  "schemaHash": "sha256:3b2851a9450dff831485745984f7442f05ef7b24dfc84377bcb1cbf1a1f96752",
+  "description": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。result 默认 edges（保持原样的精确交线复合体，曲面放样上可能碎成几十条短边）；wire 把首尾相接的交线连成少量精确线框；polyline 按 samples（默认 64，4–512）每个环采样成直线折线，只作参考、不是精确交线。只读测量请改用 measureRelation mode:\"planeSample\"，不会留下特征。",
+  "schemaHash": "sha256:c9f30cb25e095f06cd3b34d8f267d1bdbdf23bf7fa7ff9dfe5f5e786fadf0d5e",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -187,7 +205,7 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "contract": {
-    "purpose": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+    "purpose": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。result 默认 edges（保持原样的精确交线复合体，曲面放样上可能碎成几十条短边）；wire 把首尾相接的交线连成少量精确线框；polyline 按 samples（默认 64，4–512）每个环采样成直线折线，只作参考、不是精确交线。只读测量请改用 measureRelation mode:\"planeSample\"，不会留下特征。",
     "whenToUse": [
       "在明确平面上提取当前精确实体截线；不消耗源实体。"
     ],
@@ -199,7 +217,7 @@
     ],
     "params": {
       "plane": {
-        "meaning": "plane: 选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+        "meaning": "plane: 选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。result 默认 edges（保持原样的精确交线复合体，曲面放样上可能碎成几十条短边）；wire 把首尾相接的交线连成少量精确线框；polyline 按 samples（默认 64，4–512）每个环采样成直线折线，只作参考、不是精确交线。只读测量请改用 measureRelation mode:\"planeSample\"，不会留下特征。",
         "unit": "none",
         "range": [
           null,
@@ -210,7 +228,7 @@
         }
       },
       "offset": {
-        "meaning": "offset: 选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+        "meaning": "offset: 选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。result 默认 edges（保持原样的精确交线复合体，曲面放样上可能碎成几十条短边）；wire 把首尾相接的交线连成少量精确线框；polyline 按 samples（默认 64，4–512）每个环采样成直线折线，只作参考、不是精确交线。只读测量请改用 measureRelation mode:\"planeSample\"，不会留下特征。",
         "unit": "mm",
         "range": [
           null,
@@ -219,6 +237,24 @@
         "default": {
           "behavior": "omitted; retain the operation source default"
         }
+      },
+      "result": {
+        "meaning": "result: 选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。result 默认 edges（保持原样的精确交线复合体，曲面放样上可能碎成几十条短边）；wire 把首尾相接的交线连成少量精确线框；polyline 按 samples（默认 64，4–512）每个环采样成直线折线，只作参考、不是精确交线。只读测量请改用 measureRelation mode:\"planeSample\"，不会留下特征。",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": "edges"
+      },
+      "samples": {
+        "meaning": "samples: 选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。result 默认 edges（保持原样的精确交线复合体，曲面放样上可能碎成几十条短边）；wire 把首尾相接的交线连成少量精确线框；polyline 按 samples（默认 64，4–512）每个环采样成直线折线，只作参考、不是精确交线。只读测量请改用 measureRelation mode:\"planeSample\"，不会留下特征。",
+        "unit": "1",
+        "range": [
+          4,
+          512
+        ],
+        "default": 64
       }
     },
     "refs": {
@@ -340,14 +376,14 @@
     ],
     "synonyms": [
       "planeSection",
-      "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
-      "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+      "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。result 默认 edges（保持原样的精确交线复合体，曲面放样上可能碎成几十条短边）；wire 把首尾相接的交线连成少量精确线框；polyline 按 samples（默认 64，4–512）每个环采样成直线折线，只作参考、不是精确交线。只读测量请改用 measureRelation mode:\"planeSample\"，不会留下特征。",
+      "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。result 默认 edges（保持原样的精确交线复合体，曲面放样上可能碎成几十条短边）；wire 把首尾相接的交线连成少量精确线框；polyline 按 samples（默认 64，4–512）每个环采样成直线折线，只作参考、不是精确交线。只读测量请改用 measureRelation mode:\"planeSample\"，不会留下特征。",
       "plane Section operation"
     ],
     "status": "experimental",
     "sourcePaths": []
   },
-  "purpose": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。",
+  "purpose": "选择一个源对象，提取与指定平面的真实交线，保留原对象。XY 的坐标为 Z，XZ 为 Y，YZ 为 X。结果是精确线框，不是实体。result 默认 edges（保持原样的精确交线复合体，曲面放样上可能碎成几十条短边）；wire 把首尾相接的交线连成少量精确线框；polyline 按 samples（默认 64，4–512）每个环采样成直线折线，只作参考、不是精确交线。只读测量请改用 measureRelation mode:\"planeSample\"，不会留下特征。",
   "whenToUse": [
     "在明确平面上提取当前精确实体截线；不消耗源实体。"
   ],
@@ -723,5 +759,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9c7bd665d81ae7e8a67a4afae8c7fdd196dac1ad047394f01ab3aacfc4286ec5"
+  "docsHash": "sha256:89443593f11389b5fe691e19dc5f14e0a1cd4d37579f43b64450f44286b444eb"
 }

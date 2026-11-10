@@ -106,6 +106,91 @@
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
+      },
+      "holes": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 64,
+        "description": "Optional inner holes cut through the whole extrusion. Each hole lies strictly inside the outer profile and does not touch another hole; otherwise EXTRUDE_HOLE_INVALID and nothing is built.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "profile": {
+              "type": "string",
+              "description": "Hole profile; default circle",
+              "enum": [
+                "rectangle",
+                "circle",
+                "polygon",
+                "roundedRectangle"
+              ]
+            },
+            "center": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2,
+              "description": "Plane coordinates of the hole centre; not for polygon"
+            },
+            "width": {
+              "type": "number",
+              "description": "Width (mm)",
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "depth": {
+              "type": "number",
+              "description": "Depth (mm)",
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "radius": {
+              "type": "number",
+              "description": "Circle radius (mm)",
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "cornerRadius": {
+              "type": "number",
+              "description": "Rounded rectangle corner radius (mm)",
+              "exclusiveMinimum": 0,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            "points": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 1000,
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "minItems": 2,
+                "maxItems": 2,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            }
+          }
+        }
       }
     },
     "required": [
@@ -143,7 +228,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported. holes gives a plate with through holes in one feature (same coordinates as the outer profile; polygon holes use absolute points).",
   "title": "Extrude a closed profile normal to the chosen plane",
   "category": "creation",
   "synonyms": [
@@ -153,7 +238,7 @@
     "拉伸"
   ],
   "description": "Extrude a closed profile normal to the chosen plane",
-  "schemaHash": "sha256:8e32466fd218c3f030bd0a7010ef157016cbbdf92883e711f4a5ef3221d1e832",
+  "schemaHash": "sha256:3597050d77d2f3b0b89921512440c53c7d3f9c4eac4d1f28beba6a6b0af44462",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -214,7 +299,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported.",
+    "Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported. holes gives a plate with through holes in one feature (same coordinates as the outer profile; polygon holes use absolute points).",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "exampleNotes": {
@@ -282,7 +367,7 @@
   "contract": {
     "purpose": "Extrude a closed profile normal to the chosen plane",
     "whenToUse": [
-      "Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported."
+      "Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported. holes gives a plate with through holes in one feature (same coordinates as the outer profile; polygon holes use absolute points)."
     ],
     "whenNotToUse": [
       {
@@ -408,6 +493,17 @@
           null,
           null
         ]
+      },
+      "holes": {
+        "meaning": "Optional inner holes cut through the whole extrusion. Each hole lies strictly inside the outer profile and does not touch another hole; otherwise EXTRUDE_HOLE_INVALID and nothing is built.",
+        "unit": "none",
+        "range": [
+          1,
+          64
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       }
     },
     "refs": {
@@ -537,7 +633,7 @@
   },
   "purpose": "Extrude a closed profile normal to the chosen plane",
   "whenToUse": [
-    "Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported."
+    "Rectangle/circle are centered profiles. Polygon points are plane coordinates. Profile defaults rectangle; plane XY. Rounded rectangle and arc also supported. holes gives a plate with through holes in one feature (same coordinates as the outer profile; polygon holes use absolute points)."
   ],
   "whenNotToUse": [
     {
@@ -891,5 +987,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:15ccb5a71c0fca60c810ef6a0838660b871024e3e1792623aeea4f91cf7a760f"
+  "docsHash": "sha256:9c25275a6f5fe79e603ee7f20a9c31abcf1a1108cd5af97f9bbdeb39c11eb7ab"
 }

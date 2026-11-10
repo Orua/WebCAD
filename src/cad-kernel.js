@@ -1,3 +1,5 @@
+import {resultDisplayNames} from './boolean-naming.js';
+import {normalizeExtrudeHoles,holeTopologyOk} from './extrude-holes.js';
 import {buildTap} from './modeling/manufacturing/tap-tool.js';
 import {sampleMeshRelief} from './mesh/relief-sample.js';
 import {exactSourceBytes} from './exact-source.js';
@@ -32,7 +34,7 @@ import {buildEllipsoid} from './ellipsoid.js';
 import {renderQuality} from './render-quality.js';
 import {EXACT_DISPLAY} from './viewport/exact-display-policy.js';
 import {displayEdges,displayMetadata,isPlanarPolygon} from './modeling/io/adaptive-display.js';
-import {displayComplexity,meshFacesProgressively} from './modeling/io/display-budget.js';
+import {DISPLAY_BUDGET,displayComplexity,displayRefinementError,meshFacesProgressively} from './modeling/io/display-budget.js';
 import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
 import {buildRelief} from './modeling/manufacturing/relief.js';
@@ -334,7 +336,7 @@ export class CadKernel {
       }
       case 'badge': return buildBadge(source(),p,cad);
       case 'thickenFace': return buildFaceThickness(source(),p,cad);
-      case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0,frame},cad);
+      case 'planeSection': return extractPlaneSection(source(),{plane:p.plane||'XY',offset:p.offset??0,frame,result:p.result??'edges',samples:p.samples??64},cad);
       case 'faceBoundary': return extractFaceBoundary(source(),p.faceId,cad,{boundary:p.boundary??'all'});
       case 'extractFaces': {
         const shape=source(),all=shape.faces,ids=p.faceIds;
@@ -507,7 +509,14 @@ export class CadKernel {
       }
       case 'extrude': {
         const h = finite(p, 'height'); if (!h) throw new Error('拉伸距离不能为 0');
-        const drawing = profile(p), sketch = drawing.sketchOnPlane(planeName(p));
+        const holes = normalizeExtrudeHoles(p.holes);
+        let drawing = profile(p);
+        for (const hole of holes) {
+          const raw = profile(hole), placed = hole.profile === 'polygon' ? raw : raw.translate(hole.center[0], hole.center[1]);
+          drawing = drawing.cut(placed);
+        }
+        if (!holeTopologyOk(drawing.innerShape, holes.length, cad.CompoundBlueprint)) throw Object.assign(new Error('孔轮廓须完全位于外轮廓内且互不相交、互不接触；当前结果不是「一个外轮廓 + 每孔一个内环」，未生成'), {code:'EXTRUDE_HOLE_INVALID', path:'params.holes', details:{holes:holes.length, loops:drawing.innerShape?.blueprints?.length ?? null}});
+        const sketch = drawing.sketchOnPlane(planeName(p));
         try { return sketch.extrude(h); } finally { dispose(sketch); dispose(drawing); }
       }
       case 'revolve': {
@@ -816,7 +825,7 @@ export class CadKernel {
   }
   remesh(quality) {
     renderQuality(quality);
-    const previous=this.quality;
+    const previous=this.quality,previousCache=this.renderCache;
     this.quality=quality;
     try {
       const bodies=[...this.active].map(([id,feature])=>{
@@ -826,7 +835,7 @@ export class CadKernel {
       });
       this.renderCache=new Map(bodies.map(body=>[body.id,{body}]));
       return {bodies,quality};
-    } catch(error) {this.quality=previous;throw error;}
+    } catch(error) {this.quality=previous;this.renderCache=previousCache;throw displayRefinementError(error);}
   }
   adoptHistorySignature(document){
     if(!document||!Array.isArray(document.features))throw new Error('无效的 WebCAD 工程');
@@ -869,9 +878,11 @@ export class CadKernel {
     // Budget by spline poles, source size and bounding box, not face count only.
     const complexity=displayComplexity(shape,faces,this.oc,{sourceBytes:shape.sourceBytes||0,coarsen:this.displayCoarsen||1,faceThreshold:EXACT_DISPLAY.faceThreshold,requested});
     const adaptive=complexity.adaptive;
-    const settings=complexity.heavy||complexity.totalPoles>=4096?{tolerance:complexity.tolerance,angularTolerance:complexity.angularTolerance}:adaptive?{tolerance:EXACT_DISPLAY.initialTolerance,angularTolerance:EXACT_DISPLAY.initialAngle}:requested;
+    const settings=complexity.heavy||complexity.totalPoles>=DISPLAY_BUDGET.adaptivePoles?{tolerance:complexity.tolerance,angularTolerance:complexity.angularTolerance}:adaptive?{tolerance:EXACT_DISPLAY.initialTolerance,angularTolerance:EXACT_DISPLAY.initialAngle}:requested;
     this.reportRebuildProgress('surface-mesh','生成曲面显示',{completed:0,total:faces.length});
-    const mesh = adaptive?meshFacesProgressively(faces,settings,batch=>this.reportRebuildProgress('surface-mesh','生成曲面显示',{completed:batch.completed,total:batch.total,triangles:batch.triangles,partial:{bodyId:feature.id,positions:batch.positions,normals:batch.normals,indices:batch.indices}}),this.oc):shape.mesh(settings);
+    let mesh;
+    try{mesh=adaptive?meshFacesProgressively(faces,settings,batch=>this.reportRebuildProgress('surface-mesh','生成曲面显示',{completed:batch.completed,total:batch.total,triangles:batch.triangles,partial:{bodyId:feature.id,positions:batch.positions,normals:batch.normals,indices:batch.indices}}),this.oc):shape.mesh(settings);}
+    catch(error){throw displayRefinementError(error);}
     this.reportRebuildProgress('edge-mesh','生成边线显示');
     const wire = adaptive?null:shape.meshEdges({ tolerance: settings.tolerance*0.75, angularTolerance: settings.angularTolerance*0.8 });
       const faceMap = new Map(faces.map((v, i) => [v.hashCode, i])), edgeMap = new Map(edges.map((v, i) => [v.hashCode, i]));
@@ -896,7 +907,7 @@ export class CadKernel {
       const mappedEdges = adaptive?displayEdges(edges,settings.tolerance,this.oc):wire.edgeGroups.map(g => ({ edgeId: edgeMap.get(g.edgeId), positions: Array.from(wire.lines.slice(g.start * 3, (g.start + g.count) * 3)) }));
       if(adaptive)measured.snapPoints=mappedEdges.filter(e=>e.positions.length).flatMap(e=>[{point:e.positions.slice(0,3),type:'endpoint',edgeId:e.edgeId},{point:e.positions.slice(-3),type:'endpoint',edgeId:e.edgeId}]);
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,adaptiveDisplay:adaptive?{initialTolerance:settings.tolerance,requestedQuality:quality,source:'exact-brep',sourceChanged:false,heavyFaceIds:complexity.poles.flatMap((n,i)=>n>=4096?[i]:[]),...(complexity.heavy?{heavy:true,heavyFaceIds:[...complexity.heavyFaces],splinePoles:complexity.totalPoles,coarsen:this.displayCoarsen||1}:{})}:undefined,logoProjectionReport:shape.logoProjectionReport,badgeReport:shape.badgeReport,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport,chainReport:shape.chainReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,adaptiveDisplay:adaptive?{initialTolerance:settings.tolerance,requestedQuality:quality,source:'exact-brep',sourceChanged:false,heavyFaceIds:complexity.poles.flatMap((n,i)=>n>=DISPLAY_BUDGET.adaptivePoles?[i]:[]),...(complexity.unsafeRequestedTolerance?{limited:true,requestedTolerance:requested.tolerance,budgetedTolerance:settings.tolerance}:{}),...(complexity.heavy?{heavy:true,heavyFaceIds:[...complexity.heavyFaces],splinePoles:complexity.totalPoles,coarsen:this.displayCoarsen||1}:{})}:undefined,logoProjectionReport:shape.logoProjectionReport,badgeReport:shape.badgeReport,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport,chainReport:shape.chainReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges].forEach(dispose); }
   }
   async rebuild(document,{displayCoarsen=1,headless=false}={}) {
@@ -919,13 +930,13 @@ export class CadKernel {
       // Same recipe as the shapes already in memory: return the display cache.
       // Appending a feature still falls through and rebuilds only the suffix.
       if(prefix===signatures.length&&signatures.length===this.historySignature.length&&this.active.size&&this.renderCache.size>=this.active.size){
-        const byId=new Map(features.map(feature=>[feature.id,feature]));
+        const byId=new Map(features.map(feature=>[feature.id,feature])),displayNames=resultDisplayNames(features);
         const cachedBodies=[];
         let complete=true;
         for(const [id] of this.active){
           const cached=this.renderCache.get(id),feature=byId.get(id);
           if(!cached||!feature){complete=false;break;}
-          cachedBodies.push({...cached.body,name:feature.name||feature.id});
+          cachedBodies.push({...cached.body,name:displayNames.get(id)??feature.name??feature.id});
         }
         if(complete&&cachedBodies.length===this.active.size){
           const timings=features.map(feature=>({featureId:feature.id,op:feature.op,ms:0,reused:true,checkpoint:false}));
@@ -1000,6 +1011,7 @@ export class CadKernel {
         else if (!keepOriginal) for (const id of feature.refs || []) active.delete(id);
         perFeatureMs.push({featureId:feature.id,op:feature.op,ms:performance.now()-featureStarted,reused:reused.has(feature.id),checkpoint:compiledReuse.includes(feature.id)});
       }
+      const displayNames=resultDisplayNames(features);
       const bodies = [...active].map(([id, feature]) => {
         current = id;
         const cached = reused.has(id) ? this.renderCache.get(id) : null;
@@ -1016,6 +1028,7 @@ export class CadKernel {
           finally{faces.forEach(dispose);edges.forEach(dispose);}
         }else body=this.describe(next.get(id), feature);
         if(cached&&feature.op==='relief'&&body.reliefReport?.layers&&feature.params.layers)body.reliefReport={...body.reliefReport,layers:body.reliefReport.layers.map((layer,i)=>({...layer,name:feature.params.layers[layer.index??i]?.name??layer.name}))};
+        body.name=displayNames.get(id)??body.name;
         if (!cached) body.renderVersion = String(++this.renderVersion);
         nextRenderCache.set(id, { body });
         return body;

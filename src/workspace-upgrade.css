@@ -6,6 +6,8 @@
 .webcad-app .ribbon-tabs{background:var(--ui-surface);padding:0 12px;overflow-x:auto;flex-shrink:0}
 .webcad-app .ribbon-tab.active{background:var(--accent-soft);border-bottom-color:var(--accent);color:var(--accent-ink)}
 .webcad-app.tools-hidden>.ribbon-tabs,.webcad-app.tools-hidden>.ribbon{display:none}
+/* R7-008: explicit setView({header:false}) only; focus/toolbar never hide the title bar. Not persisted. */
+.webcad-app.header-hidden>.app-header{display:none}
 .webcad-app.canvas-focus .viewport-bottom,.webcad-app.canvas-focus .viewport-nav{display:none}
 .webcad-app.canvas-focus .viewport-topbar{right:auto;width:max-content;max-width:calc(100% - 16px)}
 .webcad-app.canvas-focus .viewport-control-scroll>:not(.selection-modes),.webcad-app.canvas-focus .viewport-edge{display:none}

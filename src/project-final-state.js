@@ -19,5 +19,6 @@ export function finalStateProject(document,sources){
     ...(document.referenceSystem?{referenceSystem:{...document.referenceSystem,bodyAnchors:(document.referenceSystem.bodyAnchors||[]).filter(anchor=>ids.has(anchor.bodyId))}}:{}),
     hidden:(document.hidden||[]).filter(id=>ids.has(id)),
     appearance:Object.fromEntries(Object.entries(document.appearance||{}).filter(([id])=>ids.has(id))),
-    colors:Object.fromEntries(Object.entries(document.colors||{}).filter(([id])=>ids.has(id)))};
+    colors:Object.fromEntries(Object.entries(document.colors||{}).filter(([id])=>ids.has(id))),
+    ...(document.surface?{surface:Object.fromEntries(Object.entries(document.surface).filter(([id])=>ids.has(id)))}:{})};
 }

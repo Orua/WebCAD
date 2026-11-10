@@ -2,7 +2,7 @@
   "id": "getMaterials",
   "title": "getMaterials",
   "category": "page-method",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -18,7 +18,7 @@
     "method": "getMaterials",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "getMaterials()读取version1配置、常用金属参考密度及默认/对象材料映射。execute({context,idempotencyKey,action:\"document.materials\",args:{settings}})完整更新；settings={version:1,defaultMaterial,densities,bodyMaterials}。密度g/cm³须0<值≤30，材料编号和默认值从返回materials读取。",
+  "description": "getMaterials()只管质量：读取version1配置、常用金属参考密度及默认/对象材料映射，不是外观饰面列表（饰面用 getMetalMaterials，按体外观用 execute body.appearance）。execute({context,idempotencyKey,action:\"document.materials\",args:{settings}})完整更新；settings={version:1,defaultMaterial,densities,bodyMaterials}。密度g/cm³须0<值≤30，材料编号和默认值从返回materials读取。",
   "synonyms": [
     "getMaterials",
     "材料",
@@ -28,7 +28,7 @@
     "铜",
     "铁"
   ],
-  "inputContract": "getMaterials()读取version1配置、常用金属参考密度及默认/对象材料映射。execute({context,idempotencyKey,action:\"document.materials\",args:{settings}})完整更新；settings={version:1,defaultMaterial,densities,bodyMaterials}。密度g/cm³须0<值≤30，材料编号和默认值从返回materials读取。",
+  "inputContract": "getMaterials()只管质量：读取version1配置、常用金属参考密度及默认/对象材料映射，不是外观饰面列表（饰面用 getMetalMaterials，按体外观用 execute body.appearance）。execute({context,idempotencyKey,action:\"document.materials\",args:{settings}})完整更新；settings={version:1,defaultMaterial,densities,bodyMaterials}。密度g/cm³须0<值≤30，材料编号和默认值从返回materials读取。",
   "outputContract": "status=read,settings,materials,context；修改不改几何，保存工程、可撤销；浏览器记住新工程默认密度。参考密度按实际合金修正，与电镀外观独立。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -68,5 +68,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:04762874f5d032f5c6673eaca5af92eba4e36e090138605872da85513b82f230"
+  "docsHash": "sha256:37a0b92cf4f77fc3be04cafcee61315aca923d798baa81083b8076a38a8ba438"
 }

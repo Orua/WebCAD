@@ -40,3 +40,21 @@ test('严格校验无效平面、面索引与空截面', () => {
     assert.throws(() => extractPlaneSection(source, { plane: 'XY', offset: 20 }, cad), /截面/);
   } finally { source.delete?.(); }
 });
+
+test('planeSection result:wire/polyline 把放样碎边连成少量线框，默认 edges 不变', () => {
+  const source = cad.makeCylinder(5, 10).fuse(cad.makeBox([-2, -8, 2], [2, 8, 8]));
+  try {
+    const edges = extractPlaneSection(source, { plane: 'XY', offset: 5 }, cad);
+    const wire = extractPlaneSection(source, { plane: 'XY', offset: 5, result: 'wire' }, cad);
+    const poly = extractPlaneSection(source, { plane: 'XY', offset: 5, result: 'polyline', samples: 16 }, cad);
+    try {
+      assert.ok(edges.edges.length >= 2);
+      assert.equal(wire.wires.length, 1);
+      assert.equal(wire.edges.length, edges.edges.length);
+      assert.equal(poly.wires.length, 1);
+      assert.ok(poly.edges.every(edge => edge.geomType === 'LINE'));
+      assert.ok(poly.edges.length >= 8 && poly.edges.length <= 24);
+    } finally { [edges, wire, poly].forEach(s => s.delete?.()); }
+  } finally { source.delete?.(); }
+  assert.throws(() => extractPlaneSection(cad.makeBox([0,0,0],[1,1,1]), { plane: 'XY', offset: 0.5, result: 'mesh' }, cad), /result/);
+});

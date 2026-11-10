@@ -148,7 +148,8 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       context: savedContext,
       saveSnapshot: action === 'save' ? { documentId: context.documentId,
         documentInstanceId: context.documentInstanceId, savedRevision: revision } : undefined });
-    return {...artifact,...(result.report?{report:result.report}:{})};
+    // R7-002/R7-020: say explicitly what a generated save did not do.
+    return {...artifact,...(result.report?{report:result.report}:{}),...(action==='save'?{documentNameChanged:false,dirtyCleared:false,durability:'page-memory-until-expiresAt-or-tab-exit',next:['files.write or files.download','files.confirmWritten','execute document.rename (title)']}:{})};
   }
 
   return Object.freeze({
@@ -189,7 +190,7 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       const source=inputFor(resourceId,['png','jpg','jpeg','webp']);
       return {name:source.name,mime:source.mime,sha256:source.sha256,size:source.size,bytes:new Uint8Array(await source.blob.arrayBuffer())};
     },
-    new({ context } = {}) { return run(context, 'new'); },
+    new({ context, name } = {}) { return run(context, 'new', name === undefined ? {} : { name }); },
     save({ context, name } = {}) { return generated({ context, action: 'save', name }); },
     export({ context, format, ids, name } = {}) {
       if (!['step', 'stl', 'brep', 'png'].includes(format)) throw failure('FORMAT_UNSUPPORTED', 'Unsupported export format');

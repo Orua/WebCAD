@@ -2,7 +2,7 @@
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -91,7 +91,7 @@
     "method": "getState",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "getState({include?,compact?,fields?,sinceRevision?,featureIds?,featureFields?,bodyIds?,bodyFields?}={}); featureIds/bodyIds 限定1..50个对象，featureFields/bodyFields指定字段路径（如 params.depthMm），只返回这些对象与字段，不带其他LOGO轮廓。原生Agent优先读取有效同步快照，缺失分组才按需读取；compact不会携带全量特征。 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
+  "description": "getState({include?,compact?,fields?,sinceRevision?,featureIds?,featureFields?,bodyIds?,bodyFields?}={}); featureIds/bodyIds 限定1..50个对象，featureFields/bodyFields指定字段路径（如 params.depthMm），只返回这些对象与字段，不带其他LOGO轮廓。原生Agent优先读取有效同步快照，缺失分组才按需读取；compact不会携带全量特征。 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；复杂体（自适应显示）的精确体积按需计算：bodies/bodiesLite/run 回执里带 metricsDeferred:true 且 volume:null，null 表示「未计算」不是 0；挑导出实体时不要用 volume!=null 过滤，应导出全部可见 id 或先 measure。布尔结果体默认保留目标实体名，hidden 只含仍存在的实体。sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
   "synonyms": [
     "getState",
     "工程状态",
@@ -101,7 +101,7 @@
     "基准",
     "鼠标手柄"
   ],
-  "inputContract": "getState({include?,compact?,fields?,sinceRevision?,featureIds?,featureFields?,bodyIds?,bodyFields?}={}); featureIds/bodyIds 限定1..50个对象，featureFields/bodyFields指定字段路径（如 params.depthMm），只返回这些对象与字段，不带其他LOGO轮廓。原生Agent优先读取有效同步快照，缺失分组才按需读取；compact不会携带全量特征。 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
+  "inputContract": "getState({include?,compact?,fields?,sinceRevision?,featureIds?,featureFields?,bodyIds?,bodyFields?}={}); featureIds/bodyIds 限定1..50个对象，featureFields/bodyFields指定字段路径（如 params.depthMm），只返回这些对象与字段，不带其他LOGO轮廓。原生Agent优先读取有效同步快照，缺失分组才按需读取；compact不会携带全量特征。 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:[\"appearance\",\"colors\",\"renderFinish\"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；复杂体（自适应显示）的精确体积按需计算：bodies/bodiesLite/run 回执里带 metricsDeferred:true 且 volume:null，null 表示「未计算」不是 0；挑导出实体时不要用 volume!=null 过滤，应导出全部可见 id 或先 measure。布尔结果体默认保留目标实体名，hidden 只含仍存在的实体。sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。",
   "outputContract": "当前 context、stateSeq、referenceSystem、parameters、parameterValues、view 和 display；stateSeq 在页面实例内递增，覆盖选择/拓扑/工作坐标系/预览/就绪变化；sinceRevision 的 unchanged 只表示几何修订未变。kernelPerformance 返回最近成功重建的 totalMs、perFeatureMs、slowest 前10项、compiledReuse 和 compiledInvalidated。view.transform 为 {mode,bodyIds,attached,canDrag,blocker}，读回移动/旋转手柄与当前不可拖原因。不会默认返回导入源字节。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -190,5 +190,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3d49ac08c723bd9833176029db0cf5b7767643afec8c432e29892fcd715ac609"
+  "docsHash": "sha256:4960c49f15bcdd0b565d9e4130a154abf48536781b24b8878f63d33285063918"
 }

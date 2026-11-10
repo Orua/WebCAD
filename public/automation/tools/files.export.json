@@ -7,15 +7,15 @@
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
     "导出文件",
     "export"
   ],
-  "description": "export({context,format,ids?,name?}); format step/stl/brep/png. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).",
-  "inputContract": "export({context,format,ids?,name?}); format step/stl/brep/png. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).",
+  "description": "export({context,format,ids?,name?}); format step/stl/brep/png. ids must be current body ids (unknown ids fail); do not drop bodies whose volume is null because metricsDeferred:true only means the exact volume was not computed yet. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).",
+  "inputContract": "export({context,format,ids?,name?}); format step/stl/brep/png. ids must be current body ids (unknown ids fail); do not drop bodies whose volume is null because metricsDeferred:true only means the exact volume was not computed yet. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).",
   "outputContract": "status=generated output resource with exact source snapshot.",
   "units": {
     "length": "mm",
@@ -241,5 +241,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:c94a2834cf129812abe22a3d18182ed411214e890ef0ee8d071ef76c048019c8"
+  "docsHash": "sha256:434c46128e65a4c029f94d704161a164e67f3de4b8147eeec8c96eadce8d0152"
 }

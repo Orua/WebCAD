@@ -2,7 +2,7 @@
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.64.0",
+  "version": "1.65.0",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -23,7 +23,7 @@
     "recovery"
   ],
   "inputContract": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
-  "outputContract": "status=read,recovered,context；工程身份、已提交数据和历史保留；恢复完成递增revision，失效旧拓扑选择，必须重读context/拓扑。原任务回执保留。重建使用原已提交配方，不刷新页面或重放Agent命令；失败仍可files.save。",
+  "outputContract": "status=read,recovered,context；工程身份、已提交数据和历史保留；恢复完成递增revision，失效旧拓扑选择，必须重读context/拓扑。原任务回执保留。普通重建超过硬超时会自动终止并恢复，返回 KERNEL_TIMEOUT/not_committed，无需先 stopRunning。重建使用原已提交配方，不刷新页面或重放Agent命令；失败仍可files.save。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -182,5 +182,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:50e760b2b4f1dd521647ff22d88d15ca449b2f80254af5077d9d3e0bbb82ec9d"
+  "docsHash": "sha256:91276ae56ea356ba469772fb183227d5d3853ed8c528cef88ab4a3bf36921a30"
 }
