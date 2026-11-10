@@ -96,22 +96,22 @@
       "id": "occt-modeling",
       "path": "node_modules/replicad-opencascadejs",
       "component": "replicad-opencascadejs",
-      "originType": "upstream",
+      "originType": "modified-upstream",
       "aiAssisted": null,
       "sourceUrl": "https://registry.npmjs.org/replicad-opencascadejs/-/replicad-opencascadejs-1.1.0.tgz",
       "commit": "e4b05f67dc4e2393a876ce8c5064a9c93db05bf1",
-      "version": "1.1.0",
+      "version": "1.1.0-webcad.1",
       "licenseExpression": "LGPL-2.1-only",
       "noticePath": "LICENSES/replicad-opencascadejs-1.1.0-LGPL-2.1-only.txt",
       "copyrightHolder": "Open CASCADE SAS and respective upstream contributors; original source notices retained",
-      "modified": false,
-      "patchEvidence": null,
+      "modified": true,
+      "patchEvidence": "vendor/replicad-opencascadejs/README.md; scripts/build-occt-status-binding.py",
       "distributionScopes": [
         "public-web",
         "integrated-web"
       ],
       "evidenceStatus": "verified",
-      "evidence": "Ten npm package dist/README/LICENSE files match the fixed replicad commit. Exact binding configuration/wrappers, generator ebd263f15337b440b391492af073662707e86482 and its OCCT b8f597c677811d1f9f4d8a97f5ae2825c0353a42 plus declared dependency archives were acquired and pinned in corresponding-source/native-materials.json. Source delivery/relink preparation remains distinct from unexecuted native rebuild; an immutable container digest or identical rebuild hash is not a blanket legal gate. Complete fixed upstream archives, configuration/wrapper sources and replacement instructions are now prepared under the pinned public source URLs and NATIVE-BUILD.md; original library notice and actual kernel exception retained. Public delivery/readback remains a release action, not an assertion of native rebuild.",
+      "evidence": "Matched Replicad 1.1.0 package with complete ThruSections status binding, built from pinned inputs described in vendor/replicad-opencascadejs/README.md and scripts/build-occt-status-binding.py. Original LGPL-2.1-only notice is retained. The binding regression passes on this host; this does not assert byte-identical upstream output or unchanged OCCT version.",
       "packageName": "replicad-opencascadejs",
       "lockIntegrity": "sha512-s0KHR5V+ivsOE4nZXfuoW70lW0/rldkb3ZDY34LpXOQRFLQN5qVydQm3BRo7boZPdFkkAZBERJ+NzB0DYxrivw==",
       "nativeSourceCommit": "b8f597c677811d1f9f4d8a97f5ae2825c0353a42",
@@ -2180,7 +2180,7 @@
       "files": [
         {
           "path": "public/automation/remote-agent/host-adapter.js",
-          "sha256": "7763edb6ee2316c89031cac1f910568f7173d918cc7ab0bb401e9e5dce9a444f"
+          "sha256": "c82abeedfc9dab3e7270dff14774178a5c484739cfa4f76afa1ead0b8b9015ba"
         },
         {
           "path": "public/automation/remote-agent/layout-planner.py.txt",
