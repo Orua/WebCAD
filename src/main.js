@@ -1,3 +1,4 @@
+import {pruneHiddenIds} from './hidden-ids.js';
 import {RECOVERY_KEYS,chooseRecovery,recoveryRowKeys,recoveryPrompt,recoveryIndexEntry,requestedDocumentId} from './recovery-discovery.js';
 import {rebuildHardTimeoutMs,kernelRequestTimers} from './kernel-timeout.js';
 import {PUBLIC_EDITION,EDITION_CAPABILITIES} from './edition.js';
@@ -72,7 +73,7 @@ import {frameOnPlane} from './frame-orientation.js';
 import {applyReferenceAction} from './reference-contracts.js';
 import {clearOccupiedAnchor} from './anchor-clearance.js';
 import {formatBodyCount} from './count-summary.js';
-import {bodyState,bodyWarnings} from './body-state.js';
+import {bodyState,bodyWarnings,deferredMetricFields} from './body-state.js';
 import {webcadShortcut} from './webcad-shortcuts.js';
 import { normalizeOperationParams, normalizeOperationPatch, migratedOperationIds, getOperation } from './operation-registry.js';
 import {mechanicalIds,mechanicalNames,mechanicalRefRange} from './mechanical-tool-contracts.js';
@@ -468,6 +469,8 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     const newQuickModels=record&&!newInstance&&documentModel.documentId===next.documentId?next.features.filter(f=>f.op==='quickModel'&&!documentModel.features.some(old=>old.id===f.id)):[];
     // Anchors and retained history can grow after preflight. Validate the final
     // snapshot before changing undo/redo, revision, or the authoritative model.
+    // R7-013: ids that left the active set (remove, consumed by a boolean) leave hidden too.
+    if(Array.isArray(next.hidden))next.hidden=pruneHiddenIds(next.hidden,result.bodies);
     if(next.materialSettings)next.materialSettings=inheritBodyMaterials(next.materialSettings,next.features,result.bodies.map(b=>b.id));
     try{if(record)pushUndo(next,historyLabel);else {recordTimeline(rebuildBaseline,next,{label:'保留恢复后的重建状态'});validateTimeline(next);assertDocumentCapacity(next);}}
     catch(error){await request('rebuild',{document:documentModel});throw error;}
@@ -1237,7 +1240,7 @@ const commandService=createCommandService({
 });
 const pageAPI=createPageAPI({
   performance:()=>({...performanceRuntime.state(),kernelRebuild:kernelPerformance}),
-  revisionStamp:()=>({context:{sessionId:pageSessionId,documentId:documentModel.documentId,documentInstanceId,revision},summary:{name:documentModel.name,featureCount:documentModel.features.length,bodyCount:bodies.length,busy:busy||!!recoveryPromise,kernelReady,dirty:!!dirty},preview:{active:!!previewNext,computing:!!previewComputing},display:viewport.displayState(),bodies:bodies.map(body=>({id:body.id,name:body.name,bounds:body.bounds,volume:body.volume,solidCount:body.solidCount}))}),
+  revisionStamp:()=>({context:{sessionId:pageSessionId,documentId:documentModel.documentId,documentInstanceId,revision},summary:{name:documentModel.name,featureCount:documentModel.features.length,bodyCount:bodies.length,busy:busy||!!recoveryPromise,kernelReady,dirty:!!dirty},preview:{active:!!previewNext,computing:!!previewComputing},display:viewport.displayState(),bodies:bodies.map(body=>({id:body.id,name:body.name,bounds:body.bounds,volume:body.volume,solidCount:body.solidCount,...deferredMetricFields(body)}))}),
   performanceSummary:()=>performanceRuntime.summary(),
   performanceVersion:()=>performanceRuntime.version(),
   configurePerformance:settings=>performanceRuntime.configure(settings),

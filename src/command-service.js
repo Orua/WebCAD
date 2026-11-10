@@ -112,7 +112,7 @@ export function createCommandService(adapter) {
       validateStateProjection(input);
       if(include.includes('features'))r.features=projectStateRows(s.features,input.featureIds,input.featureFields);
       if(include.includes('bodies'))r.bodies=projectStateRows(s.bodies,input.bodyIds,input.bodyFields);
-      if(include.includes('bodiesLite'))r.bodies=(s.bodies||[]).map(({id,name,kind,bounds})=>({id,...(name?{name}:{}),...(kind?{kind}:{}),...(bounds?{bounds:clone(bounds)}:{})}));
+      if(include.includes('bodiesLite'))r.bodies=(s.bodies||[]).map(({id,name,kind,bounds,metricsDeferred})=>({id,...(name?{name}:{}),...(kind?{kind}:{}),...(bounds?{bounds:clone(bounds)}:{}),...(metricsDeferred===true?{metricsDeferred:true}:{})}));
       r.coverageDetails={
         bodies:Array.isArray(r.bodies)?{profile:include.includes('bodiesLite')?'lite':'full',complete:true,totalCount:s.bodies.length,returnedCount:r.bodies.length,fields:include.includes('bodiesLite')?['id','name','kind','bounds']:[...new Set(r.bodies.flatMap(body=>Object.keys(body)))]}:{complete:false,reason:'not_requested'},
         features:Array.isArray(r.features)?{profile:'full',complete:true,totalCount:s.features.length,returnedCount:r.features.length,fields:[...new Set(r.features.flatMap(feature=>Object.keys(feature)))]}:{complete:false,reason:'not_requested'}

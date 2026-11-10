@@ -1,3 +1,4 @@
+import {resultDisplayNames} from './boolean-naming.js';
 import {buildTap} from './modeling/manufacturing/tap-tool.js';
 import {sampleMeshRelief} from './mesh/relief-sample.js';
 import {exactSourceBytes} from './exact-source.js';
@@ -921,13 +922,13 @@ export class CadKernel {
       // Same recipe as the shapes already in memory: return the display cache.
       // Appending a feature still falls through and rebuilds only the suffix.
       if(prefix===signatures.length&&signatures.length===this.historySignature.length&&this.active.size&&this.renderCache.size>=this.active.size){
-        const byId=new Map(features.map(feature=>[feature.id,feature]));
+        const byId=new Map(features.map(feature=>[feature.id,feature])),displayNames=resultDisplayNames(features);
         const cachedBodies=[];
         let complete=true;
         for(const [id] of this.active){
           const cached=this.renderCache.get(id),feature=byId.get(id);
           if(!cached||!feature){complete=false;break;}
-          cachedBodies.push({...cached.body,name:feature.name||feature.id});
+          cachedBodies.push({...cached.body,name:displayNames.get(id)??feature.name??feature.id});
         }
         if(complete&&cachedBodies.length===this.active.size){
           const timings=features.map(feature=>({featureId:feature.id,op:feature.op,ms:0,reused:true,checkpoint:false}));
@@ -1002,6 +1003,7 @@ export class CadKernel {
         else if (!keepOriginal) for (const id of feature.refs || []) active.delete(id);
         perFeatureMs.push({featureId:feature.id,op:feature.op,ms:performance.now()-featureStarted,reused:reused.has(feature.id),checkpoint:compiledReuse.includes(feature.id)});
       }
+      const displayNames=resultDisplayNames(features);
       const bodies = [...active].map(([id, feature]) => {
         current = id;
         const cached = reused.has(id) ? this.renderCache.get(id) : null;
@@ -1018,6 +1020,7 @@ export class CadKernel {
           finally{faces.forEach(dispose);edges.forEach(dispose);}
         }else body=this.describe(next.get(id), feature);
         if(cached&&feature.op==='relief'&&body.reliefReport?.layers&&feature.params.layers)body.reliefReport={...body.reliefReport,layers:body.reliefReport.layers.map((layer,i)=>({...layer,name:feature.params.layers[layer.index??i]?.name??layer.name}))};
+        body.name=displayNames.get(id)??body.name;
         if (!cached) body.renderVersion = String(++this.renderVersion);
         nextRenderCache.set(id, { body });
         return body;

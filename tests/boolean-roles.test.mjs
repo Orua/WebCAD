@@ -87,3 +87,14 @@ test('fusion and cut reject valid wrong material without changing committed bodi
     }
   }finally{kernel.dispose();}
 });
+
+test('boolean result keeps the target body name unless renameTarget (R7-005)',async()=>{
+  const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))}),kernel=new CadKernel(oc);
+  const base=[{id:'target',op:'box',name:'机身',params:{width:10,depth:10,height:10},refs:[]},{id:'tool',op:'box',name:'刀具',params:{width:4,depth:4,height:20},refs:[]}];
+  try{
+    const kept=await kernel.rebuild({version:2,imports:{},features:[...base,{id:'cut1',op:'cut',name:'切进气道',params:{},refs:['target','tool']}]});
+    assert.equal(kept.bodies.find(b=>b.id==='cut1').name,'机身');
+    const renamed=await kernel.rebuild({version:2,imports:{},features:[...base,{id:'cut1',op:'cut',name:'切进气道',params:{renameTarget:true},refs:['target','tool']}]});
+    assert.equal(renamed.bodies.find(b=>b.id==='cut1').name,'切进气道');
+  }finally{kernel.dispose?.();}
+});
