@@ -100,7 +100,7 @@ function qualityState(){return {quality:qualityKey,...RENDER_QUALITIES[qualityKe
 let undoStack=[],redoStack=[],requestSequence=0,status='正在启动精确建模内核…';
 let modelClipboard=null;
 let revision=0,previewNext=null,previewIdentity=null,previewScopeReport=null,previewKernelCache=null,previewGeneration=0,previewComputing=false,aiStatus='in-page',agentBridge=null;
-let previewComputingOwner=null;
+let previewComputingOwner=null,restoredIdentity=null;
 const hostControl=createHostControl(state=>{const entering=state.locked&&!viewport.interactionLocked,previewOwner=previewComputing?previewComputingOwner:previewIdentity?.owner??'ui';viewport.setInteractionLocked(state.locked);ui.setHostControl(state);if(entering&&(previewNext||previewComputing)&&previewOwner==='ui')void cancelPreview().catch(reportError);refresh();});
 function assertHumanEditing(){if(hostControl.get().locked)throw Object.assign(new Error('Agent 正在控制工程，释放控制后可编辑。'),{code:'HOST_INTERACTION_LOCKED'});}
 Object.assign(labels,{tap:'攻牙',badge:'牌仔工具',reliefShoulder:'浮雕中央肩部',arcProfile:'解析线弧轮廓',group:'组合',vectorProfile:'矢量路径',quickModel:'快速模型',sweep:'扫掠',loft:'放样',split:'分割',extractSolid:'提取实体',extractShell:'提取壳',faceHole:'面上打孔',faceExtrude:'面拉伸',multiHole:'多位置打孔',multiPocket:'批量矩形凹槽',multiBoss:'批量圆柱凸台',slot:'长圆槽',logo:'LOGO 凹凸字'});
@@ -417,7 +417,7 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
   error.routingDecision=decision;throw error;}
 }
 
-async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false,restoring=false,historyLabel,hardTimeoutMs,origin='user'}={}){
+async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,expectedRevision,newInstance=false,restoring=false,restoredFrom=null,historyLabel,hardTimeoutMs,origin='user'}={}){
   if(busy)throw new Error('当前操作尚未完成，请稍候。');
   if(!kernelReady)throw new Error('建模内核尚未就绪。');
   setBusy(true,'正在计算精确实体…');
@@ -471,8 +471,10 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     if(next.materialSettings)next.materialSettings=inheritBodyMaterials(next.materialSettings,next.features,result.bodies.map(b=>b.id));
     try{if(record)pushUndo(next,historyLabel);else {recordTimeline(rebuildBaseline,next,{label:'保留恢复后的重建状态'});validateTimeline(next);assertDocumentCapacity(next);}}
     catch(error){await request('rebuild',{document:documentModel});throw error;}
-    if(newInstance||documentModel.documentId!==next.documentId){documentInstanceId=crypto.randomUUID();projectFileHandle=null;}
-    documentModel=next;bodies=result.bodies;committedFinalSources=result.finalSources;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision++;committed=true;
+    // R7-021: a startup recovery keeps the recovered instanceId and revision;
+    // the starter blank document must not mint a new identity over it.
+    if(!restoredFrom&&(newInstance||documentModel.documentId!==next.documentId)){documentInstanceId=crypto.randomUUID();projectFileHandle=null;restoredIdentity=null;}
+    documentModel=next;bodies=result.bodies;committedFinalSources=result.finalSources;selectedTopology=null;previewNext=null;previewIdentity=null;previewScopeReport=null;revision=restoredFrom&&Number.isSafeInteger(restoredFrom.revision)&&restoredFrom.revision>revision?restoredFrom.revision:revision+1;if(restoredFrom)restoredIdentity={instanceId:restoredFrom.instanceId,revision:restoredFrom.revision,savedAt:restoredFrom.savedAt,source:restoredFrom.source};committed=true;
     debugJournal.record('runtime','geometry-committed',{revision,origin,historyLabel,featureCount:next.features.length,bodyCount:bodies.length,bodies:bodies.slice(-12).map(b=>({id:b.id,volume:b.volume,bounds:b.bounds,solidCount:b.solidCount,shellCount:b.shellCount})),displayConfirmation:'separate',fileWriteConfirmation:'separate'});
     kernelPerformance={totalMs:performance.now()-localBegan,cacheHit:result.cacheHit||null,...(result.parallelRebuild?{parallelRebuild:result.parallelRebuild}:{}),perFeatureMs:result.perFeatureMs||[],compiledReuse:result.compiledReuse||[],compiledInvalidated:result.compiledInvalidated||[],slowest:(result.perFeatureMs||[]).slice().sort((a,b)=>b.ms-a.ms).slice(0,10)};
     for(const feature of newQuickModels){try{recordQuickModelUse(feature.params.kind);}catch(error){debugJournal.record('runtime','quick-model-usage-skipped',{kind:feature.params?.kind,message:error?.message},'warn');}}
@@ -1040,7 +1042,7 @@ const ready=(async()=>{
     const recover=!!recDoc&&await chooseAction({title:prompt.title,message:prompt.message,choices:[{id:'recover',label:'恢复工程',primary:true},{id:'fresh',label:'开始空白工程'}],defaultId:choice.defaultChoice||'fresh'})==='recover';
     if(recover){
       documentInstanceId=recovered.instanceId||documentInstanceId;
-      await rebuild(clone(recDoc),{record:false,save:false,newInstance:false,restoring:true,restoredRevision:recovered.revision});
+      await rebuild(clone(recDoc),{record:false,save:false,newInstance:false,restoring:true,restoredFrom:{instanceId:recovered.instanceId,revision:recovered.revision,savedAt:recovered.savedAt,source:choice.source}});
       dirty=true;persistenceCheckpoint='saved';requestedDocumentHold=null;
       setStatus(choice.source==='url-document'?'已按链接从本机恢复该工程；请核对后保存工程文件。':'已从本机恢复刷新前的工程（含已保存到工程的浮雕草稿）；请核对后保存工程文件。');
     }else{
@@ -1066,7 +1068,7 @@ function debugState(){
   services:safe(getServicesConfig),agent:safe(()=>window.webcad.assistantPanel.get()),uiErrors:errorAuditSnapshot()};
 }
 function getState(){return {revision,document:clone(documentModel),bodies:bodies.map(bodyState),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,dirty,preview:!!previewNext};}
-function aiState(){return {sessionId:pageSessionId,revision,dirty,documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,reliefDesigns:clone(documentModel.reliefDesigns||[]),referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(bodyState),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
+function aiState(){return {sessionId:pageSessionId,revision,dirty,...(restoredIdentity&&restoredIdentity.instanceId===documentInstanceId?{restoredFrom:clone(restoredIdentity)}:{}),documentId:documentModel.documentId,documentInstanceId,documentName:documentModel.name,reliefDesigns:clone(documentModel.reliefDesigns||[]),referenceSystem:clone(documentModel.referenceSystem),features:clone(documentModel.features),hidden:[...documentModel.hidden],appearance:clone(documentModel.appearance||{}),bodies:bodies.map(bodyState),selectedIds:[...selectedIds],selectedTopology:clone(selectedTopology),busy,kernelReady,preview:!!previewNext,previewInfo:previewIdentity?clone(previewIdentity):null,previewScope:previewScopeReport?clone(previewScopeReport):null};}
 async function executeAI(command,args={},options={}){
   const origin=options.origin==='agent'?'agent':'user';
   if(command==='file_save'){
@@ -1165,8 +1167,11 @@ async function executeAI(command,args={},options={}){
   }
   if(command==='file_new'){
     if(dirty)throw Object.assign(new Error('Save the current document before creating a new project.'),{code:'UNSAVED_REPLACEMENT'});
-    await rebuild(emptyDocument(),{...options,fit:true,newInstance:true,record:false});undoStack=[];redoStack=[];selectedIds=[];dirty=false;refresh();
-    return {dirty};
+    // R8-002: optional live title; same 1–120 character rule as document.rename.
+    if(args?.name!==undefined&&(typeof args.name!=='string'||!args.name.trim()||args.name.length>120))throw Object.assign(new Error('name must contain 1–120 characters'),{code:'PARAM_SCHEMA_INVALID',path:'args.name'});
+    const fresh=emptyDocument();if(args?.name!==undefined)fresh.name=args.name.trim();
+    await rebuild(fresh,{...options,fit:true,newInstance:true,record:false});undoStack=[];redoStack=[];selectedIds=[];dirty=false;refresh();
+    return {dirty,name:documentModel.name};
   }else if(command==='file_open'||command==='file_import'){
     const ext=args.name?.split('.').pop().toLowerCase();
     const allowed=command==='file_open'?['webcad','json','step','stp','brep','brp','stl','mesh']:['step','stp','brep','brp','igs','iges','stl','mesh'];

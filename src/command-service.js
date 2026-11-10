@@ -107,7 +107,7 @@ export function createCommandService(adapter) {
       if(!Array.isArray(include)||include.some(x=>!allowed.includes(x)))fail('PARAM_SCHEMA_INVALID','include','Unknown state field');
       const ctx=contextOf(s);
       const r={status:'read',context:ctx,requestContext:{sessionId:ctx.sessionId,documentId:ctx.documentId,documentInstanceId:ctx.documentInstanceId,expectedRevision:ctx.revision},persistence:s.persistence,preview:{active:!!s.preview,computing:!!s.previewComputing}};
-      if(include.includes('summary'))r.summary={name:s.documentName,featureCount:s.features.length,bodyCount:s.bodies.length,busy:s.busy,kernelReady:s.kernelReady,dirty:!!s.dirty};
+      if(include.includes('summary'))r.summary={name:s.documentName,featureCount:s.features.length,bodyCount:s.bodies.length,busy:s.busy,kernelReady:s.kernelReady,dirty:!!s.dirty,...(s.restoredFrom?{restoredFrom:clone(s.restoredFrom)}:{})};
       if(include.includes('reliefDesigns'))r.reliefDesigns=clone(s.reliefDesigns||[]);
       validateStateProjection(input);
       if(include.includes('features'))r.features=projectStateRows(s.features,input.featureIds,input.featureFields);
