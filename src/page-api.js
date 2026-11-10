@@ -803,7 +803,12 @@ export function createPageAPI(host){
       // Dedicated capture budget: a frame that never arrives fails fast with CAPTURE_TIMEOUT
       // (geometry receipts are unaffected) instead of holding the command slot for the full 90 s.
       let captureTimer;
+      // Deferred mesh upload is display work. Time it outside the capture budget so a
+      // large batch's first frame is not reported as opaque capture latency.
+      const prepared=typeof host.prepareDisplay==='function'?host.prepareDisplay():{displayWaitMs:0,flushedDeferred:false};
+      const frameStarted=performance.now();
       await Promise.race([host.frame(),new Promise((_,reject)=>{captureTimer=setTimeout(()=>reject(Object.assign(new Error(`No rendered frame within ${LIMITS.transport.captureTimeoutMs} ms; geometry is unaffected. Do not poll webcad_job for this capture; retry once later or report the view as unconfirmed.`),{code:'CAPTURE_TIMEOUT'})),LIMITS.transport.captureTimeoutMs);})]).finally(()=>clearTimeout(captureTimer));
+      const frameMs=Math.round(performance.now()-frameStarted);
       check(input,['context','maxWidth','format','quality']);
       const display=host.display(),state=current();
       if(display.status!=='rendered'||['documentId','documentInstanceId','revision'].some(k=>display.rendered?.[k]!==state.context[k]))fail('DISPLAY_FAILED','Rendered frame does not match the committed model; call redraw');
@@ -811,7 +816,8 @@ export function createPageAPI(host){
       const dataUrl=typeof shot==='string'?shot:shot.dataUrl;
       const mime=typeof shot==='string'?'image/png':shot.mime;
       return {status:'read',mime,dataUrl,context:current().context,requestContext:requestContext(current().context),display:host.display(),
-        ...(input.maxWidth?{maxWidth:input.maxWidth}:{}),...(shot.width?{width:shot.width,height:shot.height}:{}),format};
+        displayWaitMs:prepared.displayWaitMs??0,frameMs,flushedDeferred:prepared.flushedDeferred===true,scope:shot.scope||'modeling-viewport',
+        ...(input.maxWidth?{maxWidth:input.maxWidth}:{}),...(shot.width?{width:shot.width,height:shot.height}:{}),...(shot.viewportCss?{viewportCss:shot.viewportCss,pixelRatio:shot.pixelRatio}:{}),format};
     }),files:Object.freeze(files),
   };
   operationPreparation=createOperationPreparation({state:current,getCard:getTool,normalize:normalizeOperationParams,execute:input=>api.execute(input),
@@ -821,7 +827,7 @@ export function createPageAPI(host){
     logoDrafts:()=>[...logoCache.values()].filter(c=>c.documentInstanceId===current().context.documentInstanceId&&c.wizardBinding?.valid!==false).map(c=>({...c.reviewSession.get(),logoId:c.logoId,name:c.sourceName})),
     reliefDrafts:()=>[...reliefCache.values()].filter(c=>c.documentInstanceId===current().context.documentInstanceId)});
   toolCallPreparation=createToolCallPreparation({state:current,getCard:getTool,normalizePatch:normalizeOperationPatch});
-  const run=createPageBatch(api,{display:host.displayBatch});
+  const run=createPageBatch(api,{display:host.displayBatch,revisionStamp:host.revisionStamp});
   api.run=guarded(input=>run(input));
   api.getBatchReceipt=guarded(input=>{if(!input||Object.keys(input).some(key=>!['idempotencyKey','documentInstanceId'].includes(key)))fail('PARAM_SCHEMA_INVALID','Provide only idempotencyKey and original documentInstanceId');return run.getReceipt(input);});
   const callable=new Set([...Object.keys(api),...Object.keys(files).map(k=>`files.${k}`)]);

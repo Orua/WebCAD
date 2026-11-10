@@ -24,6 +24,7 @@ self.onmessage = ({ data }) => {
       if(type==='ready')result={ready:true};
       else if(type==='encodeProject')result={bytes:encodeProjectV4(data.document)};
       else if(type==='bakeProject')result=engine.bakeProject(data.document,data.options);
+      else if(type==='adoptHistorySignature')result=engine.adoptHistorySignature(data.document);
       else if(type==='probeBlendRadius')result=engine.probeBlendRadius(data.input);
       else if(type==='decodeProject')result={document:await decodeProject(data.bytes)};
       else if(type==='rebuild'){result=await rebuildWithPool(engine,data.document,{displayCoarsen:data.displayCoarsen||1});result.finalSources=engine.finalShapeSources();}

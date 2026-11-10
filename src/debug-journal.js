@@ -39,12 +39,24 @@ export function createDebugJournal({storage=null,now=Date.now,maxEvents=1500,max
  }}catch{storageError='历史日志不可读取';}
  const trim=()=>{while(events.length&&(events.length>maxEvents||bytes>Math.max(0,maxBytes-512))){events.shift();bytes-=sizes.shift();dropped++;}};trim();
  function flush(){if(persistTimer){clearTimeout(persistTimer);persistTimer=null;}try{storage?.setItem(key,JSON.stringify({version:1,events}));}catch{storageError='会话存储不可用，日志仅保留在内存';}}
- function record(source,action,data={},level='info'){
+ function record(source,action,data={},level='info',options){
+  const coalesceKey=options&&typeof options==='object'?options.coalesceKey:undefined;
   try{
-   const event={sequence:++sequence,at:now(),source:debugText(source).slice(0,80),action:debugText(action).slice(0,160),level,data:debugValue(data)};
+   const event={sequence:++sequence,at:now(),source:debugText(source).slice(0,80),action:debugText(action).slice(0,160),level,data:debugValue(data),...(coalesceKey?{coalesceKey}:{})};
    if(contextProvider)try{event.context=debugValue(contextProvider(),{maxNodes:20,maxChars:500});}catch{}
    if(encodedBytes(JSON.stringify(event))>maxEventBytes){event.data=debugValue(data,{maxNodes:80,maxChars:1000});event.truncated=true;}
    if(encodedBytes(JSON.stringify(event))>maxEventBytes){event.data={truncated:true,error:debugValue(data?.error,{maxNodes:20,maxChars:300})};event.truncated=true;}
+   if(coalesceKey){
+    const index=events.findLastIndex(item=>item.coalesceKey===coalesceKey);
+    if(index>=0){
+     event.sequence=events[index].sequence;
+     const size=encodedBytes(JSON.stringify(event))+1;
+     bytes+=size-sizes[index];events[index]=event;sizes[index]=size;trim();
+     if(storage&&!persistTimer){persistTimer=setTimeout(flush,250);persistTimer.unref?.();}
+     for(const listener of listeners)try{listener();}catch{}
+     return event.sequence;
+    }
+   }
    events.push(event);const size=encodedBytes(JSON.stringify(event))+1;sizes.push(size);bytes+=size;trim();
    if(storage&&!persistTimer){persistTimer=setTimeout(flush,250);persistTimer.unref?.();}
    for(const listener of listeners)try{listener();}catch{}

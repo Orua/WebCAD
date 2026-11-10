@@ -2,7 +2,7 @@
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.63.7",
+  "version": "1.64.0",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -233,5 +233,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8929d3a0e2dbfc83e0c6edb25e429db428e54aa73012e79a5f0911b147b2c38b"
+  "docsHash": "sha256:948defe61f802e7a2a7ca42b0019f1fd3ac2c156b0c098f6c51bf767bdae3a42"
 }

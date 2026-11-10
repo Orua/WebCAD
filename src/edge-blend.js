@@ -85,6 +85,7 @@ function buildOwnedEdgeBlend(shape,op,params,{suggestRadius=false,allowOversized
   if(millAllowed&&(allKinked||mostlyKinked||(op==='fillet'&&params.preferMillFallback===true))){
     try{
       const mill=millComplementaryFillet(shape,{edgeIds:targets.map(r=>r.edgeId),radiusMm:amount});
+      validateRoundingResult(shape,mill.shape,oc);
       mill.shape.blendReport={version:1,operation:'fillet',stage:'completed',strategy:'mill-complementary-r-fallback',attemptCount:1,elapsedMs:performance.now()-started,dimensionKind:'radius',requestedAmountMm:amount,amount,scope:params.allEdges?'body':params.faceIds?(params.sharedFaces?'shared-faces':'face-boundaries'):'edges',processedEdgeIds:targets.map(r=>r.edgeId),skippedTangentEdgeIds:skipped,millReports:mill.reports,nativeFailure:allKinked?'prefer-mill-on-kinked-chain':mostlyKinked?'prefer-mill-on-mostly-kinked':'preferMillFallback',kinkedEdgeIds:[...kinkedIds]};
       return mill.shape;
     }catch(millPrimary){/* fall through to native then mill-on-fail */}
@@ -131,6 +132,7 @@ function buildOwnedEdgeBlend(shape,op,params,{suggestRadius=false,allowOversized
       try{
         dispose(builder);builder=null;dispose(result);result=null;
         const mill=millComplementaryFillet(shape,{edgeIds:ids,radiusMm:amount});
+        validateRoundingResult(shape,mill.shape,oc);
         mill.shape.blendReport={version:1,operation:'fillet',stage:'completed',strategy:'mill-complementary-r-fallback',attemptCount:2,elapsedMs:performance.now()-started,dimensionKind:'radius',requestedAmountMm:amount,amount,scope:params.allEdges?'body':params.faceIds?(params.sharedFaces?'shared-faces':'face-boundaries'):'edges',processedEdgeIds:ids,skippedTangentEdgeIds:skipped,millReports:mill.reports,nativeFailure:error?.message||null};
         const output=mill.shape;return output;
       }catch(millError){

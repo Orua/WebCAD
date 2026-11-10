@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import init from 'replicad-opencascadejs';
 import * as cad from 'replicad';
-import {millComplementaryFillet,millComplementaryFilletEdge} from '../src/modeling/rounding/mill-fillet-fallback.js';
+import {millComplementaryFillet,millComplementaryFilletEdge,assertMillVolumeChanged} from '../src/modeling/rounding/mill-fillet-fallback.js';
 import {buildEdgeBlend} from '../src/edge-blend.js';
 import {topologyDetails} from '../src/smooth-transition.js';
 
@@ -20,6 +20,20 @@ test('multi-edge mill constructs all cutters on the original topology',()=>{
  }finally{output?.shape.delete();source.delete();}
 });
 
+test('mill fallback rejects a Boolean that does not change the solid',()=>{
+  const shape=cad.makeBox([0,0,0],[10,10,10]);
+  try{assert.throws(()=>assertMillVolumeChanged(shape,shape,'combined'),/未改变几何/);}
+  finally{shape.delete();}
+});
+test('preferMill fillet success is a measured volume change, not a silent no-op',()=>{
+  const shape=cad.makeBox([0,0,0],[10,10,10]),before=cad.measureVolume(shape);
+  let out;
+  try{
+    out=buildEdgeBlend(shape,'fillet',{radius:0.4,edgeIds:[0],preferMillFallback:true});
+    assert.equal(out.blendReport.strategy,'mill-complementary-r-fallback');
+    assert.ok(Math.abs(cad.measureVolume(out)-before)>1e-6);
+  }finally{out?.delete?.();shape.delete();}
+});
 test('mill complementary-R on a box sharp edge yields one solid with reduced volume (convex remove)',()=>{
   const s=cad.makeBox([0,0,0],[20,15,10]);
   let out;

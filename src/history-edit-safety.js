@@ -2,9 +2,25 @@ import { canonicalJson } from './contracts/operation-schema.js';
 
 // Numeric selectors are revision-local. Follow actual source refs, not history order.
 const selectors = new Set(['faceId', 'faceIds', 'edgeId', 'edgeIds', 'neutralFaceId']);
+function selectorKeys(value, found = new Set()) {
+  if (!value || typeof value !== 'object') return found;
+  for (const [key, item] of Object.entries(value)) {
+    if (selectors.has(key)) found.add(key);
+    selectorKeys(item, found);
+  }
+  return found;
+}
 function hasIndexedTopology(value) {
-  return !!value && typeof value === 'object' && Object.entries(value).some(([key, item]) =>
-    selectors.has(key) || hasIndexedTopology(item));
+  return selectorKeys(value).size > 0;
+}
+// Logo and face machining store a face signature plus a point. A later rebuild
+// remaps faceId from that signature, so an upstream edit must not be blocked
+// just because a numeric face index exists on an unaffected face.
+export function canRemapIndexedTopology(feature) {
+  const keys = selectorKeys(feature?.params);
+  if (!keys.size || [...keys].some(key => key === 'edgeId' || key === 'edgeIds')) return false;
+  const signature = feature.params?.targetFaceSignature;
+  return typeof signature === 'string' && signature.length > 0 && Number.isInteger(feature.params.faceId);
 }
 const geometry = feature => ({op: feature.op, params: feature.params, refs: feature.refs || [], placement: feature.placement});
 
@@ -25,7 +41,7 @@ export function assertHistoryEditSafe(previous, next) {
       const feature = queue.shift();
       if (seen.has(feature.id)) continue;
       seen.add(feature.id);
-      if (hasIndexedTopology(feature.params)) {
+      if (hasIndexedTopology(feature.params) && !canRemapIndexedTopology(feature)) {
         affected.add(feature.id); unsafe = true;
       }
       queue.push(...(children.get(feature.id) || []));

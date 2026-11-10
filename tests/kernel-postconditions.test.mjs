@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import init from 'replicad-opencascadejs';
 import * as cad from 'replicad';
 import {buildEdgeBlend} from '../src/edge-blend.js';
+import {buildAdvancedLoft} from '../src/advanced-loft.js';
 import {buildCurveSweep} from '../src/curve-sweep.js';
 import {buildProfileSweep} from '../src/modeling/profiles/profile-solid-features.js';
 import {buildSketchProfile} from '../src/modeling/profiles/profile-model.js';
@@ -36,6 +37,24 @@ test('oversized single-edge and all-edge fillets leave the 10 mm box unchanged',
   }finally{dispose(shape);}
 });
 
+test('ruled loft fillet cannot commit when volume and topology are unchanged',()=>{
+  const loft=buildAdvancedLoft({ruled:true,sections:[
+    {z:0,points:[[0,0],[18,0],[18,5],[0,5]]},
+    {z:24,points:[[4,1],[12,1],[12,3.5],[4,3.5]]},
+  ]},cad);
+  const before=volume(loft),serialized=loft.serialize();
+  let out;
+  try{
+    try{out=buildEdgeBlend(loft,'fillet',{radius:0.2,allEdges:true});}
+    catch(error){
+      assert.ok(['GEOMETRY_INVALID','MATERIAL_CHECK_FAILED'].includes(error.code),error.message);
+      assert.equal(loft.serialize(),serialized);
+      return;
+    }
+    assert.ok(Math.abs(volume(out)-before)>1e-6,'success requires a measurable volume change');
+    assert.notEqual(out.serialize(),serialized);
+  }finally{dispose(out);dispose(loft);}
+});
 test('shell thickness sign and inward feasibility keep a valid solid',()=>{
   const inward=shell(1),outward=shell(-1);
   try{
