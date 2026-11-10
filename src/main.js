@@ -1,3 +1,4 @@
+import {RECOVERY_KEYS,chooseRecovery,recoveryRowKeys,recoveryPrompt,recoveryIndexEntry,requestedDocumentId} from './recovery-discovery.js';
 import {rebuildHardTimeoutMs,kernelRequestTimers} from './kernel-timeout.js';
 import {PUBLIC_EDITION,EDITION_CAPABILITIES} from './edition.js';
 import * as editionHost from '#webcad-host';
@@ -83,6 +84,8 @@ import {createLoadingTracker,LOADING_TEXT} from './loading-progress.js';
 
 const emptyDocument = () => ({version:2,documentId:crypto.randomUUID(),name:nextProjectName(),features:[],imports:{},hidden:[],materialSettings:loadMaterialSettings(),referenceSystem:createReferenceSystem()});
 const pageSessionId=crypto.randomUUID();
+// Read before the first refresh() rewrites ?document= to the starter blank id.
+const startupRequestedDocumentId=requestedDocumentId(location.search);let requestedDocumentHold=startupRequestedDocumentId?{documentId:startupRequestedDocumentId,blankDocumentId:null}:null;
 let documentInstanceId=crypto.randomUUID(),lastWarnings=[],persistenceCheckpoint='pending';
 const clone = cloneAssetDocument;
 const labels = {meshReliefPlate:'浮雕网格底板',meshHeightfieldRelief:'高度图浮雕',meshBoolean:'网格布尔合并',meshReliefEdit:'网格局部修高',round:'圆润',roundEnd:'端头圆润',rounding:'自动打磨',autoRound:'整件圆边',smoothTransition:'平滑过渡',box:'长方体',cylinder:'圆柱',sphere:'球体',cone:'圆锥',torus:'圆环',extrude:'拉伸',revolve:'旋转成型',transform:'变换',copy:'复制',mirror:'镜像',union:'合并',cut:'切除',intersect:'求交',fillet:'圆角',chamfer:'倒角',shell:'抽壳',hole:'打孔',linearPattern:'直线阵列',circularPattern:'环形阵列',import:'导入',remove:'删除'};
@@ -297,7 +300,7 @@ function flushDisplayBatch(){
 function endDisplayBatch(){if(displayBatchDepth>0&&--displayBatchDepth===0)flushDisplayBatch();}
 // Same as endDisplayBatch, but the upload/refresh runs on the next task so the batch receipt is reported first.
 function endDisplayBatchDeferred(){if(displayBatchDepth>0&&--displayBatchDepth===0)setTimeout(()=>{if(displayBatchDepth===0)flushDisplayBatch();},0);}
-function refresh(){if(displayBatchDepth){deferredRefresh=true;return;}document.title=(dirty?'● ':'')+documentModel.name+' — WebCAD';const url=new URL(location.href);if(url.searchParams.get('document')!==documentModel.documentId){url.searchParams.set('document',documentModel.documentId);history.replaceState(null,'',url);}ui.update({renderQuality:qualityState(),document:documentModel,bodies,selectedIds,selectedTopology,undoAvailable:undoStack.length>0,redoAvailable:redoStack.length>0,busy,status,kernelReady,dirty,displayPreferences:viewport.displayPreferences,metalFinish:viewport.finishKey,aiStatus,revision,viewState:{quality:qualityKey,display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selection:viewport.selectionMode,anchorDrag:viewport.anchorDragEnabled,anchorVisible:viewport.anchorVisible,temporaryDisplay:viewport.temporaryDisplay}});notifyAgentState();}
+function refresh(){if(displayBatchDepth){deferredRefresh=true;return;}document.title=(dirty?'● ':'')+documentModel.name+' — WebCAD';const url=new URL(location.href);if(requestedDocumentHold&&requestedDocumentHold.blankDocumentId===null)requestedDocumentHold.blankDocumentId=documentModel.documentId;if(requestedDocumentHold&&documentModel.documentId!==requestedDocumentHold.blankDocumentId)requestedDocumentHold=null;if(!requestedDocumentHold&&url.searchParams.get('document')!==documentModel.documentId){url.searchParams.set('document',documentModel.documentId);history.replaceState(null,'',url);}ui.update({renderQuality:qualityState(),document:documentModel,bodies,selectedIds,selectedTopology,undoAvailable:undoStack.length>0,redoAvailable:redoStack.length>0,busy,status,kernelReady,dirty,displayPreferences:viewport.displayPreferences,metalFinish:viewport.finishKey,aiStatus,revision,viewState:{quality:qualityKey,display:viewport.mode,projection:viewport.camera.isOrthographicCamera?'orthographic':'perspective',grid:viewport.grid.visible,snap:viewport.snapEnabled,gizmo:viewport.gizmoMode,transform:viewport.getTransformState(),selection:viewport.selectionMode,anchorDrag:viewport.anchorDragEnabled,anchorVisible:viewport.anchorVisible,temporaryDisplay:viewport.temporaryDisplay}});notifyAgentState();}
 function setStatus(message){status=message;ui.setStatus(t(message));}
 function reportError(error){console.error(error);const recovery=errorRecovery(error);ui.showError(error);setStatus(recovery.userMessage);}
 function pushUndo(next,label){if(next){recordTimeline(documentModel,next,{label});validateTimeline(next);assertDocumentCapacity(next);}const {imports,timeline,...rest}=documentModel;undoStack.push({...clone(rest),imports,timeline});if(undoStack.length>20)undoStack.shift();redoStack=[];}
@@ -958,26 +961,26 @@ async function autosave(){
     const row={document:snapshot,savedAt:Date.now(),instanceId:instance,revision:savedRevision};
     tx.objectStore('documents').put(row,`recovery:${instance}`);
     tx.objectStore('documents').put(row,'recovery:latest');
+    tx.objectStore('documents').put(recoveryIndexEntry(row),`${RECOVERY_KEYS.indexPrefix}${instance}`);
     try{sessionStorage.setItem('webcad.recovery.latest',JSON.stringify({instanceId:instance,revision:savedRevision,savedAt:row.savedAt,documentId:snapshot.documentId}));}catch{}
     tx.oncomplete=()=>{update('saved');resolve();};
     tx.onerror=tx.onabort=()=>{update('failed');resolve();};
   }catch{update('failed');resolve();}});
 }
 async function loadLatestRecovery(){
-  // Same-tab refresh only: sessionStorage survives reload; a new tab starts clean.
-  let hint=null;try{hint=JSON.parse(sessionStorage.getItem('webcad.recovery.latest')||'null');}catch{hint=null;}
-  if(!hint?.instanceId)return null;
-  const db=await dbPromise;if(!db||!db.objectStoreNames.contains('documents'))return null;
-  return new Promise(resolve=>{try{
-    const store=db.transaction('documents','readonly').objectStore('documents');
-    // Only offer this tab's exact checkpoint, never another tab's latest model.
-    const req=store.get(`recovery:${hint.instanceId}`);
-    req.onsuccess=()=>{
-      const row=req.result;
-      resolve(row?.document&&row.instanceId===hint.instanceId&&Number.isFinite(row.savedAt)?row:null);
-    };
-    req.onerror=()=>resolve(null);
-  }catch{resolve(null);}});
+  // Discovery order: ?document=<id> → this tab's checkpoint → recovery:latest
+  // (new tab / new browser after a crash). Always offered via a dialog; rows are
+  // never deleted here. See recovery-discovery.js.
+  let hint=null,dismissed=null;
+  try{hint=JSON.parse(sessionStorage.getItem(RECOVERY_KEYS.hint)||'null');}catch{hint=null;}
+  try{dismissed=JSON.parse(sessionStorage.getItem(RECOVERY_KEYS.dismissed)||'null');}catch{dismissed=null;}
+  const urlDocumentId=startupRequestedDocumentId;
+  const db=await dbPromise;if(!db||!db.objectStoreNames.contains('documents'))return urlDocumentId?{row:null,source:'url-document-missing',urlDocumentId}:null;
+  const read=(fn)=>new Promise(resolve=>{try{const req=fn(db.transaction('documents','readonly').objectStore('documents'));req.onsuccess=()=>resolve(req.result);req.onerror=()=>resolve(undefined);}catch{resolve(undefined);}});
+  const index=urlDocumentId?((await read(store=>store.getAll(IDBKeyRange.bound(RECOVERY_KEYS.indexPrefix,RECOVERY_KEYS.indexPrefix+'\uffff'))))||[]):[];
+  const rows={};
+  for(const key of recoveryRowKeys({urlDocumentId,hint,index}))rows[key]=await read(store=>store.get(key));
+  return chooseRecovery({urlDocumentId,hint,dismissed,index,rows});
 }
 async function pasteModelClipboard(){
   if(!modelClipboard)throw new Error('WebCAD 剪贴板为空。请先选择实体并按 Ctrl+C。');
@@ -1031,19 +1034,22 @@ const ready=(async()=>{
   try{await withLoading(async()=>{
     await request('ready');kernelReady=true;
     // A refresh offers recovery; it must never silently replace a new document.
-    const recovered=await loadLatestRecovery();
+    const choice=await loadLatestRecovery(),recovered=choice?.row||null;
     const recDoc=recovered?.document;
-    const hasContent=!!(recDoc&&((recDoc.features?.length||0)>0||(recDoc.reliefDesigns?.length||0)>0||recDoc.name));
-    const recover=hasContent&&await chooseAction({title:'发现上次中断的工程',message:'是否恢复刷新或断线前暂存的模型？',choices:[{id:'recover',label:'恢复工程',primary:true},{id:'fresh',label:'开始空白工程'}],defaultId:'fresh'})==='recover';
+    const prompt=recovered?recoveryPrompt(choice):null;
+    const recover=!!recDoc&&await chooseAction({title:prompt.title,message:prompt.message,choices:[{id:'recover',label:'恢复工程',primary:true},{id:'fresh',label:'开始空白工程'}],defaultId:choice.defaultChoice||'fresh'})==='recover';
     if(recover){
       documentInstanceId=recovered.instanceId||documentInstanceId;
-      await rebuild(clone(recDoc),{record:false,save:false,newInstance:false,restoring:true});
-      dirty=true;persistenceCheckpoint='saved';
-      setStatus('已从本机恢复刷新前的工程（含已保存到工程的浮雕草稿）；请核对后保存工程文件。');
+      await rebuild(clone(recDoc),{record:false,save:false,newInstance:false,restoring:true,restoredRevision:recovered.revision});
+      dirty=true;persistenceCheckpoint='saved';requestedDocumentHold=null;
+      setStatus(choice.source==='url-document'?'已按链接从本机恢复该工程；请核对后保存工程文件。':'已从本机恢复刷新前的工程（含已保存到工程的浮雕草稿）；请核对后保存工程文件。');
     }else{
-      try{sessionStorage.removeItem('webcad.recovery.latest');}catch{}
+      // R8-004: dismiss only this checkpoint's automatic prompt in this tab.
+      // IndexedDB rows stay; ?document=<id> can still find them.
+      if(recovered)try{sessionStorage.setItem(RECOVERY_KEYS.dismissed,JSON.stringify({instanceId:recovered.instanceId,savedAt:recovered.savedAt}));}catch{}
       await rebuild(clone(documentModel),{record:false,save:false});
-      dirty=false;setStatus('就绪 · 在工具栏创建实体，或打开 STEP / WebCAD 工程。');
+      requestedDocumentHold=choice?.source==='url-document-missing'?{documentId:choice.urlDocumentId,blankDocumentId:documentModel.documentId}:null;
+      dirty=false;setStatus(requestedDocumentHold?`本机没有链接中工程 ${requestedDocumentHold.documentId} 的恢复副本；当前是空白工程，链接未改写。请打开该工程文件。`:'就绪 · 在工具栏创建实体，或打开 STEP / WebCAD 工程。');
     }
   });refresh();return true;}
   catch(error){reportError(error);return false;}
