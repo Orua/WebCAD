@@ -400,7 +400,7 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  let capabilities;try{capabilities=await servicesClient.capabilities();}catch(error){if(!(designServices&&!classification.complex))throw error;if(servicesFirst)throw needBrowserFit('Services 不可达');publish({executor:'local',reason:'Services 不可达（'+(error.code??'')+'），使用浏览器回退计算'});return {next};}checkTransaction(signal,expectedRevision);
  const capability=capabilities.operations.find(row=>row.operation===(designServices?'reliefDesign':feature.op)&&row.semanticVersion===base.semanticVersion&&row.enabled);
  const sources=[];for(const id of feature.refs){sources.push(await request('sourceComplexity',{featureId:id,...(feature.op==='relief'?{faceId:feature.params.faceId}:{})}));checkTransaction(signal,expectedRevision);}
- const source=feature.op==='cut'?aggregateSourceComplexity(sources):{...sources[0],preexistingBoundaryRound:base.source.preexistingBoundaryRound};
+ const source=['cut','union'].includes(feature.op)?aggregateSourceComplexity(sources):{...sources[0],preexistingBoundaryRound:base.source.preexistingBoundaryRound};
  const pair=capabilities.geometryExchange?.testedKernelPairs?.some(row=>row.producerKernelBuildId===capability?.kernelBuildId&&row.consumerKernelBuildId===LOCAL_KERNEL_BUILD_ID&&row.codec===GEOMETRY_CODEC&&row.brepVersion===3);
  const input={...base,source,endpoint:config.url,kernelBuildId:capability?.kernelBuildId??'unavailable'},executionKey=physicalExecutionKey(feature,source.inputSha256??source.sourceSha256,input.kernelBuildId,input.endpoint);
  const importReady=!!pair&&VERIFIED_NATIVE_KERNELS.has(capability?.kernelBuildId);
@@ -411,7 +411,7 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  if(decision.executor==='local')return {next};
  try{
   const snapshots=[];for(const id of feature.refs){snapshots.push((await request('serializeFeature',{featureId:id})).data);checkTransaction(signal,expectedRevision);}
-  const bytes=feature.op==='cut'?snapshots:snapshots[0];
+  const bytes=['cut','union'].includes(feature.op)?snapshots:snapshots[0];
   const plan=feature.op==='reliefShoulder'?(await request('shoulderPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:designServices?reliefDesignServicesPlan(next,feature):feature.op==='relief'?(await request('prepareReliefPlan',{sourceFeatureId:feature.refs[0],params:feature.params})).plan:feature.op==='round'?(await request('faceRoundPlan',{sourceFeatureId:feature.refs[0],params:feature.params,prepare:true})).plan:null;
   const context={documentId:next.documentId,documentInstanceId,expectedRevision};
   const candidate=await compileRemoteFeature(next,feature.id,bytes,context,{allowUpload:true,plan,signal,waitTimeoutMs:config.serverWaitMs,onWaitTimeout:job=>waitForServicesDecision(job,{signal})});checkTransaction(signal,expectedRevision);

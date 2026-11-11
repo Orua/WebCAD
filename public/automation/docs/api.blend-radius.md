@@ -1,5 +1,7 @@
 # api.blend-radius
 
+原生Services支持union的2–33份单实体来源融合，结果须为单一连通实体；可选blendRadiusMm仅修顺当前布尔历史中不同来源的尖锐交线，至多64条。固定半径不自动缩小，未命中或修顺失败整步不提交；融合成功不代表所有外形缺陷已处理。原生fillet/smoothTransition当前仅支持数值radius及selector.edgesNear世界毫米点/范围，sharpOnly为true，至多64条；其他选择器/变半径范围明确拒绝，不跨核传面边号。复杂来源必须先读取Services实际能力和编译语义，缺少时明确阻止，不切本地兜底。
+
 语义圆角使用selector:{seamBetween:{a:特征ID,b:特征ID}}、edgesNear:{pointMm,radiusMm,sharpOnly}或facesFromFeature:{featureId,role}，每次重建由当前OCCT历史解析，不保存面号。smoothTransition/fillet的radius可为正数或{maxMm,minMm,stepRatio:0.75,maxAttempts:6}，区间内只重用同一来源，不重建前缀；回执radiusSearchReport写明实际半径与逐次结果。probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?,maxAttempts?})只读当前独立BRep副本，不改变revision、历史和选择；feasibleMaxMm为最多6个下降样本中的最大可行半径，不是认证全局最大值。全部失败返回feasibility:infeasible、feasibleMaxMm:null和tried；不自动应用。优先给用户允许的区间，回显radiusUsedMm。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
