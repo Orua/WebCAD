@@ -76,7 +76,12 @@
     "contractImpact": "Expose correspondence, actual profileEdgeCounts and nativeCompatibility in loft diagnostics. Readable native failure status; explicit section-loft recovery classification. Page API 1.63.7.",
     "documentImpact": "Source parameters and saved format unchanged. New builds retain original ordered vertices; failures do not commit empty geometry.",
     "cacheImpact": "Regenerate docs, routing, complete knowledge ZIP and hashes in the same local release.",
-    "requiredTests": ["Generated section aspect-ratio and point-cap correctness", "Existing ellipse/seam/degree/volume regressions", "Original failing source unchanged through real localhost Agent", "Native failure status and recovery classification"]
+    "requiredTests": [
+      "Generated section aspect-ratio and point-cap correctness",
+      "Existing ellipse/seam/degree/volume regressions",
+      "Original failing source unchanged through real localhost Agent",
+      "Native failure status and recovery classification"
+    ]
   },
   "genericToolDiagnosticsAndJobContracts": {
     "localImpact": "Check section loft construction before reading Shape; preserve stage diagnostics. Publish actual page job argument schemas independently of host-only preparation restrictions.",
@@ -4200,6 +4205,20 @@
       "Existing metal/selection/material persistence tests",
       "One bounded baseline/candidate material screenshot and geometry check",
       "Release inventory rejects legacy photo reintroduction"
+    ]
+  },
+  "nativeSeamUnion": {
+    "localImpact": "Exact Boolean seam radius fails atomically; no radius reduction or unblended partial result. Existing local selector support retained.",
+    "servicesImpact": "Add native union and spatial fillet/smoothTransition with ordered hashes, strict whitelist and acceptance-gated capabilities.",
+    "logoImpact": "No logo algorithm changes; existing native relief paths revalidated.",
+    "contractImpact": "Page API 1.66.2, boolean.union-seam-1.0 and blend.spatial-edges-1.0; regenerate full knowledge bundle.",
+    "documentImpact": "Persist precise compiled artifact, complete input hashes and union/blend reports, preserve undo and final-state save.",
+    "cacheImpact": "New native identity and semantic cache keys; no old result relabeling.",
+    "requiredTests": [
+      "Native connected union and exact seam blend; empty/disjoint/oversized-radius rejection without output",
+      "All ordered upload/hash checks, Runtime/Store execution and cache key separation",
+      "Current aircraft exact source: legal rejection of infeasible whole-seam radius, source unchanged",
+      "Page remote commit, undo and cold save/open; matching production/local/workspace identities"
     ]
   }
 }

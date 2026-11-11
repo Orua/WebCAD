@@ -1,6 +1,5 @@
 import {topologyDetails} from '../smooth-transition.js';
 import {attemptBlendRadius} from '../blend-radius.js';
-import {probeBlendRadius} from '../blend-radius-search.js';
 import {blendContext} from './face-origins.js';
 const labels=row=>row?.featureIds||[row?.featureId];
 export function finishBooleanBlend(shape,params,sourceIds){
@@ -10,13 +9,9 @@ export function finishBooleanBlend(shape,params,sourceIds){
     if(!row.sharp||row.adjacentFaceIds.length!==2||!origins)return false;const [left,right]=row.adjacentFaceIds.map(id=>labels(origins[id]));
     return sourceIds.some((a,i)=>sourceIds.slice(i+1).some(b=>left.includes(a)&&!left.includes(b)&&right.includes(b)&&!right.includes(a)||right.includes(a)&&!right.includes(b)&&left.includes(b)&&!left.includes(a)));
   });
-  if(!targets.length){shape.warnings=[...(shape.warnings||[]),{code:'BLEND_SKIPPED',message:'布尔结果没有可可靠追溯的尖锐工具交线，保留原布尔结果'}];return shape;}
+  if(!targets.length){shape.delete();throw Object.assign(new Error('没有可靠来源交线；未提交融合或修顺'),{code:'SELECTOR_EMPTY'});}
   const selector={edgeIds:targets.map(row=>row.edgeId)},context=blendContext(shape),input={selector,context,radiusMm:params.blendRadiusMm,...(params.blendMode==='variable'?{blendLaw:params.blendLaw}:{})};
-  let attempt=attemptBlendRadius(shape,input),search;
-  if(!attempt.shape&&params.blendMode!=='variable'){
-    search=probeBlendRadius(shape,{selector,context,maxMm:params.blendRadiusMm*.75,minMm:params.blendRadiusMm*.75**5,maxAttempts:5});
-    if(search.status==='feasible')attempt=attemptBlendRadius(shape,{...input,radiusMm:search.feasibleMaxMm});
-  }
-  if(!attempt.shape){shape.warnings=[...(shape.warnings||[]),attempt.warning];shape.blendRadiusReport={status:'skipped',requestedRadiusMm:params.blendRadiusMm,...(search?{tried:search.tried}:{})};return shape;}
-  const result=attempt.shape;result.booleanReport=shape.booleanReport;result.blendRadiusReport={...result.blendRadiusReport,status:'applied',requestedRadiusMm:params.blendRadiusMm,radiusUsedMm:search?.feasibleMaxMm??params.blendRadiusMm,...(search?{tried:search.tried}:{})};shape.delete();return result;
+  const attempt=attemptBlendRadius(shape,input);
+  if(!attempt.shape){shape.delete();throw Object.assign(new Error(attempt.warning?.message||'指定半径修顺失败；未提交融合'),{code:'BLEND_BUILD_FAILED'});}
+  const result=attempt.shape;result.booleanReport=shape.booleanReport;result.blendRadiusReport={...result.blendRadiusReport,status:'applied',requestedRadiusMm:params.blendRadiusMm,radiusUsedMm:params.blendRadiusMm,attemptCount:1};shape.delete();return result;
 }

@@ -131,6 +131,14 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 代码：`BATCH_FAILED`、`EXECUTION_UNKNOWN`、`HOST_FAILED`、`JOB_EXECUTION_FAILED`、`MEASUREMENT_FAILED`、`SERVICES_JOB_FAILED`、`SERVICES_REQUEST_FAILED`、`TEXT_COMMAND_FAILED`、`UPGRADE_FAILED`
 
+### unclassified
+
+操作未能完成，目前没有足够证据确定安全恢复方式。
+
+保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
+
+代码：`BLEND_BUILD_FAILED`
+
 ### geometry
 
 候选几何未通过构造、有效性或来源保持检查。

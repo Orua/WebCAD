@@ -38,7 +38,7 @@ import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-in
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
 import {LOGO_RASTER_SCHEMA} from './logo-raster-options.js';
 import {ERROR_RECOVERY_VERSION,errorRecoveryCatalogDoc,errorRecovery} from './error-recovery.js';
-const PAGE_DOC_VERSION = '1.66.1';
+const PAGE_DOC_VERSION = '1.66.2';
 const EXAMPLE_CONTEXT={sessionId:'<live sessionId>',documentId:'<live documentId>',documentInstanceId:'<live documentInstanceId>',expectedRevision:0};
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
@@ -116,7 +116,7 @@ prepareOperation对当前字段明确标注unit:mm且没有同名Mm字段时，�
   ...COMPLEX_GUIDES,
   'api.error-recovery':errorRecoveryCatalogDoc(),
   'api.modeling-pitfalls': MODELING_PITFALLS,
-  'api.blend-radius':'语义圆角使用selector:{seamBetween:{a:特征ID,b:特征ID}}、edgesNear:{pointMm,radiusMm,sharpOnly}或facesFromFeature:{featureId,role}，每次重建由当前OCCT历史解析，不保存面号。smoothTransition/fillet的radius可为正数或{maxMm,minMm,stepRatio:0.75,maxAttempts:6}，区间内只重用同一来源，不重建前缀；回执radiusSearchReport写明实际半径与逐次结果。probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?,maxAttempts?})只读当前独立BRep副本，不改变revision、历史和选择；feasibleMaxMm为最多6个下降样本中的最大可行半径，不是认证全局最大值。全部失败返回feasibility:infeasible、feasibleMaxMm:null和tried；不自动应用。优先给用户允许的区间，回显radiusUsedMm。',
+  'api.blend-radius':'原生Services支持union的2–33份单实体来源融合，结果须为单一连通实体；可选blendRadiusMm仅修顺当前布尔历史中不同来源的尖锐交线，至多64条。固定半径不自动缩小，未命中或修顺失败整步不提交；融合成功不代表所有外形缺陷已处理。原生fillet/smoothTransition当前仅支持数值radius及selector.edgesNear世界毫米点/范围，sharpOnly为true，至多64条；其他选择器/变半径范围明确拒绝，不跨核传面边号。复杂来源必须先读取Services实际能力和编译语义，缺少时明确阻止，不切本地兜底。\n\n语义圆角使用selector:{seamBetween:{a:特征ID,b:特征ID}}、edgesNear:{pointMm,radiusMm,sharpOnly}或facesFromFeature:{featureId,role}，每次重建由当前OCCT历史解析，不保存面号。smoothTransition/fillet的radius可为正数或{maxMm,minMm,stepRatio:0.75,maxAttempts:6}，区间内只重用同一来源，不重建前缀；回执radiusSearchReport写明实际半径与逐次结果。probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?,maxAttempts?})只读当前独立BRep副本，不改变revision、历史和选择；feasibleMaxMm为最多6个下降样本中的最大可行半径，不是认证全局最大值。全部失败返回feasibility:infeasible、feasibleMaxMm:null和tried；不自动应用。优先给用户允许的区间，回显radiusUsedMm。',
   'api.relief-taxonomy': RELIEF_TAXONOMY,
   'api.execution-core': `核心执行约束（从 api.agent-runtime、api.run、api.workflow 的跨工具强制规则整理；完整专题仍可通过 readDocs 获取）。每次任务绑定当前页面返回的 buildId、catalogHash、docsHash、contractHash、documentInstanceId 与 revision；静态知识按已校验哈希缓存，实体状态、拓扑标识和旧引用不跨修订复用。已知精确ID直接 getTools，未知能力才 route，再读取完整卡；参数、单位、默认值、引用和执行入口以当前卡及 schema 为准，不猜工具或设计事实。
 

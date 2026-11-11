@@ -42,6 +42,7 @@ static json measure(const TopoDS_Shape& shape) {
 }
 #include "relief_plan.hxx"
 #include "boolean_plan.hxx"
+#include "seam_blend.hxx"
 #include "face_boundary_round.hxx"
 #include "relief_shoulder.hxx"
 #include "deform.hxx"
@@ -87,6 +88,9 @@ int main(int argc,char** argv) {
     const bool translation=request.at("operation")=="transform"&&request.at("semanticVersion")=="transform.translation-1.0"&&request.at("strategy")=="translation";
     const bool relief=request.at("operation")=="relief"&&(request.at("semanticVersion")=="relief.compiled-contours-1.0"||request.at("semanticVersion")=="relief.compiled-contours-local-patch-1.1"||request.at("semanticVersion")=="relief.compiled-contours-strokes-1.2");
     const bool booleanCut=request.at("operation")=="cut"&&request.at("semanticVersion")=="boolean.cut-1.0"&&request.at("strategy")=="multi-source-boolean";
+    const bool unionBlend=request.at("operation")=="union"&&request.at("semanticVersion")=="boolean.union-seam-1.0"&&request.at("strategy")=="multi-source-union-seam";
+    const bool localBlend=(request.at("operation")=="fillet"||request.at("operation")=="smoothTransition")&&request.at("semanticVersion")=="blend.spatial-edges-1.0"&&request.at("strategy")=="spatial-sharp-edges";
+    json unionReport,blendReport;
     const bool faceRound=request.at("operation")=="round"&&request.at("semanticVersion")=="round.planar-boundary-1.0"&&request.at("strategy")=="planar-boundary-cutter";
     const bool shoulder=request.at("operation")=="reliefShoulder"&&request.at("semanticVersion")=="relief.central-shoulder-1.0"&&request.at("strategy")=="source-boundary-replacement";
     const bool deformation=request.at("operation")=="deform"&&request.at("semanticVersion")=="deform.nurbs-1.0"&&request.at("strategy")=="nurbs-control-point-map";
@@ -100,7 +104,7 @@ int main(int argc,char** argv) {
      json report={{"ok",true},{"operation",request.at("operation")},{"semanticVersion",request.at("semanticVersion")},{"strategy",request.at("strategy")},{"inputFingerprint",request.at("inputFingerprint")},{"featureId",request.at("featureId")},{"expectedRevision",request.at("expectedRevision")},{"grid",{{"columns",converted.at("grid").at("columns")},{"rows",converted.at("grid").at("rows")},{"sha256",converted.at("grid").at("sha256")}}},{"precision",converted.at("precision")},{"timings",{{"totalMs",std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-began).count()}}}};
      std::ofstream reportFile(reportPath,std::ios::binary);reportFile<<report.dump();reportFile.flush();if(!reportFile)throw std::runtime_error("Report write failed");return 0;
     }
-    if(!translation&&!relief&&!booleanCut&&!faceRound&&!shoulder&&!deformation&&!reliefDesign)throw std::runtime_error("Unsupported operation semantics");
+    if(!unionBlend&&!localBlend&&!translation&&!relief&&!booleanCut&&!faceRound&&!shoulder&&!deformation&&!reliefDesign)throw std::runtime_error("Unsupported operation semantics");
     const auto& params=request.at("params");
     stage="read-brep";std::ifstream source(request.at("sourcePath").get<std::string>(),std::ios::binary|std::ios::ate);
     if(!source||source.tellg()>20*1024*1024)throw std::runtime_error("Source BRep exceeds bridge budget");source.seekg(0);
@@ -126,7 +130,8 @@ int main(int argc,char** argv) {
        throw last;}}();
      result=designed.shape;reliefDesignReport=designed.report;
      stages.push_back({{"stage","fit-masked-bspline"},{"ms",designed.report.at("timingsMs").at("fit")}});stages.push_back({{"stage","replace-face-exact-trim"},{"trim",designed.report.at("trim")}});
-    }else if(booleanCut)result=runBooleanCut(input,params,stages,stage,progress);
+    }else if(unionBlend||localBlend)result=runSeamOperation(input,params,unionBlend,unionReport,blendReport,stage,progress);
+    else if(booleanCut)result=runBooleanCut(input,params,stages,stage,progress);
     else if(faceRound){
      keys(params,{"radius","faceIntent"});const double radius=params.at("radius").get<double>();if(!std::isfinite(radius)||radius<=0||radius>10000)throw std::runtime_error("Round boundary requires a bounded positive radius");
      stage="bind-planar-face";progress();const auto face=bindPlanarRoundFace(input,params.at("faceIntent"),radius);
@@ -152,7 +157,7 @@ int main(int argc,char** argv) {
     else result=runReliefPlan(input,params,request.at("strategy"),stages,stage,progress,request.at("semanticVersion")=="relief.compiled-contours-strokes-1.2",supportBinding);
     stage="validate-result";const auto after=measure(result);
     stage="write-brep";const auto path=request.at("outputPath").get<std::string>(),partial=path+".partial";
-    {std::ofstream output(partial,std::ios::binary);BRepTools::Write(result,output,false,false,TopTools_FormatVersion_VERSION_3);output.flush();if(!output)throw std::runtime_error("Precise result write failed");if((booleanCut||faceRound||shoulder||deformation)&&output.tellp()>20*1024*1024)throw BooleanFailure("RESULT_TOO_LARGE_FOR_CLIENT","Native result exceeds the accepted 20 MiB client import budget");}
+    {std::ofstream output(partial,std::ios::binary);BRepTools::Write(result,output,false,false,TopTools_FormatVersion_VERSION_3);output.flush();if(!output)throw std::runtime_error("Precise result write failed");if((unionBlend||localBlend||booleanCut||faceRound||shoulder||deformation)&&output.tellp()>20*1024*1024)throw BooleanFailure("RESULT_TOO_LARGE_FOR_CLIENT","Native result exceeds the accepted 20 MiB client import budget");}
     if(std::rename(partial.c_str(),path.c_str())!=0)throw std::runtime_error("Precise result atomic publication failed");
 #ifdef WEBCAD_RELIEF_STEP
     if(reliefDesign){stage="write-step";webcad::relief_design::writeStep(result,path+".step");std::ifstream st(path+".step",std::ios::binary|std::ios::ate);reliefDesignReport["step"]={{"available",true},{"bytes",(long long)st.tellg()},{"schema","AP214IS"},{"units","mm"}};}
@@ -161,6 +166,8 @@ int main(int argc,char** argv) {
 #endif
     PROCESS_MEMORY_COUNTERS_EX counters{};counters.cb=sizeof(counters);const bool hasMemory=GetProcessMemoryInfo(GetCurrentProcess(),reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&counters),sizeof(counters));
     json report={{"ok",true},{"operation",request.at("operation")},{"semanticVersion",request.at("semanticVersion")},{"strategy",request.at("strategy")},{"stages",stages},{"kernelVersion",OCC_VERSION_COMPLETE},{"codec","occt-text-brep-v1"},{"brepVersion",3},{"units","mm"},{"coordinateSystem","world-xyz-right-handed"},{"inputFingerprint",request.at("inputFingerprint")},{"featureId",request.at("featureId")},{"expectedRevision",request.at("expectedRevision")},{"topologyBinding",{{"kind",translation||deformation?"whole-source":params.contains("supportIntent")?"outer-cylinder-geometric-intent":"private-prototype-boundary"},{"matchCount",1},{"numericIndicesTransferred",false}}},{"before",before},{"validation",after},{"timings",{{"totalMs",std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-began).count()},{"peakWorkingSetBytes",hasMemory?json(counters.PeakWorkingSetSize):json("unavailable")}}}};
+    if(unionBlend){report["unionReport"]=unionReport;report["blendReport"]=blendReport;report["topologyBinding"]={{"kind","whole-sources"},{"matchCount",params.at("toolPaths").size()+1},{"numericIndicesTransferred",false}};}
+    if(localBlend){report["blendReport"]=blendReport;report["topologyBinding"]={{"kind","spatial-sharp-edges"},{"matchCount",1},{"numericIndicesTransferred",false}};}
     if(booleanCut)report["topologyBinding"]={{"kind","whole-sources"},{"matchCount",params.at("toolPaths").size()+1},{"numericIndicesTransferred",false}};
     if(faceRound){report["topologyBinding"]={{"kind","planar-face-geometric-intent"},{"matchCount",1},{"numericIndicesTransferred",false}};report["roundBoundary"]=roundBoundary;}
     if(shoulder){report["topologyBinding"]={{"kind","planar-face-geometric-intent"},{"matchCount",1},{"numericIndicesTransferred",false}};report["shoulderReport"]=shoulderReport;}

@@ -1,30 +1,30 @@
 {
   "schemaVersion": 1,
-  "buildId": "f45deda04cfd50bdd46b4b0d6d263a1eac7bd741-src-d751e6582734ab3b-working",
-  "knowledgeVersion": "sha256:ded42ef9d5da18494ba4e4007e333cfdc24c8d0025cebc88773202fa32a20b08",
-  "pageApiVersion": "1.66.1",
-  "catalogHash": "sha256:f40417026eff3caa31df907a4f0a074a7ae0f2686d20f510a99a56bd3d76a677",
-  "docsHash": "sha256:da60d622bac7e47dbc23b0e5be57b0693044504bd6729a6de987fd0261413245",
+  "buildId": "c632683a32f1bcf790a617b08e5bb4c38a6c63db-src-a5a5da7194e34898-working",
+  "knowledgeVersion": "sha256:5be8b63a25cbe75702fd56c514ee510b3e59f6f3170ad73af358cfae38e4213d",
+  "pageApiVersion": "1.66.2",
+  "catalogHash": "sha256:7925d37e76c5d8c3b9d556fada7a33e7d220f3c7012540c421ddc10167382bbf",
+  "docsHash": "sha256:d8fe0bf01e5901c6a9c4e44f5e2e8323b2e2465e013c941004c1b4c83bce44d3",
   "archive": {
     "url": "agent-bundle.zip",
     "format": "zip",
-    "sizeBytes": 720318,
-    "sha256": "sha256:b72cc8ae861f24f2d6e0b6f26a5a36a4ab3bf4d49c4d6a7ba40781427ab958ef",
+    "sizeBytes": 721290,
+    "sha256": "sha256:41c1eca1f041374dd1af7637a774bf575b26bb9f460fbaffa91e31ea2c9be30e",
     "files": [
       {
         "name": "index.json",
-        "sizeBytes": 4879127,
-        "sha256": "sha256:00ac7b05210c819b44a0c8098d6c6e80514efcfb9618a8ea96a726bf500c1bcc"
+        "sizeBytes": 4882326,
+        "sha256": "sha256:77062ca9bc21b555b6e87f53a8d7cb56531f55fe0c1567f30d7f2eab73a1bb8a"
       },
       {
         "name": "agent-routing.json",
         "sizeBytes": 61943,
-        "sha256": "sha256:93c45104f055f984c48362c809dd0318f9ae2950d07c85d944ad3c1c24321a80"
+        "sha256": "sha256:0e18460279e4550b2132ab3c748a53c5719d610ff626720a6eb3037b2b642376"
       },
       {
         "name": "routes.json",
         "sizeBytes": 73319,
-        "sha256": "sha256:a5e4d17d7ca7abbaabc204a6b114ec9a1e74bd914109759f8ed92160ee2e9393"
+        "sha256": "sha256:49f389dcc0dd29a80cc8e42061846afe44866c9f284afba6808bc2e9d5537cfc"
       },
       {
         "name": "webcad-page-api/SKILL.md",
@@ -39,7 +39,7 @@
       {
         "name": "agent-kit.json",
         "sizeBytes": 2601,
-        "sha256": "sha256:b56979e417fc0103ed9810a53e2189d586b096d10ca8f3de7b26e1090aea3db5"
+        "sha256": "sha256:33f723ac3ff6227199c562fd1af1a554e7ffde7bc4dc2c13edd3a96bf0a34ff7"
       },
       {
         "name": "webcad-page-api/scripts/page-client.mjs",
@@ -59,7 +59,7 @@
       {
         "name": "remote-agent.json",
         "sizeBytes": 1314,
-        "sha256": "sha256:d34e855c0dd17536bf39f0a163c21e90fd0143d3c7185df059acb202d0c46f60"
+        "sha256": "sha256:9682319b8905dc349182cfa6ddc99bfbfcdada402b43bede6423ce7d79e1b66c"
       },
       {
         "name": "remote-agent/host-adapter.js",
@@ -89,23 +89,23 @@
     {
       "name": "index.json",
       "url": "index.json",
-      "sizeBytes": 4879127,
-      "sha256": "sha256:00ac7b05210c819b44a0c8098d6c6e80514efcfb9618a8ea96a726bf500c1bcc"
+      "sizeBytes": 4882326,
+      "sha256": "sha256:77062ca9bc21b555b6e87f53a8d7cb56531f55fe0c1567f30d7f2eab73a1bb8a"
     },
     {
       "name": "agent-routing.json",
       "url": "agent-routing.json",
       "sizeBytes": 61943,
-      "sha256": "sha256:93c45104f055f984c48362c809dd0318f9ae2950d07c85d944ad3c1c24321a80"
+      "sha256": "sha256:0e18460279e4550b2132ab3c748a53c5719d610ff626720a6eb3037b2b642376"
     },
     {
       "name": "routes.json",
       "url": "routes.json",
       "sizeBytes": 73319,
-      "sha256": "sha256:a5e4d17d7ca7abbaabc204a6b114ec9a1e74bd914109759f8ed92160ee2e9393"
+      "sha256": "sha256:49f389dcc0dd29a80cc8e42061846afe44866c9f284afba6808bc2e9d5537cfc"
     }
   ],
-  "totalBytes": 5014389,
+  "totalBytes": 5017588,
   "routing": "agent-routing.json",
   "index": "index.json",
   "uiRoutes": "routes.json",

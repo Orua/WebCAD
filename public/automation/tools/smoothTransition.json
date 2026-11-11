@@ -270,7 +270,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs. Services supports exact numeric radius and selector.edgesNear world-mm intent only, sharpOnly:true, at most 64 sharp edges; other selectors/radius laws are not accepted remotely. Read actual execution capabilities before committing complex sources.",
   "title": "平滑过渡 / Smooth shared seams of adjacent faces together",
   "category": "modification",
   "synonyms": [
@@ -283,7 +283,7 @@
     "blend"
   ],
   "description": "平滑过渡 / Smooth shared seams of adjacent faces together",
-  "schemaHash": "sha256:fb0d51e2449fc358f6995d9b0ff1186b058205fcef766c048b62ba6f18276dbe",
+  "schemaHash": "sha256:7c57c8bbfc1abd1d69e40759d61834e0d4ad778084f69fec9109bf4afbbbcdc1",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -345,7 +345,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
+    "Select at least two adjacent faces of one solid. Only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs. Services supports exact numeric radius and selector.edgesNear world-mm intent only, sharpOnly:true, at most 64 sharp edges; other selectors/radius laws are not accepted remotely. Read actual execution capabilities before committing complex sources."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -1007,5 +1007,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:202a671f21d8deb3f43de2216217c39a38eaf37746f18d6f134bcbff6672fbb1"
+  "docsHash": "sha256:ea77e7f8c0bba9ccfdbb6cc7734760bffd64d7ef8245936c092c9a0a959218a3"
 }

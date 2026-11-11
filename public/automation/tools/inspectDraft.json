@@ -2,7 +2,7 @@
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.66.1",
+  "version": "1.66.2",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -223,5 +223,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d7e73f563df88e6182dbca2280a587a977c255d60e5d1d4ca119ebf1e2775b0c"
+  "docsHash": "sha256:70efc24041e8ff930d2c03039ffb953a0bf7c4294ce0c8128833f9c21540c642"
 }

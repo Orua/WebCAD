@@ -969,7 +969,7 @@ export class CadKernel {
             // uploaded. Reading a defensive BRep copy can rewrite serialization
             // flags without changing geometry; that copy is for computation.
             const checkpointSources=feature.compiledCheckpoint&&feature.compiledCheckpoint.kind!=='local-rebuild'?feature.refs.map(id=>new TextEncoder().encode(this.geometrySourceSnapshot(next.get(id)))):null;
-            let checkpoint=compiledCheckpointBytes(document,feature,checkpointSources?(feature.op==='cut'||feature.compiledCheckpoint.kind==='local-rebuild'?checkpointSources:checkpointSources[0]):undefined);
+            let checkpoint=compiledCheckpointBytes(document,feature,checkpointSources?(['cut','union'].includes(feature.op)||feature.compiledCheckpoint.kind==='local-rebuild'?checkpointSources:checkpointSources[0]):undefined);
             // Pre-snapshot v3 artifacts could include display triangulations.
             // Recreate that source representation once and require its exact
             // original hash. This is source mesh work, never relief recompute.
@@ -977,7 +977,7 @@ export class CadKernel {
               const legacySource=next.get(feature.refs[0]);this.describe(legacySource,{id:feature.refs[0],op:'legacy-source'});
               checkpoint=compiledCheckpointBytes(document,feature,new TextEncoder().encode(legacySource.serialize()));
             }
-            if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));restoreCheckpointReports(shape,feature.compiledCheckpoint.reports);if(feature.compiledCheckpoint.faceOriginSignatures)restoreFaceOrigins(shape,feature.compiledCheckpoint.faceOriginSignatures,{defer:true});if(feature.op==='round')shape.roundReport=feature.compiledCheckpoint.roundReport;if(feature.op==='reliefShoulder')shape.reliefReport=feature.compiledCheckpoint.reliefReport;compiledReuse.push(current);}
+            if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));restoreCheckpointReports(shape,feature.compiledCheckpoint.reports);if(feature.compiledCheckpoint.faceOriginSignatures)restoreFaceOrigins(shape,feature.compiledCheckpoint.faceOriginSignatures,{defer:true});if(feature.compiledCheckpoint.booleanReport)shape.booleanReport=feature.compiledCheckpoint.booleanReport;if(feature.compiledCheckpoint.blendReport)shape.blendReport=feature.compiledCheckpoint.blendReport;if(feature.op==='round')shape.roundReport=feature.compiledCheckpoint.roundReport;if(feature.op==='reliefShoulder')shape.reliefReport=feature.compiledCheckpoint.reliefReport;compiledReuse.push(current);}
             else {
               if(feature.compiledCheckpoint)compiledInvalidated.push(current);
               for(const id of new Set(feature.refs||[]))if(next.has(id)){
