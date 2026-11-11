@@ -43,6 +43,7 @@ reviewLogo: contextPolicy=identity
 logoWizard: contextPolicy=identity
 getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
+recoverUnsaved: contextPolicy=revision
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none

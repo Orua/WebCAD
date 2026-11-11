@@ -16,6 +16,7 @@ export class MeshShape{
   return new MeshShape(mesh,{sourceBytes:bytes,sourceHash:item.assetHash,units:item.units,sourceFormat:item.format,report:mesh.report??{geometryType:'rawMesh',solidEligibility:'not-checked'}});
  }
  clone(){return new MeshShape(this.mesh,{sourceBytes:this.sourceBytes,sourceHash:this.sourceHash,units:this.units,sourceFormat:this.sourceFormat,matrix:[...this.matrix],report:this.report});}
+ scaleXYZ(factors,origin=[0,0,0]){if(!Array.isArray(factors)||factors.length!==3||factors.some(v=>!Number.isFinite(v)||v<=0))throw meshError('MESH_TRANSFORM_INVALID','Positive XYZ scales required');const m=identity();for(let i=0;i<3;i++){m[i*5]=factors[i];m[12+i]=(1-factors[i])*origin[i];}this.matrix=multiply(m,this.matrix);delete this.cachedMetrics;return this;}
  serialize(){throw meshError('MESH_BREP_UNAVAILABLE','Raw mesh is not an exact BRep; choose full STL or the typed mesh asset.');}
  get boundingBox(){const {min,max}=this.metrics().bounds;return {bounds:[min,max],delete(){}};}
  delete(){} // Immutable source is shared by retained feature/history references.
@@ -37,7 +38,7 @@ export class MeshShape{
  describe(feature){const formal=this.transformed(),mesh=indexedDisplayMesh(formal),metrics=this.metrics(),previewOrigin=metrics.bounds.min.map((v,i)=>(v+metrics.bounds.max[i])/2),positions=new Float32Array(mesh.positions.length);let maxPreviewErrorMm=0;
   for(let i=0;i<positions.length;i++){const local=mesh.positions[i]-previewOrigin[i%3];positions[i]=local;maxPreviewErrorMm=Math.max(maxPreviewErrorMm,Math.abs(local-positions[i]));}
   if(!Number.isFinite(maxPreviewErrorMm)||maxPreviewErrorMm>.005)throw meshError('MESH_DISPLAY_CAPACITY','Source range exceeds the tested Float32 preview precision; original document retained.');
-  return {id:feature.id,name:feature.name||feature.id,...metrics,positions,previewOrigin,indices:mesh.indices,displayPatches:createDisplayPatches(positions,mesh.indices),faceGroups:[],edges:[],meshReport:{...metrics.meshReport,previewOrigin,maxPreviewErrorMm,displayLOD:'full; exact-coordinate index reuse; no face reduction',displayVertexCount:mesh.positions.length/3,formalTriangleCount:formal.indices.length/3}};
+  return {id:feature.id,name:feature.name||feature.id,...metrics,...(this.resizeReport?{resizeReport:this.resizeReport}:{}),positions,previewOrigin,indices:mesh.indices,displayPatches:createDisplayPatches(positions,mesh.indices),faceGroups:[],edges:[],meshReport:{...metrics.meshReport,previewOrigin,maxPreviewErrorMm,displayLOD:'full; exact-coordinate index reuse; no face reduction',displayVertexCount:mesh.positions.length/3,formalTriangleCount:formal.indices.length/3}};
  }
  exportSTL(){const unchanged=this.matrix.every((x,i)=>x===identity()[i]);if(unchanged&&this.sourceFormat==='stl'&&this.units==='mm')return {data:this.sourceBytes,mime:'model/stl',extension:'stl',meshReport:{sourceBytesUnchanged:true,sourceHash:this.sourceHash}};const result=exportBinarySTL(this.transformed());return {data:result.bytes,mime:'model/stl',extension:'stl',meshReport:result.report};}
 }

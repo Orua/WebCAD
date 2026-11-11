@@ -1,3 +1,4 @@
+import {applyBodyResize} from './body-resize.js';
 import {resultDisplayNames} from './boolean-naming.js';
 import {normalizeExtrudeHoles,holeTopologyOk} from './extrude-holes.js';
 import {buildTap} from './modeling/manufacturing/tap-tool.js';
@@ -549,6 +550,7 @@ export class CadKernel {
         throw new Error('导入格式不受支持');
       }
       case 'transform': case 'copy':
+        if(p.sizeMm){if(feature.placement)throw Object.assign(new Error('实体尺寸使用世界轴，请省略 placement。'),{code:'COORDINATE_MODE_CONFLICT'});return applyBodyResize(source(),p,this.oc,cad.cast);}
         assertBoundsAlignment(p);
         if(p.align&&feature.placement)throw Object.assign(new Error('包围盒对齐使用世界轴，请省略 placement。'),{code:'COORDINATE_MODE_CONFLICT',path:'placement'});
         return p.mode?applySpatialTransform(source(),p,feature.placement):applyTransform(source(),p);
@@ -894,6 +896,7 @@ export class CadKernel {
       if(shape.booleanReport)measured.booleanReport=shape.booleanReport;
       if(shape.loftReport)measured.loftReport=shape.loftReport;
       if(shape.alignmentReport)measured.alignmentReport=shape.alignmentReport;
+      if(shape.resizeReport)measured.resizeReport=shape.resizeReport;
       if(shape.guidedLoftReport)measured.guidedLoftReport=shape.guidedLoftReport;
       if(shape.ellipsoidReport)measured.ellipsoidReport=shape.ellipsoidReport;
       if(shape.blendRadiusReport)measured.blendRadiusReport=shape.blendRadiusReport;
@@ -1024,7 +1027,7 @@ export class CadKernel {
         if(cached)body={...cached.body,name:feature.name||feature.id};
         else if(headless&&next.get(id).geometryType!=='mesh'){
           const shape=next.get(id),faces=shape.faces,edges=shape.edges;
-          try{body={id,name:feature.name||id,...displayMetadata(shape,faces,edges,this.oc),volume:preciseVolume(shape,this.oc),metricsDeferred:false,positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],loftReport:shape.loftReport,logoProjectionReport:shape.logoProjectionReport,transitionReport:shape.transitionReport,alignmentReport:shape.alignmentReport};}
+          try{body={id,name:feature.name||id,...displayMetadata(shape,faces,edges,this.oc),volume:preciseVolume(shape,this.oc),metricsDeferred:false,positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],loftReport:shape.loftReport,logoProjectionReport:shape.logoProjectionReport,transitionReport:shape.transitionReport,alignmentReport:shape.alignmentReport,resizeReport:shape.resizeReport};}
           finally{faces.forEach(dispose);edges.forEach(dispose);}
         }else body=this.describe(next.get(id), feature);
         if(cached&&feature.op==='relief'&&body.reliefReport?.layers&&feature.params.layers)body.reliefReport={...body.reliefReport,layers:body.reliefReport.layers.map((layer,i)=>({...layer,name:feature.params.layers[layer.index??i]?.name??layer.name}))};

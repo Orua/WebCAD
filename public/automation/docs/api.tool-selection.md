@@ -241,6 +241,7 @@
 - feature.addMany：一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。
 - document.parameters：设置命名参数/表达式并联动尺寸；不是显示精度设置。
 - document.refresh：重建当前工程历史，不回到更早状态、不重启内核。
+- recoverUnsaved：仅在用户明确要求时读取未保存恢复副本元数据，再按固定checkpoint替换当前工程；不是启动提示、撤销或失效Worker恢复。
 - recoverKernel：重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。
 
 ## 未提交预览生命周期
@@ -376,6 +377,7 @@ reviewLogo: contextPolicy=identity
 logoWizard: contextPolicy=identity
 getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
+recoverUnsaved: contextPolicy=revision
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none

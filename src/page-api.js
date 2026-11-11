@@ -275,9 +275,18 @@ export function createPageAPI(host){
         response.contracts=contracts;response.contractIdsOmitted=omissions.map(item=>item.id);
         response.contractReadPolicy={automaticCharBudget,automaticChars,omissions,nextAction:omissions.length?'Use getTools({ids:contractIdsOmitted}) only for contracts needed by the plan; template.* cards already contain complete variant arguments.':null};
       }
+      if(!blockers.length)response.layout=host.onAgentConnect?.()??s.view?.workspaceLayout;
       return response;
     },
     info:()=>({...infoMetadata({buildId:host.buildId,browserReady:current().summary.kernelReady}),transport:'in-page',context:current().context,page:{url:location.href,topLevel:window===window.top},display:host.display()}),
+    recoverUnsaved:guarded(async(input={})=>{
+      check(input,['context','apply','checkpoint','unsaved']);
+      if(input.apply!==undefined&&typeof input.apply!=='boolean')fail('PARAM_SCHEMA_INVALID','apply must be boolean');
+      if(input.unsaved!==undefined&&!['fail','discard'].includes(input.unsaved))fail('PARAM_SCHEMA_INVALID','unsaved must be fail or discard');
+      if(input.checkpoint!==undefined&&(!input.checkpoint||typeof input.checkpoint.instanceId!=='string'||input.checkpoint.instanceId.length>150||!Number.isFinite(input.checkpoint.savedAt)||Object.keys(input.checkpoint).some(k=>!['instanceId','savedAt'].includes(k))))fail('PARAM_SCHEMA_INVALID','Invalid recovery checkpoint');
+      if(!host.recoverUnsaved)fail('CAPABILITY_UNAVAILABLE','Recovery is unavailable');
+      return host.recoverUnsaved(input);
+    }),
     recoverKernel:guarded(async(input={})=>{
       const state=current(),{context,stopRunning=false,...extra}=input;
       if(Object.keys(extra).length||typeof stopRunning!=='boolean')fail('PARAM_SCHEMA_INVALID','Use context and boolean stopRunning');

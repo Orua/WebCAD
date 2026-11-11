@@ -2,7 +2,7 @@
 // Actions route through UI_API_ROUTES; no eval or geometry logic belongs here.
 import {ACTION_ICONS} from './action-icons.js';
 const tabs = [
-  {id:'edit',label:'编辑',unfolded:true,groups:[['选择',['selectTool']],['复制粘贴',['copySelection','pasteSelection']],['变换',['moveTool','rotateTool','alignTool','copy','mirror']],['阵列',['linearPattern','circularPattern']],['组合与拆分',['group','explode','extractSolid']],['管理',['remove']]]},
+  {id:'edit',label:'编辑',unfolded:true,groups:[['选择',['selectTool']],['复制粘贴',['copySelection','pasteSelection']],['变换',['moveTool','rotateTool','alignTool','resizeBody','copy','mirror']],['阵列',['linearPattern','circularPattern']],['组合与拆分',['group','explode','extractSolid']],['管理',['remove']]]},
   {id:'path',label:'路径',unfolded:true,groups:[['导入与绘制',['vectorImport','sketchProfile','vectorProfile','helix']],['编辑曲线',['pathEdit','pathFillet','pathTrim','pathExtend','pathTrimCircle']],['闭合与尺寸',['profileRepair','profileConstraints','profileOffset']],['提取路径',['faceBoundary','planeSection']]]},
   {id:'create',label:'创建',groups:[['路径成型',['profileExtrude','sweep','revolve','loft'],{unfolded:true}],['直接成型',['badge','sketch','arcProfile','extrude','coil']],['高级成型',['referenceExtrude','curveSweep','referenceLoft','advancedLoft']]]},
   {id:'model',label:'实体',unfolded:true,groups:[['基本实体',['box','cylinder','cone','sphere','ellipsoid','torus']],['快捷模型',['quickModel']],['导入模型',['importAtFrame']]]},
@@ -52,6 +52,6 @@ export const UI_LAYOUT=freeze({version:9,workspaces:[{id:'modeling',label:'建�
     reliefSculpt:['M3 18h18 M4 14l4-7 4 5 4-8 4 10 M6 18v3 M18 18v3'],
   },
   header:[{action:'save',label:'保存'},{action:'commandSearch',label:'搜索命令'},{action:'help',label:'帮助'}],
-  fileMenu:[{action:'new',label:'新建工程'},{action:'open',label:'打开',title:'打开文件并替换当前设计'},{action:'importAtFrame',label:'导入',title:'将模型导入当前设计，保留已有对象'},{action:'save',label:'保存工程'},{action:'export',label:'导出模型'}],
+  fileMenu:[{action:'new',label:'新建工程'},{action:'open',label:'打开',title:'打开文件并替换当前设计'},{action:'restoreRecovery',label:'恢复未保存工程',title:'显式查找并恢复本机保留的未保存工程'},{action:'importAtFrame',label:'导入',title:'将模型导入当前设计，保留已有对象'},{action:'save',label:'保存工程'},{action:'export',label:'导出模型'}],
 });
 export const TOOL_CATEGORIES=Object.fromEntries(UI_LAYOUT.tabs.map(tab=>[tab.label,tab.groups]));

@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.65.0 · 操作目录 sha256:3946f7f0984275ec52aa25e8ad810dcd9c51b99189c4cfcd0117027226f34fef
+API 1.66.0 · 操作目录 sha256:43b7f1b8e3207199789368b05300cf566848b95d030fb949fd398d8768f92492
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -27,6 +27,7 @@ API 1.65.0 · 操作目录 sha256:3946f7f0984275ec52aa25e8ad810dcd9c51b99189c4cf
 - `logoWizard`
 - `getBatchReceipt`
 - `probeBlendRadius`
+- `recoverUnsaved`
 - `recoverKernel`
 - `sampleMeshRelief`
 - `getModelLibrary`
@@ -276,7 +277,7 @@ API 1.65.0 · 操作目录 sha256:3946f7f0984275ec52aa25e8ad810dcd9c51b99189c4cf
 - `applyPreparedOperation` · page-method · applyPreparedOperation({context,preparationId})。只复制prepareOperation返回的短编号；版本/哈希/refs/完整参数/幂等键由准备单提供，无需重拼。须用户本次已授权该建模任务。
 - `getDebugReport` · page-method · getDebugReport({source?:all|ui|api|agent|kernel|services|runtime,level?:all|info|warn|error,query?:string,afterSequence?:integer,limit?:1..1500,includeState?:boolean})。默认最近500条与状态。
 - `setDebugPanel` · page-method · setDebugPanel({context,visible:true|false})；identity context。
-- `getMetalMaterials` · page-method · getMetalMaterials()；只管外观饰面（design 与各金属），不含密度。没有透明/玻璃饰面；design 体可用 body.appearance 的 roughness 0–1 做哑光。任一可见实体用金属饰面会把全场切到金属光照，design 体变暗（METAL_LIGHTING_GLOBAL，display.metalRendering.sceneLighting）。金属饰面忽略 color（COLOR_IGNORED_BY_METAL_FINISH）。
+- `getMetalMaterials` · page-method · getMetalMaterials()；只管外观饰面（design 与各金属），不含密度。透明/玻璃通过body.appearance的opacity/transmission/ior/thicknessMm设置；design体的roughness 0–1做哑光。texture为内嵌PNG/JPEG/WebP或当前资产hash的整实体投射，图片持久化到工程，不改几何；getState().surface读回。任一可见实体用金属饰面会把全场切到金属光照，design 体变暗（METAL_LIGHTING_GLOBAL，display.metalRendering.sceneLighting）。金属饰面忽略 color（COLOR_IGNORED_BY_METAL_FINISH）。
 - `setMetalMaterials` · page-method · setMetalMaterials({context,configuration})
 - `getMaterials` · page-method · getMaterials()只管质量：读取version1配置、常用金属参考密度及默认/对象材料映射，不是外观饰面列表（饰面用 getMetalMaterials，按体外观用 execute body.appearance）。execute({context,idempotencyKey,action:"document.materials",args:{settings}})完整更新；settings={version:1,defaultMaterial,densities,bodyMaterials}。密度g/cm³须0<值≤30，材料编号和默认值从返回materials读取。
 - `measureMass` · page-method · measureMass({context,bodyId,materialId?})；测量当前对象体积，再按显式材料/对象材料/工程默认材料优先级计算。
@@ -289,6 +290,7 @@ API 1.65.0 · 操作目录 sha256:3946f7f0984275ec52aa25e8ad810dcd9c51b99189c4cf
 - `logoWizard` · page-method · logoWizard({context,action?:get|open|attach|artifacts|parameters|read|back|load|edit|closeEditor|place|position|align|fold|unfold|select|setPoint|deletePoint|deleteContour|undo|confirm,expectedRevision?,parameters?:{targetWidthMm,page,pdfJoinToleranceMm,raster},allowUpload?:false,logoId?,regionIndex?,holeIndex?,pointIndex?,pointMm?,confirmed?})。get读取已打开向导且不分配资源；open({logoId})打开同一草稿的大窗调整，不提交几何；edit打开大窗编辑矢量，closeEditor收回；place({bodyId,faceId,point:[x,y,z]})在精确平面建立画布定位，position({placement:{leftMm,topMm,scale,angleDeg,depthMm,point}})更新同一预览，align({alignment:center|horizontal|vertical})对齐；fold/unfold收起或展开原向导。get.placement回读当前point/scale/angle/depth/offsetX/offsetY/margins/frame，四边距离以目标面投影外框为基准，孔洞和实际边界由最终几何验证。定位不启动几何计算，确认雕刻仍用现有logo工具；所有步骤持续缩略图，编辑后实时更新；其他动作须wizard.revision。attach登记UI原件和共享草稿，artifacts绑定并导出当前稿；前者需cad.read，后者需cad.export。load从readLogo的logoId读取同源轮廓/原图；read处理UI已选择的文件，默认不上传，需allowUpload:true才可调用已配置后台。没有活动向导不自动开窗，独立流程用reviewLogo。
 - `getBatchReceipt` · page-method · getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.
 - `probeBlendRadius` · page-method · probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。
+- `recoverUnsaved` · page-method · recoverUnsaved({context,apply?:boolean,checkpoint?:{instanceId,savedAt},unsaved?:fail|discard})。默认只读返回available和副本元数据，不返回工程内容；apply:true须指定该checkpoint，当前工程未保存则默认拒绝，明确discard才替换。
 - `recoverKernel` · page-method · recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。
 - `sampleMeshRelief` · page-method · sampleMeshRelief({context,bodyId,inputGeometryHash,support:{originMm,xAxis,normal},pointsMm:[[U,V],…]})；明确毫米支撑，1–256个点，点数乘三角面数不得超过1200万。
 - `getModelLibrary` · page-method · getModelLibrary()
@@ -318,7 +320,7 @@ API 1.65.0 · 操作目录 sha256:3946f7f0984275ec52aa25e8ad810dcd9c51b99189c4cf
 - `cancelJob` · page-method · cancelJob({jobId})
 - `waitFor` · page-method · waitFor({afterRevision}|{jobId},timeoutMs?,documentInstanceId?)。二选一；timeoutMs≤LIMITS.transport.waitMaxMs(25000)。替代客户端轮询 getState/getJob。
 - `awaitJob` · page-method · awaitJob({jobId,timeoutMs?})。timeoutMs 0..25000，默认25000；作业结束即返回（页面内推送，不轮询 getState）。超时只返回当前快照，不取消、不重放。
-- `connect` · page-method · connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。只读，内核启动期间可用。
+- `connect` · page-method · connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。不修改工程，内核启动期间可用。外部AI首次成功连接自动进入专注画布；用户退出后不因重复查询再次收起。原生AI沿用已有布局。layout与getUILayout回读实际布局。
 - `info` · page-method · info() 无参数。
 - `getState` · page-method · getState({include?,compact?,fields?,sinceRevision?,featureIds?,featureFields?,bodyIds?,bodyFields?}={}); featureIds/bodyIds 限定1..50个对象，featureFields/bodyFields指定字段路径（如 params.depthMm），只返回这些对象与字段，不带其他LOGO轮廓。原生Agent优先读取有效同步快照，缺失分组才按需读取；compact不会携带全量特征。 不接收 context 或其他字段；include 可选 summary/features/bodies/bodiesLite/selection/capabilities/references/reliefDesigns；外观用 fields:["appearance","colors","renderFinish"]，appearance 不是 include 分组。compact:true 只给摘要/轻量实体/选择；fields:[顶层字段名] 只返回这些字段（context/requestContext/status 总是返回）；复杂体（自适应显示）的精确体积按需计算：bodies/bodiesLite/run 回执里带 metricsDeferred:true 且 volume:null，null 表示「未计算」不是 0；挑导出实体时不要用 volume!=null 过滤，应导出全部可见 id 或先 measure。布尔结果体默认保留目标实体名，hidden 只含仍存在的实体。sinceRevision:n 在修订未变时返回 unchanged:true，否则附 changes:{addedBodyIds,removedBodyIds,changedBodyIds}（相对该修订，页面保留最近 32 个修订的实体指纹）。
 - `searchTools` · page-method · searchTools({query,category?,limit?,cursor?}); query 字符串必需，limit 1..50；中英文按相关度排序，空查询分页列出目录。
@@ -378,7 +380,7 @@ API 1.65.0 · 操作目录 sha256:3946f7f0984275ec52aa25e8ad810dcd9c51b99189c4cf
 - `document.rename` · page-command · 修改工程名称，保留几何。
 - `feature.rename` · page-command · 修改历史步骤及同 ID 实体名称，导入件也可使用。
 - `body.visibility` · page-command · 显隐指定当前实体，不删除几何。
-- `body.appearance` · page-command · color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。roughness 0–1（null 恢复 0.42 默认）只作用于 design 饰面的该实体，例如 0.9 做哑光漆，随工程保存；金属饰面忽略。没有透明/玻璃饰面。任一可见实体用金属饰面时全场切到金属光照（ACES、较暗灯强），design 实体会变暗；回执警告 METAL_LIGHTING_GLOBAL，getState().display.metalRendering.sceneLighting 读回。
+- `body.appearance` · page-command · color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。roughness 0–1（null 恢复 0.42 默认）只作用于 design 饰面的该实体，例如 0.9 做哑光漆，随工程保存；金属饰面忽略。opacity 0–1 为不透明度；transmission 0–1、ior 1–2.5、thicknessMm 0–10000 表达玻璃透射。texture 为 PNG/JPEG/WebP dataUrl（约4.5MiB以内、4096像素以内），或当前工程assetHash+mime；mapping box/xy/xz/yz、sizeMm二元毫米尺寸、offsetMm二元偏移、rotationDeg。null清除对应覆盖。整实体投射只改外观；图片随工程保存且可撤销。任一可见实体用金属饰面时全场切到金属光照（ACES、较暗灯强），design 实体会变暗；回执警告 METAL_LIGHTING_GLOBAL，getState().display.metalRendering.sceneLighting 读回。
 - `document.appearance` · page-command · 设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。
 - `body.explode` · page-command · 将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。
 - `reference.setWorkFrame` · page-command · args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。

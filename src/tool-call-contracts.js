@@ -1,3 +1,4 @@
+import {TEXTURE_SCHEMA} from './surface-overrides.js';
 import {PAGE_METHOD_SCHEMAS,IDENTITY_CONTEXT_SCHEMA} from './page-input-contracts.js';
 import {FILE_ARGUMENT_KEYS} from './browser-file-contracts.js';
 
@@ -66,7 +67,7 @@ const commandDefinitions={
  'body.align':['bodyIds target axes sourceSide targetSide group gapMm','bodyIds target'],
  'history.restore':['stateId','stateId'],'document.reliefDesign':['id expectedDraftRevision draft remove','id expectedDraftRevision'],
  'document.rename':['name','name'],'feature.rename':['featureId name','featureId name'],'body.visibility':['bodyIds visible','bodyIds visible'],
- 'body.appearance':['bodyIds finish color roughness','bodyIds'],'document.appearance':['finish','finish'],'body.explode':['bodyId','bodyId'],
+ 'body.appearance':['bodyIds finish color roughness opacity transmission ior thicknessMm texture','bodyIds'],'document.appearance':['finish','finish'],'body.explode':['bodyId','bodyId'],
  'reference.setWorkFrame':['origin quaternion sourceLabel','origin quaternion'],'reference.resetWorkFrame':['scope','scope'],
  'reference.setLocked':['locked','locked'],'reference.saveFrame':['name frame frameId expectedFrameVersion','name frame'],
  'reference.activateFrame':['frameId expectedFrameVersion','frameId expectedFrameVersion'],'reference.renameFrame':['frameId expectedFrameVersion name','frameId expectedFrameVersion name'],
@@ -81,6 +82,7 @@ const commandDefinitions={
  'preview.commit':['previewId expectedGeneration','previewId expectedGeneration'],'preview.cancel':['previewId expectedGeneration','previewId expectedGeneration'],
 };
 export const COMMAND_PREPARATION_SCHEMAS=Object.fromEntries(Object.entries(commandDefinitions).map(([id,[keys,required]])=>[id,shape(keys,required)]));
+Object.assign(COMMAND_PREPARATION_SCHEMAS['body.appearance'].properties,{texture:TEXTURE_SCHEMA,opacity:{type:['number','null'],minimum:0,maximum:1},transmission:{type:['number','null'],minimum:0,maximum:1},ior:{type:['number','null'],minimum:1,maximum:2.5},thicknessMm:{type:['number','null'],minimum:0,maximum:10000}});
 Object.assign(COMMAND_PREPARATION_SCHEMAS['body.align'],METHOD_PREPARATION_SCHEMAS.planAlignment,{properties:{...METHOD_PREPARATION_SCHEMAS.planAlignment.properties},required:['bodyIds','target']});delete COMMAND_PREPARATION_SCHEMAS['body.align'].properties.context;
 const fileRequired={capabilities:[],register:['name','data'],new:['context'],open:['context','resourceId','unsaved'],import:['context','resourceId'],save:['context'],export:['context','format'],reattach:['context','resourceId'],read:['resourceId','as'],download:['resourceId'],write:['resourceId','handle'],confirmWritten:['resourceId','size','sha256'],release:['resourceId']};
 export const FILE_PREPARATION_SCHEMAS=Object.fromEntries(Object.entries(FILE_ARGUMENT_KEYS).map(([name,keys])=>[`files.${name}`,schema({...fields(keys),...(keys.includes('context')?{context:IDENTITY_CONTEXT_SCHEMA}:{}),...(name==='export'?{format:{enum:['step','stl','brep','png']}}:{}),...(name==='open'?{unsaved:{enum:['fail','discard']}}:{})},fileRequired[name])]));

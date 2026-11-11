@@ -1217,6 +1217,13 @@
     "method": "files.import",
     "usage": "用户选定真实 STEP/BREP 文件后登记字节；显式提交当前工作基准版本、来源包围盒中心和幂等键。"
   },
+  "restoreRecovery": {
+    "tools": [
+      "recoverUnsaved"
+    ],
+    "method": "recoverUnsaved",
+    "usage": "文件→恢复未保存工程。recoverUnsaved({context})只读取副本元数据；apply:true须指定返回的checkpoint，未保存工程默认拒绝替换，明确unsaved:discard后恢复。启动不查询或弹出恢复。"
+  },
   "new": {
     "tools": [
       "files.new"
@@ -1268,6 +1275,22 @@
       "body.explode"
     ],
     "method": "execute"
+  },
+  "resizeBody": {
+    "tools": [
+      "transform",
+      "feature.edit",
+      "getState"
+    ],
+    "method": "execute",
+    "usage": "编辑→实体尺寸；单实体世界轴长宽高。feature.add op:transform params:{sizeMm:[X,Y,Z],resizeAnchor:min|center|max},refs:[当前实体ID]，省略placement及其他变换。原始几何保留在上游，feature.edit改同一步参数；getState().bodies[].resizeReport回读实际尺寸。孔和圆角随整件分轴变形，不识别导入件原约束。"
+  },
+  "bodySurface": {
+    "tools": [
+      "body.appearance"
+    ],
+    "method": "execute",
+    "usage": "实体外观：透明塑料/玻璃、不透明度、粗糙度及图片投射。body.appearance用显式opacity/transmission/ior/thicknessMm和texture；getState().surface读回资产身份及毫米投射，撤销/工程重开保留。"
   },
   "perPartMetal": {
     "tools": [
@@ -1553,6 +1576,7 @@ reviewLogo: contextPolicy=identity
 logoWizard: contextPolicy=identity
 getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
+recoverUnsaved: contextPolicy=revision
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none

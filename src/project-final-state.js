@@ -12,6 +12,8 @@ export function finalStateProject(document,sources){
     binaryAssets[assetHash]=data;
     features.push({id,name:imports[key].name,op:'import',params:{key},refs:[]});
   }
+  const visibleIds=new Set(features.map(f=>f.id));
+  for(const [id,surface]of Object.entries(document.surface||{}))if(visibleIds.has(id)&&surface?.texture?.assetHash){const hash=surface.texture.assetHash,key='texture-'+hash;imports[key]=document.imports[key];binaryAssets[hash]=document.binaryAssets[hash];}
   const {timeline,compiledArtifacts,reliefDesigns,parameters,...metadata}=document;
   const ids=new Set(features.map(f=>f.id));
   return {...metadata,version:4,features,imports,binaryAssets,

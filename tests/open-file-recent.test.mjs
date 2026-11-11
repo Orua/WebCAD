@@ -4,12 +4,11 @@ import {readFileSync} from 'node:fs';
 
 const main=readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
 
-test('supported browsers use File System Access and retain up to five recent handles',()=>{
+test('file open uses the native picker without a persisted recent-file list',()=>{
   assert.match(main,/window\.showOpenFilePicker/);
-  assert.match(main,/indexedDB\.open\('webcad-local',1\)/);
-  assert.match(main,/store\.put\(entry,'recent:'\+entry\.id\)/);
-  assert.match(main,/rows\.slice\(5\)/);
-  assert.match(main,/item\.handle\.getFile\(\)/);
+  assert.doesNotMatch(main,/listRecentFiles|rememberOpenedFile|openedFileHandles|store\.put\(entry,'recent:'/);
+  const open=main.slice(main.indexOf("if(action==='open'){"),main.indexOf("if(action==='importAtFrame'){"));
+  assert.match(open,/chooseFile\(undefined,false\)/);
 });
 
 test('file replacement still confirms unsaved work and drop still routes through openDocument',()=>{

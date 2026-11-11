@@ -4,6 +4,26 @@
   "inputSchema": {
     "type": "object",
     "properties": {
+      "sizeMm": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000000
+        },
+        "description": "Target whole-body X/Y/Z dimensions in world millimetres; standalone affine resize, including holes and radii"
+      },
+      "resizeAnchor": {
+        "type": "string",
+        "description": "Fixed side for whole-body resize",
+        "enum": [
+          "min",
+          "center",
+          "max"
+        ]
+      },
       "align": {
         "type": "object",
         "additionalProperties": false,
@@ -271,7 +291,7 @@
     "复制"
   ],
   "description": "Copy with scale, rotation and translation",
-  "schemaHash": "sha256:07d1200eb4ade75590917bd88c6d44a01cca5ed663298d2630982b1439157244",
+  "schemaHash": "sha256:ed10c807248ab60564afe00426ec46624d9cda12ac1e47888489c93c42f21816",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -408,6 +428,28 @@
       }
     ],
     "params": {
+      "sizeMm": {
+        "meaning": "Target whole-body X/Y/Z dimensions in world millimetres; standalone affine resize, including holes and radii",
+        "unit": "mm",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "resizeAnchor": {
+        "meaning": "Fixed side for whole-body resize",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
       "align": {
         "meaning": "align: Copy with scale, rotation and translation",
         "unit": "none",
@@ -1162,5 +1204,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e6ee3543a824ece1056b77add44ec419e768daab7b00f1253994159bd104739a"
+  "docsHash": "sha256:340cc1aee4cb59cdde3d04bd00f32c140f4ded2652dde02104fcead70fa584db"
 }

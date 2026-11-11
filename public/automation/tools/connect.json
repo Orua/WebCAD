@@ -2,7 +2,7 @@
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.65.0",
+  "version": "1.66.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -12,7 +12,7 @@
     "method": "connect",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。只读，内核启动期间可用。",
+  "description": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。不修改工程，内核启动期间可用。外部AI首次成功连接自动进入专注画布；用户退出后不因重复查询再次收起。原生AI沿用已有布局。layout与getUILayout回读实际布局。",
   "synonyms": [
     "connect",
     "连接",
@@ -20,7 +20,7 @@
     "工具",
     "缓存"
   ],
-  "inputContract": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。只读，内核启动期间可用。",
+  "inputContract": "connect({queries?:string[],toolIds?:string[],limit?:1..10,includeContracts?:boolean,knownCatalogHash?,knownDocsHash?,knownHashes?}={}); queries 最多 4 项，limit 是每项返回条数 1..10（默认 5），不是查询条数。toolIds 最多 20 个且自动附带契约。不修改工程，内核启动期间可用。外部AI首次成功连接自动进入专注画布；用户退出后不因重复查询再次收起。原生AI沿用已有布局。layout与getUILayout回读实际布局。",
   "outputContract": "当前 context/requestContext、canExecute/blockers/nextAction、版本与迁移说明、实体引用和完整工具契约。搜索自动附带卡最多64000字符，contractIdsOmitted 和 contractReadPolicy 明示省略项；显式 toolIds 与按需 getTools 不受字符预算限制。ready 仅为内核状态；canExecute 才计入 busy/preview。详见 api.workflow。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -126,5 +126,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:32f89e707ff09ceb4d9a56464b1e9ebbff40752d1386207b42e23c309447870b"
+  "docsHash": "sha256:01c0e305eb7134aefced8b4b0a1fdae8b53489773d40eebfa47970c660c8c635"
 }

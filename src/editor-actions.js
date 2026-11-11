@@ -1,3 +1,4 @@
+import {SURFACE_FIELDS,validateSurfacePatch} from './surface-overrides.js';
 import {updateReliefDesigns} from './relief-design-drafts.js';
 import {validateMaterialSettings} from './material-density.js';
 import {validateReliefReference} from './relief-design-reference-contract.js';
@@ -16,7 +17,7 @@ export const EDITOR_ACTIONS = Object.freeze({
   'document.rename': {title:'工程改名', fields:['name'], example:{name:'圆环设计'}, description:'修改工程名称，保留几何。'},
   'feature.rename': {title:'特征改名 实体名称', fields:['featureId','name'], example:{featureId:'<featureId>',name:'主体'}, description:'修改历史步骤及同 ID 实体名称，导入件也可使用。'},
   'body.visibility': {title:'显示 隐藏实体', fields:['bodyIds','visible'], example:{bodyIds:['<bodyId>'],visible:false}, description:'显隐指定当前实体，不删除几何。'},
-  'body.appearance': {title:'实体原色 颜色 金属 材质', fields:['bodyIds','color','finish','roughness'], example:{bodyIds:['<bodyId>'],color:'#e87939',finish:'design'}, description:'color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。roughness 0–1（null 恢复 0.42 默认）只作用于 design 饰面的该实体，例如 0.9 做哑光漆，随工程保存；金属饰面忽略。没有透明/玻璃饰面。任一可见实体用金属饰面时全场切到金属光照（ACES、较暗灯强），design 实体会变暗；回执警告 METAL_LIGHTING_GLOBAL，getState().display.metalRendering.sceneLighting 读回。'},
+  'body.appearance': {title:'实体原色 颜色 金属 材质', fields:['bodyIds','color','finish',...SURFACE_FIELDS], example:{bodyIds:['<bodyId>'],color:'#e87939',finish:'design'}, description:'color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。roughness 0–1（null 恢复 0.42 默认）只作用于 design 饰面的该实体，例如 0.9 做哑光漆，随工程保存；金属饰面忽略。opacity 0–1 为不透明度；transmission 0–1、ior 1–2.5、thicknessMm 0–10000 表达玻璃透射。texture 为 PNG/JPEG/WebP dataUrl（约4.5MiB以内、4096像素以内），或当前工程assetHash+mime；mapping box/xy/xz/yz、sizeMm二元毫米尺寸、offsetMm二元偏移、rotationDeg。null清除对应覆盖。整实体投射只改外观；图片随工程保存且可撤销。任一可见实体用金属饰面时全场切到金属光照（ACES、较暗灯强），design 实体会变暗；回执警告 METAL_LIGHTING_GLOBAL，getState().display.metalRendering.sceneLighting 读回。'},
   'document.appearance': {title:'工程渲染 金属色', fields:['finish'], example:{finish:'nickel'}, description:'设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。'},
   'body.explode': {title:'组合拆散 多实体分解', fields:['bodyId'], example:{bodyId:'<bodyId>'}, description:'将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。'}
 });
@@ -53,7 +54,8 @@ export function validateEditorAction(action,args,state){
   if(action==='body.visibility'&&typeof args.visible!=='boolean')fail('visible must be boolean');
   if(action==='document.appearance'&&args.finish!==null&&!FINISH_KEYS.includes(args.finish))fail('Unknown finish');
   if(action==='body.appearance'){
-    if(args.color===undefined&&args.finish===undefined&&args.roughness===undefined)fail('Provide color, finish or roughness');
+    if(args.color===undefined&&args.finish===undefined&&!SURFACE_FIELDS.some(k=>args[k]!==undefined))fail('Provide an appearance override');
+    validateSurfacePatch(args);
     if(args.roughness!==undefined&&args.roughness!==null&&!(typeof args.roughness==='number'&&Number.isFinite(args.roughness)&&args.roughness>=0&&args.roughness<=1))fail('roughness must be 0..1 or null');
     if(args.color!==undefined&&args.color!==null&&(typeof args.color!=='string'||!/^#[0-9a-f]{6}$/i.test(args.color)))fail('color must be #RRGGBB or null');
     if(args.finish!==undefined&&args.finish!==null&&!FINISH_KEYS.includes(args.finish))fail('Unknown finish');

@@ -32,7 +32,7 @@ test('multi-feature project advances monotonically by feature',()=>{
   assert.equal(t.update(rebuild('surface-mesh',{completed:9,total:10})),0.25,'mesh batches of one feature do not move the bar');
   assert.equal(t.update(rebuild('feature',{completed:3,total:4})),0.75);
   assert.equal(t.update(rebuild('feature',{completed:2,total:4})),0.75,'never goes backwards');
-  assert.equal(t.update(rebuild('complete')),1);
+  assert.equal(t.update(rebuild('complete')),null);
   t.reset();assert.equal(t.value,null);
 });
 
@@ -41,7 +41,7 @@ test('single imported model advances by meshed faces',()=>{
   assert.equal(t.update(rebuild('feature',{completed:0,total:1})),null);
   assert.equal(t.update(rebuild('surface-mesh',{completed:0,total:200})),0);
   assert.equal(t.update(rebuild('surface-mesh',{completed:100,total:200})),0.5);
-  assert.equal(t.update(rebuild('complete')),1);
+  assert.equal(t.update(rebuild('complete')),null);
 });
 
 const main=readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
