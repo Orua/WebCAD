@@ -46,3 +46,10 @@ export function readBuildIdentity(root){
   if(!['public','integrated'].includes(edition))throw new Error('Invalid WebCAD edition');
   return {edition,buildId:`${commit}${edition==='public'?'-public':''}-src-${sourceHash.slice(0,16)}${dirty?'-working':''}`,commit,sourceHash,sourceFileCount:paths.length,dirty};
 }
+
+// A commit changes Git metadata, not the already-built source bytes.
+export function assertBuildSourceIdentity(recorded,current){
+ const expected=recorded&&`${recorded.commit}${recorded.edition==='public'?'-public':''}-src-${recorded.sourceHash?.slice(0,16)}${recorded.dirty?'-working':''}`;
+ if(!recorded||!/^([a-f0-9]{40})$/.test(recorded.commit||'')||!/^[a-f0-9]{64}$/.test(recorded.sourceHash||'')||typeof recorded.dirty!=='boolean'||recorded.buildId!==expected||!['public','integrated'].includes(recorded.edition)||['sourceHash','sourceFileCount','edition'].some(k=>recorded[k]!==current[k]))throw Error('Build source fingerprint or recorded identity differs from current source');
+ return recorded;
+}

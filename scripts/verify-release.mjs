@@ -3,7 +3,7 @@ import {assertPublicModules,verifyPublicOutput} from './edition-build.mjs';
 import {verifyQuickModelPreviews} from './quick-model-preview-contracts.mjs';
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import {readBuildIdentity} from './build-identity.mjs';
+import {readBuildIdentity,assertBuildSourceIdentity} from './build-identity.mjs';
 import {verifyOpenSource} from './generate-open-source.mjs';
 import {checkLicensePolicy} from './license-policy.mjs';
 import { infoMetadata, getTool, readDocs } from '../src/page-api-docs.js';
@@ -35,11 +35,13 @@ if(candidateEdition!==(PUBLIC_EDITION?'public':'integrated')){
 const metadata = infoMetadata();
 assertAutomationParity();
 await auditAgentInterfaces(root);
-const {buildId}=readBuildIdentity(root);
+const currentSourceIdentity=readBuildIdentity(root);
 const [index, manifest, report] = await Promise.all([
   outputJson('automation/index.json'), outputJson('automation/manifest.json'),
   json('agent/output/API_REFERENCE_COVERAGE.json'),
 ]);
+const buildIdentity=assertBuildSourceIdentity((await outputJson('open-source/manifest.json')).identity,currentSourceIdentity);
+const {buildId}=buildIdentity;
 assertPlacementCoverage();
 await verifyOpenSource({root,outputDirectory});
 await verifyQuickModelPreviews(outputDirectory);

@@ -4,7 +4,7 @@ import {existsSync, lstatSync, readFileSync, readdirSync, realpathSync,statSync}
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname, isAbsolute, relative, resolve} from 'node:path';
 import {zipSync, unzipSync} from 'three/addons/libs/fflate.module.js';
-import {fingerprintBuildInputs, readBuildIdentity} from './build-identity.mjs';
+import {fingerprintBuildInputs, readBuildIdentity, assertBuildSourceIdentity} from './build-identity.mjs';
 import {auditLicensePolicy} from './license-policy.mjs';
 
 const documents=['LICENSE.md','THIRD_PARTY_NOTICES.md','CORRESPONDING_SOURCE.md',
@@ -234,8 +234,7 @@ export async function verifyOpenSource({root,outputDirectory,requireHomeLink=tru
   root=resolve(root);outputDirectory=resolve(outputDirectory);
   const load=async path=>parse(await readFile(resolve(outputDirectory,safePath(path))));
   const manifest=await load('open-source/manifest.json');
-  const identity=readBuildIdentity(root);
-  if(JSON.stringify(manifest.identity)!==JSON.stringify(identity))fail('开源清单 build identity 过期');
+  const identity=assertBuildSourceIdentity(manifest.identity,readBuildIdentity(root));
   const paths=new Set();
   for(const file of manifest.files){
     safePath(file.path);
