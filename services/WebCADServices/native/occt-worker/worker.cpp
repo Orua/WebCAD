@@ -88,8 +88,8 @@ int main(int argc,char** argv) {
     const bool translation=request.at("operation")=="transform"&&request.at("semanticVersion")=="transform.translation-1.0"&&request.at("strategy")=="translation";
     const bool relief=request.at("operation")=="relief"&&(request.at("semanticVersion")=="relief.compiled-contours-1.0"||request.at("semanticVersion")=="relief.compiled-contours-local-patch-1.1"||request.at("semanticVersion")=="relief.compiled-contours-strokes-1.2");
     const bool booleanCut=request.at("operation")=="cut"&&request.at("semanticVersion")=="boolean.cut-1.0"&&request.at("strategy")=="multi-source-boolean";
-    const bool unionBlend=request.at("operation")=="union"&&request.at("semanticVersion")=="boolean.union-seam-1.0"&&request.at("strategy")=="multi-source-union-seam";
-    const bool localBlend=(request.at("operation")=="fillet"||request.at("operation")=="smoothTransition")&&request.at("semanticVersion")=="blend.spatial-edges-1.0"&&request.at("strategy")=="spatial-sharp-edges";
+    const bool unionBlend=request.at("operation")=="union"&&(request.at("semanticVersion")=="boolean.union-seam-1.0"||request.at("semanticVersion")=="boolean.union-seam-1.1")&&request.at("strategy")=="multi-source-union-seam";
+    const bool localBlend=(request.at("operation")=="fillet"||request.at("operation")=="smoothTransition")&&(request.at("semanticVersion")=="blend.spatial-edges-1.0"||request.at("semanticVersion")=="blend.spatial-edges-1.1")&&request.at("strategy")=="spatial-sharp-edges";
     json unionReport,blendReport;
     const bool faceRound=request.at("operation")=="round"&&request.at("semanticVersion")=="round.planar-boundary-1.0"&&request.at("strategy")=="planar-boundary-cutter";
     const bool shoulder=request.at("operation")=="reliefShoulder"&&request.at("semanticVersion")=="relief.central-shoulder-1.0"&&request.at("strategy")=="source-boundary-replacement";
@@ -180,7 +180,7 @@ int main(int argc,char** argv) {
   } catch(const webcad_face_round::Failure& error) {
     if(!reportPath.empty()){std::ofstream report(reportPath);report<<json({{"ok",false},{"code",error.code},{"stage",stage},{"message",std::string(error.what()).substr(0,1024)}}).dump();}return 4;
   } catch(const BooleanFailure& error) {
-    if(!reportPath.empty()){std::ofstream report(reportPath);report<<json({{"ok",false},{"code",error.code},{"stage",stage},{"message",std::string(error.what()).substr(0,1024)}}).dump();}return 4;
+    if(!reportPath.empty()){std::ofstream report(reportPath);report<<json({{"ok",false},{"code",error.code},{"stage",stage},{"message",std::string(error.what()).substr(0,1024)},{"blendDiagnostics",error.details}}).dump();}return 4;
   } catch(const Standard_Failure& error) {
     if(!reportPath.empty()){json failure={{"ok",false},{"code","OCCT_FAILURE"},{"stage",stage},{"message",std::string(error.GetMessageString()?error.GetMessageString():"OCCT failure").substr(0,1024)}};if(!supportBinding.is_null())failure["supportBinding"]=supportBinding;std::ofstream report(reportPath);report<<failure.dump();}return 3;
   } catch(const std::exception& error) {

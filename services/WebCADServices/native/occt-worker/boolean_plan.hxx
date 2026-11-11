@@ -6,6 +6,7 @@
 
 struct BooleanFailure : std::runtime_error {
  const std::string code;
+ json details=nullptr;
  BooleanFailure(const char* code,const char* message):std::runtime_error(message),code(code){}
 };
 

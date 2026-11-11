@@ -1,3 +1,4 @@
+import {validBlendRadius,validBlendExecution} from '../modeling/blend-radius-contract.js';
 import {legacyReliefParams} from '../relief-param-migration.js';
 import {contractHash,binaryHash} from '../contracts/operation-schema.js';
 import {serviceError} from './settings.js';
@@ -11,6 +12,8 @@ VERIFIED_NATIVE_KERNELS.add('native-occt@7.8.1:sha256:7dbecc3fb2779f0aea08149f07
 VERIFIED_NATIVE_KERNELS.add('native-occt@7.8.1:sha256:eb4eaa2c7e433d93fc246a4146695df28c0fab5719a0732331e5206b052dd261');
 // Native seam union/spatial blend: exact BRep import and translation/Boolean regression accepted.
 VERIFIED_NATIVE_KERNELS.add('native-occt@7.8.1:sha256:93b276207f5f2eab3961971d67768b6fa6c8d1398d8b15e52c2bc4cacd491392');
+// Native explicit-range blend: actual OCCT BRep translation and client import gate passed.
+VERIFIED_NATIVE_KERNELS.add('native-occt@7.8.1:sha256:ded48b4290af8450a1bc4d33450a6bbab61de56c216bf1f663102660364242c6');
 // Build-time only (vite define/env, never runtime input): a test build may trust a locally built worker
 // (box acceptance against the Linux occt-worker). Production builds leave VITE_WEBCAD_TEST_NATIVE_KERNELS unset.
 for(const id of String(import.meta.env?.VITE_WEBCAD_TEST_NATIVE_KERNELS??'').split(',').filter(k=>/^native-occt@7\.8\.1:sha256:[0-9a-f]{64}$/.test(k)))VERIFIED_NATIVE_KERNELS.add(id);
@@ -29,7 +32,7 @@ export const RELIEF_SEMANTIC_VERSION='relief.compiled-contours-1.0';
 export const RELIEF_PATCH_SEMANTIC_VERSION='relief.compiled-contours-local-patch-1.1';
 export const RELIEF_STROKE_SEMANTIC_VERSION='relief.compiled-contours-strokes-1.2';
 export const SHOULDER_SEMANTIC_VERSION='relief.central-shoulder-1.0';
-export const compiledSemanticVersion=feature=>feature?.op==='union'?UNION_SEAM_SEMANTIC_VERSION:isSpatialBlend(feature)?SPATIAL_BLEND_SEMANTIC_VERSION:isReliefDesign(feature)?RELIEF_DESIGN_SEMANTIC_VERSION:feature?.op==='reliefShoulder'?SHOULDER_SEMANTIC_VERSION:feature?.op==='round'?FACE_ROUND_SEMANTIC_VERSION:feature?.op==='cut'?BOOLEAN_CUT_SEMANTIC_VERSION:feature?.op==='relief'?(feature.params?.layers?.some(layer=>layer.strokes||layer.mode==='engrave')?RELIEF_STROKE_SEMANTIC_VERSION:feature.params?.layers?.some(layer=>layer.localPatches)?RELIEF_PATCH_SEMANTIC_VERSION:RELIEF_SEMANTIC_VERSION):feature?.op==='transform'?TRANSLATION_SEMANTIC_VERSION:null;
+export const compiledSemanticVersion=feature=>feature?.op==='union'?(typeof feature.params?.blendRadiusMm==='object'?'boolean.union-seam-1.1':UNION_SEAM_SEMANTIC_VERSION):isSpatialBlend(feature)?(typeof feature.params?.radius==='object'?'blend.spatial-edges-1.1':SPATIAL_BLEND_SEMANTIC_VERSION):isReliefDesign(feature)?RELIEF_DESIGN_SEMANTIC_VERSION:feature?.op==='reliefShoulder'?SHOULDER_SEMANTIC_VERSION:feature?.op==='round'?FACE_ROUND_SEMANTIC_VERSION:feature?.op==='cut'?BOOLEAN_CUT_SEMANTIC_VERSION:feature?.op==='relief'?(feature.params?.layers?.some(layer=>layer.strokes||layer.mode==='engrave')?RELIEF_STROKE_SEMANTIC_VERSION:feature.params?.layers?.some(layer=>layer.localPatches)?RELIEF_PATCH_SEMANTIC_VERSION:RELIEF_SEMANTIC_VERSION):feature?.op==='transform'?TRANSLATION_SEMANTIC_VERSION:null;
 export function assertCompilableFeature(feature){
  if(!compiledSemanticVersion(feature))throw serviceError('OPERATION_UNAVAILABLE',`Services 未登记操作 ${feature?.op??'unknown'} 的编译语义`,{operation:feature?.op??null,executor:'services',missingCapability:'compiled-semantic',semanticVersion:null});
  if(feature&&!remotePlacementSupported(feature))throw serviceError('OPERATION_UNAVAILABLE','当前远程实现仅验收世界坐标放置；此特征继续使用本地放置语义');
@@ -43,12 +46,12 @@ export function assertCompilableFeature(feature){
  }
  if(feature?.op==='union'){
   const p=feature.params??{};
-  if(feature.refs?.length<2||feature.refs?.length>33||!feature.refs||new Set(feature.refs).size!==feature.refs.length||feature.refs.some(id=>typeof id!=='string'||!id)||Object.keys(p).some(k=>!['keepTools','renameTarget','blendRadiusMm','blendMode','fuzzyMm','glue'].includes(k))||p.blendRadiusMm!==undefined&&(!Number.isFinite(p.blendRadiusMm)||p.blendRadiusMm<=0||p.blendRadiusMm>10000)||p.blendMode!==undefined&&p.blendMode!=='fillet'||p.fuzzyMm!==undefined&&(!Number.isFinite(p.fuzzyMm)||p.fuzzyMm<0||p.fuzzyMm>.1)||p.glue!==undefined&&!['off','shift','full'].includes(p.glue)||['keepTools','renameTarget'].some(k=>p[k]!==undefined&&typeof p[k]!=='boolean'))throw serviceError('OPERATION_UNAVAILABLE','原生融合支持2–33个来源及可选精确定半径交线修顺；不支持变半径或隐式缩小');
+  if(feature.refs?.length<2||feature.refs?.length>33||!feature.refs||new Set(feature.refs).size!==feature.refs.length||feature.refs.some(id=>typeof id!=='string'||!id)||Object.keys(p).some(k=>!['keepTools','renameTarget','blendRadiusMm','blendMode','fuzzyMm','glue'].includes(k))||p.blendRadiusMm!==undefined&&!validBlendRadius(p.blendRadiusMm)||p.blendMode!==undefined&&p.blendMode!=='fillet'||p.fuzzyMm!==undefined&&(!Number.isFinite(p.fuzzyMm)||p.fuzzyMm<0||p.fuzzyMm>.1)||p.glue!==undefined&&!['off','shift','full'].includes(p.glue)||['keepTools','renameTarget'].some(k=>p[k]!==undefined&&typeof p[k]!=='boolean'))throw serviceError('OPERATION_UNAVAILABLE','原生融合支持2–33个来源及可选精确半径或显式范围交线修顺；不支持变半径规律或隐式缩小');
   return p;
  }
  if(isSpatialBlend(feature)){
   const p=feature.params??{},n=p.selector?.edgesNear;
-  if(feature.refs?.length!==1||Object.keys(p).some(k=>!['radius','selector'].includes(k))||!Number.isFinite(p.radius)||p.radius<=0||p.radius>10000||!n||Object.keys(p.selector).some(k=>k!=='edgesNear')||Object.keys(n).some(k=>!['pointMm','radiusMm','sharpOnly'].includes(k))||!Array.isArray(n.pointMm)||n.pointMm.length!==3||n.pointMm.some(x=>!Number.isFinite(x)||Math.abs(x)>100000)||!Number.isFinite(n.radiusMm)||n.radiusMm<=0||n.radiusMm>10000||n.sharpOnly!==undefined&&n.sharpOnly!==true)throw serviceError('OPERATION_UNAVAILABLE','原生局部修顺需要精确radius和selector.edgesNear世界坐标范围；不传递本地面边编号');
+  if(feature.refs?.length!==1||Object.keys(p).some(k=>!['radius','selector'].includes(k))||!validBlendRadius(p.radius)||!n||Object.keys(p.selector).some(k=>k!=='edgesNear')||Object.keys(n).some(k=>!['pointMm','radiusMm','sharpOnly'].includes(k))||!Array.isArray(n.pointMm)||n.pointMm.length!==3||n.pointMm.some(x=>!Number.isFinite(x)||Math.abs(x)>100000)||!Number.isFinite(n.radiusMm)||n.radiusMm<=0||n.radiusMm>10000||n.sharpOnly!==undefined&&n.sharpOnly!==true)throw serviceError('OPERATION_UNAVAILABLE','原生局部修顺需要精确或显式范围radius和selector.edgesNear世界坐标范围；不传递本地面边编号');
   return p;
  }
  if(feature?.op==='cut'){
@@ -93,7 +96,7 @@ export function installCompiledCandidate(document,{manifest,bytes,context,recipe
  }
  if((feature.op==='union'&&feature.params.blendRadiusMm!==undefined)||isSpatialBlend(feature)){
   const b=manifest.blendReport,r=feature.op==='union'?feature.params.blendRadiusMm:feature.params.radius;
-  if(b?.status!=='applied'||b.radiusUsedMm!==r||b.requestedRadiusMm!==r||b.attemptCount!==1||!Number.isInteger(b.processedEdgeCount)||b.processedEdgeCount<1||b.processedEdgeCount>64||b.numericIndicesTransferred!==false||isSpatialBlend(feature)&&manifest.strategy!=='spatial-sharp-edges')throw serviceError('RESULT_MISMATCH','服务没有按指定半径完成全部选中接缝');
+  if(!validBlendExecution(b,r)||!Number.isInteger(b.processedEdgeCount)||b.processedEdgeCount<1||b.processedEdgeCount>64||b.numericIndicesTransferred!==false||isSpatialBlend(feature)&&manifest.strategy!=='spatial-sharp-edges')throw serviceError('RESULT_MISMATCH','服务没有按指定半径完成全部选中接缝');
  }
  let roundReport;
  if(feature.op==='reliefShoulder'){

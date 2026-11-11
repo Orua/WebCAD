@@ -24,6 +24,9 @@ namespace WebCADServices.Runtime
         public const string ReliefPatchSemanticVersion="relief.compiled-contours-local-patch-1.1";
         public const string ReliefStrokeSemanticVersion="relief.compiled-contours-strokes-1.2";
         public const string UnionSeamSemanticVersion="boolean.union-seam-1.0";
+        public const string UnionRangeSemanticVersion="boolean.union-seam-1.1";
+        public const string SpatialRangeSemanticVersion="blend.spatial-edges-1.1";
+        public static bool SeamRangeEnabled => SeamEnabled && Acceptance?["availableSemantics"] is JArray semantics && semantics.Values<string>().Contains(UnionRangeSemanticVersion) && semantics.Values<string>().Contains(SpatialRangeSemanticVersion) && (string)Acceptance["seamRangeStatus"]=="passed";
         public const string SpatialBlendSemanticVersion="blend.spatial-edges-1.0";
         public static bool SeamEnabled => Acceptance?["availableSemantics"] is JArray semantics && semantics.Values<string>().Contains(UnionSeamSemanticVersion) && semantics.Values<string>().Contains(SpatialBlendSemanticVersion) && (string)Acceptance["seamStatus"]=="passed";
         public const string BooleanCutSemanticVersion="boolean.cut-1.0";
@@ -73,8 +76,8 @@ namespace WebCADServices.Runtime
             Protocol.Keys(input,"requestId","documentId","documentInstanceId","expectedRevision","featureId","operation","schemaVersion","semanticVersion","inputs","placementSnapshot","selectionIntent","params","strategy","requiredResultFormat","recipeFingerprint");
             bool translation=(string)input["operation"]=="transform"&&(string)input["semanticVersion"]==SemanticVersion&&(string)input["strategy"]=="translation";
             bool deformation=DeformEnabled&&MatchesDeformOperation((string)input["operation"],(string)input["semanticVersion"],(string)input["strategy"]);
-            bool unionBlend=SeamEnabled&&(string)input["operation"]=="union"&&(string)input["semanticVersion"]==UnionSeamSemanticVersion&&(string)input["strategy"]=="multi-source-union-seam";
-            bool spatialBlend=SeamEnabled&&new[]{"fillet","smoothTransition"}.Contains((string)input["operation"])&&(string)input["semanticVersion"]==SpatialBlendSemanticVersion&&(string)input["strategy"]=="spatial-sharp-edges";
+            bool unionBlend=SeamEnabled&&(string)input["operation"]=="union"&&((string)input["semanticVersion"]==UnionSeamSemanticVersion||SeamRangeEnabled&&(string)input["semanticVersion"]==UnionRangeSemanticVersion)&&(string)input["strategy"]=="multi-source-union-seam";
+            bool spatialBlend=SeamEnabled&&new[]{"fillet","smoothTransition"}.Contains((string)input["operation"])&&((string)input["semanticVersion"]==SpatialBlendSemanticVersion||SeamRangeEnabled&&(string)input["semanticVersion"]==SpatialRangeSemanticVersion)&&(string)input["strategy"]=="spatial-sharp-edges";
             bool booleanCut=BooleanCutEnabled&&(string)input["operation"]=="cut"&&(string)input["semanticVersion"]==BooleanCutSemanticVersion&&(string)input["strategy"]=="multi-source-boolean";
             bool shoulder=ShoulderEnabled&&(string)input["operation"]=="reliefShoulder"&&(string)input["semanticVersion"]==ShoulderSemanticVersion&&(string)input["strategy"]=="source-boundary-replacement";
             bool roundBoundary=RoundBoundaryEnabled&&(string)input["operation"]=="round"&&(string)input["semanticVersion"]==RoundBoundarySemanticVersion&&(string)input["strategy"]=="planar-boundary-cutter";
@@ -93,12 +96,12 @@ namespace WebCADServices.Runtime
                 Protocol.Keys(parameters,"fuzzyMm","glue","blendRadiusMm","blendMode");
                 if(parameters["fuzzyMm"]!=null)Bounded(parameters["fuzzyMm"],0,.1,"fuzzyMm");
                 if(parameters["glue"]!=null&&!new[]{"off","shift","full"}.Contains((string)parameters["glue"]))throw new ServiceError("PARAM_SCHEMA_INVALID","Invalid explicit glue mode");
-                if(parameters["blendRadiusMm"]!=null)Bounded(parameters["blendRadiusMm"],1e-9,10000,"blendRadiusMm");
+                if(parameters["blendRadiusMm"]!=null)ValidateSeamRadius(parameters["blendRadiusMm"],(string)input["semanticVersion"]==UnionRangeSemanticVersion);
                 if(parameters["blendMode"]!=null&&(string)parameters["blendMode"]!="fillet")throw new ServiceError("OPERATION_UNAVAILABLE","Exact constant seam radius only");
                 Protocol.Keys(selection,"kind");if((string)selection["kind"]!="whole-sources")throw new ServiceError("SELECTION_UNSUPPORTED","Ordered complete solids required");
             }
             else if(spatialBlend){
-                Protocol.Keys(parameters,"radius","selector");Bounded(parameters["radius"],1e-9,10000,"radius");
+                Protocol.Keys(parameters,"radius","selector");ValidateSeamRadius(parameters["radius"],(string)input["semanticVersion"]==SpatialRangeSemanticVersion);
                 if(parameters["selector"] is not JObject selector)throw new ServiceError("PARAM_SCHEMA_INVALID","Spatial selector required");Protocol.Keys(selector,"edgesNear");
                 if(selector["edgesNear"] is not JObject near)throw new ServiceError("PARAM_SCHEMA_INVALID","edgesNear required");Protocol.Keys(near,"pointMm","radiusMm","sharpOnly");Point(near["pointMm"]);Bounded(near["radiusMm"],1e-9,10000,"radiusMm");if(near["sharpOnly"]!=null&&(near["sharpOnly"].Type!=JTokenType.Boolean||(bool)near["sharpOnly"]!=true))throw new ServiceError("PARAM_SCHEMA_INVALID","Sharp edges only");
                 Protocol.Keys(selection,"kind");if((string)selection["kind"]!="spatial-sharp-edges")throw new ServiceError("SELECTION_UNSUPPORTED","Spatial sharp-edge intent required");
@@ -123,6 +126,20 @@ namespace WebCADServices.Runtime
             // keepTools belongs to document history, not native geometry.
             if(booleanCut||unionBlend){semanticParams=unionBlend?(JObject)parameters.DeepClone():new JObject();semanticParams["inputSha256"]=new JArray(sources.Select(part=>part["sha256"].DeepClone()));}
             return new JObject { ["operation"]=input["operation"],["engineBuildId"]=BuildId,["assetId"]=asset["id"],["sourceSha256"]=asset["sha"],["params"]=parameters,["semanticParams"]=semanticParams,["assets"]=assets,["publicRequest"]=input };
+        }
+        static void ValidateSeamRadius(JToken value,bool allowRange){
+            if(value is not JObject range){Bounded(value,1e-9,10000,"radius");return;}
+            if(!allowRange)throw new ServiceError("OPERATION_VERSION_UNSUPPORTED","Bounded radius requires the accepted 1.1 semantics");
+            Protocol.Keys(range,"maxMm","minMm","stepRatio","maxAttempts");var max=Bounded(range["maxMm"],1e-9,10000,"maxMm");var min=Bounded(range["minMm"],1e-9,max,"minMm");
+            if(range["stepRatio"]!=null){var ratio=Bounded(range["stepRatio"],1e-9,1,"stepRatio");if(ratio>=1)throw new ServiceError("PARAM_SCHEMA_INVALID","stepRatio must be below 1");}
+            if(range["maxAttempts"]!=null)BoundedInt(range["maxAttempts"],1,6,"maxAttempts");
+        }
+        static JObject BoundBlend(JToken value){
+            if(value is not JObject raw)return null;
+            var result=Pick(raw,"requestedRadiusMm","selectedEdgeCount");
+            result["tried"]=new JArray((raw["tried"] as JArray??new JArray()).Take(6).Select(row=>Pick(row,"radiusMm","ok","faultyContours","reason")));
+            result["pointsMm"]=new JArray((raw["pointsMm"] as JArray??new JArray()).Take(16).Where(row=>row is JArray a&&a.Count==3&&a.All(x=>x.Type==JTokenType.Integer||x.Type==JTokenType.Float)).Select(row=>row.DeepClone()));
+            return result;
         }
         static void Number(JToken value,double bound){if(value==null||!new[]{JTokenType.Integer,JTokenType.Float}.Contains(value.Type)||double.IsNaN((double)value)||double.IsInfinity((double)value)||Math.Abs((double)value)>bound)throw new ServiceError("PARAM_SCHEMA_INVALID","Bounded finite number required");}
         static double DeformNumber(JToken value,double min,double max,string name){if(value==null||!new[]{JTokenType.Integer,JTokenType.Float}.Contains(value.Type)||double.IsNaN((double)value)||double.IsInfinity((double)value)||(double)value<min||(double)value>max)throw new ServiceError("PARAM_SCHEMA_INVALID",name+" is outside its accepted range");return (double)value;}
@@ -269,7 +286,7 @@ namespace WebCADServices.Runtime
             }
             var requestBytes=System.Text.Encoding.UTF8.GetBytes(new JObject { ["operation"]=input["operation"],["semanticVersion"]=input["semanticVersion"],["strategy"]=input["strategy"],["params"]=privateParams,["sourcePath"]=source,["outputPath"]=output,["reportPath"]=report,["inputFingerprint"]=row["fingerprint"],["featureId"]=input["featureId"],["expectedRevision"]=input["expectedRevision"] }.ToString(Newtonsoft.Json.Formatting.None));if(requestBytes.Length>Protocol.MaxNativePlan)throw new ServiceError("SIZE_LIMIT","Compiled native plan exceeds its declared request budget");Store.Atomic(request,requestBytes);
             int exit;try{exit=new WorkerSupervisor().Run(Worker,request,cancelled,pid=>store.Attempt(id,pid),out string diagnostic);}catch(ServiceError error){string progressPath=report+".progress.json";var progress=File.Exists(progressPath)?JObject.Parse(File.ReadAllText(progressPath)):null;throw new ServiceError(error.Code,error.Message,error.Status,(string)progress?["stage"],id+":native-progress");}store.Attempt(id,0,exit);
-            if(exit!=0){var details=File.Exists(report)?JObject.Parse(File.ReadAllText(report)):null;throw new ServiceError((string)details?["code"]??"NATIVE_WORKER_FAILED",(string)details?["message"]??("Native worker exit "+exit),400,(string)details?["stage"],id+":native-report",BoundSupport(details?["supportBinding"]));}
+            if(exit!=0){var details=File.Exists(report)?JObject.Parse(File.ReadAllText(report)):null;throw new ServiceError((string)details?["code"]??"NATIVE_WORKER_FAILED",(string)details?["message"]??("Native worker exit "+exit),400,(string)details?["stage"],id+":native-report",BoundSupport(details?["supportBinding"])){BlendDiagnostics=BoundBlend(details?["blendDiagnostics"])};}
             if(cancelled())throw new ServiceError("WORKER_TERMINATED","Native process finished after a cancellation request");
             var result=JObject.Parse(File.ReadAllText(report));if((bool?)result["ok"]!=true||(string)result["inputFingerprint"]!=(string)row["fingerprint"])throw new ServiceError("RESULT_MISMATCH","Native report does not match accepted input");
             // Binding is a diagnostic stage, never a physical layer/cache entry.

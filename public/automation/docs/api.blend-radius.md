@@ -1,6 +1,8 @@
 # api.blend-radius
 
-原生Services支持union的2–33份单实体来源融合，结果须为单一连通实体；可选blendRadiusMm仅修顺当前布尔历史中不同来源的尖锐交线，至多64条。固定半径不自动缩小，未命中或修顺失败整步不提交；融合成功不代表所有外形缺陷已处理。原生fillet/smoothTransition当前仅支持数值radius及selector.edgesNear世界毫米点/范围，sharpOnly为true，至多64条；其他选择器/变半径范围明确拒绝，不跨核传面边号。复杂来源必须先读取Services实际能力和编译语义，缺少时明确阻止，不切本地兜底。
+1.66.3：显式半径范围使用{maxMm,minMm,stepRatio?,maxAttempts?:6}，范围仅授权最多6个下降候选，不保证找到数学最大可行值。Native对应boolean.union-seam-1.1/blend.spatial-edges-1.1；标量保持1.0精确值与单次构造，不自动降半径。回读tried、attemptCount和radiusUsedMm；失败没有部分提交，blendDiagnostics含最多6次结果与16个世界坐标定位点。复杂错位端面不能靠半径搜索保证修好，应按来源边界重建局部过渡面，检查实件而非只看作业成功。
+
+原生Services支持union的2–33份单实体来源融合，结果须为单一连通实体；可选blendRadiusMm仅修顺当前布尔历史中不同来源的尖锐交线，至多64条。标量固定半径不自动缩小，显式范围才求解；未命中或范围内全部修顺失败整步不提交；融合成功不代表所有外形缺陷已处理。原生fillet/smoothTransition当前支持数值或显式范围radius及selector.edgesNear世界毫米点/范围，sharpOnly为true，至多64条；其他选择器/沿边变半径规律明确拒绝，不跨核传面边号。复杂来源必须先读取Services实际能力和编译语义，缺少时明确阻止，不切本地兜底。
 
 语义圆角使用selector:{seamBetween:{a:特征ID,b:特征ID}}、edgesNear:{pointMm,radiusMm,sharpOnly}或facesFromFeature:{featureId,role}，每次重建由当前OCCT历史解析，不保存面号。smoothTransition/fillet的radius可为正数或{maxMm,minMm,stepRatio:0.75,maxAttempts:6}，区间内只重用同一来源，不重建前缀；回执radiusSearchReport写明实际半径与逐次结果。probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?,maxAttempts?})只读当前独立BRep副本，不改变revision、历史和选择；feasibleMaxMm为最多6个下降样本中的最大可行半径，不是认证全局最大值。全部失败返回feasibility:infeasible、feasibleMaxMm:null和tried；不自动应用。优先给用户允许的区间，回显radiusUsedMm。
 
