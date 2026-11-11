@@ -37,7 +37,7 @@ const groups = {
     'parameter-calculator', 'parameter-error-message', 'named-parameters', 'recovery-isolation', 'recovery-consent', 'save-identity', 'boolean-identity', 'view-contract', 'appearance-lighting', 'selection-contract', 'selection-assists',
     'tool-state', 'viewport-transform', 'orthographic-fit', 'dfam-inspection', 'profile-fitting', 'text-commands',
     'debug-journal', 'cad-completion', 'logo-endpoint-adaptation', 'logo-host-preparer', 'logo-placement-guide', 'native-state-projection', 'relief-reference', 'relief-photo-convert', 'relief-quality-fit-accuracy', 'state-facts', 'visual-evidence',
-    'batch-capable-parity','tool-examples-schema','sweep-continuity','curve-sweep-contract','job-call-contracts','public-knowledge-cache','receipt-compact','procedural-antique-atlas','edge-batching',
+    'batch-capable-parity','tool-examples-schema','sweep-continuity','curve-sweep-contract','job-call-contracts','public-knowledge-cache','receipt-compact','procedural-antique-atlas','edge-batching','recovery-save-queue','surface-appearance',
   ],
   kernel: [
     'core-tools-regressions','d-buckle-boundary','history-compatibility','keyring-history','rod-junction','source-free-junction',
@@ -66,7 +66,7 @@ const groups = {
     'rounding-adaptive', 'round-tool-kernel', 'end-rounding-kernel',
     'material-join','quick-hardware','face-machining','quick-hardware-integration',
     'mechanical-tools-integration','profile-solid-features','direct-modeling-tools','helical-tools',
-    'arched-bridge','edge-blend','r9-fillet-regressions','relief-fillet-261024-v2','mill-fillet-fallback','edge-picking','hanging-rod','key-ring','mushroom-rivet',
+    'arched-bridge','edge-blend','r9-fillet-regressions','body-resize','relief-fillet-261024-v2','mill-fillet-fallback','edge-picking','hanging-rod','key-ring','mushroom-rivet',
     'nipple-stud','pull-core-bar','section-curve-loft','two-piece-eyelet','quick-installation-models',
     'agent-profile-contract',
     'drag-snap','drag-snap-controller','render-quality','display-budget-kernel','profile-edit','profile-editing','profile-primitives','profile-inspection','fit-inspection','thickness-inspection','relation-measure','relation-sample','boolean-roles','hole-wizard','draft-tools',
