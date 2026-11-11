@@ -2180,7 +2180,7 @@
       "files": [
         {
           "path": "public/automation/remote-agent/host-adapter.js",
-          "sha256": "d6f0499db6dab16800eb39d2a94dd3890e3da007cb5d09d251402250f25bab22"
+          "sha256": "bf21a6198343757e9aa1c034ba471487cddfb15aee800645f00f70fa12031552"
         },
         {
           "path": "public/automation/remote-agent/layout-planner.py.txt",

@@ -153,6 +153,40 @@ test('string step aliases are rejected and object refs stay the contract',async(
   assert.match(receipt.error.message,/\$ref/);
   assert.match(receipt.error.userMessage,/\$ref|对象/);
 });
+
+test('batch preserves literal colors and user text while resolving object references',async()=>{
+ for(const color of ['#a5adb0','#ffffff','#ABCDEF','#7d8586']){
+  const f=fixture(),request=f.request(),calls=[],execute=f.api.execute;
+  f.api.execute=async input=>{calls.push(input);return execute(input);};
+  request.steps=request.steps.slice(0,1);
+  request.steps.push({id:'paint',method:'execute',args:{action:'body.appearance',args:{bodyIds:[{$ref:'ring.createdBodyIds.0'}],color}}});
+  for(const [i,name]of ['#example','$budget','${label}','step:literal','@sample'].entries())
+   request.steps.push({id:`name${i}`,method:'execute',args:{action:'document.rename',args:{name}}});
+  const result=await f.run(request);
+  assert.equal(result.status,'completed');
+  assert.equal(calls[1].args.color,color);assert.deepEqual(calls[1].args.bodyIds,['b1']);
+  assert.deepEqual(calls.slice(2).map(call=>call.args.name),['#example','$budget','${label}','step:literal','@sample']);
+  assert.deepEqual(await f.run(request),result);assert.equal(f.count,7);
+ }
+});
+
+test('reference fields still reject string aliases before executing the step',async()=>{
+ for(const [field,value]of [['refs',['#ring']],['bodyIds',['@ring']],['bodyId','$ring'],['featureId','step:ring']]){
+  const f=fixture(),request=f.request();
+  request.steps=[{id:'bad',method:'execute',args:{action:'body.appearance',args:{[field]:value}}}];
+  const result=await f.run(request);
+  assert.equal(result.error.code,'STALE_REFERENCE');assert.equal(f.count,0);
+ }
+});
+
+test('complex batch diagnostics survive the top-level batch error and receipt replay',async()=>{
+ const f=fixture(),request=f.request(),details={reason:'new-complex-batch',operation:'cut',featureId:'cut1',complexity:{reasons:['many-boolean-inputs'],inputs:{sourceCount:16}},suggestedAction:'COMMIT_SOURCES_THEN_ADD_OPERATION'};
+ f.api.execute=async()=>({status:'failed',error:{code:'COMPLEX_BATCH_REQUIRES_SEQUENTIAL',message:'sequential sources required',featureId:'cut1',details}});
+ const result=await f.run(request);
+ assert.equal(result.status,'failed');assert.deepEqual(result.error.details,details);
+ assert.equal(result.error.featureId,'cut1');assert.deepEqual(result.results[0].result.error.details,details);
+ assert.deepEqual(await f.run(request),result);
+});
 test('capture is page-method-only inside a batch',async()=>{
   const f=fixture(),request=f.request();
   request.steps.push({id:'shot',method:'capture',args:{format:'webp'}});

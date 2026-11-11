@@ -32,7 +32,7 @@ import {heightfieldSamples} from './mesh/heightfield-relief.js';
 import {decodeProject} from './project-container.js';
 import {servicesClient} from './services/client.js';
 import {getServicesConfig,serviceError} from './services/settings.js';
-import {chooseExecutor,classifyComplexity,tbdForOperation,createExecutionHistory,EXECUTION_POLICY} from './services/execution-router.js';
+import {chooseExecutor,classifyComplexity,complexBatchError,tbdForOperation,createExecutionHistory,EXECUTION_POLICY} from './services/execution-router.js';
 import {showServicesWait} from './ui/forms/services-wait.js';
 import {patternComplexity,aggregateSourceComplexity,collectRoutingSources,remotePlacementSupported,physicalExecutionKey} from './services/execution-context.js';
 import {geometryFeatureRecord} from './services/geometry-signature.js';
@@ -361,12 +361,14 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  const sourceSummary=feature=>authoritative.get(feature?.id)??aggregateSourceComplexity((feature?.refs??[]).map(id=>{const body=bodies.find(row=>row.id===id);return {faces:body?.faceGroups?.length,edges:body?.edges?.length,solids:body?.solidCount};}));
  const feature=featureId?next.features.find(row=>row.id===featureId):changed.length===1?changed[0]:null;
  const publish=decision=>{debugJournal.record('runtime','executor-selected',{operation:feature?.op,featureId:feature?.id,decision});lastReliefDesignReceipt=null;lastServicesDecision={...decision,featureId:feature?.id??null,documentInstanceId,revision};setStatus(decision.reason);};
- if(featureId&&changed.some(row=>row.id!==featureId&&classifyComplexity({operation:row.op,params:row.params,source:sourceSummary(row),pattern:patternComplexity(row)}).complex))throw serviceError('COMPLEX_BATCH_REQUIRES_SEQUENTIAL','此编译会使下游复杂运算失效；请先移除下游步骤，完成来源后重新执行复杂操作。');
+ const classifyChanged=row=>classifyComplexity({operation:row.op,params:row.params,source:sourceSummary(row),pattern:patternComplexity(row)});
+ const downstream=featureId&&changed.find(row=>row.id!==featureId&&classifyChanged(row).complex);
+ if(downstream)throw complexBatchError(downstream,classifyChanged(downstream),{downstream:true});
  if(!feature){
   const pending=changed.find(row=>!row.compiledCheckpoint&&tbdForOperation({operation:row.op,semanticVersion:compiledSemanticVersion(row),params:row.params,source:sourceSummary(row),pattern:patternComplexity(row)}));
   if(pending)throw serviceError('OPERATION_TBD','TBD：该运算尚未完成验收，已禁用，原工程保留。');
-  const complex=changed.find(row=>classifyComplexity({operation:row.op,params:row.params,source:sourceSummary(row),pattern:patternComplexity(row)}).complex);
-  if(servicesAvailable&&complex)throw serviceError('COMPLEX_BATCH_REQUIRES_SEQUENTIAL','修改会重建下游复杂运算；请先移除下游步骤，完成来源修改后重新执行复杂操作。原工程保持。');
+  const complex=changed.find(row=>classifyChanged(row).complex);
+  if(servicesAvailable&&complex)throw complexBatchError(complex,classifyChanged(complex),{downstream:records.has(complex.id)});
   return {next};
  }
  const base={servicesAvailable,explicitRemote,allowUpload:servicesAvailable||allowUpload===true,operation:feature.op,semanticVersion:compiledSemanticVersion(feature),params:feature.params,pattern:patternComplexity(feature),source:sourceSummary(feature)};

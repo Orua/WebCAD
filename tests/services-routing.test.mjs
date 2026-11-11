@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {chooseExecutor,classifyComplexity,createExecutionHistory,EXECUTION_POLICY} from '../src/services/execution-router.js';
+import {chooseExecutor,classifyComplexity,complexBatchError,createExecutionHistory,EXECUTION_POLICY} from '../src/services/execution-router.js';
 import {patternComplexity,physicalExecutionKey,remotePlacementSupported} from '../src/services/execution-context.js';
 import {listOperations} from '../src/operation-registry.js';
 import {QUICK_MODELS} from '../src/quick-models.js';
@@ -15,6 +15,22 @@ const small={...input,pattern:{regions:1,layers:1,holes:0,vertices:16,strokes:0,
 const withCapability=patch=>({...input,capabilities:{...input.capabilities,operations:[{...capability,...patch}]}});
 const matrix=(rows,columns)=>Array.from({length:rows},()=>Array(columns).fill(0));
 const ring=size=>Array.from({length:size},(_,i)=>[i,0]);
+
+test('complex batch errors distinguish new operations from downstream rebuilds without changing routing',()=>{
+ const feature={id:'cut1',op:'cut'},classification=classifyComplexity({operation:'cut',source:{sourceCount:16}});
+ assert.equal(classification.complex,true);assert.deepEqual(classification.reasons,['many-boolean-inputs']);
+ const added=complexBatchError(feature,classification),edited=complexBatchError(feature,classification,{downstream:true});
+ assert.equal(added.code,'COMPLEX_BATCH_REQUIRES_SEQUENTIAL');assert.equal(edited.code,added.code);
+ assert.match(added.message,/新建批次/);assert.doesNotMatch(added.message,/下游|移除/);
+ assert.match(edited.message,/下游/);assert.doesNotMatch(edited.message,/新建批次|移除/);
+ assert.equal(added.details.reason,'new-complex-batch');assert.equal(edited.details.reason,'downstream-complex-rebuild');
+ assert.equal(added.details.operation,'cut');assert.equal(added.details.featureId,'cut1');
+ assert.deepEqual(added.details.complexity,{reasons:classification.reasons,inputs:classification.input});
+ assert.equal(added.details.suggestedAction,'COMMIT_SOURCES_THEN_ADD_OPERATION');
+ assert.equal(edited.details.suggestedAction,'REPLAN_AFFECTED_DEPENDENCIES');
+ assert.equal(classifyComplexity({operation:'cut',source:{sourceCount:12}}).complex,false);
+ assert.equal(classifyComplexity({operation:'cut',source:{sourceCount:13}}).complex,true);
+});
 
 test('shared complexity policy carries the agreed time budgets and is immutable',()=>{
  assert.equal(EXECUTION_POLICY.policyVersion,'complexity-routing-2.0');

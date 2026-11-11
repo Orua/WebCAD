@@ -1,4 +1,17 @@
 {
+  "batchReferenceAndRoutingDiagnostics": {
+    "localImpact": "Batch alias validation applies only to object reference fields; literal colors and user text pass unchanged to existing command validation. Distinguish newly added complex batches from affected downstream rebuilds.",
+    "servicesImpact": "None: existing complexity thresholds, executor selection and source-commit requirements remain unchanged; no backend runtime update.",
+    "logoImpact": "None: no logo conversion, source or geometry changes.",
+    "contractImpact": "Page API 1.66.1; complex-batch error.details identifies reason, operation, featureId, complexity inputs/reasons and suggested action at both step and batch levels.",
+    "documentImpact": "No format or geometry change; partial commits and original idempotent receipts preserved.",
+    "cacheImpact": "Regenerate complete finite knowledge bundle and frontend identity in one candidate build.",
+    "requiredTests": [
+      "Literal colors/text, object refs, invalid aliases, partial commits and receipt replay",
+      "New-complex-batch/downstream diagnostic distinction and unchanged Boolean thresholds",
+      "One isolated localhost page API check and matching local/production/workspace release identities"
+    ]
+  },
   "usageUpgradeD": {
     "localImpact": "Whole-body X/Y/Z size as standalone transform.sizeMm, fixed min/center/max, editable Properties and toolbar. Exact BRep uses OCCT GTransform Copy=true; mesh uses positive affine Float64 transform. Original source retained.",
     "servicesImpact": "None: transform remains fixed local WASM; no server runtime or routing change.",

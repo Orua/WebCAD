@@ -113,7 +113,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 读取对应完整工具卡，核对报错字段及实际单位后修正请求；保留原设计尺寸和加工意图。
 
-代码：`BADGE_INVALID`、`EXTRUDE_HOLE_INVALID`、`FIT_INPUT_INVALID`、`FRAME_INVALID`、`GATEWAY_REQUEST_INVALID`、`HOST_CONTROL_INVALID`、`HOST_FRAME_INVALID`、`INVALID_INPUT`、`INVALID_OPTIONS`、`NAME_INVALID`、`PARAM_RANGE_INVALID`、`PARAM_SCHEMA_INVALID`、`REQUEST_INVALID`、`REVOLVE_AXIS_CROSSING`、`TYPE_MISMATCH`
+代码：`BADGE_INVALID`、`EXTRUDE_HOLE_INVALID`、`FIT_INPUT_INVALID`、`FRAME_INVALID`、`GATEWAY_REQUEST_INVALID`、`HOST_CONTROL_INVALID`、`HOST_FRAME_INVALID`、`INVALID_INPUT`、`INVALID_OPTIONS`、`NAME_INVALID`、`PARAM_RANGE_INVALID`、`PARAM_SCHEMA_INVALID`、`REQUEST_INVALID`、`REVOLVE_AXIS_CROSSING`、`TEXTURE_INVALID`、`TYPE_MISMATCH`
 
 ### cancelled
 
@@ -185,7 +185,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 读取当前状态与来源，重新查询引用并重规划尚未完成的步骤；不要沿用旧面边编号。
 
-代码：`COORDINATE_MODE_CONFLICT`、`DOCUMENT_MISMATCH`、`FRAME_SURFACE_MISMATCH`、`INSTANCE_MISMATCH`、`LIBRARY_REVISION_CONFLICT`、`LOGO_REVIEW_STALE`、`MACHINING_SOURCE_CONFLICT`、`PREPARATION_STALE`、`RECOVERY_INPUT_CHANGED`、`REVISION_CONFLICT`、`SELECTOR_CONTEXT_REQUIRED`、`SELECTOR_CONTEXT_STALE`、`SOURCE_ANCHOR_INVALID`、`SOURCE_HASH_MISMATCH`、`STALE_REFERENCE`、`TOPOLOGY_REFERENCE_STALE`
+代码：`COORDINATE_MODE_CONFLICT`、`DOCUMENT_MISMATCH`、`FRAME_SURFACE_MISMATCH`、`INSTANCE_MISMATCH`、`LIBRARY_REVISION_CONFLICT`、`LOGO_REVIEW_STALE`、`MACHINING_SOURCE_CONFLICT`、`PREPARATION_STALE`、`RECOVERY_CHANGED`、`RECOVERY_INPUT_CHANGED`、`REVISION_CONFLICT`、`SELECTOR_CONTEXT_REQUIRED`、`SELECTOR_CONTEXT_STALE`、`SOURCE_ANCHOR_INVALID`、`SOURCE_HASH_MISMATCH`、`STALE_REFERENCE`、`TOPOLOGY_REFERENCE_STALE`
 
 ### source_parameters
 
@@ -427,14 +427,6 @@ PDF页面渲染或渲染底图校验未通过。
 
 代码：`QUEUE_LIMIT`、`RATE_LIMIT`、`STORAGE_LIMIT`
 
-### unclassified
-
-操作未能完成，目前没有足够证据确定安全恢复方式。
-
-保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
-
-代码：`RECOVERY_CHANGED`、`TEXTURE_INVALID`、`UNSAVED_DOCUMENT`
-
 ### recovery-denied
 
 此任务不能从中断位置恢复。
@@ -537,7 +529,7 @@ Services 浮雕响应与请求、哈希或误差不一致。
 
 先通过文件接口保存当前已提交工程，再由用户明确选择打开或新建。
 
-代码：`UNSAVED_REPLACEMENT`
+代码：`UNSAVED_DOCUMENT`、`UNSAVED_REPLACEMENT`
 
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
