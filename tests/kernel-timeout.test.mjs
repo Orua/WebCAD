@@ -26,5 +26,9 @@ test('main rebuild passes the hard deadline and restores the committed kernel on
 
 test('rounding postconditions stay on both mill paths (R6-001 not regressed)',()=>{
   const blend=fs.readFileSync(new URL('../src/edge-blend.js',import.meta.url),'utf8');
-  assert.ok((blend.match(/validateRoundingResult\(/g)||[]).length>=3);
+  assert.ok((blend.match(/validateRoundingResult\(/g)||[]).length>=2);
+  // R9: every fillet strategy (native, both mill paths, ladder) goes through acceptFillet,
+  // which runs validateRoundingResult and then verifyBlendAcceptance.
+  assert.match(blend,/function acceptFillet[\s\S]{0,200}validateRoundingResult\([\s\S]{0,200}verifyBlendAcceptance\(/);
+  assert.match(blend,/millComplementaryFillet\(shape,\{edgeIds:targetIds[\s\S]{0,120}acceptFillet\(/);
 });
