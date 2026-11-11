@@ -67,6 +67,8 @@ export function buildSmoothTransition(shape,{faceIds,selector,context,radius,all
     }
     result.transitionReport={mode:allEdges?'body':selector?'semantic-selector':faceIds?.length===1?'face-boundary':'faces',radius,...(faceIds?{sourceFaceIds:[...faceIds]}:{}),...(selection?selection.selectorReport:{}),processedEdgeIds:targets.map(e=>e.edgeId),
       processedSeams:targets.length,remainingSharpEdges:sharpAfter.map(e=>e.edgeId),
+      // R9-P3 unified receipt aliases (same names as fillet blendReport).
+      status:'committed',failedEdgeIds:[],remainingSharpEdgeIds:sharpAfter.map(e=>e.edgeId),radiusPerEdge:targets.map(e=>({edgeId:e.edgeId,radiusMm:radius})),
       remainingSharpEdgeCount:sharpAfter.length,boundarySharpEdges,normalSampleFractions:[.2,.5,.8],angleToleranceDeg:sharpAngleDeg,
       validation:boundarySharpEdges.length?'valid-solid; selected-sharp-seams-removed; unselected-boundary-creases-reported':'valid-solid; selected-sharp-seams-removed; no-new-sharp-seams-at-samples',
       scope:allEdges?'All sharp edges required; sampled continuity, not a vertex safety certification.':'Selected face intersections only; remaining and unselected-boundary sharp edges are reported, not certified smooth.'};

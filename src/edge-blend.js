@@ -2,6 +2,7 @@ import * as cad from 'replicad';
 import {topologyDetails} from './smooth-transition.js';
 import {millComplementaryFillet,millFeasibility} from './modeling/rounding/mill-fillet-fallback.js';
 import {validateRoundingResult,verifyBlendAcceptance} from './modeling/rounding/validation.js';
+import {buildBlendRadius} from './blend-radius.js';
 
 const dispose=value=>{try{value?.delete();}catch{}};
 const fail=message=>{throw Object.assign(new Error(message),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS'});};
@@ -281,4 +282,24 @@ function buildOwnedChamfer(shape,params) {
     const report={version:1,operation:op,status:'failed',stage,strategy:'native',attemptCount:1,elapsedMs:performance.now()-started,dimensionKind:'support-distance',requestedAmountMm:amount,targetCount:targets.length,confirmedFailureCount:0,confirmedFailedEdgeIds:[],candidateCount:targets.length,candidateEdgeIds:ids,failedEdgeIds:ids,cause:'unknown',kernelMessage:detail||null,supportGeometry:targets.map(row=>({edgeId:row.edgeId,faceIds:row.adjacentFaceIds,surfaceTypes:row.adjacentFaceIds.map(id=>faces[id].geomType)}))};
     throw Object.assign(new Error(`斜角 C${amount} mm 无法完成，目标边：${ids.join(', ')}。${detail||'内核未返回有效实体'}。原模型保留。`),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS',report});
   }finally{dispose(result);dispose(builder);edges.forEach(dispose);faces.forEach(dispose);}
+}
+
+// R9-P3: selector / variable-radius fillets used to bypass the receipt and the
+// acceptance checks (RC9). They now run the same acceptance and write blendReport.
+export function buildSelectorFillet(shape,{selector,radiusMm,blendLaw,context,scope='edges'}){
+  const started=performance.now(),oc=cad.getOC();let result;
+  try{
+    result=buildBlendRadius(shape,{selector,radiusMm,blendLaw,context});
+    const report=result.blendRadiusReport||{},targetIds=report.processedEdgeIds||[];
+    const acceptance=acceptFillet(shape,result,oc,targetIds,scope);
+    const radiusAt=blendLaw?{startRadiusMm:blendLaw.startRadiusMm,endRadiusMm:blendLaw.endRadiusMm}:{radiusMm};
+    result.blendReport={version:1,operation:'fillet',status:'committed',stage:'completed',strategy:blendLaw?'native-variable-radius':'native-selector',attemptCount:1,attempts:[{strategy:blendLaw?'native-variable-radius':'native-selector',ok:true}],elapsedMs:performance.now()-started,dimensionKind:'radius',requestedAmountMm:radiusMm,amount:radiusMm,scope,requestedSelection:{selector},
+      processedEdgeIds:targetIds,failedEdgeIds:[],remainingSharpEdgeIds:acceptance.remainingSharpEdgeIds,remainingSharpEdgeCount:acceptance.remainingSharpEdgeCount,radiusPerEdge:targetIds.map(edgeId=>({edgeId,...radiusAt})),skippedTangentEdgeIds:[],expandedEdgeIds:[],maxFeasibleRadiusMm:null,
+      acceptance:{solid:acceptance.solid,selectedEdgesRounded:acceptance.selectedEdgesRounded,resultFaceCount:acceptance.resultFaceCount,deltaVolumeMm3:acceptance.deltaVolumeMm3}};
+    const output=result;result=null;return output;
+  }catch(error){
+    if(!error.report)error.report={version:1,operation:'fillet',status:'failed',stage:'construction',strategy:blendLaw?'native-variable-radius':'native-selector',attemptCount:1,elapsedMs:performance.now()-started,scope,requestedSelection:{selector},processedEdgeIds:[],failedEdgeIds:error.acceptance?.notRoundedEdgeIds||[],remainingSharpEdgeIds:error.acceptance?.remainingSharpEdgeIds||[],failureReason:String(error?.message||error),maxFeasibleRadiusMm:null};
+    if(!error.code)error.code='GEOMETRY_INVALID';
+    throw error;
+  }finally{dispose(result);}
 }
