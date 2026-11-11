@@ -4220,5 +4220,19 @@
       "Current aircraft exact source: legal rejection of infeasible whole-seam radius, source unchanged",
       "Page remote commit, undo and cold save/open; matching production/local/workspace identities"
     ]
+  },
+  "nativeSeamRange": {
+    "localImpact": "Boolean seam blends accept an explicit radius range, use bounded existing probe against one current BRep; scalar requests stay exact.",
+    "servicesImpact": "Add accepted union/spatial blend 1.1 semantics with at most six radius candidates, complete atomic result validation and bounded failure diagnostics.",
+    "logoImpact": "No algorithm change; old native branches retain their semantic gates.",
+    "contractImpact": "Page API 1.66.3, explicit minMm/maxMm radius schema, diagnostics and actual sampled radius reporting. Full knowledge package regenerated.",
+    "documentImpact": "Precise successful result and complete input/checkpoint identity retained; failed range has no output or geometry commit.",
+    "cacheImpact": "New semantic version for explicit range only; a scalar 1.0 request never reuses a range result.",
+    "requiredTests": [
+      "Exact scalar no fallback; explicit range success and complete range failure",
+      "No client topology transfer; bounded current edge world points and diagnostics propagation",
+      "Real aircraft roof repaired using exact surface samples and native cut, wing roots trimmed and inlet channels independently checked",
+      "Client native artifact reuse and final-state cold reopen; matching local/production/workspace release identities"
+    ]
   }
 }

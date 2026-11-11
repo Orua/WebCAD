@@ -2,7 +2,7 @@
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.66.2",
+  "version": "1.66.3",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -277,5 +277,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:296fbb86dc23ca1d3fe840da30e2d617b6155977bbf2885cbe00d215cb85468b"
+  "docsHash": "sha256:dcccd53b196da014e7bf3fef6fbe445d9a156532d5ebf491aa84e918624b6d91"
 }

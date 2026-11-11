@@ -12,9 +12,9 @@ $store=[WebCADServices.Runtime.Store]::new($DataRoot);$owner='seam-test'
 function Assert($ok,$why){if(!$ok){throw $why}}
 try{
  $assets=@(0,1|ForEach-Object {$file="$EvidenceRoot/seam/source-$_.brep";,$store.AddAsset($owner,"source-$_.brep",[IO.File]::ReadAllBytes($file),'brep')})
- function Request([double]$radius){
+ function Request($radius){
   $inputs=@(for($i=0;$i-lt2;$i++){@{assetId=[string]$assets[$i]['assetId'];sha256=[string]$assets[$i]['sha256'];role=$(if($i){'tool'}else{'source'});sourceFeatureId="part-$i"}})
-  return ,([Newtonsoft.Json.Linq.JObject]::Parse((@{requestId='seam-request';documentId='seam-doc';documentInstanceId='seam-instance';expectedRevision=1;featureId='seam';operation='union';schemaVersion='1.0';semanticVersion='boolean.union-seam-1.0';strategy='multi-source-union-seam';inputs=$inputs;placementSnapshot=$null;selectionIntent=@{kind='whole-sources'};params=@{blendRadiusMm=$radius};requiredResultFormat='occt-text-brep-v1';recipeFingerprint='seam-recipe'}|ConvertTo-Json -Depth 10)))
+  return ,([Newtonsoft.Json.Linq.JObject]::Parse((@{requestId='seam-request';documentId='seam-doc';documentInstanceId='seam-instance';expectedRevision=1;featureId='seam';operation='union';schemaVersion='1.0';semanticVersion=$(if($radius -is [System.Collections.IDictionary]){'boolean.union-seam-1.1'}else{'boolean.union-seam-1.0'});strategy='multi-source-union-seam';inputs=$inputs;placementSnapshot=$null;selectionIntent=@{kind='whole-sources'};params=@{blendRadiusMm=$radius};requiredResultFormat='occt-text-brep-v1';recipeFingerprint='seam-recipe'}|ConvertTo-Json -Depth 10)))
  }
  $request=Request .2;$payload=[WebCADServices.Runtime.NativeAdapter]::Validate($request,$store,$owner)
  $job=$store.Submit($owner,'seam-key',$payload,$request);$row=$store.Claim('occt')
@@ -24,6 +24,18 @@ try{
  Assert ([int]$manifest['validation']['solidCount'] -eq 1) 'Single valid result'
  $store.Finish([string]$job['jobId'],'succeeded',$manifest.ToString([Newtonsoft.Json.Formatting]::None),$null)
  $alias=$store.Submit($owner,'alias-key',$payload,$request);Assert ([string]$alias['jobId'] -eq [string]$job['jobId']) 'Idempotent physical cache'
+ $rangeRequest=Request @{maxMm=1000;minMm=.2;maxAttempts=2};$rangePayload=[WebCADServices.Runtime.NativeAdapter]::Validate($rangeRequest,$store,$owner)
+ $rangeJob=$store.Submit($owner,'range-key',$rangePayload,$rangeRequest);$rangeRow=$store.Claim('occt');$rangeManifest=[WebCADServices.Runtime.NativeAdapter]::Execute($rangeRow,$store,[Func[bool]]{return $false})
+ Assert ([int]$rangeManifest['blendReport']['attemptCount'] -eq 2) 'Explicit native range sample count'
+ Assert ([double]$rangeManifest['blendReport']['radiusUsedMm'] -eq .2) 'Actual sampled radius returned'
+ $store.Finish([string]$rangeJob['jobId'],'succeeded',$rangeManifest.ToString([Newtonsoft.Json.Formatting]::None),$null)
+ $badRange=Request @{maxMm=1000;minMm=900;maxAttempts=2};$badPayload=[WebCADServices.Runtime.NativeAdapter]::Validate($badRange,$store,$owner)
+ $badJob=$store.Submit($owner,'bad-range-key',$badPayload,$badRange);$badRow=$store.Claim('occt');$failure=$null
+ try{[void][WebCADServices.Runtime.NativeAdapter]::Execute($badRow,$store,[Func[bool]]{return $false})}catch{$failure=$_.Exception;while($failure.InnerException){$failure=$failure.InnerException}}
+ Assert ($null -ne $failure -and $failure.Code -eq 'BLEND_BUILD_FAILED') 'Range failure is explicit'
+ Assert ([int]$failure.BlendDiagnostics['tried'].Count -eq 2) 'Failure diagnostics preserve every requested candidate'
+ Assert ([int]$failure.BlendDiagnostics['pointsMm'].Count -le 16) 'Failure locations are bounded'
+ $store.Finish([string]$badJob['jobId'],'failed',$null,$failure.Body().ToString([Newtonsoft.Json.Formatting]::None))
  $other=Request .3;$otherPayload=[WebCADServices.Runtime.NativeAdapter]::Validate($other,$store,$owner)
  $otherJob=$store.Submit($owner,'other-radius',$otherPayload,$other);Assert ([string]$otherJob['inputFingerprint'] -ne [string]$job['inputFingerprint']) 'Radius belongs to physical identity';[void]$store.Cancel($owner,[string]$otherJob['jobId'])
  $bad=$request.DeepClone();$bad['params']['toolPaths']=[Newtonsoft.Json.Linq.JArray]::new('untrusted')

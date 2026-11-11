@@ -2,6 +2,7 @@
 #include <BRepAlgoAPI_Fuse.hxx>
 #include <BRepFilletAPI_MakeFillet.hxx>
 #include <BRepAdaptor_Surface.hxx>
+#include <BRepAdaptor_Curve.hxx>
 #include <BRepLProp_SLProps.hxx>
 #include <BRepExtrema_DistShapeShape.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
@@ -28,16 +29,30 @@ static bool seamSharp(const TopoDS_Edge& edge,const TopTools_ListOfShape& faces)
  }
  return normals[0].Angle(normals[1])>1e-3;
 }
-static TopoDS_Shape exactSeamBlend(const TopoDS_Shape& source,const std::vector<TopoDS_Edge>& edges,double radius,json& report){
- if(!std::isfinite(radius)||radius<=0||radius>10000)throw BooleanFailure("PARAM_SCHEMA_INVALID","Positive bounded exact radius required");
+static TopoDS_Shape exactSeamBlend(const TopoDS_Shape& source,const std::vector<TopoDS_Edge>& edges,const json& requested,json& report){
  if(edges.empty())throw BooleanFailure("SELECTOR_EMPTY","No sharp edge matched the requested seam; source retained");
  if(edges.size()>64)throw BooleanFailure("SELECTION_LIMIT","Select at most 64 sharp seam edges per operation");
- BRepFilletAPI_MakeFillet fillet(source);for(const auto& edge:edges)fillet.Add(radius,edge);
- fillet.Build();if(!fillet.IsDone())throw BooleanFailure("BLEND_BUILD_FAILED","Requested seam radius did not complete; no smaller radius or partial fusion applied");
- const auto result=fillet.Shape();measure(result);
- report={{"status","applied"},{"requestedRadiusMm",radius},{"radiusUsedMm",radius},{"processedEdgeCount",edges.size()},
-  {"attemptCount",1},{"numericIndicesTransferred",false},{"scope","selected-sharp-edges"}};
- return result;
+ double maximum,minimum,ratio=.75;int limit=1;
+ if(requested.is_number()){maximum=minimum=requested.get<double>();}
+ else {keys(requested,{"maxMm","minMm","stepRatio","maxAttempts"});maximum=requested.at("maxMm");minimum=requested.at("minMm");ratio=requested.value("stepRatio",.75);limit=requested.value("maxAttempts",6);}
+ if(!std::isfinite(maximum)||!std::isfinite(minimum)||minimum<=0||maximum<minimum||maximum>10000||!std::isfinite(ratio)||ratio<=0||ratio>=1||limit<1||limit>6)throw BooleanFailure("PARAM_SCHEMA_INVALID","Explicit finite radius or bounded radius range required");
+ json tried=json::array();double radius=maximum;
+ for(int attempt=0;attempt<limit;++attempt){
+  BRepFilletAPI_MakeFillet fillet(source);for(const auto& edge:edges)fillet.Add(radius,edge);
+  bool valid=false;TopoDS_Shape result;std::string reason;
+  try{fillet.Build();if(fillet.IsDone()){result=fillet.Shape();measure(result);valid=true;}else reason="OCCT build incomplete";}
+  catch(const Standard_Failure& e){reason=e.GetMessageString()?e.GetMessageString():"OCCT failure";}
+  catch(const std::exception& e){reason=e.what();}
+  tried.push_back({{"radiusMm",radius},{"ok",valid},{"faultyContours",fillet.NbFaultyContours()},{"reason",reason.substr(0,200)}});
+  if(valid){report={{"status","applied"},{"requestedRadiusMm",requested},{"radiusUsedMm",radius},{"processedEdgeCount",edges.size()},
+   {"attemptCount",tried.size()},{"tried",tried},{"numericIndicesTransferred",false},{"scope","selected-sharp-edges"}};return result;}
+  if(radius<=minimum||attempt+1>=limit)break;
+  radius=attempt+2==limit?minimum:std::max(minimum,radius*ratio);
+ }
+ BooleanFailure failure("BLEND_BUILD_FAILED","No valid complete seam blend in the explicitly requested radius range; source retained");
+ failure.details={{"requestedRadiusMm",requested},{"tried",tried},{"selectedEdgeCount",edges.size()},{"pointsMm",json::array()}};
+ for(size_t i=0;i<edges.size()&&i<16;i++){BRepAdaptor_Curve curve(edges[i]);const auto p=curve.Value((curve.FirstParameter()+curve.LastParameter())/2);failure.details["pointsMm"].push_back({p.X(),p.Y(),p.Z()});}
+ throw failure;
 }
 static TopoDS_Shape runSeamOperation(const TopoDS_Shape& source,const json& params,bool isUnion,json& unionReport,json& blendReport,
  std::string& stage,const std::function<void()>& progress){
@@ -85,5 +100,5 @@ static TopoDS_Shape runSeamOperation(const TopoDS_Shape& source,const json& para
   const auto vertex=BRepBuilderAPI_MakeVertex(gp_Pnt(p[0],p[1],p[2])).Vertex();TopTools_IndexedDataMapOfShapeListOfShape ancestors;TopExp::MapShapesAndAncestors(current,TopAbs_EDGE,TopAbs_FACE,ancestors);
   for(int i=1;i<=ancestors.Extent();++i){const auto edge=TopoDS::Edge(ancestors.FindKey(i));BRepExtrema_DistShapeShape query(vertex,edge);if(!query.IsDone())throw BooleanFailure("SELECTOR_UNCERTAIN","Exact point-edge distance unavailable");if(query.Value()<=distance&&seamSharp(edge,ancestors.FindFromIndex(i)))targets.push_back(edge);}
  }
- stage="blend-selected-seam";progress();return exactSeamBlend(current,targets,isUnion?params.at("blendRadiusMm").get<double>():params.at("radius").get<double>(),blendReport);
+ stage="blend-selected-seam";progress();return exactSeamBlend(current,targets,isUnion?params.at("blendRadiusMm"):params.at("radius"),blendReport);
 }

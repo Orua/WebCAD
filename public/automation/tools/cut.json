@@ -13,9 +13,44 @@
         "description": "Name the result body after this boolean step instead of keeping the target body name"
       },
       "blendRadiusMm": {
-        "type": "number",
-        "description": "Requested seam radius (mm)",
-        "exclusiveMinimum": 0
+        "oneOf": [
+          {
+            "type": "number",
+            "description": "Exact radius in mm (mm)",
+            "exclusiveMinimum": 0
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxMm",
+              "minMm"
+            ],
+            "properties": {
+              "maxMm": {
+                "type": "number",
+                "description": "Maximum radius (mm)",
+                "exclusiveMinimum": 0,
+                "maximum": 10000
+              },
+              "minMm": {
+                "type": "number",
+                "description": "Minimum radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "stepRatio": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            }
+          }
+        ]
       },
       "blendMode": {
         "type": "string",
@@ -77,7 +112,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range. Explicit blendRadiusMm is exact: no automatic radius reduction; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius only. Services cut blend is not implemented.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented.",
   "title": "Subtract other bodies from first",
   "category": "modification",
   "synonyms": [
@@ -95,7 +130,7 @@
     "subtract"
   ],
   "description": "Subtract other bodies from first",
-  "schemaHash": "sha256:dd8e687f0a8b5be3e7778652d7e201393e1a5ea1095fd70cc05364f16f6ca47f",
+  "schemaHash": "sha256:586f8042ee3924d6832a144698e51ba20985a2895bfaea5d0e91c9a9090258dc",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -156,7 +191,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range. Explicit blendRadiusMm is exact: no automatic radius reduction; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius only. Services cut blend is not implemented."
+    "refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -252,10 +287,10 @@
         }
       },
       "blendRadiusMm": {
-        "meaning": "Requested seam radius (mm)",
+        "meaning": "blendRadiusMm: Subtract other bodies from first",
         "unit": "mm",
         "range": [
-          0,
+          null,
           null
         ],
         "default": {
@@ -786,5 +821,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:22135618b3f46240efdab59b4cf2ae0ca1cf4d8c52d32888865ac2d277afb2eb"
+  "docsHash": "sha256:882d55e72c2900c2adaa77645c7d3841bed3d26eded3734c5a9d0ae858700157"
 }
