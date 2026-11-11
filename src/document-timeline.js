@@ -11,7 +11,7 @@ const fail=m=>{throw Object.assign(new Error(m),{code:'HISTORY_INVALID'});};
 const unsafe=k=>['__proto__','constructor','prototype'].includes(String(k));
 function state(doc){const {timeline,imports,compiledArtifacts,binaryAssets,...rest}=doc;return clone(rest);}
 // Heightfield reliefs keep their samples as a binary heightmap asset reached through imports.
-function importKeys(snapshot){return [...(snapshot.features||[]).flatMap(f=>f.op==='import'?[f.params?.key]:f.op==='meshHeightfieldRelief'&&f.params?.heights?.importKey?[f.params.heights.importKey]:[]),...(snapshot.reliefDesigns||[]).flatMap(d=>d.draft?.reference?[d.draft.reference.importKey]:[])];}
+function importKeys(snapshot){return [...(snapshot.features||[]).flatMap(f=>f.op==='import'?[f.params?.key]:f.op==='meshHeightfieldRelief'&&f.params?.heights?.importKey?[f.params.heights.importKey]:[]),...(snapshot.reliefDesigns||[]).flatMap(d=>d.draft?.reference?[d.draft.reference.importKey]:[]),...Object.values(snapshot.surface||{}).flatMap(s=>s?.texture?.assetHash?['texture-'+s.texture.assetHash]:[])];}
 function retainImports(doc,timeline){
  const needed=new Set(importKeys(doc));
  if(timeline){let s=timeline.base;for(const key of importKeys(s))needed.add(key);for(const e of timeline.entries){s=apply(s,e.patch);for(const key of importKeys(s))needed.add(key);}}

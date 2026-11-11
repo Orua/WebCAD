@@ -1,3 +1,4 @@
+import {vectorIcon} from '../vector-icon.js';
 import {debugJournal,debugAIText} from '../../debug-journal.js';
 let active=null;
 export function debugPanelOpen(){return !!(active?.isConnected&&active.open);}
@@ -9,6 +10,7 @@ export function showDebugPanel({getReport}){
  const d=el('dialog',{class:'cad-dialog debug-panel','aria-label':'Debug 诊断','data-host-control-allowed':'true'});active=d;
  const header=el('header',{class:'debug-header'}),actions=el('div',{class:'debug-actions'}),status=el('p',{class:'debug-status',role:'status'});
  const button=(text,fn,attrs={})=>{const b=el('button',{type:'button',class:'secondary','data-ui-action':'debugReport',...attrs},text);b.addEventListener('click',fn);return b;};
+ const iconButton=(label,paths,fn,attrs={})=>{const b=button('',fn,{class:'secondary debug-icon',title:label,'aria-label':label,...attrs});b.append(vectorIcon(paths));return b;};
  const fail=e=>{status.textContent='诊断操作未完成：'+String(e.message||e);};
  let report=null,tab='logs',timer=null,disposed=false,refreshing=false;
  const source=el('select',{'aria-label':'日志来源'}),level=el('select',{'aria-label':'日志级别'}),search=el('input',{type:'search',maxlength:'160',placeholder:'搜索操作、字段、错误码','aria-label':'搜索日志'});
@@ -17,10 +19,10 @@ export function showDebugPanel({getReport}){
  const format=el('select',{'aria-label':'下载日志类型'});for(const [value,label]of [['report','完整诊断 JSON'],['logs','操作日志 JSONL'],['errors','错误日志 JSONL'],['state','当前状态 JSON']])format.append(el('option',{value},label));
  const output=el('textarea',{'aria-label':'可复制的诊断数据',readonly:'',rows:'12'});output.hidden=true;
  const full=()=>Promise.resolve(getReport({limit:1500,includeState:true}));
- const copy=button('复制给 AI',async()=>{try{const data=debugAIText(await full());try{if(!navigator.clipboard?.writeText)throw Error();await navigator.clipboard.writeText(data);output.hidden=true;status.textContent='已复制当前状态、最近操作和错误详情。';}catch{output.value=data;output.hidden=false;output.focus();output.select();status.textContent='浏览器未允许直接复制，已选中诊断数据，请按 Ctrl+C。';}}catch(e){fail(e);}},{class:'primary'});
- const showText=button('查看文本',async()=>{try{output.value=debugAIText(await full());output.hidden=false;output.focus();output.select();status.textContent='诊断文本已选中，可按 Ctrl+C 复制。';}catch(e){fail(e);}});
- const download=button('下载',async()=>{try{const r=await full(),kind=format.value,value=kind==='logs'||kind==='errors'?(kind==='errors'?r.events.filter(e=>e.level==='error'):r.events).map(e=>JSON.stringify(e)).join('\n'):JSON.stringify(kind==='state'?{capturedAt:r.capturedAt,state:r.state,redaction:r.redaction}:r,null,2),url=URL.createObjectURL(new Blob([value],{type:kind==='logs'||kind==='errors'?'application/x-ndjson':'application/json'})),a=el('a',{href:url,download:`webcad-debug-${kind}-${new Date().toISOString().replace(/[:.]/g,'-')}.${kind==='logs'||kind==='errors'?'jsonl':'json'}`});a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status.textContent='已生成所选诊断文件。';}catch(e){fail(e);}});
- const close=button('关闭',()=>d.close(),{'aria-label':'关闭 Debug'}),refresh=button('刷新',()=>load(true));actions.append(copy,showText,format,download,close);header.append(el('h2',{},'Debug'),actions);
+ const copy=iconButton('复制给 AI',['M8 8h13v13H8Z M3 16V3h13'],async()=>{try{const data=debugAIText(await full());try{if(!navigator.clipboard?.writeText)throw Error();await navigator.clipboard.writeText(data);output.hidden=true;status.textContent='已复制当前状态、最近操作和错误详情。';}catch{output.value=data;output.hidden=false;output.focus();output.select();status.textContent='浏览器未允许直接复制，已选中诊断数据，请按 Ctrl+C。';}}catch(e){fail(e);}},{class:'primary debug-icon'});
+ const showText=iconButton('查看文本',['M4 3h11l5 5v13H4Z M14 3v6h6 M8 13h8 M8 17h6'],async()=>{try{output.value=debugAIText(await full());output.hidden=false;output.focus();output.select();status.textContent='诊断文本已选中，可按 Ctrl+C 复制。';}catch(e){fail(e);}});
+ const download=iconButton('下载日志',['M12 3v12 M7 10l5 5 5-5 M4 16v5h16v-5'],async()=>{try{const r=await full(),kind=format.value,value=kind==='logs'||kind==='errors'?(kind==='errors'?r.events.filter(e=>e.level==='error'):r.events).map(e=>JSON.stringify(e)).join('\n'):JSON.stringify(kind==='state'?{capturedAt:r.capturedAt,state:r.state,redaction:r.redaction}:r,null,2),url=URL.createObjectURL(new Blob([value],{type:kind==='logs'||kind==='errors'?'application/x-ndjson':'application/json'})),a=el('a',{href:url,download:`webcad-debug-${kind}-${new Date().toISOString().replace(/[:.]/g,'-')}.${kind==='logs'||kind==='errors'?'jsonl':'json'}`});a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status.textContent='已生成所选诊断文件。';}catch(e){fail(e);}});
+ const close=iconButton('关闭 Debug',['M6 6l12 12 M18 6 6 18'],()=>d.close(),{class:'secondary debug-icon debug-close'}),refresh=iconButton('刷新日志',['M4 10a8 8 0 1 1 2 8 M4 3v7h7'],()=>load(true));actions.append(copy,showText,format,download);header.append(el('h2',{},'Debug'),actions,close);
  const tabs=el('div',{class:'debug-tabs',role:'tablist'}),tabButtons=new Map(),filters=el('div',{class:'debug-filters'}),body=el('div',{class:'debug-body'}),coverage=el('p',{class:'debug-coverage'});
  for(const [key,label]of [['logs','操作日志'],['errors','错误详情'],['state','当前状态']]){const b=button(label,()=>{tab=key;render();},{role:'tab'});tabButtons.set(key,b);tabs.append(b);}
  filters.append(source,level,search,refresh);

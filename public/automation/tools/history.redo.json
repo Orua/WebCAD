@@ -8,7 +8,7 @@
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.65.0",
+  "version": "1.66.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -219,6 +219,10 @@
         "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
       },
       {
+        "id": "recoverUnsaved",
+        "chooseWhen": "仅在用户明确要求时读取未保存恢复副本元数据，再按固定checkpoint替换当前工程；不是启动提示、撤销或失效Worker恢复。"
+      },
+      {
         "id": "recoverKernel",
         "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
       }
@@ -226,5 +230,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5830022e1d5eacf84bf8a04b35d96c87066aa28ac914d7154c61a6098ee5c8c2"
+  "docsHash": "sha256:7681ed5648ff9b53ee0fcbecad781c97c3076cc717888bd56073a6c88149edaa"
 }

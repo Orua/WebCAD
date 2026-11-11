@@ -1,15 +1,4 @@
-// Startup recovery discovery. Pure decision logic so it can be unit tested;
-// main.js supplies the rows read from IndexedDB `webcad-local/documents`.
-//
-// Rules (Round 8 C/R7-001/R7-016/R8-004):
-// - ?document=<id> wins: the newest local checkpoint of that documentId is
-//   offered (dialog defaults to recover). If none exists the caller keeps the
-//   URL and reports that no local copy exists instead of pretending it opened.
-// - Same-tab refresh keeps offering this tab's exact checkpoint.
-// - A new tab/browser without the sessionStorage hint still offers
-//   recovery:latest when it has content (always via a dialog, never silently).
-// - "开始空白工程" only dismisses the automatic prompt for that one checkpoint
-//   in this tab; it never deletes IndexedDB rows, and ?document= still finds it.
+// Explicit File-menu recovery discovery; startup never invokes this module to restore a project.
 export const RECOVERY_KEYS = Object.freeze({ hint: 'webcad.recovery.latest', dismissed: 'webcad.recovery.dismissed', latest: 'recovery:latest', indexPrefix: 'recovery-index:' });
 
 export function recoveryHasContent(document) {

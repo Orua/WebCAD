@@ -8,7 +8,7 @@
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.65.0",
+  "version": "1.66.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -248,6 +248,10 @@
         "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
       },
       {
+        "id": "recoverUnsaved",
+        "chooseWhen": "仅在用户明确要求时读取未保存恢复副本元数据，再按固定checkpoint替换当前工程；不是启动提示、撤销或失效Worker恢复。"
+      },
+      {
         "id": "recoverKernel",
         "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
       },
@@ -263,5 +267,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8e275fc9f14d7946c155f023f04569a3615de109d4f57f0ecd242c3a591a231e"
+  "docsHash": "sha256:ce3236e6359e6006800c3721eedf4f6075903b017fd5c0a222051a8d799263e6"
 }

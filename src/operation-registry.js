@@ -1,3 +1,4 @@
+import {assertBodyResizeParams} from './body-resize.js';
 import {reliefPlateExample} from './mesh/relief-plate.js';
 import {heightfieldReliefExample} from './mesh/heightfield-relief.js';
 import {meshBooleanExample} from './mesh/mesh-boolean.js';
@@ -254,7 +255,7 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
     if(params.sharedFaces===true&&!(params.faceIds?.length>=2))contractError('SELECTION_CONFLICT','params.sharedFaces','sharedFaces=true requires at least two adjacent faceIds.');
   }
   if(allowMissingMachiningIntent)schema.required=(schema.required||[]).filter(key=>key!=='machiningIntent');
-  try{validateSchema(schema, params);if(['transform','copy'].includes(op))assertBoundsAlignment(params);}catch(error){
+  try{validateSchema(schema, params);if(['transform','copy'].includes(op)){assertBodyResizeParams(params);assertBoundsAlignment(params);}}catch(error){
     if(op==='quickModel'&&error.message==='Exactly one alternative is required.'&&!Object.hasOwn(QUICK_MODELS,params?.kind))contractError('PARAM_SCHEMA_INVALID','params.kind','quickModel 的 kind 不在目录中。请 getTool({id:"quickModel"}) 读取 templates[].kind；常见有 dBuckle、tube、washer、ring。box、pin、cylinder 不是 kind。');
     if(op==='meshHeightfieldRelief')error.code='HEIGHTFIELD_INVALID';if(op==='meshBoolean')error.code='MESH_BOOLEAN_INVALID';throw error;
   }

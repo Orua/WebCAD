@@ -8,7 +8,7 @@
   "title": "修改参数",
   "description": "args:{featureId,params,name?,placement?,opVersion?,schemaHash?}；省略 opVersion/schemaHash 时按被编辑特征的 op 当前工具卡自动补齐，显式传入且不一致才报错。params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.65.0",
+  "version": "1.66.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -259,6 +259,10 @@
         "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
       },
       {
+        "id": "recoverUnsaved",
+        "chooseWhen": "仅在用户明确要求时读取未保存恢复副本元数据，再按固定checkpoint替换当前工程；不是启动提示、撤销或失效Worker恢复。"
+      },
+      {
         "id": "recoverKernel",
         "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
       }
@@ -266,5 +270,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8c6195c04e3b823660225ce71fe468f438ec42c32c5c3ea44fff77264e475a53"
+  "docsHash": "sha256:61a0cc4e21796f4b0b7c6adbbc0c930113e85bd311e2d3bed6ee639e37e7b46d"
 }

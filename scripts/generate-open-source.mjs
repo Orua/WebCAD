@@ -300,7 +300,15 @@ export async function verifyOpenSource({root,outputDirectory,requireHomeLink=tru
   }
   if(requireHomeLink){
     const home=await readFile(resolve(outputDirectory,'index.html'),'utf8');
-    if(!/<a\b[^>]*\bhref=["']\.\/open-source-notices\.html["']/i.test(home))fail('首页缺少 ./open-source-notices.html 链接');
+    const direct=/<a\b[^>]*\bhref=["']\.\/open-source-notices\.html["']/i.test(home);
+    if(!direct){
+      // The compact application exposes notices from its Help guide, not a floating footer.
+      const declared=/<link\b[^>]*rel=["']license["'][^>]*href=["']\.\/open-source-notices\.html["']/i.test(home);
+      const guide=await readFile(resolve(outputDirectory,'docs/USER-GUIDE.zh-CN.md'),'utf8');
+      const entries=[...home.matchAll(/<script\b[^>]*src=["'](\.\/assets\/[^"']+\.js)["']/gi)];
+      let guideUI=false;for(const entry of entries){const code=await readFile(resolve(outputDirectory,safePath(entry[1].slice(2))),'utf8');if(code.includes('open-source-notices.html'))guideUI=true;}
+      if(!declared||!guide.includes('../open-source-notices.html')||!guideUI)fail('使用指南缺少可发现的开源许可入口');
+    }
   }
   return {buildId:identity.buildId,packages:inventory.packages.length,materials:paths.size,sourceFiles:snapshot.files.length,gaps:inventory.gaps};
 }

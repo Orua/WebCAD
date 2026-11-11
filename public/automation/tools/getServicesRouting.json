@@ -2,7 +2,7 @@
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.65.0",
+  "version": "1.66.0",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -140,5 +140,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7eedb04d08b94f64c5a32edf1b77c2d3a3a42aa149ab3d588c5e38f1883b4035"
+  "docsHash": "sha256:2ffe545f38714aa575f8696ecb9c4d04a3ce839564d1485a9af33547f03bfc14"
 }

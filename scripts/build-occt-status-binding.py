@@ -1,4 +1,4 @@
-"""Rebuild the pinned Replicad single-threaded kernel with its missing enum.
+"""Rebuild the pinned Replicad single-threaded kernel with status and affine-shape bindings.
 
 Usage: python scripts/build-occt-status-binding.py --cache <build-cache>
        --emsdk <emsdk-5.0.1> --output <vendor-dist>
@@ -119,7 +119,7 @@ def build(cache, emsdk, output, image, baseline):
     config = (cache / "replicad-build-config/custom_build_single.yml").read_text(encoding="utf-8")
     symbols = set(re.findall(r"^  - symbol: (\S+)", config, re.M))
     symbols.update(re.findall(r"^export declare class (\w+)", baseline_types, re.M))
-    symbols.add("BRepFill_ThruSectionErrorStatus")
+    symbols.update(["BRepFill_ThruSectionErrorStatus", "BRepBuilderAPI_GTransform"])
     fragments = {f.name[:-10]: f for f in (image / "build/bindings").rglob("*.d.ts.json")}
     for _ in range(3):
         for name in list(symbols):
@@ -130,6 +130,8 @@ def build(cache, emsdk, output, image, baseline):
             for chain in (fragment.get("ancestors") or {}).values():
                 symbols.update(chain)
     object_index = {f.name[:-6]: f for f in (image / "build/compiled-bindings").rglob("*.cpp.o")}
+    if "BRepBuilderAPI_GTransform" not in object_index:
+        raise RuntimeError("Matching affine-shape binding object is missing")
     objects = []
     object_cache = cache / "objects"
     object_cache.mkdir(exist_ok=True)
@@ -168,11 +170,13 @@ def build(cache, emsdk, output, image, baseline):
     block = re.compile(r"(export declare class BRepOffsetAPI_ThruSections\b.*?)(?=\nexport )", re.S)
     types = block.sub(lambda match: match[0].replace("GetStatus(): unknown", "GetStatus(): BRepFill_ThruSectionErrorStatus"), baseline_types)
     types = types.replace("export type OpenCascadeInstance = {", "export type OpenCascadeInstance = {\n  BRepFill_ThruSectionErrorStatus: typeof BRepFill_ThruSectionErrorStatus;")
-    (output / "replicad_single.d.ts").write_text(enum + types, encoding="utf-8")
+    affine = json.loads(fragments["BRepBuilderAPI_GTransform"].read_text(encoding="utf-8"))[".d.ts"]
+    types = types.replace("export type OpenCascadeInstance = {", "export type OpenCascadeInstance = {\n  BRepBuilderAPI_GTransform: typeof BRepBuilderAPI_GTransform;")
+    (output / "replicad_single.d.ts").write_text(enum + affine + types, encoding="utf-8")
     # Multi-threaded is not used by WebCAD; preserve its original upstream pair.
     for name in ["replicad_multi.js", "replicad_multi.cjs", "replicad_multi.wasm", "replicad_multi.d.ts"]:
         shutil.copyfile(baseline / "dist" / name, output / name)
-    receipt = {"schemaVersion": 1, "upstreamCommit": REPLICAD, "occtVersion": "8.0.1", "emscriptenVersion": "5.0.1", "imageManifest": IMAGE, "bindingAdded": "BRepFill_ThruSectionErrorStatus", "compiledBindingCount": len(objects), "multiThreaded": "upstream unchanged; not the WebCAD execution kernel", "files": {f.name: {"sha256": digest(f), "sizeBytes": f.stat().st_size} for f in output.iterdir() if f.is_file()}}
+    receipt = {"schemaVersion": 1, "upstreamCommit": REPLICAD, "occtVersion": "8.0.1", "emscriptenVersion": "5.0.1", "imageManifest": IMAGE, "bindingAdded": ["BRepFill_ThruSectionErrorStatus", "BRepBuilderAPI_GTransform"], "compiledBindingCount": len(objects), "multiThreaded": "upstream unchanged; not the WebCAD execution kernel", "files": {f.name: {"sha256": digest(f), "sizeBytes": f.stat().st_size} for f in output.iterdir() if f.is_file()}}
     (output / "build-manifest.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(receipt), flush=True)
 

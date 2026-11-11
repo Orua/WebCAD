@@ -4,6 +4,26 @@
   "inputSchema": {
     "type": "object",
     "properties": {
+      "sizeMm": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1000000
+        },
+        "description": "Target whole-body X/Y/Z dimensions in world millimetres; standalone affine resize, including holes and radii"
+      },
+      "resizeAnchor": {
+        "type": "string",
+        "description": "Fixed side for whole-body resize",
+        "enum": [
+          "min",
+          "center",
+          "max"
+        ]
+      },
       "align": {
         "type": "object",
         "additionalProperties": false,
@@ -261,7 +281,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original. sizeMm:[X,Y,Z] with resizeAnchor:min|center|max is a standalone exact affine body-size feature; omit placement, mode, rotations and translations. Supports imported BRep and Float64 meshes; holes/radii scale along each axis. resizeReport reads source/target/actual sizes, factors and fixed pivot. It does not recover original CAD constraints.",
   "title": "Scale, rotate X/Y/Z about origin, then translate",
   "category": "organization",
   "synonyms": [
@@ -282,7 +302,7 @@
     "rotation"
   ],
   "description": "Scale, rotate X/Y/Z about origin, then translate",
-  "schemaHash": "sha256:2878fcd5076e6011f2cb3bfe2710a515d6de65b2db2bd58413d8522de705d884",
+  "schemaHash": "sha256:0673ad0c0c5b6dcfc796f72a4138dd073582f6d3ae23d96d983ecb86eb7d8f19",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -343,7 +363,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original."
+    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original. sizeMm:[X,Y,Z] with resizeAnchor:min|center|max is a standalone exact affine body-size feature; omit placement, mode, rotations and translations. Supports imported BRep and Float64 meshes; holes/radii scale along each axis. resizeReport reads source/target/actual sizes, factors and fixed pivot. It does not recover original CAD constraints."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -411,7 +431,7 @@
   "contract": {
     "purpose": "Scale, rotate X/Y/Z about origin, then translate",
     "whenToUse": [
-      "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original."
+      "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original. sizeMm:[X,Y,Z] with resizeAnchor:min|center|max is a standalone exact affine body-size feature; omit placement, mode, rotations and translations. Supports imported BRep and Float64 meshes; holes/radii scale along each axis. resizeReport reads source/target/actual sizes, factors and fixed pivot. It does not recover original CAD constraints."
     ],
     "whenNotToUse": [
       {
@@ -420,6 +440,28 @@
       }
     ],
     "params": {
+      "sizeMm": {
+        "meaning": "Target whole-body X/Y/Z dimensions in world millimetres; standalone affine resize, including holes and radii",
+        "unit": "mm",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "resizeAnchor": {
+        "meaning": "Fixed side for whole-body resize",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
       "align": {
         "meaning": "align: Scale, rotate X/Y/Z about origin, then translate",
         "unit": "none",
@@ -816,7 +858,7 @@
   },
   "purpose": "Scale, rotate X/Y/Z about origin, then translate",
   "whenToUse": [
-    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original."
+    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original. sizeMm:[X,Y,Z] with resizeAnchor:min|center|max is a standalone exact affine body-size feature; omit placement, mode, rotations and translations. Supports imported BRep and Float64 meshes; holes/radii scale along each axis. resizeReport reads source/target/actual sizes, factors and fixed pivot. It does not recover original CAD constraints."
   ],
   "whenNotToUse": [
     {
@@ -1183,5 +1225,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:72be54f600bbc738aa4168621e89effa0edd335403f87baa2dff258899797fae"
+  "docsHash": "sha256:04d7eab0233a392a4e99c53de5f4af1785eade18ea696342551b58b32b8d78a3"
 }

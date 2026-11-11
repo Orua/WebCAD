@@ -8,7 +8,7 @@
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.65.0",
+  "version": "1.66.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -219,6 +219,10 @@
         "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
       },
       {
+        "id": "recoverUnsaved",
+        "chooseWhen": "仅在用户明确要求时读取未保存恢复副本元数据，再按固定checkpoint替换当前工程；不是启动提示、撤销或失效Worker恢复。"
+      },
+      {
         "id": "recoverKernel",
         "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
       },
@@ -234,5 +238,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:574f09e9b56eeae07ca543338fc43299c04ab6b028012e70761e40ebbb257bd4"
+  "docsHash": "sha256:1c3e78af0c41eae493c59a9261d8db5f42ac92f2bd2bcc4edcfda147b4abd8aa"
 }

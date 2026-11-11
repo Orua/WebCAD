@@ -1,3 +1,4 @@
+import {applyBodyTexture} from './surface-rendering.js';
 import {applyDesignSurface,sceneLightingState} from './surface-overrides.js';
 import * as THREE from 'three';
 import {orthographicFitExtent} from './viewport/fit-bounds.js';
@@ -127,10 +128,10 @@ export class CADViewport {
       if(retained){retained.body=body;retained.mesh.userData.body=body;retained.root.visible=!hidden.includes(body.id);return;}
       const root=new THREE.Group();root.userData.bodyId=body.id;const geometry=new THREE.BufferGeometry();
       if(body.previewOrigin)root.position.fromArray(body.previewOrigin);
-      geometry.setAttribute('position',new THREE.Float32BufferAttribute(body.positions,3));
-      if(body.normals?.length)geometry.setAttribute('normal',new THREE.Float32BufferAttribute(body.normals,3));
-      geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(body.indices),1));if(!body.normals?.length)geometry.computeVertexNormals();
-      const defaultColor=this.displayPreferences.defaultColor,color=this.partColors[body.id]||defaultColor;const material=new THREE.MeshStandardMaterial({color,metalness:.15,roughness:.42,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1,side:THREE.DoubleSide});
+      geometry.setAttribute('position',new THREE.BufferAttribute(body.positions instanceof Float32Array?body.positions:new Float32Array(body.positions),3));
+      if(body.normals?.length)geometry.setAttribute('normal',new THREE.BufferAttribute(body.normals instanceof Float32Array?body.normals:new Float32Array(body.normals),3));
+      geometry.setIndex(new THREE.BufferAttribute(body.indices instanceof Uint32Array?body.indices:new Uint32Array(body.indices),1));if(!body.normals?.length)geometry.computeVertexNormals();
+      const defaultColor=this.displayPreferences.defaultColor,color=this.partColors[body.id]||defaultColor;const material=new THREE.MeshPhysicalMaterial({color,metalness:.15,roughness:.42,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1,side:THREE.DoubleSide});
       this.metals.apply(material,this.partFinishes[body.id]||this.finishKey,{bounds:body.bounds,baseColor:color});material.clippingPlanes=this.clipPlanes;
       const mesh=new THREE.Mesh(geometry,material);mesh.userData={bodyId:body.id,body,baseColor:color,defaultColor,type:'body'};root.add(mesh);
       let displayGroup=null,displayPatches=null;
@@ -151,7 +152,7 @@ export class CADViewport {
   }
   setHidden(ids){this.hidden=ids;this.applyTemporaryDisplay();}
   setTemporaryDisplay(mode){if(!['normal','selectedOnly','transparentOthers'].includes(mode))throw new Error('未知临时显示方式');this.temporaryDisplay=mode;this.applyTemporaryDisplay();}
-  applyTemporaryDisplay(){for(const [id,entry] of this.objects){const selected=this.selected.includes(id),persistentlyHidden=this.hidden.includes(id),solo=this.temporaryDisplay==='selectedOnly';entry.root.visible=!persistentlyHidden&&(!solo||selected);const translucent=this.temporaryDisplay==='transparentOthers'&&!selected&&!persistentlyHidden,technical=this.mode==='transparentEdges';entry.mesh.material.transparent=translucent||technical;entry.mesh.material.opacity=translucent?.2:technical?.35:1;entry.mesh.material.depthWrite=!(translucent||technical);for(const edge of entry.edges.children){const selectedEdge=this.topology?.bodyId===id&&this.topology?.type==='edge'&&this.topology.ids.includes(edge.userData.edgeId);edge.material.opacity=metalEdgeOpacity({selected,selectedEdge,translucent,mode:this.mode,finish:entry.mesh.material.userData.metalFinish||'design'});edge.material.transparent=true;}entry.edgeBatch?.invalidate();}this.updateHud();}
+  applyTemporaryDisplay(){for(const [id,entry] of this.objects){const selected=this.selected.includes(id),persistentlyHidden=this.hidden.includes(id),solo=this.temporaryDisplay==='selectedOnly';entry.root.visible=!persistentlyHidden&&(!solo||selected);const translucent=this.temporaryDisplay==='transparentOthers'&&!selected&&!persistentlyHidden,technical=this.mode==='transparentEdges';const material=entry.mesh.material,baseOpacity=material.userData.surfaceOpacity??1,opacity=translucent?Math.min(baseOpacity,.2):technical?Math.min(baseOpacity,.35):baseOpacity,transparent=opacity<1||material.userData.surfaceTextureAlpha===true;if(material.transparent!==transparent)material.needsUpdate=true;material.transparent=transparent;material.opacity=opacity;material.depthWrite=!transparent;for(const edge of entry.edges.children){const selectedEdge=this.topology?.bodyId===id&&this.topology?.type==='edge'&&this.topology.ids.includes(edge.userData.edgeId);edge.material.opacity=metalEdgeOpacity({selected,selectedEdge,translucent,mode:this.mode,finish:entry.mesh.material.userData.metalFinish||'design'});edge.material.transparent=true;}entry.edgeBatch?.invalidate();}this.updateHud();}
   setSelection(ids=[],topology=null){
     this.selected=ids;this.topology=topology;
     for(const [id,entry] of this.objects){const active=ids.includes(id);this.metals.setSelected(entry.mesh.material,active);entry.mesh.material.emissive.set(0x000000);const finish=entry.mesh.material.userData.metalFinish||'design',edgeColor=finish.includes('gold')||finish==='antique-brass'?0x705638:0x465b6e;entry.edges.children.forEach(line=>{const edge=topology?.bodyId===id&&topology?.type==='edge'&&topology.ids.includes(line.userData.edgeId);line.material.color.set(edge?0xf08e2b:active?new THREE.Color(this.displayPreferences.themeColor):edgeColor);line.material.opacity=edge?1:.72;line.material.depthTest=!edge;line.renderOrder=edge?1000:0;});}
@@ -180,7 +181,7 @@ export class CADViewport {
     const az=p.lightAzimuth*Math.PI/180,el=p.lightElevation*Math.PI/180;
     this.studioLights?.[1].position.set(100*Math.cos(el)*Math.cos(az),100*Math.cos(el)*Math.sin(az),100*Math.sin(el));
     this.studioLights?.[2].position.set(-100*Math.cos(az),-100*Math.sin(az),50);
-    for(const [id,entry] of this.objects){entry.mesh.userData.defaultColor=p.defaultColor;entry.mesh.userData.baseColor=this.partColors[id]||p.defaultColor;this.metals.apply(entry.mesh.material,this.partFinishes[id]||key,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor,displayPreferences:p});applyDesignSurface(entry.mesh.material,this.partFinishes[id]||key,this.partSurfaces?.[id]);}
+    for(const [id,entry] of this.objects){entry.mesh.userData.defaultColor=p.defaultColor;entry.mesh.userData.baseColor=this.partColors[id]||p.defaultColor;this.metals.apply(entry.mesh.material,this.partFinishes[id]||key,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor,displayPreferences:p});applyDesignSurface(entry.mesh.material,this.partFinishes[id]||key,this.partSurfaces?.[id]);if(entry.mesh.material.transmission>0){entry.mesh.material.envMap=this.metals.environment||this.metals.studioTarget?.texture||null;entry.mesh.material.envMapIntensity=p.environmentIntensity;}applyBodyTexture(entry,this.partSurfaces?.[id]?.texture,this.surfaceTextureAssets,{anisotropy:Math.min(4,this.renderer.capabilities.getMaxAnisotropy()),onChange:()=>{this.lastFrameKey=null;this.applyTemporaryDisplay();},onError:error=>this.callbacks.onRenderError?.(error)});}
     this.sceneLighting=sceneLightingState(key,this.partFinishes,[...this.objects.keys()].filter(id=>!this.hidden?.includes(id)));
     this.setSelection(this.selected,this.topology);
     return METAL_FINISHES[key].label;

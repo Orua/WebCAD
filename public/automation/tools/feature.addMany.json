@@ -329,7 +329,7 @@
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。api.run 里用 method:addMany（本卡 batchCapable=true，batchMethod=addMany），不要逐步 add。",
   "category": "command",
-  "version": "1.65.0",
+  "version": "1.66.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -989,6 +989,10 @@
         "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
       },
       {
+        "id": "recoverUnsaved",
+        "chooseWhen": "仅在用户明确要求时读取未保存恢复副本元数据，再按固定checkpoint替换当前工程；不是启动提示、撤销或失效Worker恢复。"
+      },
+      {
         "id": "recoverKernel",
         "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
       }
@@ -996,5 +1000,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a8a4fd628b4cf39ab765ae9d4f82af420834e1ba337cc8fa7ffe66e9aa30d2ae"
+  "docsHash": "sha256:25f6241216e990dcc1cbe87c32050658559294babf8c884cd0b97a5b380a3393"
 }

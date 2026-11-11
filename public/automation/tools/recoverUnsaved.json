@@ -1,0 +1,161 @@
+{
+  "id": "recoverUnsaved",
+  "title": "recoverUnsaved",
+  "category": "page-method",
+  "version": "1.66.0",
+  "contextPolicy": "revision",
+  "invocation": "page-method-only",
+  "batchCapable": false,
+  "pageMethodOnly": true,
+  "batchNote": "recoverUnsaved 不能作为 api.run 的 method。请直接调用 api.recoverUnsaved。",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "context": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "documentInstanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "sessionId",
+          "documentId",
+          "documentInstanceId"
+        ]
+      },
+      "apply": {
+        "type": "boolean"
+      },
+      "checkpoint": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "instanceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "savedAt": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "instanceId",
+          "savedAt"
+        ]
+      },
+      "unsaved": {
+        "enum": [
+          "fail",
+          "discard"
+        ]
+      }
+    },
+    "required": [
+      "context"
+    ]
+  },
+  "mcpCall": {
+    "tool": "host-only",
+    "method": "recoverUnsaved",
+    "reason": "explicit user recovery and new document binding, like files.open",
+    "agentCallable": false
+  },
+  "description": "recoverUnsaved({context,apply?:boolean,checkpoint?:{instanceId,savedAt},unsaved?:fail|discard})。默认只读返回available和副本元数据，不返回工程内容；apply:true须指定该checkpoint，当前工程未保存则默认拒绝，明确discard才替换。",
+  "synonyms": [
+    "recoverUnsaved",
+    "恢复",
+    "未保存工程",
+    "checkpoint"
+  ],
+  "inputContract": "recoverUnsaved({context,apply?:boolean,checkpoint?:{instanceId,savedAt},unsaved?:fail|discard})。默认只读返回available和副本元数据，不返回工程内容；apply:true须指定该checkpoint，当前工程未保存则默认拒绝，明确discard才替换。",
+  "outputContract": "status=read/opened、available、checkpoint、name、revision、context。启动不查询恢复存储、不弹出提示。恢复失败保留当前工程；文件菜单与此接口同路。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [],
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
+    "example": {
+      "toolId": "recoverUnsaved",
+      "context": "<live context>",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "history",
+    "groupTitle": "历史、编辑与恢复",
+    "chooseWhen": "仅在用户明确要求时读取未保存恢复副本元数据，再按固定checkpoint替换当前工程；不是启动提示、撤销或失效Worker恢复。",
+    "alternatives": [
+      {
+        "id": "getHistory",
+        "chooseWhen": "列出保留状态 ID；不是完整几何文件，也不会撤销。"
+      },
+      {
+        "id": "history.undo",
+        "chooseWhen": "撤销最近一次已提交操作；不是删除任意历史状态。"
+      },
+      {
+        "id": "history.redo",
+        "chooseWhen": "重做刚被撤销的操作；新编辑可能清空重做栈。"
+      },
+      {
+        "id": "history.restore",
+        "chooseWhen": "恢复明确保留状态 ID 的工程状态，并作为可撤销操作提交；不是清空历史。"
+      },
+      {
+        "id": "feature.edit",
+        "chooseWhen": "修改已有特征参数及依赖重建；使用该特征原 op 的版本/hash。"
+      },
+      {
+        "id": "feature.add",
+        "chooseWhen": "按操作卡新增一个几何特征；不是执行页面方法或 template.* ID。"
+      },
+      {
+        "id": "feature.addMany",
+        "chooseWhen": "一个事务提交多特征计划，保留各特征关系；不是多个独立 run 步骤。"
+      },
+      {
+        "id": "document.parameters",
+        "chooseWhen": "设置命名参数/表达式并联动尺寸；不是显示精度设置。"
+      },
+      {
+        "id": "document.refresh",
+        "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
+      },
+      {
+        "id": "recoverKernel",
+        "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:a801d6d53aa7fb1a4164269656720c03809ebbb7568eacb2966c8fdad08e0b7e"
+}

@@ -4,6 +4,7 @@ const profile=['M3 19V5h7l3 6h8v8Z'];
 const move=['M12 3v18 M3 12h18 M9 6l3-3 3 3 M9 18l3 3 3-3 M6 9l-3 3 3 3 M18 9l3 3-3 3'];
 const rotate=['M4 10a8 8 0 1 1 1 8 M4 4v6h6'];
 export const ACTION_ICONS={
+ resizeBody:['M6 6h12v12H6Z M2 8V2h6 M2 2l6 6 M16 22h6v-6 M22 22l-6-6'],
  markLocation:['M12 22s8-8 8-14a8 8 0 1 0-16 0c0 6 8 14 8 14Z M15 8a3 3 0 1 0-6 0 3 3 0 0 0 6 0'],
  rodJunction:['M3 3v18h4V13a4 4 0 0 1 4-4h10V5H7V3Z'],
  ellipsoid:['M2 12a10 7 0 1 0 20 0 10 7 0 1 0-20 0 M8 12a4 7 0 1 0 8 0 4 7 0 1 0-8 0 M2 12h20'],

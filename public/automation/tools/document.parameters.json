@@ -2,7 +2,7 @@
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.65.0",
+  "version": "1.66.0",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "execute",
@@ -259,6 +259,10 @@
         "chooseWhen": "重建当前工程历史，不回到更早状态、不重启内核。"
       },
       {
+        "id": "recoverUnsaved",
+        "chooseWhen": "仅在用户明确要求时读取未保存恢复副本元数据，再按固定checkpoint替换当前工程；不是启动提示、撤销或失效Worker恢复。"
+      },
+      {
         "id": "recoverKernel",
         "chooseWhen": "重启失效 Worker 并恢复最后已提交工程；不丢弃工程或重放未知写入。"
       },
@@ -274,5 +278,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4bf74fb7e0f68c01d8e9adfaf71e2233b550a64b3c115c81287bfff6bcd02577"
+  "docsHash": "sha256:0ae5e54dd4232af1d984684ff739bc7bf77c4c13b4b81f16c5a3002352949e34"
 }

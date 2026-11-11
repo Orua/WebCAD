@@ -10,6 +10,8 @@ export function progressFraction(progress){
   return Math.min(1,Math.max(0,completed/total));
 }
 // Multi-feature projects advance by feature; a single imported model advances by meshed faces.
+// Kernel completion switches back to indeterminate while the page installs the model.
+// Never show 100% for a result that has not been committed and displayed.
 // Once the feature axis is chosen, surface-mesh batches of one feature no longer move the bar.
 export function createLoadingTracker(){
   let axis=null,value=null;
@@ -18,12 +20,12 @@ export function createLoadingTracker(){
     get value(){return value;},
     update(progress){
       if(!progress||progress.kind!=='rebuild')return value;
-      if(progress.phase==='complete'){if(value!==null)value=1;return value;}
+      if(progress.phase==='complete'){axis='finalizing';value=null;return value;}
       const fraction=progressFraction(progress);if(fraction===null)return value;
       if(progress.phase==='feature'&&Number(progress.total)>1)axis='feature';
       else if(axis===null&&progress.phase==='surface-mesh')axis='surface-mesh';
       if(progress.phase!==axis)return value;
-      value=value===null?fraction:Math.max(value,fraction);
+      value=Math.min(.95,value===null?fraction:Math.max(value,fraction));
       return value;
     }
   };

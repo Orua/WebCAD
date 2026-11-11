@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.65.0",
-  "buildId": "7c098700207aa8451a0b25cba73e7409d03b0bd4-src-d822dd5b7c7d585c",
-  "catalogHash": "sha256:3946f7f0984275ec52aa25e8ad810dcd9c51b99189c4cfcd0117027226f34fef",
-  "docsHash": "sha256:07b90e85414990c6e01410c26d4bf9c2eb4eefccbc88b2dd378b799c894cc323",
+  "pageApiVersion": "1.66.0",
+  "buildId": "453b59f6770d051576b61ed89cab76dce7ea5117-src-cbea771087fc70e7-working",
+  "catalogHash": "sha256:43b7f1b8e3207199789368b05300cf566848b95d030fb949fd398d8768f92492",
+  "docsHash": "sha256:97406c5d8a20ec09625b5ae57e237c9782d5bd622914b6e3ab66dd20c128a52d",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -111,6 +111,13 @@
         "body.appearance"
       ],
       "method": "execute"
+    },
+    "bodySurface": {
+      "tools": [
+        "body.appearance"
+      ],
+      "method": "execute",
+      "usage": "实体外观：透明塑料/玻璃、不透明度、粗糙度及图片投射。body.appearance用显式opacity/transmission/ior/thicknessMm和texture；getState().surface读回资产身份及毫米投射，撤销/工程重开保留。"
     },
     "box": {
       "tools": [
@@ -1180,6 +1187,15 @@
       "method": "setRenderQuality",
       "usage": "显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。"
     },
+    "resizeBody": {
+      "tools": [
+        "transform",
+        "feature.edit",
+        "getState"
+      ],
+      "method": "execute",
+      "usage": "编辑→实体尺寸；单实体世界轴长宽高。feature.add op:transform params:{sizeMm:[X,Y,Z],resizeAnchor:min|center|max},refs:[当前实体ID]，省略placement及其他变换。原始几何保留在上游，feature.edit改同一步参数；getState().bodies[].resizeReport回读实际尺寸。孔和圆角随整件分轴变形，不识别导入件原约束。"
+    },
     "restoreHistory": {
       "tools": [
         "getHistory",
@@ -1187,6 +1203,13 @@
       ],
       "method": "execute",
       "usage": "读取getHistory的stateId后通过history.restore一键恢复完整工程；不能使用当前特征序号替代状态ID。导入资源在保留状态间共享，全部保留状态不再引用后才回收；bytes仅为历史基线和差量大小。"
+    },
+    "restoreRecovery": {
+      "tools": [
+        "recoverUnsaved"
+      ],
+      "method": "recoverUnsaved",
+      "usage": "文件→恢复未保存工程。recoverUnsaved({context})只读取副本元数据；apply:true须指定返回的checkpoint，未保存工程默认拒绝替换，明确unsaved:discard后恢复。启动不查询或弹出恢复。"
     },
     "revolve": {
       "tools": [
@@ -1686,6 +1709,7 @@
     "copySelection": "copySelection",
     "pasteSelection": "pasteSelection",
     "importAtFrame": "登记文件资源 / 导入",
+    "restoreRecovery": "recoverUnsaved",
     "new": "新建工程",
     "open": "打开工程 / 导入",
     "save": "保存工程 / 下载文件 / 写入文件",
@@ -1694,6 +1718,8 @@
     "editFeature": "修改参数 / 特征改名 实体名称",
     "visibility": "显示 隐藏实体",
     "explode": "拆散 / 组合拆散 多实体分解",
+    "resizeBody": "移动 / 旋转 / 修改参数 / getState",
+    "bodySurface": "实体原色 颜色 金属 材质",
     "perPartMetal": "实体原色 颜色 金属 材质",
     "bodyColor": "实体原色 颜色 金属 材质",
     "metalFinish": "工程渲染 金属色",

@@ -427,6 +427,14 @@ PDF页面渲染或渲染底图校验未通过。
 
 代码：`QUEUE_LIMIT`、`RATE_LIMIT`、`STORAGE_LIMIT`
 
+### unclassified
+
+操作未能完成，目前没有足够证据确定安全恢复方式。
+
+保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
+
+代码：`RECOVERY_CHANGED`、`TEXTURE_INVALID`、`UNSAVED_DOCUMENT`
+
 ### recovery-denied
 
 此任务不能从中断位置恢复。
@@ -552,6 +560,7 @@ reviewLogo: contextPolicy=identity
 logoWizard: contextPolicy=identity
 getBatchReceipt: contextPolicy=none
 probeBlendRadius: contextPolicy=identity
+recoverUnsaved: contextPolicy=revision
 recoverKernel: contextPolicy=revision
 sampleMeshRelief: contextPolicy=identity
 getModelLibrary: contextPolicy=none

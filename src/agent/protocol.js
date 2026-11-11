@@ -48,6 +48,7 @@ export const HOST_ONLY_METHODS = Object.freeze({invoke:'dispatch wrapper',submit
   cancelServicesJob:'host server cancellation',decideServicesWait:'host user wait decision',recoverServicesJob:'requires explicit recovery approval',
   prepareReliefTopologyUpgrade:'host-approved saved topology migration planning',
   createRequestContext:'use live requestContext',executeText:'use explicit run steps',getLogoConverter:'service configuration',setLogoConverter:'service credentials',convertLogoPdf:'host binary conversion',
+  recoverUnsaved:'explicit user recovery and new document binding, like files.open',
   'files.register':'host binary upload','files.read':'host artifact transport','files.download':'host download','files.write':'host disk capability',
   'files.confirmWritten':'host write receipt','files.release':'host resource lifetime','files.new':'requires new document binding','files.open':'requires new document binding'});
 const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,
