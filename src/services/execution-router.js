@@ -29,6 +29,17 @@ const descriptions={
  'local-operation-unsupported':'当前本地执行器不支持此简单操作'
 };
 export function routingDescription(reason){return descriptions[reason]??reason;}
+// Explain the rejected transaction without changing executor eligibility.
+export function complexBatchError(feature,classification,{downstream=false}={}){
+ const message=downstream
+  ?'来源变更会重建下游复杂运算；请先核对依赖，完成来源修改后按顺序重新执行受影响的复杂操作。原工程保持。'
+  :'新建批次包含需顺序执行的复杂操作；请先提交目标和刀具等来源，再单独执行该操作。原工程保持。';
+ return Object.assign(new Error(message),{code:'COMPLEX_BATCH_REQUIRES_SEQUENTIAL',featureId:feature.id,details:{
+  reason:downstream?'downstream-complex-rebuild':'new-complex-batch',operation:feature.op,featureId:feature.id,
+  complexity:{reasons:[...classification.reasons],inputs:classification.input},
+  suggestedAction:downstream?'REPLAN_AFFECTED_DEPENDENCIES':'COMMIT_SOURCES_THEN_ADD_OPERATION'
+ }});
+}
 export function tbdForOperation(input={}){
  const complexity=classifyComplexity(input);
  return tbd.operations.find(row=>row.enabled===false&&(row.operation===input.operation&&!row.semanticVersion||row.operation===input.operation&&row.semanticVersion===input.semanticVersion&&(complexity.complex||input.explicitRemote===true)))??null;

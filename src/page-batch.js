@@ -79,7 +79,7 @@ export function createPageBatch(api,{display,revisionStamp}={}){
         unattemptedStepIds:(Array.isArray(input?.steps)?input.steps:[]).filter(step=>typeof step?.id==='string'&&!attempted.has(step.id)).map(step=>step.id)},
       recovery:status==='completed'?null:{action:status==='unknown'?'INSPECT_STATE_BEFORE_RETRY':'READ_STATE_AND_REPLAN_REMAINING',
         message:'Earlier committed steps remain. Read current state; do not recreate them. Use a new key for a revised remainder. An identical request/key only retrieves the original receipt.'},
-      ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message||String(error)||'Batch step failed',...(error.path?{path:error.path}:{}),...(error.commitState?{commitState:error.commitState}:{}),...(error.jobId||error.pageJobId?{jobId:error.jobId||error.pageJobId}:{}),...(error.requestId?{requestId:error.requestId}:{}),...(error.featureId?{featureId:error.featureId}:{}),...(error.affectedFeatureIds?{affectedFeatureIds:error.affectedFeatureIds,changedFeatureIds:error.changedFeatureIds}:{}),...(error.recoveryAction?{recoveryAction:error.recoveryAction}: {})}}:{}),
+      ...(error?{error:{code:error.code||'BATCH_FAILED',message:error.message||String(error)||'Batch step failed',...(error.path?{path:error.path}:{}),...(error.commitState?{commitState:error.commitState}:{}),...(error.jobId||error.pageJobId?{jobId:error.jobId||error.pageJobId}:{}),...(error.requestId?{requestId:error.requestId}:{}),...(error.featureId?{featureId:error.featureId}:{}),...(error.details?{details:error.details}:{}),...(error.affectedFeatureIds?{affectedFeatureIds:error.affectedFeatureIds,changedFeatureIds:error.changedFeatureIds}:{}),...(error.recoveryAction?{recoveryAction:error.recoveryAction}: {})}}:{}),
       elapsedMs:Math.round(performance.now()-startedAt),context:s.context,bodyBounds:touchedBounds(s),
       summary:s.summary,display:s.display,
       displayMatchesContext:s.display?.status==='rendered'&&['documentId','documentInstanceId','revision'].every(k=>s.display.rendered?.[k]===s.context[k])});
@@ -134,9 +134,11 @@ export function createPageBatch(api,{display,revisionStamp}={}){
       const receiptRoom=makeReceiptRoom();if(!receiptRoom&&!standaloneRecoverySave)bad('RESOURCE_LIMIT','100 unresolved batch receipts; inspect or reconcile an existing result before starting another');
       const resolved=Object.create(null);
       const alias=/^(?:\$\{[A-Za-z_][\w.-]{0,80}\}|\$[A-Za-z_][\w.-]{0,80}|step:[A-Za-z_][\w.-]{0,80}|#[A-Za-z_][\w.-]{0,80}|@[A-Za-z_][\w.-]{0,80})$/;
-      const resolve=value=>{
-        if(typeof value==='string'&&alias.test(value))bad('STALE_REFERENCE',`字符串 ${value} 不是批内引用。同批请用对象 {"$ref":"步骤id.createdBodyIds.0"}，例如 {"$ref":"wave_1.createdBodyIds.0"}。美元符号、step:、井号、@ 这些字符串别名都不会解析。`);
-        if(Array.isArray(value))return value.map(resolve);
+      // Alias diagnostics belong to object references, not colors or user text.
+      const referenceFields=new Set(['refs','bodyId','bodyIds','featureId','featureIds','sourceId','sourceIds','targetId','targetIds']);
+      const resolve=(value,reference=false)=>{
+        if(reference&&typeof value==='string'&&alias.test(value))bad('STALE_REFERENCE',`字符串 ${value} 不是批内引用。同批请用对象 {"$ref":"步骤id.createdBodyIds.0"}，例如 {"$ref":"wave_1.createdBodyIds.0"}。美元符号、step:、井号、@ 这些字符串别名都不会解析。`);
+        if(Array.isArray(value))return value.map(item=>resolve(item,reference));
         if(!plain(value))return value;
         if(Object.hasOwn(value,'$ref')){
           keys(value,['$ref']);if(typeof value.$ref!=='string')bad('STALE_REFERENCE','Invalid result reference');
@@ -147,7 +149,7 @@ export function createPageBatch(api,{display,revisionStamp}={}){
           }
           return structuredClone(result);
         }
-        return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,resolve(v)]));
+        return Object.fromEntries(Object.entries(value).map(([k,v])=>[k,resolve(v,referenceFields.has(k))]));
       };
       started=true;
       // One display upload/UI refresh for the whole batch instead of per step.
