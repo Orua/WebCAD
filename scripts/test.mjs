@@ -66,7 +66,7 @@ const groups = {
     'rounding-adaptive', 'round-tool-kernel', 'end-rounding-kernel',
     'material-join','quick-hardware','face-machining','quick-hardware-integration',
     'mechanical-tools-integration','profile-solid-features','direct-modeling-tools','helical-tools',
-    'arched-bridge','edge-blend','relief-fillet-261024-v2','mill-fillet-fallback','edge-picking','hanging-rod','key-ring','mushroom-rivet',
+    'arched-bridge','edge-blend','r9-fillet-regressions','relief-fillet-261024-v2','mill-fillet-fallback','edge-picking','hanging-rod','key-ring','mushroom-rivet',
     'nipple-stud','pull-core-bar','section-curve-loft','two-piece-eyelet','quick-installation-models',
     'agent-profile-contract',
     'drag-snap','drag-snap-controller','render-quality','display-budget-kernel','profile-edit','profile-editing','profile-primitives','profile-inspection','fit-inspection','thickness-inspection','relation-measure','relation-sample','boolean-roles','hole-wizard','draft-tools',
