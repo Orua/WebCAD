@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.66.1 · 操作目录 sha256:f40417026eff3caa31df907a4f0a074a7ae0f2686d20f510a99a56bd3d76a677
+API 1.67.0 · 操作目录 sha256:fc4f0a15e1b9646a2a55148194ba7cfb17fe6f5490f0181e6ae8d240fce8d0bf
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 

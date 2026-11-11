@@ -2,7 +2,7 @@
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.66.1",
+  "version": "1.67.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -195,5 +195,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:df536a43f4e9c3e82e27c162659a0b3d748695234d920bbb3ad0b863b43b0cc4"
+  "docsHash": "sha256:f48b04cef8ea4f42575ec69f7d2f9c5b81c9f4a89f30b79f1a4c625450560d62"
 }

@@ -1,4 +1,16 @@
 {
+  "round9FilletAcceptance": {
+    "localImpact": "Fillet/round/autoRound/smoothTransition/rounding v3: all-or-nothing mill fallback, verifyBlendAcceptance (selected edges rounded, body scope zero sharp edges, face count/volume sanity), global mill feasibility, ordered retry ladder, verified maxFeasibleRadiusMm suggestion (radiusFallback:maxFeasible opt-in), NO_CHANGE without sharp edges, unified edge/face/body/mixed selection, polishing expand:none default.",
+    "servicesImpact": "None: services/** unchanged; local WASM only.",
+    "logoImpact": "None: no logo or relief source changes.",
+    "contractImpact": "Page API 1.67.0; fillet mixed edgeIds+faceIds union, cornerClosure, radiusFallback; round allEdges and curved faceIds; smoothTransition faceIds minItems 1; rounding v3 expand; NO_CHANGE for fillet/autoRound/smoothTransition; unified blendReport receipt.",
+    "documentImpact": "Existing documents rebuild with the same parameters; results that used to commit as partial/wrong mill geometry now fail on rebuild instead (reported, source preserved).",
+    "cacheImpact": "Regenerate complete knowledge bundle and frontend identity in one candidate build.",
+    "requiredTests": [
+      "tests/r9-fillet-regressions.test.mjs (87-case probe failures)",
+      "edge-blend, mill-fillet-fallback, round-tool, smooth-transition, rounding-polishing contract and kernel suites"
+    ]
+  },
   "batchReferenceAndRoutingDiagnostics": {
     "localImpact": "Batch alias validation applies only to object reference fields; literal colors and user text pass unchanged to existing command validation. Distinguish newly added complex batches from affected downstream rebuilds.",
     "servicesImpact": "None: existing complexity thresholds, executor selection and source-commit requirements remain unchanged; no backend runtime update.",
