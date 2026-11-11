@@ -29,3 +29,12 @@ test('build identity changes for source bytes and paths, stays stable for regene
     assert(fingerprintBuildInputs(root).paths.includes('src/untracked.js'));
   }finally{rmSync(root,{recursive:true,force:true});}
 });
+
+test('post-build commits accept identical content but reject changed source and forged identities',async()=>{
+ const {assertBuildSourceIdentity}=await import('../scripts/build-identity.mjs');
+ const recorded={commit:'a'.repeat(40),edition:'integrated',sourceHash:'b'.repeat(64),sourceFileCount:10,dirty:true,buildId:'a'.repeat(40)+'-src-'+ 'b'.repeat(16)+'-working'};
+ const current={...recorded,commit:'c'.repeat(40),dirty:false,buildId:'c'.repeat(40)+'-src-'+ 'b'.repeat(16)};
+ assert.equal(assertBuildSourceIdentity(recorded,current),recorded);
+ for(const change of [{sourceHash:'d'.repeat(64)},{edition:'public'},{sourceFileCount:11}])assert.throws(()=>assertBuildSourceIdentity(recorded,{...current,...change}));
+ assert.throws(()=>assertBuildSourceIdentity({...recorded,buildId:'forged'},current));
+});
