@@ -366,7 +366,7 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
  if(downstream)throw complexBatchError(downstream,classifyChanged(downstream),{downstream:true});
  if(!feature){
   const pending=changed.find(row=>!row.compiledCheckpoint&&tbdForOperation({operation:row.op,semanticVersion:compiledSemanticVersion(row),params:row.params,source:sourceSummary(row),pattern:patternComplexity(row)}));
-  if(pending)throw serviceError('OPERATION_TBD','TBD：该运算尚未完成验收，已禁用，原工程保留。');
+  if(pending)throw serviceError('OPERATION_TBD','TBD：该运算尚未完成验收，已禁用。');
   const complex=changed.find(row=>classifyChanged(row).complex);
   if(servicesAvailable&&complex)throw complexBatchError(complex,classifyChanged(complex),{downstream:records.has(complex.id)});
   return {next};
@@ -387,7 +387,7 @@ async function routeChangedFeature(next,{signal,expectedRevision,featureId,expli
   base.source.preexistingBoundaryRound=inspected.plan.candidate===true;
  }
  const classification=classifyComplexity(base);
- const pending=tbdForOperation(base);if(pending){publish(chooseExecutor(base));throw serviceError('OPERATION_TBD','TBD：'+pending.label+'尚未完成验收，已禁用，原工程保留。');}
+ const pending=tbdForOperation(base);if(pending){publish(chooseExecutor(base));throw serviceError('OPERATION_TBD','TBD：'+pending.label+'尚未完成验收，已禁用。');}
  if(!servicesAvailable||!classification.complex&&!explicitRemote&&!designServices||classification.input.routingClass==='local-only'||classification.input.capacityGate==='bounded-local-mesh-contract'){
   const decision=chooseExecutor(base);publish(decision);
   if(decision.executor==='blocked')throw serviceError('SERVICES_OPERATION_UNAVAILABLE',decision.reason);

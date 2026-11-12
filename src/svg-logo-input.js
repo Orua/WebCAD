@@ -62,11 +62,37 @@ function flattenBezier(points,tol,out,depth=0){
   let row=points,left=[row[0]],right=[row.at(-1)];while(row.length>1){row=row.slice(1).map((p,i)=>midpoint(row[i],p));left.push(row[0]);right.unshift(row.at(-1));}
   flattenBezier(left,tol,out,depth+1);flattenBezier(right,tol,out,depth+1);
 }
+/** three.js EllipseCurve sweep, normalized to (0, 2π]. aClockwise selects the long way when start≈end. */
+export function ellipseCurveSweep(curve){
+  const twoPi=2*Math.PI;
+  let delta=curve.aEndAngle-curve.aStartAngle;
+  const same=Math.abs(delta)<1e-12;
+  while(delta<0)delta+=twoPi;
+  while(delta>twoPi)delta-=twoPi;
+  if(delta<1e-12)delta=same?0:twoPi;
+  if(curve.aClockwise===true&&!same)delta=delta===twoPi?-twoPi:delta-twoPi;
+  const sweep=Math.abs(delta);
+  return sweep<1e-12?twoPi:sweep;
+}
 function flattenCurve(curve,tol,out){
   if(curve.isLineCurve){out.push(xy(curve.v2));return;}
   if(curve.isQuadraticBezierCurve){flattenBezier([xy(curve.v0),xy(curve.v1),xy(curve.v2)],tol,out);return;}
   if(curve.isCubicBezierCurve){flattenBezier([xy(curve.v0),xy(curve.v1),xy(curve.v2),xy(curve.v3)],tol,out);return;}
-  if(curve.isEllipseCurve){let sweep=Math.abs(curve.aEndAngle-curve.aStartAngle);if(sweep<1e-10)sweep=2*Math.PI;const radius=Math.max(Math.abs(curve.xRadius),Math.abs(curve.yRadius));const segments=Math.max(4,Math.ceil(sweep/Math.max(1e-5,2*Math.acos(Math.max(-1,1-tol/Math.max(radius,tol))))));if(segments>12000)fail('圆弧细分超过顶点预算');for(let i=1;i<=segments;i++)out.push(xy(curve.getPoint(i/segments)));return;}
+  if(curve.isEllipseCurve){
+    const sweep=ellipseCurveSweep(curve),radius=Math.max(Math.abs(curve.xRadius),Math.abs(curve.yRadius));
+    const segments=Math.max(4,Math.ceil(sweep/Math.max(1e-5,2*Math.acos(Math.max(-1,1-tol/Math.max(radius,tol))))));
+    if(segments>12000)fail('圆弧细分超过顶点预算');
+    const first=out.length?out.at(-1):xy(curve.getPoint(0));
+    const points=[];for(let i=1;i<=segments;i++)points.push(xy(curve.getPoint(i/segments)));
+    let prev=first;
+    for(let i=0;i<points.length;i++){
+      const curr=points[i],mid=xy(curve.getPoint((i+0.5)/segments));
+      if(lineDistance(mid,prev,curr)>tol+1e-9)fail(`圆弧离散偏差超过声明容差（${tol}，实际约 ${lineDistance(mid,prev,curr).toFixed(4)}）`);
+      prev=curr;
+    }
+    out.push(...points);
+    return;
+  }
   fail('不支持的路径曲线');
 }
 function flattenPath(path,tol){const out=[];for(const curve of path.curves){if(!out.length)out.push(xy(curve.getPoint(0)));flattenCurve(curve,tol,out);if(out.length>12001)fail('单个轮廓超过 2000 顶点');}if(out.length>1&&dist(out[0],out.at(-1))<1e-7)out.pop();return out;}

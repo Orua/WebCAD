@@ -2,7 +2,7 @@
   "id": "getMaterials",
   "title": "getMaterials",
   "category": "page-method",
-  "version": "1.68.0",
+  "version": "1.69.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -68,5 +68,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:291e00eab620b7a0238e3636ef2f6af03899a7981ccae448592279b9f9bc55be"
+  "docsHash": "sha256:b48775f6499372dcb9768a1182245498e3d7026c6e83796ff2e8513d253aeb2c"
 }

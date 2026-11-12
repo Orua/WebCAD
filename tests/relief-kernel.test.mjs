@@ -192,3 +192,22 @@ test('constant cylindrical height agrees with the analytic annular-sector volume
   }finally{dispose(result);dispose(source);}
  }
 });
+
+test('planar smooth relief with zero heights inside a contour keeps one solid by applying the minimum base',()=>{
+  const source=cad.makeBox([-20,-15,0],[20,15,6]);let result;
+  const values=Array.from({length:9},(_,j)=>Array.from({length:9},(_,i)=>i<3||j<3?0:1));
+  try{
+    result=buildRelief(source,{faceId:faceIndex(source,[0,0,1]),widthMm:20,heightMm:16,depthMm:3,surfaceMode:'smooth',values,regions:[{outer:[[-.4,-.4],[.4,-.4],[.4,.4],[-.4,.4]]}]},oc,cad);
+    valid(result);
+    assert.ok((result.reliefReport.baseMm??0)>=.005);
+    assert.ok((result.reliefReport.addedMm3||0)>0);
+  }finally{dispose(result);dispose(source);}
+});
+
+test('a layered startHeight with no supporting lower layer fails before the boolean',()=>{
+  const source=cad.makeBox([-10,-10,0],[10,10,6]);
+  const region={outer:[[-.3,-.3],[.3,-.3],[.3,.3],[-.3,.3]]};
+  try{
+    assert.throws(()=>buildRelief(source,{faceId:faceIndex(source,[0,0,1]),widthMm:10,heightMm:10,depthMm:1,layers:[{name:'a',heightMm:.4,regions:[region]},{name:'b',heightMm:1.2,startHeightMm:1,regions:[region]}]},oc,cad),e=>e.code==='RELIEF_INVALID'&&/缺少支撑/.test(e.message));
+  }finally{dispose(source);}
+});
