@@ -13,7 +13,7 @@ for(const op of ['faceHole','faceExtrude']){assert(reason(op,faces(0)));assert.e
 assert.equal(reason('remove',{...state,selectedIds:['a','b']}),'');
 assert.equal(reason('extractShell',{...state,selectedIds:['a'],bodies:[{id:'a',shellCount:1}]}),'');
 assert(reason('extractShell',{...state,selectedIds:['a'],bodies:[{id:'a',shellCount:0}]}));
-assert(reason('smoothTransition',faces(1)));assert.equal(reason('smoothTransition',faces(2)),'');
+assert.equal(reason('smoothTransition',faces(1)),'');assert.equal(reason('smoothTransition',faces(2)),'');// R9: one face = its boundary
 assert(reason('extractSolid',{...state,selectedIds:['a']}));assert.equal(reason('extractSolid',{...state,selectedIds:['b']}),'');
 assert(reason('box',{...state,busy:true}));assert(reason('quickModel',{...state,kernelReady:false}));
 assert.equal(reason('box',state),'');assert(reason('measure',{...state,bodies:[]}));

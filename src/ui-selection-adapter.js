@@ -4,7 +4,13 @@ export function adaptUISelection(op, input, refs, topology) {
   if(op==='round'&&params.edgeIds===undefined&&params.faceIds===undefined&&topology?.bodyId===refs[0]&&topology.type==='face'&&topology.ids?.length){
     params.faceIds=[...topology.ids];
   }
-  if(['round','roundEnd'].includes(op)&&params.edgeIds===undefined&&params.faceIds===undefined){
+  // R9-P1: selecting only the body means "round every sharp edge" for 圆润.
+  if(op==='round'&&params.edgeIds===undefined&&params.faceIds===undefined&&params.allEdges===undefined){
+    if(topology?.bodyId===refs[0]&&topology.type==='edge'&&topology.ids?.length)params.edgeIds=[...topology.ids];
+    else if(refs.length===1&&(!topology||topology.bodyId!==refs[0]||!topology.ids?.length))params.allEdges=true;
+    else throw new Error('请选择要圆润的边、面，或只选中整个实体。');
+  }
+  if(op==='roundEnd'&&params.edgeIds===undefined&&params.faceIds===undefined){
     if(topology?.bodyId!==refs[0]||topology.type!=='edge'||!topology.ids?.length)throw new Error('请先选择需要圆润的端部边。');
     params.edgeIds=[...topology.ids];
   }
@@ -41,6 +47,8 @@ export function adaptUISelection(op, input, refs, topology) {
     }
     return params;
   }
+  // R9-P1: fillet with only the body selected rounds every sharp edge.
+  if(op==='fillet'&&refs.length===1&&params.edgeIds===undefined&&params.faceIds===undefined&&params.allEdges===undefined&&params.selector===undefined&&(!topology||topology.bodyId!==refs[0]||!topology.ids?.length))return {...params,allEdges:true};
   if(!topology || topology.bodyId!==refs[0])return params;
   if(op==='smoothTransition'&&params.faceIds===undefined&&topology.type==='face')params.faceIds=[...topology.ids];
   if(op==='extractFaces'&&(!Array.isArray(params.faceIds)||!params.faceIds.length)&&topology.type==='face')params.faceIds=[...topology.ids];

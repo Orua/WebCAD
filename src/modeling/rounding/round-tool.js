@@ -1,7 +1,6 @@
 import * as cad from 'replicad';
 import {buildEndRounding} from './end-rounding.js';
 import {buildEdgeBlend} from '../../edge-blend.js';
-import {millComplementaryFillet,radiusFitsAdjacentFaces} from './mill-fillet-fallback.js';
 import {topologyDetails} from './topology.js';
 
 const dispose=x=>{try{x?.delete?.();}catch{}};
@@ -12,19 +11,26 @@ const xyz='XYZ';
 export function planRoundTool(shape,p){
  const edges=shape.edges,faces=p.faceIds?shape.faces:[],box=shape.boundingBox,owned=[...edges,...faces,box],bounds=box.bounds;
  try{
-  if(Boolean(p.edgeIds)===Boolean(p.faceIds))fail('请选择边或平面边界中的一种范围。','SELECTION_CONFLICT');
+  if(Number(Boolean(p.edgeIds))+Number(Boolean(p.faceIds))+Number(p.allEdges===true)!==1)fail('请选择边、面或整个实体中的一种范围。','SELECTION_CONFLICT');
   let edgeIds=p.edgeIds,faceBudgetMm;
+  if(p.allEdges===true){
+   // R9-P1: body scope = every sharp edge; no sharp edge is NO_CHANGE, not a failure.
+   if(p.mode==='end'||p.depthMm!==undefined||p.directionEdgeId!==undefined)fail('整件圆润仅支持边缘模式。','PARAM_SCHEMA_INVALID');
+   edgeIds=topologyDetails(shape).filter(row=>row.sharp).map(row=>row.edgeId);
+   if(!edgeIds.length)throw Object.assign(new Error('实体没有锐边，无需修改，原模型保持不变。'),{code:'NO_CHANGE',recoveryAction:'NONE'});
+  }
   if(p.faceIds){
-   if(!p.faceIds.length||p.faceIds.some(id=>!Number.isInteger(id)||!faces[id]))fail('请重新选择当前实体的平面。','STALE_REFERENCE');
+   if(!p.faceIds.length||p.faceIds.some(id=>!Number.isInteger(id)||!faces[id]))fail('请重新选择当前实体的面。','STALE_REFERENCE');
    if(p.mode==='end'||p.depthMm!==undefined||p.directionEdgeId!==undefined)fail('按面边界圆润仅支持边缘模式。','PARAM_SCHEMA_INVALID');
-   if(p.faceIds.some(id=>faces[id].geomType!=='PLANE'))fail('按面边界圆润需要真实平面，请选择字母顶面。','ROUND_SELECTION_AMBIGUOUS');
+   // R9-P1: planar and curved faces both resolve to their whole boundary.
    const selected=new Set(p.faceIds),rows=topologyDetails(shape);
    edgeIds=rows.filter(row=>row.adjacentFaceIds.some(id=>selected.has(id))).map(row=>row.edgeId);
    if(!edgeIds.length||edgeIds.length>1000)fail('面边界为空或超过本次圆润的 1000 条边预算。','SIZE_LIMIT');
+   if(!rows.some(row=>edgeIds.includes(row.edgeId)&&row.sharp))throw Object.assign(new Error('所选面的边界没有锐边，无需修改，原模型保持不变。'),{code:'NO_CHANGE',recoveryAction:'NONE'});
    const spans=[];
    for(const row of rows.filter(row=>edgeIds.includes(row.edgeId)&&row.sharp)){
     const topId=row.adjacentFaceIds.find(id=>selected.has(id)),wallId=row.adjacentFaceIds.find(id=>!selected.has(id));
-    if(wallId===undefined)continue;
+    if(wallId===undefined||faces[topId].geomType!=='PLANE')continue;
     const normal=faces[topId].normalAt();let n;try{n=normal.toTuple();}finally{dispose(normal);}
     const stations=[];
     for(const vertex of cad.iterTopo(faces[wallId].wrapped,'vertex')){
@@ -32,7 +38,7 @@ export function planRoundTool(shape,p){
     }
     const span=Math.max(...stations)-Math.min(...stations);if(Number.isFinite(span)&&span>1e-5)spans.push(span);
    }
-   if(spans.length)faceBudgetMm=Math.min(...spans)*.12;
+   if(spans.length)faceBudgetMm=Math.min(...spans)*.24;
   }
   if(!edgeIds?.length||edgeIds.some(id=>!Number.isInteger(id)||!edges[id]))fail('请重新选择当前实体的边。','STALE_REFERENCE');
   const dims=bounds[1].map((v,i)=>v-bounds[0][i]);
@@ -50,14 +56,16 @@ export function planRoundTool(shape,p){
   const end=bounds[direction===1?1:0][axisIndex],reach=direction===1?end-lo:hi-end;
   const elongated=dims[axisIndex]>Math.max(...across.map(i=>dims[i]))*1.5;
   const terminal=reach<minor*.8&&hi-lo<minor*.8;
-  const mode=p.faceIds?'edge':p.mode&&p.mode!=='auto'?p.mode:(elongated&&terminal?'end':'edge');
+  const mode=p.faceIds||p.allEdges===true?'edge':p.mode&&p.mode!=='auto'?p.mode:(elongated&&terminal?'end':'edge');
   if(mode==='edge'){
    if(p.depthMm!==undefined)fail('端头范围仅用于重建圆头，请选择圆头方式或清除范围。','PARAM_SCHEMA_INVALID');
-   const base=Math.min(p.faceIds?(faceBudgetMm??Math.min(...dims)*.1):Math.min(...edgeIds.map(id=>cad.measureLength(edges[id])))*.12,Math.min(...dims)*.1);
+   // R9-P1: the old automatic radius (≈R1 on a 40×30×20 box) looked like no change.
+   const base=p.faceIds||p.allEdges===true?Math.min(faceBudgetMm??Infinity,Math.min(...dims)*.2):Math.min(Math.min(...edgeIds.map(id=>cad.measureLength(edges[id])))*.4,Math.min(...dims)*.3);
    const radius=p.radiusMm??base*(p.strength??.5);
    if(!(radius>1e-5))fail('选边太短，无法推荐可用圆角。','GEOMETRY_INVALID');
-   return {mode,requestedMode:p.mode??'auto',resolved:{...(p.faceIds?{faceIds:[...p.faceIds]}:{edgeIds:[...edgeIds]}),radius},
+   return {mode,requestedMode:p.mode??'auto',resolved:{...(p.faceIds?{faceIds:[...p.faceIds]}:p.allEdges===true?{allEdges:true}:{edgeIds:[...edgeIds]}),radius},
     ...(p.faceIds?{scope:{kind:'face-boundaries',faceIds:[...p.faceIds],edgeIds:[...edgeIds]},recommendation:'measured-support-depth; exact radius is never reduced; holes remain part of the selected face boundary'}:{}),
+    ...(p.allEdges===true?{scope:{kind:'body',edgeIds:[...edgeIds]},recommendation:'smallest-body-dimension; exact radius is never reduced'}:{}),
     control:{kind:'strength',min:.1,max:1,value:p.strength??.5},radiusMm:radius};
   }
   if(!terminal&&!p.depthMm)fail('选边不能明确定位杆件端部；请选端部边或在高级设置指定处理深度。');
@@ -90,18 +98,9 @@ export function buildRoundTool(input,p){
  const source=cad.deserializeShape(input.serialize()).asShape3D();
  try{
   const plan=planRoundTool(source,p);
-  let result;
-  try{
-   result=plan.mode==='end'?buildEndRounding(source,plan.resolved):buildEdgeBlend(source,'fillet',plan.resolved,{suggestRadius:false,allowOversizedMill:false});
-  }catch(nativeError){
-   if(plan.mode==='end')throw nativeError;
-   // buildEdgeBlend already tries mill; if it still threw, attempt explicit mill on resolved edges.
-   const ids=plan.resolved?.edgeIds||[];
-   const radiusMm=plan.resolved.radius??p.radiusMm;
-   if(!ids.length||!radiusFitsAdjacentFaces(source,ids,radiusMm))throw nativeError;
-   const mill=millComplementaryFillet(source,{edgeIds:ids,radiusMm});
-   result=mill.shape;result.blendReport={version:1,operation:'fillet',stage:'completed',strategy:'mill-complementary-r-fallback',attemptCount:2,millReports:mill.reports,nativeFailure:nativeError?.message||null};
-  }
+  // R9-P0: no unvalidated mill here. buildEdgeBlend owns every fallback and
+  // its acceptance; a failure carries maxFeasibleRadiusMm as a suggestion.
+  const result=plan.mode==='end'?buildEndRounding(source,plan.resolved):buildEdgeBlend(source,'fillet',plan.resolved,{suggestRadius:true,allowOversizedMill:false});
   result.roundReport={version:1,...plan,endRoundingReport:result.endRoundingReport??null,blendReport:result.blendReport??null,attemptCount:result.blendReport?.attemptCount??1};
   return result;
  }finally{source.delete();}
@@ -115,7 +114,7 @@ export function inspectRoundTool(input,p){
   const selected=new Set(ids),faces=source.faces,edges=source.edges;
   try{
    const targets=topologyDetails(source,{connectivityOnly:true}).filter(row=>selected.has(row.edgeId)).map(row=>({edgeId:row.edgeId,curveType:edges[row.edgeId].geomType,normalContinuity:'not-assessed',adjacentFaceIds:row.adjacentFaceIds,supportSurfaceTypes:row.adjacentFaceIds.map(id=>faces[id].geomType)}));
-   return {version:1,operation:'round',stage:'planning',attemptCount:0,elapsedMs:performance.now()-started,...plan,targetCount:ids.length,targets,constructionCategories:[plan.mode==='end'?'principal-axis-end-reconstruction':'native-constant-radius-edge-blend'],feasibility:'not-proven',limitations:['planning-does-not-construct-a-blend','no-radius-search','face-scope-requires-analytic-planes','analytic-fallback-not-selected-by-round']};
+   return {version:1,operation:'round',stage:'planning',attemptCount:0,elapsedMs:performance.now()-started,...plan,targetCount:ids.length,targets,constructionCategories:[plan.mode==='end'?'principal-axis-end-reconstruction':'native-constant-radius-edge-blend'],feasibility:'not-proven',limitations:['planning-does-not-construct-a-blend','planning-does-not-search-radius; failed builds report maxFeasibleRadiusMm','planar-and-curved-face-boundaries','body-scope-all-sharp-edges']};
   }finally{[...faces,...edges].forEach(dispose);}
  }catch(error){error.report={operation:'round',stage:'planning',attemptCount:0,elapsedMs:performance.now()-started,sourcePreserved:true};throw error;}
  finally{dispose(source);}

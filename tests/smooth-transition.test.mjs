@@ -13,7 +13,9 @@ const allFaces=shape=>{const faces=shape.faces;try{return faces.map((_,i)=>i);}f
 test('strict face group contract and UI selection agree',()=>{
   assert.equal(getOperation('smoothTransition').v2Executable,true);
   assert.deepEqual(normalizeOperationParams('smoothTransition',{radius:.1,faceIds:[0,1]}),{radius:.1,faceIds:[0,1]});
-  for(const faceIds of [[0],[0,0]])assert.throws(()=>normalizeOperationParams('smoothTransition',{radius:.1,faceIds}));
+  // R9: one face is accepted (its whole sharp boundary); duplicates still reject.
+  assert.deepEqual(normalizeOperationParams('smoothTransition',{radius:.1,faceIds:[0]}),{radius:.1,faceIds:[0]});
+  for(const faceIds of [[0,0],[]])assert.throws(()=>normalizeOperationParams('smoothTransition',{radius:.1,faceIds}));
   assert.throws(()=>normalizeOperationParams('smoothTransition',{radius:.1,faceIds:[0,1],allEdges:true}));
   assert.deepEqual(adaptUISelection('smoothTransition',{radius:.1},['s'],{bodyId:'s',type:'face',ids:[0,1]}),{radius:.1,faceIds:[0,1]});
 });

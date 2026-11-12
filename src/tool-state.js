@@ -26,7 +26,7 @@ export function toolDisabledReason(action,state){
  const faces=topology?.type==='face'&&topology.bodyId===state.selectedIds[0]?topology.ids.length:0;
  if(['offsetSurface','thread','faceGroove','innerTurn','outerTurn'].includes(action)&&faces!==1)return '切换到选面，选择一张当前面';
  if(action==='draftByPlane'&&!faces)return '切换到选面，选择要拔模的面';
- if(action==='smoothTransition'&&(count!==1||faces<2))return '切换到选面，按 Ctrl 选择至少两个相邻面';
+ if(action==='smoothTransition'&&(count!==1||faces<1))return '切换到选面，选择一个面（处理其边界）或按 Ctrl 选择多个相邻面';
  if(['badge','tap','faceHole','faceExtrude','curvedLogo','thickenFace','faceBoundary'].includes(action)&&faces!==1)return '切换到选面，然后选择一个面';
  if(action==='extractFaces'&&!faces)return '切换到选面，然后选择一个或多个面';
  if(action==='shell'&&!faces)return '切换到选面，选择需要移除的开口面';

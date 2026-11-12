@@ -54,21 +54,51 @@ function faceReach(face,origin,direction){
   }
   return reach;
 }
-function planarEdgeFits(edges,faces,row,radiusMm){
+// R9: the complementary-R cutter is a prism along one straight edge between two
+// planes. It cannot close vertex blends or follow curved support, so the gate is
+// global: curved edges/faces never fit, selected edges meeting at a real corner
+// never fit, and fillets on opposite edges of one face must not overlap.
+function planarEdgeSection(edges,faces,row,radiusMm){
   const edge=edges[row.edgeId],[faceA,faceB]=row.adjacentFaceIds.map(id=>faces[id]);
-  if(!edge||edge.geomType!=='LINE'||faceA?.geomType!=='PLANE'||faceB?.geomType!=='PLANE'||!row.midpoint)return true;
-  let section;
-  try{section=sectionAt(faceA,faceB,row.midpoint,unit(sub(row.endPoint,row.startPoint)),radiusMm);}catch{return false;}
-  const tangent=radiusMm/Math.tan(section.theta/2);
-  const reach=Math.min(faceReach(faceA,row.midpoint,section.dA),faceReach(faceB,row.midpoint,section.dB));
-  return tangent<reach-1e-4;
+  if(!edge||edge.geomType!=='LINE'||faceA?.geomType!=='PLANE'||faceB?.geomType!=='PLANE'||!row.midpoint)return {reason:'curved-edge-or-support'};
+  const T=unit(sub(row.endPoint,row.startPoint));let section;
+  try{section=sectionAt(faceA,faceB,row.midpoint,T,radiusMm);}catch{return {reason:'material-side-or-angle'};}
+  const tangent=radiusMm/Math.tan(section.theta/2),perRadius=1/Math.tan(section.theta/2);
+  const reachA=faceReach(faceA,row.midpoint,section.dA),reachB=faceReach(faceB,row.midpoint,section.dB);
+  return {T,section,tangent,perRadius,reach:[reachA,reachB],faceIds:row.adjacentFaceIds,dirs:[section.dA,section.dB]};
+}
+export function millFeasibility(shape,edgeIds,radiusMm){
+  if(!Array.isArray(edgeIds)||!edgeIds.length||!(radiusMm>0))return {fits:false,reasons:['empty-selection'],limitMm:null};
+  const rows=topologyDetails(shape),edges=shape.edges,faces=shape.faces,reasons=[],items=[];let limit=Infinity;
+  try{
+    for(const edgeId of [...new Set(edgeIds)]){
+      const row=rows.find(item=>item.edgeId===edgeId);
+      if(!row?.sharp||row.adjacentFaceIds.length!==2){reasons.push(`edge ${edgeId}: not-a-two-face-sharp-edge`);continue;}
+      const info=planarEdgeSection(edges,faces,row,radiusMm);
+      if(info.reason){reasons.push(`edge ${edgeId}: ${info.reason}`);continue;}
+      const own=Math.min(...info.reach)/info.perRadius;limit=Math.min(limit,own);
+      if(!(info.tangent<Math.min(...info.reach)-1e-4))reasons.push(`edge ${edgeId}: tangent-band-exceeds-face`);
+      items.push({edgeId,row,...info});
+    }
+    for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++){
+      const a=items[i],b=items[j];
+      const shared=[a.row.startPoint,a.row.endPoint].some(p=>[b.row.startPoint,b.row.endPoint].some(q=>norm(sub(p,q))<1e-5));
+      const turn=Math.acos(Math.min(1,Math.abs(dot(a.T,b.T))))*180/Math.PI;
+      if(shared&&turn>15)reasons.push(`edges ${a.edgeId}/${b.edgeId}: corner-needs-vertex-blend`);
+      for(const [ia,fa] of a.faceIds.entries())for(const [ib,fb] of b.faceIds.entries()){
+        if(fa!==fb)continue;
+        const da=a.dirs[ia],db=b.dirs[ib];
+        if(Math.abs(dot(a.T,b.T))<.999||dot(da,db)>-.999)continue;
+        const gap=dot(sub(b.row.midpoint,a.row.midpoint),da);
+        if(gap>0){limit=Math.min(limit,gap/(a.perRadius+b.perRadius));if(!(a.tangent+b.tangent<gap-1e-4))reasons.push(`edges ${a.edgeId}/${b.edgeId}: opposite-fillets-overlap-on-face-${fa} (gap ${gap.toFixed(4)} mm)`);}
+      }
+    }
+  }finally{edges.forEach(dispose);faces.forEach(dispose);}
+  return {fits:!reasons.length,reasons,limitMm:Number.isFinite(limit)?limit:null};
 }
 // Every fillet, including a single requested edge, must stay inside both adjacent faces.
 export function radiusFitsAdjacentFaces(shape,edgeIds,radiusMm){
-  if(!Array.isArray(edgeIds)||!edgeIds.length||!(radiusMm>0))return true;
-  const rows=topologyDetails(shape),edges=shape.edges,faces=shape.faces;
-  try{return edgeIds.every(edgeId=>{const row=rows.find(item=>item.edgeId===edgeId);return !row?.sharp||row.adjacentFaceIds.length!==2||planarEdgeFits(edges,faces,row,radiusMm);});}
-  finally{edges.forEach(dispose);faces.forEach(dispose);}
+  return millFeasibility(shape,edgeIds,radiusMm).fits;
 }
 function localHalfExtent(shape){
   const box=shape.boundingBox;

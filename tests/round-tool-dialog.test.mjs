@@ -61,7 +61,7 @@ test('planar face selection sends full-face scope and keeps exact radius control
   s.pick([12],'face');await pause();
   const p=s.calls.find(c=>c.action==='preview').p.params;
   assert.deepEqual(p.faceIds,[12]);assert.equal(p.edgeIds,undefined);assert.equal(p.mode,'edge');
-  assert(s.byName('已圆润平面完整边界（含孔边），实际 R 0.200 mm。'));
+  assert(s.byName('已圆润所选面的完整边界（含孔边），实际 R 0.200 mm。'));
   await s.byName('更换位置').click();assert.equal(s.calls.at(-1).p.mode,'face');
  }finally{s.d._onClose();}
 });

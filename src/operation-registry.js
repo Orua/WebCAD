@@ -51,7 +51,7 @@ function schemaFor(id, source) {
   }
   if (!migrated.has(id)) return schema;
   for (const [key, value] of Object.entries(defaults[id]||{})) schema.properties[key].default = value;
-  if(id==='round')schema.oneOf=[{required:['edgeIds']},{required:['faceIds']}];
+  if(id==='round')schema.oneOf=[{required:['edgeIds']},{required:['faceIds']},{required:['allEdges'],properties:{allEdges:{const:true}}}];
   if (id === 'fillet' || id === 'chamfer') {
     schema.properties.edgeIds.minItems = 1;
     schema.properties.edgeIds.uniqueItems = true;
@@ -171,6 +171,7 @@ function buildCard(id, source) {
       ...(id==='meshReliefEdit'?['RELIEF_SOURCE_UNSUPPORTED','RELIEF_EDIT_CAPACITY','RELIEF_EDIT_VERSION','RELIEF_SUPPORT_INVALID','RELIEF_REGION_INVALID','RELIEF_CONSTRAINT_INVALID','RELIEF_GEOMETRY_INVALID','RELIEF_NOT_CLOSED','RELIEF_SELECTION_AMBIGUOUS','RELIEF_BOUNDARY_CONFLICT','RELIEF_MULTIVALUED','RELIEF_THICKNESS_UNKNOWN','RELIEF_INTERSECTION','RELIEF_THICKNESS','STALE_REFERENCE','NO_CHANGE']:[]),
       ...(id==='reliefShoulder'?['SERVICES_CONFIG_REQUIRED','SERVICES_CAPABILITY_UNAVAILABLE','RELIEF_SHOULDER_UNSUPPORTED','SOURCE_HASH_MISMATCH','NATIVE_BRIDGE_FAILED']:[]),
       ...(id==='round'?['ROUND_SELECTION_AMBIGUOUS','END_ROUNDING_UNSUPPORTED','KERNEL_BUILD_FAILED','NO_CHANGE','STALE_REFERENCE']:[]),
+      ...(['fillet','autoRound','smoothTransition'].includes(id)?['NO_CHANGE']:[]),
       ...(id==='roundEnd'?['END_ROUNDING_UNSUPPORTED','KERNEL_BUILD_FAILED','NO_CHANGE']:[]),
       ...(topology.has(id) ? ['SELECTION_CONFLICT', 'STALE_REFERENCE', 'UNSAFE_LEGACY_REFERENCE'] : []),
       ...(id==='rounding'?['AMBIGUOUS_SELECTION','SCOPE_EXPANSION_REQUIRED','KERNEL_BUILD_FAILED','MATERIAL_CHECK_FAILED']:[]),
@@ -251,7 +252,9 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
   }
   if (op === 'fillet' || op === 'chamfer') {
     const scopes = Number(Object.hasOwn(params, 'edgeIds')) + Number(Object.hasOwn(params, 'faceIds')) + Number(params.allEdges === true);
-    if (scopes > 1) contractError('SELECTION_CONFLICT', 'params', 'Choose exactly one of edgeIds, faceIds, or allEdges=true.');
+    // R9: fillet accepts edgeIds+faceIds as a union (mixed selection); allEdges stays exclusive; chamfer keeps one scope.
+    const mixedFillet = op === 'fillet' && params.allEdges !== true && scopes === 2;
+    if (scopes > 1 && !mixedFillet) contractError('SELECTION_CONFLICT', 'params', op === 'fillet' ? 'allEdges=true cannot be combined with edgeIds or faceIds; edgeIds+faceIds is a union.' : 'Choose exactly one of edgeIds, faceIds, or allEdges=true.');
     if(params.sharedFaces===true&&!(params.faceIds?.length>=2))contractError('SELECTION_CONFLICT','params.sharedFaces','sharedFaces=true requires at least two adjacent faceIds.');
   }
   if(allowMissingMachiningIntent)schema.required=(schema.required||[]).filter(key=>key!=='machiningIntent');

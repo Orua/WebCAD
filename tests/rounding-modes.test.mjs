@@ -14,7 +14,10 @@ test('body, face boundary and edge scopes share strict API validation',()=>{
   assert.deepEqual(normalizeOperationParams('chamfer',{distance:0.3,edgeIds:[0]}),{distance:0.3,edgeIds:[0]});
   assert.deepEqual(normalizeOperationPatch('fillet',{radius:0.3,allEdges:true},{faceIds:[5]}),{radius:0.3,faceIds:[5]});
   assert.deepEqual(normalizeOperationPatch('fillet',{radius:0.3,faceIds:[5]},{allEdges:true}),{radius:0.3,allEdges:true});
-  assert.throws(()=>normalizeOperationParams('fillet',{radius:0.3,faceIds:[5],edgeIds:[0]}),e=>e.code==='SELECTION_CONFLICT');
+  // R9: fillet edgeIds+faceIds is a union (mixed selection); allEdges stays exclusive; chamfer keeps one scope.
+  assert.deepEqual(normalizeOperationParams('fillet',{radius:0.3,faceIds:[5],edgeIds:[0]}),{radius:0.3,faceIds:[5],edgeIds:[0]});
+  assert.throws(()=>normalizeOperationParams('fillet',{radius:0.3,allEdges:true,edgeIds:[0]}),e=>e.code==='SELECTION_CONFLICT');
+  assert.throws(()=>normalizeOperationParams('chamfer',{distance:0.3,faceIds:[5],edgeIds:[0]}),e=>e.code==='SELECTION_CONFLICT');
   assert.throws(()=>normalizeOperationParams('fillet',{radius:0.3,faceIds:[]}),e=>e.code==='PARAM_RANGE_INVALID');
   assert.throws(()=>normalizeOperationParams('fillet',{radius:0.3,allEdges:false}),e=>e.code==='PARAM_SCHEMA_INVALID');
 });

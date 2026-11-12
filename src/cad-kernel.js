@@ -64,7 +64,7 @@ import { buildReferenceExtrude } from './reference-profile-extrude.js';
 import { buildReferenceLoft } from './reference-profile-loft.js';
 import { buildSmoothTransition } from './smooth-transition.js';
 import {buildBadge} from './modeling/manufacturing/badge-tool.js';
-import { buildEdgeBlend } from './edge-blend.js';
+import { buildEdgeBlend ,buildSelectorFillet} from './edge-blend.js';
 import {patternOutput} from './modeling/organization/pattern-output.js';
 import {buildRoundTool,inspectRoundTool} from './modeling/rounding/round-tool.js';
 import {buildEndRounding} from './modeling/rounding/end-rounding.js';
@@ -735,11 +735,13 @@ export class CadKernel {
         const shape = source(), amount = positive(p, feature.op === 'fillet' ? 'radius' : 'distance');
         if((p.selector||p.blendLaw)&&feature.op==='fillet'){
           const selector=p.selector??(p.edgeIds?.length?{edgeIds:p.edgeIds}:p.faceIds?.length?{faceIds:p.faceIds}:p.allEdges===true?{allEdges:true}:null);
-          return buildBlendRadius(shape,{selector,radiusMm:amount,blendLaw:p.blendLaw,context:blendContext(shape)});
+          return buildSelectorFillet(shape,{selector,radiusMm:amount,blendLaw:p.blendLaw,context:blendContext(shape),scope:p.allEdges===true&&!p.selector?'body':'edges'});
         }
         const scopes=Number(!!p.edgeIds?.length)+Number(!!p.faceIds?.length)+Number(p.allEdges===true);
-        if(scopes!==1)throw new Error('圆角/倒角必须明确选择边、面边界或整个实体的全部边');
-        return buildEdgeBlend(shape,feature.op,p);
+        // R9: fillet accepts edges+faces as a union; allEdges stays exclusive. Chamfer keeps one scope.
+        const mixedFillet=feature.op==='fillet'&&scopes===2&&p.allEdges!==true;
+        if(scopes!==1&&!mixedFillet)throw new Error('圆角/倒角必须明确选择边、面边界或整个实体的全部边');
+        return buildEdgeBlend(shape,feature.op,p,{suggestRadius:feature.op==='fillet'});
       }
       case 'shell': return buildShell(source(),p,this.oc,cad);
       case 'remove': if (!sources.length) throw new Error('请选择要删除的实体'); return null;

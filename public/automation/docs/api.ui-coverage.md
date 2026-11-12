@@ -830,7 +830,7 @@
       "feature.edit"
     ],
     "method": "execute",
-    "usage": "统一圆润：edgeIds 或 faceIds 二选一。界面可选择边缘或平面边界；faceIds 解析完整外边及孔边，最多1000条边，scope读回实际范围，只支持边缘模式。边缘用 strength 或原值 radiusMm；按面自动大小参考侧壁深度，不用最短碎边。端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm；松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交；不自动填孔或修来源轮廓。"
+    "usage": "统一圆润：edgeIds、faceIds 或 allEdges:true 三选一。界面可选择边缘、面（平面或曲面）完整边界或「整个实体」；只选中实体时等于 allEdges:true（全部锐边）。faceIds 解析完整外边及孔边，最多1000条边，scope读回实际范围，只支持边缘模式。没有锐边返回 NO_CHANGE；失败报告 blendReport.maxFeasibleRadiusMm 建议半径，不自动应用。边缘用 strength 或原值 radiusMm；按面自动大小参考侧壁深度，不用最短碎边。端头用自动推荐或 depthMm。鼠标拖动截面手柄等价 preview.update 修改 depthMm；松手预览一次。查看原形等价 preview.cancel，返回预览用 preview.start。必须核对范围后提交；不自动填孔或修来源轮廓。"
   },
   "fillet": {
     "tools": [
@@ -842,7 +842,7 @@
       "preview.cancel"
     ],
     "method": "execute",
-    "usage": "标准数值圆角：查询当前实体边或面，feature.add op=fillet，refs:[当前实体ID]，params:{radius:明确半径mm,edgeIds:[当前边号]}。也可明确 faceIds；多面仅处理公共锐边时设置 sharedFaces:true，或 allEdges:true 处理整个实体，三种范围互斥。可先预览再提交，也可直接应用；历史 feature.edit 修改 radius 从来源重建。返回 blendReport 的 processedEdgeIds、skippedTangentEdgeIds 与实际处理尺寸；失败不提交。无需自动打磨参数或求解相关网络。"
+    "usage": "标准数值圆角：查询当前实体边或面，feature.add op=fillet，refs:[当前实体ID]，params:{radius:明确半径mm,edgeIds:[当前边号]}。也可明确 faceIds；单面＝其完整边界（平面或曲面）；多面仅处理公共锐边时设置 sharedFaces:true；edgeIds 与 faceIds 可同时给出（并集）；allEdges:true 处理整个实体，不能与其它范围同用；界面只选实体时默认勾选整个实体。可先预览再提交，也可直接应用；历史 feature.edit 修改 radius 从来源重建。返回 blendReport 的 status、processedEdgeIds、failedEdgeIds、remainingSharpEdgeIds、radiusPerEdge、skippedTangentEdgeIds、expandedEdgeIds、attempts 与 maxFeasibleRadiusMm；验收要求所选边全部变圆、整件不留锐边，否则不提交（不会部分成功）。失败报告给出 failureReason 与经实际试算的 maxFeasibleRadiusMm（仅建议；radiusFallback:\"maxFeasible\" 才应用）。无锐边返回 NO_CHANGE。无需自动打磨参数或求解相关网络。"
   },
   "rounding": {
     "tools": [
@@ -854,7 +854,7 @@
       "preview.cancel"
     ],
     "method": "execute",
-    "usage": "先查询当前来源实体的锐边。自动打磨使用 specVersion:3 和 scope:{kind:edges,edgeIds:[当前边号]}；不需要 sizeMm。可选 strength 为 (0,1] 比例，默认 1。相关边与面允许局部跟随；先核对预览 roundingReport.region 的 sourceBodyId、requestedEdgeIds、expandedEdgeIds 和 affectedFaceIds，再提交同一份预览。feature.edit 修改 strength 从上游重新求解。旧 specVersion:1/2 特征按原参数与语义重算，不能转换为打磨。"
+    "usage": "先查询当前来源实体的锐边。自动打磨使用 specVersion:3 和 scope:{kind:edges,edgeIds:[当前边号]}；不需要 sizeMm。可选 strength 为 (0,1] 比例，默认 1。默认 expand:\"none\" 只打磨所选边；只有连同相连锐边网才能完成时返回 SCOPE_EXPANSION_REQUIRED 并列出 proposedExpandedEdgeIds，设置 expand:\"network\" 才允许扩展；先核对预览 roundingReport.region 的 sourceBodyId、requestedEdgeIds、expandedEdgeIds 和 affectedFaceIds，再提交同一份预览。feature.edit 修改 strength 从上游重新求解。旧 specVersion:1/2 特征按原参数与语义重算，不能转换为打磨。"
   },
   "roundEnd": {
     "tools": [

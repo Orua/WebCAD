@@ -48,7 +48,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Detect every sharp edge including holes and lettering, skip tangent seams and solve together. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Detect every sharp edge including holes and lettering, skip tangent seams and solve together. A body without sharp edges (sphere, torus, already fully rounded) returns NO_CHANGE. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result.",
   "title": "整件圆边 / Round every sharp edge of one solid",
   "category": "modification",
   "synonyms": [
@@ -58,7 +58,7 @@
     "auto Round operation"
   ],
   "description": "整件圆边 / Round every sharp edge of one solid",
-  "schemaHash": "sha256:87faa92279ffe94694ca7d5a2f99d89c16f11fa6bf1f69619d5d36fc1e409b0c",
+  "schemaHash": "sha256:3c6c45e14e9fc22f41b59b3d605f17d69bffd95db5788d7ff99abe87481f0386",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -119,7 +119,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
+    "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. A body without sharp edges (sphere, torus, already fully rounded) returns NO_CHANGE. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -161,7 +161,8 @@
     "SCHEMA_MISMATCH",
     "CAPABILITY_UNAVAILABLE",
     "GEOMETRY_INVALID",
-    "SIZE_LIMIT"
+    "SIZE_LIMIT",
+    "NO_CHANGE"
   ],
   "recoveryActions": [
     "CORRECT_PARAMETERS",
@@ -186,7 +187,7 @@
   "contract": {
     "purpose": "整件圆边 / Round every sharp edge of one solid",
     "whenToUse": [
-      "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
+      "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. A body without sharp edges (sphere, torus, already fully rounded) returns NO_CHANGE. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
     ],
     "whenNotToUse": [
       {
@@ -277,6 +278,11 @@
         "code": "SIZE_LIMIT",
         "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
         "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "NO_CHANGE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
       }
     ],
     "examples": {
@@ -335,7 +341,7 @@
   },
   "purpose": "整件圆边 / Round every sharp edge of one solid",
   "whenToUse": [
-    "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
+    "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. A body without sharp edges (sphere, torus, already fully rounded) returns NO_CHANGE. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
   ],
   "whenNotToUse": [
     {
@@ -395,6 +401,11 @@
     },
     {
       "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "NO_CHANGE",
       "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
       "recovery": "读取当前工具卡并修正参数或来源"
     }
@@ -702,5 +713,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:cd6a70e64ddfa405cbda6448016de541265adee79eed3cb089f58699c46c824f"
+  "docsHash": "sha256:c383adae90e87e9915f085cca4bd4d61c6a9d4d946bedfb8cbb4e335cb1c4d4a"
 }
