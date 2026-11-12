@@ -2,6 +2,8 @@ import * as cad from 'replicad';
 import {topologyDetails} from './modeling/rounding/topology.js';
 import {millComplementaryFillet,millFeasibility} from './modeling/rounding/mill-fillet-fallback.js';
 import {validateRoundingResult,verifyBlendAcceptance} from './modeling/rounding/validation.js';
+import {tryUpgradeSmallerBlends} from './modeling/rounding/upgrade-existing-blends.js';
+import {tryTubeKnuckleRebuild} from './modeling/rounding/tube-knuckle-fillet.js';
 import {buildBlendRadius} from './blend-radius.js';
 
 const dispose=value=>{try{value?.delete();}catch{}};
@@ -145,10 +147,18 @@ function assertSingleSolid(shape){
 }
 
 function buildOwnedFillet(shape,params,{suggestRadius=false,allowOversizedMill=true}={}) {
-  const started=performance.now(),scope=blendScopeOf(params),requestedSelection=requestedSelectionOf(params);let selected;
-  try{assertSingleSolid(shape);selected=blendTargets(shape,params);}catch(error){error.report={version:1,operation:'fillet',stage:'selection',strategy:'native',attemptCount:0,elapsedMs:performance.now()-started,cause:error.code==='NO_CHANGE'?'no-sharp-edges':'selection-rejected',targetCount:0,scope,requestedSelection,...(error.report||{})};throw error;}
-  const amount=params.radius,oc=cad.getOC(),{targets,rows,skipped,skippedOneSided=[]}=selected,targetIds=targets.map(row=>row.edgeId);
-  const edges=shape.edges,faces=shape.faces,attempts=[];
+  const started=performance.now(),scope=blendScopeOf(params),requestedSelection=requestedSelectionOf(params),amount=params.radius;
+  let work=shape,upgrade=null;
+  if(params.allEdges){
+    try{upgrade=tryUpgradeSmallerBlends(shape,amount);}catch{upgrade=null;}
+    if(upgrade?.shape)work=upgrade.shape;
+  }
+  let selected;
+  try{assertSingleSolid(work);selected=blendTargets(work,params);}catch(error){
+    if(work!==shape)dispose(work);
+    error.report={version:1,operation:'fillet',stage:'selection',strategy:'native',attemptCount:0,elapsedMs:performance.now()-started,cause:error.code==='NO_CHANGE'?'no-sharp-edges':'selection-rejected',targetCount:0,scope,requestedSelection,...(error.report||{})};throw error;}
+  const oc=cad.getOC(),{targets,rows,skipped,skippedOneSided=[]}=selected,targetIds=targets.map(row=>row.edgeId);
+  const edges=work.edges,faces=work.faces,attempts=[];
   const attempt=(strategy,fn)=>{
     const t0=performance.now();
     try{const out=fn();attempts.push({strategy,ok:true,elapsedMs:performance.now()-t0});if(out?.blendReport){out.blendReport.attemptCount=attempts.length;out.blendReport.elapsedMs=performance.now()-started;}return out;}
@@ -158,7 +168,7 @@ function buildOwnedFillet(shape,params,{suggestRadius=false,allowOversizedMill=t
   const report=(result,strategy,acceptance,extra={})=>({version:1,operation:'fillet',status:'committed',stage:'completed',strategy,attemptCount:attempts.length,attempts,elapsedMs:performance.now()-started,dimensionKind:'radius',requestedAmountMm:amount,amount:extra.actualRadiusMm??amount,scope,requestedSelection,
     processedEdgeIds:targetIds,failedEdgeIds:[],remainingSharpEdgeIds:acceptance.remainingSharpEdgeIds,remainingSharpEdgeCount:acceptance.remainingSharpEdgeCount,
     radiusPerEdge:[...targetIds.map(edgeId=>({edgeId,radiusMm:extra.actualRadiusMm??amount})),...(extra.expanded||[]).map(edgeId=>({edgeId,radiusMm:(extra.actualRadiusMm??amount)*.5,expanded:true}))],
-    skippedTangentEdgeIds:skipped,skippedOneSidedEdgeIds:skippedOneSided,expandedEdgeIds:extra.expanded||[],maxFeasibleRadiusMm:extra.maxFeasibleRadiusMm??null,acceptance:{solid:acceptance.solid,selectedEdgesRounded:acceptance.selectedEdgesRounded,resultFaceCount:acceptance.resultFaceCount,deltaVolumeMm3:acceptance.deltaVolumeMm3,...(acceptance.warning?{warning:acceptance.warning}:{}),...(acceptance.priorBlendKept?{priorBlendKept:true}:{})},...(acceptance.warning?{warning:acceptance.warning}:{}),...(skippedOneSided.length?{warning:`已跳过无法取得两侧法向的边 ${skippedOneSided.join(', ')}，并对其余 ${targetIds.length} 条锐边做圆角。`} :{}),...extra.more});
+    skippedTangentEdgeIds:skipped,skippedOneSidedEdgeIds:skippedOneSided,expandedEdgeIds:extra.expanded||[],maxFeasibleRadiusMm:extra.maxFeasibleRadiusMm??null,acceptance:{solid:acceptance.solid,selectedEdgesRounded:acceptance.selectedEdgesRounded,resultFaceCount:acceptance.resultFaceCount,deltaVolumeMm3:acceptance.deltaVolumeMm3,...(acceptance.warning?{warning:acceptance.warning}:{}),...(acceptance.priorBlendKept?{priorBlendKept:true}:{})},...(acceptance.warning?{warning:acceptance.warning}:{}),...(skippedOneSided.length?{warning:`已跳过无法取得两侧法向的边 ${skippedOneSided.join(', ')}，并对其余 ${targetIds.length} 条锐边做圆角。`} :{}),...(upgrade?.report?{priorBlendUpgrade:upgrade.report,upgradedPriorBlends:true}:{}),...extra.more});
   try{
     // Kinked chains: OCCT can report success with poor joins; prefer the mill
     // cutter when the global feasibility gate allows it (straight planar edges,
@@ -167,11 +177,11 @@ function buildOwnedFillet(shape,params,{suggestRadius=false,allowOversizedMill=t
     const kinkedSelected=targets.filter(t=>kinkedIds.has(t.edgeId)).length;
     const allKinked=targets.length>=1&&kinkedSelected===targets.length;
     const mostlyKinked=targets.length>=2&&kinkedSelected>=Math.ceil(targets.length*0.5);
-    const feasibility=millFeasibility(shape,targetIds,amount);
+    const feasibility=millFeasibility(work,targetIds,amount);
     const millAllowed=feasibility.fits&&allowOversizedMill!==false;
     const mill=(label)=>{
-      const out=millComplementaryFillet(shape,{edgeIds:targetIds,radiusMm:amount});
-      try{const acceptance=acceptFillet(shape,out.shape,oc,targetIds,scope);
+      const out=millComplementaryFillet(work,{edgeIds:targetIds,radiusMm:amount});
+      try{const acceptance=acceptFillet(work,out.shape,oc,targetIds,scope);
         out.shape.blendReport=report(out.shape,'mill-complementary-r-fallback',acceptance,{more:{millReports:out.reports,nativeFailure:label,kinkedEdgeIds:[...kinkedIds]}});return out.shape;}
       catch(error){dispose(out.shape);throw error;}
     };
@@ -181,8 +191,8 @@ function buildOwnedFillet(shape,params,{suggestRadius=false,allowOversizedMill=t
     }
     // ① native: the whole target set in one Build.
     const whole=attempt('native-whole-set',()=>{
-      const result=nativeFillet(shape,targets.map(row=>edges[row.edgeId]),()=>amount,oc);
-      try{const acceptance=acceptFillet(shape,result,oc,targetIds,scope);result.blendReport=report(result,'native',acceptance);return result;}
+      const result=nativeFillet(work,targets.map(row=>edges[row.edgeId]),()=>amount,oc);
+      try{const acceptance=acceptFillet(work,result,oc,targetIds,scope);result.blendReport=report(result,'native',acceptance);return result;}
       catch(error){dispose(result);throw error;}
     });
     if(whole)return whole;
@@ -194,20 +204,20 @@ function buildOwnedFillet(shape,params,{suggestRadius=false,allowOversizedMill=t
     const groups=retryGroups(faces,targets);
     if(groups.length>1){
       const out=attempt('native-ordered-groups',()=>{
-        let current=shape;
+        let current=work;
         try{
           for(const group of groups){
             const ids=remapSharpEdges(current,edges,group.rows);
             if(!ids.length)continue;
             const currentEdges=current.edges;
             let next;try{next=nativeFillet(current,ids.map(id=>currentEdges[id]),()=>amount,oc);}finally{currentEdges.forEach(dispose);}
-            if(current!==shape)dispose(current);current=next;
+            if(current!==work)dispose(current);current=next;
           }
-          if(current===shape)fail('分组重试没有可处理的边');
-          const acceptance=acceptFillet(shape,current,oc,targetIds,scope);
+          if(current===work)fail('分组重试没有可处理的边');
+          const acceptance=acceptFillet(work,current,oc,targetIds,scope);
           current.blendReport=report(current,'native-ordered-groups',acceptance,{more:{groups:groups.map(g=>({kind:g.kind,edgeIds:g.rows.map(r=>r.edgeId)}))}});
-          const output=current;current=shape;return output;
-        }finally{if(current!==shape)dispose(current);}
+          const output=current;current=work;return output;
+        }finally{if(current!==work)dispose(current);}
       });
       if(out)return out;
     }
@@ -217,16 +227,35 @@ function buildOwnedFillet(shape,params,{suggestRadius=false,allowOversizedMill=t
       if(extra.length){
         const out=attempt('native-corner-closure',()=>{
           const list=[...targets,...extra].map(row=>edges[row.edgeId]);
-          const result=nativeFillet(shape,list,i=>i<targets.length?amount:amount*.5,oc);
-          try{const acceptance=acceptFillet(shape,result,oc,targetIds,scope);result.blendReport=report(result,'native-corner-closure',acceptance,{expanded:extra.map(r=>r.edgeId)});return result;}
+          const result=nativeFillet(work,list,i=>i<targets.length?amount:amount*.5,oc);
+          try{const acceptance=acceptFillet(work,result,oc,targetIds,scope);result.blendReport=report(result,'native-corner-closure',acceptance,{expanded:extra.map(r=>r.edgeId)});return result;}
           catch(error){dispose(result);throw error;}
         });
         if(out)return out;
       }
     }
-    // ④ failure: compute a verified maximum radius as a suggestion.
+    // ④ polyline circular-tube knuckles: rebuild miters as torus elbows, then fillet the caps.
+    if(params.allEdges){
+      const out=attempt('tube-spine-corner-rebuild',()=>{
+        const rebuilt=tryTubeKnuckleRebuild(work,amount);
+        if(!rebuilt?.shape)fail('不是可重建的折线圆管，或折角半径放不下');
+        let caps,capEdges,result;
+        try{
+          caps=blendTargets(rebuilt.shape,{allEdges:true});
+          capEdges=rebuilt.shape.edges;
+          try{result=nativeFillet(rebuilt.shape,caps.targets.map(row=>capEdges[row.edgeId]),()=>amount,oc);}
+          finally{capEdges.forEach(dispose);}
+          const acceptance=acceptFillet(work,result,oc,targetIds,scope);
+          result.blendReport=report(result,'tube-spine-corner-rebuild',acceptance,{more:{tubeRebuild:rebuilt.report,priorBlendUpgrade:upgrade?.report||null}});
+          dispose(rebuilt.shape);
+          const output=result;result=null;return output;
+        }catch(error){dispose(result);dispose(rebuilt.shape);throw error;}
+      });
+      if(out)return out;
+    }
+    // ⑤ failure: compute a verified maximum radius as a suggestion.
     const doSearch=suggestRadius||params.radiusFallback==='maxFeasible';
-    const search=doSearch?searchMaxFeasibleRadius(shape,targets,edges,amount,scope,oc,feasibility.limitMm):null;
+    const search=doSearch?searchMaxFeasibleRadius(work,targets,edges,amount,scope,oc,feasibility.limitMm):null;
     let maxR=search?.maxFeasibleRadiusMm??null;
     let groupSearch=null;
     if(doSearch&&maxR===null&&targets.length>1){
@@ -234,14 +263,14 @@ function buildOwnedFillet(shape,params,{suggestRadius=false,allowOversizedMill=t
       // Probe connected groups so the receipt can still name a feasible radius or the failing location.
       const groups=retryGroups(faces,targets);groupSearch=[];
       for(const group of groups){
-        const sub=searchMaxFeasibleRadius(shape,group.rows,edges,amount,'edges',oc,feasibility.limitMm,1500);
+        const sub=searchMaxFeasibleRadius(work,group.rows,edges,amount,'edges',oc,feasibility.limitMm,1500);
         groupSearch.push({kind:group.kind,edgeIds:group.rows.map(row=>row.edgeId),maxFeasibleRadiusMm:sub.maxFeasibleRadiusMm,attempts:sub.attempts});
         dispose(sub.shape);
       }
     }
     if(maxR!==null&&params.radiusFallback==='maxFeasible'&&search.shape){
       const result=search.shape;search.shape=null;
-      const acceptance=acceptFillet(shape,result,oc,targetIds,scope);
+      const acceptance=acceptFillet(work,result,oc,targetIds,scope);
       result.blendReport=report(result,'native-max-feasible-radius',acceptance,{actualRadiusMm:maxR,maxFeasibleRadiusMm:maxR,more:{radiusReduced:true,radiusSearch:{attempts:search.attempts,method:search.method}}});
       return result;
     }
@@ -264,7 +293,7 @@ function buildOwnedFillet(shape,params,{suggestRadius=false,allowOversizedMill=t
       supportGeometry:targets.slice(0,32).map(row=>({edgeId:row.edgeId,faceIds:row.adjacentFaceIds,surfaceTypes:row.adjacentFaceIds.map(id=>faces[id].geomType)})),
       radiusProbe:{requested:doSearch,attemptCount:search?.attempts.length||0,applied:false,sampledRadiusMm:maxR}};
     throw Object.assign(new Error(`圆角 R${amount} mm 无法完成（${causeText}），${failedIds.length?'失败边':'目标边'}：${failedEdgeIds.slice(0,24).join(', ')}${failedEdgeIds.length>24?' …':''}。${remaining.length?`结果仍有 ${remaining.length} 条锐边。`:''}${suggestion}${continuity}原模型保留，没有提交部分结果。`),{code:'GEOMETRY_INVALID',recoveryAction:'CORRECT_PARAMETERS',report:errorReport,...(nativeError?.message?{millFallbackMessage:attempts.find(a=>a.strategy.startsWith('mill'))?.message}:{})});
-  }finally{edges.forEach(dispose);faces.forEach(dispose);}
+  }finally{edges.forEach(dispose);faces.forEach(dispose);if(work!==shape)dispose(work);}
 }
 
 function buildOwnedChamfer(shape,params) {

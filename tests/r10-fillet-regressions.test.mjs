@@ -89,18 +89,48 @@ test('I-03 selected-only rounding polishes the chosen edges; mixed convex/concav
   }finally{polished?.delete();tee?.delete();stem.delete();bar.delete();}
 });
 
-test('I-04 failing curved-support fillets still search and report a feasible radius or the attempt',()=>{
-  const a=cad.makeCylinder(5,20),b=cad.makeCylinder(5,20,[8,0,0]);let fused,r;
+function makeSweepTube(){
+  const points=[[0,0,0],[0,0,20],[20,0,30],[40,0,30]];
+  const edges=[];let wire,plane,drawing,sketch;
   try{
-    fused=robustUnion([a,b]);
+    for(let i=1;i<points.length;i++)edges.push(cad.makeLine(points[i-1],points[i]));
+    wire=cad.assembleWire(edges);
+    const t=points[1].map((v,k)=>v-points[0][k]),len=Math.hypot(...t),n=t.map(v=>v/len);
+    const seed=Math.abs(n[0])<.9?[1,0,0]:[0,1,0],dot=seed.reduce((s,v,i)=>s+v*n[i],0),x=seed.map((v,i)=>v-dot*n[i]);
+    plane=new cad.Plane(points[0],x,n);
+    drawing=cad.drawCircle(3);
+    sketch=drawing.sketchOnPlane(plane);
+    return cad.genericSweep(sketch.wire,wire,{frenet:false,transitionMode:'right'});
+  }finally{[sketch,drawing,plane,wire,...edges].forEach(v=>{try{v?.delete?.();}catch{}});}
+}
+function cylinderRadii(shape){
+  const oc=cad.getOC(),faces=shape.faces,out=[];
+  try{
+    for(const face of faces){
+      if(face.geomType!=='CYLINDRE')continue;
+      const adaptor=new oc.BRepAdaptor_Surface(face.wrapped,false);
+      try{out.push(adaptor.Cylinder().Radius());}finally{adaptor.delete?.();}
+    }
+    return out;
+  }finally{faces.forEach(face=>face.delete?.());}
+}
+
+test('I-04 polyline circular-tube all-edges fillet rebuilds the mitered knuckles or fails honestly',()=>{
+  const tube=makeSweepTube();let r;
+  try{
     try{
-      r=buildEdgeBlend(fused,'fillet',{radius:1,allEdges:true},{suggestRadius:true});
+      r=buildEdgeBlend(tube,'fillet',{radius:1,allEdges:true},{suggestRadius:true});
       assert.equal(r.blendReport.status,'committed');
+      assert.equal(sharpCount(r),0);
+      assert.equal(r.blendReport.remainingSharpEdgeCount,0);
+      assert.ok(r.blendReport.strategy==='tube-spine-corner-rebuild'||r.blendReport.tubeRebuild,r.blendReport.strategy);
+      assert.ok(r.blendReport.tubeRebuild.pathBendRadiusMm>3,r.blendReport.tubeRebuild);
     }catch(e){
       assert.equal(e.report?.status,'failed');
-      assert.ok(e.report.maxFeasibleRadiusMm!=null||e.report.groupRadiusSearch||/可用最大约|未找到可通过验收/.test(e.message),e.message);
+      assert.ok(e.report.maxFeasibleRadiusMm!=null||e.report.groupRadiusSearch||/可用最大约|未找到可通过验收|曲面上的过渡面无法构造/.test(e.message),e.message);
+      assert.fail(`polyline tube fillet should now rebuild; leftover kernel limit: ${e.message}`);
     }
-  }finally{r?.delete();fused?.delete();a.delete();b.delete();}
+  }finally{r?.delete();tube.delete();}
 });
 
 test('I-05 one-sided edges after a tangent union do not veto the whole fillet',()=>{
@@ -154,13 +184,24 @@ test('I-07 chamfer then whole-body fillet writes volume and area back into state
   }finally{kernel.dispose?.();}
 });
 
-test('I-08 a larger whole-body fillet after a smaller one succeeds on the remaining sharp edges',()=>{
-  const s=box();let first,second;
+test('I-08 a larger whole-body fillet upgrades an existing smaller blend to the new radius',()=>{
+  const s=box();let first,second,direct,full,upgraded;
   try{
     first=buildEdgeBlend(s,'fillet',{radius:2,edgeIds:[0]});
     second=buildEdgeBlend(first,'fillet',{radius:3,allEdges:true},{suggestRadius:true});
+    direct=buildEdgeBlend(s,'fillet',{radius:3,allEdges:true});
     assert.equal(second.blendReport.status,'committed');
-    assert.equal(second.blendReport.acceptance.selectedEdgesRounded,'passed');
-    assert.ok(second.blendReport.processedEdgeIds.length>0);
-  }finally{second?.delete();first?.delete();s.delete();}
+    assert.equal(sharpCount(second),0);
+    assert.equal(second.blendReport.remainingSharpEdgeCount,0);
+    assert.ok(second.blendReport.upgradedPriorBlends||second.blendReport.priorBlendUpgrade);
+    const radii=cylinderRadii(second);
+    assert.ok(radii.length&&radii.every(v=>Math.abs(v-3)<1e-4),radii);
+    assert.ok(Math.abs(cad.measureVolume(second)-cad.measureVolume(direct))<1e-4);
+    full=buildEdgeBlend(s,'fillet',{radius:2,allEdges:true});
+    upgraded=buildEdgeBlend(full,'fillet',{radius:3,allEdges:true},{suggestRadius:true});
+    assert.equal(upgraded.blendReport.status,'committed');
+    assert.equal(sharpCount(upgraded),0);
+    assert.ok(cylinderRadii(upgraded).every(v=>Math.abs(v-3)<1e-4));
+    assert.ok(Math.abs(cad.measureVolume(upgraded)-cad.measureVolume(direct))<1e-4);
+  }finally{upgraded?.delete();full?.delete();direct?.delete();second?.delete();first?.delete();s.delete();}
 });

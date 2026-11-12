@@ -1,9 +1,9 @@
 {
   "version": "1.68.0",
-  "buildId": "41763e55c7e6466d74a8a6a25cd044915f09b258-src-2c0a99dbea554d38",
+  "buildId": "fce77a05ca5cd9ef14339e579ed612fb7ecae057-src-534017311af0d870-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:9aa25e63acc7237a1ceffd8a5bc61f3fcec0b93b9467ff603be8972698c31377",
-  "docsHash": "sha256:0c8d3a3fc413f97c32847024f27310644024d91ef21bc820527fbc8777db31d9",
+  "catalogHash": "sha256:cf8e60b273de910500da49029df4bffc357eabef284a8749dab838ba1866bad7",
+  "docsHash": "sha256:992111a72504b1ad567989442f3da174acb5d306bfca369fdb70b5c784c94a7f",
   "apiMethods": [
     "reliefWizard",
     "prepareToolCall",
@@ -132,7 +132,7 @@
       "label": "整件圆边",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:8c454c01e9cb961e93d69e50b3d7abb98dfbe230f53a85f168fefb990b1ada06",
+      "docsHash": "sha256:168938f7f3b196f24cb233e157d5d9cb7ecdd1f8c475ef28182cd5948ba49187",
       "url": "tools/autoRound.json"
     },
     {
@@ -348,7 +348,7 @@
       "label": "圆角",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:4144ffd98e0f3de424c89161a2c29c711d091296be033f8b1b8d1aee389e96e8",
+      "docsHash": "sha256:b6eec9aa338e82aa273360b1248f0ddef0f9b41460d0dfa8cc9b258eb5dd9fc4",
       "url": "tools/fillet.json"
     },
     {

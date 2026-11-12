@@ -50,13 +50,14 @@ test('A44/A45 2 mm plate R1/R1.5 fails; R0.9 commits; geometric limit ~R1',()=>{
   commits(plate,{radius:.9,allEdges:true},r=>assert.equal(sharpCount(r),0));
   const s=plate();try{const f=millFeasibility(s,topologyDetails(s).filter(r=>r.sharp).map(r=>r.edgeId),1);assert.equal(f.fits,false);assert.ok(f.reasons.some(r=>r.includes('opposite-fillets-overlap')||r.includes('corner')));}finally{s.delete();}
 });
-test('G01/G02 fillet after fillet: a smaller follow-up clears leftover sharp edges; a larger one still succeeds on the remaining edges',()=>{
+test('G01/G02 fillet after fillet: a smaller follow-up clears leftover sharp edges; a larger one upgrades the existing blend',()=>{
   const pre=()=>{const s=box(),r=buildEdgeBlend(s,'fillet',{radius:2,edgeIds:[0]});s.delete();return r;};
   commits(pre,{radius:1,allEdges:true},r=>assert.equal(sharpCount(r),0));
-  commits(pre,{radius:3,allEdges:true},(r,s)=>{
+  commits(pre,{radius:3,allEdges:true},r=>{
     assert.equal(r.blendReport.status,'committed');
-    assert.equal(r.blendReport.acceptance?.selectedEdgesRounded,'passed');
-    assert.ok(r.blendReport.processedEdgeIds.length>0);
+    assert.equal(sharpCount(r),0);
+    assert.equal(r.blendReport.remainingSharpEdgeCount,0);
+    assert.ok(r.blendReport.upgradedPriorBlends||r.blendReport.priorBlendUpgrade);
   });
   // G03: already fully rounded body is NO_CHANGE
   const full=()=>{const s=box(),r=buildEdgeBlend(s,'fillet',{radius:2,allEdges:true});s.delete();return r;};
