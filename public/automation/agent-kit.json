@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "webcad-page-api",
   "version": "1.69.0",
-  "buildId": "1610723bc0b517f32042771e7b30b485644c7cbe-src-69f72895a067ed37",
+  "buildId": "0953fc68b8db91f37ffd1b48f0b2757dd6c0e00b-src-579ec2be7f89d10a",
   "catalogHash": "sha256:10eb8ee849dbb28d6b55fa2954599eee348c811f0049f752fbaa397ef4f7dd21",
   "docsHash": "sha256:c06db8fa2988f1172d6e6a62adeba6747c6dfb7caea676ba37a3df4ce7bc0364",
   "entrypoints": {
@@ -17,26 +17,26 @@
     {
       "relativePath": "SKILL.md",
       "url": "webcad-page-api/SKILL.md",
-      "sizeBytes": 12293,
-      "sha256": "sha256:e9a468a4f5c8e271926220254348eac6bcc5eb86c2034d26d402f239a98ff7b7"
+      "sizeBytes": 12351,
+      "sha256": "sha256:917d58e5cf1c72596881d69a3aa2f0190d19357cc183a5a516f85f1ee04bd2ed"
     },
     {
       "relativePath": "references/connection.md",
       "url": "webcad-page-api/references/connection.md",
-      "sizeBytes": 5809,
-      "sha256": "sha256:35a8974fdb96fd5b0b39641d3606c71477d83caf4a961f9111c6994f01731800"
+      "sizeBytes": 5861,
+      "sha256": "sha256:fdc9c2b6f5640efaf2d8ea83c385c5090cdc39019c3c3395f4bd1fb5b79c8168"
     },
     {
       "relativePath": "scripts/page-client.mjs",
       "url": "webcad-page-api/scripts/page-client.mjs",
-      "sizeBytes": 8976,
-      "sha256": "sha256:bf37bdfe540a86c0a5e2039e9192ea872798f6571025a2fbc33b42a8c8494382"
+      "sizeBytes": 9051,
+      "sha256": "sha256:8d8e758be665090c145b70d326554fc9d320ccb25a54c4b47ee5eb8d00c81434"
     },
     {
       "relativePath": "scripts/knowledge-cache.mjs",
       "url": "webcad-page-api/scripts/knowledge-cache.mjs",
-      "sizeBytes": 14358,
-      "sha256": "sha256:50e9382fcebcb498f881597921a51d6fa4f262a032a8d6d33bed0192f2dae9fe"
+      "sizeBytes": 14502,
+      "sha256": "sha256:de80aa46d4efddb1e08566d80ca38efdcf8b98bd03ec4e9988a7fcbf801e1f6b"
     },
     {
       "relativePath": "scripts/static-archive.mjs",
@@ -48,14 +48,14 @@
       "relativePath": "routes.json",
       "url": "routes.json",
       "sizeBytes": 74193,
-      "sha256": "sha256:153a9718ab8562057718fb914140695f0d8a9d5ae36f8d20142019633329e620"
+      "sha256": "sha256:cbe89c9cdc9b18f5b36714adf915b61ff2a2b85d1a941c2e89bcc3c968816606"
     }
   ],
   "installer": {
     "relativePath": "install-agent.ps1",
     "url": "install-agent.ps1",
-    "sizeBytes": 7619,
-    "sha256": "sha256:28f8078e7a68e56c9b18cd344ec2840bed2a9d358323e9ce9eeaf916f6704bf1"
+    "sizeBytes": 7723,
+    "sha256": "sha256:9d163d0c73b5193c88f07903c8028dff8795729e4fc824a01b9ab624465a3141"
   },
   "installation": {
     "defaultDestination": "%USERPROFILE%/.codex/skills/webcad-page-api",

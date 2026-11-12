@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "buildId": "1610723bc0b517f32042771e7b30b485644c7cbe-src-69f72895a067ed37",
-  "knowledgeVersion": "sha256:d57e99a63ea5dd1dd6e8a6e20660dd4a52390931c440fb31e5e09d9b597b0b62",
+  "buildId": "0953fc68b8db91f37ffd1b48f0b2757dd6c0e00b-src-579ec2be7f89d10a",
+  "knowledgeVersion": "sha256:fdc5b6b92573bf04ed85ac4479b627b9f6cacc2fe9c3d5cd26b8a5594ad98926",
   "pageApiVersion": "1.69.0",
   "catalogHash": "sha256:10eb8ee849dbb28d6b55fa2954599eee348c811f0049f752fbaa397ef4f7dd21",
   "docsHash": "sha256:c06db8fa2988f1172d6e6a62adeba6747c6dfb7caea676ba37a3df4ce7bc0364",
   "archive": {
     "url": "agent-bundle.zip",
     "format": "zip",
-    "sizeBytes": 727346,
-    "sha256": "sha256:3250014e18ad787ae7fe53e4b635338ca1c152a78dc3f89b4f70b21c3759ca66",
+    "sizeBytes": 727400,
+    "sha256": "sha256:58cef66132a9ccc03e6aa80e12b1b940ec7ee6f631e5c28d49bca0baa9385897",
     "files": [
       {
         "name": "index.json",
         "sizeBytes": 4907726,
-        "sha256": "sha256:3597f13162d4f97d4ee3315bc8a39974acc54f4b49b79e7bed249ae376e5c3fc"
+        "sha256": "sha256:997685ca580c405b0db56da82933053e1e948a67d6b250895faa73754915bed9"
       },
       {
         "name": "agent-routing.json",
@@ -24,32 +24,32 @@
       {
         "name": "routes.json",
         "sizeBytes": 74193,
-        "sha256": "sha256:153a9718ab8562057718fb914140695f0d8a9d5ae36f8d20142019633329e620"
+        "sha256": "sha256:cbe89c9cdc9b18f5b36714adf915b61ff2a2b85d1a941c2e89bcc3c968816606"
       },
       {
         "name": "webcad-page-api/SKILL.md",
-        "sizeBytes": 12293,
-        "sha256": "sha256:e9a468a4f5c8e271926220254348eac6bcc5eb86c2034d26d402f239a98ff7b7"
+        "sizeBytes": 12351,
+        "sha256": "sha256:917d58e5cf1c72596881d69a3aa2f0190d19357cc183a5a516f85f1ee04bd2ed"
       },
       {
         "name": "webcad-page-api/references/connection.md",
-        "sizeBytes": 5809,
-        "sha256": "sha256:35a8974fdb96fd5b0b39641d3606c71477d83caf4a961f9111c6994f01731800"
+        "sizeBytes": 5861,
+        "sha256": "sha256:fdc9c2b6f5640efaf2d8ea83c385c5090cdc39019c3c3395f4bd1fb5b79c8168"
       },
       {
         "name": "agent-kit.json",
         "sizeBytes": 2593,
-        "sha256": "sha256:7d909aff2b094f9757f2bc427dc89b83cd8e7d8336166a1f0f8c2efaf5e971d2"
+        "sha256": "sha256:c88cfb4f5bacd299c6fc142e36f69c3dac438e8d46bc3480810ce1efb837f958"
       },
       {
         "name": "webcad-page-api/scripts/page-client.mjs",
-        "sizeBytes": 8976,
-        "sha256": "sha256:bf37bdfe540a86c0a5e2039e9192ea872798f6571025a2fbc33b42a8c8494382"
+        "sizeBytes": 9051,
+        "sha256": "sha256:8d8e758be665090c145b70d326554fc9d320ccb25a54c4b47ee5eb8d00c81434"
       },
       {
         "name": "webcad-page-api/scripts/knowledge-cache.mjs",
-        "sizeBytes": 14358,
-        "sha256": "sha256:50e9382fcebcb498f881597921a51d6fa4f262a032a8d6d33bed0192f2dae9fe"
+        "sizeBytes": 14502,
+        "sha256": "sha256:de80aa46d4efddb1e08566d80ca38efdcf8b98bd03ec4e9988a7fcbf801e1f6b"
       },
       {
         "name": "webcad-page-api/scripts/static-archive.mjs",
@@ -59,7 +59,7 @@
       {
         "name": "remote-agent.json",
         "sizeBytes": 1306,
-        "sha256": "sha256:d39e0da0c592843efaf7c600d39d8d8518320db57b84da02b3ee7fce3ae1bdad"
+        "sha256": "sha256:d016bde6b63376fc55bae39e4592492e15f1a8447242ecf1bc4eaaf705c5a786"
       },
       {
         "name": "remote-agent/host-adapter.js",
@@ -90,7 +90,7 @@
       "name": "index.json",
       "url": "index.json",
       "sizeBytes": 4907726,
-      "sha256": "sha256:3597f13162d4f97d4ee3315bc8a39974acc54f4b49b79e7bed249ae376e5c3fc"
+      "sha256": "sha256:997685ca580c405b0db56da82933053e1e948a67d6b250895faa73754915bed9"
     },
     {
       "name": "agent-routing.json",
@@ -102,7 +102,7 @@
       "name": "routes.json",
       "url": "routes.json",
       "sizeBytes": 74193,
-      "sha256": "sha256:153a9718ab8562057718fb914140695f0d8a9d5ae36f8d20142019633329e620"
+      "sha256": "sha256:cbe89c9cdc9b18f5b36714adf915b61ff2a2b85d1a941c2e89bcc3c968816606"
     }
   ],
   "totalBytes": 5043862,
