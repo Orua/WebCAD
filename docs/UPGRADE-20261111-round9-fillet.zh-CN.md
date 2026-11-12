@@ -12,3 +12,6 @@
 ## 兼容性
 - 旧工程中依赖「铣削补角刀部分成功」的圆角特征，重建时会如实失败（原模型保留），需改小半径（可参考 maxFeasibleRadiusMm）。
 - round 自动半径变大，旧工程里未写 radiusMm 的 round 特征重建后半径会变；需要原尺寸请在特征里写明 radiusMm。
+
+## 基线
+- 基于 main 1.66.4（3127981）。pageApiVersion 1.67.0；catalogHash `sha256:85bcbff2e4ee019b2bb332d622e5c142f9d06aa258357754d457e6fb6a3f7d10`；docsHash `sha256:d7d4bc562575769c966d6dc63c79e196563c7ea4cb9d92c508857a330f2bb31c`。

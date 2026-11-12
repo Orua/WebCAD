@@ -1,9 +1,9 @@
 {
   "version": "1.67.0",
-  "buildId": "f087de71f617e2c4a46b861d0ce7b3599fbd7eab-src-4af09602401ed989-working",
+  "buildId": "b35e6da04ba863197ba614084aab10964993cfdf-src-264f20bd834119a7-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:fc4f0a15e1b9646a2a55148194ba7cfb17fe6f5490f0181e6ae8d240fce8d0bf",
-  "docsHash": "sha256:a7c4aea73069b0c89739fd71c3dcc8fe2c16d2fb9ff342d25f573c1320ea655f",
+  "catalogHash": "sha256:85bcbff2e4ee019b2bb332d622e5c142f9d06aa258357754d457e6fb6a3f7d10",
+  "docsHash": "sha256:d7d4bc562575769c966d6dc63c79e196563c7ea4cb9d92c508857a330f2bb31c",
   "apiMethods": [
     "reliefWizard",
     "prepareToolCall",
@@ -348,7 +348,7 @@
       "label": "圆角",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:ad8039da65909b361e4eaf2d11f51e0f1d6433dc64c1263f3d3bd98fb53a796f",
+      "docsHash": "sha256:4144ffd98e0f3de424c89161a2c29c711d091296be033f8b1b8d1aee389e96e8",
       "url": "tools/fillet.json"
     },
     {
@@ -780,7 +780,7 @@
       "label": "平滑过渡",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:eed2627e98bfd671ae562b3fb09a140c6cb649b5af461b6e73b5ede3454a1fd7",
+      "docsHash": "sha256:720bae76c4c9cf0ad37af1bcca3ce354f2bd2545240676789f63a8626cb95487",
       "url": "tools/smoothTransition.json"
     },
     {
