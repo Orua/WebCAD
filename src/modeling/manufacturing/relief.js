@@ -55,7 +55,12 @@ function buildLayers(source,p,oc,cad,onProgress,layerCache,sourceFingerprint){
    const {layer}=group,index=group.memberIndices[0];
    const progress=detail=>onProgress?.({layer:index+1,layerCount:p.layers.length,name:layer.name??`Layer ${index+1}`,...detail});
    progress({phase:'relief-layer',completed:index,total:p.layers.length});
-   if((layer.startHeightMm??0)>=layer.heightMm)fail('RELIEF_INVALID',`第 ${index+1} 层起点必须低于层高度`);
+   const startHeight=layer.startHeightMm??0;
+   if(startHeight>=layer.heightMm)fail('RELIEF_INVALID',`第 ${index+1} 层起点必须低于层高度`);
+   if(startHeight>0){
+    const support=Math.max(0,...p.layers.slice(0,index).filter(prev=>(prev.mode??'emboss')!=='engrave').map(prev=>prev.heightMm??0));
+    if(startHeight>support+1e-9)fail('RELIEF_INVALID',`第 ${index+1} 层起点 ${startHeight} mm 高于已有下层最大承托高度 ${support} mm，缺少支撑，未提交。请降低 startHeightMm，或先做足够高度的下层。`);
+   }
    const {layers,regions,strokes,values,sculpt,...common}=p;
    const params={...common,depthMm:layer.heightMm,mode:layer.mode??'emboss',surfaceMode:'smooth',...(layer.regions?{regions:layer.regions}:{}),...(layer.strokes?{strokes:layer.strokes}:{}),...(layer.sculpt?{sculpt:layer.sculpt}:{}),...(layer.localPatches?{localPatches:layer.localPatches}:{}),values:layer.values??Array.from({length:4},()=>Array(4).fill(1))};
    if(layer.sculpt&&Math.min(...reliefHeights(params).flat())<(layer.startHeightMm??0))fail('RELIEF_LIMIT',`第 ${index+1} 层精修高度低于起点，请明确调整 startHeightMm`);
@@ -130,7 +135,7 @@ export function buildRelief(source,p,oc,cad,{supportFace:anchorFace=null,startHe
   const angle=(p.angleDeg??0)*Math.PI/180,c=Math.cos(angle),s=Math.sin(angle),direction=p.mode==='engrave'?-1:1;
   const origin=center.map((v,i)=>v+(p.offsetX??0)*x[i]+(p.offsetY??0)*y[i]);
   const point=(u,v,h)=>origin.map((n,i)=>(n+(u*c-v*s)*x[i]+(u*s+v*c)*y[i]+direction*h*normal[i]));
-  const embed=.001,grid=p.values.map((row,j)=>row.map((h,i)=>point((i/(cols-1)-.5)*p.widthMm,(j/(rows-1)-.5)*p.heightMm,(p.surfaceMode==='flat'?1:h)*p.depthMm)));
+  const embed=.001,baseMm=(p.regions||p.strokes)&&p.surfaceMode!=='flat'?(p.baseMm??.005):0,grid=p.values.map((row,j)=>row.map((h,i)=>point((i/(cols-1)-.5)*p.widthMm,(j/(rows-1)-.5)*p.heightMm,p.surfaceMode==='flat'?p.depthMm:Math.max(baseMm,h*p.depthMm))));
   const bottom=pt=>{const h=dot(pt.map((v,i)=>v-origin[i]),normal);return pt.map((v,i)=>v-(h-direction*(startHeightMm-embed))*normal[i]);};
   const top=hold(p.surfaceMode==='flat'?cad.makePolygon([grid[0][0],grid[0][cols-1],grid[rows-1][cols-1],grid[rows-1][0]]):splineFace(grid,oc,cad));
   const boundaries=[grid[0],grid.map(r=>r[cols-1]),[...grid[rows-1]].reverse(),grid.map(r=>r[0]).reverse()];
@@ -142,13 +147,13 @@ export function buildRelief(source,p,oc,cad,{supportFace:anchorFace=null,startHe
   // Check the entire image rectangle, including zero-height margins, against
   // the finite selected face and its holes. Never silently clip the pattern.
   const supportFace=hold(face.clone().translate(normal.map(v=>-direction*embed*2)));
-  const vector=hold(new cad.Vector(normal.map(v=>direction*(p.depthMm+embed*4))));
+  const vector=hold(new cad.Vector(normal.map(v=>direction*(p.depthMm+baseMm+embed*4))));
   const support=hold(cad.basicFaceExtrusion(supportFace,vector));
   // Rectangle orientation must use the rotated face axes, including engraving.
   const corners=[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]].map(([u,v])=>point(u*p.widthMm,v*p.heightMm,-embed));
-  const footprint=hold(cad.makePolygon(corners)),span=hold(new cad.Vector(normal.map(v=>direction*(p.depthMm+embed))));
+  const footprint=hold(cad.makePolygon(corners)),span=hold(new cad.Vector(normal.map(v=>direction*(p.depthMm+baseMm+embed))));
   const envelope=p.regions||p.strokes?tool:hold(cad.basicFaceExtrusion(footprint,span)),outside=hold(envelope.cut(support));
-  if(Math.abs(cad.measureVolume(outside))>Math.max(1e-7,p.widthMm*p.heightMm*p.depthMm*1e-9))fail('RELIEF_OUTSIDE_FACE','实际图案超出选面或覆盖了孔，请调整轮廓或位置');
+  if(Math.abs(cad.measureVolume(outside))>Math.max(1e-7,p.widthMm*p.heightMm*(p.depthMm+baseMm)*1e-9))fail('RELIEF_OUTSIDE_FACE','实际图案超出选面或覆盖了孔，请调整轮廓或位置');
   const before=measureMaterial?volume(copy,oc):null;
   result=timed('relief-boolean-build',()=>direction===1?copy.fuse(tool):copy.cut(tool));
   if(!timed('relief-result-validation',()=>valid(result,oc)))fail('RELIEF_INVALID','浮雕结果未能保持一个有效封闭实体');
@@ -161,4 +166,4 @@ export function buildRelief(source,p,oc,cad,{supportFace:anchorFace=null,startHe
  finally{dispose(result);owned.reverse().forEach(dispose);}
 }
 
-function maskReport(p){return p.regions||p.strokes?{kind:p.surfaceMode==='flat'?'contour-planar-relief':'contour-bspline-relief',surfaceMode:p.surfaceMode??'smooth',background:'unchanged-host',regionCount:p.regions?.length??0,strokeCount:p.strokes?.length??0,curveToleranceMm:p.curveToleranceMm??0,contourSnapMm:p.contourSnapMm??0,smoothing:p.surfaceMode==='flat'?'exact-plane':'approximating-control-grid',...(p.surfaceMode==='flat'?{baseMm:0,totalControlHeightMm:p.depthMm,crestReference:'placement-tangent-plane'}:{}),limitations:['contour-polygon-approximation','image-brightness-is-not-photo-depth',p.regions?'actual-contours-within-face':'full-rectangle-within-face']}:{};}
+function maskReport(p){return p.regions||p.strokes?{kind:p.surfaceMode==='flat'?'contour-planar-relief':'contour-bspline-relief',surfaceMode:p.surfaceMode??'smooth',background:'unchanged-host',regionCount:p.regions?.length??0,strokeCount:p.strokes?.length??0,curveToleranceMm:p.curveToleranceMm??0,contourSnapMm:p.contourSnapMm??0,smoothing:p.surfaceMode==='flat'?'exact-plane':'approximating-control-grid',...(p.surfaceMode==='flat'?{baseMm:0,totalControlHeightMm:p.depthMm,crestReference:'placement-tangent-plane'}:{baseMm:p.baseMm??.005,totalControlHeightMm:p.depthMm,crestReference:'placement-tangent-plane',minimumInteriorHeightMm:p.baseMm??.005}),limitations:['contour-polygon-approximation','image-brightness-is-not-photo-depth',p.regions?'actual-contours-within-face':'full-rectangle-within-face']}:{};}

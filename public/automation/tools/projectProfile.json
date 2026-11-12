@@ -2,7 +2,7 @@
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.68.0",
+  "version": "1.69.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -238,5 +238,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f92c8e584b3b01148980fe633a6ca7faf6713e3d785e7106390de639089bbdb3"
+  "docsHash": "sha256:27e5e7cb1ae1a82656d96f2bd383cf6f388dc1e9938344dc2af0ff36dc2e14aa"
 }

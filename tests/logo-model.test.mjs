@@ -74,3 +74,23 @@ test('rejects self intersections, outside holes, overlapping regions, nonorthogo
     assert.equal(sourceBytes(source), before);
   } finally { dispose(source); }
 });
+
+test('engrave deeper than a thin plate rejects loose glyph islands instead of committing extra solids', () => {
+  const source = cad.makeBox([0, 0, 0], [40, 30, 2]);
+  const params = {
+    regions: [{ outer: [[-12, -8], [12, -8], [12, 8], [-12, 8]], holes: [[[-4, -3], [4, -3], [4, 3], [-4, 3]]] }],
+    mode: 'engrave', depth: 2.5, scale: 1, angle: 0, x: 20, y: 15, z: 2,
+    faceX: [1, 0, 0], faceNormal: [0, 0, 1],
+  };
+  const before = sourceBytes(source);
+  try {
+    assert.throws(() => buildLogoOnPlane(source, params, cad), /内岛脱落|请减小深度/);
+    assert.throws(() => buildLogoOnPlane(source, {...params, source:{machiningOptimization:{algorithm:'test'}}}, cad), /内岛脱落|请减小深度/);
+    const shallow = buildLogoOnPlane(source, {...params, depth: 1}, cad);
+    try {
+      const solids = shallow.solids;
+      try { assert.equal(solids.length, 1); } finally { solids.forEach(dispose); }
+    } finally { dispose(shallow); }
+    assert.equal(sourceBytes(source), before);
+  } finally { dispose(source); }
+});

@@ -14,6 +14,7 @@ import {assertBoundsAlignment} from './bounds-alignment.js';
 import { annotateParameterSchema, numericInputPolicy } from './parameter-metadata.js';
 import {heightfieldSamples} from './mesh/heightfield-relief.js';
 import operationSourceErrors from '../contracts/operation-source-errors.json' with {type:'json'};
+import tbdCapabilities from '../contracts/services/v1/tbd-capabilities.json' with {type:'json'};
 import {migrateReliefParams,legacyReliefParams,reliefParamOperations} from './relief-param-migration.js';
 
 export const apiVersion = '2.0';
@@ -114,6 +115,12 @@ function buildCard(id, source) {
         : ['fillet', 'chamfer'].includes(id) ? { ...examples[id], allEdges: true }
           : { ...examples[id], __unknownField: true };
   const known = [source.notes || source.description];
+  for(const tbd of tbdCapabilities.operations){
+    if(tbd.enabled!==false)continue;
+    if(tbd.operation===id||tbd.operation.startsWith(id+'.')){
+      known.push(`TBD：${tbd.label}${tbd.semanticVersion?`（${tbd.semanticVersion}）`:''}尚未完成验收，已禁用。${tbd.reason}`);
+    }
+  }
   if (!strict) known.push('This operation has not migrated to the strict v2 contract. Its schema remains advisory; use the documented legacy entry.');
   if (special) known.push(id === 'remove' ? 'Use webcad_remove or v2 feature.remove; not feature.add.' : 'File lifecycle automation is deferred to M2; browser import is not a zero-mouse API.');
   const editRule = id==='rounding' ? 'Patch merges into the saved specVersion without converting history: v3 edits strength; v2 edits sizeMm; v1 retains its mode-specific fields. A changed scope must be resolved on the current upstream source and previewed again. Complete merged params are validated against the matching historical/current schema.' : ['fillet', 'chamfer'].includes(id)

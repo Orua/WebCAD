@@ -10,7 +10,7 @@ const groups = {
     'performance-preparation','performance-runtime','performance-api','performance-viewport','performance-quality-install',
     'public-edition',
     'agent-state-observer','agent-floating-toggle','agent-host-workspace','agent-metal-routing','agent-run-envelope','message-presenter', 'tool-reading-guide', 'deploy-plan',
-    'location-marker','error-recovery','relief-design-drafts','relief-design-reference','relief-design-edits-ui','relief-design-bspline-fit','relief-design-fit-runtime','relief-design-fit-api','relief-design-field','relief-design-brep','relief-fix-261023','relief-fillet-261024','logo-export','logo-review-api','logo-vector-review','logo-wizard-state','logo-machining-optimization','logo-pdf-renderer','panel-layout','receipt-capacity-recovery','relief-intent-runtime','relief-sculpt-preflight','report-regressions','tool-selection',
+    'location-marker','error-recovery','svg-logo-input','relief-plan-semantic','relief-design-drafts','relief-design-reference','relief-design-edits-ui','relief-design-bspline-fit','relief-design-fit-runtime','relief-design-fit-api','relief-design-field','relief-design-brep','relief-fix-261023','relief-fillet-261024','logo-export','logo-review-api','logo-vector-review','logo-wizard-state','logo-machining-optimization','logo-pdf-renderer','panel-layout','receipt-capacity-recovery','relief-intent-runtime','relief-sculpt-preflight','report-regressions','tool-selection',
     'agent-selection-preservation', 'count-summary', 'floor-grid', 'free-placement',
     'logo-selection-draft', 'metal-warning', 'open-file-recent',
     'tap-contract', 'agent-single-call', 'metal-occlusion', 'selection-feedback',
