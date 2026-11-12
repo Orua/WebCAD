@@ -1,6 +1,7 @@
 import * as cad from 'replicad';
 import {polishingTopologyDetails} from './topology.js';
 import {buildUnifiedRounding,resolveRoundingEdges} from './unified.js';
+import {buildEdgeBlend} from '../../edge-blend.js';
 import {derivePolishingMaterialIntent,derivePolishingInfluenceBounds,measureAutomaticPolishingQuality} from './geometry-quality.js';
 import {resolveClosedContactContours} from './closed-contour-scope.js';
 import {buildClosedCurvedCut} from './closed-curved-cut.js';
@@ -27,7 +28,17 @@ export function deriveAutomaticPolishingScale({edgeLengthsMm,supportDiagonalsMm,
     method:'source-edge-length-support-bounds-and-body-thickness'};
 }
 
-export function buildAutomaticPolishing(shape,params,legacySolve,{sourceBodyId=null}={}) {
+function remapSharpByMidpoint(current,sourceRows,ids){
+  const after=polishingTopologyDetails(current),hit=[];
+  for(const id of ids){
+    const old=sourceRows[id];if(!old?.midpoint)continue;
+    const row=after.find(item=>item.sharp&&item.midpoint&&Math.hypot(...item.midpoint.map((v,i)=>v-old.midpoint[i]))<1e-4);
+    if(row)hit.push(row.edgeId);
+  }
+  return hit;
+}
+
+export function buildAutomaticPolishing(shape,params,legacySolve,{sourceBodyId=null,skipMixedSplit=false}={}) {
   if(params.specVersion!==3||params.scope?.kind!=='edges'||!Array.isArray(params.scope.edgeIds)||!params.scope.edgeIds.length||
     new Set(params.scope.edgeIds).size!==params.scope.edgeIds.length)
     fail('PARAM_SCHEMA_INVALID','自动打磨需要当前实体的明确选边');
@@ -45,6 +56,27 @@ export function buildAutomaticPolishing(shape,params,legacySolve,{sourceBodyId=n
     plan=deriveAutomaticPolishingScale({edgeLengthsMm:requested.map(id=>edges[id].length),supportDiagonalsMm,bodyDimensionsMm,strength:params.strength??1});
   }finally{dispose(sourceBox);edges.forEach(dispose);faces.forEach(dispose);}
   const materialPlan=derivePolishingMaterialIntent(shape,{selectedSourceEdgeIds:requested,scaleMm:plan.constructionScaleMm},cad);
+  // I-03: mixed convex/concave networks are polished by material-direction groups, not rejected as a whole.
+  if(!skipMixedSplit&&materialPlan.materialIntent==='mixed'&&materialPlan.groups?.length>1){
+    let current=shape,reports=[],owned=null,splitFailed=null;
+    try{
+      for(const [index,group] of materialPlan.groups.entries()){
+        const edgeIds=index===0?group.sourceEdgeIds:remapSharpByMidpoint(current,rows,group.sourceEdgeIds);
+        if(!edgeIds.length)continue;
+        const next=buildAutomaticPolishing(current,{...params,scope:{...params.scope,kind:'edges',edgeIds}},legacySolve,{sourceBodyId,skipMixedSplit:true});
+        reports.push({direction:group.direction,requestedEdgeIds:edgeIds,roundingReport:next.roundingReport});
+        if(owned&&owned!==shape)dispose(owned);
+        if(current!==shape&&current!==owned)dispose(current);
+        owned=current=next;
+      }
+      if(!reports.length)fail('GEOMETRY_CONFLICT','混合凹凸打磨没有可处理的局部区',{materialPlan});
+      current.roundingReport={...current.roundingReport,materialGroups:reports,materialIntent:'mixed',
+        region:{sourceBodyId,requestedEdgeIds:requested,expandedEdgeIds:(current.roundingReport?.region?.expandedEdgeIds||[]),affectedFaceIds:current.roundingReport?.region?.affectedFaceIds||[]}};
+      const accepted=current;owned=null;current=null;return accepted;
+    }catch(error){splitFailed=error;}
+    finally{if(owned&&owned!==shape)dispose(owned);if(current&&current!==shape&&current!==owned)dispose(current);}
+    // Mixed automatic polishing failed; fall through to native grouped fillet of the full selection.
+  }
   const attempts=[],strategies=[];
   try {
     const scope=resolveRoundingEdges(shape,{sizeMm:plan.constructionScaleMm,scope:params.scope});
@@ -123,6 +155,27 @@ export function buildAutomaticPolishing(shape,params,legacySolve,{sourceBodyId=n
     }catch(error){
       attempts.push({strategy:strategy.kind,code:error.code??'GEOMETRY_INVALID',message:String(error.message),details:error.details??error.report??null});
     }finally{dispose(result);}
+  }
+  // I-03: last-resort native fillet of the (possibly mixed) selected edges.
+  // Selected-only does not expand; a mixed network can still succeed in convex/concave groups.
+  {
+    let native;
+    try{
+      native=buildEdgeBlend(shape,'fillet',{radius:plan.constructionScaleMm,edgeIds:requested},{suggestRadius:true});
+      const processed=native.blendReport?.processedEdgeIds||[...requested];
+      const strategy=params.expand==='network'||materialPlan.materialIntent==='mixed'?'native-grouped-fillet':'native-selected-only';
+      native.roundingReport={specVersion:3,mode:'polishing',solverVersion:3,constructionKind:'automatic-native-blend',strategy,
+        dimensionKind:'automatic-local-scale',requestedSpec:{scope:params.scope,strength:plan.strength},
+        effectiveSpec:{strength:plan.strength,constructionScaleMm:plan.constructionScaleMm,radiusMm:native.blendReport?.amount??plan.constructionScaleMm},
+        automaticPlan:{...plan,materialPlan,strategy},materialIntent:materialPlan.materialIntent,
+        processedEdgeIds:processed,requestedSelection:requested,expandedSelection:[],
+        region:{sourceBodyId,requestedEdgeIds:requested,expandedEdgeIds:[],affectedFaceIds:[...new Set(requested.flatMap(id=>rows[id].adjacentFaceIds))].sort((a,b)=>a-b)},
+        candidateAttempts:[...attempts],validation:{strategy,blendAcceptance:native.blendReport?.acceptance||null},
+        sizeSemantics:'Geometry derives the construction scale; selected edges are processed without an undeclared expansion.',blendReport:native.blendReport};
+      const accepted=native;native=null;return accepted;
+    }catch(error){
+      attempts.push({strategy:'automatic-native-selected-only',code:error.code??'GEOMETRY_INVALID',message:String(error.message),details:error.report??null});
+    }finally{dispose(native);}
   }
   if(withheldExpansion)fail('SCOPE_EXPANSION_REQUIRED',`只打磨所选的 ${requested.length} 条边未能通过检查；连同相连的 ${withheldExpansion.expandedEdgeIds.length} 条锐边一起打磨可能可行（边 ${withheldExpansion.expandedEdgeIds.slice(0,16).join(', ')}），需设置 expand:'network' 并预览确认。`,{candidateAttempts:attempts,selectedSourceEdgeIds:requested,proposedExpandedEdgeIds:withheldExpansion.expandedEdgeIds,automaticScalePlan:plan});
   fail('GEOMETRY_CONFLICT','选中边的打磨曲面尚未完成有效实体与接顺检查',{candidateAttempts:attempts,selectedSourceEdgeIds:requested,automaticScalePlan:plan});
