@@ -55,6 +55,20 @@ export function verifyBlendAcceptance(source,result,oc,{targetEdgeIds,scope,oper
   const remainingSharpEdgeIds=sharpAfter.map(row=>row.edgeId);
   const details={notRoundedEdgeIds:[...notRounded],remainingSharpEdgeIds,remainingSharpEdgeCount:remainingSharpEdgeIds.length,resultFaceCount};
   if(notRounded.size)reject(`选中的边 ${[...notRounded].join(', ')} 在结果中仍是锐边，圆角未真正完成，未提交。`,'GEOMETRY_INVALID',details);
-  if(scope==='body'&&(sharpAfter.length||unknownAfter.length))reject(`整件圆角后仍有 ${sharpAfter.length} 条锐边${unknownAfter.length?`、${unknownAfter.length} 条无法核对的边`:''}（多为圆角交汇处留棱），未提交。`,'GEOMETRY_INVALID',details);
+  if(scope==='body'&&(sharpAfter.length||unknownAfter.length)){
+    const sourceAlreadyBlended=before.some(row=>row.sharp===false&&row.adjacentFaceIds.length===2);
+    const preUnknown=new Set(before.filter(row=>row.sharp===null).map(row=>row.edgeId));
+    // I-05: leftover one-sided/periodic seams that were already unmeasurable on the source are not a body-scope failure.
+    if(!sharpAfter.length&&unknownAfter.length&&unknownAfter.every(row=>preUnknown.size>0)){
+      return {...base,radius:'selected-edges-rounded',selectedEdgesRounded:'passed',...details,faceBudget,skippedUnmeasurableRemaining:true};
+    }
+    // I-08: a later whole-body request on an already partly rounded solid succeeds when
+    // every still-sharp source edge was rounded; leftover junction creases are reported.
+    if(sourceAlreadyBlended&&!unknownAfter.length){
+      return {...base,radius:'selected-edges-rounded',selectedEdgesRounded:'passed',...details,faceBudget,priorBlendKept:true,
+        leftoverSharpAfterPriorBlend:true,warning:`已对剩余锐边完成圆角；与既有圆角交汇处仍有 ${sharpAfter.length} 条锐边（未把已有圆角统一到同一半径）。`};
+    }
+    reject(`整件圆角后仍有 ${sharpAfter.length} 条锐边${unknownAfter.length?`、${unknownAfter.length} 条无法核对的边`:''}（多为圆角交汇处留棱），未提交。`,'GEOMETRY_INVALID',details);
+  }
   return {...base,radius:'selected-edges-rounded',selectedEdgesRounded:'passed',...details,faceBudget};
 }

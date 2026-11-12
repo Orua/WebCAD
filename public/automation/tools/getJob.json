@@ -2,7 +2,7 @@
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.67.0",
+  "version": "1.68.0",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -127,5 +127,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a120b2b8cf4f12516503ab40e36099291a9dafc7f2ab2a88a835864d58ac7bcc"
+  "docsHash": "sha256:08ed63abfc5850ce84549551cc1926460cf99af96a0b246308202b54491f3791"
 }

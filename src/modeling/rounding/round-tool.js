@@ -11,6 +11,8 @@ const xyz='XYZ';
 export function planRoundTool(shape,p){
  const edges=shape.edges,faces=p.faceIds?shape.faces:[],box=shape.boundingBox,owned=[...edges,...faces,box],bounds=box.bounds;
  try{
+  // I-01: omitted scope is whole-body sharp edges (same as allEdges:true).
+  if(!p.edgeIds&&!p.faceIds&&p.allEdges!==true)p={...p,allEdges:true};
   if(Number(Boolean(p.edgeIds))+Number(Boolean(p.faceIds))+Number(p.allEdges===true)!==1)fail('请选择边、面或整个实体中的一种范围。','SELECTION_CONFLICT');
   let edgeIds=p.edgeIds,faceBudgetMm;
   if(p.allEdges===true){

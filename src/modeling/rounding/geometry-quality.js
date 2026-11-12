@@ -241,7 +241,7 @@ export function measureTrimmedFaceInwardRay(edge, face, t, sizeMm, cad) {
   } finally {[dv, du, basePoint, surface, derivative, uv, curve].forEach(dispose);}
 }
 
-function materialDirection(sourceEdges, sourceFaces, sourceRows, sourceEdgeIds, sizeMm, cad, oc) {
+function materialDirection(sourceEdges, sourceFaces, sourceRows, sourceEdgeIds, sizeMm, cad, oc, {allowMixed=false}={}) {
   const observed = [], directions = new Set();
   for (const sourceEdgeId of sourceEdgeIds) {
     const edge = sourceEdges[sourceEdgeId], row = sourceRows[sourceEdgeId];
@@ -262,7 +262,22 @@ function materialDirection(sourceEdges, sourceFaces, sourceRows, sourceEdgeIds, 
       observed.push({sourceEdgeId, t, sideA, sideB, direction, trimmedFaceInwardEvidence: measuredInward});
     }
   }
-  if (directions.size !== 1) fail('material', '本轮统一质量检查不接受未划分局部区的混合凹凸材料方向', {observed}, 'MATERIAL_CHECK_FAILED');
+  if (directions.size !== 1) {
+    if (!allowMixed) fail('material', '本轮统一质量检查不接受未划分局部区的混合凹凸材料方向', {observed}, 'MATERIAL_CHECK_FAILED');
+    const byEdge = new Map();
+    for (const sample of observed) {
+      const set = byEdge.get(sample.sourceEdgeId) || new Set();
+      set.add(sample.direction);
+      byEdge.set(sample.sourceEdgeId, set);
+    }
+    const groups = ['add', 'remove'].map(direction => ({
+      direction, authorized: true,
+      sourceEdgeIds: [...byEdge].filter(([, set]) => set.size === 1 && set.has(direction)).map(([id]) => id)
+    })).filter(group => group.sourceEdgeIds.length);
+    const mixed = [...byEdge].filter(([, set]) => set.size !== 1).map(([id]) => id);
+    if (!groups.length || mixed.length) fail('material', '混合凹凸边无法按材料方向划分局部区', {observed, mixedEdgeIds: mixed}, 'MATERIAL_CHECK_FAILED');
+    return {direction: 'mixed', method: 'source-trimmed-face-local-inward-rays-and-oriented-BRep-normals', observed, groups};
+  }
   return {direction: [...directions][0], method: 'source-trimmed-face-local-inward-rays-and-oriented-BRep-normals', observed};
 }
 
@@ -278,9 +293,10 @@ export function derivePolishingMaterialIntent(source, {selectedSourceEdgeIds, sc
           sourceRows[id]?.adjacentFaceIds?.length !== 2)) {
       fail('material', '来源预规划需要有效原选边和有限内部构造尺度', {}, 'MATERIAL_CHECK_FAILED');
     }
-    const observation = materialDirection(sourceEdges, sourceFaces, sourceRows, selectedSourceEdgeIds, scaleMm, cad, oc);
+    const observation = materialDirection(sourceEdges, sourceFaces, sourceRows, selectedSourceEdgeIds, scaleMm, cad, oc, {allowMixed: true});
     return {materialIntent: observation.direction, method: observation.method, observed: observation.observed,
-      selectedSourceEdgeIds: [...selectedSourceEdgeIds], derivedBeforeConstruction: true};
+      selectedSourceEdgeIds: [...selectedSourceEdgeIds], derivedBeforeConstruction: true,
+      groups: observation.groups || [{direction: observation.direction, sourceEdgeIds: [...selectedSourceEdgeIds], authorized: true}]};
   } finally {sourceEdges.forEach(dispose); sourceFaces.forEach(dispose);}
 }
 

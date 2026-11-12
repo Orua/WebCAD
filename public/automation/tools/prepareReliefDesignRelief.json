@@ -2,7 +2,7 @@
   "id": "prepareReliefDesignRelief",
   "title": "prepareReliefDesignRelief",
   "category": "page-method",
-  "version": "1.67.0",
+  "version": "1.68.0",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -417,5 +417,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:811ce9427566c51d073ea860ea234b7e24e7b4d68bca3a915e08d69d22d18a0e"
+  "docsHash": "sha256:c93346e0903ffe0beeb279108a96a1ccc840b0e04225a62d96fda3152f97f8bc"
 }
