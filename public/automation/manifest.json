@@ -1,9 +1,9 @@
 {
   "version": "1.68.0",
-  "buildId": "62cad0690bdcf0cb22833f6a8dc6d46127ff3fed-src-3f16fdb0927237d8",
+  "buildId": "ae4592cb8efee142305d980dbf0dff03267ad8ea-src-ebff8d9198d70ee0",
   "searchVersion": "2",
   "catalogHash": "sha256:ea06bc79b3d84416c9077539d34bfa9acceec5368daf6a2fc12d3dd475f4d652",
-  "docsHash": "sha256:aae6133e2b0fe1bd297f209da93a6389eb46ea3262543327211261134f0d917e",
+  "docsHash": "sha256:985777d201c995916c37552fe98c121d47b7bc76f6b5de0affb5c29321fb325d",
   "apiMethods": [
     "reliefWizard",
     "prepareToolCall",
@@ -2646,7 +2646,7 @@
     },
     {
       "id": "api.error-recovery",
-      "docsHash": "sha256:214d8353ce4bfe713dd4dab0f2f8f6fade55bdc1afe966e88cc4146274984977",
+      "docsHash": "sha256:c20577e16e0100d5df39de71dfd56016f6d4dd6b654c86fbadc6e786853a151e",
       "url": "docs/api.error-recovery.md"
     },
     {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "catalogHash": "sha256:ea06bc79b3d84416c9077539d34bfa9acceec5368daf6a2fc12d3dd475f4d652",
-  "docsHash": "sha256:aae6133e2b0fe1bd297f209da93a6389eb46ea3262543327211261134f0d917e",
+  "docsHash": "sha256:985777d201c995916c37552fe98c121d47b7bc76f6b5de0affb5c29321fb325d",
   "workflowDelivery": {
     "schemaVersion": 1,
     "coreDocIds": [

@@ -1467,7 +1467,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
 
-代码：`BOOLEAN_DISCARD_LIMIT`、`BOOLEAN_RESULT_LIMIT`、`BOOLEAN_RESULT_POINT_INVALID`
+代码：`BOOLEAN_DISCARD_LIMIT`、`BOOLEAN_RESULT_LIMIT`、`BOOLEAN_RESULT_POINT_INVALID`、`UNION_NOT_FUSED`、`UNION_ONE_SIDED_EDGES`
 
 ### display
 
