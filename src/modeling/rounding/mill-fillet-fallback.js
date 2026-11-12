@@ -21,7 +21,7 @@ function faceInward(face,point,tangent){
   return unit(across);
 }
 
-function sectionAt(faceA,faceB,P,T,R){
+export function sectionAt(faceA,faceB,P,T,R){
   const dA=faceInward(faceA,P,T),dB=faceInward(faceB,P,T);
   const nA=unit(faceA.normalAt(P).toTuple()),nB=unit(faceB.normalAt(P).toTuple());
   const sideA=dot(dA,nB),sideB=dot(dB,nA);
@@ -34,7 +34,7 @@ function sectionAt(faceA,faceB,P,T,R){
   return {material,dA,dB,ta,tb,arcMid,theta};
 }
 
-function extrudeSection(P,T,sec,length){
+export function extrudeSection(P,T,sec,length){
   const y=unit(cross(T,sec.dA));
   const to2=q=>[dot(q,sec.dA),dot(q,y)];
   const plane=new cad.Plane(P,sec.dA,T);

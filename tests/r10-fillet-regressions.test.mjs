@@ -89,8 +89,7 @@ test('I-03 selected-only rounding polishes the chosen edges; mixed convex/concav
   }finally{polished?.delete();tee?.delete();stem.delete();bar.delete();}
 });
 
-function makeSweepTube(){
-  const points=[[0,0,0],[0,0,20],[20,0,30],[40,0,30]];
+function makeSweepTube(points=[[0,0,0],[0,0,20],[20,0,30],[40,0,30]],radius=3){
   const edges=[];let wire,plane,drawing,sketch;
   try{
     for(let i=1;i<points.length;i++)edges.push(cad.makeLine(points[i-1],points[i]));
@@ -98,7 +97,7 @@ function makeSweepTube(){
     const t=points[1].map((v,k)=>v-points[0][k]),len=Math.hypot(...t),n=t.map(v=>v/len);
     const seed=Math.abs(n[0])<.9?[1,0,0]:[0,1,0],dot=seed.reduce((s,v,i)=>s+v*n[i],0),x=seed.map((v,i)=>v-dot*n[i]);
     plane=new cad.Plane(points[0],x,n);
-    drawing=cad.drawCircle(3);
+    drawing=cad.drawCircle(radius);
     sketch=drawing.sketchOnPlane(plane);
     return cad.genericSweep(sketch.wire,wire,{frenet:false,transitionMode:'right'});
   }finally{[sketch,drawing,plane,wire,...edges].forEach(v=>{try{v?.delete?.();}catch{}});}
@@ -204,4 +203,49 @@ test('I-08 a larger whole-body fillet upgrades an existing smaller blend to the 
     assert.ok(cylinderRadii(upgraded).every(v=>Math.abs(v-3)<1e-4));
     assert.ok(Math.abs(cad.measureVolume(upgraded)-cad.measureVolume(direct))<1e-4);
   }finally{upgraded?.delete();full?.delete();direct?.delete();second?.delete();first?.delete();s.delete();}
+});
+
+test('I-08 a larger whole-body fillet upgrades a concave planar blend to the new radius',()=>{
+  const body=L();
+  const inner=topologyDetails(body).find(item=>item.sharp&&item.midpoint&&Math.abs(item.midpoint[0]-10)<1e-4&&Math.abs(item.midpoint[1]-10)<1e-4);
+  assert.ok(inner,'expected the L inner vertical edge at (10,10)');
+  let first,upgraded,direct;
+  try{
+    first=buildEdgeBlend(body,'fillet',{radius:2,edgeIds:[inner.edgeId]});
+    upgraded=buildEdgeBlend(first,'fillet',{radius:3,allEdges:true},{suggestRadius:true});
+    direct=buildEdgeBlend(body,'fillet',{radius:3,allEdges:true});
+    assert.equal(upgraded.blendReport.status,'committed');
+    assert.ok(upgraded.blendReport.upgradedPriorBlends||upgraded.blendReport.priorBlendUpgrade);
+    assert.equal(sharpCount(upgraded),0);
+    assert.ok(cylinderRadii(upgraded).every(v=>Math.abs(v-3)<1e-4),cylinderRadii(upgraded));
+    assert.ok(Math.abs(cad.measureVolume(upgraded)-cad.measureVolume(direct))<1e-3);
+  }finally{upgraded?.delete();direct?.delete();first?.delete();body.delete();}
+});
+
+test('I-04 a tight polyline tube corner rebuilds at the max feasible bend',()=>{
+  const tube=makeSweepTube([[0,0,0],[0,0,3.2],[3.2,0,3.2]]);let r;
+  try{
+    r=buildEdgeBlend(tube,'fillet',{radius:1,allEdges:true},{suggestRadius:true});
+    assert.equal(r.blendReport.status,'committed');
+    assert.equal(sharpCount(r),0);
+    assert.equal(r.blendReport.strategy,'tube-spine-corner-rebuild');
+    const bend=r.blendReport.tubeRebuild.pathBendRadiusMm;
+    assert.ok(bend>3,r.blendReport.tubeRebuild);
+    assert.ok(bend<=3.2+1e-6,r.blendReport.tubeRebuild);
+  }finally{r?.delete();tube.delete();}
+});
+
+test('I-04 a tube corner tighter than the tube diameter is a proven geometric limit',()=>{
+  const tube=makeSweepTube([[0,0,0],[0,0,2.5],[2.5,0,2.5]]);
+  try{
+    assert.throws(()=>buildEdgeBlend(tube,'fillet',{radius:1,allEdges:true},{suggestRadius:true}),e=>{
+      assert.equal(e.report?.status,'failed');
+      const diag=e.report?.tubeRebuild;
+      assert.ok(diag,e.message);
+      assert.equal(diag.tubeRadiusMm,3);
+      assert.ok(diag.maxFeasibleBendRadiusMm!=null&&Math.abs(diag.maxFeasibleBendRadiusMm-2.5)<1e-6,diag);
+      assert.match(e.message,/弯半径大于管半径 3|最多只能放下弯半径 2\.5/);
+      return true;
+    });
+  }finally{tube.delete();}
 });

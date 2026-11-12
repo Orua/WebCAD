@@ -5,6 +5,7 @@
 // end caps natively.
 import * as cad from 'replicad';
 import {robustUnion} from '../robust-union.js';
+import {topologyDetails} from './topology.js';
 
 const dispose=value=>{try{value?.delete?.();}catch{}};
 const unit=v=>{const n=Math.hypot(...v);return n>1e-15?v.map(a=>a/n):null;};
@@ -123,7 +124,8 @@ function filletCorner(a,p,c,radius){
   if(!uu||!ww)throw new Error('degenerate corner');
   const ang=Math.acos(Math.max(-1,Math.min(1,dot(uu,ww))));
   const t=radius*Math.tan(ang/2);
-  if(!(t>1e-9)||t>dist(a,p)-1e-6||t>dist(p,c)-1e-6)throw new Error('path radius does not fit corner');
+  // Allow the elbow to meet a cap or the next elbow (leftover length may be 0).
+  if(!(t>1e-9)||t>dist(a,p)+1e-9||t>dist(p,c)+1e-9)throw new Error('path radius does not fit corner');
   const p1=sub(p,mul(uu,t)),p2=add(p,mul(ww,t));
   const planeN=cross(uu,ww);
   let left=unit(cross(planeN,uu));
@@ -134,24 +136,84 @@ function filletCorner(a,p,c,radius){
   return {p1,p2,center,axis:unit(planeN),ang,t,radius,uu,ww};
 }
 
-function maxBendRadius(points,tubeRadius){
-  const n=points.length,tanHalf=[];
-  for(let i=1;i<n-1;i++){
+function cornerAngles(points){
+  const angs=[];
+  for(let i=1;i<points.length-1;i++){
     const uu=unit(sub(points[i],points[i-1])),ww=unit(sub(points[i+1],points[i]));
+    if(!uu||!ww)return null;
     const ang=Math.acos(Math.max(-1,Math.min(1,dot(uu,ww))));
     if(!(ang>1e-6&&ang<Math.PI-1e-6))return null;
-    tanHalf[i]=Math.tan(ang/2);
+    angs.push({index:i,ang,tanHalf:Math.tan(ang/2),deg:ang*180/Math.PI});
   }
-  let max=Infinity;
-  const lengths=points.slice(0,-1).map((p,i)=>dist(p,points[i+1]));
-  max=Math.min(max,(lengths[0]-1e-3)/tanHalf[1],(lengths[n-2]-1e-3)/tanHalf[n-2]);
-  for(let i=1;i<n-2;i++)max=Math.min(max,(lengths[i]-1e-3)/(tanHalf[i]+tanHalf[i+1]));
-  if(!(max>tubeRadius+1e-3))return null;
-  return max;
+  return angs;
 }
 
-function rebuildRoundedTube(points,tubeRadius,bendRadius){
-  const corners=points.slice(1,-1).map((p,i)=>filletCorner(points[i],p,points[i+2],bendRadius));
+function segmentLengths(points){
+  return points.slice(0,-1).map((p,i)=>dist(p,points[i+1]));
+}
+
+// Largest uniform path bend that still fits every corner. Leftover straight
+// length may be zero (elbow may meet a cap or the next elbow).
+function maxBendRadius(points,tubeRadius){
+  const n=points.length,corners=cornerAngles(points);
+  if(!corners)return null;
+  const tanHalf=[];corners.forEach(c=>{tanHalf[c.index]=c.tanHalf;});
+  const lengths=segmentLengths(points);
+  let max=Math.min(lengths[0]/tanHalf[1],lengths[n-2]/tanHalf[n-2]);
+  for(let i=1;i<n-2;i++)max=Math.min(max,lengths[i]/(tanHalf[i]+tanHalf[i+1]));
+  return Number.isFinite(max)&&max>0?max:null;
+}
+
+function allocateBendRadii(points,tubeRadius,wanted){
+  const n=points.length,corners=cornerAngles(points);
+  if(!corners)return null;
+  const tanHalf=[];corners.forEach(c=>{tanHalf[c.index]=c.tanHalf;});
+  const lengths=segmentLengths(points);
+  const B=Array(n).fill(0);
+  for(const c of corners)B[c.index]=wanted;
+  const clamp=()=>{
+    for(let pass=0;pass<8;pass++){
+      if(B[1]*tanHalf[1]>lengths[0]+1e-9)B[1]=lengths[0]/tanHalf[1];
+      if(B[n-2]*tanHalf[n-2]>lengths[n-2]+1e-9)B[n-2]=lengths[n-2]/tanHalf[n-2];
+      for(let i=1;i<n-2;i++){
+        const need=B[i]*tanHalf[i]+B[i+1]*tanHalf[i+1];
+        if(need>lengths[i]+1e-9){
+          const scale=lengths[i]/need;
+          B[i]*=scale;B[i+1]*=scale;
+        }
+      }
+    }
+  };
+  clamp();
+  const radii=corners.map(c=>B[c.index]);
+  if(radii.some(b=>!(b>tubeRadius+1e-6)))return {ok:false,radii,lengths,corners,wanted};
+  return {ok:true,radii,lengths,corners,wanted,reduced:radii.some(b=>b+1e-9<wanted)};
+}
+
+function tubeRebuildDiagnostic(detected,requestedRadius,extra={}){
+  const corners=cornerAngles(detected.points),lengths=segmentLengths(detected.points);
+  const wanted=detected.radiusMm+requestedRadius;
+  const maxB=maxBendRadius(detected.points,detected.radiusMm);
+  return {
+    strategy:'tube-spine-corner-rebuild',
+    failed:true,
+    tubeRadiusMm:detected.radiusMm,
+    requestedRadiusMm:requestedRadius,
+    neededBendRadiusMm:wanted,
+    maxFeasibleBendRadiusMm:maxB,
+    segmentLengthsMm:lengths,
+    cornerAnglesDeg:corners?corners.map(c=>Math.round(c.deg*1000)/1000):null,
+    reason:extra.reason||(maxB==null||!(maxB>detected.radiusMm+1e-6)
+      ?`实心圆环弯头需要弯半径大于管半径 ${detected.radiusMm} mm，但当前段长与夹角最多只能放下弯半径 ${maxB==null?0:Number(maxB.toFixed(4))} mm`
+      :'折角重建未得到有效单实体'),
+    ...extra
+  };
+}
+
+
+function rebuildRoundedTube(points,tubeRadius,bendRadii){
+  const radii=Array.isArray(bendRadii)?bendRadii:points.slice(1,-1).map(()=>bendRadii);
+  const corners=points.slice(1,-1).map((p,i)=>filletCorner(points[i],p,points[i+2],radii[i]));
   const parts=[];
   try{
     const dirs=points.slice(0,-1).map((p,i)=>unit(sub(points[i+1],p)));
@@ -159,7 +221,8 @@ function rebuildRoundedTube(points,tubeRadius,bendRadius){
     const ends=[...corners.map(c=>c.p1),points.at(-1)];
     for(let i=0;i<starts.length;i++){
       const L=dist(starts[i],ends[i]);
-      if(!(L>1e-4))throw new Error('straight segment too short');
+      // Skip near-zero remnants: the elbow may meet a cap or the next elbow.
+      if(L<=1e-4)continue;
       parts.push(cad.makeCylinder(tubeRadius,L,starts[i],dirs[i]));
     }
     for(const c of corners){
@@ -181,25 +244,120 @@ function rebuildRoundedTube(points,tubeRadius,bendRadius){
   }finally{parts.forEach(dispose);}
 }
 
-// Returns a rebuilt tube with rounded spine corners, or null if this body is
-// not a polyline circular tube / the corner cannot be constructed honestly.
-export function tryTubeKnuckleRebuild(shape,requestedRadius){
-  const detected=detectPolylineTube(shape);
-  if(!detected)return null;
-  const maxB=maxBendRadius(detected.points,detected.radiusMm);
-  if(maxB==null)return null;
-  const wanted=detected.radiusMm+requestedRadius;
-  const bend=Math.min(wanted,maxB-1e-3);
-  if(!(bend>detected.radiusMm+1e-3))return null;
-  const rebuilt=rebuildRoundedTube(detected.points,detected.radiusMm,bend);
+function acceptRebuilt(rebuilt,shape){
   const oc=cad.getOC();
   const analyzer=new oc.BRepCheck_Analyzer(rebuilt.wrapped,true,false,false),solids=rebuilt.solids;
   try{
     const volume=cad.measureVolume(rebuilt),sourceVolume=cad.measureVolume(shape);
-    if(!analyzer.IsValid()||solids.length!==1||!(volume>1e-6)){dispose(rebuilt);return null;}
-    // Replacing miters with elbows should stay close to the original tube volume.
-    if(volume>sourceVolume*1.15||volume<sourceVolume*0.7){dispose(rebuilt);return null;}
-    return {shape:rebuilt,report:{strategy:'tube-spine-corner-rebuild',tubeRadiusMm:detected.radiusMm,pathBendRadiusMm:bend,requestedRadiusMm:requestedRadius,bendRadiusReduced:bend+1e-9<wanted,segmentCount:detected.segmentCount,sourceVolumeMm3:sourceVolume,rebuiltVolumeMm3:volume}};
-  }catch{dispose(rebuilt);return null;}
-  finally{dispose(analyzer);solids.forEach(dispose);}
+    if(!analyzer.IsValid()||solids.length!==1||!(volume>1e-6))return null;
+    if(volume>sourceVolume*1.15||volume<sourceVolume*0.7)return null;
+    return {volume,sourceVolume};
+  }finally{dispose(analyzer);solids.forEach(dispose);}
+}
+
+function bendCandidateList(points,tubeRadius,wanted){
+  const maxB=maxBendRadius(points,tubeRadius);
+  if(maxB==null||!(maxB>tubeRadius+1e-6))return {maxB,candidates:[]};
+  const out=[],add=b=>{if(b>tubeRadius+1e-6&&b<=maxB+1e-12&&!out.some(x=>Math.abs(x-b)<1e-7))out.push(b);};
+  add(Math.min(wanted,maxB));
+  for(const leave of [0.05,0.15,0.3,0.5,1])add(Math.min(wanted,maxB-leave));
+  const span=Math.min(wanted,maxB)-tubeRadius;
+  for(const f of [0.95,0.85,0.7])add(tubeRadius+span*f);
+  out.sort((a,b)=>b-a);
+  return {maxB,candidates:out};
+}
+
+function filletEndCaps(shape,radius){
+  const oc=cad.getOC();
+  const rows=topologyDetails(shape).filter(row=>row.sharp);
+  if(!rows.length)return {shape,capRadiusMm:0,capsFilleted:false,alreadySmooth:true};
+  const edges=shape.edges;
+  let builder,progress,result,check;
+  try{
+    builder=new oc.BRepFilletAPI_MakeFillet(shape.wrapped,oc.ChFi3d_FilletShape.ChFi3d_Rational);
+    for(const row of rows)builder.Add(radius,edges[row.edgeId].wrapped);
+    progress=new oc.Message_ProgressRange();
+    try{builder.Build(progress);}catch(error){let m=error?.message;if(!m)try{m=oc.getExceptionMessage(error);}catch{}throw new Error(m||'端盖圆角构造失败');}
+    let faulty=0;try{faulty=builder.NbFaultyContours();}catch{faulty=0;}
+    if(!builder.IsDone()||faulty>0)throw new Error(`端盖圆角失败（faulty=${faulty}）`);
+    result=cad.cast(builder.Shape());
+    check=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);
+    try{if(!check.IsValid())throw new Error('端盖圆角结果无效');}finally{dispose(check);check=null;}
+    const out=result;result=null;
+    return {shape:out,capRadiusMm:radius,capsFilleted:true,alreadySmooth:false};
+  }finally{dispose(result);dispose(check);dispose(progress);dispose(builder);edges.forEach(dispose);}
+}
+
+function capRadiusLadder(requested){
+  const out=[requested];
+  for(const f of [0.8,0.5,0.3,0.2,0.1,0.05]){
+    const r=Math.round(requested*f*1000)/1000;
+    if(r>=0.05&&!out.some(x=>Math.abs(x-r)<1e-9))out.push(r);
+  }
+  return out;
+}
+
+// Returns a rebuilt tube with rounded spine corners, or null if this body is
+// not a polyline circular tube. When the corner cannot be constructed, returns
+// {failed:true, diagnostic} so the caller can report needed vs available bend.
+// Pass {filletCaps:true} to also fillet the end caps (requested R first, then
+// a short descending ladder, trying a few feasible bend radii if needed).
+export function tryTubeKnuckleRebuild(shape,requestedRadius,options={}){
+  const detected=detectPolylineTube(shape);
+  if(!detected)return null;
+  const wanted=detected.radiusMm+requestedRadius;
+  const allocated=allocateBendRadii(detected.points,detected.radiusMm,wanted);
+  const {maxB,candidates}=bendCandidateList(detected.points,detected.radiusMm,wanted);
+  if(!allocated?.ok&&!candidates.length){
+    return {failed:true,diagnostic:tubeRebuildDiagnostic(detected,requestedRadius)};
+  }
+  const builds=[];
+  if(allocated?.ok)builds.push({kind:'per-corner',radii:allocated.radii});
+  for(const b of candidates)builds.push({kind:'uniform',radii:b});
+  const tryBuild=spec=>{
+    let rebuilt;
+    try{rebuilt=rebuildRoundedTube(detected.points,detected.radiusMm,spec.radii);}
+    catch{return null;}
+    const accepted=acceptRebuilt(rebuilt,shape);
+    if(!accepted){dispose(rebuilt);return null;}
+    const pathBend=Array.isArray(spec.radii)?Math.min(...spec.radii):spec.radii;
+    return {shape:rebuilt,pathBendRadiusMm:pathBend,bendRadiiMm:Array.isArray(spec.radii)?spec.radii:[spec.radii],...accepted};
+  };
+  if(!options.filletCaps){
+    let built=null;
+    for(const spec of builds){built=tryBuild(spec);if(built)break;}
+    if(!built)return {failed:true,diagnostic:tubeRebuildDiagnostic(detected,requestedRadius,{reason:'折角重建未得到有效单实体'})};
+    const {shape:rebuilt,volume,sourceVolume,pathBendRadiusMm,bendRadiiMm}=built;
+    return {shape:rebuilt,report:{strategy:'tube-spine-corner-rebuild',tubeRadiusMm:detected.radiusMm,pathBendRadiusMm,bendRadiiMm,requestedRadiusMm:requestedRadius,bendRadiusReduced:pathBendRadiusMm+1e-9<wanted,segmentCount:detected.segmentCount,sourceVolumeMm3:sourceVolume,rebuiltVolumeMm3:volume,maxFeasibleBendRadiusMm:maxB}};
+  }
+  const capRadii=capRadiusLadder(requestedRadius);
+  const builtList=[];
+  let kept=null;
+  try{
+    for(const spec of builds){
+      const built=tryBuild(spec);
+      if(built)builtList.push(built);
+    }
+    if(!builtList.length)return {failed:true,diagnostic:tubeRebuildDiagnostic(detected,requestedRadius,{reason:'折角重建未得到有效单实体'})};
+    // Prefer the requested cap R on the largest feasible elbow; only then reduce cap R.
+    for(const capR of capRadii){
+      for(const built of builtList){
+        let capped;
+        try{capped=filletEndCaps(built.shape,capR);}catch{continue;}
+        if(capped.alreadySmooth||capped.capsFilleted){
+          kept=capped.shape;
+          if(capped.shape!==built.shape){dispose(built.shape);built.shape=null;}
+          const volume=cad.measureVolume(capped.shape);
+          return {shape:capped.shape,report:{strategy:'tube-spine-corner-rebuild',tubeRadiusMm:detected.radiusMm,pathBendRadiusMm:built.pathBendRadiusMm,bendRadiiMm:built.bendRadiiMm,requestedRadiusMm:requestedRadius,bendRadiusReduced:built.pathBendRadiusMm+1e-9<wanted,capRadiusMm:capped.alreadySmooth?null:capped.capRadiusMm,capRadiusReduced:!capped.alreadySmooth&&capped.capRadiusMm+1e-9<requestedRadius,segmentCount:detected.segmentCount,sourceVolumeMm3:built.sourceVolume,rebuiltVolumeMm3:volume,maxFeasibleBendRadiusMm:maxB}};
+        }
+        if(capped.shape!==built.shape)dispose(capped.shape);
+      }
+    }
+    const first=builtList[0];
+    return {failed:true,diagnostic:tubeRebuildDiagnostic(detected,requestedRadius,{
+      reason:`折角已可按弯半径 ${first.pathBendRadiusMm.toFixed(3)} mm 重建，但端盖无法按 R${requestedRadius} 倒圆（弯头内侧余量过紧或端盖处几乎没有直段）`,
+      pathBendRadiusMm:first.pathBendRadiusMm,
+      capsFailed:true
+    })};
+  }finally{builtList.forEach(item=>{if(item.shape&&item.shape!==kept)dispose(item.shape);});}
 }
