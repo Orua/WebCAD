@@ -3,6 +3,7 @@
 #include <BRepBuilderAPI_Transform.hxx>
 #include <BRepCheck_Analyzer.hxx>
 #include <BRepClass_FaceClassifier.hxx>
+#include <BRepClass3d_SolidClassifier.hxx>
 #include <BRepGProp.hxx>
 #include <BRepBndLib.hxx>
 #include <GProp_GProps.hxx>
@@ -38,7 +39,8 @@ static json measure(const TopoDS_Shape& shape) {
   GProp_GProps props; BRepGProp::VolumeProperties(shape,props); const double volume=std::abs(props.Mass());
   if(!std::isfinite(volume)||volume<=0) throw std::runtime_error("Invalid material volume");
   Bnd_Box bounds; BRepBndLib::AddOptimal(shape,bounds,false,false); double x0,y0,z0,x1,y1,z1; bounds.Get(x0,y0,z0,x1,y1,z1);
-  return {{"valid",true},{"solidCount",solids},{"volumeMm3",volume},{"bounds",{{"min",{x0,y0,z0}},{"max",{x1,y1,z1}}}}};
+  BRepClass3d_SolidClassifier classifier(shape);classifier.PerformInfinitePoint(1e-7);
+  return {{"valid",true},{"solidCount",solids},{"boundedMaterial",classifier.State()==TopAbs_OUT},{"signedVolumeMm3",props.Mass()},{"volumeMm3",volume},{"bounds",{{"min",{x0,y0,z0}},{"max",{x1,y1,z1}}}}};
 }
 #include "relief_plan.hxx"
 #include "boolean_plan.hxx"
@@ -87,7 +89,7 @@ int main(int argc,char** argv) {
     };
     const bool translation=request.at("operation")=="transform"&&request.at("semanticVersion")=="transform.translation-1.0"&&request.at("strategy")=="translation";
     const bool relief=request.at("operation")=="relief"&&(request.at("semanticVersion")=="relief.compiled-contours-1.0"||request.at("semanticVersion")=="relief.compiled-contours-local-patch-1.1"||request.at("semanticVersion")=="relief.compiled-contours-strokes-1.2");
-    const bool booleanCut=request.at("operation")=="cut"&&request.at("semanticVersion")=="boolean.cut-1.0"&&request.at("strategy")=="multi-source-boolean";
+    const bool booleanCut=request.at("operation")=="cut"&&(request.at("semanticVersion")=="boolean.cut-1.0"||request.at("semanticVersion")=="boolean.cut-1.1")&&request.at("strategy")=="multi-source-boolean";
     const bool unionBlend=request.at("operation")=="union"&&(request.at("semanticVersion")=="boolean.union-seam-1.0"||request.at("semanticVersion")=="boolean.union-seam-1.1")&&request.at("strategy")=="multi-source-union-seam";
     const bool localBlend=(request.at("operation")=="fillet"||request.at("operation")=="smoothTransition")&&(request.at("semanticVersion")=="blend.spatial-edges-1.0"||request.at("semanticVersion")=="blend.spatial-edges-1.1")&&request.at("strategy")=="spatial-sharp-edges";
     json unionReport,blendReport;

@@ -84,7 +84,7 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
   }
   throw last;
  }
- async function wait(job,{signal,onProgress=()=>{},onWaitTimeout=defaultWaitHandler,waitTimeoutMs=read().serverWaitMs,pollIntervalMs=250}={}){
+ async function wait(job,{signal,onProgress=()=>{},onWaitTimeout=defaultWaitHandler,waitTimeoutMs=read().serverWaitMs,pollIntervalMs=1000}={}){
   if(!Number.isInteger(waitTimeoutMs)||waitTimeoutMs<1||waitTimeoutMs>900000)throw serviceError('PARAM_SCHEMA_INVALID','等待提醒时间无效');
   const began=now();let reminderAt=began,current=job,lastPhase='';
   while(['queued','running'].includes(current.execution)){

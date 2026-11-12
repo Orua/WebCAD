@@ -4234,5 +4234,20 @@
       "Real aircraft roof repaired using exact surface samples and native cut, wing roots trimmed and inlet channels independently checked",
       "Client native artifact reuse and final-state cold reopen; matching local/production/workspace release identities"
     ]
+  },
+  "booleanResultSelection": {
+    "localImpact": "Explicit strict interior world point selects a result solid after a cut, with a required discarded-volume limit. No size heuristic.",
+    "servicesImpact": "Acceptance-gated boolean.cut-1.1 preserves ordered input hashes and includes selection parameters in the physical cache key. Poll interval 1000 ms avoids exhausting anonymous read quota.",
+    "logoImpact": "No Logo geometry or source change.",
+    "contractImpact": "Page API 1.66.4 adds keepSolidAt/maxDiscardedVolumeMm3 to cut and regenerates full knowledge package.",
+    "documentImpact": "Selected exact solid and discarded-material report retained in compiled checkpoint; default split policy unchanged.",
+    "cacheImpact": "New semantic version for explicit selection; point and discard budget affect cache identity.",
+    "requiredTests": [
+      "Local and Native select smaller solid by point",
+      "Boundary/hole/empty selection and discard limit rejected",
+      "Default split still rejected",
+      "Actual aircraft localized fragment bounds reviewed; exact import and save",
+      "One minute polling remains below anonymous read quota"
+    ]
   }
 }

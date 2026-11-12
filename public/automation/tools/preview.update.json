@@ -8,7 +8,7 @@
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.66.3",
+  "version": "1.66.4",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -234,5 +234,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9aa3fcc8d3e74eb291a4be7d8808b2c5310389ea95cc7bbac4b8b6aa7e24bac7"
+  "docsHash": "sha256:e12d9bc4ee767e2db9fe54b510d0a5a9987a012479d03ef41f198b9fabbda5eb"
 }
