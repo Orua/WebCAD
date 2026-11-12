@@ -6,7 +6,7 @@ import {deriveAutomaticPolishingScale} from '../src/modeling/rounding/automatic-
 
 test('automatic polishing needs current edges and no numerical radius',()=>{
   const card=getOperation('rounding');assert.equal(card.version,'3.0.0');
-  assert.deepEqual(Object.keys(card.inputSchema.properties),['specVersion','strength','scope']);
+  assert.deepEqual(Object.keys(card.inputSchema.properties),['specVersion','strength','expand','scope']);// R9: expand opt-in (default none)
   const request={specVersion:3,scope:{kind:'edges',edgeIds:[2]}};
   assert.deepEqual(normalizeOperationParams('rounding',request),{strength:1,...request});
   assert.throws(()=>normalizeOperationParams('rounding',{...request,sizeMm:.2}),error=>error.code==='PARAM_SCHEMA_INVALID');

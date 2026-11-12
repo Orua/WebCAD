@@ -2,7 +2,7 @@
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.66.4",
+  "version": "1.67.0",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -186,5 +186,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:96cc749fbfb6fdfe99a70910c2a765eb0d07e3345f634ebdf6c2c8835cc2a0b7"
+  "docsHash": "sha256:fb648531fa3bcaba6be9e37741bfa3b87596dafc535e7fa690d9de7e9822ad32"
 }

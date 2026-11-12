@@ -54,8 +54,13 @@ export function buildAutomaticPolishing(shape,params,legacySolve,{sourceBodyId=n
         return {result,previous:result.roundingReport};
       }});
   }catch(error){attempts.push({strategy:'native-contour-planning',code:error.code,message:String(error.message),details:error.report??null});}
+  // R9-P1: the connected-network strategy spreads to unselected edges. It is
+  // opt-in (expand:'network'); by default it is only used when it adds nothing.
+  let withheldExpansion=null;
   try {
     const network=resolvePolishingNativeNetwork(shape,requested,rows,cad);
+    const expandedEdgeIds=network.sourceEdgeIds.filter(id=>!requested.includes(id));
+    if(expandedEdgeIds.length&&params.expand!=='network'){withheldExpansion={expandedEdgeIds,sourceEdgeIds:network.sourceEdgeIds};attempts.push({strategy:'automatic-native-network',code:'SCOPE_EXPANSION_REQUIRED',message:'关联边网会扩展到未选的边，默认不自动扩展',details:withheldExpansion});throw null;}
     strategies.push({kind:'automatic-native-network',sourceEdgeIds:network.sourceEdgeIds,
       constructionContourEdgeIds:network.sourceEdgeIds,dependencyNetwork:network,construct(){
         const candidate=buildNativeNetworkPolishing(shape,{network,constructionScaleMm:plan.constructionScaleMm},cad);
@@ -65,7 +70,7 @@ export function buildAutomaticPolishing(shape,params,legacySolve,{sourceBodyId=n
           newSurfaceCount:candidate.generatedFaceIds.length,nativeBuildCalls:candidate.nativeBuildCalls,
           effectiveSpec:{constructionScaleMm:plan.constructionScaleMm}}};
       }});
-  }catch(error){attempts.push({strategy:'native-network-planning',code:error.code,message:String(error.message),details:error.report??null});}
+  }catch(error){if(error!==null)attempts.push({strategy:'native-network-planning',code:error.code,message:String(error.message),details:error.report??null});}
   if(materialPlan.materialIntent==='remove') {
     try {
       const scope=resolveClosedContactContours(shape,requested,rows,cad);
@@ -119,5 +124,6 @@ export function buildAutomaticPolishing(shape,params,legacySolve,{sourceBodyId=n
       attempts.push({strategy:strategy.kind,code:error.code??'GEOMETRY_INVALID',message:String(error.message),details:error.details??error.report??null});
     }finally{dispose(result);}
   }
+  if(withheldExpansion)fail('SCOPE_EXPANSION_REQUIRED',`只打磨所选的 ${requested.length} 条边未能通过检查；连同相连的 ${withheldExpansion.expandedEdgeIds.length} 条锐边一起打磨可能可行（边 ${withheldExpansion.expandedEdgeIds.slice(0,16).join(', ')}），需设置 expand:'network' 并预览确认。`,{candidateAttempts:attempts,selectedSourceEdgeIds:requested,proposedExpandedEdgeIds:withheldExpansion.expandedEdgeIds,automaticScalePlan:plan});
   fail('GEOMETRY_CONFLICT','选中边的打磨曲面尚未完成有效实体与接顺检查',{candidateAttempts:attempts,selectedSourceEdgeIds:requested,automaticScalePlan:plan});
 }

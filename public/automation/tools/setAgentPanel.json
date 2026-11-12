@@ -2,7 +2,7 @@
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.66.4",
+  "version": "1.67.0",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -75,5 +75,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:16ea437fc1f69d4bec3def5f940c68aaeac298c01f0c14c9198a09b7c8217e60"
+  "docsHash": "sha256:9874cd68ab321f857b01afda57e55475544873b9cbd72aa44404a3cdcb67c7b0"
 }
