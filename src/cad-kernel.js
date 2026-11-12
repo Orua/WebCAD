@@ -725,7 +725,14 @@ export class CadKernel {
         }
         catch (error) { dispose(out); throw error; }
       }
-      case 'autoRound': return buildSmoothTransition(source(),{...p,allEdges:true});
+      case 'autoRound': {
+        const out=buildEdgeBlend(source(),'fillet',{radius:p.radius,allEdges:true,radiusFallback:p.radiusFallback},{suggestRadius:true});
+        if(out.blendReport&&!out.transitionReport){
+          const b=out.blendReport;
+          out.transitionReport={mode:'body',radius:b.amount,requestedRadiusMm:b.requestedAmountMm,status:b.status,processedEdgeIds:b.processedEdgeIds,failedEdgeIds:b.failedEdgeIds||[],remainingSharpEdgeIds:b.remainingSharpEdgeIds,remainingSharpEdgeCount:b.remainingSharpEdgeCount,radiusPerEdge:b.radiusPerEdge,maxFeasibleRadiusMm:b.maxFeasibleRadiusMm,skippedOneSidedEdgeIds:b.skippedOneSidedEdgeIds||[],strategy:b.strategy,radiusReduced:b.radiusReduced===true};
+        }
+        return out;
+      }
       case 'smoothTransition': return typeof p.radius==='object'?rangedBlend(source(),p,{smooth:true}):buildSmoothTransition(source(),{...p,context:blendContext(source())});
       case 'round': return buildRoundTool(source(),p);
       case 'roundEnd': return buildEndRounding(source(),p);
@@ -895,6 +902,17 @@ export class CadKernel {
       const faceMap = new Map(faces.map((v, i) => [v.hashCode, i])), edgeMap = new Map(edges.map((v, i) => [v.hashCode, i]));
       this.reportRebuildProgress('display-bounds','计算显示范围');
       const measured=this.geometryMetrics.get(shape)||(adaptive?displayMetadata(shape,faces,edges,this.oc):this.measureBodyGeometry(shape,faces,edges));
+      if(adaptive&&(measured.volume==null||measured.area==null)){
+        // I-07: adaptive display may defer exact *bounds*, but volume/area are cheap
+        // GK integrals and must be written back so the property panel is not empty.
+        const metricSolids=shape.solids;
+        try{
+          if(measured.volume==null)measured.volume=metricSolids.length?preciseVolume(shape,this.oc):null;
+          if(measured.area==null)measured.area=surfaceArea(shape,this.oc);
+          this.geometryMetrics.set(shape,measured);
+        }catch{/* leave deferred nulls if the integral itself fails */}
+        finally{metricSolids.forEach(dispose);}
+      }
       const mappedFaces = mesh.faceGroups.map(g => ({ ...g, faceId: faceMap.get(g.faceId),...(adaptive?{exactPolygon:isPlanarPolygon(faces[faceMap.get(g.faceId)])}:{}) }));
       measured.displayReport=meshIntegrity(mesh.vertices,mesh.triangles,{faceCount:faces.length,faceGroups:mappedFaces,brepVolumeMm3:measured.volume});
       if(shape.variationReport)measured.variationReport=shape.variationReport;

@@ -2,7 +2,7 @@
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.67.0",
+  "version": "1.68.0",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -149,5 +149,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9d2c7a4df10342d4587142ca30bb9791d05d20823c07bd9086339e673eea3add"
+  "docsHash": "sha256:69a8420482d980a4540c552add823370faaf428264b3e0dd9ff0e37899259e6f"
 }

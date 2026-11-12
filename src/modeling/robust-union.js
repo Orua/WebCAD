@@ -1,7 +1,22 @@
 import * as cad from 'replicad';
 import {booleanFaceOrigins,copyFaceOrigins} from './face-origins.js';
+import {topologyDetails} from './rounding/topology.js';
 const dispose=x=>{try{x?.delete?.();}catch{}};
 function bounds(shape){const b=shape.boundingBox;try{return b.bounds.map(p=>[...p]);}finally{dispose(b);}}
+function solidCount(shape){const solids=shape.solids;try{return solids.length;}finally{solids.forEach(dispose);}}
+function oneSidedNonPeriodicEdgeIds(shape,oc){
+  const rows=topologyDetails(shape),faces=shape.faces,edges=shape.edges,ids=[];
+  try{
+    for(const row of rows){
+      if(row.adjacentFaceIds.length!==1)continue;
+      const face=faces[row.adjacentFaceIds[0]],edge=edges[row.edgeId];
+      let periodic=false;
+      try{periodic=!!(face&&edge&&oc.BRep_Tool.IsClosed(edge.wrapped,face.wrapped));}catch{periodic=false;}
+      if(!periodic)ids.push(row.edgeId);
+    }
+  }finally{faces.forEach(dispose);edges.forEach(dispose);}
+  return ids;
+}
 function groups(shapes){
   const boxes=shapes.map(bounds),pending=new Set(shapes.map((_,i)=>i)),result=[];
   while(pending.size){const group=[pending.values().next().value];pending.delete(group[0]);for(let k=0;k<group.length;k++)for(const i of [...pending])if([0,1,2].every(a=>boxes[i][0][a]<=boxes[group[k]][1][a]+1e-7&&boxes[group[k]][0][a]<=boxes[i][1][a]+1e-7)){group.push(i);pending.delete(i);}result.push(group);}
@@ -25,12 +40,13 @@ export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[]
     const volume=measure(shape),epsilon=1e-7+upper*1e-8;
     if(!Number.isFinite(volume)||volume<lower-epsilon||volume>upper+epsilon)throw new Error('融合结果违反输入材料体积范围');return volume;
   }
-  function fuse(items){
+  function fuse(items,opt={}){
     if(items.length===1)return copyFaceOrigins(items[0],items[0].clone());
+    const useFuzzy=opt.fuzzyMm??fuzzyMm,useGlue=opt.glue??glue;
     let builder,args,tools,progress;
     try{
       builder=new oc.BRepAlgoAPI_Fuse();args=new oc.NCollection_List_TopoDS_Shape();tools=new oc.NCollection_List_TopoDS_Shape();args.Append(items[0].wrapped);items.slice(1).forEach(s=>tools.Append(s.wrapped));
-      builder.SetArguments(args);builder.SetTools(tools);builder.SetNonDestructive(true);builder.SetRunParallel(false);builder.SetFuzzyValue(fuzzyMm);builder.SetGlue(oc.BOPAlgo_GlueEnum[{off:'BOPAlgo_GlueOff',shift:'BOPAlgo_GlueShift',full:'BOPAlgo_GlueFull'}[glue]]);
+      builder.SetArguments(args);builder.SetTools(tools);builder.SetNonDestructive(true);builder.SetRunParallel(false);builder.SetFuzzyValue(useFuzzy);builder.SetGlue(oc.BOPAlgo_GlueEnum[{off:'BOPAlgo_GlueOff',shift:'BOPAlgo_GlueShift',full:'BOPAlgo_GlueFull'}[useGlue]]);
       progress=new oc.Message_ProgressRange();builder.Build(progress);if(!builder.IsDone()||builder.HasErrors())throw new Error('多参数布尔运算失败');if(simplifyResult)builder.SimplifyResult(true,true,1e-7);return booleanFaceOrigins(items,cad.cast(builder.Shape()),builder);
     }finally{[progress,tools,args,builder].forEach(dispose);}
   }
@@ -44,7 +60,31 @@ export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[]
         if(clusters.length>1){for(const cluster of clusters)owned.push(fuse(cluster.map(i=>shapes[i])));result=fuse(owned);}
         else{strategy='sequential-fuse';result=copyFaceOrigins(shapes[0],shapes[0].clone());for(const tool of shapes.slice(1)){const next=fuse([result,tool]);dispose(result);result=next;}}
       }
-      const volumeAfter=check(result);result.booleanReport={strategy,attempts:[...attempts,{strategy,status:'completed'}],fuzzyMm,glue,simplified:simplifyResult,volumeBefore:volumes,volumeAfter,elapsedMs:performance.now()-start};const output=result;result=null;return output;
+      let volumeAfter=check(result),usedFuzzy=fuzzyMm,usedGlue=glue;
+      let oneSided=oneSidedNonPeriodicEdgeIds(result,oc);
+      // I-05: tangent/flush contacts can leave one-sided edges; retry with shift glue / a small fuzzy value.
+      if(oneSided.length&&fuzzyMm===0&&glue==='off'){
+        for(const retry of [{glue:'shift',fuzzyMm:0},{glue:'shift',fuzzyMm:1e-5},{glue:'off',fuzzyMm:1e-4}]){
+          let repaired;
+          try{
+            repaired=fuse(shapes,retry);
+            const repairedVolume=check(repaired);
+            const repairedSides=oneSidedNonPeriodicEdgeIds(repaired,oc);
+            if(repairedSides.length<oneSided.length){
+              dispose(result);result=repaired;repaired=null;volumeAfter=repairedVolume;oneSided=repairedSides;usedFuzzy=retry.fuzzyMm;usedGlue=retry.glue;
+              if(!oneSided.length)break;
+            }
+          }catch{/* keep the first valid fuse */}
+          finally{dispose(repaired);}
+        }
+      }
+      const solids=solidCount(result),fused=solids===1;
+      const warnings=[];
+      if(!fused)warnings.push({code:'UNION_NOT_FUSED',message:`未融合、仍为 ${solids} 个实体。并集没有把它们做成单一实体；请先调整位置使实体相交后再合并，或改用组合（group）。`});
+      if(oneSided.length)warnings.push({code:'UNION_ONE_SIDED_EDGES',message:`并集后仍有单侧面边 ${oneSided.join(', ')}，整件圆角将跳过这些边。`});
+      result.booleanReport={strategy,attempts:[...attempts,{strategy,status:'completed'}],fuzzyMm:usedFuzzy,glue:usedGlue,simplified:simplifyResult,volumeBefore:volumes,volumeAfter,elapsedMs:performance.now()-start,fused,solidCount:solids,...(oneSided.length?{oneSidedEdgeIds:oneSided}:{})};
+      if(warnings.length)result.warnings=[...(result.warnings||[]),...warnings];
+      const output=result;result=null;return output;
     }catch(error){lastError=error;attempts.push({strategy,status:'failed',message:String(error.message||error)});}
     finally{dispose(result);owned.forEach(dispose);}
   }

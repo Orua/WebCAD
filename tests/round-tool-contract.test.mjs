@@ -20,7 +20,8 @@ test('planar face scope is explicit, exclusive and editable from the UI and API'
  const p=adaptUISelection('round',{radiusMm:.2},['a'],{bodyId:'a',type:'face',ids:[4]});
  assert.deepEqual(normalizeOperationParams('round',p),{mode:'auto',strength:.5,radiusMm:.2,faceIds:[4]});
  assert.throws(()=>normalizeOperationParams('round',{edgeIds:[1],faceIds:[4]}));
- assert.throws(()=>normalizeOperationParams('round',{}));
+ assert.deepEqual(normalizeOperationParams('round',{}),{mode:'auto',strength:.5,allEdges:true});
+ assert.deepEqual(normalizeOperationParams('round',{radiusMm:3}),{mode:'auto',strength:.5,radiusMm:3,allEdges:true});
  const patch=normalizeOperationPatch('round',{edgeIds:[1],radiusMm:.2},{faceIds:[4]});
  assert.deepEqual(patch,{mode:'auto',strength:.5,radiusMm:.2,faceIds:[4]});
  assert.throws(()=>normalizeOperationPatch('round',patch,{edgeIds:[1],faceIds:[4]}));

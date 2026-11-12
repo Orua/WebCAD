@@ -241,6 +241,9 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
   if (!card.strictContract) contractError('CAPABILITY_UNAVAILABLE', 'args.op', 'Strict normalization is available only for migrated operations.', 'READ_TOOL_CONTRACT');
   assertJsonValue(params);
   if (!params || Array.isArray(params) || typeof params !== 'object') contractError('PARAM_SCHEMA_INVALID', 'params', 'Expected an object.');
+  // I-01: body-only / radius-only round is whole-body sharp edges. Mixed scopes stay exclusive via oneOf.
+  if(op==='round'&&!Object.hasOwn(params,'edgeIds')&&!Object.hasOwn(params,'faceIds')&&params.allEdges!==true)
+    params={...params,allEdges:true};
   if (!['input', 'resolved'].includes(phase)) throw new Error('Unknown parameter validation phase.');
   const schema = clone(op==='rounding'&&params.specVersion===1?legacyRoundingOperation.paramsSchema:op==='rounding'&&params.specVersion===2?legacyUnifiedRoundingOperation.paramsSchema:card.inputSchema);
   if (selectionToken !== undefined) {

@@ -11,6 +11,14 @@
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
+      },
+      "radiusFallback": {
+        "type": "string",
+        "description": "Omitted/none never changes the radius; maxFeasible applies the verified maximum feasible radius only when the exact radius fails",
+        "enum": [
+          "none",
+          "maxFeasible"
+        ]
       }
     },
     "required": [
@@ -48,7 +56,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Detect every sharp edge including holes and lettering, skip tangent seams and solve together. A body without sharp edges (sphere, torus, already fully rounded) returns NO_CHANGE. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Detect every sharp edge including holes and lettering, skip tangent seams and solve together. Failure reports maxFeasibleRadiusMm like fillet; radiusFallback:maxFeasible applies that verified radius. A body without sharp edges (sphere, torus, or already fully rounded at a radius at least as large as the request) returns NO_CHANGE. A later larger whole-body radius tries to upgrade existing smaller blends (including concave planar-planar ones); leftover smaller radii are reported honestly when an upgrade is not feasible. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result.",
   "title": "整件圆边 / Round every sharp edge of one solid",
   "category": "modification",
   "synonyms": [
@@ -58,7 +66,7 @@
     "auto Round operation"
   ],
   "description": "整件圆边 / Round every sharp edge of one solid",
-  "schemaHash": "sha256:3c6c45e14e9fc22f41b59b3d605f17d69bffd95db5788d7ff99abe87481f0386",
+  "schemaHash": "sha256:e9214504a1288979a57130d894d3aec2395f64fa797d4044f4b86d1c6ca956b2",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -119,7 +127,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. A body without sharp edges (sphere, torus, already fully rounded) returns NO_CHANGE. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
+    "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. Failure reports maxFeasibleRadiusMm like fillet; radiusFallback:maxFeasible applies that verified radius. A body without sharp edges (sphere, torus, or already fully rounded at a radius at least as large as the request) returns NO_CHANGE. A later larger whole-body radius tries to upgrade existing smaller blends (including concave planar-planar ones); leftover smaller radii are reported honestly when an upgrade is not feasible. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -187,7 +195,7 @@
   "contract": {
     "purpose": "整件圆边 / Round every sharp edge of one solid",
     "whenToUse": [
-      "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. A body without sharp edges (sphere, torus, already fully rounded) returns NO_CHANGE. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
+      "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. Failure reports maxFeasibleRadiusMm like fillet; radiusFallback:maxFeasible applies that verified radius. A body without sharp edges (sphere, torus, or already fully rounded at a radius at least as large as the request) returns NO_CHANGE. A later larger whole-body radius tries to upgrade existing smaller blends (including concave planar-planar ones); leftover smaller radii are reported honestly when an upgrade is not feasible. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
     ],
     "whenNotToUse": [
       {
@@ -203,6 +211,17 @@
           0,
           null
         ]
+      },
+      "radiusFallback": {
+        "meaning": "Omitted/none never changes the radius; maxFeasible applies the verified maximum feasible radius only when the exact radius fails",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       }
     },
     "refs": {
@@ -341,7 +360,7 @@
   },
   "purpose": "整件圆边 / Round every sharp edge of one solid",
   "whenToUse": [
-    "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. A body without sharp edges (sphere, torus, already fully rounded) returns NO_CHANGE. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
+    "Detect every sharp edge including holes and lettering, skip tangent seams and solve together. Failure reports maxFeasibleRadiusMm like fillet; radiusFallback:maxFeasible applies that verified radius. A body without sharp edges (sphere, torus, or already fully rounded at a radius at least as large as the request) returns NO_CHANGE. A later larger whole-body radius tries to upgrade existing smaller blends (including concave planar-planar ones); leftover smaller radii are reported honestly when an upgrade is not feasible. Fail atomically if any required edge cannot be rounded. No automatic smaller radius or partial success. Edit radius in the same feature to rebuild from its source, not the already-rounded result."
   ],
   "whenNotToUse": [
     {
@@ -713,5 +732,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:c383adae90e87e9915f085cca4bd4d61c6a9d4d946bedfb8cbb4e335cb1c4d4a"
+  "docsHash": "sha256:ceb2b8dbc65550baba54741fddf8cd84e2fdaaf3b6760cb1812b8d78a1c36d49"
 }

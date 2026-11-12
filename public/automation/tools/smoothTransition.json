@@ -69,6 +69,14 @@
         "quantityKind": "index",
         "quantizationPolicy": "none"
       },
+      "radiusFallback": {
+        "type": "string",
+        "description": "Omitted/none never changes the radius; maxFeasible applies the verified maximum feasible radius only when the exact radius fails",
+        "enum": [
+          "none",
+          "maxFeasible"
+        ]
+      },
       "selector": {
         "type": "object",
         "additionalProperties": false,
@@ -270,7 +278,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select one face (its whole sharp boundary) or at least two adjacent faces of one solid. With two or more faces only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs. Services supports exact numeric or explicitly bounded radius and selector.edgesNear world-mm intent only, sharpOnly:true, at most 64 sharp edges; other selectors and variable radius laws are not accepted remotely. Read actual execution capabilities before committing complex sources.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Select one face (its whole sharp boundary) or at least two adjacent faces of one solid. With two or more faces only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification or G2 guarantee. Exact radius is not reduced unless radiusFallback:maxFeasible; failures report maxFeasibleRadiusMm. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs. Services supports exact numeric or explicitly bounded radius and selector.edgesNear world-mm intent only, sharpOnly:true, at most 64 sharp edges; other selectors and variable radius laws are not accepted remotely. Read actual execution capabilities before committing complex sources.",
   "title": "平滑过渡 / Smooth shared seams of adjacent faces together",
   "category": "modification",
   "synonyms": [
@@ -283,7 +291,7 @@
     "blend"
   ],
   "description": "平滑过渡 / Smooth shared seams of adjacent faces together",
-  "schemaHash": "sha256:5ba5c39ebd49b1a7be59976afc485d988d997a1017fa241b86a001ef799d7994",
+  "schemaHash": "sha256:0fe0cb68e45361cac66c4fbe946a62868b5320bc5895554ffafbf0a0a90630d5",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -345,7 +353,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Select one face (its whole sharp boundary) or at least two adjacent faces of one solid. With two or more faces only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs. Services supports exact numeric or explicitly bounded radius and selector.edgesNear world-mm intent only, sharpOnly:true, at most 64 sharp edges; other selectors and variable radius laws are not accepted remotely. Read actual execution capabilities before committing complex sources."
+    "Select one face (its whole sharp boundary) or at least two adjacent faces of one solid. With two or more faces only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification or G2 guarantee. Exact radius is not reduced unless radiusFallback:maxFeasible; failures report maxFeasibleRadiusMm. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs. Services supports exact numeric or explicitly bounded radius and selector.edgesNear world-mm intent only, sharpOnly:true, at most 64 sharp edges; other selectors and variable radius laws are not accepted remotely. Read actual execution capabilities before committing complex sources."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -428,7 +436,7 @@
   "contract": {
     "purpose": "平滑过渡 / Smooth shared seams of adjacent faces together",
     "whenToUse": [
-      "Select one face (its whole sharp boundary) or at least two adjacent faces of one solid. With two or more faces only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
+      "Select one face (its whole sharp boundary) or at least two adjacent faces of one solid. With two or more faces only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification or G2 guarantee. Exact radius is not reduced unless radiusFallback:maxFeasible; failures report maxFeasibleRadiusMm. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
     ],
     "whenNotToUse": [
       {
@@ -451,6 +459,17 @@
         "range": [
           1,
           128
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "radiusFallback": {
+        "meaning": "Omitted/none never changes the radius; maxFeasible applies the verified maximum feasible radius only when the exact radius fails",
+        "unit": "none",
+        "range": [
+          null,
+          null
         ],
         "default": {
           "behavior": "omitted; retain the operation source default"
@@ -631,7 +650,7 @@
   },
   "purpose": "平滑过渡 / Smooth shared seams of adjacent faces together",
   "whenToUse": [
-    "Select one face (its whole sharp boundary) or at least two adjacent faces of one solid. With two or more faces only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification, G2 guarantee or radius auto-reduction. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
+    "Select one face (its whole sharp boundary) or at least two adjacent faces of one solid. With two or more faces only their shared sharp edges are processed; boundary edges against unselected faces are not implicitly selected. All selected sharp seams are solved together with rolling-ball fillets. Valid solid and sampled normal checks reject remaining selected sharp seams or unexplained new sharp seams. Local blend terminations on unselected faces may remain sharp and are explicitly reported as boundarySharpEdges. getState().bodies[].transitionReport reports processed source edges and remaining sharp edges in the result. Existing unselected sharp edges (including lettering) remain; no whole-product safety certification or G2 guarantee. Exact radius is not reduced unless radiusFallback:maxFeasible; failures report maxFeasibleRadiusMm. selector supports seamBetween feature IDs, edgesNear world position, and facesFromFeature roles. Selection is re-resolved from current OCCT Boolean history at every rebuild; parameters never store resolved topology IDs."
   ],
   "whenNotToUse": [
     {
@@ -1018,5 +1037,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:720bae76c4c9cf0ad37af1bcca3ce354f2bd2545240676789f63a8626cb95487"
+  "docsHash": "sha256:cb45df412560b1627a47c8e83814a078f57fcbf5ec0e7a8d4bca0e1c53686c7d"
 }

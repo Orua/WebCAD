@@ -23,6 +23,8 @@ test('deferred metrics never look like volume 0 in any projection (R7-009)',()=>
   assert.deepEqual(deferredMetricFields({metricsDeferred:true,volume:0,measurementStatus:'on-demand-exact-brep'}),{metricsDeferred:true,volume:null,measurementStatus:'on-demand-exact-brep'});
   assert.equal(bodyState({id:'a',metricsDeferred:true,volume:0}).volume,null);
   assert.equal(bodyState({id:'b',metricsDeferred:false,volume:12}).volume,12);
+  assert.equal(bodyState({id:'c',metricsDeferred:true,volume:23308.56,area:5400}).volume,23308.56);
+  assert.equal(bodyState({id:'c',metricsDeferred:true,volume:23308.56,area:5400}).area,5400);
   const main=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8'),service=fs.readFileSync(new URL('../src/command-service.js',import.meta.url),'utf8');
   assert.match(main,/solidCount:body\.solidCount,\.\.\.deferredMetricFields\(body\)\}\)\)/);
   assert.match(service,/metricsDeferred===true\?\{metricsDeferred:true\}:\{\}/);

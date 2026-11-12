@@ -1,7 +1,15 @@
 const keys=['id','name','geometryType','triangleCount','vertexCount','meshReport','previewOrigin','metricsDeferred','measurementStatus','boundsSource','adaptiveDisplay','bounds','volume','area','solidCount','shellCount','logoProjectionReport','transitionReport','blendReport','roundingReport','roundReport','endRoundingReport','repairReport','badgeReport','threadReport','chainReport','constraintReport','reliefReport','refineReport','displayReport','loftReport','variationReport','booleanReport','blendRadiusReport','radiusSearchReport','warnings'];
 keys.push('resizeReport','subdApproximation','guidedLoftReport','ellipsoidReport','alignmentReport','sourceFreeJunctionReport','sourceJunctionReport');
 // R7-009: a deferred exact measurement is never reported as volume 0.
-export function deferredMetricFields(body){return body?.metricsDeferred===true?{metricsDeferred:true,volume:null,...(body.measurementStatus?{measurementStatus:body.measurementStatus}:{})}:{};}
+export function deferredMetricFields(body){
+  if(body?.metricsDeferred!==true)return {};
+  // R7-009: an uncomputed or zero placeholder must never be reported as volume 0.
+  // I-07: a real measured volume/area computed on the adaptive path is preserved.
+  const out={metricsDeferred:true,volume:null,...(body.measurementStatus?{measurementStatus:body.measurementStatus}:{})};
+  if(Number.isFinite(body.volume)&&body.volume>0)out.volume=body.volume;
+  if(Number.isFinite(body.area)&&body.area>0)out.area=body.area;
+  return out;
+}
 export function bodyState(body){return {...Object.fromEntries(keys.filter(key=>body[key]!==undefined).map(key=>[key,body[key]])),...deferredMetricFields(body),faceCount:body.faceCount??body.faceGroups?.length??0,edgeCount:body.edgeCount??body.edges?.length??0};}
 export function bodyWarnings(bodies){
   return bodies.flatMap(body=>[
