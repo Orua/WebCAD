@@ -28,9 +28,44 @@
         "description": "Explicit OCCT glue mode; default off."
       },
       "blendRadiusMm": {
-        "type": "number",
-        "description": "Requested seam radius (mm)",
-        "exclusiveMinimum": 0
+        "oneOf": [
+          {
+            "type": "number",
+            "description": "Exact radius in mm (mm)",
+            "exclusiveMinimum": 0
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxMm",
+              "minMm"
+            ],
+            "properties": {
+              "maxMm": {
+                "type": "number",
+                "description": "Maximum radius (mm)",
+                "exclusiveMinimum": 0,
+                "maximum": 10000
+              },
+              "minMm": {
+                "type": "number",
+                "description": "Minimum radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "stepRatio": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            }
+          }
+        ]
       },
       "blendMode": {
         "type": "string",
@@ -92,7 +127,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented.",
   "title": "Fuse bodies",
   "category": "modification",
   "synonyms": [
@@ -107,7 +142,7 @@
     "boolean"
   ],
   "description": "Fuse bodies",
-  "schemaHash": "sha256:f566403c3047519c57f0a7bc98d2e94b94d8137a18d64440c2e73b5a42c04d8e",
+  "schemaHash": "sha256:5418db34877b6844fbda64c68c73514876ecb86381f1f7ee3ccf53a2b86af305",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -168,7 +203,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
+    "refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -286,10 +321,10 @@
         }
       },
       "blendRadiusMm": {
-        "meaning": "Requested seam radius (mm)",
+        "meaning": "blendRadiusMm: Fuse bodies",
         "unit": "mm",
         "range": [
-          0,
+          null,
           null
         ],
         "default": {
@@ -816,5 +851,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:9d3859f616f6e7c5b1103182f5d9849c2c7b9f1d756211693f6f03ae50b6a62d"
+  "docsHash": "sha256:53e88de970496c1f1abd124db6cc5a56acec310ed1425a5920d5dd054b8be01a"
 }

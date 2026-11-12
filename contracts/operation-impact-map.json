@@ -88,7 +88,12 @@
     "contractImpact": "Expose correspondence, actual profileEdgeCounts and nativeCompatibility in loft diagnostics. Readable native failure status; explicit section-loft recovery classification. Page API 1.63.7.",
     "documentImpact": "Source parameters and saved format unchanged. New builds retain original ordered vertices; failures do not commit empty geometry.",
     "cacheImpact": "Regenerate docs, routing, complete knowledge ZIP and hashes in the same local release.",
-    "requiredTests": ["Generated section aspect-ratio and point-cap correctness", "Existing ellipse/seam/degree/volume regressions", "Original failing source unchanged through real localhost Agent", "Native failure status and recovery classification"]
+    "requiredTests": [
+      "Generated section aspect-ratio and point-cap correctness",
+      "Existing ellipse/seam/degree/volume regressions",
+      "Original failing source unchanged through real localhost Agent",
+      "Native failure status and recovery classification"
+    ]
   },
   "genericToolDiagnosticsAndJobContracts": {
     "localImpact": "Check section loft construction before reading Shape; preserve stage diagnostics. Publish actual page job argument schemas independently of host-only preparation restrictions.",
@@ -4212,6 +4217,49 @@
       "Existing metal/selection/material persistence tests",
       "One bounded baseline/candidate material screenshot and geometry check",
       "Release inventory rejects legacy photo reintroduction"
+    ]
+  },
+  "nativeSeamUnion": {
+    "localImpact": "Exact Boolean seam radius fails atomically; no radius reduction or unblended partial result. Existing local selector support retained.",
+    "servicesImpact": "Add native union and spatial fillet/smoothTransition with ordered hashes, strict whitelist and acceptance-gated capabilities.",
+    "logoImpact": "No logo algorithm changes; existing native relief paths revalidated.",
+    "contractImpact": "Page API 1.66.2, boolean.union-seam-1.0 and blend.spatial-edges-1.0; regenerate full knowledge bundle.",
+    "documentImpact": "Persist precise compiled artifact, complete input hashes and union/blend reports, preserve undo and final-state save.",
+    "cacheImpact": "New native identity and semantic cache keys; no old result relabeling.",
+    "requiredTests": [
+      "Native connected union and exact seam blend; empty/disjoint/oversized-radius rejection without output",
+      "All ordered upload/hash checks, Runtime/Store execution and cache key separation",
+      "Current aircraft exact source: legal rejection of infeasible whole-seam radius, source unchanged",
+      "Page remote commit, undo and cold save/open; matching production/local/workspace identities"
+    ]
+  },
+  "nativeSeamRange": {
+    "localImpact": "Boolean seam blends accept an explicit radius range, use bounded existing probe against one current BRep; scalar requests stay exact.",
+    "servicesImpact": "Add accepted union/spatial blend 1.1 semantics with at most six radius candidates, complete atomic result validation and bounded failure diagnostics.",
+    "logoImpact": "No algorithm change; old native branches retain their semantic gates.",
+    "contractImpact": "Page API 1.66.3, explicit minMm/maxMm radius schema, diagnostics and actual sampled radius reporting. Full knowledge package regenerated.",
+    "documentImpact": "Precise successful result and complete input/checkpoint identity retained; failed range has no output or geometry commit.",
+    "cacheImpact": "New semantic version for explicit range only; a scalar 1.0 request never reuses a range result.",
+    "requiredTests": [
+      "Exact scalar no fallback; explicit range success and complete range failure",
+      "No client topology transfer; bounded current edge world points and diagnostics propagation",
+      "Real aircraft roof repaired using exact surface samples and native cut, wing roots trimmed and inlet channels independently checked",
+      "Client native artifact reuse and final-state cold reopen; matching local/production/workspace release identities"
+    ]
+  },
+  "booleanResultSelection": {
+    "localImpact": "Explicit strict interior world point selects a result solid after a cut, with a required discarded-volume limit. No size heuristic.",
+    "servicesImpact": "Acceptance-gated boolean.cut-1.1 preserves ordered input hashes and includes selection parameters in the physical cache key. Poll interval 1000 ms avoids exhausting anonymous read quota.",
+    "logoImpact": "No Logo geometry or source change.",
+    "contractImpact": "Page API 1.66.4 adds keepSolidAt/maxDiscardedVolumeMm3 to cut and regenerates full knowledge package.",
+    "documentImpact": "Selected exact solid and discarded-material report retained in compiled checkpoint; default split policy unchanged.",
+    "cacheImpact": "New semantic version for explicit selection; point and discard budget affect cache identity.",
+    "requiredTests": [
+      "Local and Native select smaller solid by point",
+      "Boundary/hole/empty selection and discard limit rejected",
+      "Default split still rejected",
+      "Actual aircraft localized fragment bounds reviewed; exact import and save",
+      "One minute polling remains below anonymous read quota"
     ]
   }
 }

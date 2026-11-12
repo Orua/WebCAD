@@ -63,8 +63,8 @@
       },
       {
         "name": "remote-agent/host-adapter.js",
-        "sizeBytes": 119138,
-        "sha256": "sha256:bf21a6198343757e9aa1c034ba471487cddfb15aee800645f00f70fa12031552"
+        "sizeBytes": 119689,
+        "sha256": "sha256:46e78a4750e3a1eac847905f8966ae5559b8f3dd22ae7f394ff9d037540282b9"
       },
       {
         "name": "remote-agent/runtime-contract.json",

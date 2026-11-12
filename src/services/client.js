@@ -50,7 +50,7 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
   const began=now(),controller=new AbortController(),timer=setTimeout(()=>controller.abort(),limit);
   try{response=await fetchImpl(url.href,{method,body,headers:{...headers,...(siteSession?{'X-WebCAD-Compute':'1'}:{Authorization:`Bearer ${auth}`})},redirect:'error',credentials:siteSession?'same-origin':'omit',cache:'no-store',signal:controller.signal});}catch{clearTimeout(timer);const elapsedMs=Math.max(0,now()-began);throw serviceError('SERVICES_CONNECTION_UNKNOWN',servicesConnectionTimeoutMessage({op:route,elapsedMs,timeoutMs:limit,bytes:bodyBytes,idempotencyKey}),{observation:'unknown',op:route,elapsedMs,timeoutMs:limit,bodyBytes,bodySizeClass:servicesBodySizeClass(bodyBytes),...(idempotencyKey?{idempotencyKey}:{})});}
   try{
-  if(!response.ok){let error;try{error=await response.json();}catch{}const fallback=response.status===404?'后台计算接口未找到，请核对当前计算地址':response.status===401?(siteSession?'同域计算版本尚未就绪，请核对 Services 发布':'计算端专用授权无效，请检查设置'):`后台计算请求失败（HTTP ${response.status}）`;throw serviceError(error?.code??'SERVICES_REQUEST_FAILED',error?.message??fallback,{httpStatus:response.status,supportBinding:error?.supportBinding,stage:error?.stage,diagnosticsRef:error?.diagnosticsRef,commitState:error?.commitState??error?.commit,recoveryAction:error?.recoveryAction});}
+  if(!response.ok){let error;try{error=await response.json();}catch{}const fallback=response.status===404?'后台计算接口未找到，请核对当前计算地址':response.status===401?(siteSession?'同域计算版本尚未就绪，请核对 Services 发布':'计算端专用授权无效，请检查设置'):`后台计算请求失败（HTTP ${response.status}）`;throw serviceError(error?.code??'SERVICES_REQUEST_FAILED',error?.message??fallback,{httpStatus:response.status,supportBinding:error?.supportBinding,blendDiagnostics:error?.blendDiagnostics,stage:error?.stage,diagnosticsRef:error?.diagnosticsRef,commitState:error?.commitState??error?.commit,recoveryAction:error?.recoveryAction});}
   return binary?new Uint8Array(await response.arrayBuffer()):await response.json();
   }finally{clearTimeout(timer);}
  }
@@ -84,7 +84,7 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
   }
   throw last;
  }
- async function wait(job,{signal,onProgress=()=>{},onWaitTimeout=defaultWaitHandler,waitTimeoutMs=read().serverWaitMs,pollIntervalMs=250}={}){
+ async function wait(job,{signal,onProgress=()=>{},onWaitTimeout=defaultWaitHandler,waitTimeoutMs=read().serverWaitMs,pollIntervalMs=1000}={}){
   if(!Number.isInteger(waitTimeoutMs)||waitTimeoutMs<1||waitTimeoutMs>900000)throw serviceError('PARAM_SCHEMA_INVALID','等待提醒时间无效');
   const began=now();let reminderAt=began,current=job,lastPhase='';
   while(['queued','running'].includes(current.execution)){
@@ -114,7 +114,7 @@ export function createServicesClient({config,credential,fetchImpl=globalThis.fet
   if(current.execution!=='succeeded'){
    const failure=current.error??{},stage=failure.stage??current.stage;
    const code=failure.code??'SERVICES_JOB_FAILED',commitState=failure.commitState??failure.commit??current.commit??'notCommitted';
-   throw serviceError(code,failure.message??`任务状态 ${current.execution}`,{job:current,jobId:current.jobId,idempotencyKey:job.requestKey,details:{...(failure.details||{}),serviceMessage:failure.message??null,execution:current.execution},supportBinding:failure.supportBinding,stage,diagnosticsRef:failure.diagnosticsRef,commitState,recoveryAction:failure.recoveryAction});
+   throw serviceError(code,failure.message??`任务状态 ${current.execution}`,{job:current,jobId:current.jobId,idempotencyKey:job.requestKey,details:{...(failure.details||{}),blendDiagnostics:failure.blendDiagnostics??null,serviceMessage:failure.message??null,execution:current.execution},supportBinding:failure.supportBinding,stage,diagnosticsRef:failure.diagnosticsRef,commitState,recoveryAction:failure.recoveryAction});
   }
   const manifest=await request(job.requestKey?`/v1/requests/${job.requestKey}/result`:`/v1/jobs/${job.jobId}/result`,{timeoutMs:servicesRequestTimeoutMs('result')});if(manifest.jobId!==job.jobId||manifest.inputFingerprint!==job.inputFingerprint)throw serviceError('RESULT_MISMATCH','任务结果指纹不一致');
   if(job.requestBinding&&JSON.stringify(manifest.requestBinding)!==JSON.stringify(job.requestBinding))throw serviceError('RESULT_MISMATCH','服务未返回对应请求的安装绑定');

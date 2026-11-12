@@ -1,4 +1,5 @@
 import {applyBodyResize} from './body-resize.js';
+import {selectBooleanSolid,validSolidSelection} from './modeling/boolean-result-selection.js';
 import {resultDisplayNames} from './boolean-naming.js';
 import {normalizeExtrudeHoles,holeTopologyOk} from './extrude-holes.js';
 import {buildTap} from './modeling/manufacturing/tap-tool.js';
@@ -694,6 +695,7 @@ export class CadKernel {
         } finally { instances.forEach(dispose); }
       }
       case 'union': case 'cut': case 'intersect': {
+        if(feature.op==='cut'&&!validSolidSelection(p))throw Object.assign(new Error('主体选择需要内部点、体积上限和受支持的逐刀策略。'),{code:'PARAM_SCHEMA_INVALID'});
         if (sources.length < 2) throw new Error('布尔操作至少需要两个实体');
         if(feature.op==='union'&&unionStrategy(feature)==='multi-fuse')return finishBooleanBlend(robustUnion(sources,{...p,toolIds:refs,toolNames:refs.map(id=>historyFeatures.find(f=>f.id===id)?.name||id),measure:shape=>preciseVolume(shape,this.oc)}),p,refs);
         let out = copyFaceOrigins(sources[0],sources[0].clone()); const method = { union: 'fuse', cut: 'cut', intersect: 'intersect' }[feature.op];
@@ -718,6 +720,7 @@ export class CadKernel {
             } catch (error) { dispose(next); throw error; }
             dispose(out); out = next;
           }
+          if(feature.op==='cut'&&p.keepSolidAt!==undefined){const selected=selectBooleanSolid(out,p,cad);dispose(out);out=selected;}
           return ['cut','union'].includes(feature.op)?finishBooleanBlend(out,p,refs):out;
         }
         catch (error) { dispose(out); throw error; }
@@ -971,7 +974,7 @@ export class CadKernel {
             // uploaded. Reading a defensive BRep copy can rewrite serialization
             // flags without changing geometry; that copy is for computation.
             const checkpointSources=feature.compiledCheckpoint&&feature.compiledCheckpoint.kind!=='local-rebuild'?feature.refs.map(id=>new TextEncoder().encode(this.geometrySourceSnapshot(next.get(id)))):null;
-            let checkpoint=compiledCheckpointBytes(document,feature,checkpointSources?(feature.op==='cut'||feature.compiledCheckpoint.kind==='local-rebuild'?checkpointSources:checkpointSources[0]):undefined);
+            let checkpoint=compiledCheckpointBytes(document,feature,checkpointSources?(['cut','union'].includes(feature.op)||feature.compiledCheckpoint.kind==='local-rebuild'?checkpointSources:checkpointSources[0]):undefined);
             // Pre-snapshot v3 artifacts could include display triangulations.
             // Recreate that source representation once and require its exact
             // original hash. This is source mesh work, never relief recompute.
@@ -979,7 +982,7 @@ export class CadKernel {
               const legacySource=next.get(feature.refs[0]);this.describe(legacySource,{id:feature.refs[0],op:'legacy-source'});
               checkpoint=compiledCheckpointBytes(document,feature,new TextEncoder().encode(legacySource.serialize()));
             }
-            if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));restoreCheckpointReports(shape,feature.compiledCheckpoint.reports);if(feature.compiledCheckpoint.faceOriginSignatures)restoreFaceOrigins(shape,feature.compiledCheckpoint.faceOriginSignatures,{defer:true});if(feature.op==='round')shape.roundReport=feature.compiledCheckpoint.roundReport;if(feature.op==='reliefShoulder')shape.reliefReport=feature.compiledCheckpoint.reliefReport;compiledReuse.push(current);}
+            if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));restoreCheckpointReports(shape,feature.compiledCheckpoint.reports);if(feature.compiledCheckpoint.faceOriginSignatures)restoreFaceOrigins(shape,feature.compiledCheckpoint.faceOriginSignatures,{defer:true});if(feature.compiledCheckpoint.booleanReport)shape.booleanReport=feature.compiledCheckpoint.booleanReport;if(feature.compiledCheckpoint.blendReport)shape.blendReport=feature.compiledCheckpoint.blendReport;if(feature.op==='round')shape.roundReport=feature.compiledCheckpoint.roundReport;if(feature.op==='reliefShoulder')shape.reliefReport=feature.compiledCheckpoint.reliefReport;compiledReuse.push(current);}
             else {
               if(feature.compiledCheckpoint)compiledInvalidated.push(current);
               for(const id of new Set(feature.refs||[]))if(next.has(id)){

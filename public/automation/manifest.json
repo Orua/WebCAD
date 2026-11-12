@@ -159,7 +159,7 @@
       "label": "批量凸点",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:8ac34e4d253e337bccb8541e7cfe80326a54d3d7e39e9f6ff77470afdb03a117",
+      "docsHash": "sha256:038f55e96681b59101b72fe15bbab149ab765c70a8b5ddd9d7d072ebc534c2ce",
       "url": "tools/bumpSet.json"
     },
     {
@@ -231,7 +231,7 @@
       "label": "相减",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:b5d07cf3f7b247b5381be45edf0a9ab8ba520eff9a5bff60fd3b3e17b72a8ea5",
+      "docsHash": "sha256:65711c77b7ea79897044dfce9d2ca5eecb56c5ed77f814776a17b67adfd14c4a",
       "url": "tools/cut.json"
     },
     {
@@ -879,7 +879,7 @@
       "label": "合并",
       "category": "modification",
       "version": "1.0.0",
-      "docsHash": "sha256:9d3859f616f6e7c5b1103182f5d9849c2c7b9f1d756211693f6f03ae50b6a62d",
+      "docsHash": "sha256:53e88de970496c1f1abd124db6cc5a56acec310ed1425a5920d5dd054b8be01a",
       "url": "tools/union.json"
     },
     {
@@ -2606,7 +2606,7 @@
     },
     {
       "id": "api.blend-radius",
-      "docsHash": "sha256:d65cc21cec97b69a736bb5ce2061bd073a0baf83ae7eb1e0fa49193e6a9505f6",
+      "docsHash": "sha256:dcd18379d0401491f24c14f90f84eb3fdc9ede459907968b32ce6358ee14818d",
       "url": "docs/api.blend-radius.md"
     },
     {
@@ -2646,7 +2646,7 @@
     },
     {
       "id": "api.error-recovery",
-      "docsHash": "sha256:e87c338da008b0ccbbe23759789df9ba44aa4e37e843ba54de57c8263ac06912",
+      "docsHash": "sha256:214d8353ce4bfe713dd4dab0f2f8f6fade55bdc1afe966e88cc4146274984977",
       "url": "docs/api.error-recovery.md"
     },
     {

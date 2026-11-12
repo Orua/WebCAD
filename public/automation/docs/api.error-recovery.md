@@ -133,11 +133,19 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 ### geometry
 
-候选几何未通过构造、有效性或来源保持检查。
+指定半径或明确范围内未能构造完整有效接缝，原实体保留。
 
-读取本次阶段与诊断并检查来源；只在确认未提交、有新机制证据和剩余预算时，通过现有 preview.start/update/cancel 评估一个候选。保留尺寸、图案、深度与R。
+读取 blendDiagnostics 的失败半径、位置及轮廓数量；依据真实几何修正局部范围或源面，不自动重试相同候选。
 
-代码：`BLEND_RADIUS_INFEASIBLE`、`CLOSED_GRINDING_CHAIN_REJECTED`、`GEOMETRY_CONFLICT`、`GEOMETRY_FAILED`、`GEOMETRY_INVALID`、`GRINDING_STRIP_REJECTED`、`MESH_BOOLEAN_INVALID`、`REFINE_FAILED`、`RELIEF_GEOMETRY_INVALID`、`RELIEF_INTERSECTION`、`RELIEF_MULTIVALUED`、`RELIEF_NOT_CLOSED`
+代码：`BLEND_BUILD_FAILED`、`BLEND_RADIUS_INFEASIBLE`、`CLOSED_GRINDING_CHAIN_REJECTED`、`GEOMETRY_CONFLICT`、`GEOMETRY_FAILED`、`GEOMETRY_INVALID`、`GRINDING_STRIP_REJECTED`、`MESH_BOOLEAN_INVALID`、`REFINE_FAILED`、`RELIEF_GEOMETRY_INVALID`、`RELIEF_INTERSECTION`、`RELIEF_MULTIVALUED`、`RELIEF_NOT_CLOSED`
+
+### unclassified
+
+操作未能完成，目前没有足够证据确定安全恢复方式。
+
+保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
+
+代码：`BOOLEAN_DISCARD_LIMIT`、`BOOLEAN_RESULT_LIMIT`、`BOOLEAN_RESULT_POINT_INVALID`
 
 ### display
 

@@ -12,10 +12,67 @@
         "type": "boolean",
         "description": "Name the result body after this boolean step instead of keeping the target body name"
       },
-      "blendRadiusMm": {
+      "toolExecution": {
+        "type": "string",
+        "description": "Optional explicit sequential Native cuts; requires keepSolidAt and discard limit",
+        "enum": [
+          "sequential"
+        ]
+      },
+      "keepSolidAt": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "Optional strict interior world point selecting exactly one result solid; never select by size"
+      },
+      "maxDiscardedVolumeMm3": {
         "type": "number",
-        "description": "Requested seam radius (mm)",
-        "exclusiveMinimum": 0
+        "description": "Required with keepSolidAt: maximum total separated material to discard in mm³",
+        "minimum": 0,
+        "maximum": 1000000000
+      },
+      "blendRadiusMm": {
+        "oneOf": [
+          {
+            "type": "number",
+            "description": "Exact radius in mm (mm)",
+            "exclusiveMinimum": 0
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxMm",
+              "minMm"
+            ],
+            "properties": {
+              "maxMm": {
+                "type": "number",
+                "description": "Maximum radius (mm)",
+                "exclusiveMinimum": 0,
+                "maximum": 10000
+              },
+              "minMm": {
+                "type": "number",
+                "description": "Minimum radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "stepRatio": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            }
+          }
+        ]
       },
       "blendMode": {
         "type": "string",
@@ -77,7 +134,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tools. keepSolidAt requires maxDiscardedVolumeMm3; the point must lie strictly inside exactly one result solid, away from boundaries and holes. Default split-result policy is unchanged. Explicit selection reports each discarded solid volume/bounds and fails BOOLEAN_DISCARD_LIMIT above the authorized limit or BOOLEAN_RESULT_POINT_INVALID for an invalid point. Native selection requires boolean.cut-1.1; optional toolExecution:sequential explicitly orders cuts. Read bodies[].booleanReport.selection for every discarded solid volume and bounds. Invalid or incomplete Boolean results are rejected, never healed or silently retried. At most 128 separated solids; no automatic largest-solid selection. Each cut must remove material without increasing volume. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented.",
   "title": "Subtract other bodies from first",
   "category": "modification",
   "synonyms": [
@@ -95,7 +152,7 @@
     "subtract"
   ],
   "description": "Subtract other bodies from first",
-  "schemaHash": "sha256:f99705815de34b8cabc1a6556d785adcc74e8a1ac76ff1de335d68bdffd66122",
+  "schemaHash": "sha256:bb1c0c57f4ed08e15ab03b6330f86745ccecc066488917d2570f9b9418d1ed5f",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -156,7 +213,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tools. keepSolidAt requires maxDiscardedVolumeMm3; the point must lie strictly inside exactly one result solid, away from boundaries and holes. Default split-result policy is unchanged. Explicit selection reports each discarded solid volume/bounds and fails BOOLEAN_DISCARD_LIMIT above the authorized limit or BOOLEAN_RESULT_POINT_INVALID for an invalid point. Native selection requires boolean.cut-1.1; optional toolExecution:sequential explicitly orders cuts. Read bodies[].booleanReport.selection for every discarded solid volume and bounds. Invalid or incomplete Boolean results are rejected, never healed or silently retried. At most 128 separated solids; no automatic largest-solid selection. Each cut must remove material without increasing volume. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -220,7 +277,7 @@
   "contract": {
     "purpose": "Subtract other bodies from first",
     "whenToUse": [
-      "refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+      "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tools. keepSolidAt requires maxDiscardedVolumeMm3; the point must lie strictly inside exactly one result solid, away from boundaries and holes. Default split-result policy is unchanged. Explicit selection reports each discarded solid volume/bounds and fails BOOLEAN_DISCARD_LIMIT above the authorized limit or BOOLEAN_RESULT_POINT_INVALID for an invalid point. Native selection requires boolean.cut-1.1; optional toolExecution:sequential explicitly orders cuts. Read bodies[].booleanReport.selection for every discarded solid volume and bounds. Invalid or incomplete Boolean results are rejected, never healed or silently retried. At most 128 separated solids; no automatic largest-solid selection. Each cut must remove material without increasing volume."
     ],
     "whenNotToUse": [
       {
@@ -251,11 +308,44 @@
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "blendRadiusMm": {
-        "meaning": "Requested seam radius (mm)",
-        "unit": "mm",
+      "toolExecution": {
+        "meaning": "Optional explicit sequential Native cuts; requires keepSolidAt and discard limit",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "keepSolidAt": {
+        "meaning": "Optional strict interior world point selecting exactly one result solid; never select by size",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "maxDiscardedVolumeMm3": {
+        "meaning": "Required with keepSolidAt: maximum total separated material to discard in mm³",
+        "unit": "dimensionless",
         "range": [
           0,
+          1000000000
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendRadiusMm": {
+        "meaning": "blendRadiusMm: Subtract other bodies from first",
+        "unit": "mm",
+        "range": [
+          null,
           null
         ],
         "default": {
@@ -411,7 +501,7 @@
   },
   "purpose": "Subtract other bodies from first",
   "whenToUse": [
-    "refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tools. keepSolidAt requires maxDiscardedVolumeMm3; the point must lie strictly inside exactly one result solid, away from boundaries and holes. Default split-result policy is unchanged. Explicit selection reports each discarded solid volume/bounds and fails BOOLEAN_DISCARD_LIMIT above the authorized limit or BOOLEAN_RESULT_POINT_INVALID for an invalid point. Native selection requires boolean.cut-1.1; optional toolExecution:sequential explicitly orders cuts. Read bodies[].booleanReport.selection for every discarded solid volume and bounds. Invalid or incomplete Boolean results are rejected, never healed or silently retried. At most 128 separated solids; no automatic largest-solid selection. Each cut must remove material without increasing volume."
   ],
   "whenNotToUse": [
     {
@@ -786,5 +876,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:b5d07cf3f7b247b5381be45edf0a9ab8ba520eff9a5bff60fd3b3e17b72a8ea5"
+  "docsHash": "sha256:65711c77b7ea79897044dfce9d2ca5eecb56c5ed77f814776a17b67adfd14c4a"
 }

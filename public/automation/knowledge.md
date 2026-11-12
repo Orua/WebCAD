@@ -312,6 +312,10 @@ files.release: contextPolicy=none
 
 ## api.blend-radius
 
+1.66.3：显式半径范围使用{maxMm,minMm,stepRatio?,maxAttempts?:6}，范围仅授权最多6个下降候选，不保证找到数学最大可行值。Native对应boolean.union-seam-1.1/blend.spatial-edges-1.1；标量保持1.0精确值与单次构造，不自动降半径。回读tried、attemptCount和radiusUsedMm；失败没有部分提交，blendDiagnostics含最多6次结果与16个世界坐标定位点。复杂错位端面不能靠半径搜索保证修好，应按来源边界重建局部过渡面，检查实件而非只看作业成功。
+
+原生Services支持union的2–33份单实体来源融合，结果须为单一连通实体；可选blendRadiusMm仅修顺当前布尔历史中不同来源的尖锐交线，至多64条。标量固定半径不自动缩小，显式范围才求解；未命中或范围内全部修顺失败整步不提交；融合成功不代表所有外形缺陷已处理。原生fillet/smoothTransition当前支持数值或显式范围radius及selector.edgesNear世界毫米点/范围，sharpOnly为true，至多64条；其他选择器/沿边变半径规律明确拒绝，不跨核传面边号。复杂来源必须先读取Services实际能力和编译语义，缺少时明确阻止，不切本地兜底。
+
 语义圆角使用selector:{seamBetween:{a:特征ID,b:特征ID}}、edgesNear:{pointMm,radiusMm,sharpOnly}或facesFromFeature:{featureId,role}，每次重建由当前OCCT历史解析，不保存面号。smoothTransition/fillet的radius可为正数或{maxMm,minMm,stepRatio:0.75,maxAttempts:6}，区间内只重用同一来源，不重建前缀；回执radiusSearchReport写明实际半径与逐次结果。probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?,maxAttempts?})只读当前独立BRep副本，不改变revision、历史和选择；feasibleMaxMm为最多6个下降样本中的最大可行半径，不是认证全局最大值。全部失败返回feasibility:infeasible、feasibleMaxMm:null和tried；不自动应用。优先给用户允许的区间，回显radiusUsedMm。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
@@ -1451,11 +1455,19 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 ### geometry
 
-候选几何未通过构造、有效性或来源保持检查。
+指定半径或明确范围内未能构造完整有效接缝，原实体保留。
 
-读取本次阶段与诊断并检查来源；只在确认未提交、有新机制证据和剩余预算时，通过现有 preview.start/update/cancel 评估一个候选。保留尺寸、图案、深度与R。
+读取 blendDiagnostics 的失败半径、位置及轮廓数量；依据真实几何修正局部范围或源面，不自动重试相同候选。
 
-代码：`BLEND_RADIUS_INFEASIBLE`、`CLOSED_GRINDING_CHAIN_REJECTED`、`GEOMETRY_CONFLICT`、`GEOMETRY_FAILED`、`GEOMETRY_INVALID`、`GRINDING_STRIP_REJECTED`、`MESH_BOOLEAN_INVALID`、`REFINE_FAILED`、`RELIEF_GEOMETRY_INVALID`、`RELIEF_INTERSECTION`、`RELIEF_MULTIVALUED`、`RELIEF_NOT_CLOSED`
+代码：`BLEND_BUILD_FAILED`、`BLEND_RADIUS_INFEASIBLE`、`CLOSED_GRINDING_CHAIN_REJECTED`、`GEOMETRY_CONFLICT`、`GEOMETRY_FAILED`、`GEOMETRY_INVALID`、`GRINDING_STRIP_REJECTED`、`MESH_BOOLEAN_INVALID`、`REFINE_FAILED`、`RELIEF_GEOMETRY_INVALID`、`RELIEF_INTERSECTION`、`RELIEF_MULTIVALUED`、`RELIEF_NOT_CLOSED`
+
+### unclassified
+
+操作未能完成，目前没有足够证据确定安全恢复方式。
+
+保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
+
+代码：`BOOLEAN_DISCARD_LIMIT`、`BOOLEAN_RESULT_LIMIT`、`BOOLEAN_RESULT_POINT_INVALID`
 
 ### display
 
@@ -26056,9 +26068,44 @@ files.release: contextPolicy=none
         }
       },
       "blendRadiusMm": {
-        "type": "number",
-        "description": "Requested seam radius (mm)",
-        "exclusiveMinimum": 0
+        "oneOf": [
+          {
+            "type": "number",
+            "description": "Exact radius in mm (mm)",
+            "exclusiveMinimum": 0
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxMm",
+              "minMm"
+            ],
+            "properties": {
+              "maxMm": {
+                "type": "number",
+                "description": "Maximum radius (mm)",
+                "exclusiveMinimum": 0,
+                "maximum": 10000
+              },
+              "minMm": {
+                "type": "number",
+                "description": "Minimum radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "stepRatio": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            }
+          }
+        ]
       },
       "blendMode": {
         "type": "string",
@@ -26123,7 +26170,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports the exact used radius; rejects the entire operation if no trustworthy blend exists; does not round unrelated source edges.",
   "title": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
   "category": "modification",
   "synonyms": [
@@ -26133,7 +26180,7 @@ files.release: contextPolicy=none
     "bump Set operation"
   ],
   "description": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
-  "schemaHash": "sha256:004ad493dc6fb8a666356734a6603e7fc5af4cfd471b8b45bfa76526be325059",
+  "schemaHash": "sha256:6d59714684334084d9f3fdd6689a377fbc1a29325b0839f0b503c02a193489f3",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -26194,7 +26241,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges."
+    "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports the exact used radius; rejects the entire operation if no trustworthy blend exists; does not round unrelated source edges."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -26291,7 +26338,7 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
     "whenToUse": [
-      "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges."
+      "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports the exact used radius; rejects the entire operation if no trustworthy blend exists; does not round unrelated source edges."
     ],
     "whenNotToUse": [
       {
@@ -26309,10 +26356,10 @@ files.release: contextPolicy=none
         ]
       },
       "blendRadiusMm": {
-        "meaning": "Requested seam radius (mm)",
+        "meaning": "blendRadiusMm: 批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
         "unit": "mm",
         "range": [
-          0,
+          null,
           null
         ],
         "default": {
@@ -26499,7 +26546,7 @@ files.release: contextPolicy=none
   },
   "purpose": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
   "whenToUse": [
-    "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports actual used radius and BLEND_SKIPPED if no trustworthy blend exists; does not round unrelated source edges."
+    "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports the exact used radius; rejects the entire operation if no trustworthy blend exists; does not round unrelated source edges."
   ],
   "whenNotToUse": [
     {
@@ -26866,7 +26913,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:8ac34e4d253e337bccb8541e7cfe80326a54d3d7e39e9f6ff77470afdb03a117"
+  "docsHash": "sha256:038f55e96681b59101b72fe15bbab149ab765c70a8b5ddd9d7d072ebc534c2ce"
 }
 ```
 
@@ -34679,10 +34726,67 @@ files.release: contextPolicy=none
         "type": "boolean",
         "description": "Name the result body after this boolean step instead of keeping the target body name"
       },
-      "blendRadiusMm": {
+      "toolExecution": {
+        "type": "string",
+        "description": "Optional explicit sequential Native cuts; requires keepSolidAt and discard limit",
+        "enum": [
+          "sequential"
+        ]
+      },
+      "keepSolidAt": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "Optional strict interior world point selecting exactly one result solid; never select by size"
+      },
+      "maxDiscardedVolumeMm3": {
         "type": "number",
-        "description": "Requested seam radius (mm)",
-        "exclusiveMinimum": 0
+        "description": "Required with keepSolidAt: maximum total separated material to discard in mm³",
+        "minimum": 0,
+        "maximum": 1000000000
+      },
+      "blendRadiusMm": {
+        "oneOf": [
+          {
+            "type": "number",
+            "description": "Exact radius in mm (mm)",
+            "exclusiveMinimum": 0
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxMm",
+              "minMm"
+            ],
+            "properties": {
+              "maxMm": {
+                "type": "number",
+                "description": "Maximum radius (mm)",
+                "exclusiveMinimum": 0,
+                "maximum": 10000
+              },
+              "minMm": {
+                "type": "number",
+                "description": "Minimum radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "stepRatio": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            }
+          }
+        ]
       },
       "blendMode": {
         "type": "string",
@@ -34744,7 +34848,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tools. keepSolidAt requires maxDiscardedVolumeMm3; the point must lie strictly inside exactly one result solid, away from boundaries and holes. Default split-result policy is unchanged. Explicit selection reports each discarded solid volume/bounds and fails BOOLEAN_DISCARD_LIMIT above the authorized limit or BOOLEAN_RESULT_POINT_INVALID for an invalid point. Native selection requires boolean.cut-1.1; optional toolExecution:sequential explicitly orders cuts. Read bodies[].booleanReport.selection for every discarded solid volume and bounds. Invalid or incomplete Boolean results are rejected, never healed or silently retried. At most 128 separated solids; no automatic largest-solid selection. Each cut must remove material without increasing volume. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented.",
   "title": "Subtract other bodies from first",
   "category": "modification",
   "synonyms": [
@@ -34762,7 +34866,7 @@ files.release: contextPolicy=none
     "subtract"
   ],
   "description": "Subtract other bodies from first",
-  "schemaHash": "sha256:f99705815de34b8cabc1a6556d785adcc74e8a1ac76ff1de335d68bdffd66122",
+  "schemaHash": "sha256:bb1c0c57f4ed08e15ab03b6330f86745ccecc066488917d2570f9b9418d1ed5f",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -34823,7 +34927,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tools. keepSolidAt requires maxDiscardedVolumeMm3; the point must lie strictly inside exactly one result solid, away from boundaries and holes. Default split-result policy is unchanged. Explicit selection reports each discarded solid volume/bounds and fails BOOLEAN_DISCARD_LIMIT above the authorized limit or BOOLEAN_RESULT_POINT_INVALID for an invalid point. Native selection requires boolean.cut-1.1; optional toolExecution:sequential explicitly orders cuts. Read bodies[].booleanReport.selection for every discarded solid volume and bounds. Invalid or incomplete Boolean results are rejected, never healed or silently retried. At most 128 separated solids; no automatic largest-solid selection. Each cut must remove material without increasing volume. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -34887,7 +34991,7 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "Subtract other bodies from first",
     "whenToUse": [
-      "refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+      "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tools. keepSolidAt requires maxDiscardedVolumeMm3; the point must lie strictly inside exactly one result solid, away from boundaries and holes. Default split-result policy is unchanged. Explicit selection reports each discarded solid volume/bounds and fails BOOLEAN_DISCARD_LIMIT above the authorized limit or BOOLEAN_RESULT_POINT_INVALID for an invalid point. Native selection requires boolean.cut-1.1; optional toolExecution:sequential explicitly orders cuts. Read bodies[].booleanReport.selection for every discarded solid volume and bounds. Invalid or incomplete Boolean results are rejected, never healed or silently retried. At most 128 separated solids; no automatic largest-solid selection. Each cut must remove material without increasing volume."
     ],
     "whenNotToUse": [
       {
@@ -34918,11 +35022,44 @@ files.release: contextPolicy=none
           "behavior": "omitted; retain the operation source default"
         }
       },
-      "blendRadiusMm": {
-        "meaning": "Requested seam radius (mm)",
-        "unit": "mm",
+      "toolExecution": {
+        "meaning": "Optional explicit sequential Native cuts; requires keepSolidAt and discard limit",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "keepSolidAt": {
+        "meaning": "Optional strict interior world point selecting exactly one result solid; never select by size",
+        "unit": "none",
+        "range": [
+          3,
+          3
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "maxDiscardedVolumeMm3": {
+        "meaning": "Required with keepSolidAt: maximum total separated material to discard in mm³",
+        "unit": "dimensionless",
         "range": [
           0,
+          1000000000
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "blendRadiusMm": {
+        "meaning": "blendRadiusMm: Subtract other bodies from first",
+        "unit": "mm",
+        "range": [
+          null,
           null
         ],
         "default": {
@@ -35078,7 +35215,7 @@ files.release: contextPolicy=none
   },
   "purpose": "Subtract other bodies from first",
   "whenToUse": [
-    "refs[0] is the explicit target; refs[1..] are tools. The result body keeps the target body display name; the cut name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves tool bodies only when material is actually removed. A cut that does not reduce target volume fails NO_MATERIAL_REMOVED and does not delete the tool. Each cut must not increase target volume; GEOMETRY_INVALID rolls back an output outside this material range."
+    "refs[0] is the explicit target; refs[1..] are tools. Optional keepTools preserves tools. keepSolidAt requires maxDiscardedVolumeMm3; the point must lie strictly inside exactly one result solid, away from boundaries and holes. Default split-result policy is unchanged. Explicit selection reports each discarded solid volume/bounds and fails BOOLEAN_DISCARD_LIMIT above the authorized limit or BOOLEAN_RESULT_POINT_INVALID for an invalid point. Native selection requires boolean.cut-1.1; optional toolExecution:sequential explicitly orders cuts. Read bodies[].booleanReport.selection for every discarded solid volume and bounds. Invalid or incomplete Boolean results are rejected, never healed or silently retried. At most 128 separated solids; no automatic largest-solid selection. Each cut must remove material without increasing volume."
   ],
   "whenNotToUse": [
     {
@@ -35453,7 +35590,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:b5d07cf3f7b247b5381be45edf0a9ab8ba520eff9a5bff60fd3b3e17b72a8ea5"
+  "docsHash": "sha256:65711c77b7ea79897044dfce9d2ca5eecb56c5ed77f814776a17b67adfd14c4a"
 }
 ```
 
@@ -112112,9 +112249,44 @@ files.release: contextPolicy=none
         "description": "Explicit OCCT glue mode; default off."
       },
       "blendRadiusMm": {
-        "type": "number",
-        "description": "Requested seam radius (mm)",
-        "exclusiveMinimum": 0
+        "oneOf": [
+          {
+            "type": "number",
+            "description": "Exact radius in mm (mm)",
+            "exclusiveMinimum": 0
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "maxMm",
+              "minMm"
+            ],
+            "properties": {
+              "maxMm": {
+                "type": "number",
+                "description": "Maximum radius (mm)",
+                "exclusiveMinimum": 0,
+                "maximum": 10000
+              },
+              "minMm": {
+                "type": "number",
+                "description": "Minimum radius (mm)",
+                "exclusiveMinimum": 0
+              },
+              "stepRatio": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "exclusiveMaximum": 1
+              },
+              "maxAttempts": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6
+              }
+            }
+          }
+        ]
       },
       "blendMode": {
         "type": "string",
@@ -112176,7 +112348,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented.",
   "title": "Fuse bodies",
   "category": "modification",
   "synonyms": [
@@ -112191,7 +112363,7 @@ files.release: contextPolicy=none
     "boolean"
   ],
   "description": "Fuse bodies",
-  "schemaHash": "sha256:f566403c3047519c57f0a7bc98d2e94b94d8137a18d64440c2e73b5a42c04d8e",
+  "schemaHash": "sha256:5418db34877b6844fbda64c68c73514876ecb86381f1f7ee3ccf53a2b86af305",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -112252,7 +112424,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
+    "refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -112370,10 +112542,10 @@ files.release: contextPolicy=none
         }
       },
       "blendRadiusMm": {
-        "meaning": "Requested seam radius (mm)",
+        "meaning": "blendRadiusMm: Fuse bodies",
         "unit": "mm",
         "range": [
-          0,
+          null,
           null
         ],
         "default": {
@@ -112900,7 +113072,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:9d3859f616f6e7c5b1103182f5d9849c2c7b9f1d756211693f6f03ae50b6a62d"
+  "docsHash": "sha256:53e88de970496c1f1abd124db6cc5a56acec310ed1425a5920d5dd054b8be01a"
 }
 ```
 

@@ -14,8 +14,9 @@ namespace WebCADServices.Contracts
         public string Stage { get; }
         public string DiagnosticsRef { get; }
         public JObject SupportBinding { get; }
+        public JObject BlendDiagnostics { get; set; }
         public ServiceError(string code, string message, int status = 400,string stage=null,string diagnosticsRef=null,JObject supportBinding=null) : base(message) { Code = code; Status = status;Stage=stage;DiagnosticsRef=diagnosticsRef;SupportBinding=supportBinding; }
-        public JObject Body(string stage = "request") => JObject.FromObject(new { code = Code, message = Message, stage=Stage??stage, retryable = Status == 503, recoveryAction = "Read job state before resubmitting", sourceVersion = "services-v1", diagnosticsRef = DiagnosticsRef, supportBinding=SupportBinding });
+        public JObject Body(string stage = "request") => JObject.FromObject(new { code = Code, message = Message, stage=Stage??stage, retryable = Status == 503, recoveryAction = "Read job state before resubmitting", sourceVersion = "services-v1", diagnosticsRef = DiagnosticsRef, supportBinding=SupportBinding,blendDiagnostics=BlendDiagnostics });
     }
     public sealed class WireRequest
     {
