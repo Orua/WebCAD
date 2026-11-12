@@ -1,4 +1,5 @@
 import {applyBodyResize} from './body-resize.js';
+import {selectBooleanSolid,validSolidSelection} from './modeling/boolean-result-selection.js';
 import {resultDisplayNames} from './boolean-naming.js';
 import {normalizeExtrudeHoles,holeTopologyOk} from './extrude-holes.js';
 import {buildTap} from './modeling/manufacturing/tap-tool.js';
@@ -694,6 +695,7 @@ export class CadKernel {
         } finally { instances.forEach(dispose); }
       }
       case 'union': case 'cut': case 'intersect': {
+        if(feature.op==='cut'&&!validSolidSelection(p))throw Object.assign(new Error('主体选择需要内部点、体积上限和受支持的逐刀策略。'),{code:'PARAM_SCHEMA_INVALID'});
         if (sources.length < 2) throw new Error('布尔操作至少需要两个实体');
         if(feature.op==='union'&&unionStrategy(feature)==='multi-fuse')return finishBooleanBlend(robustUnion(sources,{...p,toolIds:refs,toolNames:refs.map(id=>historyFeatures.find(f=>f.id===id)?.name||id),measure:shape=>preciseVolume(shape,this.oc)}),p,refs);
         let out = copyFaceOrigins(sources[0],sources[0].clone()); const method = { union: 'fuse', cut: 'cut', intersect: 'intersect' }[feature.op];
@@ -718,6 +720,7 @@ export class CadKernel {
             } catch (error) { dispose(next); throw error; }
             dispose(out); out = next;
           }
+          if(feature.op==='cut'&&p.keepSolidAt!==undefined){const selected=selectBooleanSolid(out,p,cad);dispose(out);out=selected;}
           return ['cut','union'].includes(feature.op)?finishBooleanBlend(out,p,refs):out;
         }
         catch (error) { dispose(out); throw error; }

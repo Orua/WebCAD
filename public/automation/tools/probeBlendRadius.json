@@ -2,7 +2,7 @@
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.66.3",
+  "version": "1.66.4",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -277,5 +277,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:3d3ebbb3b9f6819ce119c541297b47d31a7fb6ba2360f4bb48dd644882ab9106"
+  "docsHash": "sha256:ba2e3660837303f4f4e8b8183fa9920017f3a23941f79c91ac41b476dca4bc40"
 }

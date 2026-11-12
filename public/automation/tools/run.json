@@ -2,7 +2,7 @@
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.66.3",
+  "version": "1.66.4",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -664,5 +664,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fd389c0ceede089b20af52a554b779ecac90c874c0952ee82be540b8320ffcf3"
+  "docsHash": "sha256:ebbbec19d8a20b55140825fc2db86ce08196852bbf00ec8e71d0cf26b5a2eb10"
 }

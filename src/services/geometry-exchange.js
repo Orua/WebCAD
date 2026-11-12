@@ -1,4 +1,5 @@
 import {validBlendRadius,validBlendExecution} from '../modeling/blend-radius-contract.js';
+import {validSolidSelection} from '../modeling/boolean-result-selection.js';
 import {legacyReliefParams} from '../relief-param-migration.js';
 import {contractHash,binaryHash} from '../contracts/operation-schema.js';
 import {serviceError} from './settings.js';
@@ -27,12 +28,13 @@ export const SPATIAL_BLEND_SEMANTIC_VERSION='blend.spatial-edges-1.0';
 export const isMultiSourceBoolean=feature=>['cut','union'].includes(feature?.op);
 export const isSpatialBlend=feature=>['fillet','smoothTransition'].includes(feature?.op);
 export const BOOLEAN_CUT_SEMANTIC_VERSION='boolean.cut-1.0';
+export const BOOLEAN_CUT_SELECTION_SEMANTIC_VERSION='boolean.cut-1.1';
 export const FACE_ROUND_SEMANTIC_VERSION='round.planar-boundary-1.0';
 export const RELIEF_SEMANTIC_VERSION='relief.compiled-contours-1.0';
 export const RELIEF_PATCH_SEMANTIC_VERSION='relief.compiled-contours-local-patch-1.1';
 export const RELIEF_STROKE_SEMANTIC_VERSION='relief.compiled-contours-strokes-1.2';
 export const SHOULDER_SEMANTIC_VERSION='relief.central-shoulder-1.0';
-export const compiledSemanticVersion=feature=>feature?.op==='union'?(typeof feature.params?.blendRadiusMm==='object'?'boolean.union-seam-1.1':UNION_SEAM_SEMANTIC_VERSION):isSpatialBlend(feature)?(typeof feature.params?.radius==='object'?'blend.spatial-edges-1.1':SPATIAL_BLEND_SEMANTIC_VERSION):isReliefDesign(feature)?RELIEF_DESIGN_SEMANTIC_VERSION:feature?.op==='reliefShoulder'?SHOULDER_SEMANTIC_VERSION:feature?.op==='round'?FACE_ROUND_SEMANTIC_VERSION:feature?.op==='cut'?BOOLEAN_CUT_SEMANTIC_VERSION:feature?.op==='relief'?(feature.params?.layers?.some(layer=>layer.strokes||layer.mode==='engrave')?RELIEF_STROKE_SEMANTIC_VERSION:feature.params?.layers?.some(layer=>layer.localPatches)?RELIEF_PATCH_SEMANTIC_VERSION:RELIEF_SEMANTIC_VERSION):feature?.op==='transform'?TRANSLATION_SEMANTIC_VERSION:null;
+export const compiledSemanticVersion=feature=>feature?.op==='union'?(typeof feature.params?.blendRadiusMm==='object'?'boolean.union-seam-1.1':UNION_SEAM_SEMANTIC_VERSION):isSpatialBlend(feature)?(typeof feature.params?.radius==='object'?'blend.spatial-edges-1.1':SPATIAL_BLEND_SEMANTIC_VERSION):isReliefDesign(feature)?RELIEF_DESIGN_SEMANTIC_VERSION:feature?.op==='reliefShoulder'?SHOULDER_SEMANTIC_VERSION:feature?.op==='round'?FACE_ROUND_SEMANTIC_VERSION:feature?.op==='cut'?(feature.params?.keepSolidAt!==undefined?BOOLEAN_CUT_SELECTION_SEMANTIC_VERSION:BOOLEAN_CUT_SEMANTIC_VERSION):feature?.op==='relief'?(feature.params?.layers?.some(layer=>layer.strokes||layer.mode==='engrave')?RELIEF_STROKE_SEMANTIC_VERSION:feature.params?.layers?.some(layer=>layer.localPatches)?RELIEF_PATCH_SEMANTIC_VERSION:RELIEF_SEMANTIC_VERSION):feature?.op==='transform'?TRANSLATION_SEMANTIC_VERSION:null;
 export function assertCompilableFeature(feature){
  if(!compiledSemanticVersion(feature))throw serviceError('OPERATION_UNAVAILABLE',`Services 未登记操作 ${feature?.op??'unknown'} 的编译语义`,{operation:feature?.op??null,executor:'services',missingCapability:'compiled-semantic',semanticVersion:null});
  if(feature&&!remotePlacementSupported(feature))throw serviceError('OPERATION_UNAVAILABLE','当前远程实现仅验收世界坐标放置；此特征继续使用本地放置语义');
@@ -55,7 +57,7 @@ export function assertCompilableFeature(feature){
   return p;
  }
  if(feature?.op==='cut'){
-  if(!Array.isArray(feature.refs)||feature.refs.length<2||feature.refs.length>33||feature.refs.some(id=>typeof id!=='string'||!id)||new Set(feature.refs).size!==feature.refs.length||Object.keys(feature.params??{}).some(key=>key!=='keepTools')||feature.params?.keepTools!==undefined&&typeof feature.params.keepTools!=='boolean')throw serviceError('OPERATION_UNAVAILABLE','原生切除需要一个目标和 1–32 个不同的已保存实体刀具');
+  if(!Array.isArray(feature.refs)||feature.refs.length<2||feature.refs.length>33||feature.refs.some(id=>typeof id!=='string'||!id)||new Set(feature.refs).size!==feature.refs.length||Object.keys(feature.params??{}).some(key=>!['keepTools','renameTarget','keepSolidAt','maxDiscardedVolumeMm3','toolExecution'].includes(key))||!validSolidSelection(feature.params)||feature.params?.keepTools!==undefined&&typeof feature.params.keepTools!=='boolean')throw serviceError('OPERATION_UNAVAILABLE','原生切除需要一个目标和 1–32 个不同的已保存实体刀具');
   return {};
  }
  if(feature?.op!=='relief')return assertTranslationFeature(feature);
@@ -90,6 +92,10 @@ export function installCompiledCandidate(document,{manifest,bytes,context,recipe
  const binding=manifest.topologyBinding;
  if(binding?.kind!==(['round','reliefShoulder'].includes(feature.op)||isReliefDesign(feature)?'planar-face-geometric-intent':isMultiSourceBoolean(feature)?'whole-sources':isSpatialBlend(feature)?'spatial-sharp-edges':feature.op==='relief'?'outer-cylinder-geometric-intent':'whole-source')||binding.matchCount!==(isMultiSourceBoolean(feature)?feature.refs.length:1)||binding.numericIndicesTransferred!==false)throw serviceError('GEOMETRY_INVALID','服务未证明唯一的当前来源几何绑定');
  if(feature.op==='cut'&&(manifest.strategy!=='multi-source-boolean'||!validCutHashes(manifest,feature)))throw serviceError('RESULT_MISMATCH','服务未按顺序绑定切除目标和全部刀具');
+ if(feature.op==='cut'&&feature.params.keepSolidAt!==undefined){
+  const r=manifest.stages?.find(s=>s.stage==='boolean-result-selection');
+  if(!r||JSON.stringify(r.keepSolidAt)!==JSON.stringify(feature.params.keepSolidAt)||!Number.isFinite(r.discardedVolumeMm3)||r.discardedVolumeMm3<0||r.discardedVolumeMm3>feature.params.maxDiscardedVolumeMm3+1e-7||!Number.isInteger(r.inputSolidCount)||r.inputSolidCount<1||r.inputSolidCount>128||!Array.isArray(r.discarded)||r.discarded.length!==r.inputSolidCount-1||r.discarded.some(s=>!Number.isFinite(s.volumeMm3)||s.volumeMm3<=0||!['min','max'].every(k=>Array.isArray(s.bounds?.[k])&&s.bounds[k].length===3&&s.bounds[k].every(Number.isFinite)))||Math.abs(r.discarded.reduce((sum,s)=>sum+s.volumeMm3,0)-r.discardedVolumeMm3)>1e-7)throw serviceError('RESULT_MISMATCH','切除主体选择缺少匹配的内部点和分离材料报告');
+ }
  if(feature.op==='union'){
   const u=manifest.unionReport;
   if(manifest.strategy!=='multi-source-union-seam'||!validCutHashes(manifest,feature)||u?.status!=='applied'||u.inputCount!==feature.refs.length||![u.volumeBeforeSumMm3,u.largestInputVolumeMm3,u.volumeAfterMm3].every(v=>Number.isFinite(v)&&v>0)||u.volumeAfterMm3<u.largestInputVolumeMm3-1e-7-u.volumeBeforeSumMm3*1e-8||u.volumeAfterMm3>u.volumeBeforeSumMm3+1e-7+u.volumeBeforeSumMm3*1e-8)throw serviceError('RESULT_MISMATCH','原生融合缺少完整来源及有效材料报告');
@@ -121,7 +127,7 @@ export function installCompiledCandidate(document,{manifest,bytes,context,recipe
  const artifact=manifest.geometryArtifact;if(!(bytes instanceof Uint8Array)||!artifact||bytes.length!==artifact.bytes||binaryHash(bytes).slice(7)!==artifact.sha256||artifact.format!==GEOMETRY_CODEC||artifact.brepVersion!==3)throw serviceError('ARTIFACT_CORRUPT','精确几何产物校验失败');
  if(bytes.length>20*1024*1024)throw serviceError('RESULT_TOO_LARGE_FOR_CLIENT','结果超出当前精确工程导回预算；服务产物保留');
  if(!manifest.validation?.valid||manifest.validation.solidCount!==1)throw serviceError('GEOMETRY_INVALID','服务未返回已校验的单实体');
- const checkpoint={...(manifest.unionReport?{booleanReport:manifest.unionReport}:{}),...(manifest.blendReport?{blendReport:manifest.blendReport}:{}),recipeFingerprint,sourceSha256:manifest.sourceSha256,sourceSnapshotVersion:isMultiSourceBoolean(feature)?2:1,...(isMultiSourceBoolean(feature)?{inputSha256:[...manifest.inputSha256]}:{}),...(roundReport?{roundReport}:{}),...(feature.op==='reliefShoulder'?{reliefReport:manifest.shoulderReport}:{}),...(isReliefDesign(feature)?{reliefReport:(({fit,...rest})=>({...rest,fit:{columns:fit.columns,rows:fit.rows,controlDeltasSha256:fit.controlDeltasSha256,report:fit.report}}))(manifest.reliefDesign)}:{}),artifactSha256:artifact.sha256,semanticVersion:manifest.semanticVersion,codec:manifest.codec,brepVersion:3,kernelBuildId:manifest.kernelBuildId,consumerKernelBuildId:LOCAL_KERNEL_BUILD_ID,jobId:manifest.jobId,inputFingerprint:manifest.inputFingerprint};
+ const checkpoint={...(feature.op==='cut'&&feature.params.keepSolidAt!==undefined?{booleanReport:{strategy:'point-selected-cut',selection:manifest.stages.find(s=>s.stage==='boolean-result-selection')}}:{}),...(manifest.unionReport?{booleanReport:manifest.unionReport}:{}),...(manifest.blendReport?{blendReport:manifest.blendReport}:{}),recipeFingerprint,sourceSha256:manifest.sourceSha256,sourceSnapshotVersion:isMultiSourceBoolean(feature)?2:1,...(isMultiSourceBoolean(feature)?{inputSha256:[...manifest.inputSha256]}:{}),...(roundReport?{roundReport}:{}),...(feature.op==='reliefShoulder'?{reliefReport:manifest.shoulderReport}:{}),...(isReliefDesign(feature)?{reliefReport:(({fit,...rest})=>({...rest,fit:{columns:fit.columns,rows:fit.rows,controlDeltasSha256:fit.controlDeltasSha256,report:fit.report}}))(manifest.reliefDesign)}:{}),artifactSha256:artifact.sha256,semanticVersion:manifest.semanticVersion,codec:manifest.codec,brepVersion:3,kernelBuildId:manifest.kernelBuildId,consumerKernelBuildId:LOCAL_KERNEL_BUILD_ID,jobId:manifest.jobId,inputFingerprint:manifest.inputFingerprint};
  // Modern relief fits retain binary BReps in v4: multiple valid checkpoints
  // must not fall back to the legacy v3 aggregate 20 MiB container limit.
  // The independent per-result 20 MiB import gate above remains unchanged.
@@ -149,3 +155,6 @@ export function compiledCheckpointBytes(document,feature,sourceBytes){
  const bytes=document.compiledArtifacts?.[c.artifactSha256];if(!(bytes instanceof Uint8Array)||binaryHash(bytes).slice(7)!==c.artifactSha256)throw serviceError('ARTIFACT_CORRUPT','工程缺少完整精确检查点');return bytes;
 }
 const validCutHashes=(value,feature)=>Array.isArray(value.inputSha256)&&value.inputSha256.length===feature.refs.length&&value.inputSha256.every(hash=>typeof hash==='string'&&/^[a-f0-9]{64}$/.test(hash))&&value.sourceSha256===value.inputSha256[0];
+
+// Explicit point-selected Cut and adaptive material bounds: Native/client and Runtime gates passed.
+VERIFIED_NATIVE_KERNELS.add('native-occt@7.8.1:sha256:062d78d2b6190a02a52dce7c3da44f0440c988bb9f20d2a50ab434a722c64559');

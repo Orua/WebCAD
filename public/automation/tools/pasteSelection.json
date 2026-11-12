@@ -2,7 +2,7 @@
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.66.3",
+  "version": "1.66.4",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -191,5 +191,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ae4e62bef1292a2fa3d808a1e6f052f0fc589aec3707afccef7b7b94b869ff91"
+  "docsHash": "sha256:aedd3687ef91acaa61c8374c9241352f13bbbda66a97cf1ca994fa6d6a9d70ea"
 }

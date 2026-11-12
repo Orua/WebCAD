@@ -22,7 +22,7 @@ export async function compileRemoteFeature(document,featureId,sourceBytes,contex
   if(asset.sha256!==binaryHash(bytes).slice(7))throw serviceError('SOURCE_HASH_MISMATCH','上传结果与当前来源快照不一致');
   inputs.push({assetId:asset.assetId,sha256:asset.sha256,role:i===0?'source':'tool',sourceFeatureId:feature.refs[i]});
  }
- const source=inputs[0];if(isCut)params=feature.op==='cut'?{}:Object.fromEntries(Object.entries(feature.params??{}).filter(([k])=>!['keepTools','renameTarget'].includes(k)));
+ const source=inputs[0];if(isCut)params=Object.fromEntries(Object.entries(feature.params??{}).filter(([k])=>!['keepTools','renameTarget'].includes(k)));
  if(isSpatialBlend(feature))params=feature.params;
  const design=feature.op==='relief'&&!!feature.params?.designBinding;
  if(design){if(!plan?.params||plan.semanticVersion!==semanticVersion||plan.paramsFingerprint!==contractHash(feature.params))throw serviceError('SOURCE_HASH_MISMATCH','拟合浮雕 Services 计划与当前特征不一致');params=plan.params;}
