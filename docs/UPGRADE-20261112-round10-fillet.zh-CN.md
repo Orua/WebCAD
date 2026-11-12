@@ -16,7 +16,7 @@
 - 不相交并集的回执增加 `booleanReport.fused` / `solidCount` 和警告，仍可能提交为组合体。
 
 ## 基线
-- 基于 main 1.67.0（4950a82）。pageApiVersion 1.68.0。catalogHash `sha256:cf8e60b273de910500da49029df4bffc357eabef284a8749dab838ba1866bad7`；docsHash `sha256:992111a72504b1ad567989442f3da174acb5d306bfca369fdb70b5c784c94a7f`。本说明不授权生产发布。
+- 基于 main 1.67.0（4950a82）。pageApiVersion 1.68.0。catalogHash `sha256:ea06bc79b3d84416c9077539d34bfa9acceec5368daf6a2fc12d3dd475f4d652`；docsHash `sha256:aae6133e2b0fe1bd297f209da93a6389eb46ea3262543327211261134f0d917e`。本说明不授权生产发布。
 
 ## 续修（同一 1.68.0 未发布分支）
 
