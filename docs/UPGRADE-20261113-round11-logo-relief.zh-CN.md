@@ -16,4 +16,4 @@
 - `RELIEF_LIMIT` 在角宽/半径等几何限制下的恢复分类改为 `source_parameters`；像素/文件/面数等容量限制仍为 `capacity`。
 
 ## 基线
-- 基于 main 1.68.0（`5274801d`）。pageApiVersion 1.69.0。catalogHash 与 docsHash 以本分支最新生成清单为准。本说明不授权生产发布。
+- 基于 main 1.68.0（`5274801d`）。pageApiVersion 1.69.0。catalogHash `sha256:10eb8ee849dbb28d6b55fa2954599eee348c811f0049f752fbaa397ef4f7dd21`；docsHash `sha256:c06db8fa2988f1172d6e6a62adeba6747c6dfb7caea676ba37a3df4ce7bc0364`。buildId `1610723bc0b517f32042771e7b30b485644c7cbe-src-69f72895a067ed37`。本说明不授权生产发布。
