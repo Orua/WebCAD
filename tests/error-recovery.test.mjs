@@ -84,3 +84,24 @@ test('page jobs enrich terminal failure without replaying or changing cancel/unk
  assert.equal(jobs.submit(input).status,'unknown');assert.equal(executions,1);
  jobs.submit({...input,jobId:'queued'});assert.equal(jobs.cancelJob({jobId:'queued'}).cancelled,true);assert.equal(jobs.getJob({jobId:'queued'}).status,'cancelled');
 });
+
+test('userMessage keeps a specific English kernel reason and a TBD label',()=>{
+  const geometry=errorRecovery({code:'GEOMETRY_INVALID',message:'region 0 crosses the selected face boundary or a hole'},{status:'failed',commitState:'not_committed'});
+  assert.match(geometry.userMessage,/crosses the selected face boundary or a hole/);
+  assert.match(geometry.userMessage,/本次失败步骤未提交/);
+  const tbd=errorRecovery({code:'OPERATION_TBD',message:'TBD：密集刻线尚未完成验收，已禁用。'},{status:'failed',commitState:'not_committed'});
+  assert.match(tbd.userMessage,/密集刻线/);
+  assert.doesNotMatch(tbd.userMessage,/privatevalue|secret.txt/);
+  assert.doesNotMatch(errorRecovery({code:'NO_VECTOR_CONTENT',message:'original job failed'}).userMessage,/original job failed/);
+});
+
+test('RELIEF angular-width limits classify as geometric input, not capacity',()=>{
+  const angular=recoveryRule('RELIEF_LIMIT','柱面半径须为 1–10000 mm，图案角宽≤90°，总起伏≤半径的20%');
+  assert.equal(angular.id,'source_parameters');
+  const message=errorRecovery({code:'RELIEF_LIMIT',message:'柱面半径须为 1–10000 mm，图案角宽≤90°，总起伏≤半径的20%'},{status:'failed',commitState:'not_committed'});
+  assert.equal(message.classification,'source_parameters');
+  assert.match(message.userMessage,/图案角宽/);
+  assert.doesNotMatch(message.userMessage,/按来源允许的部件\/工程拆分或释放无用资源/);
+  const pixels=recoveryRule('RELIEF_LIMIT','图片最多 1600 万像素，长宽比不超过 64:1');
+  assert.equal(pixels.id,'capacity');
+});

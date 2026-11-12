@@ -17,6 +17,21 @@ function solidCount(shape) {
   const solids=shape.solids;
   try{return solids.length;}finally{solids.forEach(dispose);}
 }
+function cylinderRadius(face,cad){
+  if(face.geomType!=='CYLINDRE')return null;
+  const oc=cad.getOC(),adapter=new oc.BRepAdaptor_Surface(face.wrapped,true);
+  try{const cylinder=adapter.Cylinder();try{return cylinder.Radius();}finally{dispose(cylinder);}}
+  finally{dispose(adapter);}
+}
+function logoLocalWidth(regions,scale,angle,mirrorX){
+  const theta=angle*Math.PI/180,c=Math.cos(theta),s=Math.sin(theta);
+  let minX=Infinity,maxX=-Infinity;
+  for(const region of regions)for(const ring of [region.outer,...region.holes])for(const [rawX,rawY] of ring){
+    const a=rawX*scale*(mirrorX?-1:1),b=rawY*scale,x=a*c-b*s;
+    if(x<minX)minX=x;if(x>maxX)maxX=x;
+  }
+  return maxX-minX;
+}
 
 // Orthographic projection onto one selected face, then NORMAL offset of the
 // trimmed face. The bottom is not a planar extrusion. Reject seams/boundaries,
@@ -36,6 +51,10 @@ export function buildCurvedLogo(source,params,cad) {
   try {
     check(Number.isInteger(params.faceId)&&faces[params.faceId],'请选择有效曲面');
     const face=faces[params.faceId],anchor=hold(cad.makeVertex(params.point));
+    const radius=cylinderRadius(face,cad),width=logoLocalWidth(regions,scale,angle,params.mirrorX);
+    // Visible half-cylinder stays inside the grazing limit (normal·anchor > 0.15 ≈ ±81°), about 2.84 R of developed width.
+    if(radius>0){const maxWidth=2.8*radius,maxScale=width>0?scale*maxWidth/width:scale;
+      if(width>maxWidth)check(false,`LOGO 宽度 ${width.toFixed(1)} mm 超过柱面（R${radius.toFixed(1)}）可见半周（约 ${maxWidth.toFixed(1)} mm），当前不支持环绕展开。请缩小比例至 ${maxScale.toFixed(2)} 或以内，或改选更大半径的面`);}
     const query=hold(new cad.DistanceQuery(face));
     // Picking hits the display triangulation, not the exact surface. Snap only
     // within a documented 0.1 mm limit, never silently accept a remote point.
@@ -73,7 +92,7 @@ export function buildCurvedLogo(source,params,cad) {
         common.Build();const projected=own(cad.cast(common.Shape())),patches=projected.faces;
         local.push(...patches);
         const front=patches.filter(patch=>dot(unit(own(patch.normalAt())),normal)>0.15);
-        check(front.length>0,'投影为空，请缩小或移动 LOGO');
+        if(!front.length)check(false,radius>0?`投影未落在柱面可见半周内，当前不支持环绕展开。LOGO 宽 ${width.toFixed(1)} mm，柱面 R${radius.toFixed(1)}，请缩小或移动 LOGO`:'投影未落在可见曲面内，请缩小或移动 LOGO');
         const periodic=edges.filter(edge=>{try{return oc.BRep_Tool.IsClosed(edge.wrapped,face.wrapped);}catch{return false;}});
         const boundary=edges.filter(edge=>!periodic.includes(edge));
         const touches=(patch,list)=>list.some(edge=>cad.measureDistanceBetween(patch,edge)<=1e-5);
@@ -84,7 +103,7 @@ export function buildCurvedLogo(source,params,cad) {
           const patchEdges=patch.edges;local.push(...patchEdges);
           for(const edge of patchEdges)for(const t of [0,.5,1]){
             const v=own(edge.pointAt(t)),n=unit(own(patch.normalAt(v)));
-            check(dot(n,normal)>.15,'LOGO 接近曲面侧缘，投影过于倾斜，请缩小或重新选中心');
+            check(dot(n,normal)>.15,radius>0?`LOGO 接近柱面侧缘，投影过于倾斜；当前不支持环绕展开。可见半周约 ${(2.8*radius).toFixed(1)} mm，请缩小或重新选中心`:'LOGO 接近曲面侧缘，投影过于倾斜，请缩小或重新选中心');
           }
           const thick=own(new oc.BRepOffsetAPI_MakeThickSolid());
           thick.MakeThickSolidBySimple(patch.wrapped,-depth);

@@ -6,6 +6,7 @@ import {cylindricalReliefTool} from '../modeling/manufacturing/cylindrical-relie
 import {planRegionContours,CONTOUR_TOPOLOGY_REPORT_VERSION} from '../modeling/manufacturing/relief-region-plan.js';
 import {planReliefLayers} from '../modeling/manufacturing/relief-layer-plan.js';
 import {mergeStrokeRegions} from '../modeling/manufacturing/relief-strokes.js';
+import {reliefLayerSemanticVersion} from './geometry-exchange.js';
 
 const dispose=x=>{try{x?.delete?.();}catch{}};
 const fail=message=>{throw Object.assign(new Error(message),{code:'RELIEF_PLAN_UNSUPPORTED'});};
@@ -68,6 +69,6 @@ export function prepareCompiledReliefPlan(source,p,oc,cad,{sourceBrep:authoritat
    }finally{dispose(built.tool);}
   }
   const support=layers[0].support;
-  return {version:1,paramsFingerprint:contractHash(p),semanticVersion:p.layers.some(layer=>layer.strokes||layer.mode==='engrave')?'relief.compiled-contours-strokes-1.2':p.layers.some(layer=>layer.localPatches)?'relief.compiled-contours-local-patch-1.1':'relief.compiled-contours-1.0',supportIntent:{kind:'outer-cylinder',radiusMm:support.radiusMm,point:support.sourceSelection.point,axis:support.axis,normal:support.sourceSelection.normal},sourceBrep,layers,artifacts,conversions,contourReport:{version:CONTOUR_TOPOLOGY_REPORT_VERSION,ringCount:conversions.length,truncated:false,curvePolicy:p.curvePolicy??'fitWithinTolerance',curvePolicyExplicit:p.curvePolicy!==undefined,maskStrategy:p.maskStrategy??'faceWithHolesExtrude',maskStrategyExplicit:p.maskStrategy!==undefined,localEffectiveMaskStrategy:p.maskStrategy??'cutHoleSolids',explicitUpgradeRequired:p.curvePolicy!=='preserveTopology'||p.maskStrategy===undefined,sourceCoordinatesChanged:false,errorBound:'sampled-not-global'},reference:'historical-cleaned-polyline',sourceSplineDeviation:'unknown'};
+  return {version:1,paramsFingerprint:contractHash(p),semanticVersion:reliefLayerSemanticVersion(p),supportIntent:{kind:'outer-cylinder',radiusMm:support.radiusMm,point:support.sourceSelection.point,axis:support.axis,normal:support.sourceSelection.normal},sourceBrep,layers,artifacts,conversions,contourReport:{version:CONTOUR_TOPOLOGY_REPORT_VERSION,ringCount:conversions.length,truncated:false,curvePolicy:p.curvePolicy??'fitWithinTolerance',curvePolicyExplicit:p.curvePolicy!==undefined,maskStrategy:p.maskStrategy??'faceWithHolesExtrude',maskStrategyExplicit:p.maskStrategy!==undefined,localEffectiveMaskStrategy:p.maskStrategy??'cutHoleSolids',explicitUpgradeRequired:p.curvePolicy!=='preserveTopology'||p.maskStrategy===undefined,sourceCoordinatesChanged:false,errorBound:'sampled-not-global'},reference:'historical-cleaned-polyline',sourceSplineDeviation:'unknown'};
  }finally{faces.forEach(dispose);dispose(copy);}
 }

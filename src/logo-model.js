@@ -242,8 +242,13 @@ export function buildLogoOnPlane(source, params, cad, supportPrism) {
         if (!next) throw new Error(`region ${ri} boolean operation failed`);
         const nextVolume = area(next, cad), delta = mode === 'engrave' ? area(current, cad) - nextVolume : nextVolume - area(current, cad);
         if (!(delta > Math.max(1e-7, sourceVolume * 1e-12))) throw new Error(`region ${ri} does not change the source solid`);
+        const nextSolids = countSolids(next);
+        if (nextSolids > initialSolids) {
+          throw new Error(mode === 'emboss'
+            ? `emboss region ${ri} increases the solid count`
+            : `刻深超过壁厚，字形内岛脱落，结果变为 ${nextSolids} 个实体（原先 ${initialSolids} 个）。请减小深度或加厚基体。`);
+        }
         if (mode === 'emboss') {
-          if (countSolids(next) > initialSolids) throw new Error(`emboss region ${ri} increases the solid count`);
           const sourceCopy = independentCopy(source, cad);
           let sourceContact;
           try {
@@ -266,6 +271,8 @@ export function buildLogoOnPlane(source, params, cad, supportPrism) {
         compound=cad.makeCompound(cutters);next=current.cut(compound);
         const removed=sourceVolume-area(next,cad);
         if(Math.abs(removed-expectedRemoval)>Math.max(1e-6,expectedRemoval*1e-7))throw new Error('LOGO 批量雕刻体积校验失败，未提交结果。');
+        const nextSolids=countSolids(next);
+        if(nextSolids>initialSolids)throw new Error(`刻深超过壁厚，字形内岛脱落，结果变为 ${nextSolids} 个实体（原先 ${initialSolids} 个）。请减小深度或加厚基体。`);
         dispose(current);current=next;next=null;
       }finally{dispose(next);dispose(compound);}
     }

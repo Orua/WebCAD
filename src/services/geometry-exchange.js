@@ -34,7 +34,16 @@ export const RELIEF_SEMANTIC_VERSION='relief.compiled-contours-1.0';
 export const RELIEF_PATCH_SEMANTIC_VERSION='relief.compiled-contours-local-patch-1.1';
 export const RELIEF_STROKE_SEMANTIC_VERSION='relief.compiled-contours-strokes-1.2';
 export const SHOULDER_SEMANTIC_VERSION='relief.central-shoulder-1.0';
-export const compiledSemanticVersion=feature=>feature?.op==='union'?(typeof feature.params?.blendRadiusMm==='object'?'boolean.union-seam-1.1':UNION_SEAM_SEMANTIC_VERSION):isSpatialBlend(feature)?(typeof feature.params?.radius==='object'?'blend.spatial-edges-1.1':SPATIAL_BLEND_SEMANTIC_VERSION):isReliefDesign(feature)?RELIEF_DESIGN_SEMANTIC_VERSION:feature?.op==='reliefShoulder'?SHOULDER_SEMANTIC_VERSION:feature?.op==='round'?FACE_ROUND_SEMANTIC_VERSION:feature?.op==='cut'?(feature.params?.keepSolidAt!==undefined?BOOLEAN_CUT_SELECTION_SEMANTIC_VERSION:BOOLEAN_CUT_SEMANTIC_VERSION):feature?.op==='relief'?(feature.params?.layers?.some(layer=>layer.strokes||layer.mode==='engrave')?RELIEF_STROKE_SEMANTIC_VERSION:feature.params?.layers?.some(layer=>layer.localPatches)?RELIEF_PATCH_SEMANTIC_VERSION:RELIEF_SEMANTIC_VERSION):feature?.op==='transform'?TRANSLATION_SEMANTIC_VERSION:null;
+// Engrave (sunken) contour layers use the ordinary compiled-contour semantic.
+// Only explicit stroke layers use the TBD strokes-1.2 semantic.
+export function reliefLayerSemanticVersion(params){
+  const layers=params?.layers;
+  if(!layers?.length)return RELIEF_SEMANTIC_VERSION;
+  if(layers.some(layer=>layer.strokes))return RELIEF_STROKE_SEMANTIC_VERSION;
+  if(layers.some(layer=>layer.localPatches))return RELIEF_PATCH_SEMANTIC_VERSION;
+  return RELIEF_SEMANTIC_VERSION;
+}
+export const compiledSemanticVersion=feature=>feature?.op==='union'?(typeof feature.params?.blendRadiusMm==='object'?'boolean.union-seam-1.1':UNION_SEAM_SEMANTIC_VERSION):isSpatialBlend(feature)?(typeof feature.params?.radius==='object'?'blend.spatial-edges-1.1':SPATIAL_BLEND_SEMANTIC_VERSION):isReliefDesign(feature)?RELIEF_DESIGN_SEMANTIC_VERSION:feature?.op==='reliefShoulder'?SHOULDER_SEMANTIC_VERSION:feature?.op==='round'?FACE_ROUND_SEMANTIC_VERSION:feature?.op==='cut'?(feature.params?.keepSolidAt!==undefined?BOOLEAN_CUT_SELECTION_SEMANTIC_VERSION:BOOLEAN_CUT_SEMANTIC_VERSION):feature?.op==='relief'?reliefLayerSemanticVersion(feature.params):feature?.op==='transform'?TRANSLATION_SEMANTIC_VERSION:null;
 export function assertCompilableFeature(feature){
  if(!compiledSemanticVersion(feature))throw serviceError('OPERATION_UNAVAILABLE',`Services 未登记操作 ${feature?.op??'unknown'} 的编译语义`,{operation:feature?.op??null,executor:'services',missingCapability:'compiled-semantic',semanticVersion:null});
  if(feature&&!remotePlacementSupported(feature))throw serviceError('OPERATION_UNAVAILABLE','当前远程实现仅验收世界坐标放置；此特征继续使用本地放置语义');

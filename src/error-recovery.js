@@ -48,7 +48,7 @@ const rules=[
   rule('display','DISPLAY_FAILED DISPLAY_INCOMPLETE DISPLAY_REFINEMENT_FAILED DISPLAY_VOLUME_MISMATCH STALE_DISPLAY CAPTURE_TIMEOUT CAPTURE_SLOW UNSUPPORTED_RENDER_FEATURE EVIDENCE_INVALID EVIDENCE_QUEUE_FULL EVIDENCE_RENDER_FAILED EVIDENCE_SIZE_LIMIT EVIDENCE_SUPERSEDED','画面或截图未能确认与已提交模型一致。','读取提交回执和当前状态，再尝试一次 redraw 或 capture；只报告画面未确认，不要重新执行建模。',['getState','redraw','capture'],{readRetry:true}),
   rule('integrity','ARTIFACT_CORRUPT HASH_MISMATCH MESH_ASSET_CORRUPT MESH_RESULT_MISMATCH RESULT_MISMATCH RESULT_INVALID LAYER_CACHE_CORRUPT ASSET_ROLE_MISMATCH GEOMETRY_CODEC_MISMATCH ROUND_RADIUS_MISMATCH REFINE_GEOMETRY_CHANGED','来源、结果或缓存的身份、哈希、语义或几何校验未通过。','停止安装该结果，保留原件和诊断；核对原任务、来源、参数及发布版本，不能降级校验。',['getState','getServicesJob','getServicesRequest'],{hardStop:true}),
   rule('version','CATALOG_CHANGED SCHEMA_MISMATCH KERNEL_BUILD_CHANGED DOCUMENT_VERSION_UNSUPPORTED OPERATION_VERSION_UNSUPPORTED SERVICES_PROTOCOL_MISMATCH SERVICES_MIGRATION_REQUIRED RELIEF_EDIT_VERSION','页面、文档、文件或后端协议版本不兼容。','重新握手并读取匹配版本的完整契约；工程先保存，不能用旧包或旧编号继续写入。',['connect','getTool','getServicesCapabilities'],{hardStop:true}),
-  rule('capacity','SIZE_LIMIT RESOURCE_LIMIT FILE_TOO_LARGE IMPORT_TOO_LARGE RESULT_TOO_LARGE RESULT_TOO_LARGE_FOR_CLIENT CHECKPOINT_CLIENT_CAPACITY SOURCE_BUDGET_EXCEEDED GEOMETRY_SOURCE_LIMIT CONTOUR_TOO_COMPLEX LOFT_COMPLEXITY MESH_DISPLAY_CAPACITY MESH_SIZE_LIMIT RELIEF_EDIT_CAPACITY RELIEF_LIMIT RELIEF_PLAN_LIMIT REFINE_LIMIT PROFILE_CONSTRAINT_LIMIT','输入、结果、工程或客户端承载超过这条实际链路的容量。','读取对应容量限制，按来源允许的部件/工程拆分或释放无用资源；不能自动减细节、降精度或改用另一内核。',['files.capabilities','getTool','getState'],{hardStop:true}),
+  rule('capacity','SIZE_LIMIT RESOURCE_LIMIT FILE_TOO_LARGE IMPORT_TOO_LARGE RESULT_TOO_LARGE RESULT_TOO_LARGE_FOR_CLIENT CHECKPOINT_CLIENT_CAPACITY SOURCE_BUDGET_EXCEEDED GEOMETRY_SOURCE_LIMIT CONTOUR_TOO_COMPLEX LOFT_COMPLEXITY MESH_DISPLAY_CAPACITY MESH_SIZE_LIMIT RELIEF_EDIT_CAPACITY RELIEF_PLAN_LIMIT REFINE_LIMIT PROFILE_CONSTRAINT_LIMIT','输入、结果、工程或客户端承载超过这条实际链路的容量。','读取对应容量限制，按来源允许的部件/工程拆分或释放无用资源；不能自动减细节、降精度或改用另一内核。',['files.capabilities','getTool','getState'],{hardStop:true}),
   rule('resource','RESOURCE_EXPIRED ASSET_NOT_FOUND ARTIFACT_NOT_FOUND ARTIFACT_UNAVAILABLE SERVICES_SOURCE_UNAVAILABLE LIBRARY_ENTRY_NOT_FOUND HANDLE_REQUIRED','所需输入资源、结果文件或授权文件句柄已经失效或不可用。','保留原资源/任务标识；由宿主重新提供同一来源或重新取得已有工件与句柄，核对哈希后继续。',['files.capabilities','getServicesJob','getState'],{hardStop:true}),
   rule('file','MALFORMED_FILE JSON_INVALID PROJECT_FORMAT_INVALID DOCUMENT_INVALID ASSET_INVALID LIBRARY_INVALID VECTOR_INVALID RELIEF_IMAGE_INVALID LOGO_READ_FAILED FILE_COMMAND_FAILED CONVERSION_FAILED','文件内容、格式转换、编码或工程结构未通过校验。','核对原文件真实格式与来源，使用受支持的导出格式重新提供；不要覆盖原文件或将解析失败当成空模型。',['getTool','files.capabilities'],{hardStop:true}),
   rule('transfer','ARTIFACT_TRANSFER_FAILED SAVE_CONFIRMATION_FAILED RESULT_REPORT_FAILED UPLOAD_FAILED PROJECT_ENCODING PROJECT_ENCODING_FAILED PROJECT_ENCODING_MESSAGE_ERROR PROJECT_ENCODING_SEND_FAILED PROJECT_ENCODING_TIMEOUT','文件传输、工程编码或写入确认未完成。','区分已生成、已传输和已写盘；先取原工件或原回执，再仅恢复未完成的传输，不重算模型。',['files.save','files.capabilities','getBatchReceipt','getJob'],{hardStop:true}),
@@ -87,12 +87,23 @@ function businessReason(message){
   const value=String(message||'').trim();
   // Agent-readable Services timeout guidance (stable code SERVICES_CONNECTION_UNKNOWN) must pass through.
   if(/getServicesRequest/.test(value)&&/[\u3400-\u9fff]/u.test(value)&&value.length<=400&&!/[\r\n]|https?:|[A-Za-z]:[\\/]|bearer|token|cookie|authorization|password|secret|api.?key|密钥|令牌|密码/i.test(value))return value;
-  // Preserve concise Chinese business guidance, but never echo opaque native diagnostics,
-  // credentials, paths, stacks, request identifiers or unproven rollback/save claims.
-  if(!/[\u3400-\u9fff]/u.test(value)||value.length>300||/(?:^|\s)\/(?:[^\s/]+\/)+[^\s]*/.test(value)||/[\r\n]|https?:|[A-Za-z]:[\\/]|\\\\|(?:\bat\s+.+\(|stack|bearer|token|cookie|authorization|password|secret|api.?key|jobId|requestId|diagnosticsRef|密钥|令牌|密码)|[A-Za-z0-9_-]{24,}|刷新页面|降低精度|已回滚|原工程保留|工程未(?:改变|变化)|已保存到/i.test(value))return null;
-  return value;
+  // Preserve concise Chinese or English kernel/business guidance, but never echo opaque native
+  // diagnostics, credentials, paths, stacks, request identifiers or unproven rollback/save claims.
+  const hasChinese=/[\u3400-\u9fff]/u.test(value);
+  const unsafe=value.length>(hasChinese?300:240)||/(?:^|\s)\/(?:[^\s/]+\/)+[^\s]*/.test(value)||/[\r\n]|https?:|[A-Za-z]:[\\/]|\\\\|(?:\bat\s+.+\(|stack|bearer|token|cookie|authorization|password|secret|api.?key|jobId|requestId|diagnosticsRef|密钥|令牌|密码)|[A-Za-z0-9_-]{24,}|刷新页面|降低精度|已回滚|原工程保留|工程未(?:改变|变化)|已保存到/i.test(value);
+  if(unsafe)return null;
+  if(hasChinese)return value;
+  // Keep specific English kernel reasons (logo/geometry). Reject generic "job failed" and opaque tokens.
+  if(!/^[A-Za-z][\x20-\x7E]{11,239}$/.test(value)||!/ /.test(value)||/^(?:Error|Exception|TypeError|fail|failed|OCCT fail)\b/i.test(value)||/\b(?:original job|job failed)\b/i.test(value))return null;
+  if(/\b(?:region\b|emboss\b|engrave\b|solid count|face boundary|does not (?:change|connect)|source must|produced no volume|hole cut failed|invalid taper|crosses the selected)\b/i.test(value))return value;
+  return null;
 }
 export function recoveryRule(code,message=''){
+  if(code==='RELIEF_LIMIT'){
+    // Pixel/file/mesh budgets stay capacity; angular width, radius and height limits are geometric input.
+    if(/像素|MiB|个面|笔画|图元|网格超过|文件须|16M|1600 万|10000 个|1025|2049/.test(String(message||'')))return exact.get('SIZE_LIMIT');
+    return input;
+  }
   if(exact.has(code))return exact.get(code);
   if(/UNSUPPORTED|UNAVAILABLE|_MISSING$|_TBD$|_UNMATCHED$|^UNKNOWN_OPERATION$|^FORMAT_|^CONTINUITY_|^SCOPE_EXPANSION_REQUIRED$|^OPERATION_|^NATIVE_ACCEPTANCE_/.test(code))return unavailable;
   if(/^GUIDED_LOFT_/.test(code))return guided;
