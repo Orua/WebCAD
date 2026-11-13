@@ -9,12 +9,13 @@ const main = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8')
 const context = () => ({ sessionId: 'page', documentId: 'doc', documentInstanceId: 'instance', expectedRevision: 4 });
 
 test('files.new forwards an optional live title (R8-002)', async () => {
-  assert.deepEqual(FILE_ARGUMENT_KEYS.new, ['context', 'name']);
+  assert.deepEqual(FILE_ARGUMENT_KEYS.new, ['context', 'name', 'unsaved']);
   const calls = [];
   const files = createBrowserFiles({ confirmSaved: async () => ({}), command: async input => { calls.push(input); return { status: 'committed', context: { revision: 1 }, name: input.args.name }; } });
   await files.new({ context: context(), name: 'F22' });
   await files.new({ context: context() });
-  assert.deepEqual(calls.map(c => c.args), [{ name: 'F22' }, {}]);
+  await files.new({ context: context(), unsaved: 'discard' });
+  assert.deepEqual(calls.map(c => c.args), [{ name: 'F22' }, {}, { unsaved: 'discard' }]);
   assert.match(main, /const fresh=emptyDocument\(\);if\(args\?\.name!==undefined\)fresh\.name=args\.name\.trim\(\);/);
   assert.match(main, /return \{dirty,name:documentModel\.name\};/);
 });
@@ -33,4 +34,16 @@ test('startup recovery keeps instanceId and revision of the recovered row (R7-02
   assert.match(main, /restoredFrom:\{instanceId:recovered\.instanceId,revision:recovered\.revision/);
   // Undo/redo/history revert still use restoring:true without restoredFrom, so they keep revision++.
   assert.ok(!/restoring:true,historyLabel:'退回：'\+entry\.label,restoredFrom/.test(main));
+});
+
+test('files.save still reports dirtyCleared:false; confirmWritten is the handshake (F-01)', async () => {
+  const files = createBrowserFiles({ confirmSaved: async snapshot => ({ cleared:true, ...snapshot }), command: async input => {
+    if (input.action === 'save') return { status: 'read', revision: 4, documentId: 'doc', documentInstanceId: 'instance', extension: 'webcad', mime: 'application/json', encoding: 'base64', data: Buffer.from('{"ok":1}').toString('base64') };
+    return { status: 'committed', context: { revision: 5 } };
+  } });
+  const saved = await files.save({ context: context() });
+  assert.equal(saved.dirtyCleared, false);
+  assert.ok(saved.next.includes('files.confirmWritten'));
+  const confirmed = await files.confirmWritten({ resourceId: saved.resourceId, size: saved.size, sha256: saved.sha256 });
+  assert.ok(confirmed);
 });

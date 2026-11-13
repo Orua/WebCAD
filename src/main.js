@@ -81,7 +81,7 @@ import {webcadShortcut} from './webcad-shortcuts.js';
 import { normalizeOperationParams, normalizeOperationPatch, migratedOperationIds, getOperation } from './operation-registry.js';
 import {mechanicalIds,mechanicalNames,mechanicalRefRange} from './mechanical-tool-contracts.js';
 import {resolveProfileRecipe,constrainProfileRecipe} from './modeling/profiles/profile-constraint-history.js';
-import {classifyFile,extensionOf,assertOpenAllowed,assertOpenable,assertInsertable,dropDecision} from './open-import-policy.js';
+import {classifyFile,extensionOf,assertOpenAllowed,assertNewAllowed,assertOpenable,assertInsertable,dropDecision} from './open-import-policy.js';
 import {chooseAction,UNSAVED_CHOICES,DROP_CHOICE_LABELS} from './ui/choice-dialog.js';
 import {createLoadingTracker,LOADING_TEXT} from './loading-progress.js';
 
@@ -1195,7 +1195,7 @@ async function executeAI(command,args={},options={}){
     await rebuild(next,options);return aiState();
   }
   if(command==='file_new'){
-    if(dirty)throw Object.assign(new Error('Save the current document before creating a new project.'),{code:'UNSAVED_REPLACEMENT'});
+    assertNewAllowed({unsaved:args?.unsaved??'fail',dirty});
     // R8-002: optional live title; same 1–120 character rule as document.rename.
     if(args?.name!==undefined&&(typeof args.name!=='string'||!args.name.trim()||args.name.length>120))throw Object.assign(new Error('name must contain 1–120 characters'),{code:'PARAM_SCHEMA_INVALID',path:'args.name'});
     const fresh=emptyDocument();if(args?.name!==undefined)fresh.name=args.name.trim();

@@ -8,7 +8,15 @@ const styles=new Set(['fill','fill-rule','stroke','opacity']);
 const mmPerUnit={mm:1,cm:10,in:25.4,pt:25.4/72,px:25.4/96};
 const fail=message=>{throw new Error(`SVG 不可安全转换：${message}`);};
 const solidColor=value=>/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(value)||/^[a-z]+$/i.test(value)&&value.toLowerCase()!=='transparent'&&CSS.supports('color',value)||/^rgb\(\s*\d{1,3}(?:\s*,\s*|\s+)\d{1,3}(?:\s*,\s*|\s+)\d{1,3}\s*\)$/i.test(value);
-function lengthMm(value){const m=/^\s*(\d+(?:\.\d+)?)(mm|cm|in|pt|px)\s*$/i.exec(value||'');if(!m)fail('请给出带 mm/cm/in/pt/px 单位的正尺寸，或填写目标宽度');const n=Number(m[1])*mmPerUnit[m[2].toLowerCase()];if(!Number.isFinite(n)||n<=0)fail('尺寸必须大于 0');return n;}
+// Unitless root width/height are viewBox units, not millimetres. Callers that
+// pass targetWidthMm must still be able to scale those SVGs.
+export function svgRootLengthMm(value,{allowUnitless=false}={}){
+  const m=/^\s*(\d+(?:\.\d+)?)(mm|cm|in|pt|px)?\s*$/i.exec(String(value??''));
+  if(!m)fail('请给出带 mm/cm/in/pt/px 单位的正尺寸，或填写目标宽度');
+  if(!m[2]){if(allowUnitless)return null;fail('请给出带 mm/cm/in/pt/px 单位的正尺寸，或填写目标宽度');}
+  const n=Number(m[1])*mmPerUnit[m[2].toLowerCase()];if(!Number.isFinite(n)||n<=0)fail('尺寸必须大于 0');return n;
+}
+function lengthMm(value,options){return svgRootLengthMm(value,options);}
 function validateTransform(value){
   const pattern=/(matrix|translate|scale|rotate|skewX|skewY)\s*\(([^)]*)\)/g;let rest=value,match,count=0;
   while((match=pattern.exec(value))){rest=rest.replace(match[0],' ');count++;const nums=match[2].trim().split(/[\s,]+/).map(Number),kind=match[1];
@@ -97,12 +105,14 @@ function flattenCurve(curve,tol,out){
 }
 function flattenPath(path,tol){const out=[];for(const curve of path.curves){if(!out.length)out.push(xy(curve.getPoint(0)));flattenCurve(curve,tol,out);if(out.length>12001)fail('单个轮廓超过 2000 顶点');}if(out.length>1&&dist(out[0],out.at(-1))<1e-7)out.pop();return out;}
 function area(ring){return ring.reduce((sum,p,i)=>{const q=ring[(i+1)%ring.length];return sum+p[0]*q[1]-q[0]*p[1];},0);}
-export function parseLocalLogoSvg(text,{name='local.svg',targetWidthMm}={}){
+export function analyzeLocalSvg(text,{name='local.svg',targetWidthMm}={}){
   const source=text.trim().startsWith('<')?text:`<svg xmlns="http://www.w3.org/2000/svg"><path d="${text.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}"/></svg>`;
   const parsed=validateSvg(source),root=parsed.root,viewBox=root.getAttribute('viewBox')?.trim().split(/[\s,]+/).map(Number);
   if(viewBox&&(viewBox.length!==4||viewBox.some(v=>!Number.isFinite(v))||viewBox[2]<=0||viewBox[3]<=0))fail('viewBox 无效');
-  const width=root.hasAttribute('width')?lengthMm(root.getAttribute('width')):null,height=root.hasAttribute('height')?lengthMm(root.getAttribute('height')):null;
-  if((width===null)!==(height===null))fail('SVG 宽高应同时给出');
+  const widthAttr=root.hasAttribute('width'),heightAttr=root.hasAttribute('height');
+  if(widthAttr!==heightAttr)fail('SVG 宽高应同时给出');
+  const width=widthAttr?lengthMm(root.getAttribute('width'),{allowUnitless:true}):null,height=heightAttr?lengthMm(root.getAttribute('height'),{allowUnitless:true}):null;
+  if(widthAttr&&heightAttr&&(width===null)!==(height===null))fail('SVG 宽高须同时带单位，或同时无单位并填写目标宽度');
   if(targetWidthMm!==undefined&&(!Number.isFinite(targetWidthMm)||targetWidthMm<=0))fail('目标宽度必须大于 0');
   if(width===null&&targetWidthMm===undefined)fail('请填写目标宽度（mm）');
   const preserve=root.getAttribute('preserveAspectRatio')||'xMidYMid meet';
@@ -116,7 +126,90 @@ export function parseLocalLogoSvg(text,{name='local.svg',targetWidthMm}={}){
   const sx=outputWidth/bounds[2],sy=outputHeight/bounds[3],scale=Math.min(sx,sy);
   const tx=preserve==='none'?sx:scale,ty=preserve==='none'?sy:scale,tol=0.004/Math.max(tx,ty),marginX=(outputWidth-bounds[2]*tx)/2,marginY=(outputHeight-bounds[3]*ty)/2;
   const convert=p=>[(p[0]-bounds[0])*tx+marginX-outputWidth/2,outputHeight/2-((p[1]-bounds[1])*ty+marginY)];
+  return {raw,convert,tol,tx,ty,outputWidth,outputHeight,name,color:parsed.color};
+}
+export function parseLocalLogoSvg(text,options={}){
+  const {raw,convert,tol,outputWidth,outputHeight,name,color}=analyzeLocalSvg(text,options);
   const regions=raw.map(r=>({outer:flattenPath(r.outer,tol).map(convert),holes:r.holes.map(h=>flattenPath(h,tol).map(convert))})).map(r=>({outer:area(r.outer)>0?r.outer:r.outer.reverse(),holes:r.holes.map(h=>area(h)<0?h:h.reverse())}));
   validateRegions({regions});
-  return {type:'webcad-logo',version:1,units:'mm',name,source:{kind:'local-svg',name,fillColor:parsed.color,approximationToleranceMm:0.005,reviewed:false},sizeMm:[outputWidth,outputHeight],regions};
+  return {type:'webcad-logo',version:1,units:'mm',name,source:{kind:'local-svg',name,fillColor:color,approximationToleranceMm:0.005,reviewed:false},sizeMm:[outputWidth,outputHeight],regions};
+}
+function circleFrom3(a,b,c){
+  const d=2*(a[0]*(b[1]-c[1])+b[0]*(c[1]-a[1])+c[0]*(a[1]-b[1]));
+  if(Math.abs(d)<1e-14)return null;
+  const a2=a[0]*a[0]+a[1]*a[1],b2=b[0]*b[0]+b[1]*b[1],c2=c[0]*c[0]+c[1]*c[1];
+  const ux=(a2*(b[1]-c[1])+b2*(c[1]-a[1])+c2*(a[1]-b[1]))/d;
+  const uy=(a2*(c[0]-b[0])+b2*(a[0]-c[0])+c2*(b[0]-a[0]))/d;
+  const center=[ux,uy],r=dist(center,a);
+  if(!Number.isFinite(r)||r<=0)return null;
+  return {center,r};
+}
+function onCircle(p,circle,tol){return circle&&Math.abs(dist(p,circle.center)-circle.r)<=tol;}
+function tessellateCurveToLines(curve,convert,tol){
+  const raw=[];flattenCurve(curve,tol,raw);
+  if(!raw.length)return [];
+  const first=raw.length&&dist(raw[0],xy(curve.getPoint(0)))>1e-9?[xy(curve.getPoint(0)),...raw]:raw;
+  const pts=first.map(convert);
+  const lines=[];
+  for(let i=1;i<pts.length;i++){
+    if(dist(pts[i-1],pts[i])<1e-9)continue;
+    lines.push({type:'line',startMm:pts[i-1],endMm:pts[i]});
+  }
+  return lines;
+}
+/** Map one SVGLoader curve to line / arc3 / circle entities in millimetres. Circular ellipse curves stay exact; beziers and non-circular ellipses fall back to the existing chord tessellation. */
+export function curveToVectorEntities(curve,convert,tol=1e-4){
+  if(curve.isLineCurve){
+    const start=convert(xy(curve.v1??curve.getPoint(0))),end=convert(xy(curve.v2??curve.getPoint(1)));
+    return dist(start,end)<1e-9?[]:[{type:'line',startMm:start,endMm:end}];
+  }
+  if(curve.isEllipseCurve){
+    const start=convert(xy(curve.getPoint(0))),mid=convert(xy(curve.getPoint(0.5))),end=convert(xy(curve.getPoint(1)));
+    const q1=convert(xy(curve.getPoint(0.25))),q3=convert(xy(curve.getPoint(0.75)));
+    const circle=circleFrom3(start,mid,end);
+    const fitTol=Math.max(1e-4, (tol||0)*Math.max(circle?.r||1,1)*0.25);
+    if(circle&&onCircle(q1,circle,fitTol)&&onCircle(q3,circle,fitTol)){
+      const sweep=ellipseCurveSweep(curve);
+      if(sweep>2*Math.PI-1e-6||dist(start,end)<=Math.max(1e-6,circle.r*1e-8)){
+        return [{type:'circle',centerMm:circle.center,diameterMm:2*circle.r}];
+      }
+      return [{type:'arc3',startMm:start,midMm:mid,endMm:end}];
+    }
+  }
+  return tessellateCurveToLines(curve,convert,Math.max(tol,1e-5));
+}
+function endpointOf(entity,which){
+  if(entity.type==='circle')return entity.centerMm;
+  if(which==='start')return entity.startMm;
+  return entity.endMm||entity.startMm;
+}
+export function closeVectorLoop(pieces,gap=1e-6){
+  if(!pieces.length)return pieces;
+  const first=pieces.find(e=>e.type!=='circle');
+  const last=[...pieces].reverse().find(e=>e.type!=='circle');
+  if(!first||!last)return pieces;
+  const a=endpointOf(first,'start'),b=endpointOf(last,'end');
+  if(dist(a,b)<=gap)return pieces;
+  return [...pieces,{type:'line',startMm:b,endMm:a}];
+}
+export function svgToVectorEntities(text,options={}){
+  const {raw,convert,tol,outputWidth,outputHeight,name,color}=analyzeLocalSvg(text,options);
+  const entities=[];let index=0,tessellated=false;
+  for(const region of raw){
+    for(const path of [region.outer,...region.holes]){
+      if(!path?.curves?.length)continue;
+      const loop=[];
+      for(const curve of path.curves){
+        const pieces=curveToVectorEntities(curve,convert,tol);
+        if(pieces.some(e=>e.type==='line')&&(curve.isEllipseCurve||curve.isQuadraticBezierCurve||curve.isCubicBezierCurve))tessellated=true;
+        loop.push(...pieces);
+      }
+      for(const piece of closeVectorLoop(loop)){
+        index+=1;
+        entities.push({id:`s${index-1}`,...piece,layer:'SVG',sourceId:String(index)});
+      }
+    }
+  }
+  if(!entities.length)fail('没有可用的填充轮廓');
+  return {version:1,units:'mm',entities,unsupported:[],approximationToleranceMm:tessellated?0.005:0,name,sizeMm:[outputWidth,outputHeight],source:{kind:'local-svg',name,fillColor:color,approximationToleranceMm:tessellated?0.005:0,reviewed:false,analyticArcs:true}};
 }

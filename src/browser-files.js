@@ -190,7 +190,10 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       const source=inputFor(resourceId,['png','jpg','jpeg','webp']);
       return {name:source.name,mime:source.mime,sha256:source.sha256,size:source.size,bytes:new Uint8Array(await source.blob.arrayBuffer())};
     },
-    new({ context, name } = {}) { return run(context, 'new', name === undefined ? {} : { name }); },
+    new({ context, name, unsaved } = {}) {
+      if (unsaved !== undefined && !['fail', 'discard'].includes(unsaved)) throw failure('PARAM_SCHEMA_INVALID', 'files.new 的 unsaved 须为 "fail" 或 "discard"（省略时视为 fail）。新建会替换当前设计。');
+      return run(context, 'new', { ...(name === undefined ? {} : { name }), ...(unsaved === undefined ? {} : { unsaved }) });
+    },
     save({ context, name } = {}) { return generated({ context, action: 'save', name }); },
     export({ context, format, ids, name } = {}) {
       if (!['step', 'stl', 'brep', 'png'].includes(format)) throw failure('FORMAT_UNSUPPORTED', 'Unsupported export format');

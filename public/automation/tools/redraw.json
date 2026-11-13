@@ -2,7 +2,7 @@
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -207,5 +207,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e5bf67a5f55e8772fb42ee93dc48c83fb1fde5df53dd9f3c23a8948f3cd81519"
+  "docsHash": "sha256:f62e7880802e1916fa83101d1fba410f7c545de5765a4fbc081ae37e40f09b9c"
 }

@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {classifyFile,assertOpenAllowed,assertInsertable,assertOpenable,dropDecision,FILE_MENU_LABELS} from '../src/open-import-policy.js';
+import {classifyFile,assertOpenAllowed,assertNewAllowed,assertInsertable,assertOpenable,dropDecision,FILE_MENU_LABELS} from '../src/open-import-policy.js';
 import {UI_LAYOUT} from '../src/ui/config/ui-layout.js';
 import {FILE_ARGUMENT_KEYS} from '../src/browser-file-contracts.js';
 const f=name=>({name});
@@ -22,4 +22,13 @@ test('compact file menu explains replace vs insert in titles; files.open accepts
  assert.equal(menu.open.label,'打开');assert.match(menu.open.title,/替换当前设计/);
  assert.equal(menu.importAtFrame.label,'导入');assert.match(menu.importAtFrame.title,/保留已有对象/);
  assert.match(FILE_MENU_LABELS.open,/替换当前设计/);assert.ok(FILE_ARGUMENT_KEYS.open.includes('unsaved'));
+});
+
+test('files.new defaults to fail on dirty and allows explicit discard (F-01)',()=>{
+  assert.throws(()=>assertNewAllowed({dirty:true}),e=>e.code==='UNSAVED_REPLACEMENT'&&/confirmWritten/.test(e.message)&&/discard/.test(e.message));
+  assert.throws(()=>assertNewAllowed({unsaved:'fail',dirty:true}),{code:'UNSAVED_REPLACEMENT'});
+  assert.throws(()=>assertNewAllowed({unsaved:'merge',dirty:false}),{code:'PARAM_SCHEMA_INVALID'});
+  assert.doesNotThrow(()=>assertNewAllowed({dirty:false}));
+  assert.doesNotThrow(()=>assertNewAllowed({unsaved:'discard',dirty:true}));
+  assert.ok(FILE_ARGUMENT_KEYS.new.includes('unsaved'));
 });

@@ -2,7 +2,7 @@
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -226,5 +226,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:352a201f17793219fe8ae250ee6bc7ccc90af47205757a817c00ce0accf45ffd"
+  "docsHash": "sha256:9eddacdf908eee94d5ea855077792a870dbe4415c8be7bdfe2386b19099548e6"
 }

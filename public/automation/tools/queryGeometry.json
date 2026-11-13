@@ -2,7 +2,7 @@
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -97,7 +97,7 @@
     "method": "queryGeometry",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?,fields?,includeSpline?})。fields 只投影每项返回字段（总是带 kind/topologyId，不改变匹配、计数和令牌）；includeSpline:false 把 spline 摘要缩成 poleCount/poleCountU/poleCountV。列很多截面边时用 fields:[\"startPoint\",\"endPoint\",\"lengthMidpoint\"],includeSpline:false。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。",
+  "description": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?,fields?,includeSpline?})。fields 只投影每项返回字段（总是带 kind/topologyId，不改变匹配、计数和令牌）；includeSpline:false 把 spline 摘要缩成 poleCount/poleCountU/poleCountV。列很多截面边时用 fields:[\"startPoint\",\"endPoint\",\"lengthMidpoint\"],includeSpline:false。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。无筛选列出全部面或边时默认 requireUnique:false、limit 100，用 cursor 取后续页。带 filter 时默认 requireUnique:true；多个匹配返回 AMBIGUOUS_SELECTION，附带本页 items 和 nextCursor（如还有剩余），不生成 selectionToken。列出候选请传 requireUnique:false。fields 未知名会拒绝，不静默丢弃；没有 convexity 字段，用 sharp 与 normalAngleDeg；长度是 lengthMm，圆心或面心是 center（仅圆边和面）。",
   "synonyms": [
     "queryGeometry",
     "几何查询",
@@ -105,7 +105,7 @@
     "边",
     "选择令牌"
   ],
-  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?,fields?,includeSpline?})。fields 只投影每项返回字段（总是带 kind/topologyId，不改变匹配、计数和令牌）；includeSpline:false 把 spline 摘要缩成 poleCount/poleCountU/poleCountV。列很多截面边时用 fields:[\"startPoint\",\"endPoint\",\"lengthMidpoint\"],includeSpline:false。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。默认 requireUnique:true；多个面或边返回 AMBIGUOUS_SELECTION，并附带本页 items，不生成 selectionToken。列出候选必须显式 requireUnique:false。",
+  "inputContract": "queryGeometry({context,bodyId,kind:\"face\"|\"edge\",filter,requireUnique?,expectedCount?,limit?,cursor?,fields?,includeSpline?})。fields 只投影每项返回字段（总是带 kind/topologyId，不改变匹配、计数和令牌）；includeSpline:false 把 spline 摘要缩成 poleCount/poleCountU/poleCountV。列很多截面边时用 fields:[\"startPoint\",\"endPoint\",\"lengthMidpoint\"],includeSpline:false。位置 bounds、边邻面 adjacentSurfaceTypes、当前面环 loopIndex 详见 api.query-geometry。无筛选列出全部面或边时默认 requireUnique:false、limit 100，用 cursor 取后续页。带 filter 时默认 requireUnique:true；多个匹配返回 AMBIGUOUS_SELECTION，附带本页 items 和 nextCursor（如还有剩余），不生成 selectionToken。列出候选请传 requireUnique:false。fields 未知名会拒绝，不静默丢弃；没有 convexity 字段，用 sharp 与 normalAngleDeg；长度是 lengthMm，圆心或面心是 center（仅圆边和面）。",
   "outputContract": "精确 B-Rep 候选项、surfaceClass、pointOnFace/closestPoint、歧义信息、快照绑定的 selectionToken 与当前 context；expectedCount 不符时不生成令牌。刻字落点用 pointOnFace，不要用柱面 center。柱面 pointOnFace 若落在周期接缝上会改到面参数中点，并带 periodicSeamAvoided。边的 periodicSeam 标出接缝。singleFace 等深可以沿周期接缝分成两侧再偏移；跨真实边界仍拒绝。connectedFaces 只做凹刻。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -183,5 +183,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cfd427346131e9245de05fcc9701c1fe2567c1ae508a8d17cdd84092ac7e1ce3"
+  "docsHash": "sha256:68eb89b15cbd0a6e572045badc9ab212871c3a1cda4281e97fbcea646cf8ebe4"
 }
