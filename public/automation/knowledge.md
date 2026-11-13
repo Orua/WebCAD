@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.70.0 · sha256:0c35f47627ffe8d201d8db65edf71e0c3ec2eb76590b98865f6b54e563a6e8cd
+API 1.70.0 · sha256:7e0dc73f6dabd6b48b49afc3200f5d53ee56d28382743c6ebeca74a3e5076933
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -75513,7 +75513,7 @@ files.release: contextPolicy=none
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。默认不自动居中/定位：截面必须已在路径起点平面并垂直其起点切线。路径沿 +X、截面画在 XY 时，给截面 placement.quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y 轴 +90°，法向从 +Z 转到 +X）。也可以设 alignProfileToPath:true，只摆放一份副本，不改已保存截面。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。默认不自动居中/定位：截面必须已在路径起点平面并垂直其起点切线。路径沿 +X、截面画在 XY 时，给截面 placement.quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y 轴 +90°，法向从 +Z 转到 +X）。也可以设 alignProfileToPath:true，只摆放一份副本，不改已保存截面。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。transitionMode:\"transformed\"（默认）要求路径切线连续；开放或闭合折线若存在大约超过 15° 的尖角会原子失败，请改用 transitionMode:\"right\" 或 \"round\"，或把尖角改成相切圆弧段。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。",
   "title": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
   "category": "modification",
   "synonyms": [
@@ -75523,7 +75523,7 @@ files.release: contextPolicy=none
     "轮廓扫掠"
   ],
   "description": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
-  "schemaHash": "sha256:5bb111220eec4f673a12c986b7e3ff7a91d3df171d5b1ee7faa1373cec8d04c7",
+  "schemaHash": "sha256:a504b3fb6e04dde0c52a7b665824a0dc525b3951e9ca990b95b7f643c0cec85d",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -75596,7 +75596,7 @@ files.release: contextPolicy=none
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。默认不自动居中/定位：截面必须已在路径起点平面并垂直其起点切线。路径沿 +X、截面画在 XY 时，给截面 placement.quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y 轴 +90°，法向从 +Z 转到 +X）。也可以设 alignProfileToPath:true，只摆放一份副本，不改已保存截面。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
+    "refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。默认不自动居中/定位：截面必须已在路径起点平面并垂直其起点切线。路径沿 +X、截面画在 XY 时，给截面 placement.quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y 轴 +90°，法向从 +Z 转到 +X）。也可以设 alignProfileToPath:true，只摆放一份副本，不改已保存截面。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。transitionMode:\"transformed\"（默认）要求路径切线连续；开放或闭合折线若存在大约超过 15° 的尖角会原子失败，请改用 transitionMode:\"right\" 或 \"round\"，或把尖角改成相切圆弧段。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -75673,7 +75673,7 @@ files.release: contextPolicy=none
   "contract": {
     "purpose": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
     "whenToUse": [
-      "refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。默认不自动居中/定位：截面必须已在路径起点平面并垂直其起点切线。路径沿 +X、截面画在 XY 时，给截面 placement.quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y 轴 +90°，法向从 +Z 转到 +X）。也可以设 alignProfileToPath:true，只摆放一份副本，不改已保存截面。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
+      "refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。默认不自动居中/定位：截面必须已在路径起点平面并垂直其起点切线。路径沿 +X、截面画在 XY 时，给截面 placement.quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y 轴 +90°，法向从 +Z 转到 +X）。也可以设 alignProfileToPath:true，只摆放一份副本，不改已保存截面。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。transitionMode:\"transformed\"（默认）要求路径切线连续；开放或闭合折线若存在大约超过 15° 的尖角会原子失败，请改用 transitionMode:\"right\" 或 \"round\"，或把尖角改成相切圆弧段。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
     ],
     "whenNotToUse": [
       {
@@ -75864,7 +75864,7 @@ files.release: contextPolicy=none
   },
   "purpose": "Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result",
   "whenToUse": [
-    "refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。默认不自动居中/定位：截面必须已在路径起点平面并垂直其起点切线。路径沿 +X、截面画在 XY 时，给截面 placement.quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y 轴 +90°，法向从 +Z 转到 +X）。也可以设 alignProfileToPath:true，只摆放一份副本，不改已保存截面。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
+    "refs[0] 截面，refs[1] 单一连续开放或闭合精确 Wire/Edge（或纯边 Compound）；加工模式另附 refs[2] 目标。路径方向由保存 Wire 的顺序决定；闭合环仍使用保存路径的起点和切线。默认不自动居中/定位：截面必须已在路径起点平面并垂直其起点切线。路径沿 +X、截面画在 XY 时，给截面 placement.quaternion=[0,0.7071067811865476,0,0.7071067811865476]（绕 Y 轴 +90°，法向从 +Z 转到 +X）。也可以设 alignProfileToPath:true，只摆放一份副本，不改已保存截面。支持单一平面 Face 的一个外环和已定义内孔（包括仅含该 Face 的 Compound）；外环与各内孔使用相同路径和过渡设置精确扫掠，再完整扣除内腔。原生 Face 或 sketchProfile 的 regions.holeLoopIds 定义孔，独立多环 Wire/纯边 Compound 不自动推断内外。内孔扫掠超出外部、与其它内孔交叠、无效或分裂结果拒绝。无分叉或多个独立路径，不提供变截面、导轨、扭转或自动减小半径。开放路径端面保留孔，闭环保留内部管腔；结果须通过有效正体积单实体检查，否则原子失败。曲线保留为精确圆弧/样条，非离散折线。transitionMode:\"transformed\"（默认）要求路径切线连续；开放或闭合折线若存在大约超过 15° 的尖角会原子失败，请改用 transitionMode:\"right\" 或 \"round\"，或把尖角改成相切圆弧段。精确 Face/Wire 来源与路径保留，join/cut/intersect 仅替换最后引用的明确单实体目标。加料允许共享面的贴合融合或正体积交叠；只接受有效正体积单实体，分离、仅边/点接触、无材料变化或分裂结果失败，失败不改来源。体积容差单位 mm³，随模型体积缩放。固定来源世界位置，不再次应用工作基准。"
   ],
   "whenNotToUse": [
     {
@@ -76221,7 +76221,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:74868267c27357e36a080a6bee84dd757c5b87b28b6e92cc57c39db15dc7b0fb"
+  "docsHash": "sha256:caf1f37e032031fe3317af5b1a9d1226dcbab39f470d705988e193969b47657d"
 }
 ```
 
