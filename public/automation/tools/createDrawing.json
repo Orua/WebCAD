@@ -2,7 +2,7 @@
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -13,7 +13,7 @@
     "method": "createDrawing",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
+  "description": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。带螺纹或大量隐藏线的零件可能需要数分钟；请等待同一请求返回，不要当作挂起。",
   "synonyms": [
     "createDrawing",
     "三视图",
@@ -21,7 +21,7 @@
     "自动尺寸",
     "截面"
   ],
-  "inputContract": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。",
+  "inputContract": "createDrawing({context,bodyIds,projection?:first|third,sections?:[{plane:XY|XZ|YZ,offset:mm}],hiddenLines?:true})。1–40当前实体，最多3截面、1500面。带螺纹或大量隐藏线的零件可能需要数分钟；请等待同一请求返回，不要当作挂起。",
   "outputContract": "status=generated、drawingId、drawing{views,dimensions,limitations}、svg、formats。OCCT隐藏线投影及精确截线；自动候选为外形、圆直径和圆心坐标，不推断工艺/公差。原件只读。默认第一角法。缓存仅保留最近4份。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -261,5 +261,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3cb185b64bc3464014b3a92f96035e22ef70a4eaffe34be620d775f1147c6e04"
+  "docsHash": "sha256:6b8d6dfc75dac872ee0e279e25e0821bb07ad75912c9007badfd0381bd6e14a7"
 }

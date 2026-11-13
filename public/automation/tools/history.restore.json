@@ -8,7 +8,7 @@
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -267,5 +267,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3f7a7d8ecb0f9c6335e337c5678459baea419f108d456a2079a83744e100d3ed"
+  "docsHash": "sha256:68fd3a028d14a68ce22e2507c923dcda7cebd7883a31bf3b9944d5ee5f50f54d"
 }

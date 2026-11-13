@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {ellipseCurveSweep} from '../src/svg-logo-input.js';
+import {ellipseCurveSweep,svgRootLengthMm} from '../src/svg-logo-input.js';
 
 const twoPi=2*Math.PI;
 function fake(start,end,clockwise){return {aStartAngle:start,aEndAngle:end,aClockwise:clockwise};}
@@ -21,4 +21,14 @@ test('near-full SVG arcs keep a 2π-class sweep, including clockwise almost-clos
   assert.ok(Math.abs(half-Math.PI)<1e-9);
   const absOnly=Math.abs(1e-6-0);
   assert.ok(absOnly<1e-4 && large-absOnly>6,'regression: abs(end-start) must not be used as the sweep');
+});
+
+test('unitless SVG root lengths defer to targetWidthMm instead of throwing (V-01)',()=>{
+  assert.equal(svgRootLengthMm('40',{allowUnitless:true}),null);
+  assert.equal(svgRootLengthMm(' 30.5 ',{allowUnitless:true}),null);
+  assert.equal(svgRootLengthMm('40mm',{allowUnitless:true}),40);
+  assert.equal(svgRootLengthMm('2cm'),20);
+  assert.equal(svgRootLengthMm('96px'),25.4);
+  assert.throws(()=>svgRootLengthMm('40'),/目标宽度/);
+  assert.throws(()=>svgRootLengthMm('40%'),/目标宽度/);
 });

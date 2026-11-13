@@ -19,7 +19,9 @@ const dot=(a,b)=>a[0]*b[0]+a[1]*b[1];
 const cross=(a,b)=>a[0]*b[1]-a[1]*b[0];
 const norm=a=>Math.hypot(...a);
 const unit=a=>mul(a,1/norm(a));
-const near=(a,b)=>norm(sub(a,b))<=1e-6;
+const pointToleranceMm=(...points)=>Math.max(1e-6,1e-9*(1+Math.max(0,...points.map(point=>Math.hypot(point[0],point[1])))));
+const near=(a,b)=>norm(sub(a,b))<=pointToleranceMm(a,b);
+export const endpointsCoincide=(point,...ends)=>ends.some(end=>near(end,point));
 const fail=(message,code='PROFILE_EDIT_INVALID')=>{throw Object.assign(new Error(message),{code});};
 const clone=value=>structuredClone(value);
 const circleOf=e=>{

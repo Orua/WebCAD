@@ -18,7 +18,7 @@
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。roughness 0–1（null 恢复 0.42 默认）只作用于 design 饰面的该实体，例如 0.9 做哑光漆，随工程保存；金属饰面忽略。opacity 0–1 为不透明度；transmission 0–1、ior 1–2.5、thicknessMm 0–10000 表达玻璃透射。texture 为 PNG/JPEG/WebP dataUrl（约4.5MiB以内、4096像素以内），或当前工程assetHash+mime；mapping box/xy/xz/yz、sizeMm二元毫米尺寸、offsetMm二元偏移、rotationDeg。null清除对应覆盖。整实体投射只改外观；图片随工程保存且可撤销。任一可见实体用金属饰面时全场切到金属光照（ACES、较暗灯强），design 实体会变暗；回执警告 METAL_LIGHTING_GLOBAL，getState().display.metalRendering.sceneLighting 读回。",
   "category": "command",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -696,5 +696,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:61e89506e0e8f1518bba961f54944100f827b2ca043dcbc1f5f753b830177d8c"
+  "docsHash": "sha256:39f6b45d864b4b0bc777bd5d30509e0a0f50f0d5787f8b7c45000f1428dc7951"
 }

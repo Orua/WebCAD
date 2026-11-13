@@ -8,7 +8,7 @@
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -254,5 +254,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:058d3e22a9ee99e153a9b6a8baa3304ef2931463e4b51fa19436ac537074ef1e"
+  "docsHash": "sha256:8ce817f6c9a0ee71051d9e1226b9cbcfd027c8a7d707af63ce75a1379a89c12f"
 }

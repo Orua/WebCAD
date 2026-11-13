@@ -8,15 +8,15 @@
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "contextPolicy": "none",
   "label": "新建工程",
   "synonyms": [
     "新建工程",
     "new"
   ],
-  "description": "new({context,name?}); complete current context; dirty replacement is always rejected by page API (a new tab opening ?document=<id> is the non-destructive way to reach another project). name (1–120 characters, trimmed) becomes the live title; omitted, the default is 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits).",
-  "inputContract": "new({context,name?}); complete current context; dirty replacement is always rejected by page API (a new tab opening ?document=<id> is the non-destructive way to reach another project). name (1–120 characters, trimmed) becomes the live title; omitted, the default is 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits).",
+  "description": "new({context,name?,unsaved?:\"fail\"|\"discard\"}); complete current context. unsaved 省略视为 fail：未保存时拒绝 UNSAVED_REPLACEMENT。files.save 只在页面内存生成文件（dirtyCleared:false），不会单独清掉未保存标记；要先 files.write 或 files.download，再 files.confirmWritten。明确放弃当前修改可传 unsaved:\"discard\"。另开 ?document=<id> 标签页也不破坏当前工程。name (1–120 characters, trimmed) becomes the live title; omitted, the default is 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits).",
+  "inputContract": "new({context,name?,unsaved?:\"fail\"|\"discard\"}); complete current context. unsaved 省略视为 fail：未保存时拒绝 UNSAVED_REPLACEMENT。files.save 只在页面内存生成文件（dirtyCleared:false），不会单独清掉未保存标记；要先 files.write 或 files.download，再 files.confirmWritten。明确放弃当前修改可传 unsaved:\"discard\"。另开 ?document=<id> 标签页也不破坏当前工程。name (1–120 characters, trimmed) becomes the live title; omitted, the default is 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits).",
   "outputContract": "New document identity and instance on commit; getState().summary.name reads the generated name. Existing opened projects and user renames retain their names.",
   "units": {
     "length": "mm",
@@ -27,7 +27,8 @@
   "runtimeAvailability": "requires_ready_page",
   "argumentKeys": [
     "context",
-    "name"
+    "name",
+    "unsaved"
   ],
   "unknownFields": "rejected",
   "errorModel": "Direct page file scripts throw or reject with error.code. MCP callers follow mcpCall; invoke is not an Agent method. Page-script invoke({method:\"files.new\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
@@ -105,7 +106,8 @@
           "documentInstanceId"
         ]
       },
-      "name": {}
+      "name": {},
+      "unsaved": {}
     },
     "required": [
       "context"
@@ -146,7 +148,8 @@
           "documentInstanceId"
         ]
       },
-      "name": {}
+      "name": {},
+      "unsaved": {}
     },
     "required": [
       "context"
@@ -203,5 +206,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:e93185a31941b7c110e066dc9bebeb6f4724113697f6b10dc6232701a5f98f41"
+  "docsHash": "sha256:0f1c8e38c24ffaffcd852cd0f1e617cfe406d330ead2a52e0a60afa33d6ac4e8"
 }

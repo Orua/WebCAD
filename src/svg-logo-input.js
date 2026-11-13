@@ -8,7 +8,15 @@ const styles=new Set(['fill','fill-rule','stroke','opacity']);
 const mmPerUnit={mm:1,cm:10,in:25.4,pt:25.4/72,px:25.4/96};
 const fail=message=>{throw new Error(`SVG 不可安全转换：${message}`);};
 const solidColor=value=>/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(value)||/^[a-z]+$/i.test(value)&&value.toLowerCase()!=='transparent'&&CSS.supports('color',value)||/^rgb\(\s*\d{1,3}(?:\s*,\s*|\s+)\d{1,3}(?:\s*,\s*|\s+)\d{1,3}\s*\)$/i.test(value);
-function lengthMm(value){const m=/^\s*(\d+(?:\.\d+)?)(mm|cm|in|pt|px)\s*$/i.exec(value||'');if(!m)fail('请给出带 mm/cm/in/pt/px 单位的正尺寸，或填写目标宽度');const n=Number(m[1])*mmPerUnit[m[2].toLowerCase()];if(!Number.isFinite(n)||n<=0)fail('尺寸必须大于 0');return n;}
+// Unitless root width/height are viewBox units, not millimetres. Callers that
+// pass targetWidthMm must still be able to scale those SVGs.
+export function svgRootLengthMm(value,{allowUnitless=false}={}){
+  const m=/^\s*(\d+(?:\.\d+)?)(mm|cm|in|pt|px)?\s*$/i.exec(String(value??''));
+  if(!m)fail('请给出带 mm/cm/in/pt/px 单位的正尺寸，或填写目标宽度');
+  if(!m[2]){if(allowUnitless)return null;fail('请给出带 mm/cm/in/pt/px 单位的正尺寸，或填写目标宽度');}
+  const n=Number(m[1])*mmPerUnit[m[2].toLowerCase()];if(!Number.isFinite(n)||n<=0)fail('尺寸必须大于 0');return n;
+}
+function lengthMm(value,options){return svgRootLengthMm(value,options);}
 function validateTransform(value){
   const pattern=/(matrix|translate|scale|rotate|skewX|skewY)\s*\(([^)]*)\)/g;let rest=value,match,count=0;
   while((match=pattern.exec(value))){rest=rest.replace(match[0],' ');count++;const nums=match[2].trim().split(/[\s,]+/).map(Number),kind=match[1];
@@ -101,8 +109,10 @@ export function parseLocalLogoSvg(text,{name='local.svg',targetWidthMm}={}){
   const source=text.trim().startsWith('<')?text:`<svg xmlns="http://www.w3.org/2000/svg"><path d="${text.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}"/></svg>`;
   const parsed=validateSvg(source),root=parsed.root,viewBox=root.getAttribute('viewBox')?.trim().split(/[\s,]+/).map(Number);
   if(viewBox&&(viewBox.length!==4||viewBox.some(v=>!Number.isFinite(v))||viewBox[2]<=0||viewBox[3]<=0))fail('viewBox 无效');
-  const width=root.hasAttribute('width')?lengthMm(root.getAttribute('width')):null,height=root.hasAttribute('height')?lengthMm(root.getAttribute('height')):null;
-  if((width===null)!==(height===null))fail('SVG 宽高应同时给出');
+  const widthAttr=root.hasAttribute('width'),heightAttr=root.hasAttribute('height');
+  if(widthAttr!==heightAttr)fail('SVG 宽高应同时给出');
+  const width=widthAttr?lengthMm(root.getAttribute('width'),{allowUnitless:true}):null,height=heightAttr?lengthMm(root.getAttribute('height'),{allowUnitless:true}):null;
+  if(widthAttr&&heightAttr&&(width===null)!==(height===null))fail('SVG 宽高须同时带单位，或同时无单位并填写目标宽度');
   if(targetWidthMm!==undefined&&(!Number.isFinite(targetWidthMm)||targetWidthMm<=0))fail('目标宽度必须大于 0');
   if(width===null&&targetWidthMm===undefined)fail('请填写目标宽度（mm）');
   const preserve=root.getAttribute('preserveAspectRatio')||'xMidYMid meet';

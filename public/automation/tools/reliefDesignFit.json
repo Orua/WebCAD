@@ -2,7 +2,7 @@
   "id": "reliefDesignFit",
   "title": "reliefDesignFit",
   "category": "page-method",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -270,5 +270,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:3b7dad8b8e3073230ae616701cb359abac782ea5d113128b479ef521a6d61594"
+  "docsHash": "sha256:48560cc56411844f3eb692a8f331fa0a76e98e0352959407a11a7b32c2272f6d"
 }
