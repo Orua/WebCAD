@@ -6,11 +6,25 @@ export function primitiveEntities(entity){
   const [x,y]=origin,result=[],point=(u,v)=>[x+u,y+v],line=(a,b)=>result.push({id:`${entity.id}_${result.length}`,type:'line',startMm:point(...a),endMm:point(...b)}),arc=(a,m,b)=>result.push({id:`${entity.id}_${result.length}`,type:'arc3',startMm:point(...a),midMm:point(...m),endMm:point(...b)});
   if(entity.type==='rectangle'){line([0,0],[width,0]);line([width,0],[width,height]);line([width,height],[0,height]);line([0,height],[0,0]);}
   else if(entity.type==='roundedRectangle'){
-    const r=entity.cornerRadiusMm;if(!Number.isFinite(r)||r<=0||r>=Math.min(width,height)/2)throw new Error('圆角矩形 R 须大于零且小于短边一半');const q=r*(1-Math.SQRT1_2);
-    line([r,0],[width-r,0]);arc([width-r,0],[width-q,q],[width,r]);line([width,r],[width,height-r]);arc([width,height-r],[width-q,height-q],[width-r,height]);line([width-r,height],[r,height]);arc([r,height],[q,height-q],[0,height-r]);line([0,height-r],[0,r]);arc([0,r],[q,q],[r,0]);
+    const r=entity.cornerRadiusMm;if(!Number.isFinite(r)||r<=0||r>=Math.min(width,height)/2)throw new Error('圆角矩形 R 须大于零且小于短边一半');
+    // Build every joint from the exact corner center so mid-point reconstruction
+    // stays within the shared endpoint tolerance even after a translated origin.
+    const p=(cx,cy,a)=>[cx+r*Math.cos(a),cy+r*Math.sin(a)];
+    line(p(r,r,-Math.PI/2),p(width-r,r,-Math.PI/2));
+    arc(p(width-r,r,-Math.PI/2),p(width-r,r,-Math.PI/4),p(width-r,r,0));
+    line(p(width-r,r,0),p(width-r,height-r,0));
+    arc(p(width-r,height-r,0),p(width-r,height-r,Math.PI/4),p(width-r,height-r,Math.PI/2));
+    line(p(width-r,height-r,Math.PI/2),p(r,height-r,Math.PI/2));
+    arc(p(r,height-r,Math.PI/2),p(r,height-r,3*Math.PI/4),p(r,height-r,Math.PI));
+    line(p(r,height-r,Math.PI),p(r,r,Math.PI));
+    arc(p(r,r,Math.PI),p(r,r,-3*Math.PI/4),p(r,r,-Math.PI/2));
   }else if(entity.type==='capsule'){
     if(width<=height)throw new Error('长圆总长须大于宽度');const r=height/2;
-    line([r,0],[width-r,0]);arc([width-r,0],[width,r],[width-r,height]);line([width-r,height],[r,height]);arc([r,height],[0,r],[r,0]);
+    const p=(cx,cy,a)=>[cx+r*Math.cos(a),cy+r*Math.sin(a)];
+    line(p(r,r,-Math.PI/2),p(width-r,r,-Math.PI/2));
+    arc(p(width-r,r,-Math.PI/2),p(width-r,r,0),p(width-r,r,Math.PI/2));
+    line(p(width-r,r,Math.PI/2),p(r,r,Math.PI/2));
+    arc(p(r,r,Math.PI/2),p(r,r,Math.PI),p(r,r,-Math.PI/2));
   }else throw new Error('未知基础轮廓类型');
   return result.map(item=>({...item,...(entity.construction?{construction:true}:{})}));
 }

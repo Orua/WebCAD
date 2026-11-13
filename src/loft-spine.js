@@ -28,6 +28,20 @@ function parameters(count,distribution,points){
  const density=cumulative.map((d,i)=>d+curv.slice(0,i+1).reduce((s,x)=>s+x,0)*Math.max(cumulative.at(-1),1));const max=density.at(-1);
  return Array.from({length:count},(_,k)=>{const target=max*k/(count-1);let i=1;while(density[i]<target&&i<density.length-1)i++;const f=(target-density[i-1])/(density[i]-density[i-1]||1);return (cumulative[i-1]*(1-f)+cumulative[i]*f)/cumulative.at(-1);});
 }
+function defaultSpineWidth(params){
+ // pathType:spine historically defaulted to a 10 mm section. Honor the shared
+ // curveSweep radius / sectionWidth / sectionSize so agents are not given a
+ // silently oversized solid when they pass section:"round", radius:….
+ if(Number.isFinite(params.radius)&&params.radius>0)return 2*params.radius;
+ if(Number.isFinite(params.sectionWidth)&&params.sectionWidth>0)return params.sectionWidth;
+ if(Number.isFinite(params.sectionSize)&&params.sectionSize>0)return params.sectionSize;
+ return 10;
+}
+function defaultSpineDepth(params,widthMm){
+ if(Number.isFinite(params.radius)&&params.radius>0)return 2*params.radius;
+ if(Number.isFinite(params.sectionDepth)&&params.sectionDepth>0)return params.sectionDepth;
+ return widthMm;
+}
 export function buildSpineLoft(params,cad){
  const spine=params.spine,points=spine?.pointsMm;if(!Array.isArray(points)||points.length<2||points.length>128||!points.every(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)))throw new Error('spine.pointsMm 须为 2–128 个有限 XYZ 点');
  if(spine.kind!==undefined&&!['polyline','bspline'].includes(spine.kind))throw new Error('spine.kind 须为 polyline 或 bspline');
@@ -42,7 +56,7 @@ export function buildSpineLoft(params,cad){
   let width;if(!previousTangent){width=cross(up,normal);if(norm(width)<1e-8){const axes=[[1,0,0],[0,1,0],[0,0,1]].toSorted((a,b)=>Math.abs(dot(a,normal))-Math.abs(dot(b,normal)));width=cross(axes[0],normal);}width=unit(width);}else{const axis=cross(previousTangent,normal),s=norm(axis),c=Math.max(-1,Math.min(1,dot(previousTangent,normal)));width=s<1e-9?(c<0?previousWidth.map(v=>-v):previousWidth):rotate(previousWidth,axis.map(v=>v/s),Math.atan2(s,c));
    width=unit(width.map((v,i)=>v-normal[i]*dot(width,normal)));if(norm(width)<1e-8)throw new Error('脊线转折处无法构造稳定的旋转最小标架');}
   const roll=law(params.rollLawDeg,t,0,'rollLawDeg');width=unit(rotate(width,normal,roll*Math.PI/180));
-  const widthMm=law(params.widthLaw,t,10,'widthLaw'),depthMm=law(params.depthLaw,t,widthMm,'depthLaw');if(widthMm<=0||depthMm<=0)throw new Error('widthLaw/depthLaw 必须始终为正');
+  const widthMm=law(params.widthLaw,t,defaultSpineWidth(params),'widthLaw'),depthMm=law(params.depthLaw,t,defaultSpineDepth(params,widthMm),'depthLaw');if(widthMm<=0||depthMm<=0)throw new Error('widthLaw/depthLaw 必须始终为正');
   const profileLaw=params.profileLaw;if(profileLaw!==undefined&&(!Array.isArray(profileLaw)||profileLaw.length<2||profileLaw.length>64||profileLaw.some((item,i)=>!Array.isArray(item)||item.length!==2||!Number.isFinite(item[0])||item[0]<0||item[0]>1||!item[1]||typeof item[1]!=='object'||(i&&item[0]<=profileLaw[i-1][0]))))throw new Error('profileLaw 须为 t 严格递增且位于 0..1 的 [[t,profile], ...]');let profile;
   if(profileLaw){const nearest=profileLaw.reduce((best,item)=>Math.abs(item[0]-t)<Math.abs(best[0]-t)?item:best,profileLaw[0]);profile=nearest[1];}
   stations.push({centerMm,normal,widthDirection:width,widthMm,depthMm,...(profile?{profile}:{})});previousTangent=normal;previousWidth=width;

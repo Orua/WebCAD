@@ -1,5 +1,5 @@
 import {expandProfilePrimitives} from './profile-primitives.js';
-import {profileIntersections,containsAnalyticPoint} from './profile-editing.js';
+import {profileIntersections,containsAnalyticPoint,endpointsCoincide} from './profile-editing.js';
 const finitePoint = point => Array.isArray(point) && point.length === 2 && point.every(Number.isFinite);
 const distance = (a,b) => Math.hypot(a[0]-b[0],a[1]-b[1]);
 const pointAt = (entity,reversed,end) => reversed ? end ? entity.startMm : entity.endMm : end ? entity.endMm : entity.startMm;
@@ -41,13 +41,13 @@ export function inspectProfileModel(profile) {
     }else issues.push(issue(`entity:${entity.id}:type`,'unsupportedEntity','未支持的轮廓实体类型',[entity.id],null));
   }
   for(let i=0;i<segments.length;i++)for(let j=i+1;j<segments.length;j++){
-    const a=segments[i],b=segments[j],same=distance(a.startMm,b.startMm)<=1e-7&&distance(a.endMm,b.endMm)<=1e-7||distance(a.startMm,b.endMm)<=1e-7&&distance(a.endMm,b.startMm)<=1e-7;
+    const a=segments[i],b=segments[j],same=endpointsCoincide(a.startMm,b.startMm)&&endpointsCoincide(a.endMm,b.endMm)||endpointsCoincide(a.startMm,b.endMm)&&endpointsCoincide(a.endMm,b.startMm);
     if(same)issues.push(issue(`duplicate:${a.id}:${b.id}`,'duplicateLine','重复直线',[a.id,b.id],a.startMm,'error',{availableRepair:'deleteExplicitEntity'}));
     const at=lineIntersection(a.startMm,a.endMm,b.startMm,b.endMm);
     if(at)issues.push(issue(`cross:${a.id}:${b.id}`,'selfIntersection','直线在非端点处相交',[a.id,b.id],at));
   }
   const analytic=profile.entities.filter(entity=>!entity.construction&&!issues.some(item=>item.severity==='error'&&item.entityIds.includes(entity.id)));
-  for(let i=0;i<analytic.length;i++)for(let j=i+1;j<analytic.length;j++){const a=analytic[i],b=analytic[j];if(a.type==='line'&&b.type==='line')continue;try{if(a.type==='circle'&&b.type==='circle'&&distance(a.centerMm,b.centerMm)<1e-7&&Math.abs(a.diameterMm-b.diameterMm)<1e-7){issues.push(issue(`duplicate:${a.id}:${b.id}`,'duplicateCurve','重复解析圆',[a.id,b.id],a.centerMm));continue;}for(const crossing of profileIntersections(a,b)){const point=crossing.point;if(!containsAnalyticPoint(a,point))continue;const endpointA=a.type!=='circle'&&[a.startMm,a.endMm].some(end=>distance(end,point)<1e-7),endpointB=b.type!=='circle'&&[b.startMm,b.endMm].some(end=>distance(end,point)<1e-7);if(endpointA&&endpointB)continue;issues.push(issue(`cross:${a.id}:${b.id}:${crossing.id}`,'selfIntersection','解析曲线在非公共端点处相交',[a.id,b.id],point));}}catch(error){issues.push(issue(`curve:${a.id}:${b.id}`,'invalidCurve',error.message,[a.id,b.id],null));}}
+  for(let i=0;i<analytic.length;i++)for(let j=i+1;j<analytic.length;j++){const a=analytic[i],b=analytic[j];if(a.type==='line'&&b.type==='line')continue;try{if(a.type==='circle'&&b.type==='circle'&&distance(a.centerMm,b.centerMm)<1e-7&&Math.abs(a.diameterMm-b.diameterMm)<1e-7){issues.push(issue(`duplicate:${a.id}:${b.id}`,'duplicateCurve','重复解析圆',[a.id,b.id],a.centerMm));continue;}for(const crossing of profileIntersections(a,b)){const point=crossing.point;if(!containsAnalyticPoint(a,point))continue;const endpointA=a.type!=='circle'&&endpointsCoincide(point,a.startMm,a.endMm),endpointB=b.type!=='circle'&&endpointsCoincide(point,b.startMm,b.endMm);if(endpointA&&endpointB)continue;issues.push(issue(`cross:${a.id}:${b.id}:${crossing.id}`,'selfIntersection','解析曲线在非公共端点处相交',[a.id,b.id],point));}}catch(error){issues.push(issue(`curve:${a.id}:${b.id}`,'invalidCurve',error.message,[a.id,b.id],null));}}
   const paths=[...(profile.loops||[]).map(path=>({...path,closed:true})),...(profile.chains||[]).map(path=>({...path,closed:false}))];
   for(const path of paths){
     if(!Array.isArray(path.edges)||!path.edges.length){issues.push(issue(`path:${path.id}:empty`,'emptyPath','路径为空',[],null));continue;}

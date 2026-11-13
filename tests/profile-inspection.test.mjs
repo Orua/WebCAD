@@ -43,3 +43,33 @@ test('circle hole outside its outer ring is a blocking diagnostic',()=>{
   assert.equal(result.issues.find(item=>item.kind==='holeOutside')?.issueId,'region:0:hole:hole-loop');
   assert.throws(()=>validateProfile({profileVersion:1,...profile}),/孔环/);
 });
+
+import {expandProfilePrimitives,primitiveEntities} from '../src/profile-primitives.js';
+
+test('valid rounded rectangles at translated origins are not false self-intersections (D-01)',()=>{
+  const cases=[
+    {originMm:[90,0],widthMm:30,heightMm:20,cornerRadiusMm:4},
+    {originMm:[0,0],widthMm:30,heightMm:20,cornerRadiusMm:1},
+    {originMm:[12.5,7.25],widthMm:30,heightMm:20,cornerRadiusMm:1},
+    {originMm:[1000,1000],widthMm:80,heightMm:50,cornerRadiusMm:8},
+    {originMm:[-40,15],widthMm:16,heightMm:16,cornerRadiusMm:3.9},
+    {originMm:[1e-4,2e-4],widthMm:10,heightMm:6,cornerRadiusMm:0.5},
+  ];
+  for(const entity of cases){
+    const profile=expandProfilePrimitives({output:'face',entities:[{id:'rr',type:'roundedRectangle',...entity}],loops:[{id:'outer',edges:[{entityId:'rr',reversed:false}]}],regions:[{id:'r',outerLoopId:'outer',holeLoopIds:[]}]});
+    const result=inspectProfileModel(profile);
+    const crossings=result.issues.filter(item=>item.kind==='selfIntersection');
+    assert.equal(crossings.length,0,`${JSON.stringify(entity)} ${JSON.stringify(crossings)}`);
+    assert.equal(result.summary.canMakeFace,true,JSON.stringify(entity));
+    assert.equal(primitiveEntities({id:'rr',type:'roundedRectangle',...entity}).length,8);
+  }
+});
+
+test('a mid-curve line/arc crossing still reports self-intersection',()=>{
+  const profile={output:'wire',entities:[
+    {id:'a',type:'line',startMm:[0,0],endMm:[10,0]},
+    {id:'b',type:'arc3',startMm:[5,-4],midMm:[9,0],endMm:[5,4]},
+  ],loops:[],chains:[{id:'c',edges:[{entityId:'a',reversed:false},{entityId:'b',reversed:false}]}],regions:[]};
+  const result=inspectProfileModel(profile);
+  assert.ok(result.issues.some(item=>item.kind==='selfIntersection'));
+});

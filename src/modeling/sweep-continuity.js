@@ -1,6 +1,7 @@
-// Shared closed-path corner check for profileSweep and curveSweep.
-// A smooth closed path (circle, tangent arcs) stays sweepable. A sharp C0
-// corner with transitionMode "transformed" does not produce a solid.
+// Shared path-corner check for profileSweep and curveSweep.
+// A smooth path (circle, tangent arcs) stays sweepable in transitionMode
+// "transformed". A sharp C0 corner in that mode does not produce a solid
+// on open or closed paths; use "right" or "round", or a tangent arc.
 const EPS = 1e-12;
 const sub = (a, b) => a.map((value, index) => value - b[index]);
 const dot = (a, b) => a.reduce((sum, value, index) => sum + value * b[index], 0);
@@ -37,11 +38,12 @@ function segmentTangent(segment, atEnd) {
   const tangent = cross(normal, radial);
   return dot(tangent, travel) >= 0 ? unit(tangent) : unit(mul(tangent, -1));
 }
-export function maxSegmentCornerDegrees(segments) {
+export function maxSegmentCornerDegrees(segments, {closed = true} = {}) {
   if (!Array.isArray(segments) || segments.length < 2) return 0;
   const tangents = segments.map(segment => ({ start: segmentTangent(segment, false), end: segmentTangent(segment, true) }));
   let max = 0;
-  for (let index = 0; index < tangents.length; index++) {
+  const last = closed ? tangents.length : tangents.length - 1;
+  for (let index = 0; index < last; index++) {
     const next = tangents[(index + 1) % tangents.length];
     if (!tangents[index].end || !next.start) return 180;
     max = Math.max(max, turnDegrees(tangents[index].end, next.start));
@@ -53,12 +55,13 @@ function tupleOf(value) {
   try { return typeof value?.toTuple === 'function' ? value.toTuple() : [value?.x, value?.y, value?.z]; }
   finally { dispose(value); }
 }
-export function maxWireCornerDegrees(wire) {
+export function maxWireCornerDegrees(wire, {closed = true} = {}) {
   const edges = wire?.edges || [];
   try {
     if (!edges.length) return 0;
     let max = 0;
-    for (let index = 0; index < edges.length; index++) {
+    const last = closed ? edges.length : Math.max(0, edges.length - 1);
+    for (let index = 0; index < last; index++) {
       const next = edges[(index + 1) % edges.length];
       max = Math.max(max, turnDegrees(tupleOf(edges[index].tangentAt(1)), tupleOf(next.tangentAt(0))));
     }
@@ -66,7 +69,11 @@ export function maxWireCornerDegrees(wire) {
   } finally { edges.forEach(dispose); }
 }
 export const SHARP_CORNER_DEGREES = 15;
-export function sharpClosedSweepMessage(maxCornerDeg, transitionMode) {
+export function sharpSweepMessage(maxCornerDeg, transitionMode, {closed = true} = {}) {
   const corner = Number.isFinite(maxCornerDeg) ? `${maxCornerDeg.toFixed(1)}°` : '尖角';
-  return `闭合扫掠路径在切向不连续的折角处不能生成实体（最大转角 ${corner}，当前 transitionMode:${transitionMode}）。请改用 transitionMode:"right" 或 "round"，或把尖角改成相切圆弧段。`;
+  const kind = closed ? '闭合扫掠路径' : '开放扫掠路径';
+  return `${kind}在切向不连续的折角处不能生成实体（最大转角 ${corner}，当前 transitionMode:${transitionMode}）。请改用 transitionMode:"right" 或 "round"，或把尖角改成相切圆弧段。`;
+}
+export function sharpClosedSweepMessage(maxCornerDeg, transitionMode) {
+  return sharpSweepMessage(maxCornerDeg, transitionMode, {closed: true});
 }

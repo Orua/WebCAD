@@ -8,10 +8,17 @@ export const extensionOf=name=>String(name||'').split('.').pop().toLowerCase();
 export function classifyFile(name){const ext=extensionOf(name);return PROJECT_EXTENSIONS.includes(ext)?'project':MODEL_EXTENSIONS.includes(ext)?'model':['igs','iges'].includes(ext)?'iges':null;}
 
 // Agent/API rule: replacing a document with unsaved edits needs an explicit decision.
-export function assertOpenAllowed({unsaved,dirty}){
-  if(!UNSAVED_MODES.includes(unsaved))fail('PARAM_SCHEMA_INVALID','files.open 需要显式 unsaved:"fail"|"discard"；打开会替换当前设计，从不合并。要加入当前设计请用 files.import。','unsaved');
-  if(dirty&&unsaved==='fail')fail('UNSAVED_REPLACEMENT','当前设计有未保存修改；请先保存，或显式传 unsaved:"discard" 放弃修改后再打开。');
+export function assertReplacementAllowed({unsaved,dirty,action='open'}){
+  const isNew=action==='new';
+  if(!UNSAVED_MODES.includes(unsaved))fail('PARAM_SCHEMA_INVALID',isNew
+    ? 'files.new 的 unsaved 须为 "fail" 或 "discard"（省略时视为 fail）。新建会替换当前设计。'
+    : 'files.open 需要显式 unsaved:"fail"|"discard"；打开会替换当前设计，从不合并。要加入当前设计请用 files.import。','unsaved');
+  if(dirty&&unsaved==='fail')fail('UNSAVED_REPLACEMENT',isNew
+    ? '当前设计有未保存修改。files.save 只在页面内存生成文件，不会清除未保存标记；请 files.write 或 files.download 后 files.confirmWritten，或显式传 unsaved:"discard" 放弃修改后再新建。'
+    : '当前设计有未保存修改；请先保存（save → write/download → confirmWritten），或显式传 unsaved:"discard" 放弃修改后再打开。');
 }
+export function assertOpenAllowed({unsaved,dirty}){return assertReplacementAllowed({unsaved,dirty,action:'open'});}
+export function assertNewAllowed({unsaved,dirty}){return assertReplacementAllowed({unsaved:unsaved??'fail',dirty,action:'new'});}
 export function assertInsertable(name){
   const kind=classifyFile(name);
   if(kind==='project')fail('FORMAT_UNSUPPORTED','工程文件只能“打开”（替换当前设计），不能插入；插入请选择 STEP/BREP/STL 模型。');

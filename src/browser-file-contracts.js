@@ -2,7 +2,7 @@ import {LIMITS} from './limits.js';
 // Shared public-page argument names. Binary payloads and native file handles
 // remain host objects; they must not pass through a JSON geometry validator.
 export const FILE_ARGUMENT_KEYS=Object.freeze(Object.fromEntries(Object.entries({
-  capabilities:[],register:['name','data','mime'],new:['context','name'],open:['context','resourceId','unsaved','units'],
+  capabilities:[],register:['name','data','mime'],new:['context','name','unsaved'],open:['context','resourceId','unsaved','units'],
   import:['context','resourceId','placement','idempotencyKey','units'],save:['context','name'],
   export:['context','format','ids','name'],reattach:['context','resourceId'],read:['resourceId','as'],download:['resourceId'],
   write:['resourceId','handle'],confirmWritten:['resourceId','size','sha256'],release:['resourceId'],

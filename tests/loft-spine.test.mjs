@@ -18,3 +18,16 @@ test('UP-32 RMF follows an S spine without a frame flip and reports orthogonaliz
   const fixed=buildCurveSweep({pathType:'sections',stations,loftDegree:2},cad);try{assert.equal(fixed.loftReport.orthogonalizedStations.length,3);assert.ok(fixed.loftReport.orthogonalizedStations.every(s=>Math.abs(s.correctionDeg-.5)<.01));}finally{fixed.delete();}
  }finally{shape.delete();}
 });
+
+test('spine honors curveSweep radius instead of the implicit 10 mm section',()=>{
+ const withRadius=buildCurveSweep({pathType:'spine',spine:{kind:'polyline',pointsMm:[[0,0,0],[0,0,10]]},stations:{count:8},radius:1.5},cad);
+ try{
+  assert.equal(withRadius.solids.length,1);
+  assert.ok(Math.abs(cad.measureVolume(withRadius)-Math.PI*1.5*1.5*10)<.4, cad.measureVolume(withRadius));
+ }finally{withRadius.delete();}
+ const explicit=buildCurveSweep({pathType:'spine',spine:{kind:'polyline',pointsMm:[[0,0,0],[0,0,10]]},stations:{count:8},radius:1.5,widthLaw:2,depthLaw:2},cad);
+ try{
+  // widthLaw still wins when provided
+  assert.ok(Math.abs(cad.measureVolume(explicit)-Math.PI*10)<.3, cad.measureVolume(explicit));
+ }finally{explicit.delete();}
+});

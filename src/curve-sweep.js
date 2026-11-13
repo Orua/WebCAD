@@ -1,7 +1,7 @@
 // 有界曲线扫掠：路径由三点圆弧、BSpline 或连续直线/圆弧段生成。
 import {buildSectionCurveLoft} from './section-curve-loft.js';
 import {buildSpineLoft} from './loft-spine.js';
-import {maxSegmentCornerDegrees, SHARP_CORNER_DEGREES, sharpClosedSweepMessage} from './modeling/sweep-continuity.js';
+import {maxSegmentCornerDegrees, SHARP_CORNER_DEGREES, sharpSweepMessage} from './modeling/sweep-continuity.js';
 const MIN_TOLERANCE = 1e-5;
 const MAX_TOLERANCE = 0.5;
 const EPS = 1e-9;
@@ -116,9 +116,9 @@ export function buildCurveSweep(params, cad) {
     }
     const transitionMode = params.transitionMode ?? (pathType==='segments'&&params.closed!==true ? 'transformed' : 'right');
     if (!['transformed','right','round'].includes(transitionMode)) fail('transitionMode 须为 transformed、right 或 round');
-    if (params.closed===true && transitionMode==='transformed') {
-      const corner=maxSegmentCornerDegrees(segments);
-      if (corner>SHARP_CORNER_DEGREES) fail(`分段扫掠拓扑无效。${sharpClosedSweepMessage(corner, transitionMode)}`);
+    if (transitionMode==='transformed') {
+      const corner=maxSegmentCornerDegrees(segments, {closed: params.closed===true});
+      if (corner>SHARP_CORNER_DEGREES) fail(`分段扫掠拓扑无效。${sharpSweepMessage(corner, transitionMode, {closed: params.closed===true})}`);
     }
     spine = cad.assembleWire(edges.length ? edges : [edge]);
     solid = cad.genericSweep(profile, spine, { frenet: false, transitionMode });
@@ -139,7 +139,7 @@ export function buildCurveSweep(params, cad) {
       }
       finally { dispose(checker); }
     }
-    if (!(cad.measureVolume(solid) > 1e-6)) fail(params.closed===true ? `分段扫掠拓扑无效。${sharpClosedSweepMessage(maxSegmentCornerDegrees(segments||[]), transitionMode)}` : 'CAD 内核未生成正体积实体');
+    if (!(cad.measureVolume(solid) > 1e-6)) fail(params.closed===true ? `分段扫掠拓扑无效。${sharpSweepMessage(maxSegmentCornerDegrees(segments||[], {closed:true}), transitionMode, {closed:true})}` : 'CAD 内核未生成正体积实体');
     const result=solid;solid=null;return result;
   } catch (error) {
     if (error?.message?.startsWith('曲线扫掠失败：')) throw error;

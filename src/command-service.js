@@ -15,12 +15,23 @@ import {withErrorRecovery} from './error-recovery.js';
 import {commitFacts} from './commit-facts.js';
 import {compactWriteReceipt} from './receipt-compact.js';
 import {validateStateProjection,projectStateRows} from './state-projection.js';
+import {scopeOperationWarnings} from './body-state.js';
 
 const clone=structuredClone;
 const uid=()=>crypto.randomUUID();
 const canonical=value=>JSON.stringify(value,(_k,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
 // Projection only: matching, counts, tokens and cursors are unchanged.
 // includeSpline:false keeps only spline.poleCount* so long section edge lists stay small.
+export const QUERY_GEOMETRY_ITEM_FIELDS=Object.freeze([
+  'kind','topologyId','faceId','edgeId','geomType','surfaceType','surfaceClass','curveType',
+  'areaMm2','lengthMm','center','axis','radiusMm','normal','normalConvention','outwardGuaranteed',
+  'planar','wireCount','pointOnFace','closestPoint','centerDistanceToFaceMm','centerOnSurface',
+  'periodicSeamAvoided','periodicSeam','startPoint','endPoint','lengthMidpoint','midpoint',
+  'spline','poleCount','poleCountU','poleCountV','cylinder','edgeIds','adjacentFaceIds',
+  'adjacentSurfaceTypes','bounds','boundaryLoopIndices','degenerate','normalAngleDeg','sharp'
+]);
+const QUERY_FIELD_HINT='没有 convexity（用 sharp 与 normalAngleDeg）；长度是 lengthMm；圆心或面心是 center（仅圆边和面）。';
+export function queryUniqueDefault(filter){return !!(filter&&typeof filter==='object'&&!Array.isArray(filter)&&Object.keys(filter).length);}
 export function slimQueryItems(items,fields,includeSpline=true){
   return items.map(item=>{
     let out=item;
@@ -135,9 +146,11 @@ export function createCommandService(adapter) {
       if(!['face','edge'].includes(input.kind))fail('PARAM_SCHEMA_INVALID','kind','Expected face or edge');
       if(input.requireUnique!==undefined&&typeof input.requireUnique!=='boolean')fail('PARAM_SCHEMA_INVALID','requireUnique','Expected boolean');
       if(input.expectedCount!==undefined)integer(input.expectedCount,'expectedCount',1,100000);
-      const limit=input.limit??20;integer(limit,'limit',1,100);
+      const requireUnique=input.requireUnique??queryUniqueDefault(input.filter);
+      const limit=input.limit??(requireUnique?20:100);integer(limit,'limit',1,100);
       if(input.includeSpline!==undefined&&typeof input.includeSpline!=='boolean')fail('PARAM_SCHEMA_INVALID','includeSpline','Expected boolean');
       if(input.fields!==undefined&&(!Array.isArray(input.fields)||!input.fields.length||input.fields.length>32||input.fields.some(f=>typeof f!=='string'||!/^[A-Za-z][A-Za-z0-9]{0,47}$/.test(f))))fail('PARAM_SCHEMA_INVALID','fields','Expected 1-32 item field names');
+      if(input.fields){const unknown=input.fields.filter(field=>!QUERY_GEOMETRY_ITEM_FIELDS.includes(field));if(unknown.length)fail('PARAM_SCHEMA_INVALID','fields',`未知字段 ${unknown.join(', ')}。允许：${QUERY_GEOMETRY_ITEM_FIELDS.join(', ')}。${QUERY_FIELD_HINT}`);}
       const slim=items=>slimQueryItems(items,input.fields,input.includeSpline);
       const filter=clone(input.filter??{});finiteTree(filter,'filter');
       object(filter,input.kind==='face'?['surfaceType','normal','atExtreme','bounds']:['curveType','lengthRangeMm','radiusRangeMm','onFaceToken','bounds','adjacentSurfaceTypes','loopIndex'],'filter');
@@ -145,8 +158,9 @@ export function createCommandService(adapter) {
       const result=await adapter.query({bodyId:input.bodyId,kind:input.kind,filter});
       context(input.context,snapshot());available(snapshot());
       if(result.matchCount===0||input.expectedCount!==undefined&&input.expectedCount!==result.matchCount){const e=domainError(result.matchCount===0?'NO_MATCH':'SELECTION_COUNT_CHANGED','filter',result.matchCount===0?'No geometry matches':'Geometry match count differs from expectedCount','QUERY_GEOMETRY_AGAIN');e.report={stage:'selection',attemptCount:0,matchCount:result.matchCount,expectedCount:input.expectedCount??null,filter:clone(input.filter??{})};throw e;}
-      if((input.requireUnique??true)&&result.matchCount>1){const shown=Math.min(limit,result.matchCount),kindLabel=input.kind==='face'?'面':'边';const r=errorResult(domainError('AMBIGUOUS_SELECTION','filter',`匹配到 ${result.matchCount} 个${kindLabel}。查询默认要求唯一结果；要列出候选请传 requireUnique:false，或收窄 filter。本次仍返回前 ${shown} 项供查看，没有生成 selectionToken。`,'REFINE_QUERY'),requestId,s);return {...r,matchCount:result.matchCount,items:slim(result.items.slice(0,limit)),ambiguous:true,requireUnique:true,listingHint:'requireUnique:false',context:contextOf(s)};}
-      const fingerprint=canonical({context:input.context,bodyId:input.bodyId,kind:input.kind,filter,requireUnique:input.requireUnique??true,expectedCount:input.expectedCount,limit});
+      const listingFingerprint=canonical({context:input.context,bodyId:input.bodyId,kind:input.kind,filter,requireUnique:false,limit});
+      if(requireUnique&&result.matchCount>1){const shown=Math.min(limit,result.matchCount),kindLabel=input.kind==='face'?'面':'边';const r=errorResult(domainError('AMBIGUOUS_SELECTION','filter',`匹配到 ${result.matchCount} 个${kindLabel}。带筛选条件时查询默认要求唯一结果；无筛选列出全部候选时默认 requireUnique:false。要列出候选请传 requireUnique:false，或收窄 filter。本次仍返回前 ${shown} 项供查看，没有生成 selectionToken。`,'REFINE_QUERY'),requestId,s);let nextCursor=null;if(shown<result.matchCount){if(cursors.size>=1000)fail('RESOURCE_LIMIT','query','Selection cache is full; reload to start a new instance');nextCursor=uid();cursors.set(nextCursor,{fingerprint:listingFingerprint,offset:shown});}return {...r,matchCount:result.matchCount,items:slim(result.items.slice(0,limit)),ambiguous:true,requireUnique:true,listingHint:'requireUnique:false',defaultLimit:limit,nextCursor,context:contextOf(s)};}
+      const fingerprint=canonical({context:input.context,bodyId:input.bodyId,kind:input.kind,filter,requireUnique,expectedCount:input.expectedCount,limit});
       let offset=0;
       if(input.cursor!==undefined){string(input.cursor,'cursor',2048);const c=cursors.get(input.cursor);if(!c||c.fingerprint!==fingerprint)fail('STALE_REFERENCE','cursor','Cursor does not match this snapshot/query');offset=c.offset;}
       if(tokens.size>=1000||cursors.size>=1000)fail('RESOURCE_LIMIT','query','Selection cache is full; reload to start a new instance');
@@ -258,7 +272,7 @@ export function createCommandService(adapter) {
         const createdBodyIds=after.bodies.filter(b=>!s.bodies.some(x=>x.id===b.id)).map(b=>b.id);
         const removedIds=new Set(s.bodies.filter(b=>!after.bodies.some(x=>x.id===b.id)).map(b=>b.id));
         const replacements=after.features.filter(f=>createdFeatureIds.includes(f.id)&&createdBodyIds.includes(f.id)).flatMap(f=>(f.refs||[]).filter(id=>removedIds.has(id)).map(id=>({before:id,after:f.id})));
-        const afterCtx=contextOf(after);result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,context:afterCtx,requestContext:{sessionId:afterCtx.sessionId,documentId:afterCtx.documentId,documentInstanceId:afterCtx.documentInstanceId,expectedRevision:after.revision},createdFeatureIds,createdBodyIds,replacements,validation:{geometry:'passed',...(args?.placement?{placement:'passed'}:{}),...(['hole','multiHole','multiPocket','tap','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:after.warnings??[]};
+        const afterCtx=contextOf(after);result={status:'committed',requestId,transactionId:uid(),documentId:after.documentId,documentInstanceId:after.documentInstanceId,revisionBefore,revisionAfter:after.revision,context:afterCtx,requestContext:{sessionId:afterCtx.sessionId,documentId:afterCtx.documentId,documentInstanceId:afterCtx.documentInstanceId,expectedRevision:after.revision},createdFeatureIds,createdBodyIds,replacements,validation:{geometry:'passed',...(args?.placement?{placement:'passed'}:{}),...(['hole','multiHole','multiPocket','tap','faceHole'].includes(op)?{materialRemoved:true}:{}),...(op==='multiBoss'?{materialAdded:true}:{})},persistence:after.persistence,warnings:scopeOperationWarnings(after.warnings,{createdBodyIds,replacements,deletedBodyIds:[...removedIds],refs,editedBodyIds:command==='edit_feature'&&args.featureId?[args.featureId]:[]})};
       }
       if(result.status==='committed')result.deletedBodyIds=s.bodies.filter(body=>!after.bodies.some(next=>next.id===body.id)).map(body=>body.id);
       if(command==='editor_action')result.validation={geometry:result.status==='committed'&&['body.explode','body.align','history.restore','feature.compileServices'].includes(input.action)?'passed':'unchanged',editor:'passed'};

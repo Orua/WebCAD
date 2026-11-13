@@ -291,3 +291,18 @@ test('missing target, nonintersection, zero material changes and multi-solid out
     assert.deepEqual(snapshot([section, path, distant, containing, splitTarget, other, face]), before);
   } finally { [face, inner, outer, other, splitTarget, containing, distant, path, section].forEach(dispose); }
 });
+
+test('open sharp polyline rejects transformed sweep and succeeds with a right-corner transition', () => {
+  const first = cad.makeLine([0, 0, 0], [40, 0, 0]), second = cad.makeLine([40, 0, 0], [40, 30, 0]);
+  const path = cad.assembleWire([first, second]);
+  const sectionEdge = cad.makeCircle(5, [0, 0, 0], [1, 0, 0]), section = cad.assembleWire([sectionEdge]);
+  const before = snapshot([section, path]);
+  let result;
+  try {
+    assert.throws(() => buildProfileSweep([section, path], {transitionMode: 'transformed'}, cad), /开放扫掠路径|切向不连续/);
+    result = buildProfileSweep([section, path], {transitionMode: 'right'}, cad);
+    valid(result);
+    near(cad.measureVolume(result), 70 * Math.PI * 25, 1e-3);
+    assert.deepEqual(snapshot([section, path]), before);
+  } finally { [result, section, sectionEdge, path, first, second].forEach(dispose); }
+});

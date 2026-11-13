@@ -2,7 +2,7 @@
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.69.0",
+  "version": "1.70.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -247,5 +247,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a6c8234eabd769b1df6669cf6cdbc26384295cb76a2e45a63f286fb13ff9fa89"
+  "docsHash": "sha256:9155c3bb2256affe534cf32013cf4eabcd4856d1bf49ff80733e5d5a680ff7d9"
 }

@@ -157,7 +157,8 @@ test('concurrent duplicate commands produce one edit',async()=>{
 });
 test('query ambiguity, pagination, stale reference and preview isolation',async()=>{
  const t=setup();await t.service.execute(t.add());const q={context:t.context(),bodyId:'f1',kind:'edge',filter:{}};
- assert.equal((await t.service.queryGeometry({...q,limit:1})).error.code,'AMBIGUOUS_SELECTION');
+ const listed=await t.service.queryGeometry({...q,limit:1});assert.equal(listed.status,'read');assert.equal(listed.matchCount,2);assert.equal(listed.items.length,1);assert(listed.nextCursor);
+ assert.equal((await t.service.queryGeometry({...q,requireUnique:true,limit:1})).error.code,'AMBIGUOUS_SELECTION');
  const changed=await t.service.queryGeometry({...q,requireUnique:false,expectedCount:3});assert.equal(changed.error.code,'SELECTION_COUNT_CHANGED');assert.equal(changed.error.report.matchCount,2);assert.equal(changed.error.report.attemptCount,0);assert.equal(changed.selectionToken,undefined);
  assert.equal((await t.service.queryGeometry({...q,requireUnique:false,expectedCount:2})).status,'read');
  const page=await t.service.queryGeometry({...q,requireUnique:false,limit:1});assert.equal(page.matchCount,2);assert.equal(page.items.length,1);assert(page.nextCursor);
@@ -285,4 +286,40 @@ test('UP-11/13: published static tool cards carry the runtime schemaHash for eve
  const index=JSON.parse(fs.readFileSync(new URL('../public/automation/index.json',import.meta.url),'utf8'));
  const operations=listOperations(),cards=new Map((Array.isArray(index.cards)?index.cards:Object.values(index.cards)).map(card=>[card.id,card]));assert.ok(operations.length>50);
  for(const card of operations){const published=cards.get(card.id);assert.ok(published,'missing published card '+card.id);assert.equal(published.version,card.version,card.id);assert.equal(published.schemaHash,card.schemaHash,card.id);}
+});
+
+test('queryGeometry rejects unknown fields and pages unique failures (Q-01)',async()=>{
+ const t=setup();await t.service.execute(t.add());
+ const q={context:t.context(),bodyId:'f1',kind:'edge'};
+ const unknown=await t.service.queryGeometry({...q,fields:['center','convexity','length','tangent']});
+ assert.equal(unknown.error.code,'PARAM_SCHEMA_INVALID');
+ assert.match(unknown.error.message,/convexity/);
+ assert.match(unknown.error.message,/lengthMm/);
+ const unique=await t.service.queryGeometry({...q,filter:{curveType:'line'},requireUnique:true,limit:1});
+ assert.equal(unique.error.code,'AMBIGUOUS_SELECTION');
+ assert.equal(unique.listingHint,'requireUnique:false');
+ assert.ok(unique.nextCursor);
+ const next=await t.service.queryGeometry({...q,filter:{curveType:'line'},requireUnique:false,limit:1,cursor:unique.nextCursor});
+ assert.equal(next.status,'read');
+ assert.equal(next.items[0].topologyId,1);
+ const ok=await t.service.queryGeometry({...q,fields:['lengthMm','sharp','center']});
+ assert.equal(ok.status,'read');
+});
+
+test('execute warnings exclude leftover union messages from unrelated bodies (W-01)',async()=>{
+ const stale={code:'UNION_NOT_FUSED',message:'未融合、仍为 2 个实体。',bodyId:'old'};
+ const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[{id:'old',op:'union',params:{},refs:[]}],bodies:[{id:'old',warnings:[stale]}],kernelReady:true,busy:false,warnings:[stale]};
+ const service=createCommandService({snapshot:()=>structuredClone(s),execute:async(command,args)=>{
+  if(command!=='add_feature')return;
+  s.features.push({id:'pat',op:args.op,params:args.params,refs:args.refs});
+  s.bodies=[...s.bodies,{id:'pat',warnings:[]}];
+  s.warnings=[stale,{code:'DISPLAY_FAILED',message:'unrelated display'}];
+  s.revision++;
+ }});
+ const card=getOperation('box');
+ const result=await service.execute({context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:1},idempotencyKey:'pat',action:'feature.add',args:{op:'box',opVersion:card.version,schemaHash:card.schemaHash,params:{width:10,depth:8,height:4},refs:[]}});
+ assert.equal(result.status,'committed',JSON.stringify(result));
+ assert.deepEqual(result.createdBodyIds,['pat']);
+ assert.equal(result.warnings.some(w=>w.code==='UNION_NOT_FUSED'),false);
+ assert.ok(result.warnings.some(w=>w.code==='DISPLAY_FAILED'));
 });

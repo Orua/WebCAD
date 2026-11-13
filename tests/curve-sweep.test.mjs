@@ -166,3 +166,18 @@ test('真实 OCCT：闭合分段倒角方线生成可测单实体', async () => 
   assert.ok(tool.inputSchema.properties.section.enum.includes('chamferedSquare'));
   assert.match(readDocs({docId:'recipes.closed-chamfered-path'}).text,/api\.run/);
 });
+
+test('开放折线尖角在 transformed 模式下拒绝，right 模式可生成实体', () => {
+  const segments=[
+    {type:'line',points:[[0,0,0],[40,0,0]]},
+    {type:'line',points:[[40,0,0],[40,30,0]]},
+  ];
+  assert.throws(()=>buildCurveSweep({pathType:'segments',segments,radius:5,transitionMode:'transformed'},cad),/开放扫掠路径|切向不连续/);
+  const shape=buildCurveSweep({pathType:'segments',segments,radius:5,transitionMode:'right'},cad);
+  try {
+    const solids=shape.solids;
+    try { assert.equal(solids.length,1); }
+    finally { solids.forEach(s=>s.delete?.()); }
+    assert.ok(Math.abs(cad.measureVolume(shape)-70*Math.PI*25)<1e-2);
+  } finally { shape.delete?.(); }
+});
