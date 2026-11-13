@@ -1,6 +1,6 @@
 import {convertVectorEntities,parseDxf,vectorBounds} from './vector-import.js';
 import {validateProfile} from './modeling/profiles/profile-model.js';
-import {parseLocalLogoSvg} from './svg-logo-input.js';
+import {svgToVectorEntities} from './svg-logo-input.js';
 
 const fail=message=>{throw Object.assign(new Error(message),{code:'VECTOR_INVALID'});};
 function readDwg(bytes){return new Promise((resolve,reject)=>{
@@ -19,9 +19,8 @@ export async function readVectorInput({bytes,text,name='pasted.json',scaleMm=1,t
  if(extension==='dwg')result=convertVectorEntities(await readDwg(bytes),{scaleMm});
  else if(extension==='dxf')result=convertVectorEntities(parseDxf(new TextDecoder().decode(bytes)),{scaleMm});
  else if(extension==='svg'){
-  const logo=parseLocalLogoSvg(new TextDecoder().decode(bytes),{name,targetWidthMm});let index=0;
-  const entities=logo.regions.flatMap(r=>[r.outer,...r.holes].flatMap(points=>points.map((p,i)=>({id:`s${index++}`,type:'line',startMm:p,endMm:points[(i+1)%points.length],layer:'SVG',sourceId:String(index)}))));
-  result={version:1,units:'mm',entities,unsupported:[],bounds:vectorBounds(entities),approximationToleranceMm:logo.source.approximationToleranceMm};
+  const svg=svgToVectorEntities(new TextDecoder().decode(bytes),{name,targetWidthMm});
+  result={version:1,units:'mm',entities:svg.entities,unsupported:svg.unsupported||[],bounds:vectorBounds(svg.entities),approximationToleranceMm:svg.approximationToleranceMm};
  }else if(extension==='json'){
   const input=JSON.parse(new TextDecoder().decode(bytes)),entities=input.entities;
   if(!Array.isArray(entities)||!entities.length||entities.length>100000)fail('JSON 须包含 entities 数组');
