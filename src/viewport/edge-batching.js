@@ -8,20 +8,21 @@ export function createTechnicalEdgeBatch(edges,{bodyId,eligible=true}={}){
     line.geometry.getAttribute('position')?.itemSize!==3||line.position.lengthSq()!==0||line.quaternion.x!==0||line.quaternion.y!==0||line.quaternion.z!==0||line.quaternion.w!==1||!line.scale.equals(new THREE.Vector3(1,1,1))))return null;
   const root=new THREE.Group();root.userData={type:'technical-edge-render-batches',bodyId};
   let dirty=true;
-  function key(line){
-    const definition=line.material.toJSON();delete definition.uuid;delete definition.metadata;
-    const planes=line.material.clippingPlanes?.map(p=>[p.normal.x,p.normal.y,p.normal.z,p.constant])??null;
-    return JSON.stringify([definition,planes,line.material.clipIntersection,line.material.clipShadows,line.renderOrder,line.layers.mask,line.frustumCulled]);
+  function key(line,styles){
+    let style=styles.get(line.material);
+    if(!style){const definition=line.material.toJSON();delete definition.uuid;delete definition.metadata;const planes=line.material.clippingPlanes?.map(p=>[p.normal.x,p.normal.y,p.normal.z,p.constant])??null;style=JSON.stringify([definition,planes,line.material.clipIntersection,line.material.clipShadows]);styles.set(line.material,style);}
+    return style+':'+[line.renderOrder,line.layers.mask,line.frustumCulled].join(':');
   }
   function sync(){
     root.visible=edges.visible;
     if(!dirty)return;
     dirty=false;
     for(const old of [...root.children]){root.remove(old);old.geometry.dispose();old.material.dispose();}
-    const groups=new Map();
+    const groups=new Map(),styles=new Map();
     for(const line of lines){
       line.visible=false;
-      const style=key(line),group=groups.get(style)??{example:line,lines:[],length:0};
+      if(line.userData.displayVisible===false)continue;
+      const style=key(line,styles),group=groups.get(style)??{example:line,lines:[],length:0};
       group.lines.push(line);group.length+=line.geometry.getAttribute('position').count*3;groups.set(style,group);
     }
     for(const group of groups.values()){

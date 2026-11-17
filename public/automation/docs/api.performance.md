@@ -3,9 +3,9 @@
 重建与保存性能
 getState().kernelProgress 返回 requestId/operationId、revision、documentInstanceId、phaseId、completed、total、reused、elapsedMs、lastAdvanceAt。计算分母仅含待处理项；缓存不冒充进度。同步内核调用无可测子进度时显示阶段和已用时间，不估算百分比。geometry commit、snapshot-ready 与当前 revision 的 rendered 首帧分别确认。
 getState().kernelPerformance 含 workerTiming、phaseTimings、snapshotStats、requestTiming、history 与 perFeatureMs。阶段计时按互斥区间统计；snapshotMs是子项，不能与其父阶段重复相加。mainTimings 按准备、Worker往返（内含执行/排队/消息传输）与提交收尾分段；往返与子项不可重复相加。主线程历史差量、校验、自动保存捕获/写入另列；未分类余量明确保留。
-相同资产只注册一次，保存源按 SHA-256 引用和增量传输，实例/修订与请求绑定。隐藏只影响显示，不删除来源。精确刚体复制保留 BRep；只读源共享位置变换，布尔/圆角等修改操作仍深隔离；均匀缩放和非均匀变换不复用刚体校验结果。最终状态工程以 brep-instance 类型保存共用精确 BRep 资产与每个 import 的有限正交 location 矩阵；旧读取器因未知资产类型明确拒绝，不能忽略位置后误装。文件不包含参数配方或会话时间线，既有工程仍可读。
+相同资产只注册一次，保存源按 SHA-256 引用和增量传输，实例/修订与请求绑定。自适应显示将未细化曲面及相同样式边线合批；只替换已细化面的显示三角形，不改变源几何、显示公差、选面/选边编号或保存数据。静止视图复用面片可见性，计算期间不派发显示细化；display.detail.surfaceBatchedBodies 可核对合批状态。隐藏只影响显示，不删除来源。精确刚体复制保留 BRep；只读源共享位置变换，布尔/圆角等修改操作仍深隔离；均匀缩放和非均匀变换不复用刚体校验结果。最终状态工程以 brep-instance 类型保存共用精确 BRep 资产与每个 import 的有限正交 location 矩阵；旧读取器因未知资产类型明确拒绝，不能忽略位置后误装。文件不包含参数配方或会话时间线，既有工程仍可读。
 装配定位使用 measure 的精确 BRep bounds，不能使用保守/变换后的显示 bounds；boundsSource 标明来源。工具不推断支撑或自动移动悬浮零件。
-长作业用 submit 短调用后 getJob/awaitJob 查同一 jobId。宿主超时不表示回滚，不换 key 重算。getBatchReceipt 缺少 documentInstanceId 返回 PARAM_SCHEMA_INVALID；传入旧实例才返回 INSTANCE_MISMATCH。执行预算从 Worker started 开始，排队有独立有限期限；心跳不延长硬期限。普通默认硬期限仍为180秒。失败先回执 not_committed，恢复独立记录在 getState().recovery，最多120秒，不循环重放候选。recoverKernel({context,stopRunning:true})立即停止 Worker并返回 stopped/recovery；recovered:false 表示恢复尚未完成，继续读取 recovery 和 kernelReady。失败时已提交快照仍可 files.save。
+长作业用 submit 短调用后 getJob/awaitJob 查同一 jobId。宿主超时不表示回滚，不换 key 重算。getBatchReceipt 缺少 documentInstanceId 返回 PARAM_SCHEMA_INVALID；传入旧实例才返回 INSTANCE_MISMATCH。执行预算从 Worker started 开始，排队有独立有限期限；心跳不延长硬期限。普通默认硬期限仍为180秒。失败先回执 not_committed，恢复独立记录在 getState().recovery，最多120秒，不循环重放候选。恢复进度保留独立 operationId、原因、失败阶段和保留修订，界面阶段持续注明“恢复已提交工程”，详情可读同一恢复记录。recoverKernel({context,stopRunning:true})立即停止 Worker并返回 stopped/recovery；recovered:false 表示恢复尚未完成，继续读取 recovery 和 kernelReady。失败时已提交快照仍可 files.save。
 
 交互显示性能
 getPerformanceState()只读当前工程实例/geometryRevision、独立perfSeq、有效性与原因、最多1200帧采样、前台/可见/交互标志、总/可见对象、内部实体/面/边、唯一模型显示三角形、多pass提交三角形、drawCalls和CPU提交P50/P95；GPU无来源为null。工具/LLM等待独立，不作GPU时间。

@@ -14,7 +14,7 @@ export function evidenceDisplaySignature(viewport){
  const patches=new Map();
  for(const entry of viewport.objects.values()){
   for(const patch of entry.displayPatches||[])patches.set(patch.piece,patch.full);
-  for(const patch of entry.exactDisplay?.patches||[])patches.set(patch.piece,patch.fine||patch.base);
+  for(const patch of entry.exactDisplay?.patches||[])if(patch.piece)patches.set(patch.piece,patch.fine||patch.base);
  }
  const stamp=[viewport.modelContext,viewport.mode,viewport.hidden,viewport.temporaryDisplay,viewport.selected,viewport.topology,viewport.clipPlanes.map(p=>[p.normal.toArray(),p.constant]),viewport.displayPreferences,viewport.finishKey,viewport.partFinishes,viewport.partColors,viewport.scene.environment?.id,viewport.scene.background?.getHex(),viewport.renderer.toneMappingExposure];
  // Ignore user camera/gizmos and camera-dependent LOD/frustum culling. Evidence
@@ -35,9 +35,10 @@ export function captureEvidence(viewport,opts){
  const saved={target:renderer.getRenderTarget(),viewport:renderer.getViewport(new THREE.Vector4()),scissor:renderer.getScissor(new THREE.Vector4()),scissorTest:renderer.getScissorTest(),autoClear:renderer.autoClear};
  const occlusion=viewport.metals.getOcclusionUniforms().webcadOcclusionEnabled,occlusionValue=occlusion.value;
  const hidden=[viewport.gizmo?.getHelper(),viewport.anchorGizmoHelper,viewport.anchorVisual,viewport.guideRoot,viewport.errorRoot,viewport.progressRoot].filter(Boolean).map(object=>[object,object.visible]);
- const surfaces=[];
+ const surfaces=[],batches=[];
  for(const entry of viewport.objects.values()){
-  for(const patch of [...(entry.displayPatches||[]),...(entry.exactDisplay?.patches||[])])surfaces.push([patch.piece,patch.piece.geometry,patch.piece.visible,patch.full||patch.fine||patch.base]);
+  if(entry.exactDisplay?.surfaceBatch){batches.push([entry,entry.exactDisplay.coarseKey==='base']);viewport.exactDisplayDetail?.syncCoarse(entry,false);}
+  for(const patch of [...(entry.displayPatches||[]),...(entry.exactDisplay?.patches||[])])if(patch.piece)surfaces.push([patch.piece,patch.piece.geometry,patch.piece.visible,patch.full||patch.fine||patch.base]);
  }
  try{
   // No await and no setView: user camera, controls, selection and document are untouched.
@@ -54,6 +55,7 @@ export function captureEvidence(viewport,opts){
    display:{detail:{...viewport.displayDetail,source:'retained-display-surfaces',cameraCulling:false,screenSpaceOcclusion:false},camera:{projection:'orthographic',position:camera.position.toArray(),target:bounds.getCenter(new THREE.Vector3()).toArray(),up:camera.up.toArray()},section:viewport.clipPlanes.map(p=>[p.normal.toArray(),p.constant])}};
  }finally{
   for(const [piece,geometry,visible]of surfaces){piece.geometry=geometry;piece.visible=visible;}
+  for(const [entry,active]of batches)viewport.exactDisplayDetail?.syncCoarse(entry,active);
   for(const [object,visible]of hidden)object.visible=visible;occlusion.value=occlusionValue;renderer.autoClear=saved.autoClear;
   renderer.setRenderTarget(saved.target);renderer.setViewport(saved.viewport);renderer.setScissor(saved.scissor);renderer.setScissorTest(saved.scissorTest);target.dispose();
  }

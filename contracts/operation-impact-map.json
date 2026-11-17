@@ -1,6 +1,6 @@
 {
   "rebuildPerformance": {
-    "localImpact": "Mesh/mixed removal lifecycle fix; dependency fingerprints reuse independent branches; validated rigid BRep copies share immutable sources and reuse transformed display without changing precision. Finite started/queue/recovery clocks and real phase progress.",
+    "localImpact": "Mesh/mixed removal lifecycle fix; dependency fingerprints reuse independent branches; validated rigid BRep copies share immutable sources and reuse transformed display without changing precision. Finite started/queue/recovery clocks and real phase progress. Adaptive surface/edge draw batches retain original triangles and topology picking, share edge materials, and reuse stationary visibility without background refinement during geometry computation.",
     "servicesImpact": "None: browser rebuild and transport only; server protocol, routing, persistence and timeouts unchanged.",
     "logoImpact": "None: source glyphs and manufacturing algorithms unchanged; their inputs remain fully isolated.",
     "contractImpact": "Page API 1.71.0; phase/request/recovery/timing state, explicit receipt parameter errors, immediate controlled stop receipt. Full finite knowledge bundle regenerated.",

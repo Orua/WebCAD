@@ -126,7 +126,8 @@ function createWorker(){
   const instance=new Worker(new URL('./cad-worker.js',import.meta.url),{type:'module'});
   instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;if(result.kind==='started'){job.start(result.queueMs);return;}if(result.kind==='progress'){
     const {partial,...progress}=result.progress;
-    kernelProgress={...progress,requestId:result.requestId,operationId:result.requestId,revision,documentInstanceId,updatedAt:Date.now()};job.pulse();
+    const recovery=recoveryState?.status==='running'?{operationId:recoveryState.operationId,cause:recoveryState.cause,failedPhase:recoveryState.failedPhase,retainedRevision:recoveryState.retainedRevision,parentRequestId:recoveryState.parentRequestId}:null;
+    kernelProgress={...progress,requestId:result.requestId,operationId:recovery?.operationId??result.requestId,revision,documentInstanceId,updatedAt:Date.now(),...(recovery?{recovery}:{})};job.pulse();
     // One journal slot per in-flight request. Per-feature progress used to fill the ring and drop errors.
     debugJournal.record('kernel','progress',{requestId:result.requestId,kind:progress.kind,phase:progress.phase,label:progress.label,completed:progress.completed,total:progress.total,reused:progress.reused,recomputed:progress.recomputed,elapsedMs:progress.elapsedMs,cache:progress.cache,featureCount:progress.featureCount},'info',{coalesceKey:`kernel:${progress.kind||'progress'}:${result.requestId}`});
     job.progress=kernelProgress;
@@ -160,8 +161,9 @@ function request(type,payload={},{hardTimeoutMs}={}){return traceDebug('kernel',
 
 function restartWorker(error){
   if(recoveryPromise)return recoveryPromise;
+  const failedPhase=kernelProgress?.phase??null;
   worker.terminate();rejectPending(error);kernelReady=false;worker=createWorker();
-  recoveryState={status:'running',operationId:crypto.randomUUID(),parentRequestId:requestSequence,cause:error.code,startedAt:Date.now(),retainedRevision:revision};
+  recoveryState={status:'running',operationId:crypto.randomUUID(),parentRequestId:requestSequence,cause:error.code,failedPhase,startedAt:Date.now(),retainedRevision:revision};
   kernelProgress={kind:'rebuild',phase:'recovery',label:'恢复已提交工程',elapsedMs:0,operationId:recoveryState.operationId};loadingTracker.update(kernelProgress);ui.setBusyProgress?.(null,loadingTracker.state);
   const recovering=(async()=>{
     await request('ready',{},{hardTimeoutMs:45000});const remaining=120000-(Date.now()-recoveryState.startedAt);if(remaining<=0)throw Object.assign(new Error('Recovery deadline exceeded'),{code:'KERNEL_RECOVERY_TIMEOUT'});

@@ -17,6 +17,12 @@ test('unmeasured synchronous phases are indeterminate',()=>{
  assert.equal(progressFraction(rebuild('validation')),null);assert.equal(progressFraction(rebuild('feature',{total:0,completed:0})),null);
  const tracker=createLoadingTracker();tracker.update(rebuild('feature',{total:1,completed:1}));assert.equal(tracker.value,null);assert.equal(tracker.state.indeterminate,true);
 });
+test('recovery progress keeps its separate operation and retained revision visible',()=>{
+ const tracker=createLoadingTracker(),recovery={operationId:'recovery-1',cause:'KERNEL_RECOVERY_REQUESTED',failedPhase:'feature',retainedRevision:9};
+ tracker.update(rebuild('feature',{completed:3,total:10,pendingOnly:true,recovery}));
+ assert.equal(tracker.state.label,'恢复已提交工程 · 计算实体');assert.equal(tracker.state.recovery.retainedRevision,9);assert.equal(tracker.value,.3);
+ tracker.update(rebuild('save-snapshot',{recovery}));assert.equal(tracker.state.label,'恢复已提交工程 · 准备保存');assert.equal(tracker.value,null);
+});
 test('existing overlay has elapsed time and optional details without blocking canvas interaction',()=>{
  const ui=readFileSync(new URL('../src/ui.js',import.meta.url),'utf8'),css=readFileSync(new URL('../src/style.css',import.meta.url),'utf8');
  assert.match(ui,/class="busy-elapsed"/);assert.match(ui,/<details class="busy-details">/);assert.match(ui,/setBusyProgress\(fraction,progress\)/);assert.match(css,/\.busy-overlay\{pointer-events:none\}/);

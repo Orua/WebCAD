@@ -19,7 +19,8 @@ export function createLoadingTracker(){
       const signature=JSON.stringify([progress.phase,progress.featureId,progress.completed,progress.total]);if(signature!==lastSignature){lastAdvanceAt=Date.now();lastSignature=signature;}
       const fraction=progressFraction(progress);
       value=progress.phase==='rendered'?1:fraction!==null&&fraction<1?fraction:null;
-      state={...progress,phaseId:progress.phaseId||progress.phase,label:LABELS[progress.phase]||progress.label||LOADING_TEXT,fraction,indeterminate:value===null,lastAdvanceAt,updatedAt:Date.now()};return value;
+      const label=LABELS[progress.phase]||progress.label||LOADING_TEXT;
+      state={...progress,phaseId:progress.phaseId||progress.phase,label:progress.recovery&&progress.phase!=='recovery'?`恢复已提交工程 · ${label}`:label,fraction,indeterminate:value===null,lastAdvanceAt,updatedAt:Date.now()};return value;
     }
   };
 }

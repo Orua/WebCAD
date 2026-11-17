@@ -79,7 +79,7 @@ export class CADViewport {
     this.frameSequence=0;this.renderer.setAnimationLoop(timestampMs=>{try{this.renderFrame(false,{timestampMs,frameSource:'animation-frame'});}catch(error){this.displayError=error.message;this.callbacks.onRenderError?.(error);}});this.resize();this.updateHud();
   }
   resize(){this.performanceResizingUntil=performance.now()+250;const {width,height}=this.host.getBoundingClientRect();if(width<1||height<1)return;this.camera.aspect=width/height;if(this.camera.isOrthographicCamera){this.camera.left=-this.camera.top*this.camera.aspect;this.camera.right=this.camera.top*this.camera.aspect;}this.camera.updateProjectionMatrix();this.renderer.setSize(width,height);this.lastFrameKey=null;}
-  disposeObject(root){root.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose();});}
+  disposeObject(root){const geometries=new Set(),materials=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);for(const m of [o.material].flat())if(m)materials.add(m);});geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());}
   clearGuides(){for(const child of [...this.guideRoot.children]){this.disposeObject(child);this.guideRoot.remove(child);}}
   setErrorPoints(points=[]){
     for(const child of [...this.errorRoot.children]){this.disposeObject(child);this.errorRoot.remove(child);}
@@ -120,7 +120,7 @@ export class CADViewport {
     for(const [id,entry] of this.objects){
       const body=incoming.get(id);
       if(!body||body.renderVersion===undefined||body.renderVersion!==entry.body.renderVersion){
-        this.modelRoot.remove(entry.root);this.exactDisplayDetail.release(entry);for(const patch of entry.displayPatches||[]){patch.full.dispose();for(const lod of patch.lods)lod.geometry.dispose();}this.disposeObject(entry.root);this.objects.delete(id);
+        this.modelRoot.remove(entry.root);this.exactDisplayDetail.release(entry);for(const patch of entry.displayPatches||[]){patch.full.dispose();for(const lod of patch.lods)lod.geometry.dispose();}this.disposeObject(entry.root);if(!entry.edges.parent)this.disposeObject(entry.edges);entry.selectedEdgeMaterial?.dispose();this.objects.delete(id);
       }
     }
     bodies.forEach((body,i)=>{
@@ -140,13 +140,16 @@ export class CADViewport {
         const lods=patch.lods.map(level=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(level.positions,3));g.setIndex(new THREE.BufferAttribute(level.indices,1));g.computeVertexNormals();g.computeBoundingSphere();return {...level,geometry:g};});
         const piece=new THREE.Mesh(full,material);piece.userData={type:'display-only',bodyId:body.id};displayGroup.add(piece);return {piece,full,lods};
       });root.add(displayGroup);}
-      const edges=new THREE.Group();
-      for(const edge of body.edges||[]){if(edge.positions.length<6)continue;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(edge.positions,3));const line=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:0x465b6e,transparent:true,opacity:.72}));line.userData={bodyId:body.id,type:'edge',edgeId:edge.edgeId};edges.add(line);}
+      const edges=new THREE.Group(),edgeMaterial=new THREE.LineBasicMaterial({color:0x465b6e,transparent:true,opacity:.72}),selectedEdgeMaterial=edgeMaterial.clone();
+      edgeMaterial.clippingPlanes=this.clipPlanes;selectedEdgeMaterial.clippingPlanes=this.clipPlanes;
+      for(const edge of body.edges||[]){if(edge.positions.length<6)continue;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(edge.positions,3));const line=new THREE.LineSegments(geo,edgeMaterial);line.userData={bodyId:body.id,type:'edge',edgeId:edge.edgeId};edges.add(line);}
       if(!edges.children.length&&body.geometryType!=='rawMesh'){const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,25),new THREE.LineBasicMaterial({color:0x465b6e}));outline.userData={bodyId:body.id,type:'outline'};edges.add(outline);}
       root.add(edges);
-      const edgeBatch=createTechnicalEdgeBatch(edges,{bodyId:body.id,eligible:!body.adaptiveDisplay&&!body.displayPatches&&body.geometryType!=='rawMesh'});
-      if(edgeBatch)root.add(edgeBatch.root);
-      root.visible=!hidden.includes(body.id);this.modelRoot.add(root);this.objects.set(body.id,{root,mesh,edges,edgeBatch,body,displayGroup,displayPatches});
+      const edgeBatch=createTechnicalEdgeBatch(edges,{bodyId:body.id,eligible:!body.displayPatches&&body.geometryType!=='rawMesh'});
+      // Picking keeps the original coordinates/IDs, but thousands of hidden
+      // LineSegments need not participate in every scene matrix/stamp traversal.
+      if(edgeBatch){root.remove(edges);root.add(edgeBatch.root);}
+      root.visible=!hidden.includes(body.id);this.modelRoot.add(root);this.objects.set(body.id,{root,mesh,edges,edgeBatch,edgeMaterial,selectedEdgeMaterial,body,displayGroup,displayPatches});
       this.exactDisplayDetail.attach(this.objects.get(body.id));
     });if(this.grid?.position)this.grid.position.z=floorGridZ(bodies);this.setDisplay(this.mode);this.setMetalFinish(this.finishKey);this.applyClipping();this.updateHud();
   }
@@ -155,7 +158,7 @@ export class CADViewport {
   applyTemporaryDisplay(){for(const [id,entry] of this.objects){const selected=this.selected.includes(id),persistentlyHidden=this.hidden.includes(id),solo=this.temporaryDisplay==='selectedOnly';entry.root.visible=!persistentlyHidden&&(!solo||selected);const translucent=this.temporaryDisplay==='transparentOthers'&&!selected&&!persistentlyHidden,technical=this.mode==='transparentEdges';const material=entry.mesh.material,baseOpacity=material.userData.surfaceOpacity??1,opacity=translucent?Math.min(baseOpacity,.2):technical?Math.min(baseOpacity,.35):baseOpacity,transparent=opacity<1||material.userData.surfaceTextureAlpha===true;if(material.transparent!==transparent)material.needsUpdate=true;material.transparent=transparent;material.opacity=opacity;material.depthWrite=!transparent;for(const edge of entry.edges.children){const selectedEdge=this.topology?.bodyId===id&&this.topology?.type==='edge'&&this.topology.ids.includes(edge.userData.edgeId);edge.material.opacity=metalEdgeOpacity({selected,selectedEdge,translucent,mode:this.mode,finish:entry.mesh.material.userData.metalFinish||'design'});edge.material.transparent=true;}entry.edgeBatch?.invalidate();}this.updateHud();}
   setSelection(ids=[],topology=null){
     this.selected=ids;this.topology=topology;
-    for(const [id,entry] of this.objects){const active=ids.includes(id);this.metals.setSelected(entry.mesh.material,active);entry.mesh.material.emissive.set(0x000000);const finish=entry.mesh.material.userData.metalFinish||'design',edgeColor=finish.includes('gold')||finish==='antique-brass'?0x705638:0x465b6e;entry.edges.children.forEach(line=>{const edge=topology?.bodyId===id&&topology?.type==='edge'&&topology.ids.includes(line.userData.edgeId);line.material.color.set(edge?0xf08e2b:active?new THREE.Color(this.displayPreferences.themeColor):edgeColor);line.material.opacity=edge?1:.72;line.material.depthTest=!edge;line.renderOrder=edge?1000:0;});}
+    for(const [id,entry] of this.objects){const active=ids.includes(id);this.metals.setSelected(entry.mesh.material,active);entry.mesh.material.emissive.set(0x000000);const finish=entry.mesh.material.userData.metalFinish||'design',edgeColor=finish.includes('gold')||finish==='antique-brass'?0x705638:0x465b6e;entry.edges.children.forEach(line=>{const edge=topology?.bodyId===id&&topology?.type==='edge'&&topology.ids.includes(line.userData.edgeId);if(entry.edgeMaterial)line.material=edge?entry.selectedEdgeMaterial:entry.edgeMaterial;line.material.color.set(edge?0xf08e2b:active?new THREE.Color(this.displayPreferences.themeColor):edgeColor);line.material.opacity=edge?1:.72;line.material.depthTest=!edge;line.renderOrder=edge?1000:0;});}
     if(this.faceOverlay){this.modelRoot.remove(this.faceOverlay);this.disposeObject(this.faceOverlay);this.faceOverlay=null;}
     if(topology?.type==='face'){const entry=this.objects.get(topology.bodyId);if(entry&&!this.hidden.includes(topology.bodyId)){const indices=[];for(const g of entry.body.faceGroups||[])if(topology.ids.includes(g.faceId))for(let i=g.start;i<g.start+g.count;i++)indices.push(entry.body.indices[i]);if(indices.length){const geo=new THREE.BufferGeometry();geo.setAttribute('position',entry.mesh.geometry.getAttribute('position').clone());geo.setIndex(indices);this.faceOverlay=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xff9d2e,transparent:true,opacity:.88,toneMapped:false,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));this.faceOverlay.position.copy(entry.root.position);this.modelRoot.add(this.faceOverlay);}}}
     this.applyTemporaryDisplay();this.applyClipping();this.syncGizmo();
@@ -243,7 +246,8 @@ export class CADViewport {
       this.transformPending=false;this.transformGesture=null;this.gizmo.enabled=!this.interactionLocked&&!this.busy;this.syncGizmo();
     }
   }
-  applyClipping(){this.modelRoot.traverse(object=>{if(object.material){for(const material of [object.material].flat()){material.clippingPlanes=this.clipPlanes;material.needsUpdate=true;}}});}
+  applyClipping(){this.modelRoot.traverse(object=>{if(object.material){for(const material of [object.material].flat()){material.clippingPlanes=this.clipPlanes;material.needsUpdate=true;}}});for(const entry of this.objects.values())if(entry.edgeBatch){for(const material of [entry.edgeMaterial,entry.selectedEdgeMaterial])if(material){material.clippingPlanes=this.clipPlanes;material.needsUpdate=true;}entry.edgeBatch.invalidate();}}
+  edgePickTargets(entry){if(entry.edgeBatch){entry.root.updateWorldMatrix(true,false);for(const line of entry.edges.children)line.matrixWorld.copy(entry.root.matrixWorld);}return entry.edges.children;}
   setSection({axis='Z',position=0,enabled=true}={}){
     if(!['X','Y','Z'].includes(axis)||!Number.isFinite(Number(position)))throw new Error('Invalid section plane');
     this.sectionState={axis,position:Number(position),enabled:!!enabled};
@@ -298,15 +302,15 @@ export class CADViewport {
     const hits=ray.intersectObjects([...this.objects.values()].filter(v=>v.root.visible).map(v=>v.mesh),false).filter(hit=>this.isVisiblePoint(hit.point));
     if(this.measuring){const point=this.snapPoint(e,hits[0]?.point);if(point)this.addMeasure(point);return;}
     if(this.selectionMode==='view')return;
-    if(e.altKey){const type=this.selectionMode,raw=type==='edge'?ray.intersectObjects([...this.objects.values()].filter(v=>v.root.visible).flatMap(v=>v.edges.children),false).filter(hit=>this.isVisiblePoint(hit.point)):hits,seen=new Set(),candidates=[];for(const hit of raw){const id=hit.object.userData.bodyId,topologyId=type==='edge'?hit.object.userData.edgeId:type==='face'?hit.object.userData.body.faceGroups?.find(group=>hit.faceIndex*3>=group.start&&hit.faceIndex*3<group.start+group.count)?.faceId:undefined,key=`${id}:${type}:${topologyId}`;if(!id||seen.has(key)||type!=='body'&&topologyId===undefined)continue;seen.add(key);candidates.push({id,type,topologyId,point:hit.point.toArray(),distance:hit.distance});if(candidates.length===50)break;}this.callbacks.onPickCandidates?.(candidates);return;}
+    if(e.altKey){const type=this.selectionMode,raw=type==='edge'?ray.intersectObjects([...this.objects.values()].filter(v=>v.root.visible).flatMap(v=>this.edgePickTargets(v)),false).filter(hit=>this.isVisiblePoint(hit.point)):hits,seen=new Set(),candidates=[];for(const hit of raw){const id=hit.object.userData.bodyId,topologyId=type==='edge'?hit.object.userData.edgeId:type==='face'?hit.object.userData.body.faceGroups?.find(group=>hit.faceIndex*3>=group.start&&hit.faceIndex*3<group.start+group.count)?.faceId:undefined,key=`${id}:${type}:${topologyId}`;if(!id||seen.has(key)||type!=='body'&&topologyId===undefined)continue;seen.add(key);candidates.push({id,type,topologyId,point:hit.point.toArray(),distance:hit.distance});if(candidates.length===50)break;}this.callbacks.onPickCandidates?.(candidates);return;}
     let hit=hits[0],type=this.selectionMode,topologyId;
     if(type==='body'){
-      const curves=[...this.objects.values()].filter(v=>v.root.visible&&!v.body.indices.length).flatMap(v=>v.edges.children);
+      const curves=[...this.objects.values()].filter(v=>v.root.visible&&!v.body.indices.length).flatMap(v=>this.edgePickTargets(v));
       const lineHit=ray.intersectObjects(curves,false).find(h=>this.isVisiblePoint(h.point));
       if(lineHit&&(!hit||lineHit.distance<hit.distance))hit=lineHit;
     }
     if(type==='edge'){
-      const visible=[...this.objects.values()].filter(v=>v.root.visible),edges=visible.flatMap(v=>v.edges.children.filter(o=>o.userData.type==='edge')),
+      const visible=[...this.objects.values()].filter(v=>v.root.visible),edges=visible.flatMap(v=>this.edgePickTargets(v).filter(o=>o.userData.type==='edge')),
         rect=this.renderer.domElement.getBoundingClientRect(),occlusionRay=new THREE.Raycaster(),meshes=visible.map(v=>v.mesh);
       const candidates=rankEdgeHits(ray.intersectObjects(edges,false).filter(h=>this.isVisiblePoint(h.point)),this.camera,this.pointer,rect.width,rect.height);
       hit=candidates.find(candidate=>{
@@ -398,7 +402,7 @@ export class CADViewport {
   resetPerformanceSamples(){this.performanceSampler.reset();}
   performanceState(){
     const sum=key=>{const values=[...this.objects.values()].map(e=>e.body[key]);return values.every(Number.isFinite)?values.reduce((a,b)=>a+b,0):null;};
-    let uniqueTriangles=0;for(const entry of this.objects.values())if(entry.root.visible)entry.root.traverseVisible(o=>{if(o.isMesh&&o.geometry)uniqueTriangles+=(o.geometry.index?.count??o.geometry.attributes.position?.count??0)/3;});
+    let uniqueTriangles=0;for(const entry of this.objects.values())if(entry.root.visible)entry.root.traverseVisible(o=>{if(o.isMesh&&o.geometry)uniqueTriangles+=Math.min(o.geometry.drawRange.count,o.geometry.index?.count??o.geometry.attributes.position?.count??0)/3;});
     this.performanceCounts={objectCount:this.objects.size,visibleObjectCount:[...this.objects.values()].filter(e=>e.root.visible).length,
       solidCount:sum('solidCount'),faceCount:sum('faceCount'),edgeCount:sum('edgeCount'),uniqueTriangles};
     const snapshot=this.performanceSampler.snapshot();return {...snapshot,counts:{...snapshot.counts,...this.performanceCounts}};
@@ -442,7 +446,7 @@ export class CADViewport {
     const cssWidth=this.host?.clientWidth||w,cssHeight=this.host?.clientHeight||h;
     return {mime:format,dataUrl:off.toDataURL(format,quality),width:w,height:h,scope:'modeling-viewport',viewportCss:{width:cssWidth,height:cssHeight},pixelRatio:this.renderer.getPixelRatio(),renderMs,detailSource:settled?'settled-full-display-detail':'current-display-state'};
   }
-  destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();for(const entry of this.objects.values())this.exactDisplayDetail.release(entry);this.disposeObject(this.scene);this.metalOcclusion.dispose();this.metals.dispose();this.renderer.dispose();}
+  destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();for(const entry of this.objects.values()){this.exactDisplayDetail.release(entry);if(!entry.edges.parent)this.disposeObject(entry.edges);entry.selectedEdgeMaterial?.dispose();}this.disposeObject(this.scene);this.metalOcclusion.dispose();this.metals.dispose();this.renderer.dispose();}
 }
 
 
