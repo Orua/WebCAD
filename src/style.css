@@ -98,6 +98,11 @@
 .busy-progress{width:min(240px,60%);height:4px;border-radius:2px;background:rgba(32,52,60,.14);overflow:hidden}
 .busy-progress[hidden]{display:none}
 .busy-progress>i{display:block;height:100%;width:0;background:#11418a;border-radius:2px;transition:width .2s ease-out}
+.busy-overlay{pointer-events:none}
+.busy-elapsed{font-variant-numeric:tabular-nums}
+.busy-details{pointer-events:auto;max-width:min(320px,80%);font-size:11px}
+.busy-details summary{cursor:pointer}
+.busy-details pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:150px;overflow:auto}
 .slider-junction-choice{margin:8px 0;padding:0;border:0;min-width:0}
 .slider-junction-choice legend{font-weight:600;margin-bottom:8px}
 .slider-junction-pictures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}

@@ -5,10 +5,15 @@ import {binaryHash} from './contracts/operation-schema.js';
 export function finalStateProject(document,sources){
   if(!Array.isArray(sources))throw Object.assign(new Error('最终形态快照尚未准备好；请恢复内核后保存。'),{code:'PROJECT_SNAPSHOT_UNAVAILABLE'});
   const imports={},binaryAssets={},features=[];
-  for(const {id,format,data} of sources){
+  const sourceHashes=new WeakMap(),locatedHashes=new Set();
+  for(const {format,data,location}of sources)if(format==='brep'&&location){let hash=sourceHashes.get(data);if(!hash){hash=binaryHash(data).slice(7);sourceHashes.set(data,hash);}locatedHashes.add(hash);}
+  for(const {id,format,data,location} of sources){
     if(!(data instanceof Uint8Array)||!['brep','mesh'].includes(format))throw new Error('Invalid final geometry snapshot');
-    const assetHash=binaryHash(data).slice(7),key=`final:${id}`;
-    imports[key]={format,assetHash,name:document.features.find(f=>f.id===id)?.name||id,...(format==='mesh'?{units:'mm'}:{})};
+    let assetHash=sourceHashes.get(data);if(!assetHash){assetHash=binaryHash(data).slice(7);sourceHashes.set(data,assetHash);}const key=`final:${id}`;
+    // A distinct typed ZIP entry makes older readers reject this representation
+    // instead of ignoring locations and silently stacking copies at the origin.
+    const storedFormat=format==='brep'&&locatedHashes.has(assetHash)?'brep-instance':format;
+    imports[key]={format:storedFormat,assetHash,name:document.features.find(f=>f.id===id)?.name||id,...(format==='mesh'?{units:'mm'}:{}),...(location?{location:[...location]}:{})};
     binaryAssets[assetHash]=data;
     features.push({id,name:imports[key].name,op:'import',params:{key},refs:[]});
   }

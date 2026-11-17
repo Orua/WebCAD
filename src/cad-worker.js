@@ -10,15 +10,21 @@ import {setManifoldLoader} from './mesh/mesh-boolean.js';
 setManifoldLoader(()=>initManifold({locateFile:()=>manifoldWasmURL}));
 import {refineExactDisplay} from './modeling/io/adaptive-display.js';
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
+import {snapshotDelta} from './geometry-snapshot.js';
+import {unpackWorkerDocument} from './worker-assets.js';
 
 const kernel = initOpenCascade({ locateFile: () => wasmURL }).then(oc => new CadKernel(oc));
 // Serialize requests: imports await file reads, so onmessage alone is not a lock.
 let queue = Promise.resolve();
+const assetCache=new Map();
 self.onmessage = ({ data }) => {
+  const enqueuedAt=performance.now();
   queue = queue.then(async () => {
     const { requestId, type } = data;
+    const startedAt=performance.now();self.postMessage({requestId,kind:'started',queueMs:startedAt-enqueuedAt});
     try {
       const engine = await kernel;
+      if(data.document)data.document=unpackWorkerDocument(data,assetCache);
       engine.onProgress=progress=>{const p=progress.partial;self.postMessage({requestId,kind:'progress',progress},p?[p.positions.buffer,p.normals.buffer,p.indices.buffer]:[]);};
       let result;
       if(type==='ready')result={ready:true};
@@ -27,7 +33,18 @@ self.onmessage = ({ data }) => {
       else if(type==='adoptHistorySignature')result=engine.adoptHistorySignature(data.document);
       else if(type==='probeBlendRadius')result=engine.probeBlendRadius(data.input);
       else if(type==='decodeProject')result={document:await decodeProject(data.bytes)};
-      else if(type==='rebuild'){result=await rebuildWithPool(engine,data.document,{displayCoarsen:data.displayCoarsen||1});result.finalSources=engine.finalShapeSources();}
+      else if(type==='rebuild'){
+        result=await rebuildWithPool(engine,data.document,{displayCoarsen:data.displayCoarsen||1});
+        const snapshotStart=performance.now(),before=engine.snapshotEncodeCount||0;
+        engine.rebuildStarted=startedAt;engine.reportRebuildProgress('save-snapshot','准备保存快照');
+        result.finalSourceDelta=snapshotDelta(engine.finalShapeSources(),data.knownSourceHashes,data.snapshotContext);
+        engine.reportRebuildProgress('snapshot-ready','保存快照已就绪');
+        const phaseWall=performance.now()-startedAt,classified=Object.values(engine.phaseTimings||{}).reduce((n,ms)=>n+ms,0);result.phaseTimings={phases:{...engine.phaseTimings},snapshotMs:performance.now()-snapshotStart,unclassifiedMs:Math.max(0,phaseWall-classified),coveredMs:classified,wallMs:phaseWall};
+        result.snapshotStats={encoded:(engine.snapshotEncodeCount||0)-before,addedBytes:Object.values(result.finalSourceDelta.assets).reduce((n,b)=>n+b.byteLength,0),active:result.finalSourceDelta.entries.length};
+        const known=data.knownRenderVersions||{};
+        result.bodyDelta={entries:result.bodies.map(({id,name,renderVersion})=>({id,name,renderVersion})),changed:result.bodies.filter(body=>!body.renderVersion||known[body.id]!==body.renderVersion)};delete result.bodies;
+        result.workerTiming={queueMs:startedAt-enqueuedAt,totalMs:performance.now()-startedAt};engine.rebuildStarted=undefined;
+      }
       else if(type==='remesh')result=engine.remesh(data.quality);
       else if(type==='refineDisplay')result=refineExactDisplay(engine,data);
       else if(type==='export')result=await engine.export(data.format,data.ids,data.appearance);
@@ -57,7 +74,8 @@ self.onmessage = ({ data }) => {
           result={items,length:items.reduce((n,v)=>n+(v.length||0),0),area:items.reduce((n,v)=>n+(v.area||0),0)};
         } else result=engine.measure(data.bodyId,data.topologyType,data.topologyId);
       } else throw new Error(`未知请求 ${type}`);
-      self.postMessage({ requestId, ok: true, ...result },type==='refineDisplay'?result.patches.flatMap(p=>p.limited?[]:[p.positions.buffer,p.normals.buffer,p.indices.buffer]):type==='encodeProject'?[result.bytes.buffer]:type==='decodeProject'?decodedProjectTransfers(result.document):[]);
+      if(data.assetRefs){const retained=new Set(Object.entries(data.assetRefs).flatMap(([table,hashes])=>hashes.map(hash=>`${table}:${hash}`)));for(const key of assetCache.keys())if(!retained.has(key))assetCache.delete(key);}
+      self.postMessage({ requestId, ok: true, ...result,registeredAssets:[...assetCache.keys()] },type==='refineDisplay'?result.patches.flatMap(p=>p.limited?[]:[p.positions.buffer,p.normals.buffer,p.indices.buffer]):type==='encodeProject'?[result.bytes.buffer]:type==='decodeProject'?decodedProjectTransfers(result.document):[]);
     } catch (error) { const report=boundedDiagnosticReport(error?.report),details=boundedDiagnosticReport(error?.details);self.postMessage({ requestId, ok: false, error: error?.message || String(error), featureId: error?.featureId, code: error?.code, path: error?.path, recoveryAction: error?.recoveryAction,report,details }); }
   }).catch(()=>{});
 };

@@ -2,7 +2,7 @@
   "id": "getBatchReceipt",
   "title": "getBatchReceipt",
   "category": "page-method",
-  "version": "1.70.0",
+  "version": "1.71.0",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -13,7 +13,7 @@
     "method": "getBatchReceipt",
     "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
   },
-  "description": "getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.",
+  "description": "getBatchReceipt({idempotencyKey,documentInstanceId}); missing documentInstanceId is PARAM_SCHEMA_INVALID, a stale instance is INSTANCE_MISMATCH; use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.",
   "synonyms": [
     "getBatchReceipt",
     "批次回执",
@@ -21,7 +21,7 @@
     "幂等",
     "UNKNOWN_OUTCOME"
   ],
-  "inputContract": "getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.",
+  "inputContract": "getBatchReceipt({idempotencyKey,documentInstanceId}); missing documentInstanceId is PARAM_SCHEMA_INVALID, a stale instance is INSTANCE_MISMATCH; use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.",
   "outputContract": "status=read, found, receipt (original per-step result or null), recovery. found:false can mean pending/expired/reloaded; it never proves rollback. Read original job/state before replanning; see api.modeling-pitfalls.",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
@@ -115,5 +115,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ca537cdd5b34c96d8fdc270cf5e5bcd6b3d598112c1b957b858e2f4195c5ae71"
+  "docsHash": "sha256:2a47e7072d2a637d40ed96b343bcd80a4a4760a127fbb22ad5596d872f337a4b"
 }

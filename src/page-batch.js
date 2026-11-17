@@ -223,7 +223,8 @@ export function createPageBatch(api,{display,revisionStamp}={}){
   const dispatch=(input,control={})=>{let snapshot;try{snapshot=structuredClone(input);}catch(e){return Promise.resolve({status:'failed',error:{code:'PARAM_SCHEMA_INVALID',message:e.message}});}if(snapshot?.steps?.length===1&&snapshot.steps[0]?.method==='files.save')return run(snapshot,control);const job=tail.then(()=>run(snapshot,control));tail=job.catch(()=>{});return job;};
   dispatch.getReceipt=({idempotencyKey,documentInstanceId})=>{
     const current=api.getState().context;
-    if(typeof documentInstanceId!=='string'||documentInstanceId!==current.documentInstanceId)bad('INSTANCE_MISMATCH','Query the original document instance; receipts do not survive a reload');
+    if(typeof documentInstanceId!=='string'||!documentInstanceId.length)bad('PARAM_SCHEMA_INVALID','documentInstanceId is required; query the original document instance','documentInstanceId');
+    if(documentInstanceId!==current.documentInstanceId)bad('INSTANCE_MISMATCH','Query the original document instance; receipts do not survive a reload');
     if(typeof idempotencyKey!=='string'||!idempotencyKey.length||idempotencyKey.length>80)bad('PARAM_SCHEMA_INVALID','idempotencyKey: 1..80 characters');
     const found=instance===current.documentInstanceId&&(receipts.get(idempotencyKey)||archivedReceipts.get(idempotencyKey));
     return {status:'read',idempotencyKey,documentInstanceId,found:!!found,receipt:found?structuredClone(found.result):null,

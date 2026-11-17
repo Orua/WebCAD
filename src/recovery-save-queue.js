@@ -1,5 +1,5 @@
 // Coalesce committed checkpoints outside geometry acknowledgements and display batches.
-export function createRecoverySaveQueue({capture,write,blocked=()=>false,delayMs=200,schedule=setTimeout,cancel=clearTimeout,onError=()=>{}}){
+export function createRecoverySaveQueue({capture,write,blocked=()=>false,delayMs=200,schedule=setTimeout,cancel=clearTimeout,onError=()=>{},onMeasure=()=>{},now=()=>performance.now()}){
  let timer=null,pending=false,running=null;
  function resume(){if(pending&&timer===null&&!running&&!blocked())timer=schedule(()=>{timer=null;void drain();},delayMs);}
  async function drain(force=false){
@@ -8,9 +8,9 @@ export function createRecoverySaveQueue({capture,write,blocked=()=>false,delayMs
   if(!pending||(!force&&blocked()))return;
   pending=false;
   // Capture the latest committed object only once; IndexedDB performs the one required clone.
-  const snapshot=capture();
+  const captureStarted=now(),snapshot=capture(),autosaveCaptureMs=now()-captureStarted,writeStarted=now();
   running=Promise.resolve().then(()=>write(snapshot)).catch(onError);
-  try{await running;}finally{running=null;resume();}
+  try{await running;}finally{onMeasure({autosaveCaptureMs,autosaveWriteMs:now()-writeStarted});running=null;resume();}
  }
  return {request(){pending=true;resume();},resume,flush:()=>drain(true)};
 }

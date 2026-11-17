@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.70.0 · 操作目录 sha256:7e0dc73f6dabd6b48b49afc3200f5d53ee56d28382743c6ebeca74a3e5076933
+API 1.71.0 · 操作目录 sha256:d33befc75903d3329239232ebc9813faf9050a7813c427774c5471407b59c98e
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -288,7 +288,7 @@ API 1.70.0 · 操作目录 sha256:7e0dc73f6dabd6b48b49afc3200f5d53ee56d28382743c
 - `readLogo` · page-method · readLogo({context,sessionFileId,allowUpload:true,targetWidthMm?,reviewPolicy?:automatic|preview})是原生Agent首选。宿主从当前用户会话文件读取原图，使用宿主私有计算授权直连已配置Services，保存原转换回执、矢量JSON和SVG并回读SHA256；只把矢量交给页面，原图不经页面转发，授权值不进入模型。宿主执行已发布总包中固定、哈希验证的logo-preparer适配器，不能执行任意脚本。直接页面脚本可使用已登记resourceId+name或logo对象；sessionFileId只由原生宿主解析。targetWidthMm是放置宽度，位图省略时宿主以35mm作为可继续缩放的初始稿，不冒充源图实测尺寸。位图默认自动识别；显式旧raster对象或mode:manual保持0–255字节手动阈值。自动结果保留原轮廓和孔洞，报告相对二值边界的拟合界限，源稿误差未知。
 - `reviewLogo` · page-method · reviewLogo({context,logoId,action?:get|artifacts|select|setPoint|deletePoint|deleteContour|undo|confirm,expectedRevision?,regionIndex?,holeIndex?:null|integer,pointIndex?,pointMm?:[x,y],confirmed?})。除get外必须对应review.revision；select选环/节点，setPoint按毫米，confirm必须confirmed:true。artifacts生成中间文件；不提交CAD几何。
 - `logoWizard` · page-method · logoWizard({context,action?:get|open|attach|artifacts|parameters|read|back|load|edit|closeEditor|place|position|align|fold|unfold|select|setPoint|deletePoint|deleteContour|undo|confirm,expectedRevision?,parameters?:{targetWidthMm,page,pdfJoinToleranceMm,raster},allowUpload?:false,logoId?,regionIndex?,holeIndex?,pointIndex?,pointMm?,confirmed?})。get读取已打开向导且不分配资源；open({logoId})打开同一草稿的大窗调整，不提交几何；edit打开大窗编辑矢量，closeEditor收回；place({bodyId,faceId,point:[x,y,z]})在精确平面建立画布定位，position({placement:{leftMm,topMm,scale,angleDeg,depthMm,point}})更新同一预览，align({alignment:center|horizontal|vertical})对齐；fold/unfold收起或展开原向导。get.placement回读当前point/scale/angle/depth/offsetX/offsetY/margins/frame，四边距离以目标面投影外框为基准，孔洞和实际边界由最终几何验证。定位不启动几何计算，确认雕刻仍用现有logo工具；所有步骤持续缩略图，编辑后实时更新；其他动作须wizard.revision。attach登记UI原件和共享草稿，artifacts绑定并导出当前稿；前者需cad.read，后者需cad.export。load从readLogo的logoId读取同源轮廓/原图；read处理UI已选择的文件，默认不上传，需allowUpload:true才可调用已配置后台。没有活动向导不自动开窗，独立流程用reviewLogo。
-- `getBatchReceipt` · page-method · getBatchReceipt({idempotencyKey,documentInstanceId}); use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.
+- `getBatchReceipt` · page-method · getBatchReceipt({idempotencyKey,documentInstanceId}); missing documentInstanceId is PARAM_SCHEMA_INVALID, a stale instance is INSTANCE_MISMATCH; use the original batch key and document instance; no context revision required. Read-only; never executes or retries geometry.
 - `probeBlendRadius` · page-method · probeBlendRadius({context,bodyId,selector,maxMm,minMm,stepRatio?:0.75,maxAttempts?:6})；selector同语义圆角工具卡。
 - `recoverUnsaved` · page-method · recoverUnsaved({context,apply?:boolean,checkpoint?:{instanceId,savedAt},unsaved?:fail|discard})。默认只读返回available和副本元数据，不返回工程内容；apply:true须指定该checkpoint，当前工程未保存则默认拒绝，明确discard才替换。
 - `recoverKernel` · page-method · recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。

@@ -1,8 +1,9 @@
 import {binaryHash} from '../contracts/operation-schema.js';
+import {validateRigidMatrix} from '../rigid-instance.js';
 import {MESH_LIMITS,meshError,meshScale} from './mesh-contract.js';
 import {RELIEF_REFERENCE_LIMIT,validateReliefReference,validateReliefReferenceBindings,referenceImageHeader} from '../relief-design-reference-contract.js';
-export const BINARY_SOURCE_FORMATS=Object.freeze(['stl','mesh','step','brep','heightmap','reference-image']);
-export const exactSourceFormat=format=>format==='step'||format==='brep';
+export const BINARY_SOURCE_FORMATS=Object.freeze(['stl','mesh','step','brep','brep-instance','heightmap','reference-image']);
+export const exactSourceFormat=format=>format==='step'||format==='brep'||format==='brep-instance';
 export const binaryAssetByteLimit=format=>format==='reference-image'?RELIEF_REFERENCE_LIMIT:format==='mesh'?MESH_LIMITS.maxAssetBytes:MESH_LIMITS.maxSourceBytes;
 const assetError=(format,message)=>meshError(exactSourceFormat(format)?'ARTIFACT_CORRUPT':'MESH_ASSET_CORRUPT',message);
 export function cloneAssetDocument(value){
@@ -12,6 +13,7 @@ export function cloneAssetDocument(value){
 export function meshAssetFormats(document){
  validateReliefReferenceBindings(document);
  const formats=new Map();for(const item of Object.values(document.imports||{}))if(BINARY_SOURCE_FORMATS.includes(item.format)){
+  if(item.location){if(!['brep','brep-instance'].includes(item.format))throw assetError(item.format,'Only exact BRep supports a rigid instance location');validateRigidMatrix(item.location);}
   // Old STEP/BREP imports remain readable. New sources carry only a hash in
   // metadata and one complete byte array in the v4 asset table.
   if(exactSourceFormat(item.format)&&!item.assetHash&&typeof item.data==='string')continue;

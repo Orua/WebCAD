@@ -253,6 +253,8 @@ import {recordTimeline} from './document-timeline.js';
 import {checkpointReports,restoreCheckpointReports} from './local-checkpoint-reports.js';
 import {buildRodJunction} from './modeling/rounding/rod-junction-tool.js';
 import {assertBoundsAlignment,boundsAlignment} from './bounds-alignment.js';
+import {rebuildFingerprints} from './rebuild-cache.js';
+import {identityMatrix,multiplyMatrix,rigidCopyMatrix,locateBrep,locatedBody,validateRigidMatrix} from './rigid-instance.js';
 export class CadKernel {
   constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map();this.geometryMetrics=new WeakMap();this.geometrySourceSnapshots=new WeakMap();this.reliefLayerCache=new ReliefLayerCache(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
   async operation(feature, shapes, imports, historyFeatures=[],execution={}) {
@@ -263,6 +265,9 @@ export class CadKernel {
     const frame=feature.placement?.frameSnapshot,point=value=>frame?worldPoint(frame,value):value,vector=value=>frame?rotateVector(frame.quaternion,value):value;
     const workPlane=(name,offset=0)=>{const basis=localPlaneBasis(name);return new cad.Plane(point(basis.offset(offset)),vector(basis.x),vector(basis.normal));};
     const sources = refs.map(id => { if (!shapes.has(id)) throw new Error(`找不到引用实体 ${id}`); return shapes.get(id); });
+    // Removal changes the active set, not the source geometry. Validate refs
+    // before the BRep-only tool gate, and never deserialize inputs for removal.
+    if(feature.op==='remove'){if(!sources.length)throw new Error('请选择要删除的实体');return null;}
     if(sources.some(s=>s.geometryType==='mesh')&&!['transform','copy','meshReliefEdit','meshBoolean'].includes(feature.op))throw meshError('MESH_TOOL_UNAVAILABLE','This precise BRep tool does not operate on raw meshes; source is retained.');
     const source = () => { if (sources.length !== 1) throw new Error('此操作需要选择一个实体'); return sources[0]; };
     switch (feature.op) {
@@ -547,7 +552,14 @@ export class CadKernel {
         if (item.format === 'step') {const imported=await cad.importSTEP(new Blob([bytes]));imported.sourceBytes=bytes.length;return imported;}
         // Final-state projects also contain exact profile faces and paths.
         // Keep their topology type; the shared rebuild validation checks validity.
-        if (item.format === 'brep') return cad.deserializeShape(new TextDecoder().decode(bytes));
+        if (item.format === 'brep'||item.format==='brep-instance') {
+          const key=item.assetHash||binaryHash(bytes);let base=this.importBases?.get(key);
+          if(!base){base=cad.deserializeShape(new TextDecoder().decode(bytes));this.importBases??=new Map();this.importBases.set(key,base);this.geometrySourceSnapshots.set(base,new TextDecoder().decode(bytes));this.sourceBytesCache??=new WeakMap();this.sourceBytesCache.set(base,{format:'brep',data:bytes,sourceHash:binaryHash(bytes).slice(7)});}
+          const shape=item.location?locateBrep(base,validateRigidMatrix(item.location),this.oc):base.clone();
+          this.rigidInstances??=new WeakMap();this.rigidInstances.set(shape,{source:base,sourceId:feature.id,matrix:item.location||identityMatrix()});
+          if(this.validatedShapes?.has(base))this.validatedShapes.add(shape);
+          return shape;
+        }
         throw new Error('导入格式不受支持');
       }
       case 'transform': case 'copy':
@@ -789,9 +801,41 @@ export class CadKernel {
   }
   finalShapeSources(){
     return [...this.active.keys()].map(id=>{
-      const shape=this.shapes.get(id),mesh=shape.geometryType==='mesh';
-      return {id,format:mesh?'mesh':'brep',data:mesh?encodeMesh(shape.transformed()):this.serializeFeatureShape(id).data};
+      const shape=this.shapes.get(id);
+      return {id,...this.finalSourceForShape(shape)};
     });
+  }
+  finalSourceForShape(shape){
+    this.sourceBytesCache??=new WeakMap();let source=this.sourceBytesCache.get(shape);if(source)return source;
+    const instance=this.rigidInstances?.get(shape);
+    if(instance){const base=this.finalSourceForShape(instance.source);source={...base,location:multiplyMatrix(instance.matrix,base.location||identityMatrix())};}
+    else{const mesh=shape.geometryType==='mesh',data=mesh?encodeMesh(shape.transformed()):new TextEncoder().encode(this.geometrySourceSnapshot(shape));source={format:mesh?'mesh':'brep',data,sourceHash:binaryHash(data).slice(7)};this.snapshotEncodeCount=(this.snapshotEncodeCount||0)+1;}
+    this.sourceBytesCache.set(shape,source);return source;
+  }
+  rigidCopy(feature,source){
+    if(source.geometryType==='mesh'||feature.placement||!this.validatedShapes?.has(source))return null;
+    const p=feature.params||{},rotation=rigidCopyMatrix({...p,positionMode:'relative',x:0,y:0,z:0},{min:[0,0,0],max:[0,0,0]});if(!rotation)return null;
+    if(p.positionMode==='absolute'&&['x','y','z'].some(k=>!Number.isFinite(p[k])))return null;
+    // Translation does not need a bounds query. Absolute placement needs the
+    // exact rotated bounds only once per immutable shape and rotation, rather
+    // than repeating OCCT's expensive spline extrema for every located copy.
+    const bounds=p.positionMode==='absolute'?this.rigidRotationBounds(source,rotation):{min:[0,0,0],max:[0,0,0]};
+    const matrix=rigidCopyMatrix(p,bounds);if(!matrix)return null;
+    const shape=locateBrep(source,matrix,this.oc);this.rigidInstances??=new WeakMap();this.rigidInstances.set(shape,{source,sourceId:feature.refs[0],matrix});
+    this.validatedShapes.add(shape);return shape;
+  }
+  rigidRotationBounds(source,rotation){
+    this.rigidBoundsCache??=new WeakMap();let cache=this.rigidBoundsCache.get(source);
+    if(!cache){cache=new Map();this.rigidBoundsCache.set(source,cache);}
+    const key=rotation.join(','),cached=cache.get(key);if(cached)return cached;
+    let rotated,box;
+    try{
+      const identity=rotation.every((value,i)=>value===identityMatrix()[i]);
+      if(!identity)rotated=locateBrep(source,rotation,this.oc);
+      box=(rotated||source).boundingBox;const [min,max]=box.bounds,bounds={min:[...min],max:[...max]};
+      if(cache.size>=64)cache.delete(cache.keys().next().value);
+      cache.set(key,bounds);return bounds;
+    }finally{dispose(box);dispose(rotated);}
   }
   bakeProject(document,{thresholdMs=1000,recordHistory=true}={}){
     const result={...document,features:document.features.map(f=>({...f})),compiledArtifacts:{...document.compiledArtifacts}},baked=[],skipped=[];
@@ -855,11 +899,14 @@ export class CadKernel {
     if(!document||!Array.isArray(document.features))throw new Error('无效的 WebCAD 工程');
     this.historySignature=document.features.map(geometryFeatureSignature);
     this.importsSignature=JSON.stringify(document.imports||{});
+    this.featureFingerprints=rebuildFingerprints(document);
     return {features:this.historySignature.length};
   }
   reportRebuildProgress(phase,label,details={}){
     if(this.rebuildStarted===undefined)return;
-    this.onProgress?.({kind:'rebuild',phase,label,elapsedMs:Math.round(performance.now()-this.rebuildStarted),...details});
+    const now=performance.now();this.phaseTimings??={};if(this.phaseClock)this.phaseTimings[this.phaseClock.phase]=(this.phaseTimings[this.phaseClock.phase]||0)+now-this.phaseClock.at;
+    this.phaseClock={phase,at:now};
+    this.onProgress?.({kind:'rebuild',phase,phaseId:phase,label,elapsedMs:Math.round(now-this.rebuildStarted),lastAdvanceAt:now,...this.featureProgress,...details});
   }
   measureBodyGeometry(shape,faces,edges){
     const cached=this.geometryMetrics.get(shape);if(cached)return cached;
@@ -879,11 +926,19 @@ export class CadKernel {
         }
       });
       this.reportRebuildProgress('mass-properties','测量正式实体');
-      const measured={faceCount:faces.length,edgeCount:edges.length,snapPoints,bounds:{min,max},volume:solids.length?preciseVolume(shape,this.oc):null,area:surfaceArea(shape,this.oc),solidCount:solids.length,shellCount:shells.length};
+      const measured={faceCount:faces.length,edgeCount:edges.length,snapPoints,bounds:{min,max},boundsSource:'exact-brep',volume:solids.length?preciseVolume(shape,this.oc):null,area:surfaceArea(shape,this.oc),solidCount:solids.length,shellCount:shells.length};
       this.geometryMetrics.set(shape,measured);return measured;
     }finally{[...solids,...shells,bbox].forEach(dispose);}
   }
-  describe(shape, feature) {
+  describe(shape,feature){
+    this.shapeDisplays??=new WeakMap();const key=`${this.quality||'standard'}:${this.displayCoarsen||1}`,cached=this.shapeDisplays.get(shape);
+    if(cached?.key===key)return {...cached.body,id:feature.id,name:feature.name||feature.id};
+    const instance=this.rigidInstances?.get(shape);
+    const sourceBody=instance?this.describe(instance.source,{id:instance.sourceId,name:feature.name}):null;
+    const body=instance?(instance.matrix.every((n,i)=>n===identityMatrix()[i])?{...sourceBody,id:feature.id,name:feature.name||feature.id}:locatedBody(sourceBody,instance.matrix,feature)):this.describeShape(shape,feature);
+    this.shapeDisplays.set(shape,{key,body});return body;
+  }
+  describeShape(shape, feature) {
     if(shape.geometryType==='mesh')return shape.describe(feature);
     const quality=this.quality||'standard', requested=renderQuality(quality);
     const faces = shape.faces, edges = shape.edges;
@@ -942,13 +997,17 @@ export class CadKernel {
     if((this.displayCoarsen||1)!==displayCoarsen){this.displayCoarsen=displayCoarsen;this.renderCache=new Map();}
     if (!document || ![1,2,3,4].includes(document.version) || !Array.isArray(document.features)) throw new Error('无效的 WebCAD 工程');
     this.rebuildStarted=performance.now();
+    this.phaseTimings={};this.phaseClock=null;this.featureProgress=null;this.validatedShapes??=new WeakSet();this.reportRebuildProgress('prepare','准备模型');
     this.binaryAssets=document.binaryAssets||{};
     const next = new Map(), active = new Map(), ids = new Set(); let current;
     const importsSignature = JSON.stringify(document.imports || {});
     const features = document.features;
     const signatures = features.map(geometryFeatureSignature);
+    const fingerprints=rebuildFingerprints(document),reusable=new Set(features.filter(f=>this.featureFingerprints?.get(f.id)===fingerprints.get(f.id)&&(this.shapes.has(f.id)||f.op==='remove')).map(f=>f.id));
     let prefix = 0;
-    while (prefix < signatures.length && prefix < this.historySignature.length && signatures[prefix] === this.historySignature[prefix] && importsSignature === this.importsSignature) prefix++;
+    while (prefix < signatures.length && prefix < this.historySignature.length && signatures[prefix] === this.historySignature[prefix] && reusable.has(features[prefix].id)) prefix++;
+    const pendingTotal=features.length-reusable.size;let computed=0;
+    this.featureProgress={pendingOnly:true,completed:0,total:pendingTotal,reused:reusable.size,recomputed:pendingTotal};this.reportRebuildProgress('feature','计算实体');
     const reused = new Set();
     const nextRenderCache = new Map();
     const compiledReuse=[],compiledInvalidated=[],perFeatureMs=[];
@@ -975,11 +1034,11 @@ export class CadKernel {
         const feature = features[index];
         const featureStarted=performance.now();
         current = feature.id;
-        if(index>=prefix)this.reportRebuildProgress('feature','重建特征',{featureId:current,completed:index,total:features.length,reused:prefix,recomputed:features.length-prefix});
+        if(!reusable.has(current))this.reportRebuildProgress('feature','计算实体',{featureId:current,completed:computed,total:pendingTotal});
         if (!current || ids.has(current)) throw new Error('特征 ID 缺失或重复');
         ids.add(current);
         let shape;
-        if (index < prefix) { shape = this.shapes.get(current); if(shape){next.set(current, shape); reused.add(current);} }
+        if (reusable.has(current)) { shape = this.shapes.get(current); reused.add(current);if(shape)next.set(current, shape); }
         else {
           // OCC builders can add p-curves/flags to input TShapes even on failure.
           // A cheap wrapper clone shares that topology. Every referenced input
@@ -1001,7 +1060,11 @@ export class CadKernel {
               checkpoint=compiledCheckpointBytes(document,feature,new TextEncoder().encode(legacySource.serialize()));
             }
             if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));restoreCheckpointReports(shape,feature.compiledCheckpoint.reports);if(feature.compiledCheckpoint.faceOriginSignatures)restoreFaceOrigins(shape,feature.compiledCheckpoint.faceOriginSignatures,{defer:true});if(feature.compiledCheckpoint.booleanReport)shape.booleanReport=feature.compiledCheckpoint.booleanReport;if(feature.compiledCheckpoint.blendReport)shape.blendReport=feature.compiledCheckpoint.blendReport;if(feature.op==='round')shape.roundReport=feature.compiledCheckpoint.roundReport;if(feature.op==='reliefShoulder')shape.reliefReport=feature.compiledCheckpoint.reliefReport;compiledReuse.push(current);}
-            else {
+            else if(feature.op==='remove'){shape=await this.operation(feature,inputs,document.imports||{},document.features);}
+            else if(['copy','transform'].includes(feature.op)&&feature.refs?.length===1&&(shape=this.rigidCopy(feature,next.get(feature.refs[0])))){
+              // Located wrappers share immutable topology. All modifying tools
+              // below still receive frozen, fully isolated BRep inputs.
+            }else {
               if(feature.compiledCheckpoint)compiledInvalidated.push(current);
               for(const id of new Set(feature.refs||[]))if(next.has(id)){
                 const original=next.get(id),copy=original.geometryType==='mesh'?original.clone():cad.deserializeShape(this.geometrySourceSnapshot(original));
@@ -1016,8 +1079,8 @@ export class CadKernel {
         }
         if (shape) {
           next.set(current, shape);
-          if(!reused.has(current))this.reportRebuildProgress('validation','校验几何',{featureId:current,completed:index,total:features.length});
-          if (!reused.has(current)&&shape.geometryType!=='mesh') {
+          if(!reused.has(current))this.reportRebuildProgress('validation','校验几何',{featureId:current});
+          if (!reused.has(current)&&shape.geometryType!=='mesh'&&!this.validatedShapes.has(shape)) {
             if (shape.isNull) throw new Error('操作生成空模型，请检查尺寸和实体交集');
             const faces = shape.faces; const hasFaces = faces.length > 0; faces.forEach(dispose);
             if (!hasFaces) {
@@ -1026,9 +1089,15 @@ export class CadKernel {
             }
             const checker = new this.oc.BRepCheck_Analyzer(shape.wrapped, true, false, false);
             try { if (!checker.IsValid()) throw new Error('操作生成无效几何，请减小参数或检查轮廓是否自交'); } finally { dispose(checker); }
+            this.validatedShapes.add(shape);
+            const instance=this.rigidInstances?.get(shape);if(instance)this.validatedShapes.add(instance.source);
           }
           active.set(current, feature);
-          initializeFaceOrigins(shape,feature);
+          if(!reused.has(current)){
+            const instance=this.rigidInstances?.get(shape);
+            if(instance?.source.faceOrigins)shape.faceOrigins=instance.source.faceOrigins.map(origin=>({featureId:feature.id,role:origin?.role||'side'}));
+            else{initializeFaceOrigins(shape,feature);if(instance&&!instance.source.faceOrigins)instance.source.faceOrigins=shape.faceOrigins;}
+          }
         }
        const keepOriginal = ['guidedLoft','badge','copy','planeSection','faceBoundary','extractFaces','extractShell','surfaceTrim','referenceExtrude','referenceLoft','profileOffset','profileRepair',...mechanicalPreservedIds].includes(feature.op) || (['mirror','extractSolid'].includes(feature.op) && feature.params?.keepOriginal !== false);
         if (feature.op==='profileExtrude') { if(feature.refs?.[1])active.delete(feature.refs[1]); }
@@ -1036,6 +1105,7 @@ export class CadKernel {
         else if(['union','cut','intersect'].includes(feature.op)&&feature.params?.keepTools===true){active.delete(feature.refs?.[0]);}
         else if (!keepOriginal) for (const id of feature.refs || []) active.delete(id);
         perFeatureMs.push({featureId:feature.id,op:feature.op,ms:performance.now()-featureStarted,reused:reused.has(feature.id),checkpoint:compiledReuse.includes(feature.id)});
+        if(!reused.has(current)){computed++;this.featureProgress={...this.featureProgress,completed:computed};this.reportRebuildProgress('feature','计算实体',{featureId:current});}
       }
       const displayNames=resultDisplayNames(features);
       const bodies = [...active].map(([id, feature]) => {
@@ -1045,7 +1115,7 @@ export class CadKernel {
         // precise source before display work; uploads and cold checkpoint gates
         // then bind the same bytes without normalizing or weakening the hash.
         this.reportRebuildProgress('source-snapshot','保留精确源快照',{featureId:id});
-        if(next.get(id).geometryType!=='mesh')this.geometrySourceSnapshot(next.get(id));
+        if(next.get(id).geometryType!=='mesh'&&!this.rigidInstances?.has(next.get(id)))this.geometrySourceSnapshot(next.get(id));
         let body;
         if(cached)body={...cached.body,name:feature.name||feature.id};
         else if(headless&&next.get(id).geometryType!=='mesh'){
@@ -1062,10 +1132,13 @@ export class CadKernel {
       this.shapes.forEach((shape, id) => { if (!reused.has(id) && !next.has(id)) dispose(shape); });
       this.shapes.forEach((shape, id) => { if (next.has(id) && next.get(id) !== shape && !reused.has(id)) dispose(shape); });
       this.shapes = next; this.active = active; this.historySignature = signatures; this.importsSignature = importsSignature; this.renderCache = nextRenderCache;
+      this.featureFingerprints=fingerprints;
+      const retainedBases=new Set(),retain=shape=>{if(!shape||retainedBases.has(shape))return;retainedBases.add(shape);retain(this.rigidInstances?.get(shape)?.source);};
+      next.forEach(retain);for(const [key,base]of this.importBases||[])if(!retainedBases.has(base)){dispose(base);this.importBases.delete(key);}
       this.lastFeatureTimings=perFeatureMs;
       this.lastCompiledInvalidated=compiledInvalidated;
       this.reportRebuildProgress('complete','重建完成',{featureCount:features.length,reused:reused.size,recomputed:features.length-reused.size});
-      return { bodies, renderVersion: String(this.renderVersion), compiledReuse,compiledInvalidated,perFeatureMs,stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.some(b=>b.metricsDeferred)?null:bodies.reduce((n, b) => n + (b.volume || 0), 0),checkpointCandidates:perFeatureMs.filter(row=>row.ms>1000).map(row=>row.featureId) } };
+      return { bodies, renderVersion: String(this.renderVersion), compiledReuse,compiledInvalidated,perFeatureMs,stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.some(b=>b.metricsDeferred)?null:bodies.reduce((n, b) => n + (b.volume || 0), 0),checkpointCandidates:perFeatureMs.filter(row=>row.ms>1000&&!this.rigidInstances?.has(next.get(row.featureId))).map(row=>row.featureId) } };
     } catch (error) {
       next.forEach((shape, id) => { if (!reused.has(id)) dispose(shape); });
       const raw=String(error?.message||error||'');
@@ -1278,7 +1351,7 @@ export class CadKernel {
       throw new Error('不支持的导出格式');
     } finally { if (owned.length) {dispose(combined);owned.forEach(dispose);} }
   }
-  dispose() { this.shapes.forEach(dispose); this.shapes.clear(); this.active.clear(); this.renderCache.clear();this.reliefLayerCache.clear();this.geometryMetrics=new WeakMap(); this.historySignature = []; this.importsSignature = ''; }
+  dispose() { this.importBases?.forEach(dispose);this.importBases?.clear();this.featureFingerprints=new Map();this.shapes.forEach(dispose); this.shapes.clear(); this.active.clear(); this.renderCache.clear();this.reliefLayerCache.clear();this.geometryMetrics=new WeakMap(); this.historySignature = []; this.importsSignature = ''; }
 }
 
 

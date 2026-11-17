@@ -17,8 +17,8 @@ test('ordinary rebuild gets a terminating deadline above the soft reminder',()=>
 test('main rebuild passes the hard deadline and restores the committed kernel on timeout',()=>{
   const main=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
   assert.match(main,/request\('rebuild',\{document:next\},\{hardTimeoutMs:hardTimeoutMs\?\?rebuildHardTimeoutMs\(getServicesConfig\(\)\.localTimeoutMs\)\}\)/);
-  assert.match(main,/code:'KERNEL_TIMEOUT',commitState:'not_committed'/);
-  assert.match(main,/clearTimeout\(job\.hardTimer\)/);
+  assert.match(main,/'KERNEL_TIMEOUT'/);assert.match(main,/commitState:'not_committed'/);
+  assert.match(main,/job\.clock\?\.finish\(\)/);
   assert.match(main,/if\(!committed&&kernelFailure\(error\)\)\{[\s\S]{0,200}restartWorker\(error\)/);
   // Large import keeps its own longer deadline and coarsen retry.
   assert.match(main,/rebuildLargeImport[\s\S]{0,120}Math\.max\(getServicesConfig\(\)\.localTimeoutMs,120000\)/);
@@ -30,5 +30,5 @@ test('rounding postconditions stay on both mill paths (R6-001 not regressed)',()
   // R9: every fillet strategy (native, both mill paths, ladder) goes through acceptFillet,
   // which runs validateRoundingResult and then verifyBlendAcceptance.
   assert.match(blend,/function acceptFillet[\s\S]{0,200}validateRoundingResult\([\s\S]{0,200}verifyBlendAcceptance\(/);
-  assert.match(blend,/millComplementaryFillet\(shape,\{edgeIds:targetIds[\s\S]{0,120}acceptFillet\(/);
+  assert.match(blend,/millComplementaryFillet\(work,\{edgeIds:targetIds[\s\S]{0,180}acceptFillet\(/);
 });

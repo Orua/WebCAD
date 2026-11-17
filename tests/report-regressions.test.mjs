@@ -35,6 +35,7 @@ test('receipt lookup after a lost reply is read-only and uses original instance,
   const request={context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:0},idempotencyKey:'original',steps:[{id:'move',method:'add',args:{op:'transform',refs:['old'],params:{x:1}}}]};
   const receipt=await run(request);
   const query={idempotencyKey:'original',documentInstanceId:'i'};
+  assert.throws(()=>run.getReceipt({idempotencyKey:'original'}),{code:'PARAM_SCHEMA_INVALID'});
   assert.equal(receipt.status,'completed');
   const result=run.getReceipt(query);assert.equal(result.found,true);assert.equal(writes,1);
   assert.equal(result.receipt.results[0].id,'move');

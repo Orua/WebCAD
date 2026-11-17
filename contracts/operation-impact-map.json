@@ -1,4 +1,18 @@
 {
+  "rebuildPerformance": {
+    "localImpact": "Mesh/mixed removal lifecycle fix; dependency fingerprints reuse independent branches; validated rigid BRep copies share immutable sources and reuse transformed display without changing precision. Finite started/queue/recovery clocks and real phase progress.",
+    "servicesImpact": "None: browser rebuild and transport only; server protocol, routing, persistence and timeouts unchanged.",
+    "logoImpact": "None: source glyphs and manufacturing algorithms unchanged; their inputs remain fully isolated.",
+    "contractImpact": "Page API 1.71.0; phase/request/recovery/timing state, explicit receipt parameter errors, immediate controlled stop receipt. Full finite knowledge bundle regenerated.",
+    "documentImpact": "Final v4 brep-instance assets carry a validated proper rigid location and shared exact BRep; older readers reject the unknown typed entry instead of ignoring its location. Color, visibility and body identity retained; default saves still omit recipe/timeline.",
+    "cacheImpact": "Content identity plus local kernel/semantic/dependency fingerprints. Worker asset/snapshot/display deltas bind to original request and instance/revision. No transfer of retained cache buffers.",
+    "requiredTests": [
+      "Real kernel mixed removal, independent hidden mesh reuse and exact rigid source isolation",
+      "Controlled clock startup/queue/reminder/hard-stop/recovery",
+      "Same private source precise copy batch, exact measurements, one final save/cold reopen",
+      "One isolated localhost browser acceptance and package/docs/knowledge hashes"
+    ]
+  },
   "round9FilletAcceptance": {
     "localImpact": "Fillet/round/autoRound/smoothTransition/rounding v3: all-or-nothing mill fallback, verifyBlendAcceptance (selected edges rounded, body scope zero sharp edges, face count/volume sanity), global mill feasibility, ordered retry ladder, verified maxFeasibleRadiusMm suggestion (radiusFallback:maxFeasible opt-in), NO_CHANGE without sharp edges, unified edge/face/body/mixed selection, polishing expand:none default.",
     "servicesImpact": "None: services/** unchanged; local WASM only.",

@@ -14,7 +14,7 @@ export function exportColoredSTEP(configs, oc) {
     const shapes = hold(oc.XCAFDoc_DocumentTool.ShapeTool(main));
     const colors = hold(oc.XCAFDoc_DocumentTool.ColorTool(main));
     for (const {shape, color} of configs) {
-      const label = hold(shapes.FindShape(shape.wrapped, false));
+      const label = hold(shapes.FindShape(shape.wrapped, true));
       const rgb = [1,3,5].map(index => linear(parseInt(color.slice(index, index + 2), 16) / 255));
       const rgba = hold(new oc.Quantity_ColorRGBA(...rgb, 1));
       colors.SetColor(label, rgba, oc.XCAFDoc_ColorType.XCAFDoc_ColorSurf);

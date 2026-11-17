@@ -8,7 +8,7 @@
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.70.0",
+  "version": "1.71.0",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -140,5 +140,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:9731fad0293dc9c07b5bcfdcd11fa9888131bfccad566e28790f2dfb9da3066c"
+  "docsHash": "sha256:6a0546bec650a974c4f69348a232662f3778857911ce4bfb4afa08b2af33f3e4"
 }

@@ -23,13 +23,13 @@ assert.equal(changed.bodies.find(b => b.id === 'c').bounds.max[0],22,'same-ID de
 assert.ok(Math.abs(changed.bodies.find(b => b.id === 'c').volume-400)<1e-6);
 const beforeImportVersion = changed.bodies.find(b => b.id === 'b').renderVersion;
 const importChanged = await kernel.rebuild({ ...doc([f('a', 'box', { width: 20, depth: 10, height: 2 }), base[1], f('c', 'copy', { x: 2 }, ['a'])]), imports: { changed: { format: 'step', data: 'AA==' } } });
-assert.notEqual(importChanged.bodies.find(b => b.id === 'b').renderVersion, beforeImportVersion, 'imports invalidate prefix cache');
+assert.equal(importChanged.bodies.find(b => b.id === 'b').renderVersion, beforeImportVersion, 'unreferenced imports do not invalidate independent geometry');
 
 let calls = 0;
 const operation = kernel.operation.bind(kernel);
 kernel.operation = async (...args) => { calls++; return operation(...args); };
 await kernel.rebuild({ version: 1, imports: { changed: { format: 'step', data: 'AA==' } }, features: [f('a', 'box', { width: 20, depth: 10, height: 2 }), base[1], f('c', 'copy', { x: 2 }, ['a']), f('d', 'copy', { x: 3 }, ['a'])] });
-assert.equal(calls, 1, 'append-only rebuild runs only the new operation');
+assert.equal(calls, 0, 'a validated rigid copy uses the exact instance path without replaying operation inputs');
 kernel.operation = operation;
 
 const describe = kernel.describe.bind(kernel);
