@@ -1,6 +1,6 @@
 # 交接：页面 API 探针修复（2026-11-04）
 
-给下一次接手的人。不要合并，不要动 the maintainer。
+给下一次接手的人。不要合并，不要动 相关独立项目。
 
 ## 目标
 
@@ -17,7 +17,7 @@
 
 - 不要改 `services/**`，也不要改原生服务宿主。
 - 不要合并 PR #4，不要关 PR。
-- 不要碰 the maintainer，不要改 `F:\Project\WebCAD`，不要部署到 `<private-server>`、`localhost/webcad` 或 `goldenfu.cn`。
+- 不要碰 相关独立项目，不要改 `F:\Project\WebCAD`，不要部署到 `专用内网服务器`、`localhost/webcad` 或 `goldenfu.cn`。
 - 不要删测试、不要把失败改成跳过、不要放宽几何数值断言来换绿灯。
 - 不要提交 `public/automation/agent-bundle.zip`。它是发布产物。需要时在工作区执行 `node scripts/generate-page-docs.mjs`，让它和已提交的 `public/automation/agent-knowledge.json` 里 `archive.sha256` / `sizeBytes` 一致。知识包测试会读磁盘上的这个 zip。
 - 不要 `git reset` / `checkout` / `pull` 覆盖未提交修改。
@@ -68,7 +68,7 @@
 便携套件已经全绿。不要为了再刷一遍而改代码。下一步只剩所有者决定：
 
 1. 是否把 PR #4 合并进 `main`。本交接不合并。
-2. 确认之后，再按升级说明把同一提交升到 `F:\Project\WebCAD`。不要提前动 the maintainer。
+2. 确认之后，再按升级说明把同一提交升到 `F:\Project\WebCAD`。不要提前动 相关独立项目。
 
 若重置后续跑，先 `node scripts/generate-page-docs.mjs`（生成不入库的 `agent-bundle.zip`），再 `npm test`。数字应仍是 1350 / 0 / 5。契约或配方文档若再改，重新生成 `public/automation`（除 zip）并提交。
 
