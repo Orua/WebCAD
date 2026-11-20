@@ -2,7 +2,7 @@
   "id": "acknowledgePerformanceAdvisory",
   "title": "acknowledgePerformanceAdvisory",
   "category": "page-method",
-  "version": "1.71.0",
+  "version": "1.72.0",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -183,5 +183,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0057503ac755f7a4c028e0a0725bc6c95b2ffbcca2c9be6a937c57c672b0f2d0"
+  "docsHash": "sha256:2867210d5e3388c54da4a55b59cced1d890f3ee5e737c0b868ba5ac72e7ecc7a"
 }

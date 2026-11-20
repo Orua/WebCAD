@@ -1,7 +1,8 @@
 // Per-body display appearance. Texture bytes live once in v4 binaryAssets, outside history patches.
 export const SURFACE_FIELDS=Object.freeze(['roughness','opacity','transmission','ior','thicknessMm','texture']);
 export const MAX_TEXTURE_DATA_CHARS=6*1024*1024;
-export const TEXTURE_SCHEMA={type:['object','null'],additionalProperties:false,properties:{dataUrl:{type:'string',maxLength:MAX_TEXTURE_DATA_CHARS,pattern:'^data:image/(png|jpeg|webp);base64,'},assetHash:{type:'string',pattern:'^[a-f0-9]{64}$'},mime:{enum:['image/png','image/jpeg','image/webp']},mapping:{enum:['box','xy','xz','yz']},sizeMm:{type:'array',minItems:2,maxItems:2,items:{type:'number',exclusiveMinimum:0,maximum:1000000}},offsetMm:{type:'array',minItems:2,maxItems:2,items:{type:'number'}},rotationDeg:{type:'number',minimum:-36000,maximum:36000}}};
+const angleSchema={type:'number',minimum:-36000,maximum:36000};
+export const TEXTURE_SCHEMA={type:['object','null'],additionalProperties:false,properties:{dataUrl:{type:'string',maxLength:MAX_TEXTURE_DATA_CHARS,pattern:'^data:image/(png|jpeg|webp);base64,'},assetHash:{type:'string',pattern:'^[a-f0-9]{64}$'},mime:{enum:['image/png','image/jpeg','image/webp']},mapping:{enum:['box','xy','xz','yz']},sizeMm:{type:'array',minItems:2,maxItems:2,items:{type:'number',exclusiveMinimum:0,maximum:1000000}},offsetMm:{type:'array',minItems:2,maxItems:2,items:{type:'number'}},rotationDeg:angleSchema,side:{enum:['positive','negative','both']},backRotationDeg:angleSchema}};
 const fail=message=>{throw Object.assign(new Error(message),{code:'PARAM_SCHEMA_INVALID'});};
 export function normalizeSurfaceTexture(value){
  if(value===null)return null;
@@ -12,7 +13,11 @@ export function normalizeSurfaceTexture(value){
  if(hashed&&(!/^[a-f0-9]{64}$/.test(value.assetHash)||!['image/png','image/jpeg','image/webp'].includes(value.mime)))fail('贴图资产身份或 MIME 无效。');
  const mapping=value.mapping??'box',sizeMm=value.sizeMm??[20,20],offsetMm=value.offsetMm??[0,0],rotationDeg=value.rotationDeg??0;
  if(!['box','xy','xz','yz'].includes(mapping)||!Array.isArray(sizeMm)||sizeMm.length!==2||!sizeMm.every(v=>Number.isFinite(v)&&v>0&&v<=1000000)||!Array.isArray(offsetMm)||offsetMm.length!==2||!offsetMm.every(Number.isFinite)||!Number.isFinite(rotationDeg)||Math.abs(rotationDeg)>36000)fail('贴图投射参数需要有效毫米尺寸、偏移与角度。');
- return {...(embedded?{dataUrl:value.dataUrl}:{assetHash:value.assetHash,mime:value.mime}),mapping,sizeMm:[...sizeMm],offsetMm:[...offsetMm],rotationDeg};
+ const {side,backRotationDeg}=value;
+ if(side!==undefined&&(!['positive','negative','both'].includes(side)||mapping==='box'))fail('限定侧别需要 XY、XZ 或 YZ 贴图平面。');
+ if(backRotationDeg!==undefined&&(!side||!Number.isFinite(backRotationDeg)||Math.abs(backRotationDeg)>36000))fail('背侧旋转需要指定侧别与有效角度。');
+ return {...(embedded?{dataUrl:value.dataUrl}:{assetHash:value.assetHash,mime:value.mime}),mapping,sizeMm:[...sizeMm],offsetMm:[...offsetMm],rotationDeg,
+  ...(side?{side,...(backRotationDeg!==undefined?{backRotationDeg}:{})}:{})};
 }
 export function validateSurfacePatch(patch){
  for(const [key,min,max]of [['roughness',0,1],['opacity',0,1],['transmission',0,1],['ior',1,2.5],['thicknessMm',0,10000]])if(patch[key]!==undefined&&patch[key]!==null&&!(typeof patch[key]==='number'&&Number.isFinite(patch[key])&&patch[key]>=min&&patch[key]<=max))fail(`${key} 需要 ${min}–${max} 或 null。`);
@@ -26,7 +31,9 @@ export function mergeSurfaceOverride(previous,patch){
 }
 export function sanitizeSurface(surface){
  if(!surface||typeof surface!=='object'||Array.isArray(surface))return {};
- return Object.fromEntries(Object.entries(surface).flatMap(([id,value])=>{try{if(!value||typeof value!=='object'||Array.isArray(value))return [];const clean=mergeSurfaceOverride({},value);return Object.keys(clean).length?[[id,clean]]:[];}catch{return [];}}));
+ return Object.fromEntries(Object.entries(surface).flatMap(([id,value])=>{try{if(!value||typeof value!=='object'||Array.isArray(value))return [];const clean=mergeSurfaceOverride({},value);
+  if(Array.isArray(value.solidColors)&&value.solidColors.length<=10000&&value.solidColors.every(color=>color===null||typeof color==='string'&&/^#[0-9a-f]{6}$/i.test(color)))clean.solidColors=[...value.solidColors];
+  return Object.keys(clean).length?[[id,clean]]:[];}catch{return [];}}));
 }
 export function applyDesignSurface(material,finishKey,override){
  if(!material)return false;let changed=false;

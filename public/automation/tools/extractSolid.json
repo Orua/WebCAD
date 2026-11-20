@@ -50,7 +50,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Use body.solidCount; default index=0.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Use body.solidCount; default index=0. Inherits the design color recorded for the extracted solid, or the source body color for legacy compounds.",
   "title": "Extract one solid from a compound",
   "category": "organization",
   "synonyms": [
@@ -60,7 +60,7 @@
     "提取实体"
   ],
   "description": "Extract one solid from a compound",
-  "schemaHash": "sha256:0f98fe4f94f70c5a844225fdb7b35d2da3be969e586226a9c2940c467d6b68bd",
+  "schemaHash": "sha256:9476de7d0310a3da4f1c8a87dc558343bf09f3e2e86ed0c36a54ee43e9f88b7e",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -121,7 +121,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Use body.solidCount; default index=0.",
+    "Use body.solidCount; default index=0. Inherits the design color recorded for the extracted solid, or the source body color for legacy compounds.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "exampleNotes": {
@@ -187,7 +187,7 @@
   "contract": {
     "purpose": "Extract one solid from a compound",
     "whenToUse": [
-      "Use body.solidCount; default index=0."
+      "Use body.solidCount; default index=0. Inherits the design color recorded for the extracted solid, or the source body color for legacy compounds."
     ],
     "whenNotToUse": [
       {
@@ -348,7 +348,7 @@
   },
   "purpose": "Extract one solid from a compound",
   "whenToUse": [
-    "Use body.solidCount; default index=0."
+    "Use body.solidCount; default index=0. Inherits the design color recorded for the extracted solid, or the source body color for legacy compounds."
   ],
   "whenNotToUse": [
     {
@@ -715,5 +715,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:ba48fe720c16e68741aab8d221295aaf515d73a67e9e80feb3862f35ff8cd04a"
+  "docsHash": "sha256:d478b706f34c69cfa93a37bffb0eca49b728511532d8737e801bc736c172d06b"
 }

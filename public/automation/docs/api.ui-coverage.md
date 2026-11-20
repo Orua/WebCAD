@@ -1394,6 +1394,14 @@
     "method": "inspectFit",
     "usage": "显式给两个当前单实体 bodyId、mm 接触容差；在独立 BREP 副本上求交与测最短距离，不修改来源、历史或显示修订。"
   },
+  "inspectFitLocate": {
+    "tools": [
+      "inspectFit",
+      "setView"
+    ],
+    "method": "setView",
+    "usage": "核对 inspectFit 回执的工程实例及修订，将 camera.target 设为 locationMm，同时平移 camera.position 以保留视角。"
+  },
   "inspectThickness": {
     "tools": [
       "inspectThickness"

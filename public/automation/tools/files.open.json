@@ -8,7 +8,7 @@
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.71.0",
+  "version": "1.72.0",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -17,7 +17,7 @@
   ],
   "description": "open({context,resourceId,unsaved:\"fail\"|\"discard\",units?}); 打开=替换当前设计，从不合并。.webcad/.json 工程或单个 STEP/BREP/STL 模型（放入新文档；STL 需 units）。unsaved 必填：fail 在未保存时返回 UNSAVED_REPLACEMENT，discard 放弃修改。要加入当前设计请用 files.import。",
   "inputContract": "open({context,resourceId,unsaved:\"fail\"|\"discard\",units?}); 打开=替换当前设计，从不合并。.webcad/.json 工程或单个 STEP/BREP/STL 模型（放入新文档；STL 需 units）。unsaved 必填：fail 在未保存时返回 UNSAVED_REPLACEMENT，discard 放弃修改。要加入当前设计请用 files.import。",
-  "outputContract": "Rebuilt document with new documentInstanceId; undo history cleared.",
+  "outputContract": "成功返回新 documentInstanceId、opened{name,sourceSha256,bodyCount,deferredDisplayCount,cacheHit,unpackMs,rebuildMs}。cacheHit=null 表示没有命中整份重建缓存。getState 的 kernelPerformance/rendered 另行确认首帧。打开失败保留原工程；内核失败只恢复原工程一次。",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -239,5 +239,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:eb79b140e18e258eb5ab756b877f1f3a52b83ab00b8c2aeb4af93a41ac4ecfed"
+  "docsHash": "sha256:52453182371c87520f722f944eb4f41a4d6b05f06305300ae8d42c16f7555dc5"
 }

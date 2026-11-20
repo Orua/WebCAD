@@ -2,7 +2,7 @@
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.71.0",
+  "version": "1.72.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -22,7 +22,7 @@
     "两实体"
   ],
   "inputContract": "inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。",
-  "outputContract": "status=read、overlap/contactWithinTolerance/separated、公共体积或精确最短距离与见证点、当前 context。布尔检查只在独立 BREP 副本上执行，保留来源字节、历史与显示修订；不自动判断工艺合格。",
+  "outputContract": "status=read，含两个 bodyId、公共体积、最短距离、locationMm 与当前 context。分类为 overlap、overlapBelowThreshold、contactWithinTolerance、separated。正体积返回 overlapBoundsMm，其他返回 witnessPoints。定位可用 setView.camera.target；位置是包围盒中心或见证点中点。多实体复合件先 extractSolid；对称件显式指定配对。布尔仅在隔离 BRep 副本执行。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -215,5 +215,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fc97783994a11b15cedcd032ada4bb569ab16a750c0bb9fa7dd6216e3eafef5f"
+  "docsHash": "sha256:4f98f1ff7245beb6bed55938a1367290d5f8d6340279a5ab96d844b5c01dfe0a"
 }

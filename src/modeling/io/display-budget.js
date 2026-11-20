@@ -5,6 +5,7 @@
 // below 20000) used to inherit fine=0.025 / ultra=0.008 on remesh and could
 // crash the renderer; those requests stay at the budgeted standard tolerance.
 import {RENDER_QUALITIES} from '../../render-quality.js';
+import {measureArea} from 'replicad';
 const dispose=v=>{try{v?.delete?.();}catch{}};
 export const DISPLAY_BUDGET=Object.freeze({heavyFacePoles:20000,heavyShapePoles:60000,heavySourceBytes:8*1024*1024,
   // Display chord targets as a fraction of the bounding-box diagonal.
@@ -116,6 +117,35 @@ function meshFaceSafely(face,settings,oc){
     if(fallback?.triangles?.length)return fallback;
   }catch(error){if(isWasmMemoryError(error))throw displayRefinementError(error);}
   return emptyFaceMesh();
+}
+
+// Two curved sides can discretize to the same chord and leave a narrow face
+// with zero triangles. Retry only missing faces with a smaller chord/angle.
+export function recoverMissingFaces(mesh,faces,settings){
+  const covered=new Set(mesh.faceGroups.filter(group=>group.count>0).map(group=>group.faceId));
+  const patches=[];
+  for(const face of faces){
+    const faceId=face.hashCode;
+    if(covered.has(faceId))continue;
+    try{
+      const area=measureArea(face);
+      if(!(area>0))continue;
+      const tolerance=Math.min(settings.tolerance/4,Math.max(1e-5,Math.sqrt(area)/300));
+      const patch=face.mesh({tolerance,angularTolerance:Math.min(.12,settings.angularTolerance)});
+      if(patch.triangles.length)patches.push({faceId,patch});
+    }catch(error){if(isWasmMemoryError(error))throw displayRefinementError(error);}
+  }
+  if(!patches.length)return mesh;
+  const recovered=new Set(patches.map(({faceId})=>faceId));
+  const faceGroups=mesh.faceGroups.filter(group=>!recovered.has(group.faceId));
+  let start=mesh.triangles.length;
+  for(const {faceId,patch} of patches){
+    faceGroups.push({faceId,start,count:patch.triangles.length,recovered:true});
+    start+=patch.triangles.length;
+  }
+  const parts=[mesh,...patches.map(({patch})=>patch)];
+  return {vertices:concat(parts,'vertices',Float64Array),normals:concat(parts,'normals',Float64Array),
+    triangles:concat(parts,'triangles',Uint32Array,'vertices'),faceGroups};
 }
 
 export function meshFacesProgressively(faces,settings,onBatch,oc){

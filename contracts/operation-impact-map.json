@@ -1,4 +1,14 @@
 {
+  "realPartDisplayAndInspection": {
+    "localImpact": "Local BRep display retries only missing faces; cold open defers unused hidden BRep meshes, preserves exact snapshots and reports source-bound timings. View depth range follows visible bounds. Compound design colors, sided projected decals, metal confirmation and fit location run in the browser.",
+    "servicesImpact": "None. No Services runtime, native contract, routing or deployment changes.",
+    "logoImpact": "None. Decal projection is display metadata and does not modify engraving or relief operations.",
+    "nativeImpact": "None. Existing browser OCCT bindings are used.",
+    "contractImpact": "Page API 1.72.0. Open receipts identify source and counts; display reports recovered faces, camera clipping and refraction submissions. inspectFit includes positive overlap below threshold and location. Texture inputs add side and backRotationDeg.",
+    "documentImpact": "Existing v4 surface metadata now carries optional per-solid design colors and texture orientation; exact BRep assets and geometry are preserved.",
+    "cacheImpact": "Reveal invalidates a deferred display entry only; full agent knowledge and static manifest regenerated.",
+    "requiredTests": ["Original narrow face and split control", "Cold real project open, reveal and source-preserving save", "Compound color round-trip, scoped projection and transparency", "Fit classifications and one localhost page check"]
+  },
   "rebuildPerformance": {
     "localImpact": "Mesh/mixed removal lifecycle fix; dependency fingerprints reuse independent branches; validated rigid BRep copies share immutable sources and reuse transformed display without changing precision. Finite started/queue/recovery clocks and real phase progress. Adaptive surface/edge draw batches retain original triangles and topology picking, share edge materials, and reuse stationary visibility without background refinement during geometry computation.",
     "servicesImpact": "None: browser rebuild and transport only; server protocol, routing, persistence and timeouts unchanged.",

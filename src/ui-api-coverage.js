@@ -102,6 +102,7 @@ export const UI_API_ROUTES = Object.freeze({
   inspectProfile:{tools:['inspectProfile'],method:'inspectProfile',usage:'选定当前可编辑解析轮廓 bodyId；返回端点、零长、重线和直线相交问题，不修改工程。'},
   profileConstraints:{tools:['profileConstraints','inspectConstraints'],method:'execute',usage:'inspectConstraints({context,bodyId})读真实局部图元、约束图及自由度；profileConstraints新建派生轮廓，继承来源关系。feature.edit修改原constraints数组驱动下游。'},
   inspectFit:{tools:['inspectFit'],method:'inspectFit',usage:'显式给两个当前单实体 bodyId、mm 接触容差；在独立 BREP 副本上求交与测最短距离，不修改来源、历史或显示修订。'},
+  inspectFitLocate:{tools:['inspectFit','setView'],method:'setView',usage:'核对 inspectFit 回执的工程实例及修订，将 camera.target 设为 locationMm，同时平移 camera.position 以保留视角。'},
   inspectThickness:{tools:['inspectThickness'],method:'inspectThickness',usage:'选择单一封闭实体、表面点与向内方向，或两个平行面；只读精确连续材料厚度。'},
   inspectDraft:{tools:['inspectDraft'],method:'inspectDraft',usage:'显式实体、拉出方向、用户阈值；解析平面精确法向倾角，曲面明确未支持，不判定完整脱模。'},
   measureRelation:{tools:['measureRelation'],method:'measureRelation',usage:'显式选择两个实体/边/面，或点与有限面，读取精确几何关系与见证点。'},

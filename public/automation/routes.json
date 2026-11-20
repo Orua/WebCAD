@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.71.0",
-  "buildId": "5f04e46bbac295b49154a7f670bb63cdbf895b88-src-f49d7d2c8bcec2dd-working",
-  "catalogHash": "sha256:d33befc75903d3329239232ebc9813faf9050a7813c427774c5471407b59c98e",
-  "docsHash": "sha256:1480acd7005558cd7e6cd83ec192091689195065b17ee29460e6ef1e6280a1de",
+  "pageApiVersion": "1.72.0",
+  "buildId": "12b67d9d49a1361df371c4192a58fe0d74e97364-src-40af0f3fbbaef460-working",
+  "catalogHash": "sha256:f2ca8c1d6d4a1d2996e238969534e51c4a4071c1959e04ca67e99321e5455200",
+  "docsHash": "sha256:2143e299e9b418bfe8b86383f1a600af68c0724c711c92bdedc4546148b69a60",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -538,6 +538,14 @@
       ],
       "method": "inspectFit",
       "usage": "显式给两个当前单实体 bodyId、mm 接触容差；在独立 BREP 副本上求交与测最短距离，不修改来源、历史或显示修订。"
+    },
+    "inspectFitLocate": {
+      "tools": [
+        "inspectFit",
+        "setView"
+      ],
+      "method": "setView",
+      "usage": "核对 inspectFit 回执的工程实例及修订，将 camera.target 设为 locationMm，同时平移 camera.position 以保留视角。"
     },
     "inspectPrintability": {
       "tools": [
@@ -1735,6 +1743,7 @@
     "inspectPrintability": "成型检查 / inspectPrintability",
     "inspectProfile": "inspectProfile",
     "inspectFit": "干涉间隙 / inspectFit",
+    "inspectFitLocate": "inspectFit / setView",
     "inspectThickness": "壁厚 / inspectThickness",
     "inspectDraft": "拔模检查 / inspectDraft",
     "measureRelation": "关系测量 / measureRelation",

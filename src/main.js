@@ -119,7 +119,12 @@ Object.assign(labels,{sketchProfile:'绘制轮廓',profileOffset:'等距偏移 /
 const pending=new Map();
 let loadingDepth=0;const loadingTracker=createLoadingTracker();
 let worker,recoveryPromise=null,kernelProgress=null,kernelPerformance=null,pendingServicesWait=null,displayCoarsen=1;
-let workerAssets=new Set(),recoveryState=null,historyPerformance={};
+let workerAssets=new Set(),recoveryState=null,historyPerformance={},openingDocument=null;
+function displayOpenProgress(progress){
+  if(!openingDocument)return progress;
+  const {name,sourceSha256}=openingDocument;
+  return {...progress,opening:{name,sourceSha256},label:progress.label||'打开工程'};
+}
 function rejectPending(error){for(const job of pending.values()){job.clock?.finish();job.reject(error);}pending.clear();}
 function createWorker(){
   workerAssets=new Set();
@@ -127,11 +132,11 @@ function createWorker(){
   instance.onmessage=event=>{if(instance!==worker)return;const result=event.data,job=pending.get(result.requestId);if(!job)return;if(result.kind==='started'){job.start(result.queueMs);return;}if(result.kind==='progress'){
     const {partial,...progress}=result.progress;
     const recovery=recoveryState?.status==='running'?{operationId:recoveryState.operationId,cause:recoveryState.cause,failedPhase:recoveryState.failedPhase,retainedRevision:recoveryState.retainedRevision,parentRequestId:recoveryState.parentRequestId}:null;
-    kernelProgress={...progress,requestId:result.requestId,operationId:recovery?.operationId??result.requestId,revision,documentInstanceId,updatedAt:Date.now(),...(recovery?{recovery}:{})};job.pulse();
+    kernelProgress=displayOpenProgress({...progress,requestId:result.requestId,operationId:recovery?.operationId??result.requestId,revision,documentInstanceId,updatedAt:Date.now(),...(recovery?{recovery:{...recovery,targetName:recoveryState.targetName}}:{})});job.pulse();
     // One journal slot per in-flight request. Per-feature progress used to fill the ring and drop errors.
     debugJournal.record('kernel','progress',{requestId:result.requestId,kind:progress.kind,phase:progress.phase,label:progress.label,completed:progress.completed,total:progress.total,reused:progress.reused,recomputed:progress.recomputed,elapsedMs:progress.elapsedMs,cache:progress.cache,featureCount:progress.featureCount},'info',{coalesceKey:`kernel:${progress.kind||'progress'}:${result.requestId}`});
     job.progress=kernelProgress;
-    if(progress.kind==='rebuild'){if(partial){try{viewport.addProgressiveMesh(partial);}catch{}}loadingTracker.update(kernelProgress);if(busy)ui.setBusyProgress?.(loadingTracker.value,loadingTracker.state);return;}
+    if(progress.kind==='rebuild'){if(partial&&!openingDocument){try{viewport.addProgressiveMesh(partial);}catch{}}loadingTracker.update(kernelProgress);if(busy||loadingDepth)ui.setBusyProgress?.(loadingTracker.value,loadingTracker.state);return;}
     return;
   }job.clock?.finish();pending.delete(result.requestId);kernelProgress=null;if(!result.ok)viewport.setErrorPoints(result.details?.pointsMm||[]);if(result.ok){try{if(result.finalSourceDelta)result.finalSources=installSnapshotDelta(result.finalSourceDelta,job.snapshotBase,job.snapshotContext);if(result.bodyDelta){const map=new Map([...job.bodyBase,...result.bodyDelta.changed].map(b=>[b.id,b]));result.bodies=result.bodyDelta.entries.map(entry=>{const b=map.get(entry.id);if(!b||b.renderVersion!==entry.renderVersion)throw Object.assign(new Error('Display cache identity mismatch'),{code:'ARTIFACT_CORRUPT'});return {...b,name:entry.name};});}if(result.registeredAssets)workerAssets=new Set(result.registeredAssets);result.requestTiming={queueMs:job.queueMs||0,wallMs:Date.now()-job.enqueuedAt};job.resolve(result);}catch(error){job.reject(error);}}else {const error=Object.assign(new Error(result.error||'建模操作失败'),{code:result.code,path:result.path,recoveryAction:result.recoveryAction,featureId:result.featureId,report:result.report,details:result.details});if(kernelFailure(error))kernelReady=false;job.reject(error);}};
   instance.onerror=event=>{if(instance!==worker)return;const error=Object.assign(new Error(event.message||'CAD 内核异常，请保存工程后刷新页面。'),{code:'KERNEL_CRASHED'});rejectPending(error);kernelReady=false;ui?.showError(error);};
@@ -163,12 +168,12 @@ function restartWorker(error){
   if(recoveryPromise)return recoveryPromise;
   const failedPhase=kernelProgress?.phase??null;
   worker.terminate();rejectPending(error);kernelReady=false;worker=createWorker();
-  recoveryState={status:'running',operationId:crypto.randomUUID(),parentRequestId:requestSequence,cause:error.code,failedPhase,startedAt:Date.now(),retainedRevision:revision};
-  kernelProgress={kind:'rebuild',phase:'recovery',label:'恢复已提交工程',elapsedMs:0,operationId:recoveryState.operationId};loadingTracker.update(kernelProgress);ui.setBusyProgress?.(null,loadingTracker.state);
+  recoveryState={status:'running',operationId:crypto.randomUUID(),parentRequestId:requestSequence,cause:error.code,failedPhase,startedAt:Date.now(),retainedRevision:revision,targetName:documentModel.name,targetDocumentId:documentModel.documentId};
+  kernelProgress=displayOpenProgress({kind:'rebuild',phase:'recovery',label:'恢复已提交工程',elapsedMs:0,operationId:recoveryState.operationId,recovery:{targetName:recoveryState.targetName}});loadingTracker.update(kernelProgress);ui.setBusyProgress?.(null,loadingTracker.state);
   const recovering=(async()=>{
     await request('ready',{},{hardTimeoutMs:45000});const remaining=120000-(Date.now()-recoveryState.startedAt);if(remaining<=0)throw Object.assign(new Error('Recovery deadline exceeded'),{code:'KERNEL_RECOVERY_TIMEOUT'});
     const result=await request('rebuild',{document:documentModel},{hardTimeoutMs:remaining});
-    bodies=result.bodies;selectedIds=selectedIds.filter(id=>bodies.some(body=>body.id===id));selectedTopology=null;
+    bodies=result.bodies;committedFinalSources=result.finalSources;selectedIds=selectedIds.filter(id=>bodies.some(body=>body.id===id));selectedTopology=null;
     // A new kernel invalidates old topology selections; keep geometry and history.
     revision++;kernelReady=true;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,null);
     viewport.markModel({documentId:documentModel.documentId,documentInstanceId,revision});refresh();
@@ -351,6 +356,27 @@ async function runEditorAction(action,args,{fromUI=false}={}){
 }
 function clearSelection(){selectedIds=[];selectedTopology=null;viewport.setSelection([]);}
 let activeMaterialDocument;
+function inheritCompoundColors(previous,next,resultBodies){
+  const present=new Set(previous.features.map(feature=>feature.id)),resultById=new Map(resultBodies.map(body=>[body.id,body]));
+  for(const feature of next.features){
+    if(present.has(feature.id))continue;
+    const source=feature.refs[0],body=resultById.get(feature.id);
+    if(feature.op==='group'&&body?.groupSolidSources?.length){
+      const colors=body.groupSolidSources.map(row=>row?(next.surface?.[row.id]?.solidColors?.[row.index]??next.colors?.[row.id]??null):null);
+      if(colors.some(Boolean)){
+        next.surface={...next.surface,[feature.id]:{...next.surface?.[feature.id],solidColors:colors}};
+        delete next.colors[feature.id];
+        next.appearance[feature.id]='design';
+      }
+    }else if(feature.op==='extractSolid'&&next.surface?.[source]?.solidColors){
+      const color=next.surface[source].solidColors[feature.params.solidIndex];
+      if(next.surface[feature.id])delete next.surface[feature.id].solidColors;
+      if(color)next.colors[feature.id]=color;else delete next.colors[feature.id];
+    }else if(!['transform','copy'].includes(feature.op)&&next.surface?.[feature.id]?.solidColors){
+      delete next.surface[feature.id].solidColors;
+    }
+  }
+}
 function applyAppearance(){
   const materialDocument=documentInstanceId+':'+documentModel.documentId;
   if(materialDocument!==activeMaterialDocument){setMetalMaterialRegistry(documentModel.renderMaterials||loadMetalMaterials());activeMaterialDocument=materialDocument;}
@@ -451,7 +477,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     localBegan=performance.now();
     const previewSignature=JSON.stringify({imports:next.imports||{},features:next.features.map(geometryFeatureRecord)});
     let result,kernelRoundTripMs=null;
-    if(previewKernelCache&&previewKernelCache.signature===previewSignature)result=previewKernelCache.result;
+    if(!newInstance&&previewKernelCache&&previewKernelCache.signature===previewSignature&&!previewKernelCache.result.bodies.some(b=>b.displayDeferred&&!next.hidden?.includes(b.id)))result=previewKernelCache.result;
     else {const sentAt=performance.now();result=await request('rebuild',{document:next},{hardTimeoutMs:hardTimeoutMs??rebuildHardTimeoutMs(getServicesConfig().localTimeoutMs)});kernelRoundTripMs=performance.now()-sentAt;}
     const kernelResponseAt=performance.now();
     previewKernelCache=null;
@@ -486,6 +512,7 @@ async function rebuild(next,{record=true,fit=false,select=null,save=true,signal,
     // snapshot before changing undo/redo, revision, or the authoritative model.
     // R7-013: ids that left the active set (remove, consumed by a boolean) leave hidden too.
     if(Array.isArray(next.hidden))next.hidden=pruneHiddenIds(next.hidden,result.bodies);
+    if(record)inheritCompoundColors(previousDocument,next,result.bodies);
     if(next.materialSettings)next.materialSettings=inheritBodyMaterials(next.materialSettings,next.features,result.bodies.map(b=>b.id));
     try{if(record)pushUndo(next,historyLabel);else {recordTimedTimeline(rebuildBaseline,next,{label:'保留恢复后的重建状态'});validateTimedTimeline(next);assertDocumentCapacity(next);}}
     catch(error){await request('rebuild',{document:documentModel});throw error;}
@@ -571,7 +598,7 @@ function featureDocument(op,params={},explicitRefs=[],name,placement){
   next.features.push(markTopologySemantics({id,op,name:name||`${labels[op]||op} ${next.features.filter(f=>f.op===op).length+1}`,params,refs,...(placement?{placement,semanticsVersion:2}:{})}));
   if(next.appearance?.[refs[0]])next.appearance[id]=next.appearance[refs[0]];
   if(next.colors?.[refs[0]])next.colors[id]=next.colors[refs[0]];
-  if(next.surface?.[refs[0]])next.surface={...next.surface,[id]:clone(next.surface[refs[0]])};
+  if(op!=='group'&&next.surface?.[refs[0]])next.surface={...next.surface,[id]:clone(next.surface[refs[0]])};
   return {next,id};
 }
 async function addFeature(op,params={},options={}){
@@ -745,7 +772,7 @@ function checkInputFile(file,signal,expectedRevision){
 }
 function assertOpenReady(mcp){
   if(ui.hasActiveTask())throw Object.assign(new Error('请先应用或取消当前未提交的人工草稿，再打开文件。'),{code:'UI_TASK_ACTIVE'});
-  if(busy){if(mcp)throw new Error('Worker is busy');return false;}
+  if(busy||openingDocument){if(mcp)throw new Error('Worker is busy');return false;}
   return true;
 }
 // Adds one STEP/BREP/STL/MESH import feature to `next`. Returns null when the user cancels.
@@ -777,17 +804,41 @@ async function openDocument(file,{signal,expectedRevision,mcp=false,unsaved,unit
   if(mcp)assertOpenAllowed({unsaved,dirty});else if(!await confirmReplaceUnsaved())return {status:'cancelled'};
   return withLoading(()=>openDocumentLoaded(file,{signal,expectedRevision,mcp,units}));
 }
-async function openDocumentLoaded(file,{signal,expectedRevision,mcp=false,units}={}){
+async function openDocumentLoaded(file,{signal,expectedRevision=revision,mcp=false,units}={}){
+  openingDocument={name:file.name};
+  try{return await prepareAndOpenDocument(file,{signal,expectedRevision,mcp,units});}
+  catch(error){
+    // The rebuild path owns recovery. Keep the candidate bound to its progress
+    // until the retained document is ready, without re-submitting the candidate.
+    if(!recoveryPromise&&kernelFailure(error))void restartWorker(error).catch(()=>{});
+    if(recoveryPromise)void recoveryPromise.catch(()=>{}).finally(()=>{openingDocument=null;});
+    throw error;
+  }finally{if(!recoveryPromise)openingDocument=null;}
+}
+async function prepareAndOpenDocument(file,{signal,expectedRevision,mcp,units}){
+  const started=performance.now();
+  const show=(phase,label)=>{loadingTracker.update(displayOpenProgress({kind:'rebuild',phase,label,elapsedMs:performance.now()-started}));ui.setBusyProgress?.(null,loadingTracker.state);};
+  show('file-read','读取来源');
+  const bytes=new Uint8Array(await file.arrayBuffer());
+  openingDocument.sourceSha256=binaryHash(bytes).slice(7);
   let next,select,large=false;
-  if(classifyFile(file.name)==='project')next=validateDocument((await request('decodeProject',{bytes:new Uint8Array(await file.arrayBuffer())})).document);
+  const unpackStarted=performance.now(),project=classifyFile(file.name)==='project';
+  if(project){show('project-unpack','解包工程');next=validateDocument((await request('decodeProject',{bytes})).document);}
   else{
     next=emptyDocument();const added=await appendModel(next,file,{mcp,units});if(!added)return {status:'cancelled'};
     select=added.id;large=added.large;next.name=file.name.replace(/\.[^.]+$/,'');
   }
   const options={fit:true,newInstance:true,record:false,signal,expectedRevision,...(select?{select}:{})};
-  await (large?rebuildLargeImport(next,options):rebuild(next,options));
+  const unpackMs=project?performance.now()-unpackStarted:null,rebuildStarted=performance.now();
+  show('prepare','准备模型');
+  const result=await rebuild(next,{...options,...(large?{hardTimeoutMs:Math.max(getServicesConfig().localTimeoutMs,120000)}:{})});
   undoStack=[];redoStack=[];dirty=false;refresh();
-  return {status:'opened'};
+  const opened={name:documentModel.name,sourceSha256:openingDocument.sourceSha256,bodyCount:bodies.length,
+    deferredDisplayCount:bodies.filter(body=>body.displayDeferred).length,cacheHit:result.cacheHit??null,
+    unpackMs,rebuildMs:performance.now()-rebuildStarted};
+  debugJournal.record('runtime','project-opened',opened);
+  setStatus(`已打开 ${opened.name} · ${opened.sourceSha256.slice(0,12)} · ${formatBodyCount(bodies)}`);
+  return {status:'opened',opened};
 }
 async function insertModels(files,{signal,expectedRevision,mcp=false,placement,units}={}){
   if(!assertOpenReady(mcp))return;
@@ -882,7 +933,14 @@ async function performAction(action,params={}){
   if(action==='anchorVisibility'){viewport.setAnchorVisible(params.visible);refresh();return;}
   if(action==='snap'){viewport.snapEnabled=params.enabled??!viewport.snapEnabled;setStatus(viewport.snapEnabled?'几何吸附已启用 / Snap enabled':'吸附已关闭 / Snap disabled');refresh();return;}
   if(action==='section'){viewport.setSection(params);return;}
-  if(action==='perPartMetal')return runEditorAction('body.appearance',{bodyIds:[...selectedIds],finish:params.key});
+  if(action==='perPartMetal'||action==='metalFinish'){
+    const ids=[...selectedIds],stamp=revision;
+    if(params.key&&params.key!=='design'&&viewport.sceneLighting?.mode!=='metal-global'){
+      const answer=await chooseAction({title:'应用金属光照',message:'金属饰面会切换全景光照，其他设计原色实体可能变暗。',choices:[{id:'apply',label:'应用',primary:true},{id:'cancel',label:'取消'}],defaultId:'cancel'});
+      if(answer!=='apply'||stamp!==revision){refresh();return;}
+    }
+    return action==='perPartMetal'?runEditorAction('body.appearance',{bodyIds:ids,finish:params.key}):runEditorAction('document.appearance',{finish:params.key});
+  }
   if(action==='resizeBody'){const card=getOperation('transform');return runEditorAction('feature.add',{op:'transform',opVersion:card.version,schemaHash:card.schemaHash,params:params.params,refs:[params.bodyId],name:'实体尺寸'});}
   if(action==='bodySurface')return runEditorAction('body.appearance',{bodyIds:[...selectedIds],...params.patch});
   if(action==='bodyColor')return runEditorAction('body.appearance',{bodyIds:[...selectedIds],color:params.color,finish:'design'});
@@ -890,11 +948,16 @@ async function performAction(action,params={}){
   if(action==='displayPreferences'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.setDisplayPreferences({context:{...identity,expectedRevision:r},values:params});if(result.status==='failed')throw new Error(result.error.message);return result;}
   if(action==='inspectPrintability'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.inspectPrintability({context:{...identity,expectedRevision:r},bodyId:params.bodyId,angleLimitDeg:params.angleLimitDeg});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
   if(action==='inspectFit'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.inspectFit({context:{...identity,expectedRevision:r},bodyAId:params.bodyAId,bodyBId:params.bodyBId,toleranceMm:params.toleranceMm});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
+  if(action==='inspectFitLocate'){
+    const {locationMm,context}=params.report;
+    if(context.revision!==revision||context.documentInstanceId!==documentInstanceId)return;
+    const offset=viewport.camera.position.clone().sub(viewport.controls.target).toArray();
+    return pageAPI.setView({context:pageAPI.createRequestContext(),camera:{target:locationMm,position:locationMm.map((n,i)=>n+offset[i]),up:'inherit'}});
+  }
   if(action==='inspectThickness'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.inspectThickness({context:{...identity,expectedRevision:r},...params});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
   if(action==='inspectDraft'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.inspectDraft({context:{...identity,expectedRevision:r},...params});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
   if(action==='measureRelation'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.measureRelation({context:{...identity,expectedRevision:r},...params});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
   if(action==='materialSettings')return runEditorAction('document.materials',{settings:params});
-  if(action==='metalFinish')return runEditorAction('document.appearance',{finish:params.key});
   if(action==='fit'){viewport.fit();return;}
   if(action==='floorSelected'){
     const body=bodies.find(row=>row.id===params.bodyId);if(!body)throw new Error('请选择一个当前实体。');
@@ -1177,14 +1240,20 @@ async function executeAI(command,args={},options={}){
     if(action==='document.materials'){next.materialSettings=validateMaterialSettings(a.settings);}
     if(action==='document.rename')next.name=a.name.trim();
     if(action==='feature.rename')next.features.find(f=>f.id===a.featureId).name=a.name.trim();
-    if(action==='body.visibility')next.hidden=[...new Set([...next.hidden.filter(id=>!a.bodyIds.includes(id)),...(a.visible?[]:a.bodyIds)])];
+    if(action==='body.visibility'){
+      next.hidden=[...new Set([...next.hidden.filter(id=>!a.bodyIds.includes(id)),...(a.visible?[]:a.bodyIds)])];
+      if(a.visible&&bodies.some(body=>body.displayDeferred&&a.bodyIds.includes(body.id))){
+        await rebuild(next,{...options,origin,historyLabel:EDITOR_ACTIONS[action].title});return aiState();
+      }
+    }
     if(action==='document.appearance')next.renderFinish=a.finish;
     if(action==='body.appearance'){
       let texture=a.texture;
       if(texture){const prepared=prepareSurfaceTexture(next,texture);await loadSurfaceImage(prepared.texture,prepared.bytes);texture=prepared.texture;next.version=4;next.imports={...next.imports,[prepared.importKey]:prepared.importEntry};next.binaryAssets={...next.binaryAssets,[texture.assetHash]:prepared.bytes};}
       for(const id of a.bodyIds){
         for(const [field,value]of [['colors',a.color],['appearance',a.finish]])if(value!==undefined){next[field]={...next[field]};if(value===null)delete next[field][id];else next[field][id]=value;}
-        const surface=mergeSurfaceOverride(next.surface?.[id],{...a,texture});next.surface={...next.surface};if(Object.keys(surface).length)next.surface[id]=surface;else delete next.surface[id];
+        const surface=mergeSurfaceOverride(next.surface?.[id],{...a,texture});if(a.color!==undefined)delete surface.solidColors;
+        next.surface={...next.surface};if(Object.keys(surface).length)next.surface[id]=surface;else delete next.surface[id];
       }
     }
     checkTransaction(options.signal,options.expectedRevision);pushUndo(next,EDITOR_ACTIONS[action]?.title||(action==='document.reliefDesignReference'?'浮雕原参考图绑定':undefined));documentModel=next;dirty=true;revision++;if(action==='document.materials')rememberMaterialSettings(next.materialSettings);
@@ -1219,7 +1288,10 @@ async function executeAI(command,args={},options={}){
     let bytes;if(args.data instanceof Uint8Array)bytes=args.data;else{if(args.data.length>28*1024*1024)throw new Error('ASSET_INVALID: oversized base64 payload');const raw=atob(args.data);bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);}if(bytes.length>fileByteBudget(args.name))throw Object.assign(new Error('文件超出类型容量'),{code:'SIZE_LIMIT'});
     const file=new File([bytes],args.name,{type:args.mime||'application/octet-stream'});
     const placement=command==='file_import'?resolvePlacement(args.placement,documentModel.referenceSystem,'import',{}):undefined;
-    if(command==='file_open')await openDocument(file,{...options,mcp:true,unsaved:args.unsaved??'fail',units:args.units});
+    if(command==='file_open'){
+      const {opened,status}=await openDocument(file,{...options,mcp:true,unsaved:args.unsaved??'fail',units:args.units});
+      return opened?{dirty,opened}:{dirty,status};
+    }
     else await insertModels([file],{...options,mcp:true,placement,units:args.units});
     return {dirty};
   }else if(command==='file_export'){

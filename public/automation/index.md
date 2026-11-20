@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.71.0 · 操作目录 sha256:d33befc75903d3329239232ebc9813faf9050a7813c427774c5471407b59c98e
+API 1.72.0 · 操作目录 sha256:f2ca8c1d6d4a1d2996e238969534e51c4a4071c1959e04ca67e99321e5455200
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -380,7 +380,7 @@ API 1.71.0 · 操作目录 sha256:d33befc75903d3329239232ebc9813faf9050a7813c427
 - `document.rename` · page-command · 修改工程名称，保留几何。
 - `feature.rename` · page-command · 修改历史步骤及同 ID 实体名称，导入件也可使用。
 - `body.visibility` · page-command · 显隐指定当前实体，不删除几何。
-- `body.appearance` · page-command · color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。roughness 0–1（null 恢复 0.42 默认）只作用于 design 饰面的该实体，例如 0.9 做哑光漆，随工程保存；金属饰面忽略。opacity 0–1 为不透明度；transmission 0–1、ior 1–2.5、thicknessMm 0–10000 表达玻璃透射。texture 为 PNG/JPEG/WebP dataUrl（约4.5MiB以内、4096像素以内），或当前工程assetHash+mime；mapping box/xy/xz/yz、sizeMm二元毫米尺寸、offsetMm二元偏移、rotationDeg。null清除对应覆盖。整实体投射只改外观；图片随工程保存且可撤销。任一可见实体用金属饰面时全场切到金属光照（ACES、较暗灯强），design 实体会变暗；回执警告 METAL_LIGHTING_GLOBAL，getState().display.metalRendering.sceneLighting 读回。
+- `body.appearance` · page-command · color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。roughness 0–1（null 恢复 0.42 默认）只作用于 design 饰面的该实体，例如 0.9 做哑光漆，随工程保存；金属饰面忽略。opacity 0–1 为不透明度；transmission 0–1、ior 1–2.5、thicknessMm 0–10000 表达玻璃透射。texture 为 PNG/JPEG/WebP dataUrl（约4.5MiB以内、4096像素以内），或当前工程assetHash+mime；mapping box/xy/xz/yz、sizeMm二元毫米尺寸、offsetMm二元偏移、rotationDeg。平面投射可指定 side=positive|negative|both，按外法向与有限图幅贴花，negative 侧可用 backRotationDeg 独立定向。opacity 控制普通透明，transmission>0 开启额外场景绘制的折射通道。null清除对应覆盖。整实体投射只改外观；图片随工程保存且可撤销。任一可见实体用金属饰面时全场切到金属光照（ACES、较暗灯强），design 实体会变暗；回执警告 METAL_LIGHTING_GLOBAL，getState().display.metalRendering.sceneLighting 读回。
 - `document.appearance` · page-command · 设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。
 - `body.explode` · page-command · 将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。
 - `reference.setWorkFrame` · page-command · args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。

@@ -36,7 +36,7 @@ import {buildEllipsoid} from './ellipsoid.js';
 import {renderQuality} from './render-quality.js';
 import {EXACT_DISPLAY} from './viewport/exact-display-policy.js';
 import {displayEdges,displayMetadata,isPlanarPolygon} from './modeling/io/adaptive-display.js';
-import {DISPLAY_BUDGET,displayComplexity,displayRefinementError,meshFacesProgressively} from './modeling/io/display-budget.js';
+import {DISPLAY_BUDGET,displayComplexity,displayRefinementError,isWasmMemoryError,meshFacesProgressively,recoverMissingFaces} from './modeling/io/display-budget.js';
 import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
 import {buildRelief} from './modeling/manufacturing/relief.js';
@@ -410,7 +410,20 @@ export class CadKernel {
       }
       case 'group': {
         if(sources.length<2)throw new Error('组合至少需要两个对象');
-        return cad.makeCompound(sources.map(shape=>shape.clone()));
+        const result=cad.makeCompound(sources.map(shape=>shape.clone())),solids=result.solids;
+        const owners=new Map(),held=[];
+        try{
+          sources.forEach((shape,refIndex)=>shape.solids.forEach((solid,solidIndex)=>{
+            held.push(solid);
+            const key=solid.hashCode,list=owners.get(key)||[];
+            list.push({solid,ref:refs[refIndex],solidIndex});owners.set(key,list);
+          }));
+          result.groupSolidSources=solids.map(solid=>{
+            const matches=owners.get(solid.hashCode)?.filter(row=>solid.wrapped.IsSame(row.solid.wrapped));
+            return matches?.length===1?{id:matches[0].ref,index:matches[0].solidIndex}:null;
+          });
+          return result;
+        }finally{[...solids,...held].forEach(dispose);}
       }
       case 'extractSolid': {
         const solids=source().solids,index=finite(p,'solidIndex');
@@ -554,7 +567,12 @@ export class CadKernel {
         // Keep their topology type; the shared rebuild validation checks validity.
         if (item.format === 'brep'||item.format==='brep-instance') {
           const key=item.assetHash||binaryHash(bytes);let base=this.importBases?.get(key);
-          if(!base){base=cad.deserializeShape(new TextDecoder().decode(bytes));this.importBases??=new Map();this.importBases.set(key,base);this.geometrySourceSnapshots.set(base,new TextDecoder().decode(bytes));this.sourceBytesCache??=new WeakMap();this.sourceBytesCache.set(base,{format:'brep',data:bytes,sourceHash:binaryHash(bytes).slice(7)});}
+          if(!base){
+            this.reportRebuildProgress('brep-decode','解码精确 BRep');
+            const sourceText=new TextDecoder().decode(bytes);base=cad.deserializeShape(sourceText);
+            this.reportRebuildProgress('feature','计算实体');
+            this.importBases??=new Map();this.importBases.set(key,base);this.geometrySourceSnapshots.set(base,sourceText);this.sourceBytesCache??=new WeakMap();this.sourceBytesCache.set(base,{format:'brep',data:bytes,sourceHash:binaryHash(bytes).slice(7)});
+          }
           const shape=item.location?locateBrep(base,validateRigidMatrix(item.location),this.oc):base.clone();
           this.rigidInstances??=new WeakMap();this.rigidInstances.set(shape,{source:base,sourceId:feature.id,matrix:item.location||identityMatrix()});
           if(this.validatedShapes?.has(base))this.validatedShapes.add(shape);
@@ -887,7 +905,9 @@ export class CadKernel {
     this.quality=quality;
     try {
       const bodies=[...this.active].map(([id,feature])=>{
-        const body=this.describe(this.shapes.get(id),feature);
+        const retained=previousCache.get(id)?.body;
+        const body=retained?.displayDeferred?{...retained}:this.describe(this.shapes.get(id),feature);
+        if(retained?.faceSolidIndices)body.faceSolidIndices=this.faceSolidIndices(this.shapes.get(id));
         body.renderVersion=String(++this.renderVersion);
         return body;
       });
@@ -926,7 +946,15 @@ export class CadKernel {
         }
       });
       this.reportRebuildProgress('mass-properties','测量正式实体');
-      const measured={faceCount:faces.length,edgeCount:edges.length,snapPoints,bounds:{min,max},boundsSource:'exact-brep',volume:solids.length?preciseVolume(shape,this.oc):null,area:surfaceArea(shape,this.oc),solidCount:solids.length,shellCount:shells.length};
+      const measured={faceCount:faces.length,edgeCount:edges.length,snapPoints,bounds:{min,max},boundsSource:'exact-brep',volume:null,area:null,solidCount:solids.length,shellCount:shells.length};
+      try{
+        measured.area=surfaceArea(shape,this.oc);
+        measured.volume=solids.length?preciseVolume(shape,this.oc):null;
+      }catch(error){
+        if(isWasmMemoryError(error))throw error;
+        measured.metricsDeferred=true;
+        measured.measurementStatus='exact-mass-properties-unavailable';
+      }
       this.geometryMetrics.set(shape,measured);return measured;
     }finally{[...solids,...shells,bbox].forEach(dispose);}
   }
@@ -937,6 +965,20 @@ export class CadKernel {
     const sourceBody=instance?this.describe(instance.source,{id:instance.sourceId,name:feature.name}):null;
     const body=instance?(instance.matrix.every((n,i)=>n===identityMatrix()[i])?{...sourceBody,id:feature.id,name:feature.name||feature.id}:locatedBody(sourceBody,instance.matrix,feature)):this.describeShape(shape,feature);
     this.shapeDisplays.set(shape,{key,body});return body;
+  }
+  faceSolidIndices(shape){
+    const solids=shape.solids,faces=shape.faces;
+    try{
+      const indices=new Int32Array(faces.length).fill(-1),byHash=new Map(faces.map((face,i)=>[face.hashCode,i]));
+      solids.forEach((solid,index)=>{
+        const members=solid.faces;
+        try{for(const face of members){
+          const id=byHash.get(face.hashCode);
+          if(id!==undefined&&face.wrapped.IsSame(faces[id].wrapped))indices[id]=indices[id]===-1?index:-2;
+        }}finally{members.forEach(dispose);}
+      });
+      return indices;
+    }finally{[...faces,...solids].forEach(dispose);}
   }
   describeShape(shape, feature) {
     if(shape.geometryType==='mesh')return shape.describe(feature);
@@ -952,6 +994,7 @@ export class CadKernel {
     let mesh;
     try{mesh=adaptive?meshFacesProgressively(faces,settings,batch=>this.reportRebuildProgress('surface-mesh','生成曲面显示',{completed:batch.completed,total:batch.total,triangles:batch.triangles,partial:{bodyId:feature.id,positions:batch.positions,normals:batch.normals,indices:batch.indices}}),this.oc):shape.mesh(settings);}
     catch(error){throw displayRefinementError(error);}
+    mesh=recoverMissingFaces(mesh,faces,settings);
     this.reportRebuildProgress('edge-mesh','生成边线显示');
     const wire = adaptive?null:shape.meshEdges({ tolerance: settings.tolerance*0.75, angularTolerance: settings.angularTolerance*0.8 });
       const faceMap = new Map(faces.map((v, i) => [v.hashCode, i])), edgeMap = new Map(edges.map((v, i) => [v.hashCode, i]));
@@ -970,6 +1013,7 @@ export class CadKernel {
       }
       const mappedFaces = mesh.faceGroups.map(g => ({ ...g, faceId: faceMap.get(g.faceId),...(adaptive?{exactPolygon:isPlanarPolygon(faces[faceMap.get(g.faceId)])}:{}) }));
       measured.displayReport=meshIntegrity(mesh.vertices,mesh.triangles,{faceCount:faces.length,faceGroups:mappedFaces,brepVolumeMm3:measured.volume});
+      measured.displayReport.recoveredFaceIds=mappedFaces.filter(group=>group.recovered).map(group=>group.faceId);
       if(shape.variationReport)measured.variationReport=shape.variationReport;
       if(shape.booleanReport)measured.booleanReport=shape.booleanReport;
       if(shape.loftReport)measured.loftReport=shape.loftReport;
@@ -1002,6 +1046,9 @@ export class CadKernel {
     const next = new Map(), active = new Map(), ids = new Set(); let current;
     const importsSignature = JSON.stringify(document.imports || {});
     const features = document.features;
+    const referenced=new Set(features.flatMap(feature=>feature.refs||[]));
+    const deferred=new Set((document.hidden||[]).filter(id=>!referenced.has(id)));
+    const displayCached=id=>{const entry=this.renderCache.get(id);return entry?.body.displayDeferred&&!deferred.has(id)?null:entry;};
     const signatures = features.map(geometryFeatureSignature);
     const fingerprints=rebuildFingerprints(document),reusable=new Set(features.filter(f=>this.featureFingerprints?.get(f.id)===fingerprints.get(f.id)&&(this.shapes.has(f.id)||f.op==='remove')).map(f=>f.id));
     let prefix = 0;
@@ -1014,7 +1061,7 @@ export class CadKernel {
     try {
       // Same recipe as the shapes already in memory: return the display cache.
       // Appending a feature still falls through and rebuilds only the suffix.
-      if(prefix===signatures.length&&signatures.length===this.historySignature.length&&this.active.size&&this.renderCache.size>=this.active.size){
+      if(prefix===signatures.length&&signatures.length===this.historySignature.length&&this.active.size&&[...this.active.keys()].every(displayCached)){
         const byId=new Map(features.map(feature=>[feature.id,feature])),displayNames=resultDisplayNames(features);
         const cachedBodies=[];
         let complete=true;
@@ -1110,7 +1157,7 @@ export class CadKernel {
       const displayNames=resultDisplayNames(features);
       const bodies = [...active].map(([id, feature]) => {
         current = id;
-        const cached = reused.has(id) ? this.renderCache.get(id) : null;
+        const cached = reused.has(id) ? displayCached(id) : null;
         // Meshing and metadata queries can rewrite OCCT TShape flags. Freeze the
         // precise source before display work; uploads and cold checkpoint gates
         // then bind the same bytes without normalizing or weakening the hash.
@@ -1118,11 +1165,15 @@ export class CadKernel {
         if(next.get(id).geometryType!=='mesh'&&!this.rigidInstances?.has(next.get(id)))this.geometrySourceSnapshot(next.get(id));
         let body;
         if(cached)body={...cached.body,name:feature.name||feature.id};
-        else if(headless&&next.get(id).geometryType!=='mesh'){
+        else if((headless||deferred.has(id))&&next.get(id).geometryType!=='mesh'){
           const shape=next.get(id),faces=shape.faces,edges=shape.edges;
-          try{body={id,name:feature.name||id,...displayMetadata(shape,faces,edges,this.oc),volume:preciseVolume(shape,this.oc),metricsDeferred:false,positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],loftReport:shape.loftReport,logoProjectionReport:shape.logoProjectionReport,transitionReport:shape.transitionReport,alignmentReport:shape.alignmentReport,resizeReport:shape.resizeReport};}
+          try{body={id,name:feature.name||id,...displayMetadata(shape,faces,edges,this.oc),...(headless?{volume:preciseVolume(shape,this.oc),metricsDeferred:false}:{displayDeferred:true}),positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],loftReport:shape.loftReport,logoProjectionReport:shape.logoProjectionReport,transitionReport:shape.transitionReport,alignmentReport:shape.alignmentReport,resizeReport:shape.resizeReport};}
           finally{faces.forEach(dispose);edges.forEach(dispose);}
         }else body=this.describe(next.get(id), feature);
+        if(!body.displayDeferred&&(feature.op==='group'||document.surface?.[id]?.solidColors)){
+          body.faceSolidIndices??=this.faceSolidIndices(next.get(id));
+          body.groupSolidSources=next.get(id).groupSolidSources;
+        }
         if(cached&&feature.op==='relief'&&body.reliefReport?.layers&&feature.params.layers)body.reliefReport={...body.reliefReport,layers:body.reliefReport.layers.map((layer,i)=>({...layer,name:feature.params.layers[layer.index??i]?.name??layer.name}))};
         body.name=displayNames.get(id)??body.name;
         if (!cached) body.renderVersion = String(++this.renderVersion);
@@ -1264,7 +1315,7 @@ export class CadKernel {
   inspectFit(bodyAId,bodyBId,toleranceMm=1e-5,volumeThresholdMm3=1e-6){
     if(bodyAId===bodyBId)throw new Error('配合检查需要两个不同实体');
     if(!Number.isFinite(toleranceMm)||toleranceMm<0||toleranceMm>1||!Number.isFinite(volumeThresholdMm3)||volumeThresholdMm3<=0)throw new Error('间隙容差或体积阈值无效');
-    let a,b,common,extrema,p1,p2,solidsA=[],solidsB=[];
+    let a,b,common,extrema,p1,p2,overlapBox,solidsA=[],solidsB=[];
     try{
       // OCCT booleans can update source tolerances/pcurves even for a read-only
       // intersection. Isolate both arguments across a BREP boundary; clone()
@@ -1273,17 +1324,23 @@ export class CadKernel {
       b=cad.deserializeShape(this.activeShape(bodyBId).serialize());
       solidsA=a.solids;solidsB=b.solids;
       if(solidsA.length!==1||solidsB.length!==1)throw new Error('配合检查须选择两个单一封闭实体');
-      common=a.intersect(b);
+      common=solidsA[0].intersect(solidsB[0]);
       const commonVolumeMm3=Math.abs(cad.measureVolume(common));
       if(!Number.isFinite(commonVolumeMm3))throw new Error('公共体积计算不确定');
-      if(commonVolumeMm3>volumeThresholdMm3)return {classification:'overlap',commonVolumeMm3,distanceMm:0,toleranceMm,volumeThresholdMm3,method:'exact-brep-intersection'};
-      extrema=new this.oc.BRepExtrema_DistShapeShape();extrema.LoadS1(a.wrapped);extrema.LoadS2(b.wrapped);extrema.Perform();
+      if(commonVolumeMm3>0){
+        overlapBox=common.boundingBox;const [min,max]=overlapBox.bounds;
+        return {classification:commonVolumeMm3>volumeThresholdMm3?'overlap':'overlapBelowThreshold',
+          commonVolumeMm3,distanceMm:0,overlapBoundsMm:{min,max},locationMm:min.map((n,i)=>(n+max[i])/2),
+          toleranceMm,volumeThresholdMm3,method:'exact-brep-intersection'};
+      }
+      extrema=new this.oc.BRepExtrema_DistShapeShape();extrema.LoadS1(solidsA[0].wrapped);extrema.LoadS2(solidsB[0].wrapped);extrema.Perform();
       if(!extrema.IsDone()||extrema.NbSolution()<1)throw new Error('精确最短距离未能收敛');
       const distanceMm=extrema.Value();
       if(!Number.isFinite(distanceMm)||distanceMm<0)throw new Error('精确最短距离无效');
       p1=extrema.PointOnShape1(1);p2=extrema.PointOnShape2(1);
-      return {classification:distanceMm<=toleranceMm?'contactWithinTolerance':'separated',commonVolumeMm3,distanceMm,witnessPoints:[[p1.X(),p1.Y(),p1.Z()],[p2.X(),p2.Y(),p2.Z()]],toleranceMm,volumeThresholdMm3,method:'exact-brep-distance-and-intersection'};
-    }finally{[...solidsA,...solidsB,common,extrema,p1,p2,a,b].forEach(dispose);}
+      const witnessPoints=[[p1.X(),p1.Y(),p1.Z()],[p2.X(),p2.Y(),p2.Z()]];
+      return {classification:distanceMm<=toleranceMm?'contactWithinTolerance':'separated',commonVolumeMm3,distanceMm,witnessPoints,locationMm:witnessPoints[0].map((n,i)=>(n+witnessPoints[1][i])/2),toleranceMm,volumeThresholdMm3,method:'exact-brep-distance-and-intersection'};
+    }finally{[...solidsA,...solidsB,common,extrema,p1,p2,overlapBox,a,b].forEach(dispose);}
   }
   dragSnap(input){return findExactDragSnap(input,id=>this.activeShape(id),this.oc,cad);}
   inspectThickness(input){

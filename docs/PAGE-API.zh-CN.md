@@ -1113,3 +1113,12 @@ getState().kernelPerformance 含 workerTiming、phaseTimings、snapshotStats、r
 相同资产只注册一次，保存源按 SHA-256 引用和增量传输，实例/修订与请求绑定。自适应显示将未细化曲面及相同样式边线合批；只替换已细化面的显示三角形，不改变源几何、显示公差、选面/选边编号或保存数据。静止视图复用面片可见性，计算期间不派发显示细化；display.detail.surfaceBatchedBodies 可核对合批状态。隐藏只影响显示，不删除来源。精确刚体复制保留 BRep；只读源共享位置变换，布尔/圆角等修改操作仍深隔离；均匀缩放和非均匀变换不复用刚体校验结果。最终状态工程以 brep-instance 类型保存共用精确 BRep 资产与每个 import 的有限正交 location 矩阵；旧读取器因未知资产类型明确拒绝，不能忽略位置后误装。文件不包含参数配方或会话时间线，既有工程仍可读。
 装配定位使用 measure 的精确 BRep bounds，不能使用保守/变换后的显示 bounds；boundsSource 标明来源。工具不推断支撑或自动移动悬浮零件。
 长作业用 submit 短调用后 getJob/awaitJob 查同一 jobId。宿主超时不表示回滚，不换 key 重算。getBatchReceipt 缺少 documentInstanceId 返回 PARAM_SCHEMA_INVALID；传入旧实例才返回 INSTANCE_MISMATCH。执行预算从 Worker started 开始，排队有独立有限期限；心跳不延长硬期限。普通默认硬期限仍为180秒。失败先回执 not_committed，恢复独立记录在 getState().recovery，最多120秒，不循环重放候选。恢复进度保留独立 operationId、原因、失败阶段和保留修订，界面阶段持续注明“恢复已提交工程”，详情可读同一恢复记录。recoverKernel({context,stopRunning:true})立即停止 Worker并返回 stopped/recovery；recovered:false 表示恢复尚未完成，继续读取 recovery 和 kernelReady。失败时已提交快照仍可 files.save。
+# 工程打开、显示与装配定位（1.72）
+
+`files.open` 的 `opened` 包含工程名、来源文件 SHA-256、对象数、延后显示对象数、缓存命中类型、解包和重建耗时。首帧以对应工程实例和修订的 `display.rendered` 为准。未被后续特征引用的隐藏精确件可延后生成网格，首次重新显示时补齐，精确模型仍可保存。内核失败后恢复已提交工程一次。可读取 `kernelProgress.opening`、`recovery` 和 `kernelPerformance` 核对阶段。
+
+精确件显示补采样仅用于缺少三角形的面，见 `displayReport.recoveredFaceIds`。相机裁剪面随可见范围变化，可读 `display.camera.near/far`。组合保留各子实体的设计原色，`surface[bodyId].solidColors` 按当前复合体实体顺序记录，拆分和最终形态工程保留这组颜色。旧单色工程继续使用整件颜色。
+
+平面贴图可设置 `texture.side` 为 `positive`、`negative` 或 `both`，分别按 XY / XZ / YZ 平面的法向轴 Z / Y / X 判断朝向。贴花只在指定图幅内着色，`rotationDeg` 与 `backRotationDeg` 分别指定正侧和负侧方向。普通透明用 `opacity<1, transmission:0`，折射用 `transmission>0`。可先读全景光照并核对应用后的 `display.refractionBodies`、`display.submittedTriangles`，后者是最后实际绘制帧的提交量。
+
+`inspectFit` 返回两个实体的身份、最短距离、公共体积与 `locationMm`。有正体积时返回相交区域的 `overlapBoundsMm`，并区分是否超过调用方体积阈值。无重叠时提供最近点对。使用 `setView` 将镜头目标移至 `locationMm`。复合件先提取明确的单一实体，对称件由调用方指定配对。

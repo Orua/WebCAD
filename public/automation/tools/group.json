@@ -36,7 +36,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Preserves constituent solid boundaries and positions. UI explode creates separate extractSolid features in one undo transaction. Already-fused single solids cannot be ungrouped into their original components.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Preserves constituent solid boundaries, positions and explicit design colors. Read grouped colors in state.surface[bodyId].solidColors. UI explode creates separate extractSolid features in one undo transaction. Already-fused single solids cannot be ungrouped into their original components.",
   "title": "Group bodies as a compound without fusing",
   "category": "organization",
   "synonyms": [
@@ -46,7 +46,7 @@
     "组合"
   ],
   "description": "Group bodies as a compound without fusing",
-  "schemaHash": "sha256:3c3704869c61e3dee136f143a418314dd579c20fe3ae6dd132b1bf7aed50b27c",
+  "schemaHash": "sha256:aeec4676b036e088d7813f85b85cbb2f45ffe94ec6da97b1a2122e167fd12f45",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -107,7 +107,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Preserves constituent solid boundaries and positions. UI explode creates separate extractSolid features in one undo transaction. Already-fused single solids cannot be ungrouped into their original components.",
+    "Preserves constituent solid boundaries, positions and explicit design colors. Read grouped colors in state.surface[bodyId].solidColors. UI explode creates separate extractSolid features in one undo transaction. Already-fused single solids cannot be ungrouped into their original components.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "exampleNotes": {
@@ -171,7 +171,7 @@
   "contract": {
     "purpose": "Group bodies as a compound without fusing",
     "whenToUse": [
-      "Preserves constituent solid boundaries and positions. UI explode creates separate extractSolid features in one undo transaction. Already-fused single solids cannot be ungrouped into their original components."
+      "Preserves constituent solid boundaries, positions and explicit design colors. Read grouped colors in state.surface[bodyId].solidColors. UI explode creates separate extractSolid features in one undo transaction. Already-fused single solids cannot be ungrouped into their original components."
     ],
     "whenNotToUse": [
       {
@@ -307,7 +307,7 @@
   },
   "purpose": "Group bodies as a compound without fusing",
   "whenToUse": [
-    "Preserves constituent solid boundaries and positions. UI explode creates separate extractSolid features in one undo transaction. Already-fused single solids cannot be ungrouped into their original components."
+    "Preserves constituent solid boundaries, positions and explicit design colors. Read grouped colors in state.surface[bodyId].solidColors. UI explode creates separate extractSolid features in one undo transaction. Already-fused single solids cannot be ungrouped into their original components."
   ],
   "whenNotToUse": [
     {
@@ -678,5 +678,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:4ce044287ba52616ac5481011e1c06b44a70a6bb0ac88e24679b8bf17c5dffb5"
+  "docsHash": "sha256:a0816ea148e2c9341b91176c45b7510c528025e3f9c57e6ec20c47384f228cc6"
 }

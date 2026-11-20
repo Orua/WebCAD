@@ -427,7 +427,7 @@ export function createPageAPI(host){
     }),
     inspectFit:guarded(async input=>{
       check(input,['context','bodyAId','bodyBId','toleranceMm','volumeThresholdMm3']);
-      if(typeof input.bodyAId!=='string'||typeof input.bodyBId!=='string'||input.bodyAId===input.bodyBId||![input.bodyAId,input.bodyBId].every(id=>current().bodies.some(body=>body.id===id&&body.solidCount===1)))fail('STALE_REFERENCE','Select two distinct current single solid bodies');
+      if(typeof input.bodyAId!=='string'||typeof input.bodyBId!=='string'||input.bodyAId===input.bodyBId||![input.bodyAId,input.bodyBId].every(id=>current().bodies.some(body=>body.id===id&&body.solidCount===1)))fail('STALE_REFERENCE','Select two distinct current single solid bodies. Extract the intended solid from a compound and explicitly select mirrored candidates.');
       const toleranceMm=input.toleranceMm??1e-5,volumeThresholdMm3=input.volumeThresholdMm3??1e-6;
       if(!Number.isFinite(toleranceMm)||toleranceMm<0||toleranceMm>1||!Number.isFinite(volumeThresholdMm3)||volumeThresholdMm3<=0)fail('PARAM_RANGE_INVALID','Inspection tolerances must be finite positive values in mm and mm^3');
       const result=await host.inspectFit(input.bodyAId,input.bodyBId,toleranceMm,volumeThresholdMm3);

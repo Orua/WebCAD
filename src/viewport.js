@@ -1,4 +1,4 @@
-import {applyBodyTexture} from './surface-rendering.js';
+import {applyBodyTexture,applyCompoundColors} from './surface-rendering.js';
 import {applyDesignSurface,sceneLightingState} from './surface-overrides.js';
 import * as THREE from 'three';
 import {orthographicFitExtent} from './viewport/fit-bounds.js';
@@ -153,9 +153,9 @@ export class CADViewport {
       this.exactDisplayDetail.attach(this.objects.get(body.id));
     });if(this.grid?.position)this.grid.position.z=floorGridZ(bodies);this.setDisplay(this.mode);this.setMetalFinish(this.finishKey);this.applyClipping();this.updateHud();
   }
-  setHidden(ids){this.hidden=ids;this.applyTemporaryDisplay();}
+  setHidden(ids){if(ids.length===this.hidden.length&&ids.every((id,i)=>id===this.hidden[i]))return;this.hidden=ids;this.applyTemporaryDisplay();if(this.sceneLighting){const next=this.computeSceneLighting(this.finishKey);if(next.mode!==this.sceneLighting.mode)this.setMetalFinish(this.finishKey);else this.sceneLighting=next;}}
   setTemporaryDisplay(mode){if(!['normal','selectedOnly','transparentOthers'].includes(mode))throw new Error('未知临时显示方式');this.temporaryDisplay=mode;this.applyTemporaryDisplay();}
-  applyTemporaryDisplay(){for(const [id,entry] of this.objects){const selected=this.selected.includes(id),persistentlyHidden=this.hidden.includes(id),solo=this.temporaryDisplay==='selectedOnly';entry.root.visible=!persistentlyHidden&&(!solo||selected);const translucent=this.temporaryDisplay==='transparentOthers'&&!selected&&!persistentlyHidden,technical=this.mode==='transparentEdges';const material=entry.mesh.material,baseOpacity=material.userData.surfaceOpacity??1,opacity=translucent?Math.min(baseOpacity,.2):technical?Math.min(baseOpacity,.35):baseOpacity,transparent=opacity<1||material.userData.surfaceTextureAlpha===true;if(material.transparent!==transparent)material.needsUpdate=true;material.transparent=transparent;material.opacity=opacity;material.depthWrite=!transparent;for(const edge of entry.edges.children){const selectedEdge=this.topology?.bodyId===id&&this.topology?.type==='edge'&&this.topology.ids.includes(edge.userData.edgeId);edge.material.opacity=metalEdgeOpacity({selected,selectedEdge,translucent,mode:this.mode,finish:entry.mesh.material.userData.metalFinish||'design'});edge.material.transparent=true;}entry.edgeBatch?.invalidate();}this.updateHud();}
+  applyTemporaryDisplay(){for(const [id,entry] of this.objects){const selected=this.selected.includes(id),persistentlyHidden=this.hidden.includes(id),solo=this.temporaryDisplay==='selectedOnly';entry.root.visible=!persistentlyHidden&&(!solo||selected);const translucent=this.temporaryDisplay==='transparentOthers'&&!selected&&!persistentlyHidden,technical=this.mode==='transparentEdges';const material=entry.mesh.material,baseOpacity=material.userData?.surfaceOpacity??1,opacity=translucent?Math.min(baseOpacity,.2):technical?Math.min(baseOpacity,.35):baseOpacity,transparent=opacity<1||material.userData?.surfaceTextureAlpha===true;if(material.transparent!==transparent)material.needsUpdate=true;material.transparent=transparent;material.opacity=opacity;material.depthWrite=!transparent;for(const edge of entry.edges.children){const selectedEdge=this.topology?.bodyId===id&&this.topology?.type==='edge'&&this.topology.ids.includes(edge.userData.edgeId);edge.material.opacity=metalEdgeOpacity({selected,selectedEdge,translucent,mode:this.mode,finish:entry.mesh.material.userData?.metalFinish||'design'});edge.material.transparent=true;}entry.edgeBatch?.invalidate();}this.updateHud();}
   setSelection(ids=[],topology=null){
     this.selected=ids;this.topology=topology;
     for(const [id,entry] of this.objects){const active=ids.includes(id);this.metals.setSelected(entry.mesh.material,active);entry.mesh.material.emissive.set(0x000000);const finish=entry.mesh.material.userData.metalFinish||'design',edgeColor=finish.includes('gold')||finish==='antique-brass'?0x705638:0x465b6e;entry.edges.children.forEach(line=>{const edge=topology?.bodyId===id&&topology?.type==='edge'&&topology.ids.includes(line.userData.edgeId);if(entry.edgeMaterial)line.material=edge?entry.selectedEdgeMaterial:entry.edgeMaterial;line.material.color.set(edge?0xf08e2b:active?new THREE.Color(this.displayPreferences.themeColor):edgeColor);line.material.opacity=edge?1:.72;line.material.depthTest=!edge;line.renderOrder=edge?1000:0;});}
@@ -171,10 +171,12 @@ export class CADViewport {
   }
   viewFrame(frame){const previous={position:this.camera.position.toArray(),up:this.camera.up.toArray(),target:this.controls.target.toArray()},q=new THREE.Quaternion(...frame.quaternion),origin=new THREE.Vector3(...frame.origin),normal=new THREE.Vector3(0,0,1).applyQuaternion(q),distance=Math.max(this.camera.position.distanceTo(this.controls.target),20);this.camera.up.copy(new THREE.Vector3(0,1,0).applyQuaternion(q));this.controls.target.copy(origin);this.camera.position.copy(origin).addScaledVector(normal,distance);this.controls.update();return previous;}
   restoreFrameView(previous){this.camera.position.fromArray(previous.position);this.camera.up.fromArray(previous.up);this.controls.target.fromArray(previous.target);this.controls.update();}
+  computeSceneLighting(key){return sceneLightingState(key,this.partFinishes,[...this.objects.keys()].filter(id=>!this.hidden.includes(id)));}
   setMetalFinish(key){
     if(!METAL_FINISHES[key])throw new Error('未知金属材质。');
-    this.finishKey=key;
-    const metal=key!=='design'||Object.entries(this.partFinishes).some(([id,finish])=>this.objects.has(id)&&finish!=='design');
+    this.finishKey=key;this.lastFrameKey=null;
+    this.sceneLighting=this.computeSceneLighting(key);
+    const metal=this.sceneLighting.mode==='metal-global';
     this.renderer.toneMapping=metal?THREE.ACESFilmicToneMapping:THREE.NoToneMapping;
     const p=this.displayPreferences;
     this.renderer.toneMappingExposure=p.exposure;
@@ -184,8 +186,7 @@ export class CADViewport {
     const az=p.lightAzimuth*Math.PI/180,el=p.lightElevation*Math.PI/180;
     this.studioLights?.[1].position.set(100*Math.cos(el)*Math.cos(az),100*Math.cos(el)*Math.sin(az),100*Math.sin(el));
     this.studioLights?.[2].position.set(-100*Math.cos(az),-100*Math.sin(az),50);
-    for(const [id,entry] of this.objects){entry.mesh.userData.defaultColor=p.defaultColor;entry.mesh.userData.baseColor=this.partColors[id]||p.defaultColor;this.metals.apply(entry.mesh.material,this.partFinishes[id]||key,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor,displayPreferences:p});applyDesignSurface(entry.mesh.material,this.partFinishes[id]||key,this.partSurfaces?.[id]);if(entry.mesh.material.transmission>0){entry.mesh.material.envMap=this.metals.environment||this.metals.studioTarget?.texture||null;entry.mesh.material.envMapIntensity=p.environmentIntensity;}applyBodyTexture(entry,this.partSurfaces?.[id]?.texture,this.surfaceTextureAssets,{anisotropy:Math.min(4,this.renderer.capabilities.getMaxAnisotropy()),onChange:()=>{this.lastFrameKey=null;this.applyTemporaryDisplay();},onError:error=>this.callbacks.onRenderError?.(error)});}
-    this.sceneLighting=sceneLightingState(key,this.partFinishes,[...this.objects.keys()].filter(id=>!this.hidden?.includes(id)));
+    for(const [id,entry] of this.objects){entry.mesh.userData.defaultColor=p.defaultColor;entry.mesh.userData.baseColor=this.partColors[id]||p.defaultColor;this.metals.apply(entry.mesh.material,this.partFinishes[id]||key,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor,displayPreferences:p});applyDesignSurface(entry.mesh.material,this.partFinishes[id]||key,this.partSurfaces?.[id]);applyCompoundColors(entry,this.partSurfaces?.[id]?.solidColors,entry.mesh.userData.baseColor);if(entry.mesh.material.transmission>0){entry.mesh.material.envMap=this.metals.environment||this.metals.studioTarget?.texture||null;entry.mesh.material.envMapIntensity=p.environmentIntensity;}applyBodyTexture(entry,this.partSurfaces?.[id]?.texture,this.surfaceTextureAssets,{anisotropy:Math.min(4,this.renderer.capabilities.getMaxAnisotropy()),onChange:()=>{this.lastFrameKey=null;this.applyTemporaryDisplay();},onError:error=>this.callbacks.onRenderError?.(error)});}
     this.setSelection(this.selected,this.topology);
     return METAL_FINISHES[key].label;
   }
@@ -327,7 +328,7 @@ export class CADViewport {
   onMove(e){this.lastPointerEvent=e;if(this.sketch){const p=this.sketchCoordinates(this.ray(e));if(p)this.hud.textContent=`当前轮廓平面 · X ${p[0].toFixed(1)}  Y ${p[1].toFixed(1)} mm · ${this.sketch.points.length} ${say('点','points')}`;return;}if(this.measuring||this.anchorDragEnabled){const moved=!this.lastSnapPosition||Math.hypot(e.clientX-this.lastSnapPosition[0],e.clientY-this.lastSnapPosition[1])>3;if(moved){this.snapCandidateIndex=0;this.lastSnapPosition=[e.clientX,e.clientY];}this.snapCandidates=this.findSnapCandidates(e,{constraint:this.anchorStart?this.anchorAxis:null,start:this.anchorStart});if(this.snapCandidates.length)this.showSnapCandidate();else this.updateHud();}}
   setDisplay(mode){if(!['solid','edges','wire','transparentEdges'].includes(mode))throw new Error('未知显示模式');applyViewportDisplay(this,mode);}
   toggleGrid(){this.grid.visible=!this.grid.visible;return this.grid.visible;}
-  bounds(){const box=new THREE.Box3();for(const entry of this.objects.values())if(entry.root.visible){box.expandByPoint(new THREE.Vector3(...entry.body.bounds.min));box.expandByPoint(new THREE.Vector3(...entry.body.bounds.max));}if(box.isEmpty())box.set(new THREE.Vector3(-15,-15,-5),new THREE.Vector3(15,15,20));return box;}
+  bounds(){const box=new THREE.Box3(),point=new THREE.Vector3();for(const entry of this.objects.values())if(entry.root.visible){box.expandByPoint(point.fromArray(entry.body.bounds.min));box.expandByPoint(point.fromArray(entry.body.bounds.max));}if(box.isEmpty())box.set(new THREE.Vector3(-15,-15,-5),new THREE.Vector3(15,15,20));return box;}
   // Progressive import preview: display-only batches streamed from the kernel
   // worker before the authoritative body arrives; cleared by setBodies/failure.
   addProgressiveMesh({positions,normals,indices}){
@@ -407,7 +408,21 @@ export class CADViewport {
       solidCount:sum('solidCount'),faceCount:sum('faceCount'),edgeCount:sum('edgeCount'),uniqueTriangles};
     const snapshot=this.performanceSampler.snapshot();return {...snapshot,counts:{...snapshot.counts,...this.performanceCounts}};
   }
-  renderFrame(forceFine=false,frame={}){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.logoGuide?.render();this.reliefGuide?.render();this.updateDisplayDetail(forceFine);for(const entry of this.objects.values())entry.edgeBatch?.sync();this.updateLocationMarkers();
+  updateDepthRange(){
+    if(this.progressRoot?.children.length||this.gizmoMode!=='off'||!this.objects.size)return;
+    const camera=this.camera,box=this.bounds(),view=camera.matrixWorldInverse.elements;
+    let min=Infinity,max=-Infinity;
+    for(const x of [box.min.x,box.max.x])for(const y of [box.min.y,box.max.y])for(const z of [box.min.z,box.max.z]){
+      const depth=-(view[2]*x+view[6]*y+view[10]*z+view[14]);
+      min=Math.min(min,depth);max=Math.max(max,depth);
+    }
+    if(max<=0)return;
+    const extent=Math.max(max-min,1),floor=Math.max(.001,(this.span||1)/10000);
+    const near=min>0?Math.max(.001,min*.8):floor;
+    const far=Math.max(near+extent,max+extent*.15);
+    if(near!==camera.near||far!==camera.far){camera.near=near;camera.far=far;camera.updateProjectionMatrix();}
+  }
+  renderFrame(forceFine=false,frame={}){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.updateDepthRange();this.logoGuide?.render();this.reliefGuide?.render();this.updateDisplayDetail(forceFine);for(const entry of this.objects.values())entry.edgeBatch?.sync();this.updateLocationMarkers();
     const stamp=[this.camera.matrixWorld.elements,this.camera.projectionMatrix.elements,this.scene.background?.getHex(),this.clipPlanes.map(p=>[p.normal.toArray(),p.constant]),this.renderer.toneMappingExposure,this.modelContext,this.scene.environment?.id,this.displayPreferences,this.finishKey,this.partFinishes,this.selected,this.topology];
     this.scene.traverse(o=>{if(o.geometry||o.isLight)stamp.push([o.id,o.visible,o.matrixWorld.elements,o.geometry?.id,o.intensity,o.material?.color?.getHex(),o.material?.emissive?.getHex(),o.material?.opacity,o.material?.wireframe,o.material?.version,o.material?.map?.id,o.material?.envMap?.id,o.material?.roughness,o.material?.metalness]);});
     const key=JSON.stringify(stamp),submitStart=performance.now(),autoReset=this.renderer.info.autoReset;let submittedTriangles=0,drawCalls=0;
@@ -428,7 +443,7 @@ export class CADViewport {
     else this.frameSource=await new Promise(resolve=>{let timer=null;const done=source=>{if(timer!==null)clearTimeout(timer);timer=null;resolve(source);};
       requestAnimationFrame(()=>done('animation-frame'));timer=setTimeout(()=>done('timer-fallback'),fallbackMs);});
     this.renderFrame();return this.displayState();}
-  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,sceneLighting:this.sceneLighting?.mode||'design',designBodiesUnderMetalLighting:this.sceneLighting?.designBodiesUnderMetalLighting||0,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray()}};}
+  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,sceneLighting:this.sceneLighting?.mode||'design',designBodiesUnderMetalLighting:this.sceneLighting?.designBodiesUnderMetalLighting||0,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,submittedTriangles:this.lastRenderedTriangles??0,refractionBodies:[...this.objects.values()].filter(entry=>entry.root.visible&&entry.mesh.material.transmission>0).length,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray(),near:this.camera.near,far:this.camera.far}};}
   evidenceSignature(){return evidenceDisplaySignature(this);}
   evidenceCapture(opts){return captureEvidence(this,opts);}
   screenshot(opts={}){

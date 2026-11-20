@@ -7,7 +7,7 @@ export class ExactDisplayDetail {
   constructor(viewport){this.viewport=viewport;this.pending=false;this.lastError=null;this.nextRequest=0;this.version=0;this.cachedKey=null;}
   attach(entry){
     this.version++;this.cachedKey=null;
-    if(!entry.body.adaptiveDisplay)return;
+    if(!entry.body.adaptiveDisplay||entry.body.faceSolidIndices)return;
     const {body,mesh}=entry,faces=body.faceGroups,adaptive=body.adaptiveDisplay;
     // Exact planar polygons have no screen-dependent refinement. Reuse the
     // installed indexed surface instead of allocating one draw object per face.
@@ -29,7 +29,7 @@ export class ExactDisplayDetail {
     const group=new THREE.Group(),base=entry.mesh.geometry,positions=base.attributes.position;
     let coarse;
     if(surfaceBatch){const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',positions);geometry.setAttribute('normal',base.attributes.normal);geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(body.indices),1));geometry.computeBoundingSphere();coarse=new THREE.Mesh(geometry,mesh.material);coarse.userData={type:'display-only',bodyId:body.id};group.add(coarse);}
-    const patches=entry.body.faceGroups.map(({start,count,faceId,exactPolygon})=>{
+    const patches=entry.body.faceGroups.filter(face=>face.count>0).map(({start,count,faceId,exactPolygon,recovered})=>{
       const geometry=surfaceBatch?{index:{count}}:new THREE.BufferGeometry();
       if(!surfaceBatch){geometry.setAttribute('position',positions);geometry.setAttribute('normal',base.attributes.normal);geometry.setIndex(new THREE.BufferAttribute(entry.body.indices.subarray(start,start+count),1));}
       const box=new THREE.Box3();const point=new THREE.Vector3();
@@ -37,7 +37,7 @@ export class ExactDisplayDetail {
       geometry.boundingBox=box;geometry.boundingSphere=box.getBoundingSphere(new THREE.Sphere());
       let piece=null;if(!surfaceBatch){piece=new THREE.Mesh(geometry,entry.mesh.material);piece.userData={type:'display-only',faceId,bodyId:entry.body.id};group.add(piece);}
       const heavy=!!entry.body.adaptiveDisplay.heavyFaceIds?.includes(faceId);
-      return {start,count,faceId,exactPolygon,piece,base:geometry,fine:null,visible:false,tolerance:heavy?entry.body.adaptiveDisplay.initialTolerance:EXACT_DISPLAY.initialTolerance,lastUsed:0,limited:heavy};
+      return {start,count,faceId,exactPolygon,piece,base:geometry,fine:null,visible:false,tolerance:heavy?entry.body.adaptiveDisplay.initialTolerance:EXACT_DISPLAY.initialTolerance,lastUsed:0,limited:heavy||recovered};
     });
     entry.root.add(group);entry.exactDisplay={group,patches,surfaceBatch,coarse,coarseKey:null};
   }
