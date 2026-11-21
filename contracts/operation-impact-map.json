@@ -4291,6 +4291,15 @@
       "Client native artifact reuse and final-state cold reopen; matching local/production/workspace release identities"
     ]
   },
+  "organicTrimDisplay": {
+    "localImpact": "Use one OCCT triangulation for bounded solids with an inner wire on a moderately dense spline. Small adjacent detail faces can cross the single-face pole limit while the combined body remains within the shape budget.",
+    "servicesImpact": "None; browser display only.",
+    "logoImpact": "None; the exact source and SVG/LOGO workers are unaffected.",
+    "contractImpact": "Existing body displayReport can identify tessellationMode shared-trimmed-edges.",
+    "documentImpact": "No changes to geometry, feature parameters or serialized source.",
+    "cacheImpact": "Renderer and Worker build identity changes; old visible frames require the new build.",
+    "requiredTests": ["Native vs grid depth on the sculpted nostril trim", "Bounded trim policy and retained heavy-face limits", "Matched-camera rendering in localhost WebCAD"]
+  },
   "booleanResultSelection": {
     "localImpact": "Explicit strict interior world point selects a result solid after a cut, with a required discarded-volume limit. No size heuristic.",
     "servicesImpact": "Acceptance-gated boolean.cut-1.1 preserves ordered input hashes and includes selection parameters in the physical cache key. Poll interval 1000 ms avoids exhausting anonymous read quota.",

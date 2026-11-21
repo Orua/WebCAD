@@ -36,7 +36,7 @@ import {buildEllipsoid} from './ellipsoid.js';
 import {renderQuality} from './render-quality.js';
 import {EXACT_DISPLAY} from './viewport/exact-display-policy.js';
 import {displayEdges,preciseDisplayEdges,displayMetadata,isPlanarPolygon} from './modeling/io/adaptive-display.js';
-import {DISPLAY_BUDGET,displayComplexity,displayRefinementError,isWasmMemoryError,meshFacesProgressively,recoverMissingFaces} from './modeling/io/display-budget.js';
+import {DISPLAY_BUDGET,displayComplexity,displayRefinementError,isWasmMemoryError,meshFacesProgressively,recoverMissingFaces,canMeshTrimmedBodyTogether} from './modeling/io/display-budget.js';
 import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
 import {buildRelief} from './modeling/manufacturing/relief.js';
@@ -1040,8 +1040,17 @@ export class CadKernel {
     const adaptive=complexity.adaptive;
     const settings=complexity.heavy||complexity.totalPoles>=DISPLAY_BUDGET.adaptivePoles?{tolerance:complexity.tolerance,angularTolerance:complexity.angularTolerance}:adaptive?{tolerance:EXACT_DISPLAY.initialTolerance,angularTolerance:EXACT_DISPLAY.initialAngle}:requested;
     this.reportRebuildProgress('surface-mesh','生成曲面显示',{completed:0,total:faces.length});
-    let mesh;
-    try{mesh=adaptive?meshFacesProgressively(faces,settings,batch=>this.reportRebuildProgress('surface-mesh','生成曲面显示',{completed:batch.completed,total:batch.total,triangles:batch.triangles,partial:{bodyId:feature.id,positions:batch.positions,normals:batch.normals,indices:batch.indices}}),this.oc):shape.mesh(settings);}
+    let mesh,sharedTrimMesh=false;
+    try{
+      if(adaptive&&canMeshTrimmedBodyTogether(complexity,faces)){
+        try{
+          const candidate=shape.mesh(settings);
+          const covered=new Set(candidate.faceGroups.filter(group=>group.count>0).map(group=>group.faceId));
+          if(faces.every(face=>covered.has(face.hashCode))){mesh=candidate;sharedTrimMesh=true;}
+        }catch(error){if(isWasmMemoryError(error))throw error;}
+      }
+      mesh??=adaptive?meshFacesProgressively(faces,settings,batch=>this.reportRebuildProgress('surface-mesh','生成曲面显示',{completed:batch.completed,total:batch.total,triangles:batch.triangles,partial:{bodyId:feature.id,positions:batch.positions,normals:batch.normals,indices:batch.indices}}),this.oc):shape.mesh(settings);
+    }
     catch(error){throw displayRefinementError(error);}
     mesh=recoverMissingFaces(mesh,faces,settings);
     this.reportRebuildProgress('edge-mesh','生成边线显示');
@@ -1061,6 +1070,7 @@ export class CadKernel {
         geometry?{...geometry,...this.displayMassProperties(shape,geometry.solidCount,deferMassProperties)}:this.measureBodyGeometry(shape,faces,edges,deferMassProperties);
       const mappedFaces = mesh.faceGroups.map(g => ({ ...g, faceId: faceMap.get(g.faceId),...(adaptive?{exactPolygon:isPlanarPolygon(faces[faceMap.get(g.faceId)])}:{}) }));
       measured.displayReport=meshIntegrity(mesh.vertices,mesh.triangles,{faceCount:faces.length,faceGroups:mappedFaces,brepVolumeMm3:measured.volume});
+      if(sharedTrimMesh)measured.displayReport.tessellationMode='shared-trimmed-edges';
       measured.displayReport.recoveredFaceIds=mappedFaces.filter(group=>group.recovered).map(group=>group.faceId);
       if(shape.variationReport)measured.variationReport=shape.variationReport;
       if(shape.booleanReport)measured.booleanReport=shape.booleanReport;
@@ -1080,7 +1090,7 @@ export class CadKernel {
       mappedEdges??=wire.edgeGroups.map(g => ({edgeId:edgeMap.get(g.edgeId),positions:Array.from(wire.lines.slice(g.start*3,(g.start+g.count)*3))}));
       if(adaptive)measured.snapPoints=mappedEdges.filter(e=>e.positions.length).flatMap(e=>[{point:e.positions.slice(0,3),type:'endpoint',edgeId:e.edgeId},{point:e.positions.slice(-3),type:'endpoint',edgeId:e.edgeId}]);
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,adaptiveDisplay:adaptive?{initialTolerance:settings.tolerance,requestedQuality:quality,source:'exact-brep',sourceChanged:false,heavyFaceIds:complexity.poles.flatMap((n,i)=>n>=DISPLAY_BUDGET.adaptivePoles?[i]:[]),...(complexity.unsafeRequestedTolerance?{limited:true,requestedTolerance:requested.tolerance,budgetedTolerance:settings.tolerance}:{}),...(complexity.heavy?{heavy:true,heavyFaceIds:[...complexity.heavyFaces],splinePoles:complexity.totalPoles,coarsen:this.displayCoarsen||1}:{})}:undefined,logoProjectionReport:shape.logoProjectionReport,badgeReport:shape.badgeReport,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport,chainReport:shape.chainReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,adaptiveDisplay:adaptive&&!sharedTrimMesh?{initialTolerance:settings.tolerance,requestedQuality:quality,source:'exact-brep',sourceChanged:false,heavyFaceIds:complexity.poles.flatMap((n,i)=>n>=DISPLAY_BUDGET.adaptivePoles?[i]:[]),...(complexity.unsafeRequestedTolerance?{limited:true,requestedTolerance:requested.tolerance,budgetedTolerance:settings.tolerance}:{}),...(complexity.heavy?{heavy:true,heavyFaceIds:[...complexity.heavyFaces],splinePoles:complexity.totalPoles,coarsen:this.displayCoarsen||1}:{})}:undefined,logoProjectionReport:shape.logoProjectionReport,badgeReport:shape.badgeReport,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport,chainReport:shape.chainReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges].forEach(dispose); }
   }
   async rebuild(document,{displayCoarsen=1,headless=false,deferMassProperties=false}={}) {

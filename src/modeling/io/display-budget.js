@@ -11,6 +11,20 @@ export const DISPLAY_BUDGET=Object.freeze({heavyFacePoles:20000,heavyShapePoles:
   // Display chord targets as a fraction of the bounding-box diagonal.
   heavyDiagonalFraction:1/128,maxTolerance:5,coarsenFactor:4,streamTriangleBatch:60000,adaptivePoles:4096});
 const emptyFaceMesh=()=>({vertices:new Float32Array(),normals:new Float32Array(),triangles:new Uint32Array()});
+// The knot-grid preview masks whole cells at a trim. On a moderately dense
+// spline this can erase real material around a hole. Mesh the bounded solid
+// together so OCCT uses the same trim discretization on adjacent faces.
+export function canMeshTrimmedBodyTogether(complexity,faces){
+  if(complexity.heavy||faces.length>=200)return false;
+  // Extra small faces from local blends can push the body past the single-face
+  // limit. Keep a lone dense face stitched to them within the shape budget.
+  if(complexity.totalPoles>=DISPLAY_BUDGET.heavyFacePoles&&complexity.largeFaces.size!==1)return false;
+  for(const i of complexity.largeFaces){
+    const wires=faces[i].wires;
+    try{if(wires.length>1)return true;}finally{wires.forEach(dispose);}
+  }
+  return false;
+}
 const PRESERVED_DISPLAY_CODES=new Set(['DISPLAY_REFINEMENT_FAILED','RESOURCE_LIMIT','PARAM_SCHEMA_INVALID','STALE_DISPLAY','STALE_REFERENCE','CAPABILITY_UNAVAILABLE','KERNEL_CRASHED','KERNEL_TIMEOUT']);
 export function isWasmMemoryError(error){
   const message=String(error?.message||error||''),name=String(error?.name||'');

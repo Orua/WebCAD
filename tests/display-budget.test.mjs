@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {RENDER_QUALITIES} from '../src/render-quality.js';
-import {DISPLAY_BUDGET,displayComplexity,displayRefinementError,isWasmMemoryError,meshFacesProgressively} from '../src/modeling/io/display-budget.js';
+import {DISPLAY_BUDGET,displayComplexity,displayRefinementError,isWasmMemoryError,meshFacesProgressively,canMeshTrimmedBodyTogether} from '../src/modeling/io/display-budget.js';
 import {meshIntegrity} from '../src/modeling/io/mesh-integrity.js';
 import {bodyWarnings} from '../src/body-state.js';
 import {CadKernel} from '../src/cad-kernel.js';
@@ -62,6 +62,20 @@ test('small parts still receive the requested fine tolerance',()=>{
   assert.equal(fine.heavy,false);
   assert.equal(fine.unsafeRequestedTolerance,false);
   assert.equal(fine.tolerance,RENDER_QUALITIES.fine.tolerance);
+});
+
+test('bounded dense trimmed faces use shared edges; heavy and untrimmed faces retain their display policy',()=>{
+  let releases=0;
+  const wire=()=>({delete(){releases++;}});
+  const faces=[{get wires(){return [wire(),wire()];}}];
+  const budget={heavy:false,totalPoles:10500,largeFaces:new Set([0])};
+  assert.equal(canMeshTrimmedBodyTogether(budget,faces),true);
+  assert.equal(releases,2);
+  assert.equal(canMeshTrimmedBodyTogether({...budget,heavy:true},faces),false);
+  assert.equal(canMeshTrimmedBodyTogether({...budget,totalPoles:26921},faces),true);
+  assert.equal(canMeshTrimmedBodyTogether({...budget,totalPoles:26921,largeFaces:new Set([0,1])},faces),false);
+  assert.equal(canMeshTrimmedBodyTogether(budget,[{get wires(){return [wire()];}}]),false);
+  assert.equal(releases,5);
 });
 
 test('truly heavy faces still use the diagonal budget rather than a silent skip of validation',()=>{
