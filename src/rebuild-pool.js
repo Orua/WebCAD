@@ -67,12 +67,12 @@ export class RebuildPool {
    slot.worker.send({requestId,document,featureId});
   });}finally{slot.busy=false;}
  }
- async rebuild(document,{kernel,displayCoarsen=1,headless=false,onProgress=()=>{}}={}){
+ async rebuild(document,{kernel,displayCoarsen=1,headless=false,deferMassProperties=false,onProgress=()=>{}}={}){
   if(this.closed)throw new Error('重建池已关闭');
   const immutable=clone(document),graph=plan(immutable),completed=new Map(),scheduled=new Set(),ready=()=>immutable.features.filter(f=>graph.remaining.get(f.id)===0&&!scheduled.has(f.id));
   // This decision is made before any work starts. Asset/mesh paths are never
   // retried serially after a parallel geometry failure.
-  if(graph.serial.size){if(!kernel)throw Object.assign(new Error('此工程按预计划须由父级 CadKernel 串行重建'),{code:'SERIAL_REBUILD_REQUIRED'});const result=await kernel.rebuild(immutable,{displayCoarsen,headless});return {document:immutable,result,perFeatureMs:result.perFeatureMs||[]};}
+  if(graph.serial.size){if(!kernel)throw Object.assign(new Error('此工程按预计划须由父级 CadKernel 串行重建'),{code:'SERIAL_REBUILD_REQUIRED'});const result=await kernel.rebuild(immutable,{displayCoarsen,headless,deferMassProperties});return {document:immutable,result,perFeatureMs:result.perFeatureMs||[]};}
   await this.ensureWorkers();
   const free=()=>this.workers.find(w=>!w.busy);const running=new Map();
   const completionOrder=[];
@@ -87,7 +87,7 @@ export class RebuildPool {
    const checkpointed=new Map(),artifacts={...(immutable.compiledArtifacts||{})};
    for(const feature of immutable.features){const partial=makeTaskDocument(immutable,feature.id,completed);const row=partial.features.find(f=>f.id===feature.id);if(row)checkpointed.set(feature.id,row);Object.assign(artifacts,partial.compiledArtifacts);}
    const temporary={...immutable,version:4,binaryAssets:immutable.binaryAssets||{},features:immutable.features.map(f=>checkpointed.get(f.id)||clone(f)),compiledArtifacts:artifacts};
-   const finalResult=kernel?await kernel.rebuild(temporary,{displayCoarsen,headless}):undefined;
+   const finalResult=kernel?await kernel.rebuild(temporary,{displayCoarsen,headless,deferMassProperties}):undefined;
    return {document:temporary,result:finalResult,completionOrder,perFeatureMs:immutable.features.map(f=>({featureId:f.id,ms:completed.get(f.id)?.elapsedMs??0,threadId:completed.get(f.id)?.threadId}))};
   }catch(error){this.failed=true;await this.dispose();throw Object.assign(error instanceof Error?error:new Error(String(error)),{featureId:error?.featureId||error?.cause?.featureId});}
  }

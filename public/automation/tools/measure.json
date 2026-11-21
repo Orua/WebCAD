@@ -2,7 +2,7 @@
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.72.0",
+  "version": "1.74.0",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -23,7 +23,7 @@
     "半径"
   ],
   "inputContract": "measure({context,bodyId,kind?:\"body\"|\"face\"|\"edge\",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。",
-  "outputContract": "status=read、单位与当前 context。实体返回 bounds/volume/area/solidCount/shellCount；area 为全部 BREP 面的面积 mm²，含孔壁/内腔，组合件按组成面累加，不先融合重叠体。无实体时 volume=null，纯线形状 area=0。面返回 area，边返回 length，圆边另有 radius/diameter。实体/面/边使用 source=exact-brep；两点距离使用 source=provided-coordinates，不声称取自模型。",
+  "outputContract": "status=read、单位与当前 context。实体返回 bounds/volume/area/solidCount/shellCount；待计算的工程实体按需量测并回填当前对象。area 为全部 BREP 面的面积 mm²，含孔壁/内腔，组合件按组成面累加，不先融合重叠体。无实体时 volume=null，纯线形状 area=0。面返回 area，边返回 length，圆边另有 radius/diameter。实体/面/边使用 source=exact-brep；两点距离使用 source=provided-coordinates，不声称取自模型。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -239,5 +239,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:496b90a80d07c5141b6852b62feebd587afc02bf4787920d458edbb4570af553"
+  "docsHash": "sha256:dc40d6708f21b924405c4ef3d98b8d2f557a3b1e47901a8da2719574016c3ca9"
 }

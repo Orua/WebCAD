@@ -352,7 +352,8 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Preserves original; defaults same as transform."
+    "Preserves original; defaults same as transform.",
+    "For an exact BRep, mode \"align\" with resolved placement uses the source geometry and a rigid location. The assigned body ID and appearance are independent. A final-state project stores the shared BRep once and a location for each object."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -1204,5 +1205,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:340cc1aee4cb59cdde3d04bd00f32c140f4ded2652dde02104fcead70fa584db"
+  "docsHash": "sha256:9c9779e7d0b2fb7a42d8d3d8740f4db24a22ff08b3753f99a8a736986997211f"
 }

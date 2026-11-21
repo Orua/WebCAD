@@ -202,7 +202,13 @@ export function createPageAPI(host){
     configureAgentPanel:guarded(async input=>{requireIntegratedCapability();check(input,['context','url']);if(typeof input.url!=='string')fail('PARAM_SCHEMA_INVALID','url must be a string');return window.webcad.assistantPanel.configure(input.url);}),
     setAgentPanel:guarded(async input=>{requireIntegratedCapability();check(input,['context','visible','layout']);if(input.visible!==undefined&&typeof input.visible!=='boolean')fail('PARAM_SCHEMA_INVALID','visible must be boolean');if(input.visible===undefined&&input.layout===undefined)fail('PARAM_SCHEMA_INVALID','visible or layout is required');if(input.layout!==undefined){if(input.visible!==undefined)fail('PARAM_SCHEMA_INVALID','Change visibility and layout in separate requests');return window.webcad.assistantPanel.setLayout(input.layout);}return input.visible?window.webcad.assistantPanel.enter():window.webcad.assistantPanel.exit();}),
     getHistory:()=>host.history(),
-    planAlignment:guarded(async input=>{check(input,['context','bodyIds','target','axes','sourceSide','targetSide','group','gapMm']);return {status:'read',...host.planAlignment(input),context:current().context};}),
+    planAlignment:guarded(async input=>{
+      const keys=['context','bodyIds','target','axes','sourceSide','targetSide','group','gapMm'];
+      check(input,keys);
+      const {context,...args}=input,plan=await host.planAlignment(args,{expectedRevision:context.expectedRevision});
+      check(input,keys);
+      return {status:'read',...plan,context:current().context};
+    }),
     selectRectangle:guarded(async input=>{check(input,['context','rect','mode','additive']);if(input.additive!==undefined&&typeof input.additive!=='boolean')fail('PARAM_SCHEMA_INVALID','additive must be boolean');return host.selectRectangle(input);}),
     createDrawing:guarded(async input=>{
       const s=check(input,['context','bodyIds','projection','sections','hiddenLines']);
@@ -772,7 +778,9 @@ export function createPageAPI(host){
       if(input.workspace!==undefined&&!['modeling','library','agent'].includes(input.workspace))fail('PARAM_SCHEMA_INVALID','workspace must be modeling/library/agent');
       if(input.libraryMode!==undefined&&!['cards','list'].includes(input.libraryMode))fail('PARAM_SCHEMA_INVALID','libraryMode must be cards/list');
       if(input.panels!==undefined&&(!input.panels||typeof input.panels!=='object'||Array.isArray(input.panels)||Object.entries(input.panels).some(([key,value])=>!['left','right'].includes(key)||typeof value!=='boolean')))fail('PARAM_SCHEMA_INVALID','panels requires left/right booleans');
-      if(input.camera!==undefined){const c=input.camera;if(!c||typeof c!=='object'||Object.keys(c).some(k=>!['position','target','up'].includes(k))||[c.position,c.target].some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v)))||c.position.every((v,i)=>v===c.target[i]))fail('PARAM_SCHEMA_INVALID','camera requires distinct finite XYZ position and target');if(c.up!==undefined&&c.up!=='inherit'){const view=c.position.map((v,i)=>c.target[i]-v),cross=[view[1]*c.up?.[2]-view[2]*c.up?.[1],view[2]*c.up?.[0]-view[0]*c.up?.[2],view[0]*c.up?.[1]-view[1]*c.up?.[0]];if(!Array.isArray(c.up)||c.up.length!==3||c.up.some(v=>!Number.isFinite(v))||Math.hypot(...c.up)<1e-9||Math.hypot(...cross)<1e-9*Math.hypot(...view)*Math.hypot(...c.up))fail('PARAM_SCHEMA_INVALID','camera.up must be a finite non-zero XYZ vector not parallel to the view direction, or "inherit"');}}
+      if(input.camera!==undefined){const c=input.camera;if(!c||typeof c!=='object'||Object.keys(c).some(k=>!['position','target','up','orthographicHeightMm'].includes(k))||[c.position,c.target].some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v)))||c.position.every((v,i)=>v===c.target[i]))fail('PARAM_SCHEMA_INVALID','camera requires distinct finite XYZ position and target');if(c.up!==undefined&&c.up!=='inherit'){const view=c.position.map((v,i)=>c.target[i]-v),cross=[view[1]*c.up?.[2]-view[2]*c.up?.[1],view[2]*c.up?.[0]-view[0]*c.up?.[2],view[0]*c.up?.[1]-view[1]*c.up?.[0]];if(!Array.isArray(c.up)||c.up.length!==3||c.up.some(v=>!Number.isFinite(v))||Math.hypot(...c.up)<1e-9||Math.hypot(...cross)<1e-9*Math.hypot(...view)*Math.hypot(...c.up))fail('PARAM_SCHEMA_INVALID','camera.up must be a finite non-zero XYZ vector not parallel to the view direction, or "inherit"');}}
+      if(input.camera?.orthographicHeightMm!==undefined&&(input.projection??current().view?.projection)!=='orthographic')
+        fail('PARAM_SCHEMA_INVALID','camera.orthographicHeightMm requires orthographic projection','camera.orthographicHeightMm');
       if(input.direction&&!['top','bottom','front','back','left','right','side','iso'].includes(input.direction))fail('PARAM_SCHEMA_INVALID','Unknown view');
       if(input.projection&&!['orthographic','perspective'].includes(input.projection))fail('PARAM_SCHEMA_INVALID','Unknown projection');
       if(input.fit!==undefined&&typeof input.fit!=='boolean')fail('PARAM_SCHEMA_INVALID','fit must be boolean');

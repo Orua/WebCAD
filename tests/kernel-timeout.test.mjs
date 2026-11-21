@@ -16,7 +16,7 @@ test('ordinary rebuild gets a terminating deadline above the soft reminder',()=>
 
 test('main rebuild passes the hard deadline and restores the committed kernel on timeout',()=>{
   const main=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
-  assert.match(main,/request\('rebuild',\{document:next\},\{hardTimeoutMs:hardTimeoutMs\?\?rebuildHardTimeoutMs\(getServicesConfig\(\)\.localTimeoutMs\)\}\)/);
+  assert.match(main,/request\('rebuild',\{document:next,deferMassProperties\},\{hardTimeoutMs:hardTimeoutMs\?\?rebuildHardTimeoutMs\(getServicesConfig\(\)\.localTimeoutMs\)\}\)/);
   assert.match(main,/'KERNEL_TIMEOUT'/);assert.match(main,/commitState:'not_committed'/);
   assert.match(main,/job\.clock\?\.finish\(\)/);
   assert.match(main,/if\(!committed&&kernelFailure\(error\)\)\{[\s\S]{0,200}restartWorker\(error\)/);

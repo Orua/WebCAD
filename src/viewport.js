@@ -339,13 +339,46 @@ export class CADViewport {
   }
   clearProgressiveMesh(){if(!this.progressRoot)return;for(const mesh of this.progressRoot.children)mesh.geometry.dispose();this.progressRoot.clear();}
   fit(box=this.bounds()){const center=box.getCenter(new THREE.Vector3()),size=box.getSize(new THREE.Vector3());this.span=Math.max(size.x,size.y,size.z,5);const dir=this.camera.position.clone().sub(this.controls.target).normalize();const aspect=this.camera.aspect||1;const legacyExtent=this.span*Math.max(1,1/aspect)*1.55;const extent=this.camera.isOrthographicCamera?orthographicFitExtent(box,this.camera,aspect,legacyExtent):legacyExtent;const distance=extent/(2*Math.tan(THREE.MathUtils.degToRad(35/2)));if(this.camera.isOrthographicCamera){this.camera.top=extent/2;this.camera.bottom=-extent/2;this.camera.left=-extent*aspect/2;this.camera.right=extent*aspect/2;this.camera.zoom=1;}this.controls.target.copy(center);this.camera.position.copy(center).addScaledVector(dir,distance);this.camera.near=Math.max(.001,this.span/10000);this.camera.far=Math.max(10000,this.span*500);this.camera.updateProjectionMatrix();this.controls.update();this.updateHud();}
-  setProjection(mode,{fit=true}={}){const old=this.camera,aspect=old.aspect||1;if((mode==='orthographic')===!!old.isOrthographicCamera)return;const cam=mode==='orthographic'?new THREE.OrthographicCamera(-50,50,50,-50,.01,100000):new THREE.PerspectiveCamera(35,aspect,.01,100000);cam.aspect=aspect;cam.position.copy(old.position);cam.up.copy(old.up);cam.quaternion.copy(old.quaternion);this.camera=cam;this.gizmo.camera=cam;this.anchorGizmo.camera=cam;this.controls.object=cam;this.controls.update();if(fit){this.fit();return;}const distance=Math.max(cam.position.distanceTo(this.controls.target),1);if(cam.isOrthographicCamera){const extent=2*distance*Math.tan(THREE.MathUtils.degToRad(35/2));cam.top=extent/2;cam.bottom=-extent/2;cam.left=-extent*aspect/2;cam.right=extent*aspect/2;cam.zoom=1;}cam.near=Math.max(.001,(this.span||distance)/10000);cam.far=Math.max(10000,(this.span||distance)*500);cam.updateProjectionMatrix();}
-  setCamera({position,target,up}={}){
+  setOrthographicHeight(height){
+    const cam=this.camera,half=height/2,aspect=cam.aspect||1;
+    cam.top=half;cam.bottom=-half;cam.left=-half*aspect;cam.right=half*aspect;cam.zoom=1;
+    cam.updateProjectionMatrix();
+  }
+  orthographicHeightForDistance(distance){
+    return 2*Math.max(distance,1)*Math.tan(THREE.MathUtils.degToRad(35/2));
+  }
+  cameraPose(){
+    const cam=this.camera;
+    return {position:cam.position.toArray(),target:this.controls.target.toArray(),up:cam.up.toArray(),
+      ...(cam.isOrthographicCamera?{orthographicHeightMm:(cam.top-cam.bottom)/cam.zoom}:{})};
+  }
+  setProjection(mode,{fit=true,orthographicHeightMm}={}){
+    const old=this.camera,aspect=old.aspect||1,orthographic=mode==='orthographic';
+    if(orthographic===!!old.isOrthographicCamera)return;
+    const cam=orthographic?new THREE.OrthographicCamera(-50,50,50,-50,.01,100000):new THREE.PerspectiveCamera(35,aspect,.01,100000);
+    cam.aspect=aspect;cam.position.copy(old.position);cam.up.copy(old.up);cam.quaternion.copy(old.quaternion);
+    this.camera=cam;this.gizmo.camera=cam;this.anchorGizmo.camera=cam;this.controls.object=cam;this.controls.update();
+    if(fit){this.fit();return;}
+    const distance=cam.position.distanceTo(this.controls.target),span=this.span||Math.max(distance,1);
+    cam.near=Math.max(.001,span/10000);cam.far=Math.max(10000,span*500);
+    if(orthographic)this.setOrthographicHeight(orthographicHeightMm??this.orthographicHeightForDistance(distance));
+    else cam.updateProjectionMatrix();
+  }
+  setCamera({position,target,up,orthographicHeightMm}={}){
     // Drain residual orbit/pan deltas before installing an absolute pose.
     // R7-012: an explicit camera uses Z-up unless up is given; up:'inherit'
     // keeps the previous roll (e.g. after a top/bottom view).
     const damping=this.controls.enableDamping;this.controls.enableDamping=false;
-    try{this.controls.update();if(Array.isArray(up))this.camera.up.fromArray(up).normalize();else if(up!=='inherit')this.camera.up.set(0,0,1);this.camera.position.fromArray(position);this.controls.target.fromArray(target);this.controls.update();}
+    try{
+      this.controls.update();
+      const cam=this.camera,before=cam.position.distanceTo(this.controls.target);
+      if(Array.isArray(up))cam.up.fromArray(up).normalize();else if(up!=='inherit')cam.up.set(0,0,1);
+      cam.position.fromArray(position);this.controls.target.fromArray(target);this.controls.update();
+      const after=cam.position.distanceTo(this.controls.target);
+      // Orbiting or panning at the same distance keeps the user's wheel zoom.
+      if(cam.isOrthographicCamera&&(orthographicHeightMm!==undefined||Math.abs(after-before)>1e-9*Math.max(1,before,after)))
+        this.setOrthographicHeight(orthographicHeightMm??this.orthographicHeightForDistance(after));
+    }
     finally{this.controls.enableDamping=damping;}
   }
   view(direction='iso'){const vectors={iso:[1,-1,.85],front:[0,-1,0],back:[0,1,0],top:[0,0,1],bottom:[0,0,-1],left:[-1,0,0],right:[1,0,0]};const distance=this.camera.position.distanceTo(this.controls.target);this.camera.up.set(0,0,1);if(direction==='top'||direction==='bottom')this.camera.up.set(0,1,0);const target=this.bounds().getCenter(new THREE.Vector3());this.setCamera({position:target.clone().addScaledVector(new THREE.Vector3(...(vectors[direction]||vectors.iso)).normalize(),distance).toArray(),target:target.toArray(),up:'inherit'});this.fit();}
@@ -443,7 +476,7 @@ export class CADViewport {
     else this.frameSource=await new Promise(resolve=>{let timer=null;const done=source=>{if(timer!==null)clearTimeout(timer);timer=null;resolve(source);};
       requestAnimationFrame(()=>done('animation-frame'));timer=setTimeout(()=>done('timer-fallback'),fallbackMs);});
     this.renderFrame();return this.displayState();}
-  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,sceneLighting:this.sceneLighting?.mode||'design',designBodiesUnderMetalLighting:this.sceneLighting?.designBodiesUnderMetalLighting||0,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,submittedTriangles:this.lastRenderedTriangles??0,refractionBodies:[...this.objects.values()].filter(entry=>entry.root.visible&&entry.mesh.material.transmission>0).length,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',position:this.camera.position.toArray(),target:this.controls.target.toArray(),up:this.camera.up.toArray(),near:this.camera.near,far:this.camera.far}};}
+  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,sceneLighting:this.sceneLighting?.mode||'design',designBodiesUnderMetalLighting:this.sceneLighting?.designBodiesUnderMetalLighting||0,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,submittedTriangles:this.lastRenderedTriangles??0,refractionBodies:[...this.objects.values()].filter(entry=>entry.root.visible&&entry.mesh.material.transmission>0).length,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',...this.cameraPose(),near:this.camera.near,far:this.camera.far}};}
   evidenceSignature(){return evidenceDisplaySignature(this);}
   evidenceCapture(opts){return captureEvidence(this,opts);}
   screenshot(opts={}){

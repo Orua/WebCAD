@@ -52,7 +52,7 @@ export function inspectDesignRequirements(requirements,kernel,cad,oc){
   const shapes=new Map(requirements.map(r=>[r.bodyId,kernel.activeShape(r.bodyId)]));
   const measurements=new Map(),boundaries=new Map(),isolated=new Map(),insideVertices=new Map(),distanceCache=new Map();
   const dispose=value=>value?.delete?.();
-  const measure=id=>{if(!measurements.has(id))measurements.set(id,kernel.measure(id));return measurements.get(id);};
+  const measure=id=>{if(!measurements.has(id)){const shape=shapes.get(id);measurements.set(id,shape.geometryType==='mesh'?shape.metrics():kernel.bodyDimensions(shape));}return measurements.get(id);};
   function prepare(bodyId){
     if(insideVertices.has(bodyId))return;
     if(measure(bodyId).solidCount!==1)fail('DESIGN_CHECK_UNSUPPORTED','Material samples require one solid',bodyId);

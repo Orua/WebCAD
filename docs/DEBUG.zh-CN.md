@@ -1,5 +1,7 @@
 # Debug 诊断接口
 
+Worker 硬超时时，内核日志的 hard-stop 事件保留原请求 ID、超时长度、阶段和最后上报的特征 ID。恢复状态的 failedPhase / failedFeatureId 仍指向原任务。
+
 自 Page API **1.57.25** 提供。入口是设置菜单最后的 **Debug**，与下列 API 共用同一份脱敏日志。开发排查先读取诊断，核对原请求和提交状态；不要通过重复计算来取代定位。
 
 ```js

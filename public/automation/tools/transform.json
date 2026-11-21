@@ -363,7 +363,8 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original. sizeMm:[X,Y,Z] with resizeAnchor:min|center|max is a standalone exact affine body-size feature; omit placement, mode, rotations and translations. Supports imported BRep and Float64 meshes; holes/radii scale along each axis. resizeReport reads source/target/actual sizes, factors and fixed pivot. It does not recover original CAD constraints."
+    "Defaults relative translations/angles=0,scale=1. Absolute mode requires XYZ and places final bounding-box center there. Rotation and scale are about world origin. align:{axis:\"z\",to:\"min\",valueMm:0} recomputes the exact world bounding-box shift on every rebuild, after optional rotation/scale; omit placement, mode, positionMode and translation fields. body.alignmentReport returns the actual delta. Replaces original. sizeMm:[X,Y,Z] with resizeAnchor:min|center|max is a standalone exact affine body-size feature; omit placement, mode, rotations and translations. Supports imported BRep and Float64 meshes; holes/radii scale along each axis. resizeReport reads source/target/actual sizes, factors and fixed pivot. It does not recover original CAD constraints.",
+    "For an exact BRep, mode \"align\" with resolved placement uses the source geometry and a rigid location. The assigned body ID and appearance are independent. A final-state project stores the shared BRep once and a location for each object."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -1225,5 +1226,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:04d7eab0233a392a4e99c53de5f4af1785eade18ea696342551b58b32b8d78a3"
+  "docsHash": "sha256:f742cadb6be67ad2b45c5d015babdb1d6699ea58aefc3e00add3315eace75769"
 }

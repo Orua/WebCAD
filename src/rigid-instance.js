@@ -1,4 +1,6 @@
 import * as cad from 'replicad';
+import {resolveAlignPose} from './align-mode.js';
+import {rotateVector} from './work-frame.js';
 
 export const identityMatrix=()=>[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];
 export const multiplyMatrix=(a,b)=>Array.from({length:16},(_,i)=>{const r=i%4,c=Math.floor(i/4);let v=0;for(let k=0;k<4;k++)v+=a[k*4+r]*b[c*4+k];return v;});
@@ -15,6 +17,19 @@ export function locateBrep(shape,m,oc){
   validateRigidMatrix(m);const trsf=new oc.gp_Trsf();let builder;
   try{trsf.SetValues(...[0,1,2].flatMap(r=>[m[r],m[4+r],m[8+r],m[12+r]]));builder=new oc.BRepBuilderAPI_Transform(shape.wrapped,trsf,false,false);return cad.cast(builder.Shape());}
   finally{builder?.delete();trsf.delete();}
+}
+export function rigidAlignmentMatrix(params,frame){
+  const {sourcePoint,targetPoint,rotationQuaternion}=resolveAlignPose(params,frame);
+  const matrix=identityMatrix();
+  if(Math.hypot(...rotationQuaternion.slice(0,3))>1e-12){
+    for(let i=0;i<3;i++){
+      const axis=[0,0,0];axis[i]=1;
+      matrix.splice(i*4,3,...rotateVector(rotationQuaternion,axis));
+    }
+  }
+  const rotatedSource=transformPoint(matrix,sourcePoint);
+  for(let i=0;i<3;i++)matrix[12+i]=targetPoint[i]-rotatedSource[i];
+  return matrix;
 }
 export function rigidCopyMatrix(params,bounds){
   if(params.mode||params.sizeMm||params.align||(params.scale??1)!==1)return null;

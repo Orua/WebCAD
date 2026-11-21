@@ -789,7 +789,7 @@
       "body.align"
     ],
     "method": "execute",
-    "usage": "显式指定移动bodyIds和target；X/Y/Z、min/center/max、group保持相对位置。"
+    "usage": "显式指定移动bodyIds和target、世界轴、对齐位置和group。查看位移与应用都按需读取参与对象的正式几何范围。"
   },
   "floorSelected": {
     "tools": [
@@ -803,7 +803,7 @@
       "body.align"
     ],
     "method": "execute",
-    "usage": "一次事务对齐；target.kind为body/origin/anchor/point；基准件不能同时被移动。按移动件数新增特征，超过工程2000特征或当前工程容量上限返回SIZE_LIMIT且不提交。"
+    "usage": "一次事务对齐；target.kind为body/origin/anchor/point；基准件不能同时被移动。与 planAlignment 使用相同的精确范围及位移。按移动件数新增特征，超过工程2000特征或当前工程容量上限返回SIZE_LIMIT且不提交。"
   },
   "alignmentPlan": {
     "tools": [
@@ -1319,6 +1319,14 @@
     "method": "execute",
     "usage": "配置参考密度和默认/对象重量材料；重量g=mm³×g/cm³÷1000，未知体积返回null。"
   },
+  "camera": {
+    "tools": [
+      "setView",
+      "getState"
+    ],
+    "method": "setView",
+    "usage": "相机用 position、target、up。正交视口使用 orthographicHeightMm 指定可见高度，getState().view.camera 回读滚轮缩放后的有效高度。"
+  },
   "parameters": {
     "tools": [
       "document.parameters"
@@ -1371,7 +1379,7 @@
       "getState"
     ],
     "method": "measure",
-    "usage": "实体/面/边精确测量；属性区总表面积对应 getState().bodies[].area 或 measure(kind:body).area，单位mm²。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。"
+    "usage": "实体/面/边精确测量；属性区“计算精确尺寸、面积与体积”调用 measure(kind:body)，完成后读 getState().bodies[].area，单位mm²。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。"
   },
   "inspectPrintability": {
     "tools": [
@@ -1529,13 +1537,6 @@
     "usage": "通过相应显式字段控制。selectMode 使用 selectionMode:view/body/face/edge，getState().view.selectionMode 读回；专注模式保留选择模式栏。实体蓝色高亮、面边橙色强调，清除选择恢复外观，不修改工程颜色。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
   },
   "gizmoOff": {
-    "tools": [
-      "setView"
-    ],
-    "method": "setView",
-    "usage": "通过相应显式字段控制。selectMode 使用 selectionMode:view/body/face/edge，getState().view.selectionMode 读回；专注模式保留选择模式栏。实体蓝色高亮、面边橙色强调，清除选择恢复外观，不修改工程颜色。手柄建模用 transform；面/边定位用 queryGeometry。selectTool 等价取消预览、gizmo:off、selectionMode:body。"
-  },
-  "camera": {
     "tools": [
       "setView"
     ],

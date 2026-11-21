@@ -1,4 +1,24 @@
 {
+  "exactAlignmentAndFraming": {
+    "localImpact": "Quick alignment resolves only the participating world-space geometry bounds in the Worker. Explicit orthographic camera poses support a visible height in millimeters. Proper rigid frame alignment shares validated BRep geometry and transformed display.",
+    "servicesImpact": "None. The affected operations run in the browser.",
+    "logoImpact": "None. Placement changes leave underlying source geometry intact.",
+    "nativeImpact": "None. Existing browser OCCT bindings are used.",
+    "contractImpact": "Page API 1.74.0 adds camera.orthographicHeightMm and reports the effective orthographic height. planAlignment and body.align share authoritative bounds. Static tool cards and knowledge are regenerated.",
+    "documentImpact": "The current v4 format stores the original BRep asset and each copy's rigid location. Body IDs, appearance, history semantics and ZIP storage policy follow the existing format.",
+    "cacheImpact": "Exact bounds cache uses immutable located shape identity. Saved copies share the SHA-256 source asset without sharing document body IDs.",
+    "requiredTests": ["Real project exact alignment and orthographic framing", "Frame-aligned rigid copy with per-solid colors, undo and final-state reopen", "Targeted kernel and viewport regression tests", "Verified release and knowledge ZIP"]
+  },
+  "largeProjectColdOpen": {
+    "localImpact": "Opening a saved project defers whole-body BRep area and volume until requested. Exact topology validation remains on the open path. Standard project-open edge display samples the original exact curves at the existing linear and angular deflections and avoids a second surface tessellation. Per-request hard-stop diagnostics retain phase and object ID.",
+    "servicesImpact": "None. Existing Services routing and timeout configuration are reused.",
+    "logoImpact": "None. Logo construction and validation use the same exact geometry.",
+    "nativeImpact": "None. Existing browser OCCT integration is reused.",
+    "contractImpact": "Page API 1.73.0 documents pending metrics and revision-bound writeback through existing measure, measureMass and inspectPrintability. Geometry revision and dirty state remain unchanged by reads.",
+    "documentImpact": "Existing container formats and authoritative BRep assets remain unchanged. Saved identity locations reopen as the same exact BRep placement and preserve its geometry fingerprint. Derived measurements are session data.",
+    "cacheImpact": "Per-Worker exact geometry measurement cache keyed by immutable shape identity. Page writeback checks Worker, document instance, revision and object identity.",
+    "requiredTests": ["Cold real project open twice with rendered picking and orbit", "Exact area and volume writeback plus saved project cold reopen", "Kernel timeout and geometry cache checks"]
+  },
   "realPartDisplayAndInspection": {
     "localImpact": "Local BRep display retries only missing faces; cold open defers unused hidden BRep meshes, preserves exact snapshots and reports source-bound timings. View depth range follows visible bounds. Compound design colors, sided projected decals, metal confirmation and fit location run in the browser.",
     "servicesImpact": "None. No Services runtime, native contract, routing or deployment changes.",

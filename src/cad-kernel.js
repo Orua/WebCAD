@@ -35,7 +35,7 @@ import {buildBoundGuidedLoft} from './guided-loft-binding.js';
 import {buildEllipsoid} from './ellipsoid.js';
 import {renderQuality} from './render-quality.js';
 import {EXACT_DISPLAY} from './viewport/exact-display-policy.js';
-import {displayEdges,displayMetadata,isPlanarPolygon} from './modeling/io/adaptive-display.js';
+import {displayEdges,preciseDisplayEdges,displayMetadata,isPlanarPolygon} from './modeling/io/adaptive-display.js';
 import {DISPLAY_BUDGET,displayComplexity,displayRefinementError,isWasmMemoryError,meshFacesProgressively,recoverMissingFaces} from './modeling/io/display-budget.js';
 import { buildQuickModel } from './quick-models.js';
 import { buildLogoOnPlane, buildVectorProfile } from './logo-model.js';
@@ -254,9 +254,10 @@ import {checkpointReports,restoreCheckpointReports} from './local-checkpoint-rep
 import {buildRodJunction} from './modeling/rounding/rod-junction-tool.js';
 import {assertBoundsAlignment,boundsAlignment} from './bounds-alignment.js';
 import {rebuildFingerprints} from './rebuild-cache.js';
-import {identityMatrix,multiplyMatrix,rigidCopyMatrix,locateBrep,locatedBody,validateRigidMatrix} from './rigid-instance.js';
+import {identityMatrix,multiplyMatrix,rigidAlignmentMatrix,rigidCopyMatrix,locateBrep,locatedBody,validateRigidMatrix} from './rigid-instance.js';
+import {planBodyAlignment} from './modeling/interaction/align-bodies.js';
 export class CadKernel {
-  constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map();this.geometryMetrics=new WeakMap();this.geometrySourceSnapshots=new WeakMap();this.reliefLayerCache=new ReliefLayerCache(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
+  constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map();this.geometryMetrics=new WeakMap();this.bodyMeasurements=new WeakMap();this.bodyDimensionCache=new WeakMap();this.geometrySourceSnapshots=new WeakMap();this.reliefLayerCache=new ReliefLayerCache(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
   async operation(feature, shapes, imports, historyFeatures=[],execution={}) {
     assertPatternExecution(feature.op,feature.params);
     const original=legacyReliefParams(feature.op,feature.params||{}),targetFrame=feature.placement?.frameSnapshot;
@@ -573,8 +574,11 @@ export class CadKernel {
             this.reportRebuildProgress('feature','计算实体');
             this.importBases??=new Map();this.importBases.set(key,base);this.geometrySourceSnapshots.set(base,sourceText);this.sourceBytesCache??=new WeakMap();this.sourceBytesCache.set(base,{format:'brep',data:bytes,sourceHash:binaryHash(bytes).slice(7)});
           }
-          const shape=item.location?locateBrep(base,validateRigidMatrix(item.location),this.oc):base.clone();
-          this.rigidInstances??=new WeakMap();this.rigidInstances.set(shape,{source:base,sourceId:feature.id,matrix:item.location||identityMatrix()});
+          const identity=identityMatrix(),matrix=item.location?validateRigidMatrix(item.location):identity;
+          // Final-state save can materialize an identity location for a plain
+          // BRep. Avoid changing OCCT serialization for the same placement.
+          const shape=matrix.every((value,index)=>value===identity[index])?base.clone():locateBrep(base,matrix,this.oc);
+          this.rigidInstances??=new WeakMap();this.rigidInstances.set(shape,{source:base,sourceId:feature.id,matrix});
           if(this.validatedShapes?.has(base))this.validatedShapes.add(shape);
           return shape;
         }
@@ -831,14 +835,21 @@ export class CadKernel {
     this.sourceBytesCache.set(shape,source);return source;
   }
   rigidCopy(feature,source){
-    if(source.geometryType==='mesh'||feature.placement||!this.validatedShapes?.has(source))return null;
-    const p=feature.params||{},rotation=rigidCopyMatrix({...p,positionMode:'relative',x:0,y:0,z:0},{min:[0,0,0],max:[0,0,0]});if(!rotation)return null;
-    if(p.positionMode==='absolute'&&['x','y','z'].some(k=>!Number.isFinite(p[k])))return null;
-    // Translation does not need a bounds query. Absolute placement needs the
-    // exact rotated bounds only once per immutable shape and rotation, rather
-    // than repeating OCCT's expensive spline extrema for every located copy.
-    const bounds=p.positionMode==='absolute'?this.rigidRotationBounds(source,rotation):{min:[0,0,0],max:[0,0,0]};
-    const matrix=rigidCopyMatrix(p,bounds);if(!matrix)return null;
+    if(!source||source.geometryType==='mesh'||!this.validatedShapes?.has(source))return null;
+    const p=feature.params||{};
+    let matrix;
+    if(p.mode==='align'&&feature.placement?.frameSnapshot&&!p.sizeMm&&p.align===undefined){
+      matrix=rigidAlignmentMatrix(p,feature.placement.frameSnapshot);
+    }else{
+      if(feature.placement)return null;
+      const originBounds={min:[0,0,0],max:[0,0,0]};
+      const rotation=rigidCopyMatrix({...p,positionMode:'relative',x:0,y:0,z:0},originBounds);
+      if(!rotation)return null;
+      if(p.positionMode==='absolute'&&['x','y','z'].some(k=>!Number.isFinite(p[k])))return null;
+      // Absolute positions need the exact rotated bounds only once per source and rotation.
+      const bounds=p.positionMode==='absolute'?this.rigidRotationBounds(source,rotation):originBounds;
+      matrix=rigidCopyMatrix(p,bounds);if(!matrix)return null;
+    }
     const shape=locateBrep(source,matrix,this.oc);this.rigidInstances??=new WeakMap();this.rigidInstances.set(shape,{source,sourceId:feature.refs[0],matrix});
     this.validatedShapes.add(shape);return shape;
   }
@@ -906,7 +917,7 @@ export class CadKernel {
     try {
       const bodies=[...this.active].map(([id,feature])=>{
         const retained=previousCache.get(id)?.body;
-        const body=retained?.displayDeferred?{...retained}:this.describe(this.shapes.get(id),feature);
+        const body=retained?.displayDeferred?{...retained}:this.describe(this.shapes.get(id),feature,retained?.metricsDeferred===true);
         if(retained?.faceSolidIndices)body.faceSolidIndices=this.faceSolidIndices(this.shapes.get(id));
         body.renderVersion=String(++this.renderVersion);
         return body;
@@ -926,13 +937,12 @@ export class CadKernel {
     if(this.rebuildStarted===undefined)return;
     const now=performance.now();this.phaseTimings??={};if(this.phaseClock)this.phaseTimings[this.phaseClock.phase]=(this.phaseTimings[this.phaseClock.phase]||0)+now-this.phaseClock.at;
     this.phaseClock={phase,at:now};
-    this.onProgress?.({kind:'rebuild',phase,phaseId:phase,label,elapsedMs:Math.round(now-this.rebuildStarted),lastAdvanceAt:now,...this.featureProgress,...details});
+    this.onProgress?.({kind:'rebuild',phase,phaseId:phase,label,elapsedMs:Math.round(now-this.rebuildStarted),lastAdvanceAt:now,...this.featureProgress,...(this.displayFeatureId?{featureId:this.displayFeatureId}:{}),...details});
   }
-  measureBodyGeometry(shape,faces,edges){
-    const cached=this.geometryMetrics.get(shape);if(cached)return cached;
-    const solids=shape.solids,shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item)),bbox=shape.boundingBox;
-    try{
-      const [min,max]=bbox.bounds,snapPoints=[];
+  measureBodyGeometry(shape,faces,edges,deferMassProperties){
+    let measured=this.geometryMetrics.get(shape);
+    if(!measured){
+      const snapPoints=[];
       this.reportRebuildProgress('snap-points','计算精确吸附点',{completed:0,total:edges.length});
       edges.forEach((edge,edgeId)=>{
         if(edgeId&&edgeId%64===0)this.reportRebuildProgress('snap-points','计算精确吸附点',{completed:edgeId,total:edges.length});
@@ -945,25 +955,64 @@ export class CadKernel {
           try{circle=adaptor.Circle();center=circle.Location();snapPoints.push({point:[center.X(),center.Y(),center.Z()],type:'center',edgeId});}finally{[center,circle,adaptor].forEach(dispose);}
         }
       });
-      this.reportRebuildProgress('mass-properties','测量正式实体');
-      const measured={faceCount:faces.length,edgeCount:edges.length,snapPoints,bounds:{min,max},boundsSource:'exact-brep',volume:null,area:null,solidCount:solids.length,shellCount:shells.length};
-      try{
-        measured.area=surfaceArea(shape,this.oc);
-        measured.volume=solids.length?preciseVolume(shape,this.oc):null;
-      }catch(error){
-        if(isWasmMemoryError(error))throw error;
-        measured.metricsDeferred=true;
-        measured.measurementStatus='exact-mass-properties-unavailable';
-      }
-      this.geometryMetrics.set(shape,measured);return measured;
-    }finally{[...solids,...shells,bbox].forEach(dispose);}
+      measured={faceCount:faces.length,edgeCount:edges.length,snapPoints,...this.bodyDimensions(shape),boundsSource:'exact-brep'};
+      this.geometryMetrics.set(shape,measured);
+    }
+    return {...measured,...this.displayMassProperties(shape,measured.solidCount,deferMassProperties)};
   }
-  describe(shape,feature){
-    this.shapeDisplays??=new WeakMap();const key=`${this.quality||'standard'}:${this.displayCoarsen||1}`,cached=this.shapeDisplays.get(shape);
+  exactBodyBounds(shape){
+    if(shape.geometryType==='mesh')return shape.metrics().bounds;
+    this.exactBoundsCache??=new WeakMap();
+    let bounds=this.exactBoundsCache.get(shape);
+    if(!bounds){
+      // Read the located BRep, since rotating a source's axis-aligned box
+      // can enlarge it. Replicad uses AddOptimal without triangulation.
+      const box=shape.boundingBox;
+      try{const [min,max]=box.bounds;bounds={min,max};this.exactBoundsCache.set(shape,bounds);}
+      finally{dispose(box);}
+    }
+    return bounds;
+  }
+  bodyDimensions(shape){
+    const cached=this.bodyDimensionCache.get(shape);
+    if(cached)return cached;
+    const bounds=this.exactBodyBounds(shape),solids=shape.solids,shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item));
+    try{
+      const dimensions={bounds,solidCount:solids.length,shellCount:shells.length};
+      this.bodyDimensionCache.set(shape,dimensions);
+      return dimensions;
+    }
+    finally{[...solids,...shells].forEach(dispose);}
+  }
+  exactMassProperties(shape,solidCount){
+    const source=this.rigidInstances?.get(shape)?.source||shape;
+    const cached=this.bodyMeasurements.get(source);
+    if(cached)return cached;
+    const measured={volume:solidCount?preciseVolume(source,this.oc):null,area:surfaceArea(source,this.oc)};
+    this.bodyMeasurements.set(source,measured);
+    return measured;
+  }
+  displayMassProperties(shape,solidCount,deferMassProperties){
+    const cached=this.bodyMeasurements?.get(this.rigidInstances?.get(shape)?.source||shape);
+    if(cached)return {metricsDeferred:false,...cached};
+    const pending={volume:null,area:null,metricsDeferred:true,measurementStatus:'on-demand-exact-brep'};
+    if(deferMassProperties)return pending;
+    this.reportRebuildProgress('mass-properties','测量正式实体');
+    try{return {metricsDeferred:false,...this.exactMassProperties(shape,solidCount)};}
+    catch(error){
+      if(isWasmMemoryError(error))throw error;
+      return {...pending,measurementStatus:'exact-mass-properties-unavailable'};
+    }
+  }
+  displayCacheKey(deferMassProperties){
+    return String(this.quality||'standard')+':'+(this.displayCoarsen||1)+':'+deferMassProperties;
+  }
+  describe(shape,feature,deferMassProperties=false){
+    this.shapeDisplays??=new WeakMap();const key=this.displayCacheKey(deferMassProperties),cached=this.shapeDisplays.get(shape);
     if(cached?.key===key)return {...cached.body,id:feature.id,name:feature.name||feature.id};
     const instance=this.rigidInstances?.get(shape);
-    const sourceBody=instance?this.describe(instance.source,{id:instance.sourceId,name:feature.name}):null;
-    const body=instance?(instance.matrix.every((n,i)=>n===identityMatrix()[i])?{...sourceBody,id:feature.id,name:feature.name||feature.id}:locatedBody(sourceBody,instance.matrix,feature)):this.describeShape(shape,feature);
+    const sourceBody=instance?this.describe(instance.source,{id:instance.sourceId,name:feature.name},deferMassProperties):null;
+    const body=instance?(instance.matrix.every((n,i)=>n===identityMatrix()[i])?{...sourceBody,id:feature.id,name:feature.name||feature.id}:locatedBody(sourceBody,instance.matrix,feature)):this.describeShape(shape,feature,deferMassProperties);
     this.shapeDisplays.set(shape,{key,body});return body;
   }
   faceSolidIndices(shape){
@@ -980,7 +1029,7 @@ export class CadKernel {
       return indices;
     }finally{[...faces,...solids].forEach(dispose);}
   }
-  describeShape(shape, feature) {
+  describeShape(shape, feature, deferMassProperties) {
     if(shape.geometryType==='mesh')return shape.describe(feature);
     const quality=this.quality||'standard', requested=renderQuality(quality);
     const faces = shape.faces, edges = shape.edges;
@@ -996,21 +1045,20 @@ export class CadKernel {
     catch(error){throw displayRefinementError(error);}
     mesh=recoverMissingFaces(mesh,faces,settings);
     this.reportRebuildProgress('edge-mesh','生成边线显示');
-    const wire = adaptive?null:shape.meshEdges({ tolerance: settings.tolerance*0.75, angularTolerance: settings.angularTolerance*0.8 });
+    const edgeQuality={tolerance:settings.tolerance*0.75,angularTolerance:settings.angularTolerance*0.8};
+    let mappedEdges;
+    if(adaptive)mappedEdges=displayEdges(edges,settings.tolerance,this.oc);
+    else if(deferMassProperties){
+      try{mappedEdges=preciseDisplayEdges(edges,edgeQuality,this.oc);}
+      catch(error){if(isWasmMemoryError(error))throw error;}
+    }
+    const wire=mappedEdges?null:shape.meshEdges(edgeQuality);
       const faceMap = new Map(faces.map((v, i) => [v.hashCode, i])), edgeMap = new Map(edges.map((v, i) => [v.hashCode, i]));
       this.reportRebuildProgress('display-bounds','计算显示范围');
-      const measured=this.geometryMetrics.get(shape)||(adaptive?displayMetadata(shape,faces,edges,this.oc):this.measureBodyGeometry(shape,faces,edges));
-      if(adaptive&&(measured.volume==null||measured.area==null)){
-        // I-07: adaptive display may defer exact *bounds*, but volume/area are cheap
-        // GK integrals and must be written back so the property panel is not empty.
-        const metricSolids=shape.solids;
-        try{
-          if(measured.volume==null)measured.volume=metricSolids.length?preciseVolume(shape,this.oc):null;
-          if(measured.area==null)measured.area=surfaceArea(shape,this.oc);
-          this.geometryMetrics.set(shape,measured);
-        }catch{/* leave deferred nulls if the integral itself fails */}
-        finally{metricSolids.forEach(dispose);}
-      }
+      const display=adaptive?displayMetadata(shape,faces,edges,this.oc):null;
+      const geometry=this.geometryMetrics.get(shape);
+      const measured=adaptive?{...display,...this.displayMassProperties(shape,display.solidCount,deferMassProperties)}:
+        geometry?{...geometry,...this.displayMassProperties(shape,geometry.solidCount,deferMassProperties)}:this.measureBodyGeometry(shape,faces,edges,deferMassProperties);
       const mappedFaces = mesh.faceGroups.map(g => ({ ...g, faceId: faceMap.get(g.faceId),...(adaptive?{exactPolygon:isPlanarPolygon(faces[faceMap.get(g.faceId)])}:{}) }));
       measured.displayReport=meshIntegrity(mesh.vertices,mesh.triangles,{faceCount:faces.length,faceGroups:mappedFaces,brepVolumeMm3:measured.volume});
       measured.displayReport.recoveredFaceIds=mappedFaces.filter(group=>group.recovered).map(group=>group.faceId);
@@ -1029,19 +1077,19 @@ export class CadKernel {
       if(shape.subdApproximation)measured.subdApproximation=shape.subdApproximation;
       measured.displayReport.missingAreaMm2=measured.displayReport.untriangulatedFaceIds.reduce((sum,i)=>sum+cad.measureArea(faces[i]),0);
       this.reportRebuildProgress('edge-polylines','生成显示边线');
-      const mappedEdges = adaptive?displayEdges(edges,settings.tolerance,this.oc):wire.edgeGroups.map(g => ({ edgeId: edgeMap.get(g.edgeId), positions: Array.from(wire.lines.slice(g.start * 3, (g.start + g.count) * 3)) }));
+      mappedEdges??=wire.edgeGroups.map(g => ({edgeId:edgeMap.get(g.edgeId),positions:Array.from(wire.lines.slice(g.start*3,(g.start+g.count)*3))}));
       if(adaptive)measured.snapPoints=mappedEdges.filter(e=>e.positions.length).flatMap(e=>[{point:e.positions.slice(0,3),type:'endpoint',edgeId:e.edgeId},{point:e.positions.slice(-3),type:'endpoint',edgeId:e.edgeId}]);
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
       return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,adaptiveDisplay:adaptive?{initialTolerance:settings.tolerance,requestedQuality:quality,source:'exact-brep',sourceChanged:false,heavyFaceIds:complexity.poles.flatMap((n,i)=>n>=DISPLAY_BUDGET.adaptivePoles?[i]:[]),...(complexity.unsafeRequestedTolerance?{limited:true,requestedTolerance:requested.tolerance,budgetedTolerance:settings.tolerance}:{}),...(complexity.heavy?{heavy:true,heavyFaceIds:[...complexity.heavyFaces],splinePoles:complexity.totalPoles,coarsen:this.displayCoarsen||1}:{})}:undefined,logoProjectionReport:shape.logoProjectionReport,badgeReport:shape.badgeReport,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport,chainReport:shape.chainReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges].forEach(dispose); }
   }
-  async rebuild(document,{displayCoarsen=1,headless=false}={}) {
+  async rebuild(document,{displayCoarsen=1,headless=false,deferMassProperties=false}={}) {
     if(this.headless!==headless){this.headless=headless;this.renderCache=new Map();}
     // A coarser display retry must not reuse the previous (failed or finer) render cache.
     if((this.displayCoarsen||1)!==displayCoarsen){this.displayCoarsen=displayCoarsen;this.renderCache=new Map();}
     if (!document || ![1,2,3,4].includes(document.version) || !Array.isArray(document.features)) throw new Error('无效的 WebCAD 工程');
     this.rebuildStarted=performance.now();
-    this.phaseTimings={};this.phaseClock=null;this.featureProgress=null;this.validatedShapes??=new WeakSet();this.reportRebuildProgress('prepare','准备模型');
+    this.phaseTimings={};this.phaseClock=null;this.featureProgress=null;this.displayFeatureId=null;this.validatedShapes??=new WeakSet();this.reportRebuildProgress('prepare','准备模型');
     this.binaryAssets=document.binaryAssets||{};
     const next = new Map(), active = new Map(), ids = new Set(); let current;
     const importsSignature = JSON.stringify(document.imports || {});
@@ -1157,6 +1205,7 @@ export class CadKernel {
       const displayNames=resultDisplayNames(features);
       const bodies = [...active].map(([id, feature]) => {
         current = id;
+        this.displayFeatureId=id;
         const cached = reused.has(id) ? displayCached(id) : null;
         // Meshing and metadata queries can rewrite OCCT TShape flags. Freeze the
         // precise source before display work; uploads and cold checkpoint gates
@@ -1169,7 +1218,7 @@ export class CadKernel {
           const shape=next.get(id),faces=shape.faces,edges=shape.edges;
           try{body={id,name:feature.name||id,...displayMetadata(shape,faces,edges,this.oc),...(headless?{volume:preciseVolume(shape,this.oc),metricsDeferred:false}:{displayDeferred:true}),positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],loftReport:shape.loftReport,logoProjectionReport:shape.logoProjectionReport,transitionReport:shape.transitionReport,alignmentReport:shape.alignmentReport,resizeReport:shape.resizeReport};}
           finally{faces.forEach(dispose);edges.forEach(dispose);}
-        }else body=this.describe(next.get(id), feature);
+        }else body=this.describe(next.get(id), feature,deferMassProperties);
         if(!body.displayDeferred&&(feature.op==='group'||document.surface?.[id]?.solidColors)){
           body.faceSolidIndices??=this.faceSolidIndices(next.get(id));
           body.groupSolidSources=next.get(id).groupSolidSources;
@@ -1180,6 +1229,7 @@ export class CadKernel {
         nextRenderCache.set(id, { body });
         return body;
       });
+      this.displayFeatureId=null;
       this.shapes.forEach((shape, id) => { if (!reused.has(id) && !next.has(id)) dispose(shape); });
       this.shapes.forEach((shape, id) => { if (next.has(id) && next.get(id) !== shape && !reused.has(id)) dispose(shape); });
       this.shapes = next; this.active = active; this.historySignature = signatures; this.importsSignature = importsSignature; this.renderCache = nextRenderCache;
@@ -1288,13 +1338,17 @@ export class CadKernel {
     return {bodyId,kind,items,geometryFingerprint:await this.geometryFingerprint(shape)};
   }
   sampleMeshRelief(input){const shape=this.activeShape(input.bodyId);if(shape.geometryType!=='mesh')throw meshError('RELIEF_SOURCE_UNSUPPORTED','Height query requires a current authoritative mesh.');return sampleMeshRelief(shape.transformed(),input);}
+  planAlignment(input,referenceSystem){
+    const plan=planBodyAlignment(input,[...this.active.values()],referenceSystem,body=>this.exactBodyBounds(this.activeShape(body.id)));
+    return {...plan,boundsSource:'authoritative-world-geometry'};
+  }
   measure(bodyId,topologyType,topologyId) {
     const shape=this.activeShape(bodyId);
     if(shape.geometryType==='mesh'){if(topologyType&&topologyType!=='body')throw meshError('MESH_TOPOLOGY_UNAVAILABLE','Select the full authoritative mesh.');return {bodyId,...shape.metrics()};}
     if(topologyType===undefined||topologyType==='body'){
-      const box=shape.boundingBox,solids=shape.solids,shells=Array.from(cad.iterTopo(shape.wrapped,'shell'),item=>cad.cast(item));
-      try{const [min,max]=box.bounds;return {bodyId,bounds:{min,max},volume:solids.length?preciseVolume(shape,this.oc):null,area:surfaceArea(shape,this.oc),solidCount:solids.length,shellCount:shells.length};}
-      finally{dispose(box);solids.forEach(dispose);shells.forEach(dispose);}
+      const geometry=this.geometryMetrics.get(shape)||this.bodyDimensions(shape);
+      const {solidCount,shellCount}=geometry,bounds=this.exactBodyBounds(shape);
+      return {bodyId,bounds,solidCount,shellCount,...this.exactMassProperties(shape,solidCount)};
     }
     if(!['edge','face'].includes(topologyType))throw new Error('请选择边或面');
     const all=shape[topologyType==='edge'?'edges':'faces'];
@@ -1408,7 +1462,7 @@ export class CadKernel {
       throw new Error('不支持的导出格式');
     } finally { if (owned.length) {dispose(combined);owned.forEach(dispose);} }
   }
-  dispose() { this.importBases?.forEach(dispose);this.importBases?.clear();this.featureFingerprints=new Map();this.shapes.forEach(dispose); this.shapes.clear(); this.active.clear(); this.renderCache.clear();this.reliefLayerCache.clear();this.geometryMetrics=new WeakMap(); this.historySignature = []; this.importsSignature = ''; }
+  dispose() { this.importBases?.forEach(dispose);this.importBases?.clear();this.featureFingerprints=new Map();this.shapes.forEach(dispose); this.shapes.clear(); this.active.clear(); this.renderCache.clear();this.reliefLayerCache.clear();this.geometryMetrics=new WeakMap();this.bodyMeasurements=new WeakMap();this.bodyDimensionCache=new WeakMap(); this.historySignature = []; this.importsSignature = ''; }
 }
 
 

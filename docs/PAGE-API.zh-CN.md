@@ -804,7 +804,7 @@ const coordinates = api.readDocs({ docId: 'coordinates' });
 
 `inspectProfile({context,bodyId})` 对当前 `sketchProfile` 解析来源只读返回 `issues`、稳定 `issueId`、相关实体 ID、间隙距离与问题位置；不修复，也不增加历史。`inspectFit({context,bodyAId,bodyBId,toleranceMm?,volumeThresholdMm3?})` 接受两个当前单一封闭实体，按精确 B-Rep 公共材料体积及最短距离分类为 `overlap`、`contactWithinTolerance`、`separated`。求交在两个隔离BREP副本上执行，避免OCCT调整来源边面容差或参数曲线。返回公共体积 mm³、距离 mm、容差、体积阈值、可用的见证点与来源 context；结果仅对该修订有效。计算失败返回失败，不能当作“无干涉”。
 
-`measure({context,bodyId,kind:'body'})` 返回包围范围、`volume`、`area`、实体数和壳数；总表面积也在 `getState().bodies[].area` 与属性区显示，单位mm²。面积从BREP曲面计算，包含孔壁/内腔；组合件按组成面累加，不自动融合重叠体。纯曲线面积为0，无实体的形状体积为null。面/边测量必须明确有效`kind/topologyId`；整个实体测量不能夹带`topologyId`。两点输入的距离注明`provided-coordinates`来源，不与模型实测混淆。
+`measure({context,bodyId,kind:'body'})` 返回包围范围、`volume`、`area`、实体数和壳数；总表面积也在 `getState().bodies[].area` 与属性区显示，单位mm²。工程打开后，BRep 对象可先以 metricsDeferred:true 和 area/volume:null 表示待计算。属性区计算按钮、measure(kind:body)、measureMass 和需要精确体积的成型检查按当前对象取精确值并回填。回填增加 stateSeq，工程修订和保存内容无变化。面积从BREP曲面计算，包含孔壁/内腔；组合件按组成面累加，不自动融合重叠体。纯曲线面积为0，无实体的形状体积为null。面/边测量必须明确有效`kind/topologyId`；整个实体测量不能夹带`topologyId`。两点输入的距离注明`provided-coordinates`来源，不与模型实测混淆。
 
 `profileRepair` 严格操作的 `refs` 为一个保存的 `sketchProfile` 来源 ID。先用 `inspectProfile` 取得 `closure:<chainId>` 等实际 `issueId`，再以 `{issueId,maxEndpointMoveMm}` 执行 `feature.add`；只对指定端点做不超过该毫米上限的移动，闭合开放链时生成一个可加工的派生面。原来源保留，超限或其它问题仍阻碍成面时整步失败。其几何重建使用来源已保存的定位快照，不重新取当前锚点。
 
@@ -859,7 +859,7 @@ await api.execute({
 
 ## 实测、视图与真实画面
 
-`measure({context,bodyId,kind?,topologyId?})` 从精确 B-Rep 读取当前实体的体积和包围尺寸，或面/边测量。面/边请求需 `kind:'face'|'edge'` 与非负整数 `topologyId`；返回单位、`source:'exact-brep'` 与实际内核结果。`setView({context,direction?,projection?,fit?,selectedIds?,section?})` 支持方向 `top/bottom/front/back/left/right/side/iso`、正交/透视、适配、当前实体选择和 `section:{axis:'X'|'Y'|'Z',position:有限数字,enabled:boolean}`。section 只是画面裁剪，不切割 B-Rep；相机/裁剪改变不增加建模 revision。`redraw({context})` 重绘当前模型；`capture({context})` 等待画面版本与工程 revision 一致后返回 `image/png` 的真实 `dataUrl`、context 和 display，画面不匹配时返回 `DISPLAY_FAILED`。宿主若只能返回文本，需使用其已有的合法图像工具，不能声称 AI 已看到图片。
+`measure({context,bodyId,kind?,topologyId?})` 从精确 B-Rep 读取当前实体的体积和包围尺寸，或面/边测量。面/边请求需 `kind:'face'|'edge'` 与非负整数 `topologyId`；返回单位、`source:'exact-brep'` 与实际内核结果。`setView({context,direction?,projection?,fit?,selectedIds?,section?})` 支持方向 `top/bottom/front/back/left/right/side/iso`、正交/透视、适配、当前实体选择和 `section:{axis:'X'|'Y'|'Z',position:有限数字,enabled:boolean}`。section 只是画面裁剪，不切割 B-Rep；相机/裁剪改变不增加建模 revision。显式相机可传 position、target、up 和正交模式下的 orthographicHeightMm。可见高度以毫米计，须为有限正数。省略高度时，新取景距离按 35° 视角换算，同距离换方向或平移保留滚轮缩放。getState().view.camera 返回当前位姿及正交有效高度，可把它传回 setView 复现取景。`redraw({context})` 重绘当前模型；`capture({context})` 等待画面版本与工程 revision 一致后返回 `image/png` 的真实 `dataUrl`、context 和 display，画面不匹配时返回 `DISPLAY_FAILED`。宿主若只能返回文本，需使用其已有的合法图像工具，不能声称 AI 已看到图片。
 
 ```js
 const { revision, ...identity } = api.getState().context;
@@ -981,7 +981,7 @@ UI 拖动范围手柄等价于 `preview.update` 修改 `params.depthMm`；必须
 
 先 connect({queries:['三视图','对齐','历史','框选']})，再 getTools({ids:[...]}) 读取当前卡。新增方法为 selectRectangle、planAlignment、createDrawing、exportDrawing、getHistory；事务动作 body.align 和 history.restore 通过 execute 执行。全部使用当前 context，事务动作还需 idempotencyKey。
 
-selectRectangle 使用视口归一化 [左,上,右,下]，mode 为 window/crossing，additive 明确追加语义；返回 selectedIds。按当前相机的对象投影包围框判断：window 要求完整包围且整个对象在近远深度范围内；crossing 将包围盒边裁到相机近远平面后投影，避免放大到近处时漏选可见部分。隐藏件不参与，孔洞/真实轮廓与对象间遮挡不在此筛选范围。鼠标 Escape 或丢失指针捕获取消拖框，恢复拖框前视角控制，不提交选中操作。planAlignment 返回每个移动件的世界坐标 delta；body.align 使用相同 bodyIds、target、axes、sourceSide、targetSide、group 参数，基准件不移动。target.kind 为 body/origin/anchor/point，point 明确三维毫米坐标。
+selectRectangle 使用视口归一化 [左,上,右,下]，mode 为 window/crossing，additive 明确追加语义；返回 selectedIds。按当前相机的对象投影包围框判断：window 要求完整包围且整个对象在近远深度范围内；crossing 将包围盒边裁到相机近远平面后投影，避免放大到近处时漏选可见部分。隐藏件不参与，孔洞/真实轮廓与对象间遮挡不在此筛选范围。鼠标 Escape 或丢失指针捕获取消拖框，恢复拖框前视角控制，不提交选中操作。planAlignment 按需读取所选移动件与基准件定位后的世界坐标范围，返回 boundsSource 和每个移动件的 delta。BRep 从精确几何取极值，网格使用完整顶点。body.align 按同一规则及参数计算位移，基准件保持固定。target.kind 为 body/origin/anchor/point，point 明确三维毫米坐标。
 
 createDrawing 返回 drawingId、views、dimensions、limitations 及 SVG 预览。最多 40 个当前对象、1500 面、三个截面；仅缓存四份图纸，模型修订变化后不能导出过期图纸。exportDrawing 支持 pdf/jpg/dxf/svg，disabledDimensions 明确排除的尺寸 ID；返回标准生成文件资源，可 files.read/download/write。PDF 为矢量、JPG 为 300 DPI、DXF 为真实毫米 1:1。生成、发起下载、实际写盘分别核验。DWG 不支持。
 
@@ -1110,7 +1110,7 @@ inspectDesign对同实体的材料点合并一次精确common，边界距离仍�
 重建与保存性能
 getState().kernelProgress 返回 requestId/operationId、revision、documentInstanceId、phaseId、completed、total、reused、elapsedMs、lastAdvanceAt。计算分母仅含待处理项；缓存不冒充进度。同步内核调用无可测子进度时显示阶段和已用时间，不估算百分比。geometry commit、snapshot-ready 与当前 revision 的 rendered 首帧分别确认。
 getState().kernelPerformance 含 workerTiming、phaseTimings、snapshotStats、requestTiming、history 与 perFeatureMs。阶段计时按互斥区间统计；snapshotMs是子项，不能与其父阶段重复相加。mainTimings 按准备、Worker往返（内含执行/排队/消息传输）与提交收尾分段；往返与子项不可重复相加。主线程历史差量、校验、自动保存捕获/写入另列；未分类余量明确保留。
-相同资产只注册一次，保存源按 SHA-256 引用和增量传输，实例/修订与请求绑定。自适应显示将未细化曲面及相同样式边线合批；只替换已细化面的显示三角形，不改变源几何、显示公差、选面/选边编号或保存数据。静止视图复用面片可见性，计算期间不派发显示细化；display.detail.surfaceBatchedBodies 可核对合批状态。隐藏只影响显示，不删除来源。精确刚体复制保留 BRep；只读源共享位置变换，布尔/圆角等修改操作仍深隔离；均匀缩放和非均匀变换不复用刚体校验结果。最终状态工程以 brep-instance 类型保存共用精确 BRep 资产与每个 import 的有限正交 location 矩阵；旧读取器因未知资产类型明确拒绝，不能忽略位置后误装。文件不包含参数配方或会话时间线，既有工程仍可读。
+相同资产只注册一次，保存源按 SHA-256 引用和增量传输，实例/修订与请求绑定。自适应显示将未细化曲面及相同样式边线合批；只替换已细化面的显示三角形，不改变源几何、显示公差、选面/选边编号或保存数据。静止视图复用面片可见性，计算期间不派发显示细化；display.detail.surfaceBatchedBodies 可核对合批状态。隐藏只影响显示，不删除来源。精确刚体复制保留 BRep。使用 copy 和 mode:"align" 加显式 placement 时，复制件依照声明的坐标架定位，继承分色并具有独立实体 ID。布尔、圆角等修改操作仍使用各自的隔离几何。均匀缩放和非均匀变换使用各自的完整几何校验。最终状态工程以 brep-instance 类型保存共用精确 BRep 资产与每个 import 的有限正交 location 矩阵；旧读取器因未知资产类型明确拒绝，不能忽略位置后误装。文件不包含参数配方或会话时间线，既有工程仍可读。
 装配定位使用 measure 的精确 BRep bounds，不能使用保守/变换后的显示 bounds；boundsSource 标明来源。工具不推断支撑或自动移动悬浮零件。
 长作业用 submit 短调用后 getJob/awaitJob 查同一 jobId。宿主超时不表示回滚，不换 key 重算。getBatchReceipt 缺少 documentInstanceId 返回 PARAM_SCHEMA_INVALID；传入旧实例才返回 INSTANCE_MISMATCH。执行预算从 Worker started 开始，排队有独立有限期限；心跳不延长硬期限。普通默认硬期限仍为180秒。失败先回执 not_committed，恢复独立记录在 getState().recovery，最多120秒，不循环重放候选。恢复进度保留独立 operationId、原因、失败阶段和保留修订，界面阶段持续注明“恢复已提交工程”，详情可读同一恢复记录。recoverKernel({context,stopRunning:true})立即停止 Worker并返回 stopped/recovery；recovered:false 表示恢复尚未完成，继续读取 recovery 和 kernelReady。失败时已提交快照仍可 files.save。
 # 工程打开、显示与装配定位（1.72）

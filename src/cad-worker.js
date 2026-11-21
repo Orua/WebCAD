@@ -34,7 +34,7 @@ self.onmessage = ({ data }) => {
       else if(type==='probeBlendRadius')result=engine.probeBlendRadius(data.input);
       else if(type==='decodeProject')result={document:await decodeProject(data.bytes)};
       else if(type==='rebuild'){
-        result=await rebuildWithPool(engine,data.document,{displayCoarsen:data.displayCoarsen||1});
+        result=await rebuildWithPool(engine,data.document,{displayCoarsen:data.displayCoarsen||1,deferMassProperties:data.deferMassProperties===true});
         const snapshotStart=performance.now(),before=engine.snapshotEncodeCount||0;
         engine.rebuildStarted=startedAt;engine.reportRebuildProgress('save-snapshot','准备保存快照');
         result.finalSourceDelta=snapshotDelta(engine.finalShapeSources(),data.knownSourceHashes,data.snapshotContext);
@@ -68,11 +68,15 @@ self.onmessage = ({ data }) => {
       else if(type==='shoulderPlan')result=engine.shoulderPlan(data.sourceFeatureId,data.params);
       else if(type==='faceRoundPlan')result=engine.faceRoundPlan(data.sourceFeatureId,data.params,data.prepare);
       else if(type==='measureRelation')result=engine.measureRelation(data.input);
+      else if(type==='planAlignment')result={plan:engine.planAlignment(data.input,data.referenceSystem)};
       else if(type==='measure'){
         if(Array.isArray(data.ids)){
           const items=data.ids.map(id=>engine.measure(data.bodyId,data.selectionType||data.topologyType,id));
           result={items,length:items.reduce((n,v)=>n+(v.length||0),0),area:items.reduce((n,v)=>n+(v.area||0),0)};
-        } else result=engine.measure(data.bodyId,data.topologyType,data.topologyId);
+        } else {
+          if(!data.topologyType||data.topologyType==='body')engine.onProgress({kind:'measure',phase:'body-measurement',featureId:data.bodyId});
+          result=engine.measure(data.bodyId,data.topologyType,data.topologyId);
+        }
       } else throw new Error(`未知请求 ${type}`);
       if(data.assetRefs){const retained=new Set(Object.entries(data.assetRefs).flatMap(([table,hashes])=>hashes.map(hash=>`${table}:${hash}`)));for(const key of assetCache.keys())if(!retained.has(key))assetCache.delete(key);}
       self.postMessage({ requestId, ok: true, ...result,registeredAssets:[...assetCache.keys()] },type==='refineDisplay'?result.patches.flatMap(p=>p.limited?[]:[p.positions.buffer,p.normals.buffer,p.indices.buffer]):type==='encodeProject'?[result.bytes.buffer]:type==='decodeProject'?decodedProjectTransfers(result.document):[]);

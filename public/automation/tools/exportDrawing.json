@@ -2,7 +2,7 @@
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.72.0",
+  "version": "1.74.0",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -211,5 +211,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:671109f47446f5375003d7a3b01d499787204fb8729f469b6837c03dd3db6c47"
+  "docsHash": "sha256:b1dfb33a8a8993cf1f1680d934e87c83e86da36d2cf563d21a194c0aedcccf4e"
 }

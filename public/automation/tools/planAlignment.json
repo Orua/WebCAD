@@ -2,7 +2,7 @@
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.72.0",
+  "version": "1.74.0",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -22,7 +22,7 @@
     "轴"
   ],
   "inputContract": "planAlignment({context,bodyIds,target,axes?,sourceSide?,targetSide?,group?,gapMm?})。target={kind:body,bodyId}|{kind:origin}|{kind:anchor}|{kind:point,point:[x,y,z]}；axes为X/Y/Z数组，位置min/center/max，默认center；group默认true：true=整体按联合包围盒移动并保持相对位置，false=每个实体各自对齐。",
-  "outputContract": "status=read、moves[{bodyId,delta}]、targetPoint；仅平移，不猜测任意曲面姿态；body.align 提交同参数。",
+  "outputContract": "status=read、moves[{bodyId,delta}]、targetPoint 和 boundsSource=authoritative-world-geometry。按需读取移动件与基准件当前世界坐标下的精确 BRep 范围或完整网格顶点范围。body.align 使用同一规划逻辑提交平移。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -30,7 +30,9 @@
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "STALE_REFERENCE",
-    "REVISION_CONFLICT"
+    "REVISION_CONFLICT",
+    "CAPABILITY_UNAVAILABLE",
+    "KERNEL_TIMEOUT"
   ],
   "inputSchema": {
     "type": "object",
@@ -275,5 +277,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f10b7ded099ae6ca1d0491260d798853be95c818b0050713461fc69c878c8b43"
+  "docsHash": "sha256:e4510687da83cee7e417080a7bc983915a822d15aa8a5ee466afb57077a2c98a"
 }

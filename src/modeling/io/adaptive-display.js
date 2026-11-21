@@ -28,6 +28,35 @@ export function displayEdges(edges,tolerance,oc){
     }finally{dispose(curve);}
   });
 }
+// Sample the exact edge curve directly at the same linear and angular
+// deflections as the normal wire extractor. This avoids remeshing faces
+// solely to build edge lines. Edge IDs still refer to the original BRep.
+export function preciseDisplayEdges(edges,{tolerance,angularTolerance},oc){
+  return edges.map((edge,edgeId)=>{
+    if(oc.BRep_Tool.Degenerated(edge.wrapped))return {edgeId,positions:[]};
+    const curve=new oc.BRepAdaptor_Curve(edge.wrapped);
+    let sampler;
+    try{
+      if(!curve.Is3DCurve())throw new Error('No exact 3D edge curve');
+      sampler=new oc.GCPnts_TangentialDeflection();
+      sampler.Initialize(curve,angularTolerance,tolerance,2,1e-9,1e-7);
+      const count=sampler.NbPoints();
+      if(count<2||count>100000)throw new Error('Invalid edge display sample count');
+      const positions=[];
+      let previous;
+      for(let i=1;i<=count;i++){
+        const point=sampler.Value(i);
+        try{
+          const xyz=[point.X(),point.Y(),point.Z()];
+          if(!xyz.every(Number.isFinite))throw new Error('Invalid edge display point');
+          if(previous)positions.push(...previous,...xyz);
+          previous=xyz;
+        }finally{dispose(point);}
+      }
+      return {edgeId,positions};
+    }finally{dispose(sampler);dispose(curve);}
+  });
+}
 export function displayMetadata(shape,faces,edges,oc){
   // AddOptimal(false) solves extrema on every spline and can dominate import.
   // Cached triangulation + deflection gives a conservative display box instead.

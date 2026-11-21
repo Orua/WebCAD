@@ -44,6 +44,16 @@ export function showAlignBodies({getState,openDialog,element,button,emit,setTask
  const preview=element('p',{class:'property-callout'});d.append(preview);
  const read=()=>({bodyIds:[...bodyIds],target:['origin','anchor'].includes(target.value)?{kind:target.value}:{kind:'body',bodyId:target.value},axes:axes.filter(([,c])=>c.checked).map(([a])=>a),sourceSide:sourceSide.value,targetSide:targetSide.value,group:group.checked});
  const update=()=>{info.textContent='移动 '+bodyIds.length+' 件；'+(target.value==='origin'?'对齐世界原点':target.value==='anchor'?'对齐参考锚点':'基准件保持固定');preview.textContent='X/Y/Z 指世界坐标。最小侧/最大侧对应该轴的较小/较大坐标。';};
- d.append(button('查看位移',async()=>{const r=await emit('alignmentPlan',read());if(r)preview.textContent=r.moves.map(m=>`${getState().bodies.find(b=>b.id===m.bodyId)?.name||'实体'}：Δ ${m.delta.map(v=>Number(v.toFixed(3))).join(', ')} mm`).join('\n');},'secondary'),button('应用对齐',async()=>{if(working)return;working=true;try{const r=await emit('alignBodies',read());if(r?.status==='committed')close();}finally{working=false;}},'primary'));
+ const previewButton=button('查看位移',async()=>{
+   const input=read(),atRevision=getState().revision;
+   previewButton.disabled=true;preview.textContent='正在测量所选实体的几何范围…';
+   try{
+     const r=await emit('alignmentPlan',input);
+     if(!r||atRevision!==getState().revision||JSON.stringify(input)!==JSON.stringify(read())){update();return;}
+     preview.textContent=r.moves.map(m=>`${getState().bodies.find(b=>b.id===m.bodyId)?.name||'实体'}：Δ ${m.delta.map(v=>Number(v.toFixed(3))).join(', ')} mm`).join('\n');
+   }finally{previewButton.disabled=false;}
+ },'secondary');
+ for(const field of [target,sourceSide,targetSide,group,...axes.map(([,field])=>field)])field.addEventListener('change',update);
+ d.append(previewButton,button('应用对齐',async()=>{if(working)return;working=true;try{const r=await emit('alignBodies',read());if(r?.status==='committed')close();}finally{working=false;}},'primary'));
  setTaskTargetRefresh(()=>{if(working)return;const ids=getState().selectedIds;if(picking&&ids.length===1&&!bodyIds.includes(ids[0])){target.value=ids[0];picking=false;d._acceptSelection=false;update();}else if(!picking&&d._acceptSelection&&ids.length){bodyIds=[...ids];update();}});update();
 }

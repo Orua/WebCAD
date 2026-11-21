@@ -115,6 +115,7 @@ function buildCard(id, source) {
         : ['fillet', 'chamfer'].includes(id) ? { ...examples[id], allEdges: true }
           : { ...examples[id], __unknownField: true };
   const known = [source.notes || source.description];
+  if(['transform','copy'].includes(id))known.push('For an exact BRep, mode "align" with resolved placement uses the source geometry and a rigid location. The assigned body ID and appearance are independent. A final-state project stores the shared BRep once and a location for each object.');
   for(const tbd of tbdCapabilities.operations){
     if(tbd.enabled!==false)continue;
     if(tbd.operation===id||tbd.operation.startsWith(id+'.')){

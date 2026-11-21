@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { CADViewport } from '../src/viewport.js';
 import { DISPLAY_DEFAULTS } from '../src/display-preferences.js';
+import { validatePageInput } from '../src/page-input-contracts.js';
 
 function viewport(){
  const v=Object.create(CADViewport.prototype);
@@ -49,6 +50,20 @@ v.selected=[];assert.equal(v.getTransformState().blocker,'NO_SELECTION');
   assert.equal(pose.camera.isOrthographicCamera,true);
   assert.deepEqual(pose.camera.position.toArray(),[10,20,30]);
   assert.deepEqual(pose.controls.target.toArray(),[1,2,3]);
+  const orthographic=pose.camera,target=[1,2,3];
+  const camera={position:[1,2,33],target,up:[0,1,0],orthographicHeightMm:16};
+  const context={sessionId:'session',documentId:'document',documentInstanceId:'instance'};
+  validatePageInput('setView',{context,projection:'orthographic',camera});
+  assert.throws(()=>validatePageInput('setView',{context,camera:{...camera,orthographicHeightMm:0}}),{code:'PARAM_RANGE_INVALID',path:'args.camera.orthographicHeightMm'});
+  pose.setCamera(camera);
+  assert.equal(pose.cameraPose().orthographicHeightMm,16);
+  pose.setCamera({position:[1,2,303],target,up:[0,1,0]});
+  const fullHeight=2*300*Math.tan(THREE.MathUtils.degToRad(35/2));
+  assert.equal(pose.cameraPose().orthographicHeightMm,fullHeight);
+  assert.equal(pose.camera,orthographic);
+  pose.camera.zoom=2;
+  pose.setCamera({position:[301,2,3],target});
+  assert.equal(pose.cameraPose().orthographicHeightMm,fullHeight/2,'direction changes preserve wheel zoom');
   pose.setProjection('perspective');
   assert.equal(fitted,1);
 }

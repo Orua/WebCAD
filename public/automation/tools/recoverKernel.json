@@ -2,7 +2,7 @@
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.72.0",
+  "version": "1.74.0",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -23,7 +23,7 @@
     "recovery"
   ],
   "inputContract": "recoverKernel({context,stopRunning?:boolean})。读当前context；默认不停止运行任务，只恢复未就绪内核。明确停止未提交计算才用stopRunning:true。",
-  "outputContract": "status=read,recovered,stopped?,recovery?,context；stopRunning:true立即终止受控Worker并返回恢复中的独立记录，最多120秒；用getState().recovery查完成/失败。工程身份、已提交数据和历史保留；恢复完成递增revision，失效旧拓扑选择，必须重读context/拓扑。原任务回执保留。普通重建超过硬超时会自动终止，先返回 KERNEL_TIMEOUT/not_committed；恢复独立执行并可查询，无需先 stopRunning。重建使用原已提交配方，不刷新页面或重放Agent命令；失败仍可files.save。",
+  "outputContract": "status=read,recovered,stopped?,recovery?,context；stopRunning:true立即终止受控Worker并返回恢复中的独立记录，最多120秒；用getState().recovery查完成/失败。工程身份、已提交数据和历史保留；恢复完成递增revision，失效旧拓扑选择，必须重读context/拓扑。原任务回执保留。超时的 error.details 和恢复状态保留最后上报的阶段与特征 ID。普通重建超过硬超时会自动终止，先返回 KERNEL_TIMEOUT/not_committed；恢复独立执行并可查询，无需先 stopRunning。重建使用原已提交配方，不刷新页面或重放Agent命令；失败仍可files.save。",
   "implementationStatus": "implemented",
   "contractStatus": "page-method",
   "runtimeAvailability": "requires_page",
@@ -186,5 +186,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e8be5af6ce0a197f38930e0b4480a4c913dd0e604dd06b76ff6d743139c4a0bf"
+  "docsHash": "sha256:0cb892f169c3d2709a310b5e1787c772300c2ad764b76dcd5a0a7c3688f3412a"
 }

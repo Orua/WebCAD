@@ -2180,7 +2180,7 @@
       "files": [
         {
           "path": "public/automation/remote-agent/host-adapter.js",
-          "sha256": "0d472cb4c922dc13c7059fee6c5de16c5821481d6bc2904e63ed4d45d392f635"
+          "sha256": "c4e42810eb095cd5f99c9325a0854f1aa8506ec81f396c6200ebf1fef66e36ca"
         },
         {
           "path": "public/automation/remote-agent/layout-planner.py.txt",
@@ -2192,7 +2192,7 @@
         },
         {
           "path": "public/automation/remote-agent/runtime-contract.json",
-          "sha256": "49f304eebe6c7406f62cc4fa9405f2abb4c2bdb7372e6ccc3d5b00c6caf8aeba"
+          "sha256": "1995282975cfeffba7fa7f525605c1544d030dbc0d253da22876367aaa8a27fe"
         },
         {
           "path": "public/automation/webcad-page-api/scripts/knowledge-cache.mjs",

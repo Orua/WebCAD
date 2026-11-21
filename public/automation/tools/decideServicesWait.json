@@ -2,7 +2,7 @@
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.72.0",
+  "version": "1.74.0",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -137,5 +137,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:20e1ca4f227567db2e3ec8dc768d3647e30806ad6397a4a09a61f54aa0882901"
+  "docsHash": "sha256:d32121fa9c2ef7f6a7b89bbd0fe0759204ce6868909ba5a5fa00646239edb851"
 }
