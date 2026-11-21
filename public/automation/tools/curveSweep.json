@@ -304,7 +304,7 @@
       },
       "autoAlign": {
         "type": "boolean",
-        "default": true
+        "description": "Omit to keep the declared order for new all-ellipse spine features. For other new profiles or old recipes the existing compatibility rule applies. Explicit false disables native seam reordering."
       },
       "volumeCheck": {
         "type": "string",
@@ -533,6 +533,14 @@
             ]
           }
         ]
+      },
+      "rollMode": {
+        "type": "string",
+        "enum": [
+          "absolute",
+          "incremental"
+        ],
+        "description": "Spine only. New features store absolute by default: the law is an angle about the local tangent relative to the unrolled rotation-minimizing frame. Incremental adds the value at each station, for compatibility with stored recipes lacking rollMode."
       },
       "profileLaw": {
         "type": "array",
@@ -834,10 +842,13 @@
     "截面扫掠",
     "pipe",
     "圆管",
-    "沿路径圆管"
+    "沿路径圆管",
+    "弯曲渐缩体",
+    "变截面弯曲",
+    "滚转"
   ],
   "description": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
-  "schemaHash": "sha256:5c42c36a91174aaa8afea365f73bc77fc0d95aa67f9f31b64b7efd7b32aee886",
+  "schemaHash": "sha256:c3f2397502ebe4f6dd691c842a4237c2d313ea7ac8eb5da2c057cfffc2b30187",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -1064,13 +1075,15 @@
         }
       },
       "autoAlign": {
-        "meaning": "autoAlign: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "meaning": "Omit to keep the declared order for new all-ellipse spine features. For other new profiles or old recipes the existing compatibility rule applies. Explicit false disables native seam reordering.",
         "unit": "none",
         "range": [
           null,
           null
         ],
-        "default": true
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       },
       "volumeCheck": {
         "meaning": "volumeCheck: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
@@ -1138,6 +1151,17 @@
       },
       "rollLawDeg": {
         "meaning": "rollLawDeg: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "rollMode": {
+        "meaning": "Spine only. New features store absolute by default: the law is an angle about the local tangent relative to the unrolled rotation-minimizing frame. Incremental adds the value at each station, for compatibility with stored recipes lacking rollMode.",
         "unit": "none",
         "range": [
           null,
@@ -1920,5 +1944,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:4138bf68c04823240760082f1f9ff7be334e37ab5aafad47ac453a0d8bed7f44"
+  "docsHash": "sha256:bb89546f745facb51d18af6f6796b361d41de6622cc96624c2cd96d44ea46bee"
 }

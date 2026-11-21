@@ -1212,10 +1212,11 @@
   "importAtFrame": {
     "tools": [
       "files.register",
+      "files.inspectInsert",
       "files.import"
     ],
     "method": "files.import",
-    "usage": "用户选定真实 STEP/BREP 文件后登记字节；显式提交当前工作基准版本、来源包围盒中心和幂等键。"
+    "usage": "登记 WebCAD、STEP/BRep、STL 或 typed mesh 原件并插入当前工程。STL 明确指定单位。.webcad 支持 assembly/parts、统一比例与坐标架。files.inspectInsert 只读来源尺寸。保留源坐标使用 world 与 model-origin。"
   },
   "restoreRecovery": {
     "tools": [
@@ -1672,6 +1673,7 @@ files.register: contextPolicy=none
 files.new: contextPolicy=none
 files.open: contextPolicy=revision
 files.import: contextPolicy=revision
+files.inspectInsert: contextPolicy=none
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
 files.reattach: contextPolicy=none

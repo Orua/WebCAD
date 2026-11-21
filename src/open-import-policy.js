@@ -2,6 +2,7 @@
 // Nothing here chooses by file extension alone: the caller states the intent.
 export const PROJECT_EXTENSIONS=Object.freeze(['webcad','json']);
 export const MODEL_EXTENSIONS=Object.freeze(['step','stp','brep','brp','stl','mesh']);
+export const INSERT_EXTENSIONS=Object.freeze([...MODEL_EXTENSIONS,'webcad']);
 export const UNSAVED_MODES=Object.freeze(['fail','discard']);
 const fail=(code,message,path)=>{throw Object.assign(new Error(message),{code,...(path?{path}:{})});};
 export const extensionOf=name=>String(name||'').split('.').pop().toLowerCase();
@@ -21,9 +22,8 @@ export function assertOpenAllowed({unsaved,dirty}){return assertReplacementAllow
 export function assertNewAllowed({unsaved,dirty}){return assertReplacementAllowed({unsaved:unsaved??'fail',dirty,action:'new'});}
 export function assertInsertable(name){
   const kind=classifyFile(name);
-  if(kind==='project')fail('FORMAT_UNSUPPORTED','工程文件只能“打开”（替换当前设计），不能插入；插入请选择 STEP/BREP/STL 模型。');
   if(kind==='iges')fail('CAPABILITY_UNAVAILABLE','静态版不支持 IGES；请离线转换为 STEP / BREP。');
-  if(kind!=='model')fail('FORMAT_UNSUPPORTED','请选择 STEP/STP、BREP 或 STL 模型文件。');
+  if(!INSERT_EXTENSIONS.includes(extensionOf(name)))fail('FORMAT_UNSUPPORTED','请选择 WebCAD、STEP、BRep、STL 或 typed mesh 原件。');
 }
 export function assertOpenable(name){
   const kind=classifyFile(name);
@@ -38,6 +38,6 @@ export function dropDecision({files,documentEmpty,dirty}){
   const hasProject=kinds.includes('project');
   if(hasProject&&files.length>1)return {mode:'reject',reason:'ONE_PROJECT_ONLY'};
   if(documentEmpty&&!dirty&&files.length===1)return {mode:'open'};
-  return {mode:'ask',choices:hasProject?['open','cancel']:files.length>1?['insert','cancel']:['open','insert','cancel'],defaultChoice:'cancel'};
+  return {mode:'ask',choices:hasProject&&!INSERT_EXTENSIONS.includes(extensionOf(files[0].name))?['open','cancel']:files.length>1?['insert','cancel']:['open','insert','cancel'],defaultChoice:'cancel'};
 }
-export const FILE_MENU_LABELS=Object.freeze({open:'打开…（替换当前设计）',importAtFrame:'插入模型到当前设计…'});
+export const FILE_MENU_LABELS=Object.freeze({open:'打开…（替换当前设计）',importAtFrame:'插入到当前设计…'});

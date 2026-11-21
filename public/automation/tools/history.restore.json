@@ -8,7 +8,7 @@
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -262,10 +262,14 @@
       {
         "id": "files.import",
         "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      },
+      {
+        "id": "files.inspectInsert",
+        "chooseWhen": "读取另一个已登记 WebCAD 工程的来源范围和对象数，用于插入前确定比例和坐标。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4e2c36975841e68aa7f32d642fb40c8fe814be6d882202f56aab9c2c5f06db08"
+  "docsHash": "sha256:b0b4f519e801c9049039f37dc2c68c122fb82fe9d625907e94f847e8fa394b75"
 }

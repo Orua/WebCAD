@@ -5,7 +5,7 @@ import {createProjectStorage} from './project-storage.js?v=20261025-stability2';
 import {createNativeStateView} from './native-state.js?v=20261027-projection3';
 import {timingTotals,createTurnTimeline,timelineLabels} from './turn-timing.js?v=20261023-timeline2';
 import {createLocationDraftInserter} from './location-draft.js?v=20261022-location2';
-import {renderCadFiles,compactUploadNames} from './compact-files.js?v=20261022-compact1';
+import {renderCadFiles,compactUploadNames} from './compact-files.js?v=20261121-insert';
 import {createPanelLayout,isMobileInput,isMobileLayout} from './panel-layout.js?v=20261019-layout1';
 const assistantOnly=new URLSearchParams(location.search).get('assistant')==='1';
 const bridge=assistantOnly?createAssistantBridge():null;
@@ -17,9 +17,10 @@ const createHostAdapter=options=>{
   return agent.createHostAdapter(options);
 };
 
-import {gatewayFetch,isTransportError,isModelSelectionError,modelSelectionMessage,modelCatalogPlan,createRecoveryLoop,publicProgressText,toolActivityText,renderReply,cadOutcomeText,uploadHostArtifact,durationText,registerHostAttachments,attachmentIdentity,createHostRecoveryJournal,settleIndependent,historyUserText,documentKey,documentChanged,planConversation,isForeignConversationError,PROJECT_SWITCH_NOTICE,PROJECT_REOPEN_NOTICE,FOREIGN_CONVERSATION_NOTICE} from './workspace-transport.js?v=20261027-conversation1';
+import {gatewayFetch,isTransportError,isModelSelectionError,modelSelectionMessage,modelCatalogPlan,createRecoveryLoop,publicProgressText,toolActivityText,renderReply,cadOutcomeText,uploadHostArtifact,durationText,registerHostAttachments,attachmentIdentity,createHostRecoveryJournal,settleIndependent,historyUserText,documentKey,documentChanged,planConversation,isForeignConversationError,PROJECT_SWITCH_NOTICE,PROJECT_REOPEN_NOTICE,FOREIGN_CONVERSATION_NOTICE} from './workspace-transport.js?v=20261108-delivery1';
 import {createProjectOpenController} from './project-open.js?v=20261026-auth-stop';
-import {createAttachmentBytesAPI,ensureCanvasResources} from './attachment-bytes.js?v=20261026-attach-ready2';
+import {createAttachmentBytesAPI,ensureCanvasResources} from './attachment-bytes.js?v=20261121-insert';
+import {canInsertFile,createConversationImporter,requestInsertOptions} from './project-insert.js?v=20261121-insert';
 const config=JSON.parse(document.getElementById('webcad-config').textContent);
 const editLock=document.getElementById('edit-lock'),dismissLock=document.getElementById('dismiss-lock');
 dismissLock.dataset.hostControlAllowed='true';
@@ -51,7 +52,19 @@ async function insertLocationDraft(marker){
 }
 let session=null, adapter=null, stream=null, lastSeq=0, taskId=null, heartbeat=null, disposed=false, pendingSend=null;
 let robotProgress={taskId:null,status:'idle',phase:'waiting',startedAt:null,entries:[]};
-let projectOpening=false,projectHandoffClaimed=false;
+let projectOpening=false,projectHandoffClaimed=false,fileInserting=false;
+const conversationImporter=createConversationImporter({api,download:async(bound,file)=>{
+  if(session!==bound||manualControl||projectOpening)throw Object.assign(Error('当前工作台连接已变化。'),{code:'INSTANCE_MISMATCH'});
+  const url=file.source==='task'?endpoint('download',{cadSessionId:bound.cadSessionId,taskId:file.taskId,fileId:file.fileId}):
+    file.source==='project'?endpoint('project-download',{conversationId:bound.conversationId,fileId:file.fileId}):null;
+  if(!url)throw Object.assign(Error('无法识别会话原件。'),{code:'ASSET_INVALID'});
+  const response=await fetch(url,{credentials:'same-origin'});
+  if(!response.ok)throw Object.assign(Error('会话原件下载失败。'),{code:'PROJECT_DOWNLOAD_FAILED',status:response.status});
+  const buffer=await response.arrayBuffer();
+  if(session!==bound||manualControl||projectOpening)throw Object.assign(Error('下载期间工程连接已变化。'),{code:'INSTANCE_MISMATCH'});
+  const TargetBytes=bridge?Uint8Array:frame.contentWindow.Uint8Array;
+  return new TargetBytes(buffer);
+}});
 const openJournalKey='webcad-project-open:'+config.userId+':'+config.agentTarget;
 const openJournal={read(){try{return JSON.parse(sessionStorage.getItem(openJournalKey)||'null');}catch{return null;}},write(value){sessionStorage.setItem(openJournalKey,JSON.stringify(value));},clear(){sessionStorage.removeItem(openJournalKey);}};
 const projectOpener=createProjectOpenController({
@@ -349,8 +362,39 @@ async function heartbeatTick(){
 function message(role,text){const empty=messages.querySelector('.workbench-empty');if(empty)empty.remove();const element=document.createElement('div');element.className='message '+role;element.textContent=text;messages.append(element);messages.scrollTop=messages.scrollHeight;return element;}
 function fileUrl(task,file,inline=false){return endpoint('download',{taskId:task,fileId:file.fileId,inline:String(inline)}).href;}
 function renderTaskFiles(row,id,files){
-  renderCadFiles(row,files,(file,inline)=>fileUrl(id,file,inline),workbench.createIcon);
+  renderCadFiles(row,files,(file,inline)=>fileUrl(id,file,inline),workbench.createIcon,
+    file=>!bridge&&canInsertFile(file)?()=>void insertTaskFile(id,file):null);
   workbench.linkFilePaths(row,files,(file,inline)=>fileUrl(id,file,inline));
+}
+async function insertTaskFile(task,file){
+  if(!session||!knowledgeReady||manualControl||taskId||pendingSend||sending||projectOpening||fileInserting||adapter?.state().pending.length){
+    status.textContent='请先连接工作台，并等待当前任务与画布写入结束。';return;
+  }
+  const bound=session;
+  fileInserting=true;controls();
+  try{
+    const state=await api().getState({compact:true});
+    const {sessionId,documentId,documentInstanceId,revision}=state.context;
+    const context={sessionId,documentId,documentInstanceId,expectedRevision:revision};
+    const options=await requestInsertOptions(file.originalName||file.name);
+    if(!options)return;
+    const {frame:placementFrame,...fileOptions}=options;
+    const placement={version:1,frame:placementFrame==='world'?{kind:'world'}:
+      {kind:'work',expectedFrameVersion:state.referenceSystem.workFrame.frameVersion},
+      sourceAnchor:{kind:placementFrame==='world'?'model-origin':'bounds-center'}};
+    const descriptor=await rpc('project-insert-file',{taskId:task,fileId:file.fileId,expectedContext:context,
+      expectedSize:file.size,expectedSha256:file.sha256},{cadSessionId:bound.cadSessionId});
+    const page=api(),resource=await conversationImporter.register(descriptor,context,bound);
+    try{
+      if(session!==bound||manualControl||projectOpening||taskId||adapter?.state().pending.length)
+        throw Object.assign(Error('当前工作台连接或写入状态已变化。'),{code:'INSTANCE_MISMATCH'});
+      const committed=await page.files.import({context,resourceId:resource.resourceId,idempotencyKey:crypto.randomUUID(),placement,...fileOptions});
+      if(committed.status!=='committed')throw Object.assign(Error(committed.error?.message||'插入尚未确认。'),committed.error);
+      const result=await conversationImporter.confirm(committed).catch(()=>committed);
+      status.textContent='已插入 '+descriptor.name+' · '+result.createdBodyIds.length+' 个对象'+(result.render?.status==='rendered'?' · 已显示':' · 等待显示');
+    }finally{await page.files.release({resourceId:resource.resourceId});}
+  }catch(error){status.textContent='插入未确认：'+error.message;}
+  finally{fileInserting=false;controls();}
 }
 async function loadTaskFiles(id,userRow,agentRow){
   const files=await rpc('files',{}, {taskId:id});
@@ -503,7 +547,7 @@ function handleChatCommand(text){
 }
 function controls(){
   rememberRecovery();
-  const pending=adapter?.state().pending.length || 0, locked=Boolean(taskId||pendingSend||projectOpening);
+  const pending=adapter?.state().pending.length || 0, locked=Boolean(taskId||pendingSend||projectOpening||fileInserting);
   const held=Boolean(adapter?.state().editing)&&!manualControl,viewOnly=syncHostControl(held);
   const lockSurface=viewOnly?frame.contentDocument?.querySelector('.canvas-panel'):document.querySelector('.viewport');
   if(lockSurface&&editLock.parentElement!==lockSurface)lockSurface.append(editLock);
@@ -519,7 +563,7 @@ function controls(){
   prompt.placeholder=taskId?'补充要求；发送后可在上方追加到当前任务':'输入工作要求';
   prompt.disabled=false;
   document.getElementById('reconnect').disabled=connecting||Boolean(canvasConnection);
-  historyButton.disabled=Boolean(taskId||pendingSend||sending)||connecting||attaching;
+  historyButton.disabled=Boolean(taskId||pendingSend||sending||fileInserting)||connecting||attaching;
   newConversationButton.disabled=false;
   newConversationButton.title='新建对话';
   dismissLock.disabled=held&&!viewOnly;
@@ -653,7 +697,7 @@ async function upload(command,descriptor,bytes){
     return gatewayFetch(window.fetch.bind(window),endpoint(action,extra),{method:'POST',credentials:'same-origin',headers:{'Content-Type':data?'application/octet-stream':'application/json','X-CSRF-Token':config.csrf,...(action==='artifact-upload-chunk'?{'X-Chunk-Sha256':meta.sha256}:{})},body:data||JSON.stringify({...meta,commandId:command.commandId})},60000);
   }});
   const row=activeReply?.row||message('agent','已生成文件：');
-  const list=row._outputFiles||(row._outputFiles=[]);list.push({fileId:result.fileId,originalName:result.name,status:'ready'});renderTaskFiles(row,result.taskId,list);return result;
+  const list=row._outputFiles||(row._outputFiles=[]);list.push({fileId:result.fileId,originalName:result.name,status:'ready',size:result.size,sha256:result.sha256});renderTaskFiles(row,result.taskId,list);return result;
 }
 
 function listen(){
@@ -738,7 +782,8 @@ function connect(){
   connectOperation=operation;return operation;
 }
 async function createSessionAdapter(bound){
-  const created=await createHostAdapter({api:api(),session:bound,onStateChange:controls,report:reportAdapter,artifact:upload});
+  const created=await createHostAdapter({api:api(),session:bound,onStateChange:controls,report:reportAdapter,artifact:upload,
+    prepareImport:(file,context)=>conversationImporter.register(file,context,bound),confirmImport:conversationImporter.confirm});
   adapterLeaseEpoch=bound.leaseEpoch;return created;
 }
 async function reportAdapter(kind,command,body){
@@ -958,7 +1003,7 @@ async function prepareTaskBinding(){
 async function sendChat(override,onAccepted){
   const automatic=typeof override==='string',text=automatic?override:prompt.value.trim();if(!automatic&&handleChatCommand(text))return;
   if(composer.intercept(true))return;
-  if(!text||sending||(connecting&&session?.agentMode!=='native')||projectOpening)return;
+  if(!text||sending||(connecting&&session?.agentMode!=='native')||projectOpening||fileInserting)return;
   sending=true;controls();
   const sendSessionGeneration=connectionGeneration;
   const currentSend=()=>sendSessionGeneration===connectionGeneration;

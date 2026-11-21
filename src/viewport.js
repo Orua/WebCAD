@@ -120,20 +120,42 @@ export class CADViewport {
     for(const [id,entry] of this.objects){
       const body=incoming.get(id);
       if(!body||body.renderVersion===undefined||body.renderVersion!==entry.body.renderVersion){
-        this.modelRoot.remove(entry.root);this.exactDisplayDetail.release(entry);for(const patch of entry.displayPatches||[]){patch.full.dispose();for(const lod of patch.lods)lod.geometry.dispose();}this.disposeObject(entry.root);if(!entry.edges.parent)this.disposeObject(entry.edges);entry.selectedEdgeMaterial?.dispose();this.objects.delete(id);
+        this.modelRoot.remove(entry.root);
+        for(const leaf of entry.parts||[entry]){
+          this.exactDisplayDetail.release(leaf);
+          for(const patch of leaf.displayPatches||[]){patch.full.dispose();for(const lod of patch.lods)lod.geometry.dispose();}
+          this.disposeObject(leaf.root);if(!leaf.edges.parent)this.disposeObject(leaf.edges);leaf.selectedEdgeMaterial?.dispose();
+        }
+        this.objects.delete(id);
       }
     }
-    bodies.forEach((body,i)=>{
+    for(const body of bodies){
       const retained=this.objects.get(body.id);
-      if(retained){retained.body=body;retained.mesh.userData.body=body;retained.root.visible=!hidden.includes(body.id);return;}
-      const root=new THREE.Group();root.userData.bodyId=body.id;const geometry=new THREE.BufferGeometry();
+      if(retained){retained.body=body;if(retained.mesh)retained.mesh.userData.body=body;retained.root.visible=!hidden.includes(body.id);continue;}
+      let entry;
+      if(body.parts){
+        const root=new THREE.Group();root.userData.bodyId=body.id;
+        const parts=body.parts.map(part=>this.createRenderEntry({...part,adaptiveDisplay:undefined},body.id));
+        root.add(...parts.map(part=>part.root));
+        entry={root,body,parts};
+      }else entry=this.createRenderEntry(body,body.id);
+      entry.root.visible=!hidden.includes(body.id);
+      this.modelRoot.add(entry.root);this.objects.set(body.id,entry);
+      for(const leaf of entry.parts||[entry])this.exactDisplayDetail.attach(leaf);
+    }
+    if(this.grid?.position)this.grid.position.z=floorGridZ(bodies);this.setDisplay(this.mode);this.setMetalFinish(this.finishKey);this.applyClipping();this.updateHud();
+  }
+  *drawEntries(){for(const entry of this.objects.values()){if(entry.parts)yield* entry.parts;else yield entry;}}
+  createRenderEntry(body,logicalId){
+      const root=new THREE.Group();root.userData.bodyId=logicalId;const geometry=new THREE.BufferGeometry();
+      const assemblyPart=logicalId!==body.id;
       if(body.previewOrigin)root.position.fromArray(body.previewOrigin);
       geometry.setAttribute('position',new THREE.BufferAttribute(body.positions instanceof Float32Array?body.positions:new Float32Array(body.positions),3));
       if(body.normals?.length)geometry.setAttribute('normal',new THREE.BufferAttribute(body.normals instanceof Float32Array?body.normals:new Float32Array(body.normals),3));
       geometry.setIndex(new THREE.BufferAttribute(body.indices instanceof Uint32Array?body.indices:new Uint32Array(body.indices),1));if(!body.normals?.length)geometry.computeVertexNormals();
       const defaultColor=this.displayPreferences.defaultColor,color=this.partColors[body.id]||defaultColor;const material=new THREE.MeshPhysicalMaterial({color,metalness:.15,roughness:.42,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1,side:THREE.DoubleSide});
       this.metals.apply(material,this.partFinishes[body.id]||this.finishKey,{bounds:body.bounds,baseColor:color});material.clippingPlanes=this.clipPlanes;
-      const mesh=new THREE.Mesh(geometry,material);mesh.userData={bodyId:body.id,body,baseColor:color,defaultColor,type:'body'};root.add(mesh);
+      const mesh=new THREE.Mesh(geometry,material);mesh.userData={bodyId:logicalId,assemblyPart,body,baseColor:color,defaultColor,type:'body'};root.add(mesh);
       let displayGroup=null,displayPatches=null;
       if(body.displayPatches){displayGroup=new THREE.Group();displayPatches=body.displayPatches.map(patch=>{
         const full=new THREE.BufferGeometry();full.setAttribute('position',geometry.getAttribute('position'));full.setAttribute('normal',geometry.getAttribute('normal'));full.setIndex(new THREE.BufferAttribute(patch.indices,1));full.boundingBox=new THREE.Box3(new THREE.Vector3(...patch.bounds.min),new THREE.Vector3(...patch.bounds.max));full.boundingSphere=full.boundingBox.getBoundingSphere(new THREE.Sphere());
@@ -142,25 +164,26 @@ export class CADViewport {
       });root.add(displayGroup);}
       const edges=new THREE.Group(),edgeMaterial=new THREE.LineBasicMaterial({color:0x465b6e,transparent:true,opacity:.72}),selectedEdgeMaterial=edgeMaterial.clone();
       edgeMaterial.clippingPlanes=this.clipPlanes;selectedEdgeMaterial.clippingPlanes=this.clipPlanes;
-      for(const edge of body.edges||[]){if(edge.positions.length<6)continue;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(edge.positions,3));const line=new THREE.LineSegments(geo,edgeMaterial);line.userData={bodyId:body.id,type:'edge',edgeId:edge.edgeId};edges.add(line);}
-      if(!edges.children.length&&body.geometryType!=='rawMesh'){const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,25),new THREE.LineBasicMaterial({color:0x465b6e}));outline.userData={bodyId:body.id,type:'outline'};edges.add(outline);}
+      for(const edge of body.edges||[]){if(edge.positions.length<6)continue;const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(edge.positions,3));const line=new THREE.LineSegments(geo,edgeMaterial);line.userData={bodyId:logicalId,assemblyPart,type:'edge',edgeId:edge.edgeId};edges.add(line);}
+      if(!edges.children.length&&body.geometryType!=='rawMesh'){const outline=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,25),new THREE.LineBasicMaterial({color:0x465b6e}));outline.userData={bodyId:logicalId,assemblyPart,type:'outline'};edges.add(outline);}
       root.add(edges);
       const edgeBatch=createTechnicalEdgeBatch(edges,{bodyId:body.id,eligible:!body.displayPatches&&body.geometryType!=='rawMesh'});
       // Picking keeps the original coordinates/IDs, but thousands of hidden
       // LineSegments need not participate in every scene matrix/stamp traversal.
       if(edgeBatch){root.remove(edges);root.add(edgeBatch.root);}
-      root.visible=!hidden.includes(body.id);this.modelRoot.add(root);this.objects.set(body.id,{root,mesh,edges,edgeBatch,edgeMaterial,selectedEdgeMaterial,body,displayGroup,displayPatches});
-      this.exactDisplayDetail.attach(this.objects.get(body.id));
-    });if(this.grid?.position)this.grid.position.z=floorGridZ(bodies);this.setDisplay(this.mode);this.setMetalFinish(this.finishKey);this.applyClipping();this.updateHud();
+      return {root,mesh,edges,edgeBatch,edgeMaterial,selectedEdgeMaterial,body,displayGroup,displayPatches,logicalId};
   }
   setHidden(ids){if(ids.length===this.hidden.length&&ids.every((id,i)=>id===this.hidden[i]))return;this.hidden=ids;this.applyTemporaryDisplay();if(this.sceneLighting){const next=this.computeSceneLighting(this.finishKey);if(next.mode!==this.sceneLighting.mode)this.setMetalFinish(this.finishKey);else this.sceneLighting=next;}}
   setTemporaryDisplay(mode){if(!['normal','selectedOnly','transparentOthers'].includes(mode))throw new Error('未知临时显示方式');this.temporaryDisplay=mode;this.applyTemporaryDisplay();}
-  applyTemporaryDisplay(){for(const [id,entry] of this.objects){const selected=this.selected.includes(id),persistentlyHidden=this.hidden.includes(id),solo=this.temporaryDisplay==='selectedOnly';entry.root.visible=!persistentlyHidden&&(!solo||selected);const translucent=this.temporaryDisplay==='transparentOthers'&&!selected&&!persistentlyHidden,technical=this.mode==='transparentEdges';const material=entry.mesh.material,baseOpacity=material.userData?.surfaceOpacity??1,opacity=translucent?Math.min(baseOpacity,.2):technical?Math.min(baseOpacity,.35):baseOpacity,transparent=opacity<1||material.userData?.surfaceTextureAlpha===true;if(material.transparent!==transparent)material.needsUpdate=true;material.transparent=transparent;material.opacity=opacity;material.depthWrite=!transparent;for(const edge of entry.edges.children){const selectedEdge=this.topology?.bodyId===id&&this.topology?.type==='edge'&&this.topology.ids.includes(edge.userData.edgeId);edge.material.opacity=metalEdgeOpacity({selected,selectedEdge,translucent,mode:this.mode,finish:entry.mesh.material.userData?.metalFinish||'design'});edge.material.transparent=true;}entry.edgeBatch?.invalidate();}this.updateHud();}
+  applyTemporaryDisplay(){
+    const solo=this.temporaryDisplay==='selectedOnly';
+    for(const [id,entry] of this.objects)entry.root.visible=!this.hidden.includes(id)&&(!solo||this.selected.includes(id));
+    for(const entry of this.drawEntries()){const id=entry.logicalId??entry.body.id,selected=this.selected.includes(id),persistentlyHidden=this.hidden.includes(id)||entry.body.member?.hidden;entry.root.visible=!persistentlyHidden&&(!solo||selected);const translucent=this.temporaryDisplay==='transparentOthers'&&!selected&&!persistentlyHidden,technical=this.mode==='transparentEdges';const material=entry.mesh.material,baseOpacity=material.userData?.surfaceOpacity??1,opacity=translucent?Math.min(baseOpacity,.2):technical?Math.min(baseOpacity,.35):baseOpacity,transparent=opacity<1||material.userData?.surfaceTextureAlpha===true;if(material.transparent!==transparent)material.needsUpdate=true;material.transparent=transparent;material.opacity=opacity;material.depthWrite=!transparent;for(const edge of entry.edges.children){const selectedEdge=this.topology?.bodyId===id&&this.topology?.type==='edge'&&this.topology.ids.includes(edge.userData.edgeId);edge.material.opacity=metalEdgeOpacity({selected,selectedEdge,translucent,mode:this.mode,finish:entry.mesh.material.userData?.metalFinish||'design'});edge.material.transparent=true;}entry.edgeBatch?.invalidate();}this.updateHud();}
   setSelection(ids=[],topology=null){
     this.selected=ids;this.topology=topology;
-    for(const [id,entry] of this.objects){const active=ids.includes(id);this.metals.setSelected(entry.mesh.material,active);entry.mesh.material.emissive.set(0x000000);const finish=entry.mesh.material.userData.metalFinish||'design',edgeColor=finish.includes('gold')||finish==='antique-brass'?0x705638:0x465b6e;entry.edges.children.forEach(line=>{const edge=topology?.bodyId===id&&topology?.type==='edge'&&topology.ids.includes(line.userData.edgeId);if(entry.edgeMaterial)line.material=edge?entry.selectedEdgeMaterial:entry.edgeMaterial;line.material.color.set(edge?0xf08e2b:active?new THREE.Color(this.displayPreferences.themeColor):edgeColor);line.material.opacity=edge?1:.72;line.material.depthTest=!edge;line.renderOrder=edge?1000:0;});}
+    for(const entry of this.drawEntries()){const id=entry.logicalId??entry.body.id,active=ids.includes(id);this.metals.setSelected(entry.mesh.material,active);entry.mesh.material.emissive.set(0x000000);const finish=entry.mesh.material.userData.metalFinish||'design',edgeColor=finish.includes('gold')||finish==='antique-brass'?0x705638:0x465b6e;entry.edges.children.forEach(line=>{const edge=topology?.bodyId===id&&topology?.type==='edge'&&topology.ids.includes(line.userData.edgeId);if(entry.edgeMaterial)line.material=edge?entry.selectedEdgeMaterial:entry.edgeMaterial;line.material.color.set(edge?0xf08e2b:active?new THREE.Color(this.displayPreferences.themeColor):edgeColor);line.material.opacity=edge?1:.72;line.material.depthTest=!edge;line.renderOrder=edge?1000:0;});}
     if(this.faceOverlay){this.modelRoot.remove(this.faceOverlay);this.disposeObject(this.faceOverlay);this.faceOverlay=null;}
-    if(topology?.type==='face'){const entry=this.objects.get(topology.bodyId);if(entry&&!this.hidden.includes(topology.bodyId)){const indices=[];for(const g of entry.body.faceGroups||[])if(topology.ids.includes(g.faceId))for(let i=g.start;i<g.start+g.count;i++)indices.push(entry.body.indices[i]);if(indices.length){const geo=new THREE.BufferGeometry();geo.setAttribute('position',entry.mesh.geometry.getAttribute('position').clone());geo.setIndex(indices);this.faceOverlay=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xff9d2e,transparent:true,opacity:.88,toneMapped:false,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));this.faceOverlay.position.copy(entry.root.position);this.modelRoot.add(this.faceOverlay);}}}
+    if(topology?.type==='face'){const entry=this.objects.get(topology.bodyId);if(entry?.mesh&&!this.hidden.includes(topology.bodyId)){const indices=[];for(const g of entry.body.faceGroups||[])if(topology.ids.includes(g.faceId))for(let i=g.start;i<g.start+g.count;i++)indices.push(entry.body.indices[i]);if(indices.length){const geo=new THREE.BufferGeometry();geo.setAttribute('position',entry.mesh.geometry.getAttribute('position').clone());geo.setIndex(indices);this.faceOverlay=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xff9d2e,transparent:true,opacity:.88,toneMapped:false,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));this.faceOverlay.position.copy(entry.root.position);this.modelRoot.add(this.faceOverlay);}}}
     this.applyTemporaryDisplay();this.applyClipping();this.syncGizmo();
   }
   setSelectionMode(mode){this.selectionMode=this.interactionLocked?'view':mode;this.setDisplay(this.mode);this.updateHud();}
@@ -171,7 +194,11 @@ export class CADViewport {
   }
   viewFrame(frame){const previous={position:this.camera.position.toArray(),up:this.camera.up.toArray(),target:this.controls.target.toArray()},q=new THREE.Quaternion(...frame.quaternion),origin=new THREE.Vector3(...frame.origin),normal=new THREE.Vector3(0,0,1).applyQuaternion(q),distance=Math.max(this.camera.position.distanceTo(this.controls.target),20);this.camera.up.copy(new THREE.Vector3(0,1,0).applyQuaternion(q));this.controls.target.copy(origin);this.camera.position.copy(origin).addScaledVector(normal,distance);this.controls.update();return previous;}
   restoreFrameView(previous){this.camera.position.fromArray(previous.position);this.camera.up.fromArray(previous.up);this.controls.target.fromArray(previous.target);this.controls.update();}
-  computeSceneLighting(key){return sceneLightingState(key,this.partFinishes,[...this.objects.keys()].filter(id=>!this.hidden.includes(id)));}
+  computeSceneLighting(key){
+    const entries=[...this.drawEntries()].filter(entry=>!this.hidden.includes(entry.logicalId??entry.body.id)&&!entry.body.member?.hidden);
+    const finishes=Object.fromEntries(entries.map(entry=>[entry.body.id,this.partFinishes[entry.logicalId??entry.body.id]||entry.body.member?.finish||key]));
+    return sceneLightingState(key,finishes,entries.map(entry=>entry.body.id));
+  }
   setMetalFinish(key){
     if(!METAL_FINISHES[key])throw new Error('未知金属材质。');
     this.finishKey=key;this.lastFrameKey=null;
@@ -186,7 +213,14 @@ export class CADViewport {
     const az=p.lightAzimuth*Math.PI/180,el=p.lightElevation*Math.PI/180;
     this.studioLights?.[1].position.set(100*Math.cos(el)*Math.cos(az),100*Math.cos(el)*Math.sin(az),100*Math.sin(el));
     this.studioLights?.[2].position.set(-100*Math.cos(az),-100*Math.sin(az),50);
-    for(const [id,entry] of this.objects){entry.mesh.userData.defaultColor=p.defaultColor;entry.mesh.userData.baseColor=this.partColors[id]||p.defaultColor;this.metals.apply(entry.mesh.material,this.partFinishes[id]||key,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor,displayPreferences:p});applyDesignSurface(entry.mesh.material,this.partFinishes[id]||key,this.partSurfaces?.[id]);applyCompoundColors(entry,this.partSurfaces?.[id]?.solidColors,entry.mesh.userData.baseColor);if(entry.mesh.material.transmission>0){entry.mesh.material.envMap=this.metals.environment||this.metals.studioTarget?.texture||null;entry.mesh.material.envMapIntensity=p.environmentIntensity;}applyBodyTexture(entry,this.partSurfaces?.[id]?.texture,this.surfaceTextureAssets,{anisotropy:Math.min(4,this.renderer.capabilities.getMaxAnisotropy()),onChange:()=>{this.lastFrameKey=null;this.applyTemporaryDisplay();},onError:error=>this.callbacks.onRenderError?.(error)});}
+    for(const entry of this.drawEntries()){
+      const id=entry.logicalId??entry.body.id,member=entry.body.member;
+      const surface=member?{...member.surface,...this.partSurfaces?.[id]}:this.partSurfaces?.[id];
+      const finish=this.partFinishes[id]||member?.finish||key;
+      entry.mesh.userData.defaultColor=p.defaultColor;entry.mesh.userData.baseColor=this.partColors[id]||member?.color||p.defaultColor;
+      this.metals.apply(entry.mesh.material,finish,{bounds:entry.body.bounds,baseColor:entry.mesh.userData.baseColor,displayPreferences:p});
+      applyDesignSurface(entry.mesh.material,finish,surface);
+      applyCompoundColors(entry,member&&this.partColors[id]?undefined:surface?.solidColors,entry.mesh.userData.baseColor);if(entry.mesh.material.transmission>0){entry.mesh.material.envMap=this.metals.environment||this.metals.studioTarget?.texture||null;entry.mesh.material.envMapIntensity=p.environmentIntensity;}applyBodyTexture(entry,surface?.texture,this.surfaceTextureAssets,{anisotropy:Math.min(4,this.renderer.capabilities.getMaxAnisotropy()),onChange:()=>{this.lastFrameKey=null;this.applyTemporaryDisplay();},onError:error=>this.callbacks.onRenderError?.(error)});}
     this.setSelection(this.selected,this.topology);
     return METAL_FINISHES[key].label;
   }
@@ -230,7 +264,7 @@ export class CADViewport {
   async finishTransform(){
     if(!this.draggingGizmo)return;this.draggingGizmo=false;this.suppressPickUntil=Date.now()+150;
     const gesture=this.transformGesture||{bodyId:this.selected[0]},sourceId=gesture.bodyId,center=this.gizmoOrigin.clone(),position=this.gizmoProxy.position.clone(),quaternion=this.gizmoProxy.quaternion.clone();this.transformPending=true;this.gizmo.enabled=false;let snapped=false;
-    try{if(this.gizmoMode==='translate'){const delta=position.clone().sub(center);if(delta.length()>1e-8){const snap=await snapReleasedDrag(this,{bodyId:sourceId,translation:delta.toArray(),axis:this.dragAxis,skip:this.dragSkipSnap});if(snap){position.add(new THREE.Vector3(...snap.delta));this.gizmoProxy.position.copy(position);snapped=true;}}}}catch(error){this.callbacks.onTransformError?.(error);this.transformPending=false;this.transformGesture=null;this.gizmo.enabled=!this.interactionLocked&&!this.busy;const failed=this.objects.get(sourceId);if(failed){failed.root.matrixAutoUpdate=true;failed.root.matrix.identity();failed.root.updateMatrix();}this.syncGizmo();return;}
+    try{if(this.gizmoMode==='translate'&&!this.objects.get(sourceId)?.parts){const delta=position.clone().sub(center);if(delta.length()>1e-8){const snap=await snapReleasedDrag(this,{bodyId:sourceId,translation:delta.toArray(),axis:this.dragAxis,skip:this.dragSkipSnap});if(snap){position.add(new THREE.Vector3(...snap.delta));this.gizmoProxy.position.copy(position);snapped=true;}}}}catch(error){this.callbacks.onTransformError?.(error);this.transformPending=false;this.transformGesture=null;this.gizmo.enabled=!this.interactionLocked&&!this.busy;const failed=this.objects.get(sourceId);if(failed){failed.root.matrixAutoUpdate=true;failed.root.matrix.identity();failed.root.updateMatrix();}this.syncGizmo();return;}
     const euler=new THREE.Euler().setFromQuaternion(quaternion,'ZYX');
     const shift=position.sub(center.clone().applyQuaternion(quaternion));
     const params={x:shift.x,y:shift.y,z:shift.z,rx:THREE.MathUtils.radToDeg(euler.x),ry:THREE.MathUtils.radToDeg(euler.y),rz:THREE.MathUtils.radToDeg(euler.z)};
@@ -247,7 +281,7 @@ export class CADViewport {
       this.transformPending=false;this.transformGesture=null;this.gizmo.enabled=!this.interactionLocked&&!this.busy;this.syncGizmo();
     }
   }
-  applyClipping(){this.modelRoot.traverse(object=>{if(object.material){for(const material of [object.material].flat()){material.clippingPlanes=this.clipPlanes;material.needsUpdate=true;}}});for(const entry of this.objects.values())if(entry.edgeBatch){for(const material of [entry.edgeMaterial,entry.selectedEdgeMaterial])if(material){material.clippingPlanes=this.clipPlanes;material.needsUpdate=true;}entry.edgeBatch.invalidate();}}
+  applyClipping(){this.modelRoot.traverse(object=>{if(object.material){for(const material of [object.material].flat()){material.clippingPlanes=this.clipPlanes;material.needsUpdate=true;}}});for(const entry of this.drawEntries())if(entry.edgeBatch){for(const material of [entry.edgeMaterial,entry.selectedEdgeMaterial])if(material){material.clippingPlanes=this.clipPlanes;material.needsUpdate=true;}entry.edgeBatch.invalidate();}}
   edgePickTargets(entry){if(entry.edgeBatch){entry.root.updateWorldMatrix(true,false);for(const line of entry.edges.children)line.matrixWorld.copy(entry.root.matrixWorld);}return entry.edges.children;}
   setSection({axis='Z',position=0,enabled=true}={}){
     if(!['X','Y','Z'].includes(axis)||!Number.isFinite(Number(position)))throw new Error('Invalid section plane');
@@ -259,7 +293,7 @@ export class CADViewport {
   findSnapCandidates(event,{constraint=null,start=null}={}){
     if(!this.snapEnabled)return [];
     const rect=this.renderer.domElement.getBoundingClientRect(),radius=event.pointerType==='touch'?22:10,all=[];
-    for(const entry of this.objects.values()){if(!entry.root.visible)continue;
+    for(const entry of this.drawEntries()){if(!entry.root.visible)continue;
       for(const item of entry.body.snapPoints||[]){const point=new THREE.Vector3(...item.point);if(!this.isVisiblePoint(point))continue;
         if(start&&constraint&&['X','Y','Z','XY','XZ','YZ'].includes(constraint)&&[0,1,2].some(i=>!constraint.includes('XYZ'[i])&&Math.abs(point.getComponent(i)-start.getComponent(i))>1e-5))continue;
         const projected=point.clone().project(this.camera);if(projected.z<-1||projected.z>1)continue;
@@ -268,7 +302,7 @@ export class CADViewport {
       }
     }
     all.sort((a,b)=>a.distancePx-b.distancePx||({endpoint:0,midpoint:1,center:2}[a.type]??3)-({endpoint:0,midpoint:1,center:2}[b.type]??3));
-    const visible=[],meshes=[...this.objects.values()].filter(entry=>entry.root.visible).map(entry=>entry.mesh),ray=new THREE.Raycaster(),epsilon=Math.max(.02,this.span*1e-4);
+    const visible=[],meshes=[...this.drawEntries()].filter(entry=>entry.root.visible).map(entry=>entry.mesh),ray=new THREE.Raycaster(),epsilon=Math.max(.02,this.span*1e-4);
     for(const candidate of all.slice(0,40)){
       ray.setFromCamera(new THREE.Vector2(candidate.projected.x,candidate.projected.y),this.camera);
       const hit=ray.intersectObjects(meshes,false).find(item=>this.isVisiblePoint(item.point));
@@ -300,18 +334,19 @@ export class CADViewport {
       if(previous&&(constraint!=='free'||e.shiftKey)){const dx=Math.abs(point[0]-previous[0]),dy=Math.abs(point[1]-previous[1]);if(constraint==='horizontal'||(constraint==='auto'||e.shiftKey)&&dx>=dy)point[1]=previous[1];else point[0]=previous[0];}
       if(!previous||Math.hypot(point[0]-previous[0],point[1]-previous[1])>1e-7){this.sketch.points.push(point);this.drawSketch();}
     }return;}
-    const hits=ray.intersectObjects([...this.objects.values()].filter(v=>v.root.visible).map(v=>v.mesh),false).filter(hit=>this.isVisiblePoint(hit.point));
+    const visibleEntries=[...this.drawEntries()].filter(v=>v.root.visible);
+    const hits=ray.intersectObjects(visibleEntries.map(v=>v.mesh),false).filter(hit=>this.isVisiblePoint(hit.point));
     if(this.measuring){const point=this.snapPoint(e,hits[0]?.point);if(point)this.addMeasure(point);return;}
     if(this.selectionMode==='view')return;
-    if(e.altKey){const type=this.selectionMode,raw=type==='edge'?ray.intersectObjects([...this.objects.values()].filter(v=>v.root.visible).flatMap(v=>this.edgePickTargets(v)),false).filter(hit=>this.isVisiblePoint(hit.point)):hits,seen=new Set(),candidates=[];for(const hit of raw){const id=hit.object.userData.bodyId,topologyId=type==='edge'?hit.object.userData.edgeId:type==='face'?hit.object.userData.body.faceGroups?.find(group=>hit.faceIndex*3>=group.start&&hit.faceIndex*3<group.start+group.count)?.faceId:undefined,key=`${id}:${type}:${topologyId}`;if(!id||seen.has(key)||type!=='body'&&topologyId===undefined)continue;seen.add(key);candidates.push({id,type,topologyId,point:hit.point.toArray(),distance:hit.distance});if(candidates.length===50)break;}this.callbacks.onPickCandidates?.(candidates);return;}
+    if(e.altKey){const type=this.selectionMode,raw=type==='edge'?ray.intersectObjects(visibleEntries.filter(v=>!v.body.member).flatMap(v=>this.edgePickTargets(v)),false).filter(hit=>this.isVisiblePoint(hit.point)):hits,seen=new Set(),candidates=[];for(const hit of raw){if(type!=='body'&&hit.object.userData.assemblyPart)continue;const id=hit.object.userData.bodyId,topologyId=type==='edge'?hit.object.userData.edgeId:type==='face'?hit.object.userData.body.faceGroups?.find(group=>hit.faceIndex*3>=group.start&&hit.faceIndex*3<group.start+group.count)?.faceId:undefined,key=`${id}:${type}:${topologyId}`;if(!id||seen.has(key)||type!=='body'&&topologyId===undefined)continue;seen.add(key);candidates.push({id,type,topologyId,point:hit.point.toArray(),distance:hit.distance});if(candidates.length===50)break;}this.callbacks.onPickCandidates?.(candidates);return;}
     let hit=hits[0],type=this.selectionMode,topologyId;
     if(type==='body'){
-      const curves=[...this.objects.values()].filter(v=>v.root.visible&&!v.body.indices.length).flatMap(v=>this.edgePickTargets(v));
+      const curves=visibleEntries.filter(v=>!v.body.indices.length).flatMap(v=>this.edgePickTargets(v));
       const lineHit=ray.intersectObjects(curves,false).find(h=>this.isVisiblePoint(h.point));
       if(lineHit&&(!hit||lineHit.distance<hit.distance))hit=lineHit;
     }
     if(type==='edge'){
-      const visible=[...this.objects.values()].filter(v=>v.root.visible),edges=visible.flatMap(v=>this.edgePickTargets(v).filter(o=>o.userData.type==='edge')),
+      const visible=visibleEntries,edges=visible.filter(v=>!v.body.member).flatMap(v=>this.edgePickTargets(v).filter(o=>o.userData.type==='edge')),
         rect=this.renderer.domElement.getBoundingClientRect(),occlusionRay=new THREE.Raycaster(),meshes=visible.map(v=>v.mesh);
       const candidates=rankEdgeHits(ray.intersectObjects(edges,false).filter(h=>this.isVisiblePoint(h.point)),this.camera,this.pointer,rect.width,rect.height);
       hit=candidates.find(candidate=>{
@@ -322,6 +357,7 @@ export class CADViewport {
       });
       if(hit)topologyId=hit.object.userData.edgeId;
     }
+    else if(type==='face'&&hit?.object.userData.assemblyPart)hit=null;
     else if(type==='face'&&hit){const index=hit.faceIndex*3;topologyId=hit.object.userData.body.faceGroups?.find(g=>index>=g.start&&index<g.start+g.count)?.faceId;}
     this.callbacks.onPick?.(hit?{id:hit.object.userData.bodyId,type,topologyId,point:(type==='body'?this.snapPoint(e,hit.point):hit.point).toArray()}:null,e.shiftKey||e.ctrlKey||e.metaKey);
   }
@@ -405,9 +441,9 @@ export class CADViewport {
   }
   pickLocation(screen){
     const rect=this.renderer.domElement.getBoundingClientRect(),ray=this.ray({clientX:rect.left+screen[0]*rect.width,clientY:rect.top+screen[1]*rect.height});
-    const hit=ray.intersectObjects([...this.objects.values()].filter(v=>v.root.visible&&v.mesh.visible).map(v=>v.mesh),false).find(item=>this.isVisiblePoint(item.point));
+    const hit=ray.intersectObjects([...this.drawEntries()].filter(v=>v.root.visible&&v.mesh.visible).map(v=>v.mesh),false).find(item=>this.isVisiblePoint(item.point));
     if(!hit)throw Object.assign(new Error('没有拾取到可见模型表面，请重新点击。'),{code:'LOCATION_NO_HIT'});
-    const group=hit.object.userData.body.faceGroups?.find(g=>hit.faceIndex*3>=g.start&&hit.faceIndex*3<g.start+g.count);
+    const group=hit.object.userData.assemblyPart?null:hit.object.userData.body.faceGroups?.find(g=>hit.faceIndex*3>=g.start&&hit.faceIndex*3<g.start+g.count);
     return {bodyId:hit.object.userData.bodyId,faceId:group?.faceId??null,point:hit.point.toArray()};
   }
   markModel(context){this.modelContext={...context};this.displayError=null;}
@@ -418,7 +454,7 @@ export class CADViewport {
   updateDisplayDetail(forceFine=false){
     const active=!forceFine&&(this.userViewActive||performance.now()<this.interactionDeadline),height=Math.max(this.host.clientHeight,1);
     let previewTriangles=0,fullTriangles=0,approximate=false,patchCount=0;
-    for(const entry of this.objects.values()){
+    for(const entry of this.drawEntries()){
       if(!entry.displayGroup)continue;
       entry.displayGroup.visible=true;entry.mesh.visible=false;entry.mesh.material.wireframe=this.mode==='wire';if(entry.surfaceGrid)entry.surfaceGrid.visible=this.mode==='transparentEdges'&&!active;
       for(const patch of entry.displayPatches){
@@ -455,7 +491,7 @@ export class CADViewport {
     const far=Math.max(near+extent,max+extent*.15);
     if(near!==camera.near||far!==camera.far){camera.near=near;camera.far=far;camera.updateProjectionMatrix();}
   }
-  renderFrame(forceFine=false,frame={}){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.updateDepthRange();this.logoGuide?.render();this.reliefGuide?.render();this.updateDisplayDetail(forceFine);for(const entry of this.objects.values())entry.edgeBatch?.sync();this.updateLocationMarkers();
+  renderFrame(forceFine=false,frame={}){this.roundGuide?.render();this.controls.update();this.scene.updateMatrixWorld();this.camera.updateMatrixWorld();this.updateDepthRange();this.logoGuide?.render();this.reliefGuide?.render();this.updateDisplayDetail(forceFine);for(const entry of this.drawEntries())entry.edgeBatch?.sync();this.updateLocationMarkers();
     const stamp=[this.camera.matrixWorld.elements,this.camera.projectionMatrix.elements,this.scene.background?.getHex(),this.clipPlanes.map(p=>[p.normal.toArray(),p.constant]),this.renderer.toneMappingExposure,this.modelContext,this.scene.environment?.id,this.displayPreferences,this.finishKey,this.partFinishes,this.selected,this.topology];
     this.scene.traverse(o=>{if(o.geometry||o.isLight)stamp.push([o.id,o.visible,o.matrixWorld.elements,o.geometry?.id,o.intensity,o.material?.color?.getHex(),o.material?.emissive?.getHex(),o.material?.opacity,o.material?.wireframe,o.material?.version,o.material?.map?.id,o.material?.envMap?.id,o.material?.roughness,o.material?.metalness]);});
     const key=JSON.stringify(stamp),submitStart=performance.now(),autoReset=this.renderer.info.autoReset;let submittedTriangles=0,drawCalls=0;
@@ -476,7 +512,7 @@ export class CADViewport {
     else this.frameSource=await new Promise(resolve=>{let timer=null;const done=source=>{if(timer!==null)clearTimeout(timer);timer=null;resolve(source);};
       requestAnimationFrame(()=>done('animation-frame'));timer=setTimeout(()=>done('timer-fallback'),fallbackMs);});
     this.renderFrame();return this.displayState();}
-  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,sceneLighting:this.sceneLighting?.mode||'design',designBodiesUnderMetalLighting:this.sceneLighting?.designBodiesUnderMetalLighting||0,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,submittedTriangles:this.lastRenderedTriangles??0,refractionBodies:[...this.objects.values()].filter(entry=>entry.root.visible&&entry.mesh.material.transmission>0).length,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',...this.cameraPose(),near:this.camera.near,far:this.camera.far}};}
+  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,sceneLighting:this.sceneLighting?.mode||'design',designBodiesUnderMetalLighting:this.sceneLighting?.designBodiesUnderMetalLighting||0,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,submittedTriangles:this.lastRenderedTriangles??0,refractionBodies:[...this.drawEntries()].filter(entry=>entry.root.visible&&entry.mesh.material.transmission>0).length,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',...this.cameraPose(),near:this.camera.near,far:this.camera.far}};}
   evidenceSignature(){return evidenceDisplaySignature(this);}
   evidenceCapture(opts){return captureEvidence(this,opts);}
   screenshot(opts={}){
@@ -494,7 +530,7 @@ export class CADViewport {
     const cssWidth=this.host?.clientWidth||w,cssHeight=this.host?.clientHeight||h;
     return {mime:format,dataUrl:off.toDataURL(format,quality),width:w,height:h,scope:'modeling-viewport',viewportCss:{width:cssWidth,height:cssHeight},pixelRatio:this.renderer.getPixelRatio(),renderMs,detailSource:settled?'settled-full-display-detail':'current-display-state'};
   }
-  destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();for(const entry of this.objects.values()){this.exactDisplayDetail.release(entry);if(!entry.edges.parent)this.disposeObject(entry.edges);entry.selectedEdgeMaterial?.dispose();}this.disposeObject(this.scene);this.metalOcclusion.dispose();this.metals.dispose();this.renderer.dispose();}
+  destroy(){this.disposeRectangleSelection?.();this.resizeObserver.disconnect();this.renderer.setAnimationLoop(null);this.controls.dispose();this.gizmo.dispose();for(const entry of this.drawEntries()){this.exactDisplayDetail.release(entry);if(!entry.edges.parent)this.disposeObject(entry.edges);entry.selectedEdgeMaterial?.dispose();}this.disposeObject(this.scene);this.metalOcclusion.dispose();this.metals.dispose();this.renderer.dispose();}
 }
 
 

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.74.0",
-  "buildId": "d69c1abe89375dd5e6889da08262fdb081b005b7-src-c4034ef5427a3ab7-working",
-  "catalogHash": "sha256:624071d712612320a14ed8f1c0f0b272290030568d54cf4f1fec69e2a0d468ed",
-  "docsHash": "sha256:0ccb02a70542d748cc57417f3bf28da7c84ee4e4915cf1dca2b73d7c6ef4d932",
+  "pageApiVersion": "1.75.3",
+  "buildId": "3e65a446c96a329329f3a24264c84028bf0053c3-src-311f439f38c08c5a-working",
+  "catalogHash": "sha256:fce3d1b09e53186207fedff6d6c2d1702518ff14f8fd925180d542743045d706",
+  "docsHash": "sha256:76133ec8edec4a48c2e737a75c49ac31e8344313e0464a1d5b904767f3994247",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -514,10 +514,11 @@
     "importAtFrame": {
       "tools": [
         "files.register",
+        "files.inspectInsert",
         "files.import"
       ],
       "method": "files.import",
-      "usage": "用户选定真实 STEP/BREP 文件后登记字节；显式提交当前工作基准版本、来源包围盒中心和幂等键。"
+      "usage": "登记 WebCAD、STEP/BRep、STL 或 typed mesh 原件并插入当前工程。STL 明确指定单位。.webcad 支持 assembly/parts、统一比例与坐标架。files.inspectInsert 只读来源尺寸。保留源坐标使用 world 与 model-origin。"
     },
     "innerTurn": {
       "tools": [
@@ -1717,7 +1718,7 @@
     "rotateTool": "setView / 移动 / 旋转",
     "copySelection": "copySelection",
     "pasteSelection": "pasteSelection",
-    "importAtFrame": "登记文件资源 / 导入",
+    "importAtFrame": "登记文件资源 / inspectInsert / 导入",
     "restoreRecovery": "recoverUnsaved",
     "new": "新建工程",
     "open": "打开工程 / 导入",

@@ -8,7 +8,7 @@
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -46,6 +46,13 @@
     "stl": 268435456,
     "mesh": 805306368,
     "webcad": 1073741824
+  },
+  "projectContainerLimits": {
+    "maxBytes": 1073741824,
+    "maxEntries": 512,
+    "maxManifestBytes": 131072,
+    "maxJsonBytes": 20971520,
+    "maxArtifactBytes": 20971520
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -157,5 +164,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:778d7c9b235ac2729daad14fd5a7f4af2f9b6e63ddf6a283989df2010761bfe2"
+  "docsHash": "sha256:f2da3833e642b0f15596accbff5b461f59de08f11c29e12dd07af3565f7e059c"
 }

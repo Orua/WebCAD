@@ -680,7 +680,7 @@
       },
       {
         "id": "subdBody",
-        "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。"
+        "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
       },
       {
         "id": "extractShell",
@@ -714,5 +714,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fa72532b7f1df6c1750f3c2f2b811c763328868602ccdb087f5a3d1110699e98"
+  "docsHash": "sha256:8ee188d6581ac6ee78660624341ac530a05c5e318d918af2b0a721c57f4860dc"
 }

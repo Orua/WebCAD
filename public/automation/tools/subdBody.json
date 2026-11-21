@@ -83,8 +83,7 @@
           "additionalProperties": false,
           "required": [
             "centerMm",
-            "radiusMm",
-            "strength"
+            "radiusMm"
           ],
           "properties": {
             "centerMm": {
@@ -110,15 +109,25 @@
             },
             "strength": {
               "type": "number",
-              "description": "push/inflate: signed maximum control-vertex displacement in mm, weighted by falloff; smooth: dimensionless interpolation factor in [0,1]. Brushes affect cage vertices, not the refined surface."
+              "description": "push/inflate: signed maximum displacement in mm; smooth: dimensionless factor in [0,1]."
             },
             "mode": {
               "type": "string",
               "enum": [
                 "push",
                 "smooth",
-                "inflate"
+                "inflate",
+                "move"
               ]
+            },
+            "deltaMm": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 3,
+              "maxItems": 3,
+              "description": "Maximum displacement vector for mode:move, in the same coordinate frame as the cage. Distance falloff multiplies the entire vector."
             },
             "falloff": {
               "type": "string",
@@ -127,7 +136,44 @@
                 "linear"
               ]
             }
-          }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "mode",
+                "deltaMm"
+              ],
+              "properties": {
+                "mode": {
+                  "const": "move"
+                }
+              },
+              "not": {
+                "required": [
+                  "strength"
+                ]
+              }
+            },
+            {
+              "required": [
+                "strength"
+              ],
+              "properties": {
+                "mode": {
+                  "enum": [
+                    "push",
+                    "smooth",
+                    "inflate"
+                  ]
+                }
+              },
+              "not": {
+                "required": [
+                  "deltaMm"
+                ]
+              }
+            }
+          ]
         }
       },
       "sampleDepth": {
@@ -187,17 +233,26 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Replays the original closed oriented quad cage and optional spatial brushes. mode:move drags cage points by deltaMm with the selected radial falloff; it can shift a pocket or a lobe sideways without using the local normal. The other modes use strength. All brushes operate on the cage before fitting; they do not deform unrelated imported solids or meshes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee.",
   "title": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
   "category": "surface",
   "synonyms": [
     "subdBody",
     "细分曲面体",
     "Catmull–Clark cage to sewn B-spline solid",
-    "subd Body operation"
+    "subd Body operation",
+    "有机造型",
+    "有机体块",
+    "立体雕刻",
+    "不对称体块",
+    "控制笼",
+    "局部拖拽",
+    "方向笔刷",
+    "subd cage",
+    "organic sculpt"
   ],
   "description": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
-  "schemaHash": "sha256:e44b0699aca9412d3242a27a0eae8c168918b348fd22516cad39f921b99c2b27",
+  "schemaHash": "sha256:dba704aa724e57509423b4e7b5a7343668ac77d1bafb63969371f72cbc67406e",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -258,7 +313,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
+    "Replays the original closed oriented quad cage and optional spatial brushes. mode:move drags cage points by deltaMm with the selected radial falloff; it can shift a pocket or a lobe sideways without using the local normal. The other modes use strength. All brushes operate on the cage before fitting; they do not deform unrelated imported solids or meshes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -576,7 +631,7 @@
   "contract": {
     "purpose": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
     "whenToUse": [
-      "Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
+      "Replays the original closed oriented quad cage and optional spatial brushes. mode:move drags cage points by deltaMm with the selected radial falloff; it can shift a pocket or a lobe sideways without using the local normal. The other modes use strength. All brushes operate on the cage before fitting; they do not deform unrelated imported solids or meshes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
     ],
     "whenNotToUse": [
       {
@@ -1038,7 +1093,7 @@
   },
   "purpose": "细分曲面体 / Catmull–Clark cage to sewn B-spline solid",
   "whenToUse": [
-    "Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
+    "Replays the original closed oriented quad cage and optional spatial brushes. mode:move drags cage points by deltaMm with the selected radial falloff; it can shift a pocket or a lobe sideways without using the local normal. The other modes use strength. All brushes operate on the cage before fitting; they do not deform unrelated imported solids or meshes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee."
   ],
   "whenNotToUse": [
     {
@@ -1354,7 +1409,7 @@
   "selectionGuide": {
     "groupId": "surfaces",
     "groupTitle": "曲面、壳与厚度",
-    "chooseWhen": "由细分控制笼生成缝合 B 样条体；不是点阵拟合或显示细分。",
+    "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。",
     "alternatives": [
       {
         "id": "fittedSurface",
@@ -1396,5 +1451,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7fdd3d583395fad8f6948028f061d4c5ea5332ce5d45976d748bdf8a292accac"
+  "docsHash": "sha256:dde211160c33d9b9b23a308543151e47948844ef338bd3d40f327091f7148bf8"
 }

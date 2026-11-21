@@ -30,3 +30,21 @@ test('twenty-four spherical bumps share one fuse and one seam blend',async()=>{
     const sharp=topologyDetails(kernel.shapes.get('bumps')).filter(row=>row.sharp).length;assert.equal(sharp,0);assert.equal(result.bodies[0].blendRadiusReport.status,'applied');assert.equal(result.bodies[0].solidCount,1);console.log(JSON.stringify({case:'24-bumps',ms:performance.now()-start,volumeMm3:result.bodies[0].volume,faces:result.bodies[0].faceCount,sharpEdges:sharp,blend:result.bodies[0].blendRadiusReport}));
   }finally{kernel.dispose();}
 });
+
+test('a second sculpted patch blends its new seams on an already beveled solid',async()=>{
+  const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});
+  const kernel=new CadKernel(oc);
+  const bumps=xs=>xs.flatMap(x=>[-1.4,1.4].map(y=>({centerMm:[x,y,Math.sqrt(9.88**2-x*x-y*y)],radiusMm:.8})));
+  const source={id:'shell',op:'sphere',params:{radius:10},refs:[]};
+  const first={id:'first',op:'bumpSet',params:{bumps:bumps([-1.4,1.4]),blendRadiusMm:.08,requireConnected:true},refs:['shell']};
+  const second={id:'second',op:'bumpSet',params:{bumps:bumps([-4.2,4.2]),blendRadiusMm:.08,requireConnected:true},refs:['first']};
+  try{
+    const result=await kernel.rebuild({version:2,imports:{},features:[source,first,second]});
+    assert.equal(result.bodies[0].solidCount,1);
+    assert.equal(result.bodies[0].blendRadiusReport.radiusUsedMm,.08);
+    assert.equal(result.bodies[0].blendRadiusReport.status,'applied');
+    assert.equal(topologyDetails(kernel.shapes.get('second')).filter(row=>row.sharp).length,0);
+    const detached={id:'detached',op:'bumpSet',params:{bumps:[{centerMm:[100,0,0],radiusMm:1}],requireConnected:true},refs:['shell']};
+    await assert.rejects(kernel.rebuild({version:2,imports:{},features:[source,detached]}),error=>error.code==='GEOMETRY_INVALID'&&error.details?.solidCount===2);
+  }finally{kernel.dispose();}
+});

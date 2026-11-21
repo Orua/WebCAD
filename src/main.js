@@ -80,11 +80,12 @@ import {webcadShortcut} from './webcad-shortcuts.js';
 import { normalizeOperationParams, normalizeOperationPatch, migratedOperationIds, getOperation } from './operation-registry.js';
 import {mechanicalIds,mechanicalNames,mechanicalRefRange} from './mechanical-tool-contracts.js';
 import {resolveProfileRecipe,constrainProfileRecipe} from './modeling/profiles/profile-constraint-history.js';
-import {classifyFile,extensionOf,assertOpenAllowed,assertNewAllowed,assertOpenable,assertInsertable,dropDecision} from './open-import-policy.js';
+import {classifyFile,extensionOf,assertOpenAllowed,assertNewAllowed,assertOpenable,assertInsertable,dropDecision,INSERT_EXTENSIONS} from './open-import-policy.js';
 import {chooseAction,UNSAVED_CHOICES,DROP_CHOICE_LABELS} from './ui/choice-dialog.js';
 import {createLoadingTracker,LOADING_TEXT} from './loading-progress.js';
 import {packWorkerDocument} from './worker-assets.js';
-import {installSnapshotDelta} from './geometry-snapshot.js';
+import {installSnapshotDelta,snapshotLeafSources} from './geometry-snapshot.js';
+import {appendProject,isFinalProject} from './project-insertion.js';
 
 
 const emptyDocument = () => ({version:2,documentId:crypto.randomUUID(),name:nextProjectName(),features:[],imports:{},hidden:[],materialSettings:loadMaterialSettings(),referenceSystem:createReferenceSystem()});
@@ -101,7 +102,11 @@ let committedFinalSources=[];
 let lastLocationMarker=null,locationMarkerNumber=0,locationMarkers=[];
 const servicesExecutionHistory=createExecutionHistory();let lastServicesDecision=null,lastReliefDesignReceipt=null;
 let qualityKey='standard';
-function qualityState(){return {quality:qualityKey,...RENDER_QUALITIES[qualityKey],triangleCount:bodies.reduce((n,b)=>n+b.indices.length/3,0),source:'viewer-tessellation',adaptive:bodies.some(b=>!!b.adaptiveDisplay)};}
+function qualityState(){
+  const displayed=bodies.flatMap(body=>body.parts||[body]);
+  return {quality:qualityKey,...RENDER_QUALITIES[qualityKey],triangleCount:displayed.reduce((n,b)=>n+b.indices.length/3,0),
+    source:'viewer-tessellation',adaptive:displayed.some(body=>!!body.adaptiveDisplay)};
+}
 let undoStack=[],redoStack=[],requestSequence=0,status='正在启动精确建模内核…';
 let modelClipboard=null;
 let revision=0,previewNext=null,previewIdentity=null,previewScopeReport=null,previewKernelCache=null,previewGeneration=0,previewComputing=false,aiStatus='in-page',agentBridge=null;
@@ -164,7 +169,7 @@ function request(type,payload={},{hardTimeoutMs}={}){return traceDebug('kernel',
   }});
   const job={resolve,reject,clock,enqueuedAt,hasDocument:!!packet,snapshotBase,snapshotContext,bodyBase:bodies,start(queueMs){job.queueMs=queueMs;clock.started();},pulse(){}};
   pending.set(requestId,job);
-  try{instance.postMessage({requestId,type,...payload,...packet,...(type==='rebuild'?{knownSourceHashes:[...new Set(snapshotBase.map(s=>s.sourceHash))],knownRenderVersions:Object.fromEntries(bodies.map(b=>[b.id,b.renderVersion])),snapshotContext}:{})});}
+  try{instance.postMessage({requestId,type,...payload,...packet,...(type==='rebuild'?{knownSourceHashes:[...new Set(snapshotLeafSources(snapshotBase).map(s=>s.sourceHash))],knownRenderVersions:Object.fromEntries(bodies.map(b=>[b.id,b.renderVersion])),snapshotContext}:{})});}
   catch(error){clock.finish();pending.delete(requestId);reject(Object.assign(error,{code:error.code||'WORKER_SEND_FAILED',commitState:'not_committed'}));}
 }));}
 
@@ -361,7 +366,7 @@ async function runEditorAction(action,args,{fromUI=false}={}){
   return result;
 }
 function clearSelection(){selectedIds=[];selectedTopology=null;viewport.setSelection([]);}
-let activeMaterialDocument;
+let activeMaterialDocument,activeMaterialConfig;
 function inheritCompoundColors(previous,next,resultBodies){
   const present=new Set(previous.features.map(feature=>feature.id)),resultById=new Map(resultBodies.map(body=>[body.id,body]));
   for(const feature of next.features){
@@ -384,8 +389,11 @@ function inheritCompoundColors(previous,next,resultBodies){
   }
 }
 function applyAppearance(){
-  const materialDocument=documentInstanceId+':'+documentModel.documentId;
-  if(materialDocument!==activeMaterialDocument){setMetalMaterialRegistry(documentModel.renderMaterials||loadMetalMaterials());activeMaterialDocument=materialDocument;}
+  const materialDocument=documentInstanceId+':'+documentModel.documentId,materialConfig=JSON.stringify(documentModel.renderMaterials);
+  if(materialDocument!==activeMaterialDocument||materialConfig!==activeMaterialConfig){
+    setMetalMaterialRegistry(documentModel.renderMaterials||loadMetalMaterials());
+    activeMaterialDocument=materialDocument;activeMaterialConfig=materialConfig;
+  }
   viewport.partFinishes={...documentModel.appearance};viewport.partColors={...documentModel.colors};viewport.partSurfaces=sanitizeSurface(documentModel.surface);viewport.surfaceTextureAssets=documentModel.binaryAssets||{};
   viewport.setMetalFinish(FINISH_KEYS.includes(documentModel.renderFinish)?documentModel.renderFinish:FINISH_KEYS.includes(viewport.displayPreferences.defaultFinish)?viewport.displayPreferences.defaultFinish:'design');
 }
@@ -684,7 +692,8 @@ async function measureCurrentGeometry({bodyId,kind,topologyId}){
       throw Object.assign(new Error('工程或几何已变化，请重新测量'),{code:'STALE_REFERENCE'});
     if((body.metricsDeferred||body.boundsSource!=='exact-brep')&&measured.source!=='authoritative-mesh'){
       const {bounds,volume,area,solidCount,shellCount}=measured;
-      Object.assign(body,{bounds,volume,area,solidCount,shellCount,metricsDeferred:false,measurementStatus:'exact-brep',boundsSource:'exact-brep'});
+      const assembly=measured.source==='logical-assembly';
+      Object.assign(body,{bounds,volume,area,solidCount,shellCount,metricsDeferred:false,measurementStatus:assembly?measured.source:'exact-brep',boundsSource:assembly?'authoritative-assembly-bounds':'exact-brep'});
       if(body.displayReport){
         const ratio=measured.volume>0?Math.abs(body.displayReport.meshVolumeMm3-measured.volume)/measured.volume:null;
         body.displayReport={...body.displayReport,brepVolumeMm3:measured.volume,volumeErrorRatio:ratio};
@@ -838,14 +847,14 @@ async function appendModel(next,file,{mcp=false,placement,units}={}){
   if(['stl','mesh'].includes(ext)){
     const declared=units??(mcp?undefined:prompt('网格源单位（STL没有单位）：填写 mm、cm、m 或 in；取消保留原工程。',''));if(declared===null)return null;meshScale(declared);if(ext==='mesh'&&declared!=='mm')throw Object.assign(new Error('Float64网格已使用mm。'),{code:'MESH_UNITS_REQUIRED'});
     const bytes=new Uint8Array(await file.arrayBuffer()),hash=binaryHash(bytes).slice(7),key=crypto.randomUUID(),id=crypto.randomUUID();next.version=4;next.binaryAssets={...next.binaryAssets,[hash]:bytes};next.imports[key]={format:ext,units:declared,assetHash:hash,name:file.name};next.features.push(markTopologySemantics({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})}));
-    return {id,large:false};
+    return {id,large:false,sourceSha256:hash};
   }
   const format=['step','stp'].includes(ext)?'step':['brep','brp'].includes(ext)?'brep':null;
   if(!format)throw Object.assign(new Error('请选择 STEP/STP、BREP 或 STL 模型文件。'),{code:'FORMAT_UNSUPPORTED'});
   const key=crypto.randomUUID(),id=crypto.randomUUID();
   attachExactSource(next,{key,name:file.name,format,data:new Uint8Array(await file.arrayBuffer())});
   next.features.push(markTopologySemantics({id,op:'import',name:file.name,params:{key},refs:[],...(placement?{placement,semanticsVersion:2}:{})}));
-  return {id,large:true};
+  return {id,large:true,sourceSha256:next.imports[key].assetHash};
 }
 // UI: 保存 / 不保存 / 取消. Returns true when replacing may proceed.
 async function confirmReplaceUnsaved(){
@@ -897,24 +906,101 @@ async function prepareAndOpenDocument(file,{signal,expectedRevision,mcp,units}){
   setStatus(`已打开 ${opened.name} · ${opened.sourceSha256.slice(0,12)} · ${formatBodyCount(bodies)}`);
   return {status:'opened',opened};
 }
-async function insertModels(files,{signal,expectedRevision,mcp=false,placement,units}={}){
-  if(!assertOpenReady(mcp))return;
-  for(const file of files){
-    checkInputFile(file,signal,expectedRevision);assertInsertable(file.name);
-    const done=await withLoading(async()=>{
-      const next=clone(documentModel),added=await appendModel(next,file,{mcp,placement,units});if(!added)return false;
-      if(!next.features.slice(0,-1).length)next.name=file.name.replace(/\.[^.]+$/,'');
-      const options={fit:true,signal,expectedRevision};
-      await (added.large?rebuildLargeImport(next,options):rebuild(next,options));return true;
-    });if(!done)return;
+async function insertModel(file,{signal,expectedRevision,placement,units}={}){
+  assertOpenReady(true);
+  checkInputFile(file,signal,expectedRevision);assertInsertable(file.name);
+  return withLoading(async()=>{
+    const began=performance.now(),bodyCountBefore=bodies.length;
+    const next=clone(documentModel),added=await appendModel(next,file,{mcp:true,placement,units});
+    if(!documentModel.features.length)next.name=file.name.replace(/\.[^.]+$/,'');
+    const prepareMs=performance.now()-began;
+    const options={fit:true,signal,expectedRevision};
+    await (added.large?rebuildLargeImport(next,options):rebuild(next,options));
+    const body=bodies.find(row=>row.id===added.id);
+    return {name:file.name,sourceSha256:added.sourceSha256,sourceBytes:file.size,bodyCountBefore,bodyCountAfter:bodies.length,
+      prepareMs,rebuildMs:performance.now()-began-prepareMs,
+      objects:body?[{id:body.id,geometryType:body.geometryType||'brep',bounds:body.bounds,boundsSource:body.boundsSource,solidCount:body.solidCount,triangleCount:body.meshReport?.formalTriangleCount}]:[]};
+  });
+}
+let cachedProjectSource;
+async function prepareProjectSource(bytes,{signal,expectedRevision}={},includeBounds=false){
+  checkTransaction(signal,expectedRevision);
+  const started=performance.now(),sourceSha256=binaryHash(bytes).slice(7);
+  let prepared=cachedProjectSource;
+  if(prepared?.sourceSha256!==sourceSha256){
+    let document=validateDocument((await request('decodeProject',{bytes})).document);
+    checkTransaction(signal,expectedRevision);
+    const replayed=!isFinalProject(document);
+    if(replayed)document=(await request('freezeProjectSource',{document},{hardTimeoutMs:rebuildHardTimeoutMs(getServicesConfig().localTimeoutMs)})).document;
+    checkTransaction(signal,expectedRevision);
+    if(!document.features.length)throw Object.assign(new Error('来源工程没有可插入的最终对象。'),{code:'DOCUMENT_INVALID'});
+    prepared=cachedProjectSource={document,sourceSha256,replayed,sourceBytes:bytes.length};
   }
+  if(includeBounds&&!prepared.bounds){
+    prepared.bounds=(await request('projectSourceBounds',{document:prepared.document},{hardTimeoutMs:rebuildHardTimeoutMs(getServicesConfig().localTimeoutMs)})).bounds;
+    checkTransaction(signal,expectedRevision);
+  }
+  return {...prepared,prepareMs:performance.now()-started};
+}
+async function insertProject(bytes,{name,projectMode,scale,placement},options){
+  assertOpenReady(true);
+  if(!['assembly','parts'].includes(projectMode)||!Number.isFinite(scale)||scale<=0)
+    throw Object.assign(new Error('请选择工程插入模式与有效比例。'),{code:'PARAM_SCHEMA_INVALID'});
+  return withLoading(async()=>{
+    const source=await prepareProjectSource(bytes,options,placement.sourcePoint===null),bodyCountBefore=bodies.length;
+    const next=clone(documentModel);
+    const additions=appendProject(next,source.document,{projectMode,scale,placement,sourceBounds:source.bounds,name:name.replace(/\.webcad$/i,'')});
+    const begin=performance.now();
+    await rebuild(next,{...options,fit:true,deferMassProperties:true,historyLabel:'插入工程 '+name});
+    const objects=additions.created.flatMap(id=>{
+      const body=bodies.find(row=>row.id===id);
+      return body?[{id,geometryType:body.geometryType||'brep',bounds:body.bounds,boundsSource:body.boundsSource,
+        solidCount:body.solidCount,assembly:body.assembly,triangleCount:body.meshReport?.formalTriangleCount}]:[];
+    });
+    return {name,projectMode,scale,sourceSha256:source.sourceSha256,sourceBytes:source.sourceBytes,
+      replayed:source.replayed,prepareMs:source.prepareMs,rebuildMs:performance.now()-begin,
+      sourceObjects:additions.sourceObjects,addedAssetBytes:additions.addedAssetBytes,bodyCountBefore,bodyCountAfter:bodies.length,objects};
+  });
 }
 async function handleDroppedFiles(files){
   const decision=dropDecision({files,documentEmpty:!documentModel.features.length,dirty});
   if(decision.mode==='reject')throw Object.assign(new Error(decision.reason==='ONE_PROJECT_ONLY'?'一次只能打开一个工程文件。':'不支持的文件类型；请拖入 .webcad 工程或 STEP/BREP/STL 模型。'),{code:'FORMAT_UNSUPPORTED'});
   const choice=decision.mode==='ask'?await chooseAction({title:'如何处理拖入的文件？',message:`${files.map(f=>f.name).join('、')}\n“打开”会替换当前设计；“插入”会加入当前设计。`,choices:decision.choices.map(id=>({id,label:DROP_CHOICE_LABELS[id]})),defaultId:decision.defaultChoice}):decision.mode;
   if(choice==='open')return openDocument(files[0]);
-  if(choice==='insert')return insertModels(files);
+  if(choice==='insert')for(const file of files){const result=await insertLocalFile(file);if(!result)return;}
+}
+async function insertLocalFile(file){
+  assertInsertable(file.name);
+  const context=pageAPI.createRequestContext();
+  let pendingResource;
+  const registered=()=>pendingResource??=pageAPI.files.register({name:file.name,data:file}).then(resource=>{
+    if(resource.status!=='registered')throw Object.assign(new Error(resource.error.message),resource.error);
+    return resource;
+  });
+  const inspectSource=async()=>{
+    const {resourceId}=await registered(),result=await pageAPI.files.inspectInsert({context,resourceId});
+    if(result.status!=='read')throw Object.assign(new Error(result.error.message),result.error);
+    return result.source;
+  };
+  try{
+    const options=await ui.askModelInsertion({name:file.name,extension:extensionOf(file.name),inspectSource});
+    if(!options)return;
+    const {frame,projectMode,scale,angleDeg,units}=options,world=frame==='world';
+    const pose=world?{origin:[0,0,0],quaternion:[0,0,0,1]}:documentModel.referenceSystem.workFrame;
+    const rotation=angleDeg*Math.PI/360;
+    const [x,y,z,w]=pose.quaternion,s=Math.sin(rotation),c=Math.cos(rotation);
+    const frameRequest=angleDeg?{kind:'snapshot',origin:pose.origin,quaternion:[x*c+y*s,y*c-x*s,z*c+w*s,w*c-z*s]}:
+      world?{kind:'world'}:{kind:'work',expectedFrameVersion:pose.frameVersion};
+    const placement={version:1,frame:frameRequest,sourceAnchor:{kind:world?'model-origin':'bounds-center'}};
+    const resource=await registered();
+    const result=await pageAPI.files.import({context,resourceId:resource.resourceId,placement,
+      ...(units?{units}:{}),...(projectMode?{projectMode,scale}:{}),idempotencyKey:crypto.randomUUID()});
+    if(result.status!=='committed')throw Object.assign(new Error(result.error?.message||'插入尚未确认'),result.error);
+    setStatus(`已插入 ${file.name} · ${result.createdBodyIds.length} 个对象`);
+    return result;
+  }finally{
+    if(pendingResource){const resource=await pendingResource.catch(()=>null);if(resource)await pageAPI.files.release({resourceId:resource.resourceId});}
+  }
 }
 // STEP/BREP import: if the kernel crashes, runs out of wasm memory or stalls,
 // restart it (restoring the committed project) and retry once with a coarser
@@ -1048,15 +1134,8 @@ async function performAction(action,params={}){
   }
   if(action==='restoreRecovery')return restoreUnsavedProject();
   if(action==='importAtFrame'){
-    const [file]=await chooseFile('.step,.stp,.brep,.brp',false);
-    if(!file)return;
-    const resource=await pageAPI.files.register({name:file.name,data:file});
-    try{
-      const context=pageAPI.getState().context;
-      const placement={version:1,frame:{kind:'work',expectedFrameVersion:documentModel.referenceSystem.workFrame.frameVersion},sourceAnchor:{kind:'bounds-center'}};
-      const result=await pageAPI.files.import({context:{sessionId:context.sessionId,documentId:context.documentId,documentInstanceId:context.documentInstanceId,expectedRevision:context.revision},resourceId:resource.resourceId,placement,idempotencyKey:crypto.randomUUID()});
-      setStatus(`已按工作基准定位导入 ${file.name}`);return result;
-    }finally{pageAPI.files.release({resourceId:resource.resourceId});}
+    const [file]=await chooseFile(INSERT_EXTENSIONS.map(extension=>'.'+extension).join(','),false);
+    if(file)return insertLocalFile(file);
   }
   if(action==='export'){
     if(params.selected&&!selectedIds.length)throw new Error('请先选择要导出的实体。');
@@ -1335,22 +1414,32 @@ async function executeAI(command,args={},options={}){
     const fresh=emptyDocument();if(args?.name!==undefined)fresh.name=args.name.trim();
     await rebuild(fresh,{...options,fit:true,newInstance:true,record:false});undoStack=[];redoStack=[];selectedIds=[];dirty=false;refresh();
     return {dirty,name:documentModel.name};
-  }else if(command==='file_open'||command==='file_import'){
+  }else if(command==='file_open'||command==='file_import'||command==='file_inspectInsert'){
     const ext=args.name?.split('.').pop().toLowerCase();
-    const allowed=command==='file_open'?['webcad','json','step','stp','brep','brp','stl','mesh']:['step','stp','brep','brp','igs','iges','stl','mesh'];
+    const allowed=command==='file_open'?['webcad','json','step','stp','brep','brp','stl','mesh']:
+      command==='file_inspectInsert'?['webcad']:[...INSERT_EXTENSIONS,'igs','iges'];
     if(!allowed.includes(ext))throw Object.assign(new Error('Unsupported file type for this action.'),{code:'FORMAT_UNSUPPORTED'});
     // Legacy callers that omit unsaved keep the old safe refusal (fail on dirty).
     if(command==='file_open')assertOpenAllowed({unsaved:args.unsaved??'fail',dirty});
     if(typeof args.name!=='string'||!(args.data instanceof Uint8Array)&&typeof args.data!=='string')throw new Error('ASSET_INVALID: typed bytes or legacy base64 required.');
     let bytes;if(args.data instanceof Uint8Array)bytes=args.data;else{if(args.data.length>28*1024*1024)throw new Error('ASSET_INVALID: oversized base64 payload');const raw=atob(args.data);bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);}if(bytes.length>fileByteBudget(args.name))throw Object.assign(new Error('文件超出类型容量'),{code:'SIZE_LIMIT'});
-    const file=new File([bytes],args.name,{type:args.mime||'application/octet-stream'});
+    if(ext==='webcad'&&command==='file_inspectInsert'){
+      const source=await prepareProjectSource(bytes,options,true);
+      return {source:{name:source.document.name,sourceSha256:source.sourceSha256,sourceBytes:source.sourceBytes,bounds:source.bounds,
+        objectCount:source.document.features.length,replayed:source.replayed,prepareMs:source.prepareMs}};
+    }
     const placement=command==='file_import'?resolvePlacement(args.placement,documentModel.referenceSystem,'import',{}):undefined;
+    if(ext==='webcad'&&command==='file_import'){
+      const inserted=await insertProject(bytes,{name:args.name,projectMode:args.projectMode??'assembly',scale:args.scale??1,placement},options);
+      return {dirty,inserted};
+    }
+    const file=new File([bytes],args.name,{type:args.mime||'application/octet-stream'});
     if(command==='file_open'){
       const {opened,status}=await openDocument(file,{...options,mcp:true,unsaved:args.unsaved??'fail',units:args.units});
       return opened?{dirty,opened}:{dirty,status};
     }
-    else await insertModels([file],{...options,mcp:true,placement,units:args.units});
-    return {dirty};
+    const inserted=await insertModel(file,{...options,placement,units:args.units});
+    return {dirty,inserted};
   }else if(command==='file_export'){
     let result;
     if(args.format==='png'){
@@ -1446,7 +1535,7 @@ const pageAPI=createPageAPI({
     const next=validateMetalMaterials(configuration),ids=new Set(next.materials.map(m=>m.id));
     const used=[documentModel.renderFinish,viewport.displayPreferences.defaultFinish,...Object.values(documentModel.appearance||{})].filter(Boolean);
     if(used.some(id=>!ids.has(id)))throw Object.assign(new Error('当前工程仍在使用待删除的材质，请先替换实体/工程材质'),{code:'MATERIAL_IN_USE'});
-    setMetalMaterialRegistry(next);activeMaterialDocument=documentInstanceId+':'+documentModel.documentId;
+    setMetalMaterialRegistry(next);activeMaterialDocument=documentInstanceId+':'+documentModel.documentId;activeMaterialConfig=JSON.stringify(documentModel.renderMaterials);
     const persisted=rememberMetalMaterials(next);clearSelection();applyAppearance();dirty=true;refresh();
     return {configuration:getMetalMaterials(),persisted,storage:'localStorage',documentSnapshot:true};
   },

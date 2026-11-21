@@ -4,6 +4,7 @@ import {validateReliefReferenceBindings} from './relief-design-reference-contrac
 import {DOCUMENT_LIMITS} from './document-limits.js';
 import {BINARY_SOURCE_FORMATS} from './mesh/mesh-assets.js';
 import {PROJECT_V4_LIMITS} from './mesh/project-v4.js';
+import {importDependencies} from './assembly.js';
 const clone=structuredClone;
 const bytes=x=>new TextEncoder().encode(JSON.stringify(x)).length;
 const canonical=x=>JSON.stringify(x,(_k,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
@@ -16,13 +17,22 @@ function retainImports(doc,timeline){
  const needed=new Set(importKeys(doc));
  if(timeline){let s=timeline.base;for(const key of importKeys(s))needed.add(key);for(const e of timeline.entries){s=apply(s,e.patch);for(const key of importKeys(s))needed.add(key);}}
  // Replace the map, never mutate resources shared by the live undo/redo stacks.
+  for(const key of needed)for(const dependency of importDependencies(doc.imports||{},key))needed.add(dependency);
   doc.imports=Object.fromEntries(Object.entries(doc.imports||{}).filter(([key])=>needed.has(key)));
   const hashes=new Set((doc.features||[]).map(f=>f.compiledCheckpoint?.artifactSha256).filter(Boolean));
   if(timeline){let s=timeline.base;for(const f of s.features||[])if(f.compiledCheckpoint)hashes.add(f.compiledCheckpoint.artifactSha256);for(const e of timeline.entries){s=apply(s,e.patch);for(const f of s.features||[])if(f.compiledCheckpoint)hashes.add(f.compiledCheckpoint.artifactSha256);}}
   if(doc.binaryAssets){const assetHashes=new Set(Object.values(doc.imports||{}).map(item=>item.assetHash).filter(Boolean));doc.binaryAssets=Object.fromEntries(Object.entries(doc.binaryAssets).filter(([hash])=>assetHashes.has(hash)));}
   if(doc.compiledArtifacts)doc.compiledArtifacts=Object.fromEntries(Object.entries(doc.compiledArtifacts).filter(([hash])=>hashes.has(hash)));
 }
-function validateImports(snapshot,imports){validateReliefDesigns(snapshot.reliefDesigns);validateReliefReferenceBindings(snapshot,imports);for(const key of importKeys(snapshot))if(typeof key!=='string'||!Object.hasOwn(imports||{},key)||(typeof imports[key]?.data!=='string'&&!(BINARY_SOURCE_FORMATS.includes(imports[key]?.format)&&/^[a-f0-9]{64}$/.test(imports[key]?.assetHash||''))))fail('历史工程缺少原始导入资源');}
+function validateImports(snapshot,imports){
+ validateReliefDesigns(snapshot.reliefDesigns);
+ validateReliefReferenceBindings(snapshot,imports);
+ for(const root of importKeys(snapshot))for(const key of importDependencies(imports||{},root)){
+  const item=imports?.[key];
+  if(typeof key!=='string'||!Object.hasOwn(imports||{},key)||(typeof item.data!=='string'&&item.format!=='assembly'&&
+     !(BINARY_SOURCE_FORMATS.includes(item.format)&&/^[a-f0-9]{64}$/.test(item.assetHash||''))))fail('历史工程缺少原始导入资源');
+ }
+}
 function diff(a,b,path=[]){
  if(JSON.stringify(a)===JSON.stringify(b))return [];
  if(a===null||b===null||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return [{path,value:clone(b)}];

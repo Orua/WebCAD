@@ -2,7 +2,7 @@
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -181,10 +181,14 @@
       {
         "id": "files.import",
         "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
+      },
+      {
+        "id": "files.inspectInsert",
+        "chooseWhen": "读取另一个已登记 WebCAD 工程的来源范围和对象数，用于插入前确定比例和坐标。"
       }
     ],
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0cb892f169c3d2709a310b5e1787c772300c2ad764b76dcd5a0a7c3688f3412a"
+  "docsHash": "sha256:97e66f25ddd78414202f3e0aff0dee566c93ec60b72ed01090620d0068250773"
 }

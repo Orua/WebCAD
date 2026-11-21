@@ -8,7 +8,7 @@
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -44,6 +44,13 @@
     "stl": 268435456,
     "mesh": 805306368,
     "webcad": 1073741824
+  },
+  "projectContainerLimits": {
+    "maxBytes": 1073741824,
+    "maxEntries": 512,
+    "maxManifestBytes": 131072,
+    "maxJsonBytes": 20971520,
+    "maxArtifactBytes": 20971520
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -140,5 +147,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:f8cda6d90524277978782c8c213f9049fb79cd2b7cdc00aad42176111eca03b9"
+  "docsHash": "sha256:625f7d2d25a8ece0720d341bbbe46d04ed971bce2f4471c8fb15e2c8306eea2b"
 }

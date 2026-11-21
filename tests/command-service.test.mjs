@@ -46,6 +46,27 @@ import { getOperation } from '../src/operation-registry.js';
 import { EDITOR_ACTIONS, validateEditorAction } from '../src/editor-actions.js';
 import { createReferenceSystem } from '../src/work-frame.js';
 
+test('spine authoring freezes the new roll and ellipse order defaults without changing legacy edits',async()=>{
+ const params={pathType:'spine',spine:{pointsMm:[[0,0,0],[0,0,10]]},widthLaw:2,depthLaw:1,rollLawDeg:30};
+ const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,kernelReady:true,busy:false,referenceSystem:createReferenceSystem(),
+  bodies:[{id:'old'}],features:[{id:'old',op:'curveSweep',params,refs:[]}]};
+ const commands=[];
+ const service=createCommandService({allowAdvisory:true,snapshot:()=>structuredClone(s),execute:async(_,args)=>{commands.push(args.params);s.revision++;}});
+ const c=getOperation('curveSweep'),contract={opVersion:c.version,schemaHash:c.schemaHash};
+ const send=async(action,args)=>service.execute({
+  context:{sessionId:'s',documentId:'d',documentInstanceId:'i',expectedRevision:s.revision},idempotencyKey:crypto.randomUUID(),action,args
+ });
+ assert.equal((await send('feature.add',{...contract,op:'curveSweep',refs:[],params})).status,'committed');
+ assert.equal(commands.at(-1).rollMode,'absolute');
+ assert.equal(commands.at(-1).autoAlign,false);
+ assert.equal((await send('feature.add',{...contract,op:'curveSweep',refs:[],params:{...params,autoAlign:true,rollMode:'incremental'}})).status,'committed');
+ assert.equal(commands.at(-1).rollMode,'incremental');
+ assert.equal(commands.at(-1).autoAlign,true);
+ assert.equal((await send('feature.edit',{...contract,featureId:'old',params:{widthLaw:3}})).status,'committed');
+ assert.equal(Object.hasOwn(commands.at(-1),'rollMode'),false);
+ assert.equal(Object.hasOwn(commands.at(-1),'autoAlign'),false);
+});
+
 test('typed exact imports preserve unkeyed callers and enforce explicit-key replay',async()=>{
  const s={sessionId:'s',documentId:'d',documentInstanceId:'i',revision:1,features:[],bodies:[],kernelReady:true,busy:false,referenceSystem:createReferenceSystem()};
  let calls=0;

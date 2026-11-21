@@ -8,7 +8,7 @@
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -45,6 +45,13 @@
     "stl": 268435456,
     "mesh": 805306368,
     "webcad": 1073741824
+  },
+  "projectContainerLimits": {
+    "maxBytes": 1073741824,
+    "maxEntries": 512,
+    "maxManifestBytes": 131072,
+    "maxJsonBytes": 20971520,
+    "maxArtifactBytes": 20971520
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -153,5 +160,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:c4d52d742d3aa086059a0d2a215d1c9b5d180c3caf244c6e39bee886f61461dc"
+  "docsHash": "sha256:b0e3d15c9e504de6e501c9321c32d8363d734ef32f398ff80f1e07737dcb0b5f"
 }

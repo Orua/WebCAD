@@ -8,7 +8,7 @@
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -47,6 +47,13 @@
     "stl": 268435456,
     "mesh": 805306368,
     "webcad": 1073741824
+  },
+  "projectContainerLimits": {
+    "maxBytes": 1073741824,
+    "maxEntries": 512,
+    "maxManifestBytes": 131072,
+    "maxJsonBytes": 20971520,
+    "maxArtifactBytes": 20971520
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -212,6 +219,10 @@
         "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
       },
       {
+        "id": "files.inspectInsert",
+        "chooseWhen": "读取另一个已登记 WebCAD 工程的来源范围和对象数，用于插入前确定比例和坐标。"
+      },
+      {
         "id": "import",
         "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
       },
@@ -239,5 +250,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:1e65f7f2d53c6eed04653203ff7d4db2b33afa4f65246bf8b699070d2ff6f4e8"
+  "docsHash": "sha256:a49faf88188af7f7df2364e9394644d635b156aa6695caedbfbd01c24b65e6bf"
 }

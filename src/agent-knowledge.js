@@ -13,7 +13,8 @@ export const AGENT_KNOWLEDGE = Object.freeze({
 export const KNOWLEDGE_TOOL_SYNONYMS = Object.freeze({
   'template.keyRing':['钥匙圈','钥匙环','匙圈','双层钥匙圈','双层扁线匙圈','split key ring'],
   cut:['差集','减法','布尔相减','布尔差集','布尔切削','布尔切除','boolean cut','subtract'],
-  curveSweep:['截面站','stations','sections','截面扫掠','pipe','圆管','沿路径圆管'],
+  curveSweep:['截面站','stations','sections','截面扫掠','pipe','圆管','沿路径圆管','弯曲渐缩体','变截面弯曲','滚转'],
+  subdBody:['有机造型','有机体块','立体雕刻','不对称体块','控制笼','局部拖拽','方向笔刷','subd cage','organic sculpt'],
   thickenFace:['thicken','加厚','单面加厚'],
   meshHeightfieldRelief:['heightfield','高度场','高度图'],
   shell:['thicken','抽壳'],

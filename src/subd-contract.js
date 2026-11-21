@@ -7,13 +7,22 @@ const cage={type:'object',additionalProperties:false,required:['vertices','faces
     edge:{type:'array',minItems:2,maxItems:2,items:{type:'integer',minimum:0,maximum:255}},sharpness:{type:'number',minimum:0,maximum:1}
   }}}
 }};
-const brushes={type:'array',maxItems:64,items:{type:'object',additionalProperties:false,required:['centerMm','radiusMm','strength'],properties:{
-  centerMm:p3,radiusMm:positive,strength:{type:'number',description:'push/inflate: signed maximum control-vertex displacement in mm, weighted by falloff; smooth: dimensionless interpolation factor in [0,1]. Brushes affect cage vertices, not the refined surface.'},mode:{type:'string',enum:['push','smooth','inflate']},falloff:{type:'string',enum:['smooth','linear']}
-}}};
+const brushes={type:'array',maxItems:64,items:{
+  type:'object',additionalProperties:false,required:['centerMm','radiusMm'],properties:{
+    centerMm:p3,radiusMm:positive,
+    strength:{type:'number',description:'push/inflate: signed maximum displacement in mm; smooth: dimensionless factor in [0,1].'},
+    mode:{type:'string',enum:['push','smooth','inflate','move']},
+    deltaMm:{...p3,description:'Maximum displacement vector for mode:move, in the same coordinate frame as the cage. Distance falloff multiplies the entire vector.'},
+    falloff:{type:'string',enum:['smooth','linear']}
+  },oneOf:[
+    {required:['mode','deltaMm'],properties:{mode:{const:'move'}},not:{required:['strength']}},
+    {required:['strength'],properties:{mode:{enum:['push','smooth','inflate']}},not:{required:['deltaMm']}}
+  ]
+}};
 export const SUBD_OPERATION={
   description:'细分曲面体 / Catmull–Clark cage to sewn B-spline solid',refs:0,
   paramsSchema:{type:'object',additionalProperties:false,required:['cage'],properties:{cage,brushes,
     sampleDepth:{type:'integer',minimum:3,maximum:6},fitGrid:{type:'integer',minimum:5,maximum:17},referenceGrid:{type:'integer',minimum:4,maximum:64},fittingTolerance:{...positive,maximum:.5},sewingTolerance:{...positive,maximum:.5}
   }},
-  notes:'Replays the original closed oriented quad cage and optional spatial brushes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee.'
+  notes:'Replays the original closed oriented quad cage and optional spatial brushes. mode:move drags cage points by deltaMm with the selected radial falloff; it can shift a pocket or a lobe sideways without using the local normal. The other modes use strength. All brushes operate on the cage before fitting; they do not deform unrelated imported solids or meshes. Persistent crease weight 1 keeps sharp edges. Catmull-Clark limit samples are fitted to real B-spline faces and sewn into a valid solid; extraordinary regions use bounded approximation, with convergence/volume evidence in subdApproximation. subdApproximation.brushReport returns brushIndex, affectedControlPoints and maxDisplacementMm; zero hits emits SUBD_BRUSH_NO_HIT. Refined-face budget 200000 includes the extra convergence layer: cage.faces.length * 4 ** (sampleDepth + 1) <= 200000, volume deviation from independent refined reference must be <2%. No faceted mesh substitute or universal curvature guarantee.'
 };

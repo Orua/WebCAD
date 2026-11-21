@@ -1,6 +1,6 @@
 import * as cad from 'replicad';
 import {robustUnion} from './modeling/robust-union.js';
-import {initializeFaceOrigins} from './modeling/face-origins.js';
+import {faceOriginIds,initializeFaceOrigins} from './modeling/face-origins.js';
 import {finishBooleanBlend} from './modeling/boolean-blend.js';
 import {buildEllipsoid} from './ellipsoid.js';
 export function buildBumpSet(source,params,featureId,sourceId){
@@ -16,6 +16,17 @@ export function buildBumpSet(source,params,featureId,sourceId){
     // Keep the primitive intersection seams for the one subsequent fillet.
     // OCCT same-domain simplification can corrupt spherical trim curves in a
     // large batch, and is not needed to form this valid solid.
-    const shape=robustUnion([source,...tools],{toolIds:ids,simplifyResult:false});return finishBooleanBlend(shape,params,ids);
+    const shape=robustUnion([source,...tools],{toolIds:ids,simplifyResult:false});
+    if(params.requireConnected&&shape.booleanReport.solidCount!==1){
+      const {solidCount}=shape.booleanReport;
+      shape.delete();
+      throw Object.assign(new Error(`凸点未与基体形成单一实体，得到 ${solidCount} 个实体；原模型保留。`),{
+        code:'GEOMETRY_INVALID',details:{solidCount}
+      });
+    }
+    // Repeated sculpting uses the whole previously sculpted solid as one operand,
+    // while its faces still carry the original base and prior bump provenance.
+    const sourceGroups=[[sourceId,...faceOriginIds(source)],...ids.slice(1).map(id=>[id])];
+    return finishBooleanBlend(shape,params,ids,{sourceGroups});
   }finally{tools.forEach(tool=>tool.delete());}
 }

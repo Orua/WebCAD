@@ -7,7 +7,7 @@
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -46,6 +46,13 @@
     "stl": 268435456,
     "mesh": 805306368,
     "webcad": 1073741824
+  },
+  "projectContainerLimits": {
+    "maxBytes": 1073741824,
+    "maxEntries": 512,
+    "maxManifestBytes": 131072,
+    "maxJsonBytes": 20971520,
+    "maxArtifactBytes": 20971520
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -241,5 +248,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:e8e249fbc493a31c34a25b867898ec92ae20ad451fe0c71bafe9aa1999d2bf69"
+  "docsHash": "sha256:645158f550519ee1024d632a8452bd1b86af9af2cfa3e0dd8aec633cb24f617a"
 }

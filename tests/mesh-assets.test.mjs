@@ -22,6 +22,28 @@ test('raw STL preserves source identity, exact corner order and explicit units; 
  assert.equal(decodeBinarySTL(moved.exportSTL().data,'mm').positions[0],5);assert.deepEqual(bytes,copy);
  const rotated=shape.clone().rotate(90,[0,0,0],[0,0,1]);assert(Math.abs(rotated.transformed().positions[0]+2)<1e-12);assert(Math.abs(rotated.transformed().positions[1]-1)<1e-12);
 });
+test('STL reader distinguishes exact binary and complete multi-solid ASCII, and rejects truncation',()=>{
+ const binary=fixture();binary.set(new TextEncoder().encode('solid binary header'));
+ const binaryMesh=decodeBinarySTL(binary,'mm');assert.equal(binaryMesh.report.sourceFormat,'binary-stl');assert.equal(binaryMesh.report.triangleCount,2);
+ const ascii=new TextEncoder().encode([
+  'solid first block\r\n',
+  '\tfacet normal 0e0 0 1\r\n outer loop\r\n',
+  ' vertex 0 0 0\r\n vertex 1e0 0 0\r\n vertex 0 1.0 0\r\n',
+  ' endloop\r\n endfacet\r\nendsolid first block\r\n',
+  'solid second block\r\n',
+  ' facet normal 0 0 1\r\n outer loop\r\n',
+  ' vertex 1 2 3\r\n vertex 2 2 3\r\n vertex 1 3 3\r\n',
+  ' endloop\r\n endfacet\r\nendsolid second block\r\n',
+ ].join(''));
+ const asciiMesh=decodeBinarySTL(ascii,'mm');assert.equal(asciiMesh.report.sourceFormat,'ascii-stl');assert.equal(asciiMesh.report.triangleCount,2);assert.equal(asciiMesh.positions[3],1);assert.equal(asciiMesh.positions[9],1);
+ const hash=binaryHash(ascii).slice(7),shape=MeshShape.fromAsset({format:'stl',units:'mm',assetHash:hash},ascii),exported=shape.exportSTL();
+ assert.deepEqual(exported.data,ascii);assert.deepEqual(exported.meshReport,{sourceBytesUnchanged:true,sourceHash:hash,sourceFormat:'ascii-stl',units:'mm'});
+ const centimeters=MeshShape.fromAsset({format:'stl',units:'cm',assetHash:hash},ascii),millimeters=centimeters.exportSTL();
+ assert.equal(centimeters.mesh.positions[3],10);assert.equal(millimeters.meshReport.units,'mm');assert.equal(decodeBinarySTL(millimeters.data,'mm').positions[3],10);
+ assert.throws(()=>decodeBinarySTL(binary.slice(0,-1),'mm'),{code:'MESH_SOURCE_INVALID'});
+ assert.throws(()=>decodeBinarySTL(ascii.slice(0,-16),'mm'),{code:'MESH_SOURCE_INVALID'});
+ assert.throws(()=>decodeBinarySTL(new TextEncoder().encode(new TextDecoder().decode(ascii).replace('normal 0e0','normal NaN')),'mm'),{code:'MESH_NONFINITE'});
+});
 test('Float64 mesh codec is length/version/unit/index bounded and never silently repairs geometry',()=>{
  const mesh=decodeBinarySTL(fixture(),'mm'),b=encodeMesh(mesh),r=decodeMesh(b);assert.deepEqual(r.positions,mesh.positions);assert.deepEqual(r.indices,mesh.indices);
  const bad=b.slice();new DataView(bad.buffer).setUint32(20,4000001,true);assert.throws(()=>decodeMesh(bad),{code:'MESH_CODEC_INVALID'});
@@ -38,4 +60,21 @@ test('v4 stores full binary sources once across history and survives cold offlin
  const prior=restoreTimeline(cold,cold.timeline.baseId);assert.equal(prior.version,4);assert.deepEqual(prior.binaryAssets[hash],bytes,'undo carries retained source without buffer copies');
  const corrupted=cloneAssetDocument(doc);corrupted.binaryAssets[hash]=bytes.slice();corrupted.binaryAssets[hash][90]^=1;assert.throws(()=>encodeProjectV4(corrupted),{code:'MESH_ASSET_CORRUPT'});
  assert.throws(()=>encodeProjectV3({...doc,version:3}),{code:'DOCUMENT_VERSION_UNSUPPORTED'});
+});
+test('v4 reader and writer share the 512-entry budget',async()=>{
+ const project={version:4,documentId:'many-sources',features:[],imports:{},binaryAssets:{},hidden:[]};
+ function addSource(index){
+  const bytes=fixture();
+  new DataView(bytes.buffer).setUint16(0,index,true);
+  const hash=binaryHash(bytes).slice(7),key='source-'+index;
+  project.binaryAssets[hash]=bytes;
+  project.imports[key]={format:'stl',units:'mm',assetHash:hash};
+  project.features.push({id:key,op:'import',params:{key},refs:[]});
+ }
+ for(let i=0;i<510;i++)addSource(i);
+ const restored=await decodeProject(encodeProjectV4(project));
+ assert.equal(restored.features.length,510);
+ assert.deepEqual(restored.binaryAssets,project.binaryAssets);
+ addSource(510);
+ assert.throws(()=>encodeProjectV4(project),{code:'SIZE_LIMIT',message:/512-entry ZIP limit/});
 });

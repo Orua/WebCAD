@@ -31,3 +31,48 @@ test('spine honors curveSweep radius instead of the implicit 10 mm section',()=>
   assert.ok(Math.abs(cad.measureVolume(explicit)-Math.PI*10)<.3, cad.measureVolume(explicit));
  }finally{explicit.delete();}
 });
+
+test('absolute spine roll is independent of station count; saved incremental recipes keep their orientation',()=>{
+  const base={
+    pathType:'spine',spine:{kind:'polyline',pointsMm:[[0,0,0],[0,0,10]]},
+    upHint:[1,0,0],widthLaw:2,depthLaw:1,loftDegree:2
+  };
+  const verify=(options,mode,expected)=>{
+    const shape=buildCurveSweep({...base,...options},cad);
+    const analyzer=new oc.BRepCheck_Analyzer(shape.wrapped,true,false,false);
+    try{
+      assert.ok(analyzer.IsValid());
+      assert.equal(shape.loftReport.rollMode,mode);
+      for(const frame of shape.loftReport.spineFrames){
+        const rad=expected(frame)*Math.PI/180;
+        assert.ok(Math.hypot(frame.widthDirection[0]-Math.sin(rad),frame.widthDirection[1]+Math.cos(rad))<1e-8);
+      }
+    }finally{analyzer.delete();shape.delete();}
+  };
+  for(const count of [8,16,32]){
+    verify({stations:{count},rollMode:'absolute',rollLawDeg:30},'absolute',()=>30);
+  }
+  verify({stations:{count:8},rollMode:'absolute',rollLawDeg:{kind:'spline',samples:[[0,-15],[1,45]]}},'absolute',({t})=>-15+60*t);
+  verify({stations:{count:8},rollLawDeg:30},'incremental',({i})=>30*(i+1));
+  assert.deepEqual(getOperation('curveSweep').inputSchema.properties.rollMode.enum,['absolute','incremental']);
+});
+
+test('ordered ellipse stations retain material through the prepared curved fruit spine',()=>{
+  const points=Array.from({length:13},(_,i)=>{
+    const t=i/12,theta=(-69+139*t)*Math.PI/180,r=43+2.1*Math.sin(Math.PI*t);
+    return [51+r*Math.sin(theta),1.25*Math.sin(Math.PI*t)+2.3*t*t,1.8+r*(1-Math.cos(theta))+2.5*t];
+  });
+  const law=samples=>({kind:'spline',samples});
+  const shape=buildCurveSweep({
+    pathType:'spine',spine:{kind:'bspline',pointsMm:points},stations:{count:24},
+    widthLaw:law([[0,2.25],[.082,5.9],[.19,10.6],[.37,15.3],[.60,15.8],[.8,13.2],[.91,7.6],[1,3.4]]),
+    depthLaw:law([[0,1.9],[.10,4.7],[.23,8.7],[.48,11.6],[.73,11.0],[.9,6.9],[1,2.8]]),
+    rollLawDeg:law([[0,-17],[.32,-8],[.68,3],[1,18]]),rollMode:'absolute',autoAlign:false,loftDegree:3,volumeCheck:'error'
+  },cad);
+  try{
+    const {ratio,diagnostics}=shape.loftReport;
+    assert.ok(Math.abs(ratio-1)<.025,JSON.stringify({ratio,diagnostics}));
+    assert.equal(diagnostics.correspondence,'explicit-order');
+    assert.equal(diagnostics.solidCount,1);
+  }finally{shape.delete();}
+});

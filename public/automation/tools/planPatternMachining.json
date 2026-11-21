@@ -2,7 +2,7 @@
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -298,5 +298,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:2b873b4a3c4507e05de852c51591a5ba47645b6a85f021da7b2d25a9f2b48560"
+  "docsHash": "sha256:cdc95a0985aca14d2572a15e70be67dfc2ff2d848d7a2e22f8064affb59cd3d8"
 }

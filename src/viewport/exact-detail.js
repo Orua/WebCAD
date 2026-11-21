@@ -52,13 +52,13 @@ export class ExactDisplayDetail {
   }
   update(active){
     const v=this.viewport,now=performance.now(),height=Math.max(1,v.host.clientHeight),candidates=[];
-    const viewKey=JSON.stringify([this.version,active,height,v.mode,v.selectionMode,!!v.busy,v.camera.matrixWorld.elements,v.camera.projectionMatrix.elements,[...v.objects.values()].map(e=>[e.body.id,e.body.renderVersion,e.root.visible,e.root.matrixWorld.elements,e.body.adaptiveDisplay?.requestedQuality])]);
+    const viewKey=JSON.stringify([this.version,active,height,v.mode,v.selectionMode,!!v.busy,v.camera.matrixWorld.elements,v.camera.projectionMatrix.elements,[...(v.drawEntries?.()??v.objects.values())].map(e=>[e.body.id,e.body.renderVersion,e.root.visible,e.root.matrixWorld.elements,e.body.adaptiveDisplay?.requestedQuality])]);
     const dispatchDue=!active&&!v.busy&&!this.pending&&now>=this.nextRequest&&this.cachedCandidates>0&&this.cachedRefinedTriangles<EXACT_DISPLAY.maxRefinedTriangles&&!!v.callbacks.onRefineDisplay;
     if(viewKey===this.cachedKey&&!dispatchDue)return this.cachedState?{...this.cachedState,pending:this.pending}:null;
     const frustum=new THREE.Frustum().setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(v.camera.projectionMatrix,v.camera.matrixWorldInverse));
     let visibleFaces=0,culledFaces=0,triangles=0,fullTriangles=0,refinedTriangles=0,totalFaces=0,screenErrorBudgetPx=0,approximate=false,budgetLimited=false,planarBatchedBodies=0,surfaceBatchedBodies=0;
     const all=[];
-    for(const entry of v.objects.values()){
+    for(const entry of (v.drawEntries?.()??v.objects.values())){
       if(!entry.exactDisplay)continue;
       screenErrorBudgetPx=Math.max(screenErrorBudgetPx,active?4:({draft:2,standard:1,fine:.5,ultra:.25}[entry.body.adaptiveDisplay.requestedQuality]??1));
       if(entry.exactDisplay.planarBatch){
@@ -105,7 +105,7 @@ export class ExactDisplayDetail {
         refinedTriangles-=p.fine.index.count/3;if(p.piece){p.piece.visible=false;if(p.base.isBufferGeometry)p.piece.geometry=p.base;else{p.piece.parent?.remove(p.piece);p.piece=null;}}p.fine.dispose();p.fine=null;p.tolerance=EXACT_DISPLAY.initialTolerance;
         if(refinedTriangles<EXACT_DISPLAY.maxRefinedTriangles*.8)break;
       }
-      for(const entry of v.objects.values())this.syncCoarse(entry,active);
+      for(const entry of (v.drawEntries?.()??v.objects.values()))this.syncCoarse(entry,active);
     }
     candidates.sort((a,b)=>b.priority-a.priority);
     if(!active&&!v.busy&&!this.pending&&now>=this.nextRequest&&candidates.length&&v.callbacks.onRefineDisplay){

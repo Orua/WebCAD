@@ -2,7 +2,7 @@
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -117,5 +117,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:50ad2c6b833460c7a3401ab4be2baa1b84cb18f5b91b568a1de0e2f81ccc68aa"
+  "docsHash": "sha256:0fcf3772c176eb0b4c817dea39e695b9724ce00a89f9a902301f24be0f6e110e"
 }

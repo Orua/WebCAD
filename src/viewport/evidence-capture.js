@@ -12,7 +12,7 @@ export function evidenceCamera(bounds,viewId){
 export function evidenceDisplaySignature(viewport){
  viewport.scene.updateMatrixWorld();
  const patches=new Map();
- for(const entry of viewport.objects.values()){
+ for(const entry of viewport.drawEntries?.()??viewport.objects.values()){
   for(const patch of entry.displayPatches||[])patches.set(patch.piece,patch.full);
   for(const patch of entry.exactDisplay?.patches||[])if(patch.piece)patches.set(patch.piece,patch.fine||patch.base);
  }
@@ -36,7 +36,7 @@ export function captureEvidence(viewport,opts){
  const occlusion=viewport.metals.getOcclusionUniforms().webcadOcclusionEnabled,occlusionValue=occlusion.value;
  const hidden=[viewport.gizmo?.getHelper(),viewport.anchorGizmoHelper,viewport.anchorVisual,viewport.guideRoot,viewport.errorRoot,viewport.progressRoot].filter(Boolean).map(object=>[object,object.visible]);
  const surfaces=[],batches=[];
- for(const entry of viewport.objects.values()){
+ for(const entry of viewport.drawEntries?.()??viewport.objects.values()){
   if(entry.exactDisplay?.surfaceBatch){batches.push([entry,entry.exactDisplay.coarseKey==='base']);viewport.exactDisplayDetail?.syncCoarse(entry,false);}
   for(const patch of [...(entry.displayPatches||[]),...(entry.exactDisplay?.patches||[])])if(patch.piece)surfaces.push([patch.piece,patch.piece.geometry,patch.piece.visible,patch.full||patch.fine||patch.base]);
  }

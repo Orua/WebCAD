@@ -1,6 +1,7 @@
 import {binaryHash} from '../contracts/operation-schema.js';
 import {validateRigidMatrix} from '../rigid-instance.js';
 import {MESH_LIMITS,meshError,meshScale} from './mesh-contract.js';
+import {validateAssemblies} from '../assembly.js';
 import {RELIEF_REFERENCE_LIMIT,validateReliefReference,validateReliefReferenceBindings,referenceImageHeader} from '../relief-design-reference-contract.js';
 export const BINARY_SOURCE_FORMATS=Object.freeze(['stl','mesh','step','brep','brep-instance','heightmap','reference-image']);
 export const exactSourceFormat=format=>format==='step'||format==='brep'||format==='brep-instance';
@@ -12,6 +13,7 @@ export function cloneAssetDocument(value){
 }
 export function meshAssetFormats(document){
  validateReliefReferenceBindings(document);
+ validateAssemblies(document.imports);
  const formats=new Map();for(const item of Object.values(document.imports||{}))if(BINARY_SOURCE_FORMATS.includes(item.format)){
   if(item.location){if(!['brep','brep-instance'].includes(item.format))throw assetError(item.format,'Only exact BRep supports a rigid instance location');validateRigidMatrix(item.location);}
   // Old STEP/BREP imports remain readable. New sources carry only a hash in
@@ -23,7 +25,12 @@ export function meshAssetFormats(document){
    if(item.data!==undefined)throw assetError(item.format,'Original reference bytes cannot be duplicated in metadata');
    validateReliefReference({importKey:'reference',assetHash:item.assetHash,name:'reference',mime:item.mime,sizeBytes:item.sizeBytes,width:item.width,height:item.height});
   }
-  if(formats.has(item.assetHash)&&formats.get(item.assetHash)!==item.format)throw assetError(item.format,'Conflicting asset format.');formats.set(item.assetHash,item.format);if(item.format==='stl')meshScale(item.units);
+  const previous=formats.get(item.assetHash);
+  if(previous&&previous!==item.format){
+   if(!['brep','brep-instance'].includes(previous)||!['brep','brep-instance'].includes(item.format))throw assetError(item.format,'Conflicting asset format.');
+   formats.set(item.assetHash,'brep-instance');
+  }else formats.set(item.assetHash,item.format);
+  if(item.format==='stl')meshScale(item.units);
  }
  // Retained timeline imports are held in imports until history no longer uses
  // them; same content bytes are never embedded in feature/timeline patches.

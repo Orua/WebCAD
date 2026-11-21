@@ -3,7 +3,7 @@
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -51,6 +51,10 @@
         "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
       },
       {
+        "id": "files.inspectInsert",
+        "chooseWhen": "读取另一个已登记 WebCAD 工程的来源范围和对象数，用于插入前确定比例和坐标。"
+      },
+      {
         "id": "import",
         "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
       },
@@ -62,5 +66,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6cfd754c571afb33e495b70e394daeffec0b781117e809bde44aed4eb36e8456"
+  "docsHash": "sha256:ee166cf5a18c1126971dae3ab4558380b94801b014b8a7d67b646feac90776b9"
 }

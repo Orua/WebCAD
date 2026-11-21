@@ -25,7 +25,8 @@ export function loadSurfaceImage(texture,bytes){
  return pending;
 }
 export function validateSurfaceAssets(document){
- for(const value of Object.values(document.surface||{})){const texture=value?.texture;if(!texture)continue;
+ const memberSurfaces=Object.values(document.imports||{}).flatMap(item=>item.format==='assembly'?item.members.map(member=>member.surface):[]);
+ for(const value of [...Object.values(document.surface||{}),...memberSurfaces]){const texture=value?.texture;if(!texture)continue;
   if(texture.dataUrl)throw Object.assign(new Error('工程贴图必须使用持久化图片资产。'),{code:'ARTIFACT_CORRUPT'});
   const item=document.imports?.['texture-'+texture.assetHash];
   if(item?.format!=='reference-image'||item.assetHash!==texture.assetHash||item.mime!==texture.mime||!(document.binaryAssets?.[texture.assetHash] instanceof Uint8Array))throw Object.assign(new Error('工程缺少贴图原始图片。'),{code:'ARTIFACT_CORRUPT'});

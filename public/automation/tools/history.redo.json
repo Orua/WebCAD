@@ -8,7 +8,7 @@
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -230,5 +230,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:228fb111373184ac37b15f8e124dbcd2d39ee071a7d72073e11b68186ceece75"
+  "docsHash": "sha256:1aa2018b805a61f0728c05921a87979e6e0fd00cc7c86de6b33857ea316f4580"
 }

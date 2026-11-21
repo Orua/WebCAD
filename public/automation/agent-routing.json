@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:624071d712612320a14ed8f1c0f0b272290030568d54cf4f1fec69e2a0d468ed",
-  "docsHash": "sha256:0ccb02a70542d748cc57417f3bf28da7c84ee4e4915cf1dca2b73d7c6ef4d932",
+  "catalogHash": "sha256:fce3d1b09e53186207fedff6d6c2d1702518ff14f8fd925180d542743045d706",
+  "docsHash": "sha256:76133ec8edec4a48c2e737a75c49ac31e8344313e0464a1d5b904767f3994247",
   "workflowDelivery": {
     "schemaVersion": 1,
     "coreDocIds": [
@@ -808,6 +808,59 @@
         "files.write"
       ],
       "readFirst": "api.guide.files",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
+    },
+    {
+      "id": "modeling.organic-form",
+      "title": "有机体块与立体雕刻",
+      "keywords": [
+        "有机造型",
+        "立体雕刻",
+        "异形体块",
+        "控制笼",
+        "果窝",
+        "局部拖拽",
+        "弯曲渐缩",
+        "三维雕刻",
+        "organic sculpt"
+      ],
+      "readFirst": "api.modeling.methods.organic-form",
+      "docs": [
+        "api.modeling.methods.organic-form",
+        "api.modeling-pitfalls"
+      ],
+      "tools": [],
+      "branches": [
+        {
+          "id": "cage",
+          "tools": [
+            "subdBody",
+            "measure"
+          ]
+        },
+        {
+          "id": "spine",
+          "tools": [
+            "curveSweep",
+            "measure"
+          ]
+        },
+        {
+          "id": "connected-detail",
+          "tools": [
+            "bumpSet",
+            "union",
+            "measure"
+          ]
+        },
+        {
+          "id": "mesh-height",
+          "tools": [
+            "meshReliefEdit",
+            "sampleMeshRelief"
+          ]
+        }
+      ],
       "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {

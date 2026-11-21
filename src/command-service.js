@@ -86,7 +86,24 @@ export function createCommandService(adapter) {
     if(args.schemaHash!==card.schemaHash)fail('SCHEMA_MISMATCH','args.schemaHash','Read current tool card');
     return card;
   }
-  function parameters(op,params,{creation=true}={}){if(op==='quickModel'){params=normalizeChainSize(params,{creation});if(creation&&params?.kind==='twoPieceEyelet')params={faceStyle:'flat',assemblyGapMm:0,explodedOffsetMm:0,...params};}if(migratedOperationIds.includes(op))return normalizeOperationParams(op,params);finiteTree(params);validateOperationExample(op,params);return clone(params);}
+  function parameters(op,params,{creation=true}={}){
+    if(op==='quickModel'){
+      params=normalizeChainSize(params,{creation});
+      if(creation&&params?.kind==='twoPieceEyelet')params={faceStyle:'flat',assemblyGapMm:0,explodedOffsetMm:0,...params};
+    }
+    if(creation&&op==='curveSweep'&&params?.pathType==='spine'){
+      const law=params.profileLaw;
+      const ellipseSections=law===undefined||Array.isArray(law)&&law.every(station=>station?.[1]?.kind==='ellipse');
+      params={rollMode:'absolute',...(ellipseSections?{autoAlign:false}:{}),...params};
+    }
+    if(creation&&op==='bumpSet'&&params&&!Object.hasOwn(params,'requireConnected')){
+      params={...params,requireConnected:true};
+    }
+    if(migratedOperationIds.includes(op))return normalizeOperationParams(op,params);
+    finiteTree(params);
+    validateOperationExample(op,params);
+    return clone(params);
+  }
   function snapshot(){const s=adapter.snapshot();if(instance!==s.documentInstanceId){instance=s.documentInstanceId;receipts.clear();archivedReceipts.clear();tokens.clear();cursors.clear();referenceTokens.clear();referenceTokenRevision=-1;}return s;}
   function context(input,s,{revision=true}={}){
     object(input,['sessionId','documentId','documentInstanceId','expectedRevision'],'context');
@@ -302,8 +319,8 @@ export function createCommandService(adapter) {
       const requestId=options.requestId??uid();let before,key,fingerprint;
       try{
         before=snapshot();object(input,['context','action','args'],'input');context(input.context,before,{revision:false});
-        if(!['new','open','import','save','export'].includes(input.action))fail('PARAM_SCHEMA_INVALID','action','Unknown file action');
-        if(input.action==='import'&&(input.args?.placement!==undefined||input.args?.idempotencyKey!==undefined||/\.(stl|mesh)$/i.test(input.args?.name||''))){
+        if(!['new','open','import','inspectInsert','save','export'].includes(input.action))fail('PARAM_SCHEMA_INVALID','action','Unknown file action');
+        if(input.action==='import'&&(input.args?.placement!==undefined||input.args?.idempotencyKey!==undefined||/\.(stl|mesh|webcad)$/i.test(input.args?.name||''))){
           key=input.args.idempotencyKey;string(key,'args.idempotencyKey',128);
           const data=new TextEncoder().encode(canonical({action:input.action,args:input.args?.data instanceof Uint8Array?{...input.args,data:{sha256:binaryHash(input.args.data),bytes:input.args.data.length}}:input.args,context:{sessionId:input.context.sessionId,documentId:input.context.documentId,documentInstanceId:input.context.documentInstanceId}}));
           fingerprint=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data)),v=>v.toString(16).padStart(2,'0')).join('');
@@ -312,9 +329,11 @@ export function createCommandService(adapter) {
         }
         context(input.context,before);if(input.action!=='save')available(before);
         if(input.action==='import')assertFeatureCapacity(before.features,1);
-        const args=input.action==='import'?{...input.args,placement:newFeaturePlacement(input.args?.placement,before.referenceSystem,'import')}:input.args??{};
+        const placement=input.args?.placement??(/\.webcad$/i.test(input.args?.name||'')?
+          {version:1,frame:{kind:'world'},sourceAnchor:{kind:'model-origin'}}:undefined);
+        const args=input.action==='import'?{...input.args,placement:newFeaturePlacement(placement,before.referenceSystem,'import')}:input.args??{};
         const result=await adapter.execute(`file_${input.action}`,args,{...options,expectedRevision:before.revision});
-        const after=snapshot(),readOnly=['save','export'].includes(input.action),receipt={status:readOnly?'read':'committed',requestId,context:contextOf(readOnly?before:after),...result};
+        const after=snapshot(),readOnly=['save','export','inspectInsert'].includes(input.action),receipt={status:readOnly?'read':'committed',requestId,context:contextOf(readOnly?before:after),...result};
         if(input.action==='import'&&receipt.status==='committed'){
           receipt.createdBodyIds=after.bodies.filter(body=>!before.bodies.some(previous=>previous.id===body.id)).map(body=>body.id);
           receipt.validation={...receipt.validation,geometry:'passed'};receipt.facts=commitFacts(before,after,receipt);

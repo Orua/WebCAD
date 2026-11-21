@@ -31,13 +31,18 @@ blendRadiusMm 必须正值；可行半径取决于真实拓扑，不能凭包围
 
 ## 扫掠与 SubD
 curveSweep 的截面站模式是 pathType:'sections'，数据字段也是 sections；stations 是自然语言同义词，不是 pathType 枚举。不同工具 guidedLoft 的 stations 字段不要混用。
+curveSweep 的 pathType:'spine' 新特征默认写入 rollMode:'absolute'。rollLawDeg 是相对该站无额外滚转标架的角度，恒定 30° 换站数仍保持 +30°；显式 incremental 才逐站累加。已有配方缺少 rollMode 时保留旧语义。修改旧件前读取参数及 loftReport.rollMode，不自动迁移。
+新建全椭圆脊线扫掠默认 autoAlign:false，按标架保留各站椭圆对应，不让内核重排截面接缝；混合轮廓沿用原兼容策略。旧特征参数及显式 autoAlign 保留。看到局部折颈或体积异常时，核对 loftReport.ratio、warning 和 diagnostics.correspondence；验收样件可预先指定 volumeCheck:'error'。
 sections[].normal 与 widthDirection 必须接近垂直，容差 5°；normal 有非零 Y 不代表必失败，判断是归一化点积。需要修正方向时令 n=normal/|normal|，w'=normalize(w-dot(w,n)*n)，核实意图后显式提交；平行时投影为零不能自动猜方向。
 SubD 笔刷作用于控制笼顶点，不是细分后的曲面采样点。push/inflate strength 为带符号毫米位移上限，乘距离衰减；smooth strength 为 [0,1] 无量纲插值比例。
+当目标是把果窝、眼窝或一片体块侧向移动时，选 mode:'move'，用 deltaMm:[dx,dy,dz] 直接表达控制笼坐标系中的毫米位移；不要填 strength。先用影响半径圈定控制点，再检查实际命中、保持区和曲面。如需改导入实体或通用闭合网格，先发现对应工具，不能把这一步当成全实体自由变形。
 每笔的命中控制点数和最大实际位移见 bodies[].subdApproximation.brushReport；零命中仍可创建有效未变形实体，但回执 warnings 包含 SUBD_BRUSH_NO_HIT，不能宣称雕刻生效。
 面预算在细分前检查，包含额外一层收敛对照：cage.faces.length * 4 ** (sampleDepth + 1) <= 200000。24面、depth6为393216，必须降低深度，不是196608。
 控制笼须封闭四边面且绕序一致；冲突错误返回两个从0开始的面索引和共边。修改后重新核验整个笼子，不自动更改用户拓扑。
 
 ## 显示、材质、检查与导出
+本地 union 的失败回执若含 report.sourceCoverage，按 missing[].sourceIndex/axis/side/missingMm 检查缺失部位。原输入保留。BRep 有效和总体积在区间内不能代替材料覆盖验收，也不能据此盲目增大公差。
+头颈、肢根等必须连续成体的并集传 requireConnected:true。结果为多实体时失败并保留两输入。仍需核对求得的单实体轮廓、材料和接缝是否符合目标。
 setView({context,camera:{position:[x,y,z],target:[x,y,z]}}) 支持真实相机定位，成功 status:'read' 表示视图状态操作，不是几何提交。读回 view.camera/display.camera。direction、projection、fit 同传时也会调整相机；要精确姿态只给 camera。绝对相机和预设清除此前拖拽惯性。
 front 从 -Y 看向 +Y，back 从 +Y 看向 -Y；top 为 +Z，right 为 +X。direction:'iso' 重设朝向并适配模型；不用累积鼠标拖拽拼固定视角。
 旋转折线截面产生分段曲面；增加折线点数不等于升级为精确光滑母线。没有原始配方不能仅凭色带判定法线错误，强行跨锐边平均可能掩盖实际折角。

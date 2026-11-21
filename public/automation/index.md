@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.74.0 · 操作目录 sha256:624071d712612320a14ed8f1c0f0b272290030568d54cf4f1fec69e2a0d468ed
+API 1.75.3 · 操作目录 sha256:fce3d1b09e53186207fedff6d6c2d1702518ff14f8fd925180d542743045d706
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -117,6 +117,7 @@ API 1.74.0 · 操作目录 sha256:624071d712612320a14ed8f1c0f0b272290030568d54cf
 - `files.new`
 - `files.open`
 - `files.import`
+- `files.inspectInsert`
 - `files.save`
 - `files.export`
 - `files.reattach`
@@ -408,7 +409,8 @@ API 1.74.0 · 操作目录 sha256:624071d712612320a14ed8f1c0f0b272290030568d54cf
 - `files.register` · browser-file-adapter · register({name,data,mime?}); data is File, Blob, ArrayBuffer or Uint8Array; name is a safe basename.
 - `files.new` · browser-file-adapter · new({context,name?,unsaved?:"fail"|"discard"}); complete current context. unsaved 省略视为 fail：未保存时拒绝 UNSAVED_REPLACEMENT。files.save 只在页面内存生成文件（dirtyCleared:false），不会单独清掉未保存标记；要先 files.write 或 files.download，再 files.confirmWritten。明确放弃当前修改可传 unsaved:"discard"。另开 ?document=<id> 标签页也不破坏当前工程。name (1–120 characters, trimmed) becomes the live title; omitted, the default is 新建工程YYYYMMDD-NNN using the current local date and a daily browser-persisted sequence (minimum three digits).
 - `files.open` · browser-file-adapter · open({context,resourceId,unsaved:"fail"|"discard",units?}); 打开=替换当前设计，从不合并。.webcad/.json 工程或单个 STEP/BREP/STL 模型（放入新文档；STL 需 units）。unsaved 必填：fail 在未保存时返回 UNSAVED_REPLACEMENT，discard 放弃修改。要加入当前设计请用 files.import。
-- `files.import` · browser-file-adapter · import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. Exact-source typed imports preserve optional legacy key behavior; supply idempotencyKey for replay protection; read api.exact-source-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.
+- `files.import` · browser-file-adapter · import({context,resourceId,units?,placement?,idempotencyKey?,projectMode?,scale?})。STEP、BRep、STL、typed mesh 和 .webcad 先登记原件。STL 支持完整二进制与 ASCII，显式传单位。网格、原生工程和显式定位需要幂等键。原生工程接受 assembly（默认）或 parts，以及有限正数的统一比例，默认 1。放置坐标架支持姿态。原生工程默认保留源坐标，旧 STEP/BRep 和网格调用省略 placement 时仍使用当前工作基准。
+- `files.inspectInsert` · browser-file-adapter · inspectInsert({context,resourceId})。读取已登记 .webcad 来源最终对象的世界包围范围、对象数和 SHA-256。兼容来源已有建模历史时在隔离内核中求最终形态。
 - `files.save` · browser-file-adapter · save({context,name?}); complete current context. Save committed data even while busy, previewing or the kernel is unavailable. Normally final BRep/typed mesh with ids/appearance/visibility/material/anchors; if final checkpoints are unavailable, retain the original committed recipe and embedded assets in a recovery project. Codec failure uses direct encoding; no geometry recomputation. name may omit .webcad.
 - `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png. ids must be current body ids (unknown ids fail); do not drop bodies whose volume is null because metricsDeferred:true only means the exact volume was not computed yet. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).
 - `files.reattach` · browser-file-adapter · reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。

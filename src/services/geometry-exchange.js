@@ -57,7 +57,7 @@ export function assertCompilableFeature(feature){
  }
  if(feature?.op==='union'){
   const p=feature.params??{};
-  if(feature.refs?.length<2||feature.refs?.length>33||!feature.refs||new Set(feature.refs).size!==feature.refs.length||feature.refs.some(id=>typeof id!=='string'||!id)||Object.keys(p).some(k=>!['keepTools','renameTarget','blendRadiusMm','blendMode','fuzzyMm','glue'].includes(k))||p.blendRadiusMm!==undefined&&!validBlendRadius(p.blendRadiusMm)||p.blendMode!==undefined&&p.blendMode!=='fillet'||p.fuzzyMm!==undefined&&(!Number.isFinite(p.fuzzyMm)||p.fuzzyMm<0||p.fuzzyMm>.1)||p.glue!==undefined&&!['off','shift','full'].includes(p.glue)||['keepTools','renameTarget'].some(k=>p[k]!==undefined&&typeof p[k]!=='boolean'))throw serviceError('OPERATION_UNAVAILABLE','原生融合支持2–33个来源及可选精确半径或显式范围交线修顺；不支持变半径规律或隐式缩小');
+  if(feature.refs?.length<2||feature.refs?.length>33||!feature.refs||new Set(feature.refs).size!==feature.refs.length||feature.refs.some(id=>typeof id!=='string'||!id)||Object.keys(p).some(k=>!['keepTools','renameTarget','blendRadiusMm','blendMode','fuzzyMm','glue','requireConnected'].includes(k))||p.blendRadiusMm!==undefined&&!validBlendRadius(p.blendRadiusMm)||p.blendMode!==undefined&&p.blendMode!=='fillet'||p.fuzzyMm!==undefined&&(!Number.isFinite(p.fuzzyMm)||p.fuzzyMm<0||p.fuzzyMm>.1)||p.glue!==undefined&&!['off','shift','full'].includes(p.glue)||['keepTools','renameTarget','requireConnected'].some(k=>p[k]!==undefined&&typeof p[k]!=='boolean'))throw serviceError('OPERATION_UNAVAILABLE','原生融合支持2–33个来源及可选精确半径或显式范围交线修顺；不支持变半径规律或隐式缩小');
   return p;
  }
  if(isSpatialBlend(feature)){

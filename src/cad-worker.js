@@ -12,6 +12,7 @@ import {refineExactDisplay} from './modeling/io/adaptive-display.js';
 import {boundedDiagnosticReport} from './modeling/diagnostic-report.js';
 import {snapshotDelta} from './geometry-snapshot.js';
 import {unpackWorkerDocument} from './worker-assets.js';
+import {finalStateProject} from './project-final-state.js';
 
 const kernel = initOpenCascade({ locateFile: () => wasmURL }).then(oc => new CadKernel(oc));
 // Serialize requests: imports await file reads, so onmessage alone is not a lock.
@@ -33,6 +34,15 @@ self.onmessage = ({ data }) => {
       else if(type==='adoptHistorySignature')result=engine.adoptHistorySignature(data.document);
       else if(type==='probeBlendRadius')result=engine.probeBlendRadius(data.input);
       else if(type==='decodeProject')result={document:await decodeProject(data.bytes)};
+      else if(type==='freezeProjectSource'){
+        const source=new CadKernel(engine.oc);
+        source.quality=engine.quality;source.onProgress=engine.onProgress;
+        try{
+          await source.rebuild(data.document,{headless:true,deferMassProperties:true});
+          result={document:finalStateProject(data.document,source.finalShapeSources())};
+        }finally{source.dispose();}
+      }
+      else if(type==='projectSourceBounds')result={bounds:await engine.sourceProjectBounds(data.document)};
       else if(type==='rebuild'){
         result=await rebuildWithPool(engine,data.document,{displayCoarsen:data.displayCoarsen||1,deferMassProperties:data.deferMassProperties===true});
         const snapshotStart=performance.now(),before=engine.snapshotEncodeCount||0;
@@ -79,7 +89,7 @@ self.onmessage = ({ data }) => {
         }
       } else throw new Error(`未知请求 ${type}`);
       if(data.assetRefs){const retained=new Set(Object.entries(data.assetRefs).flatMap(([table,hashes])=>hashes.map(hash=>`${table}:${hash}`)));for(const key of assetCache.keys())if(!retained.has(key))assetCache.delete(key);}
-      self.postMessage({ requestId, ok: true, ...result,registeredAssets:[...assetCache.keys()] },type==='refineDisplay'?result.patches.flatMap(p=>p.limited?[]:[p.positions.buffer,p.normals.buffer,p.indices.buffer]):type==='encodeProject'?[result.bytes.buffer]:type==='decodeProject'?decodedProjectTransfers(result.document):[]);
+      self.postMessage({ requestId, ok: true, ...result,registeredAssets:[...assetCache.keys()] },type==='refineDisplay'?result.patches.flatMap(p=>p.limited?[]:[p.positions.buffer,p.normals.buffer,p.indices.buffer]):type==='encodeProject'?[result.bytes.buffer]:['decodeProject','freezeProjectSource'].includes(type)?decodedProjectTransfers(result.document):[]);
     } catch (error) { const report=boundedDiagnosticReport(error?.report),details=boundedDiagnosticReport(error?.details);self.postMessage({ requestId, ok: false, error: error?.message || String(error), featureId: error?.featureId, code: error?.code, path: error?.path, recoveryAction: error?.recoveryAction,report,details }); }
   }).catch(()=>{});
 };

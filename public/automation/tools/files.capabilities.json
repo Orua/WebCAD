@@ -7,7 +7,7 @@
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "contextPolicy": "none",
   "label": "文件能力",
   "synonyms": [
@@ -16,7 +16,7 @@
   ],
   "description": "capabilities(); no arguments.",
   "inputContract": "capabilities(); no arguments.",
-  "outputContract": "Browser limits, supported formats and in-page transport.",
+  "outputContract": "Browser limits, supported formats and in-page transport. typedByteBudgets covers individual files; projectContainerLimits covers the v4 ZIP entry, unpacked byte, manifest and metadata limits.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -41,6 +41,13 @@
     "stl": 268435456,
     "mesh": 805306368,
     "webcad": 1073741824
+  },
+  "projectContainerLimits": {
+    "maxBytes": 1073741824,
+    "maxEntries": 512,
+    "maxManifestBytes": 131072,
+    "maxJsonBytes": 20971520,
+    "maxArtifactBytes": 20971520
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -104,6 +111,10 @@
         "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
       },
       {
+        "id": "files.inspectInsert",
+        "chooseWhen": "读取另一个已登记 WebCAD 工程的来源范围和对象数，用于插入前确定比例和坐标。"
+      },
+      {
         "id": "import",
         "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
       },
@@ -119,5 +130,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:02f60cbca7f44a22d0a97b282d37c1e49c141d0f4d243d70293c8894cdca95c4"
+  "docsHash": "sha256:b3bc3c0010d1b1807013b00568f8551f069c969a18023f8eeed97a0ee6dab17e"
 }

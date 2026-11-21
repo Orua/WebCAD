@@ -52,6 +52,6 @@ export const UI_LAYOUT=freeze({version:9,workspaces:[{id:'modeling',label:'建�
     reliefSculpt:['M3 18h18 M4 14l4-7 4 5 4-8 4 10 M6 18v3 M18 18v3'],
   },
   header:[{action:'save',label:'保存'},{action:'commandSearch',label:'搜索命令'},{action:'help',label:'帮助'}],
-  fileMenu:[{action:'new',label:'新建工程'},{action:'open',label:'打开',title:'打开文件并替换当前设计'},{action:'restoreRecovery',label:'恢复未保存工程',title:'显式查找并恢复本机保留的未保存工程'},{action:'importAtFrame',label:'导入',title:'将模型导入当前设计，保留已有对象'},{action:'save',label:'保存工程'},{action:'export',label:'导出模型'}],
+  fileMenu:[{action:'new',label:'新建工程'},{action:'open',label:'打开',title:'打开文件并替换当前设计'},{action:'restoreRecovery',label:'恢复未保存工程',title:'显式查找并恢复本机保留的未保存工程'},{action:'importAtFrame',label:'插入到当前设计…',title:'将模型或 WebCAD 工程插入当前设计，保留已有对象'},{action:'save',label:'保存工程'},{action:'export',label:'导出模型'}],
 });
 export const TOOL_CATEGORIES=Object.fromEntries(UI_LAYOUT.tabs.map(tab=>[tab.label,tab.groups]));

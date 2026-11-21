@@ -256,6 +256,8 @@ import {assertBoundsAlignment,boundsAlignment} from './bounds-alignment.js';
 import {rebuildFingerprints} from './rebuild-cache.js';
 import {identityMatrix,multiplyMatrix,rigidAlignmentMatrix,rigidCopyMatrix,locateBrep,locatedBody,validateRigidMatrix} from './rigid-instance.js';
 import {planBodyAlignment} from './modeling/interaction/align-bodies.js';
+import {AssemblyShape,isAssembly,frameMatrix,isIdentityLocation,unionBounds} from './assembly.js';
+const isCheckpointBrep=shape=>!!shape&&shape.geometryType!=='mesh'&&!isAssembly(shape);
 export class CadKernel {
   constructor(oc) { cad.setOC(oc); this.oc = oc; this.shapes = new Map(); this.active = new Map(); this.renderCache = new Map();this.geometryMetrics=new WeakMap();this.bodyMeasurements=new WeakMap();this.bodyDimensionCache=new WeakMap();this.geometrySourceSnapshots=new WeakMap();this.reliefLayerCache=new ReliefLayerCache(); this.historySignature = []; this.importsSignature = ''; this.renderVersion = 0; }
   async operation(feature, shapes, imports, historyFeatures=[],execution={}) {
@@ -556,34 +558,7 @@ export class CadKernel {
           return sketch.revolve(axis,{origin:[0,0,0],angle});
         } finally {dispose(sketch);dispose(drawing);}
       }
-      case 'import': {
-        const item = imports[p.key];
-        if(item&&['stl','mesh'].includes(item.format))return MeshShape.fromAsset(item,this.binaryAssets?.[item.assetHash]);
-        if (!item) throw new Error('工程中缺少原始导入文件');
-        if (item.format === 'iges') throw new Error('此内核不支持 IGES 编辑，请先在原 CAD 软件另存为 STEP');
-        if (item.format === 'stl') throw new Error('STL 是三角网格，不能作为精确实体编辑；请使用 STEP 或 BREP');
-        const bytes = exactSourceBytes(item,this.binaryAssets);
-        if (item.format === 'step') {const imported=await cad.importSTEP(new Blob([bytes]));imported.sourceBytes=bytes.length;return imported;}
-        // Final-state projects also contain exact profile faces and paths.
-        // Keep their topology type; the shared rebuild validation checks validity.
-        if (item.format === 'brep'||item.format==='brep-instance') {
-          const key=item.assetHash||binaryHash(bytes);let base=this.importBases?.get(key);
-          if(!base){
-            this.reportRebuildProgress('brep-decode','解码精确 BRep');
-            const sourceText=new TextDecoder().decode(bytes);base=cad.deserializeShape(sourceText);
-            this.reportRebuildProgress('feature','计算实体');
-            this.importBases??=new Map();this.importBases.set(key,base);this.geometrySourceSnapshots.set(base,sourceText);this.sourceBytesCache??=new WeakMap();this.sourceBytesCache.set(base,{format:'brep',data:bytes,sourceHash:binaryHash(bytes).slice(7)});
-          }
-          const identity=identityMatrix(),matrix=item.location?validateRigidMatrix(item.location):identity;
-          // Final-state save can materialize an identity location for a plain
-          // BRep. Avoid changing OCCT serialization for the same placement.
-          const shape=matrix.every((value,index)=>value===identity[index])?base.clone():locateBrep(base,matrix,this.oc);
-          this.rigidInstances??=new WeakMap();this.rigidInstances.set(shape,{source:base,sourceId:feature.id,matrix});
-          if(this.validatedShapes?.has(base))this.validatedShapes.add(shape);
-          return shape;
-        }
-        throw new Error('导入格式不受支持');
-      }
+      case 'import': return this.loadImport(imports,p.key,feature.id);
       case 'transform': case 'copy':
         if(p.sizeMm){if(feature.placement)throw Object.assign(new Error('实体尺寸使用世界轴，请省略 placement。'),{code:'COORDINATE_MODE_CONFLICT'});return applyBodyResize(source(),p,this.oc,cad.cast);}
         assertBoundsAlignment(p);
@@ -755,6 +730,12 @@ export class CadKernel {
             dispose(out); out = next;
           }
           if(feature.op==='cut'&&p.keepSolidAt!==undefined){const selected=selectBooleanSolid(out,p,cad);dispose(out);out=selected;}
+          if(feature.op==='union'&&p.requireConnected){
+            const solids=out.solids;
+            try{
+              if(solids.length!==1)throw Object.assign(new Error(`指定必须融合为单一实体，结果有 ${solids.length} 个实体；原模型保留。`),{code:'GEOMETRY_INVALID',details:{solidCount:solids.length,requiredSolidCount:1}});
+            }finally{solids.forEach(dispose);}
+          }
           return ['cut','union'].includes(feature.op)?finishBooleanBlend(out,p,refs):out;
         }
         catch (error) { dispose(out); throw error; }
@@ -821,6 +802,123 @@ export class CadKernel {
     const shape=this.shapes.get(featureId);if(!shape)throw Object.assign(new Error('来源特征几何已失效'),{code:'STALE_REFERENCE'});
     return {data:new TextEncoder().encode(this.geometrySourceSnapshot(shape))};
   }
+  async loadImport(imports,key,id){
+    const item=imports[key];
+    if(!item)throw Object.assign(new Error('工程中缺少原始导入文件'),{code:'ARTIFACT_CORRUPT'});
+    let shape;
+    if(item.format==='assembly'){
+      const members=[];
+      try{
+        for(const {key:childKey,...member} of item.members){
+          const child=await this.loadImport(imports,childKey,member.id);
+          members.push({...member,shape:child});
+          this.validateImportedGeometry(child);
+        }
+        shape=new AssemblyShape(members);
+      }catch(error){for(const member of members)dispose(member.shape);throw error;}
+    }else if(['stl','mesh'].includes(item.format))shape=MeshShape.fromAsset(item,this.binaryAssets?.[item.assetHash]);
+    else if(item.format==='step'){const bytes=exactSourceBytes(item,this.binaryAssets);shape=await cad.importSTEP(new Blob([bytes]));shape.sourceBytes=bytes.length;}
+    else if(['brep','brep-instance'].includes(item.format)){
+      const bytes=exactSourceBytes(item,this.binaryAssets),identity=item.assetHash||binaryHash(bytes).slice(7);
+      let base=this.importBases?.get(identity);
+      if(!base){
+        this.reportRebuildProgress('brep-decode','解码精确 BRep');
+        const sourceText=new TextDecoder().decode(bytes);base=cad.deserializeShape(sourceText);
+        this.reportRebuildProgress('feature','计算实体');
+        this.importBases??=new Map();this.importBases.set(identity,base);
+        this.geometrySourceSnapshots.set(base,sourceText);
+        this.sourceBytesCache??=new WeakMap();this.sourceBytesCache.set(base,{format:'brep',data:bytes,sourceHash:identity});
+      }
+      shape=this.locateImported(base,item.location?validateRigidMatrix(item.location):identityMatrix(),1,id);
+    }else throw Object.assign(new Error('导入格式不受支持'),{code:'FORMAT_UNSUPPORTED'});
+    if(!item.importTransform)return shape;
+    try{return this.locateImported(shape,item.importTransform.matrix,item.importTransform.scale,id,true);}
+    finally{dispose(shape);}
+  }
+  async sourceProjectBounds(document){
+    const previous=this.binaryAssets,boxes=[];
+    this.binaryAssets=document.binaryAssets;
+    try{
+      for(const feature of document.features){
+        const shape=await this.loadImport(document.imports,feature.params.key,feature.id);
+        try{boxes.push(this.exactBodyBounds(shape));}
+        finally{dispose(shape);}
+      }
+      return unionBounds(boxes);
+    }finally{this.binaryAssets=previous;}
+  }
+  validateImportedGeometry(shape){
+    if(isAssembly(shape)||shape.geometryType==='mesh'||this.validatedShapes?.has(shape))return;
+    if(shape.isNull)throw Object.assign(new Error('装配成员的 BRep 为空'),{code:'GEOMETRY_INVALID'});
+    this.validatedShapes??=new WeakSet();
+    const check=new this.oc.BRepCheck_Analyzer(shape.wrapped,true,false,false);
+    try{if(!check.IsValid())throw Object.assign(new Error('装配成员的 BRep 无效'),{code:'GEOMETRY_INVALID'});}
+    finally{dispose(check);}
+    this.validatedShapes.add(shape);
+    const base=this.rigidInstances?.get(shape)?.source;
+    if(base)this.validatedShapes.add(base);
+  }
+  locateImported(source,matrix,scale,id,disposable=false){
+    if(isAssembly(source))return source.map(child=>this.locateImported(child,matrix,scale,id,disposable));
+    if(source.geometryType==='mesh'){
+      const shape=source.clone(),map=[...matrix];
+      for(const i of [0,1,2,4,5,6,8,9,10])map[i]*=scale;
+      shape.matrix=multiplyMatrix(map,source.matrix);return shape;
+    }
+    let scaled;
+    try{
+      if(scale!==1)scaled=source.clone().scale(scale);
+      const base=scaled||source;
+      const shape=isIdentityLocation(matrix)?base.clone():locateBrep(base,matrix,this.oc);
+      const previous=this.rigidInstances?.get(source);
+      if(!scaled&&(previous||!disposable)){
+        this.rigidInstances??=new WeakMap();
+        this.rigidInstances.set(shape,{source:previous?.source||source,sourceId:id,
+          matrix:previous?multiplyMatrix(matrix,previous.matrix):matrix});
+      }
+      if(!scaled&&this.validatedShapes?.has(source))this.validatedShapes.add(shape);
+      return shape;
+    }finally{dispose(scaled);}
+  }
+  transformAssembly(source,feature){
+    const {placement,params:p}=feature,frame=placement?.frameSnapshot,unit=[0,0,0,1];
+    const translation=point=>[...identityMatrix().slice(0,12),...point,1];
+    const place=(matrix,scale=1)=>this.locateImported(source,matrix,scale,feature.refs[0]);
+    if(p.sizeMm)throw Object.assign(new Error('装配可整体移动、旋转或复制，分轴尺寸编辑使用分件模式。'),{code:'CAPABILITY_UNAVAILABLE'});
+    if(p.mode){
+      if(!frame)throw Object.assign(new Error('装配变换需要放置坐标架'),{code:'FRAME_INVALID'});
+      if(p.mode==='align')return place(rigidAlignmentMatrix(p,frame));
+      if(p.mode==='translate')return place(translation(rotateVector(frame.quaternion,p.delta)));
+      if(p.mode==='rotate'){
+        const axis=rotateVector(frame.quaternion,p.axisVector),length=Math.hypot(...axis),a=p.angleDeg*Math.PI/360,pivot=worldPoint(frame,p.pivot);
+        return place(frameMatrix({origin:pivot,quaternion:[...axis.map(n=>n*Math.sin(a)/length),Math.cos(a)]},pivot));
+      }
+      if(p.mode==='scale'){
+        const pivot=worldPoint(frame,p.pivot);
+        return place(frameMatrix({origin:pivot,quaternion:unit},pivot,p.scale),p.scale);
+      }
+      if(p.mode==='toPoint'){
+        const point=placement.sourcePoint||this.assemblyAnchor(source,placement.sourceAnchor.kind);
+        return place(frameMatrix({origin:worldPoint(frame,p.targetPoint),quaternion:p.orientation==='match-frame'?frame.quaternion:unit},point));
+      }
+      throw Object.assign(new Error('不支持的装配变换模式'),{code:'PARAM_SCHEMA_INVALID'});
+    }
+    const scale=positive(p,'scale',1),origin={min:[0,0,0],max:[0,0,0]};
+    if(!p.align&&(p.positionMode??'relative')==='relative')return place(rigidCopyMatrix({...p,scale:1},origin),scale);
+    const rotated=place(rigidCopyMatrix({...p,align:undefined,scale:1,positionMode:'relative',x:0,y:0,z:0},origin),scale);
+    try{
+      const bounds=this.exactBodyBounds(rotated);
+      const report=p.align?boundsAlignment([bounds.min,bounds.max],p.align):null;
+      const delta=report?.deltaMm||['x','y','z'].map((axis,i)=>finite(p,axis)-(bounds.min[i]+bounds.max[i])/2);
+      const result=this.locateImported(rotated,translation(delta),1,feature.refs[0],true);
+      if(report)result.alignmentReport=report;
+      return result;
+    }finally{dispose(rotated);}
+  }
+  assemblyAnchor(source,kind){
+    const {min,max}=this.exactBodyBounds(source);
+    return min.map((v,i)=>kind==='bottom-center'&&i===2?v:(v+max[i])/2);
+  }
   finalShapeSources(){
     return [...this.active.keys()].map(id=>{
       const shape=this.shapes.get(id);
@@ -830,7 +928,8 @@ export class CadKernel {
   finalSourceForShape(shape){
     this.sourceBytesCache??=new WeakMap();let source=this.sourceBytesCache.get(shape);if(source)return source;
     const instance=this.rigidInstances?.get(shape);
-    if(instance){const base=this.finalSourceForShape(instance.source);source={...base,location:multiplyMatrix(instance.matrix,base.location||identityMatrix())};}
+    if(isAssembly(shape))source={format:'assembly',members:shape.members.map(({shape,...member})=>({...member,source:this.finalSourceForShape(shape)}))};
+    else if(instance){const base=this.finalSourceForShape(instance.source);source={...base,location:multiplyMatrix(instance.matrix,base.location||identityMatrix())};}
     else{const mesh=shape.geometryType==='mesh',data=mesh?encodeMesh(shape.transformed()):new TextEncoder().encode(this.geometrySourceSnapshot(shape));source={format:mesh?'mesh':'brep',data,sourceHash:binaryHash(data).slice(7)};this.snapshotEncodeCount=(this.snapshotEncodeCount||0)+1;}
     this.sourceBytesCache.set(shape,source);return source;
   }
@@ -870,7 +969,7 @@ export class CadKernel {
     const result={...document,features:document.features.map(f=>({...f})),compiledArtifacts:{...document.compiledArtifacts}},baked=[],skipped=[];
     for(const feature of result.features){
       const timing=this.lastFeatureTimings?.find(row=>row.featureId===feature.id),shape=this.shapes.get(feature.id);
-      if(feature.compiledCheckpoint&&!(feature.compiledCheckpoint.kind==='local-rebuild'&&this.lastCompiledInvalidated?.includes(feature.id))||!shape||shape.geometryType==='mesh'||!timing||timing.ms<thresholdMs)continue;
+      if(feature.compiledCheckpoint&&!(feature.compiledCheckpoint.kind==='local-rebuild'&&this.lastCompiledInvalidated?.includes(feature.id))||!isCheckpointBrep(shape)||!timing||timing.ms<thresholdMs)continue;
       const bytes=this.serializeFeatureShape(feature.id).data;
       if(bytes.length>20*1024*1024){skipped.push({featureId:feature.id,reason:'CHECKPOINT_CLIENT_CAPACITY'});continue;}
       const artifactSha256=binaryHash(bytes).slice(7),inputSha256=feature.refs.map(id=>binaryHash(this.serializeFeatureShape(id).data).slice(7));
@@ -961,6 +1060,7 @@ export class CadKernel {
     return {...measured,...this.displayMassProperties(shape,measured.solidCount,deferMassProperties)};
   }
   exactBodyBounds(shape){
+    if(isAssembly(shape))return unionBounds(shape.members.map(member=>this.exactBodyBounds(member.shape)));
     if(shape.geometryType==='mesh')return shape.metrics().bounds;
     this.exactBoundsCache??=new WeakMap();
     let bounds=this.exactBoundsCache.get(shape);
@@ -1007,9 +1107,39 @@ export class CadKernel {
   displayCacheKey(deferMassProperties){
     return String(this.quality||'standard')+':'+(this.displayCoarsen||1)+':'+deferMassProperties;
   }
+  describeAssembly(shape,feature){
+    const parts=[];
+    const add=(assembly,path,ancestor={})=>{
+      for(const {shape:child,...member} of assembly.members){
+        const id=path+'/'+member.id;
+        const style={hidden:ancestor.hidden||member.hidden,color:ancestor.color||member.color,
+          finish:ancestor.finish||member.finish,surface:{...member.surface,...ancestor.surface},material:member.material};
+        if(isAssembly(child)){add(child,id,style);continue;}
+        // Assembly mass is an on-demand aggregate. Keep one member display
+        // cache across open, insert and subsequent copies.
+        const display=this.describe(child,{id,name:member.name},true);
+        if(style.surface.solidColors&&child.geometryType!=='mesh')display.faceSolidIndices??=this.faceSolidIndices(child);
+        parts.push({...display,member:style});
+      }
+    };
+    add(shape,feature.id);
+    const meshCount=parts.filter(part=>part.geometryType==='rawMesh').length;
+    return {id:feature.id,name:feature.name||feature.id,geometryType:'assembly',parts,
+      assembly:{partCount:parts.length,brepCount:parts.length-meshCount,meshCount,
+        meshTriangles:parts.reduce((n,part)=>n+(part.meshReport?.formalTriangleCount||0),0)},
+      bounds:unionBounds(parts.map(part=>part.bounds)),boundsSource:'assembly-display-bounds',
+      solidCount:parts.reduce((n,part)=>n+part.solidCount,0),
+      positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],
+      faceCount:0,edgeCount:0,shellCount:parts.reduce((n,part)=>n+(part.shellCount||0),0),
+      metricsDeferred:true,volume:null,area:null,alignmentReport:shape.alignmentReport};
+  }
   describe(shape,feature,deferMassProperties=false){
     this.shapeDisplays??=new WeakMap();const key=this.displayCacheKey(deferMassProperties),cached=this.shapeDisplays.get(shape);
     if(cached?.key===key)return {...cached.body,id:feature.id,name:feature.name||feature.id};
+    if(isAssembly(shape)){
+      const body=this.describeAssembly(shape,feature);
+      this.shapeDisplays.set(shape,{key,body});return body;
+    }
     const instance=this.rigidInstances?.get(shape);
     const sourceBody=instance?this.describe(instance.source,{id:instance.sourceId,name:feature.name},deferMassProperties):null;
     const body=instance?(instance.matrix.every((n,i)=>n===identityMatrix()[i])?{...sourceBody,id:feature.id,name:feature.name||feature.id}:locatedBody(sourceBody,instance.matrix,feature)):this.describeShape(shape,feature,deferMassProperties);
@@ -1164,15 +1294,20 @@ export class CadKernel {
               const legacySource=next.get(feature.refs[0]);this.describe(legacySource,{id:feature.refs[0],op:'legacy-source'});
               checkpoint=compiledCheckpointBytes(document,feature,new TextEncoder().encode(legacySource.serialize()));
             }
+            if(!checkpoint&&feature.compiledCheckpoint)compiledInvalidated.push(current);
             if(checkpoint){shape=cad.deserializeShape(new TextDecoder().decode(checkpoint));restoreCheckpointReports(shape,feature.compiledCheckpoint.reports);if(feature.compiledCheckpoint.faceOriginSignatures)restoreFaceOrigins(shape,feature.compiledCheckpoint.faceOriginSignatures,{defer:true});if(feature.compiledCheckpoint.booleanReport)shape.booleanReport=feature.compiledCheckpoint.booleanReport;if(feature.compiledCheckpoint.blendReport)shape.blendReport=feature.compiledCheckpoint.blendReport;if(feature.op==='round')shape.roundReport=feature.compiledCheckpoint.roundReport;if(feature.op==='reliefShoulder')shape.reliefReport=feature.compiledCheckpoint.reliefReport;compiledReuse.push(current);}
             else if(feature.op==='remove'){shape=await this.operation(feature,inputs,document.imports||{},document.features);}
+            else if(['copy','transform'].includes(feature.op)&&isAssembly(next.get(feature.refs?.[0]))){
+              shape=this.transformAssembly(next.get(feature.refs[0]),feature);
+            }
             else if(['copy','transform'].includes(feature.op)&&feature.refs?.length===1&&(shape=this.rigidCopy(feature,next.get(feature.refs[0])))){
               // Located wrappers share immutable topology. All modifying tools
               // below still receive frozen, fully isolated BRep inputs.
             }else {
-              if(feature.compiledCheckpoint)compiledInvalidated.push(current);
               for(const id of new Set(feature.refs||[]))if(next.has(id)){
-                const original=next.get(id),copy=original.geometryType==='mesh'?original.clone():cad.deserializeShape(this.geometrySourceSnapshot(original));
+                const original=next.get(id);
+                if(isAssembly(original))throw Object.assign(new Error('此工具需要独立源件，使用分件插入模式。'),{code:'CAPABILITY_UNAVAILABLE'});
+                const copy=original.geometryType==='mesh'?original.clone():cad.deserializeShape(this.geometrySourceSnapshot(original));
                 if(original.geometryType!=='mesh')copyFaceOrigins(original,copy);
                 if(copy.faceOrigins)copy.faceOrigins=copy.faceOrigins.map(row=>row?{...row,featureIds:[...new Set([...(row.featureIds||[row.featureId]),id])]}:null);
                 copies.push(copy);inputs.set(id,copy);
@@ -1185,7 +1320,7 @@ export class CadKernel {
         if (shape) {
           next.set(current, shape);
           if(!reused.has(current))this.reportRebuildProgress('validation','校验几何',{featureId:current});
-          if (!reused.has(current)&&shape.geometryType!=='mesh'&&!this.validatedShapes.has(shape)) {
+          if (!reused.has(current)&&!isAssembly(shape)&&shape.geometryType!=='mesh'&&!this.validatedShapes.has(shape)) {
             if (shape.isNull) throw new Error('操作生成空模型，请检查尺寸和实体交集');
             const faces = shape.faces; const hasFaces = faces.length > 0; faces.forEach(dispose);
             if (!hasFaces) {
@@ -1198,7 +1333,7 @@ export class CadKernel {
             const instance=this.rigidInstances?.get(shape);if(instance)this.validatedShapes.add(instance.source);
           }
           active.set(current, feature);
-          if(!reused.has(current)){
+          if(!reused.has(current)&&!isAssembly(shape)){
             const instance=this.rigidInstances?.get(shape);
             if(instance?.source.faceOrigins)shape.faceOrigins=instance.source.faceOrigins.map(origin=>({featureId:feature.id,role:origin?.role||'side'}));
             else{initializeFaceOrigins(shape,feature);if(instance&&!instance.source.faceOrigins)instance.source.faceOrigins=shape.faceOrigins;}
@@ -1221,15 +1356,15 @@ export class CadKernel {
         // precise source before display work; uploads and cold checkpoint gates
         // then bind the same bytes without normalizing or weakening the hash.
         this.reportRebuildProgress('source-snapshot','保留精确源快照',{featureId:id});
-        if(next.get(id).geometryType!=='mesh'&&!this.rigidInstances?.has(next.get(id)))this.geometrySourceSnapshot(next.get(id));
+        if(!isAssembly(next.get(id))&&next.get(id).geometryType!=='mesh'&&!this.rigidInstances?.has(next.get(id)))this.geometrySourceSnapshot(next.get(id));
         let body;
         if(cached)body={...cached.body,name:feature.name||feature.id};
-        else if((headless||deferred.has(id))&&next.get(id).geometryType!=='mesh'){
+        else if((headless||deferred.has(id))&&!isAssembly(next.get(id))&&next.get(id).geometryType!=='mesh'){
           const shape=next.get(id),faces=shape.faces,edges=shape.edges;
           try{body={id,name:feature.name||id,...displayMetadata(shape,faces,edges,this.oc),...(headless?{volume:preciseVolume(shape,this.oc),metricsDeferred:false}:{displayDeferred:true}),positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],loftReport:shape.loftReport,logoProjectionReport:shape.logoProjectionReport,transitionReport:shape.transitionReport,alignmentReport:shape.alignmentReport,resizeReport:shape.resizeReport};}
           finally{faces.forEach(dispose);edges.forEach(dispose);}
         }else body=this.describe(next.get(id), feature,deferMassProperties);
-        if(!body.displayDeferred&&(feature.op==='group'||document.surface?.[id]?.solidColors)){
+        if(!isAssembly(next.get(id))&&!body.displayDeferred&&(feature.op==='group'||document.surface?.[id]?.solidColors)){
           body.faceSolidIndices??=this.faceSolidIndices(next.get(id));
           body.groupSolidSources=next.get(id).groupSolidSources;
         }
@@ -1244,12 +1379,21 @@ export class CadKernel {
       this.shapes.forEach((shape, id) => { if (next.has(id) && next.get(id) !== shape && !reused.has(id)) dispose(shape); });
       this.shapes = next; this.active = active; this.historySignature = signatures; this.importsSignature = importsSignature; this.renderCache = nextRenderCache;
       this.featureFingerprints=fingerprints;
-      const retainedBases=new Set(),retain=shape=>{if(!shape||retainedBases.has(shape))return;retainedBases.add(shape);retain(this.rigidInstances?.get(shape)?.source);};
+      const retainedBases=new Set(),retain=shape=>{
+        if(!shape||retainedBases.has(shape))return;
+        retainedBases.add(shape);
+        if(isAssembly(shape))for(const member of shape.members)retain(member.shape);
+        else retain(this.rigidInstances?.get(shape)?.source);
+      };
       next.forEach(retain);for(const [key,base]of this.importBases||[])if(!retainedBases.has(base)){dispose(base);this.importBases.delete(key);}
       this.lastFeatureTimings=perFeatureMs;
       this.lastCompiledInvalidated=compiledInvalidated;
       this.reportRebuildProgress('complete','重建完成',{featureCount:features.length,reused:reused.size,recomputed:features.length-reused.size});
-      return { bodies, renderVersion: String(this.renderVersion), compiledReuse,compiledInvalidated,perFeatureMs,stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.some(b=>b.metricsDeferred)?null:bodies.reduce((n, b) => n + (b.volume || 0), 0),checkpointCandidates:perFeatureMs.filter(row=>row.ms>1000&&!this.rigidInstances?.has(next.get(row.featureId))).map(row=>row.featureId) } };
+      const checkpointCandidates=perFeatureMs.filter(row=>{
+        const shape=next.get(row.featureId);
+        return row.ms>1000&&isCheckpointBrep(shape)&&!this.rigidInstances?.has(shape);
+      }).map(row=>row.featureId);
+      return { bodies, renderVersion: String(this.renderVersion), compiledReuse,compiledInvalidated,perFeatureMs,stats: { bodies: bodies.length, solids: bodies.reduce((n, b) => n + b.solidCount, 0), volume: bodies.some(b=>b.metricsDeferred)?null:bodies.reduce((n, b) => n + (b.volume || 0), 0),checkpointCandidates } };
     } catch (error) {
       next.forEach((shape, id) => { if (!reused.has(id)) dispose(shape); });
       const raw=String(error?.message||error||'');
@@ -1290,8 +1434,9 @@ export class CadKernel {
     }finally{faces.forEach(dispose);}
   }
   async queryGeometry(bodyId, kind, filter = {}) {
-    if(this.activeShape(bodyId).geometryType==='mesh')throw meshError('MESH_TOPOLOGY_UNAVAILABLE','Raw mesh has no precise BRep face/edge IDs.');
     const shape = this.activeShape(bodyId);
+    if(isAssembly(shape))throw Object.assign(new Error('需要逐件查询面和边时，请按分件模式插入工程。'),{code:'CAPABILITY_UNAVAILABLE'});
+    if(shape.geometryType==='mesh')throw meshError('MESH_TOPOLOGY_UNAVAILABLE','Raw mesh has no precise BRep face/edge IDs.');
     const result = queryShapeGeometry(shape, this.oc, kind, filter);
     return { bodyId, ...result, geometryFingerprint:await this.geometryFingerprint(shape) };
   }
@@ -1354,6 +1499,22 @@ export class CadKernel {
   }
   measure(bodyId,topologyType,topologyId) {
     const shape=this.activeShape(bodyId);
+    if(isAssembly(shape)){
+      if(topologyType&&topologyType!=='body')throw Object.assign(new Error('装配的面和边需要分件模式。'),{code:'CAPABILITY_UNAVAILABLE'});
+      const measures=[];
+      const each=assembly=>{for(const {shape:member} of assembly.members){
+        if(isAssembly(member))each(member);
+        else if(member.geometryType==='mesh')measures.push(member.metrics());
+        else{
+          const dimensions=this.bodyDimensions(member);
+          measures.push({...dimensions,...this.exactMassProperties(member,dimensions.solidCount)});
+        }
+      }};
+      each(shape);
+      return {bodyId,source:'logical-assembly',bounds:this.exactBodyBounds(shape),solidCount:measures.reduce((n,m)=>n+m.solidCount,0),
+        shellCount:measures.reduce((n,m)=>n+m.shellCount,0),area:measures.reduce((n,m)=>n+m.area,0),
+        volume:measures.every(m=>m.volume!==null)?measures.reduce((n,m)=>n+m.volume,0):null};
+    }
     if(shape.geometryType==='mesh'){if(topologyType&&topologyType!=='body')throw meshError('MESH_TOPOLOGY_UNAVAILABLE','Select the full authoritative mesh.');return {bodyId,...shape.metrics()};}
     if(topologyType===undefined||topologyType==='body'){
       const geometry=this.geometryMetrics.get(shape)||this.bodyDimensions(shape);

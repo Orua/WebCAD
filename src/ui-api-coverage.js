@@ -84,7 +84,7 @@ export const UI_API_ROUTES = Object.freeze({
   pasteSelection:{tools:['pasteSelection'],method:'pasteSelection',usage:'context、idempotencyKey；整体底面中心放在锚点。粘贴按对象新增特征，共用2000特征及当前工程容量检查，超限不提交。'},
   remove:{tools:['feature.remove'],method:'execute',usage:'args:{bodyIds}；删除当前实体。'},
   import:{tools:['files.import'],method:'files.import',usage:'先 files.register 登记真实字节；不模拟文件选择器。'},
-  importAtFrame:{tools:['files.register','files.import'],method:'files.import',usage:'用户选定真实 STEP/BREP 文件后登记字节；显式提交当前工作基准版本、来源包围盒中心和幂等键。'},
+  importAtFrame:{tools:['files.register','files.inspectInsert','files.import'],method:'files.import',usage:'登记 WebCAD、STEP/BRep、STL 或 typed mesh 原件并插入当前工程。STL 明确指定单位。.webcad 支持 assembly/parts、统一比例与坐标架。files.inspectInsert 只读来源尺寸。保留源坐标使用 world 与 model-origin。'},
   restoreRecovery:{tools:['recoverUnsaved'],method:'recoverUnsaved',usage:'文件→恢复未保存工程。recoverUnsaved({context})只读取副本元数据；apply:true须指定返回的checkpoint，未保存工程默认拒绝替换，明确unsaved:discard后恢复。启动不查询或弹出恢复。'},
   new:{tools:['files.new'],method:'files.new'},open:{tools:['files.open','files.import'],method:'files.open'},
   save:{tools:['files.save','files.download','files.write'],method:'files.save'},export:{tools:['files.export'],method:'files.export'},

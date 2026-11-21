@@ -1,4 +1,14 @@
 {
+  "modelInsertion": {
+    "localImpact": "Insert STL or a native model into the current document with explicit placement and units. Native projects support an ordered logical assembly or independently selectable parts. Copies share exact BRep sources.",
+    "servicesImpact": "None. Source decoding and placement run in the browser Worker.",
+    "logoImpact": "None.",
+    "nativeImpact": "None.",
+    "contractImpact": "Page API 1.75.0 adds projectMode and scale to files.import and a source-only files.inspectInsert. files.capabilities and file tool cards report v4 ZIP capacity in projectContainerLimits. The authorized host may materialize an immutable conversation artifact for the same files.import page job.",
+    "documentImpact": "Insertion retains the target document identity and contributes one undo step. Native v4 assembly records reference ordered typed geometry and member appearance assets. Cold open restores assemblies directly from those assets; local BRep checkpoints cover individual BRep shapes. Readers that lack the assembly format reject it during import.",
+    "cacheImpact": "Source preparation and v4 assets reuse SHA-256 identities. Nested imports contribute to rebuild fingerprints and participate in asset retention. The v4 reader and writer allow 512 ZIP entries with the existing 1024 MiB unpacked budget; v3 limits stay at 256 entries and 20 MiB.",
+    "requiredTests": ["Original STL via menu and page API", "Complete ASCII, binary solid header and truncated STL", "Native project assembly, parts, reuse, undo and reopen", "Cold open with local checkpoint baking enabled", "Native part insertion with assets retained across undo and v4 ZIP boundary round trip", "Bound host file import receipts and cross-conversation denial"]
+  },
   "exactAlignmentAndFraming": {
     "localImpact": "Quick alignment resolves only the participating world-space geometry bounds in the Worker. Explicit orthographic camera poses support a visible height in millimeters. Proper rigid frame alignment shares validated BRep geometry and transformed display.",
     "servicesImpact": "None. The affected operations run in the browser.",
@@ -7,7 +17,7 @@
     "contractImpact": "Page API 1.74.0 adds camera.orthographicHeightMm and reports the effective orthographic height. planAlignment and body.align share authoritative bounds. Static tool cards and knowledge are regenerated.",
     "documentImpact": "The current v4 format stores the original BRep asset and each copy's rigid location. Body IDs, appearance, history semantics and ZIP storage policy follow the existing format.",
     "cacheImpact": "Exact bounds cache uses immutable located shape identity. Saved copies share the SHA-256 source asset without sharing document body IDs.",
-    "requiredTests": ["Real project exact alignment and orthographic framing", "Frame-aligned rigid copy with per-solid colors, undo and final-state reopen", "Targeted kernel and viewport regression tests", "Verified release and knowledge ZIP"]
+    "requiredTests": ["Real project exact alignment and orthographic framing", "Frame-aligned rigid copy with per-solid colors, undo and final-state reopen", "Invalidated checkpoints reported after a rigid transform recipe changes", "Targeted kernel and viewport regression tests", "Verified release and knowledge ZIP"]
   },
   "largeProjectColdOpen": {
     "localImpact": "Opening a saved project defers whole-body BRep area and volume until requested. Exact topology validation remains on the open path. Standard project-open edge display samples the original exact curves at the existing linear and angular deflections and avoids a second surface tessellation. Per-request hard-stop diagnostics retain phase and object ID.",
@@ -4299,6 +4309,21 @@
     "documentImpact": "No changes to geometry, feature parameters or serialized source.",
     "cacheImpact": "Renderer and Worker build identity changes; old visible frames require the new build.",
     "requiredTests": ["Native vs grid depth on the sculpted nostril trim", "Bounded trim policy and retained heavy-face limits", "Matched-camera rendering in localhost WebCAD"]
+  },
+  "organicSculpting": {
+    "localImpact": "Explicit directional SubD cage brush, absolute roll and stable ellipse correspondence for newly authored spine features, local union input extent validation, material-stable edge repair, and repeated bump seam selection.",
+    "servicesImpact": "Browser forwards the existing native union job contract, which already requires one solid. Local requireConnected adds no Native parameter, DLL change or deformation capability.",
+    "logoImpact": "None: no LOGO algorithms or service routing changed.",
+    "contractImpact": "Page API 1.75.3; SubD move/deltaMm, spine rollMode and the default ordered ellipse correspondence, and explicit union requireConnected. New bumpSet authors default to one solid. Organic-form route and regenerated knowledge bundle.",
+    "documentImpact": "Older spine recipes retain incremental roll. New authoring persists the mode. Existing bump recipes retain connectivity policy when requireConnected is absent. Invalid union results preserve sources and revision.",
+    "cacheImpact": "New catalog and documentation hashes invalidate stale Agent cards; frozen project geometry is not rewritten.",
+    "requiredTests": [
+      "Fixed roll across 8, 16 and 32 stations; variable law and old incremental state",
+      "Directional cage edit, repeat curved bump patch and detached bump rejection",
+      "Strongly curved banana with matching ellipse stations and a positive estimated-to-built volume ratio",
+      "Frozen head-neck input extent failure and no result commit",
+      "Real organic samples and current tool cards through localhost WebCAD"
+    ]
   },
   "booleanResultSelection": {
     "localImpact": "Explicit strict interior world point selects a result solid after a cut, with a required discarded-volume limit. No size heuristic.",

@@ -2,6 +2,8 @@ import {LIMITS} from './limits.js';
 // Browser-only transfer boundary for the existing document file commands.
 // File handles are selected by the UI before calling write; this module never opens a picker.
 import {fileByteBudget,FILE_LIMITS,FILE_TYPED_BYTE_BUDGETS} from './browser-file-contracts.js';
+import {INSERT_EXTENSIONS,extensionOf} from './open-import-policy.js';
+import {PROJECT_V4_LIMITS} from './mesh/project-v4.js';
 const MAX_BYTES = FILE_LIMITS.maxBytes;
 const MAX_RESOURCES = FILE_LIMITS.maxResources;
 const MAX_TOTAL_BYTES = FILE_LIMITS.maxTotalBytes;
@@ -156,7 +158,7 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
     generated:input=>add({...input,kind:"output"}),
     capabilities() { return Object.freeze({ limits:LIMITS, maxBytes: MAX_BYTES, maxResources: MAX_RESOURCES,
       maxTotalBytes: MAX_TOTAL_BYTES, ttlSeconds: TTL_MS / 1000,
-      imports: ['step', 'stp', 'brep', 'brp','stl','mesh'], typedByteBudgets:FILE_TYPED_BYTE_BUDGETS, meshUnits:['mm','cm','m','in'],meshCodec:'webcad-mesh-f64-u32-v1', exports: ['step', 'stl', 'brep', 'png'],
+      imports: INSERT_EXTENSIONS, projectImportModes:['assembly','parts'],projectContainerLimits:PROJECT_V4_LIMITS,typedByteBudgets:FILE_TYPED_BYTE_BUDGETS, meshUnits:['mm','cm','m','in'],meshCodec:'webcad-mesh-f64-u32-v1', exports: ['step', 'stl', 'brep', 'png'],
       native: 'webcad', iges: 'unavailable_in_static_browser', transport: 'in-page' }); },
     async register({ name, data, mime } = {}) {
       basename(name);
@@ -173,14 +175,20 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
       const bytes = new Uint8Array(await source.blob.arrayBuffer());
       return run(context, 'open', { name: source.name, mime: source.mime, data: bytes, unsaved, ...(mesh ? { units } : {}) });
     },
-    async import({ context, resourceId, placement, idempotencyKey, units } = {}) {
-      const source = inputFor(resourceId, ['step', 'stp', 'brep', 'brp','stl','mesh']);
+    async import({ context, resourceId, placement, idempotencyKey, units, projectMode, scale } = {}) {
+      const source = inputFor(resourceId, INSERT_EXTENSIONS),project=extensionOf(source.name)==='webcad';
       const mesh=/\.(stl|mesh)$/i.test(source.name);
       if(mesh&&!['mm','cm','m','in'].includes(units))throw failure('MESH_UNITS_REQUIRED','Declare STL units; mesh codec units must be mm.');
       if(mesh&&source.name.toLowerCase().endsWith('.mesh')&&units!=='mm')throw failure('MESH_UNITS_REQUIRED','Typed mesh codec is already in mm.');
-      if((placement!==undefined||mesh)&&(typeof idempotencyKey!=='string'||!idempotencyKey||idempotencyKey.length>128))throw failure('PARAM_SCHEMA_INVALID','Placed import requires an idempotencyKey');
+      if((placement!==undefined||mesh||project)&&(typeof idempotencyKey!=='string'||!idempotencyKey||idempotencyKey.length>128))throw failure('PARAM_SCHEMA_INVALID','Placed, mesh and project imports require an idempotencyKey');
+      if((projectMode!==undefined&&(!project||!['assembly','parts'].includes(projectMode)))||
+         (scale!==undefined&&(!project||!Number.isFinite(scale)||scale<=0)))throw failure('PARAM_SCHEMA_INVALID','Only .webcad accepts assembly/parts and a positive uniform scale');
       const bytes = new Uint8Array(await source.blob.arrayBuffer());
-      return run(context, 'import', { name: source.name, mime: source.mime, data:bytes,...(idempotencyKey===undefined?{}:{idempotencyKey}),...(mesh?{units}:{}),...(placement===undefined?{}:{placement,idempotencyKey}) });
+      return run(context, 'import', { name: source.name, mime: source.mime, data:bytes,...(idempotencyKey===undefined?{}:{idempotencyKey}),...(mesh?{units}:{}),...(placement===undefined?{}:{placement}),...(project?{projectMode:projectMode??'assembly',scale:scale??1}:{}) });
+    },
+    async inspectInsert({context,resourceId}={}){
+      const source=inputFor(resourceId,['webcad']);
+      return run(context,'inspectInsert',{name:source.name,data:new Uint8Array(await source.blob.arrayBuffer())});
     },
     async previewInput({resourceId}={}){
       const source=inputFor(resourceId,['step','stp','brep','brp']);

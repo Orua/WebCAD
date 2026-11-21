@@ -26,6 +26,10 @@ export function restoreFaceOrigins(shape,signatures,{defer=false}={}){
   });}finally{faces.forEach(dispose);}
 }
 export function copyFaceOrigins(source,target){ensureOrigins(source);if(source.faceOrigins)restoreFaceOrigins(target,originSignatures(source));return target;}
+export function faceOriginIds(shape){
+  ensureOrigins(shape);
+  return [...new Set((shape.faceOrigins||[]).flatMap(row=>row?.featureIds||(row?.featureId?[row.featureId]:[])))];
+}
 export function initializeFaceOrigins(shape,feature){
   if(shape.geometryType==='mesh'||shape.faceOrigins||pendingOrigins.has(shape))return;
   const faces=shape.faces;try{shape.faceOrigins=faces.map(face=>({featureId:feature.id,role:face.geomType==='PLANE'?'cap':'side'}));}finally{faces.forEach(dispose);}

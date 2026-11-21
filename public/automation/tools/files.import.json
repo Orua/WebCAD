@@ -7,16 +7,16 @@
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.74.0",
+  "version": "1.75.3",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
     "导入",
     "import"
   ],
-  "description": "import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. Exact-source typed imports preserve optional legacy key behavior; supply idempotencyKey for replay protection; read api.exact-source-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.",
-  "inputContract": "import({context,resourceId,units?,placement?,idempotencyKey?}); registered STEP/STP/BREP/BRP or binary STL/mesh resource. Mesh requires explicit units and idempotencyKey; read api.mesh-assets. Exact-source typed imports preserve optional legacy key behavior; supply idempotencyKey for replay protection; read api.exact-source-assets. When placement is present, idempotencyKey is required; run batch injects its own step key.",
-  "outputContract": "Imported source-backed feature in current project; omitted placement freezes the current work frame with model-origin source anchor. Explicit world retains source coordinates.",
+  "description": "import({context,resourceId,units?,placement?,idempotencyKey?,projectMode?,scale?})。STEP、BRep、STL、typed mesh 和 .webcad 先登记原件。STL 支持完整二进制与 ASCII，显式传单位。网格、原生工程和显式定位需要幂等键。原生工程接受 assembly（默认）或 parts，以及有限正数的统一比例，默认 1。放置坐标架支持姿态。原生工程默认保留源坐标，旧 STEP/BRep 和网格调用省略 placement 时仍使用当前工作基准。",
+  "inputContract": "import({context,resourceId,units?,placement?,idempotencyKey?,projectMode?,scale?})。STEP、BRep、STL、typed mesh 和 .webcad 先登记原件。STL 支持完整二进制与 ASCII，显式传单位。网格、原生工程和显式定位需要幂等键。原生工程接受 assembly（默认）或 parts，以及有限正数的统一比例，默认 1。放置坐标架支持姿态。原生工程默认保留源坐标，旧 STEP/BRep 和网格调用省略 placement 时仍使用当前工作基准。",
+  "outputContract": "status=committed 后可读 createdBodyIds、前后修订和 inserted。inserted 带原件 SHA-256、大小、前后对象数、位置范围和网格面数。装配保留子件几何及外观，可整体移动、复制、撤销和冷重开。单个命令贡献一个撤销步骤。",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -29,7 +29,9 @@
     "resourceId",
     "placement",
     "idempotencyKey",
-    "units"
+    "units",
+    "projectMode",
+    "scale"
   ],
   "unknownFields": "rejected",
   "errorModel": "Direct page file scripts throw or reject with error.code. MCP callers follow mcpCall; invoke is not an Agent method. Page-script invoke({method:\"files.import\",args}) catches failures into a structured failed result. Underlying document/kernel and browser I/O errors can propagate; inspect error.code and message.",
@@ -47,6 +49,13 @@
     "stl": 268435456,
     "mesh": 805306368,
     "webcad": 1073741824
+  },
+  "projectContainerLimits": {
+    "maxBytes": 1073741824,
+    "maxEntries": 512,
+    "maxManifestBytes": 131072,
+    "maxJsonBytes": 20971520,
+    "maxArtifactBytes": 20971520
   },
   "additionalDocs": [
     "api.exact-source-assets",
@@ -131,7 +140,9 @@
       "resourceId": {},
       "placement": {},
       "idempotencyKey": {},
-      "units": {}
+      "units": {},
+      "projectMode": {},
+      "scale": {}
     },
     "required": [
       "context",
@@ -176,7 +187,9 @@
       "resourceId": {},
       "placement": {},
       "idempotencyKey": {},
-      "units": {}
+      "units": {},
+      "projectMode": {},
+      "scale": {}
     },
     "required": [
       "context",
@@ -219,6 +232,10 @@
         "chooseWhen": "替换整个当前设计，原工程文件可带历史；不是合并插入。"
       },
       {
+        "id": "files.inspectInsert",
+        "chooseWhen": "读取另一个已登记 WebCAD 工程的来源范围和对象数，用于插入前确定比例和坐标。"
+      },
+      {
         "id": "import",
         "chooseWhen": "旧文件选择兼容操作；Agent 用 files.register/open/import 的显式资源，不依赖原生选择器。"
       },
@@ -246,5 +263,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:32f3aa50dd85699839e6686db01514c20c5b0491065bcee03c7e3458c6a9e84d"
+  "docsHash": "sha256:109f10a59c7bd81e84be92a1692db416d822c9c055f1fed8ee1fe3ef14abf8ea"
 }

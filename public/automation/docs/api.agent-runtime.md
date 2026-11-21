@@ -163,6 +163,7 @@ files.register: contextPolicy=none
 files.new: contextPolicy=none
 files.open: contextPolicy=revision
 files.import: contextPolicy=revision
+files.inspectInsert: contextPolicy=none
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
 files.reattach: contextPolicy=none

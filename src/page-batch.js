@@ -9,10 +9,10 @@ import {batchFacts} from './commit-facts.js';
 import {compactWriteReceipt} from './receipt-compact.js';
 const methods = new Set(['add','execute','connect','info','getState','searchTools','getTools','getTool','readDocs',
   'getQuickModelUsage','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.capabilities','files.register',
-  'files.import','files.save','files.export','files.release']);
+  'files.import','files.inspectInsert','files.save','files.export','files.release']);
 methods.add('readLogo');
 methods.add('reviewLogo');methods.add('logoWizard');methods.add('reliefDesignField');methods.add('reliefDesignReference');
-const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.save','files.export']);
+const contextual = new Set(['execute','queryGeometry','queryReferences','resolvePlacement','measure','measureRelation','inspectProfile','prepareProfileEdit','inspectConstraints','projectProfile','inspectFit','inspectThickness','inspectDraft','readVector','connectVector','fitProfile','inspectPrintability','setView','setRenderQuality','setDisplayPreferences','redraw','files.import','files.inspectInsert','files.save','files.export']);
 contextual.add('readLogo');
 contextual.add('reviewLogo');contextual.add('logoWizard');contextual.add('reliefDesignField');contextual.add('reliefDesignReference');
 methods.add('inspectDesign');
@@ -192,7 +192,7 @@ export function createPageBatch(api,{display,revisionStamp}={}){
         }else{
           if(contextual.has(step.method))args.context=expected;
           if(step.method==='execute')args.idempotencyKey=`${key}:${step.id}`;
-          if(step.method==='files.import'&&args.placement!==undefined)args.idempotencyKey=`${key}:${step.id}`;
+          if(step.method==='files.import')args.idempotencyKey=`${key}:${step.id}`;
           const parts=step.method.split('.');
           result=parts.length===2?await api.files[parts[1]](args):await api[step.method](args);
         }

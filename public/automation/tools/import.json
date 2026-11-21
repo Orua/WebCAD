@@ -631,6 +631,10 @@
         "chooseWhen": "把已登记模型插入当前工程，原对象保留；交换文件不恢复源 CAD 特征树。"
       },
       {
+        "id": "files.inspectInsert",
+        "chooseWhen": "读取另一个已登记 WebCAD 工程的来源范围和对象数，用于插入前确定比例和坐标。"
+      },
+      {
         "id": "import.iges",
         "chooseWhen": "当前静态版不可用的 IGES 入口；不能宣称直接导入成功。"
       },
@@ -642,5 +646,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d17932cc12d9d59168ac19b5b7e2c1ef178d77e08b59d7187493e55b2286364d"
+  "docsHash": "sha256:b47be5c6d0c095e5380ad593e70c508c7924f9c19d6f94ec6652f32508aac920"
 }

@@ -1,5 +1,5 @@
 // Programmatic host input: real bytes only; no picker events, paths or URLs.
-const canvasSource=name=>/\.(step|stp|brep|brp|stl|obj|ply|3mf)$/i.test(name||'');
+const canvasSource=name=>/\.(step|stp|brep|brp|stl|mesh|webcad|obj|ply|3mf)$/i.test(name||'');
 const sameDocument=(a,b)=>a&&b&&['sessionId','documentId','documentInstanceId'].every(key=>a[key]===b[key]);
 // File selection can finish before the page knowledge handshake. Resolve that
 // race before creating a model task instead of sending an unusable attachment.

@@ -1,6 +1,6 @@
 # api.file-errors
 
-页面建模、测量、视图与截图方法的失败通常返回 {status:"failed",commitState:"not_committed",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。普通 fillet/chamfer 失败的 error.report 包含 operation/stage/attemptCount/elapsedMs、confirmedFailedEdgeIds 与 candidateEdgeIds、supportGeometry；仅 confirmedFailedEdgeIds 是内核确认，候选不能当作确认原因。默认只尝试请求参数一次，不自动扫描或应用较小 R；stage=selection 时 attemptCount=0。报告过大时显式返回 truncated/omittedPaths 摘要。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入资源、导入和输出按扩展名与实际内容双重校验：STEP/STP/BREP/BRP/STL 128MiB、mesh384MiB、v4工程512MiB；普通资源与旧JSON/v3工程20MiB。最多32资源、合计512MiB、30分钟有效。v4把完整源资产独立保存，JSON元数据仍20MiB、最多2000个历史特征。2000 是建模特征数，不是撤销步数。新增、预览、导入、粘贴、批量对齐和拆散均受限；批量按实际新增特征数计数，编辑或删除仍可使用。计算前在无 timeline 的工程大小上预留 4 KiB，提交前按含锚点和裁剪后历史的完整文件再次校验。超限返回 SIZE_LIMIT，已运行的内核恢复原工程，revision、撤销/重做和当前工程不提交变化；不要重复重试，应减少特征或拆分工程。读取 files.capabilities() 获得当前实际上限。
+页面建模、测量、视图与截图方法的失败通常返回 {status:"failed",commitState:"not_committed",error:{code,message},context}；execute 和 queryGeometry 使用 CommandService 的更完整结果。普通 fillet/chamfer 失败的 error.report 包含 operation/stage/attemptCount/elapsedMs、confirmedFailedEdgeIds 与 candidateEdgeIds、supportGeometry；仅 confirmedFailedEdgeIds 是内核确认，候选不能当作确认原因。默认只尝试请求参数一次，不自动扫描或应用较小 R；stage=selection 时 attemptCount=0。报告过大时显式返回 truncated/omittedPaths 摘要。files 方法抛出带 code 的 Error，调用方应捕获，不能把异常解释为已保存。文件状态分别为 registered、generated、download_initiated、write_verified；generated 不证明磁盘写入。输入与输出均校验扩展名和实际内容。files.capabilities()提供各格式的资源限额及v4 ZIP容器的条目数、展开字节数和JSON元数据上限。旧JSON/v3工程仍按20MiB校验，资源30分钟有效。v4独立保存完整源资产，运行工程最多2000个建模特征。2000 是建模特征数，不是撤销步数。新增、预览、导入、粘贴、批量对齐和拆散均受限；批量按实际新增特征数计数，编辑或删除仍可使用。计算前在无 timeline 的工程大小上预留 4 KiB，提交前按含锚点和裁剪后历史的完整文件再次校验。超限返回 SIZE_LIMIT，已运行的内核恢复原工程，revision、撤销/重做和当前工程不提交变化；不要重复重试，应减少特征或拆分工程。读取 files.capabilities() 获得当前实际上限。
 
 Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
 reliefWizard: contextPolicy=identity
@@ -109,6 +109,7 @@ files.register: contextPolicy=none
 files.new: contextPolicy=none
 files.open: contextPolicy=revision
 files.import: contextPolicy=revision
+files.inspectInsert: contextPolicy=none
 files.save: contextPolicy=revision
 files.export: contextPolicy=revision
 files.reattach: contextPolicy=none

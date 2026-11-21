@@ -1,9 +1,9 @@
 {
   "product": "WebCAD",
-  "pageApiVersion": "1.74.0",
-  "buildId": "d69c1abe89375dd5e6889da08262fdb081b005b7-src-c4034ef5427a3ab7-working",
-  "catalogHash": "sha256:624071d712612320a14ed8f1c0f0b272290030568d54cf4f1fec69e2a0d468ed",
-  "docsHash": "sha256:0ccb02a70542d748cc57417f3bf28da7c84ee4e4915cf1dca2b73d7c6ef4d932",
+  "pageApiVersion": "1.75.3",
+  "buildId": "3e65a446c96a329329f3a24264c84028bf0053c3-src-311f439f38c08c5a-working",
+  "catalogHash": "sha256:fce3d1b09e53186207fedff6d6c2d1702518ff14f8fd925180d542743045d706",
+  "docsHash": "sha256:76133ec8edec4a48c2e737a75c49ac31e8344313e0464a1d5b904767f3994247",
   "version": 1,
   "entrypoint": "window.webcad.api.connect",
   "startUrl": "automation/agent-start.html",
@@ -134,7 +134,7 @@
   "domFallback": {
     "when": "No script channel: operate only through visible UI and report the limitation.",
     "open": "文件 → 打开…（替换当前设计）; unsaved prompt: 保存 / 不保存 / 取消",
-    "insert": "文件 → 插入模型到当前设计…",
+    "insert": "文件 → 插入到当前设计…",
     "drop": "Dropping onto a non-empty design asks 打开（替换当前设计） / 插入到当前设计 / 取消 (default 取消)."
   },
   "documentation": {

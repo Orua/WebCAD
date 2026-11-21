@@ -31,6 +31,8 @@ export const EXPORT_METHODS = new Set(['files.save','files.export','files.reatta
 JOB_METHODS.add('recoverKernel');
 JOB_METHODS.add('measureMass');
 READ_METHODS.add('probeBlendRadius');
+READ_METHODS.add('files.inspectInsert');
+JOB_METHODS.add('files.inspectInsert');
 for(const method of ['getServices','getServicesCapabilities','getServicesRouting','readLogo'])READ_METHODS.add(method);
 for(const method of ['reviewLogo','logoWizard','reliefDesignField','reliefDesignReference','reliefDesignFit']){READ_METHODS.add(method);JOB_METHODS.add(method);}
 READ_METHODS.add('prepareReliefDesignRelief');
@@ -51,7 +53,7 @@ export const HOST_ONLY_METHODS = Object.freeze({invoke:'dispatch wrapper',submit
   recoverUnsaved:'explicit user recovery and new document binding, like files.open',
   'files.register':'host binary upload','files.read':'host artifact transport','files.download':'host download','files.write':'host disk capability',
   'files.confirmWritten':'host write receipt','files.release':'host resource lifetime','files.new':'requires new document binding','files.open':'requires new document binding'});
-const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,
+const contract={schemaVersion:1,adapterVersion:2,protocol:PROTOCOL,hostImportVersion:1,
   readMethods:[...READ_METHODS].sort(),viewMethods:[...VIEW_METHODS].sort(),jobMethods:[...JOB_METHODS].sort(),
   discoveryMethods:[...DISCOVERY_METHODS].sort(),editActions:[...EDIT_ACTIONS].sort(),
   editMethods:[...EDIT_METHODS].sort(),exportMethods:[...EXPORT_METHODS].sort(),

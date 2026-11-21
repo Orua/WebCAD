@@ -9,18 +9,18 @@ test('open requires an explicit unsaved decision and never discards silently',()
   assert.throws(()=>assertOpenAllowed({unsaved:'merge',dirty:false}),{code:'PARAM_SCHEMA_INVALID'});
   assert.throws(()=>assertOpenAllowed({unsaved:'fail',dirty:true}),e=>e.code==='UNSAVED_REPLACEMENT'&&/未保存/.test(e.message));
   assert.doesNotThrow(()=>assertOpenAllowed({unsaved:'fail',dirty:false}));assert.doesNotThrow(()=>assertOpenAllowed({unsaved:'discard',dirty:true}));});
-test('insert refuses project files; open accepts projects and models',()=>{assert.throws(()=>assertInsertable('a.webcad'),{code:'FORMAT_UNSUPPORTED'});assert.doesNotThrow(()=>assertInsertable('a.step'));assert.throws(()=>assertInsertable('a.iges'),{code:'CAPABILITY_UNAVAILABLE'});assert.doesNotThrow(()=>assertOpenable('a.stp'));assert.doesNotThrow(()=>assertOpenable('a.webcad'));assert.throws(()=>assertOpenable('a.doc'),{code:'FORMAT_UNSUPPORTED'});});
+test('insert accepts native and model files, and generic JSON remains an open-only choice',()=>{assert.doesNotThrow(()=>assertInsertable('a.webcad'));assert.doesNotThrow(()=>assertInsertable('a.step'));assert.throws(()=>assertInsertable('a.json'),{code:'FORMAT_UNSUPPORTED'});assert.throws(()=>assertInsertable('a.iges'),{code:'CAPABILITY_UNAVAILABLE'});assert.doesNotThrow(()=>assertOpenable('a.stp'));assert.doesNotThrow(()=>assertOpenable('a.webcad'));assert.throws(()=>assertOpenable('a.doc'),{code:'FORMAT_UNSUPPORTED'});});
 test('drag-drop opens only into an empty clean document; otherwise asks with Cancel default',()=>{
   assert.deepEqual(dropDecision({files:[f('a.step')],documentEmpty:true,dirty:false}),{mode:'open'});
   const ask=dropDecision({files:[f('a.step')],documentEmpty:false,dirty:false});assert.equal(ask.mode,'ask');assert.equal(ask.defaultChoice,'cancel');assert.deepEqual(ask.choices,['open','insert','cancel']);
-  assert.deepEqual(dropDecision({files:[f('a.webcad')],documentEmpty:false,dirty:true}).choices,['open','cancel']);
+  assert.deepEqual(dropDecision({files:[f('a.webcad')],documentEmpty:false,dirty:true}).choices,['open','insert','cancel']);
   assert.deepEqual(dropDecision({files:[f('a.step'),f('b.stl')],documentEmpty:true,dirty:false}).choices,['insert','cancel']);
   assert.equal(dropDecision({files:[f('a.webcad'),f('b.step')],documentEmpty:true,dirty:false}).mode,'reject');
   assert.equal(dropDecision({files:[f('a.igs')],documentEmpty:true,dirty:false}).mode,'reject');});
 test('compact file menu explains replace vs insert in titles; files.open accepts unsaved',()=>{
  const menu=Object.fromEntries(UI_LAYOUT.fileMenu.map(i=>[i.action,i]));
  assert.equal(menu.open.label,'打开');assert.match(menu.open.title,/替换当前设计/);
- assert.equal(menu.importAtFrame.label,'导入');assert.match(menu.importAtFrame.title,/保留已有对象/);
+ assert.equal(menu.importAtFrame.label,'插入到当前设计…');assert.match(menu.importAtFrame.title,/保留已有对象/);
  assert.match(FILE_MENU_LABELS.open,/替换当前设计/);assert.ok(FILE_ARGUMENT_KEYS.open.includes('unsaved'));
 });
 

@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import {pathToFileURL} from 'node:url';
 import {readFile} from 'node:fs/promises';
 import {ensureCanvasResources} from '../host/Goldenluck.WebCADHost/site/AI/WebCAD/attachment-bytes.js';
-const path=process.env.WEBCAD_HOST_TRANSPORT||'C:/Sites/WebCADHost/Web/AI/WebCAD/workspace-transport.js';
-const {attachmentIdentity,registerHostAttachments,createHostRecoveryJournal,settleIndependent}=await import(pathToFileURL(path).href);
+const transportUrl=process.env.WEBCAD_HOST_TRANSPORT
+ ? pathToFileURL(process.env.WEBCAD_HOST_TRANSPORT)
+ : new URL('../host/Goldenluck.WebCADHost/site/AI/WebCAD/workspace-transport.js',import.meta.url);
+const {attachmentIdentity,registerHostAttachments,createHostRecoveryJournal,settleIndependent}=await import(transportUrl.href);
 test('attachment resume compares content and length as well as the original filename',()=>{
  const attachment={name:'part.step',size:5,sha256:'original'};
  assert.equal(attachmentIdentity(attachment),attachmentIdentity({originalName:'part.step',size:5,sha256:'original'}));

@@ -27,6 +27,10 @@
         ],
         "description": "Explicit OCCT glue mode; default off."
       },
+      "requireConnected": {
+        "type": "boolean",
+        "description": "Require exactly one resulting solid. Reject and preserve all inputs for a disconnected result."
+      },
       "blendRadiusMm": {
         "oneOf": [
           {
@@ -127,7 +131,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. If the operands do not share material, the step may still commit as a compound: booleanReport.fused=false and a warning 未融合、仍为 N 个实体; this is not a single solid. Subsequent fillet requires one solid. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. If the operands do not share material, the step may still commit as a compound: booleanReport.fused=false and a warning 未融合、仍为 N 个实体; this is not a single solid. Subsequent fillet requires one solid. For a design that requires physical continuity, explicitly set requireConnected:true and verify the reported solid count. Generic union can still produce a compound. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Local multi-fuse validates the BRep, volume and six input extents before any seam blend. A result that loses an input extent beyond the numeric margin plus the explicit fuzzy tolerance fails atomically with report.sourceCoverage.missing (source index, axis, side, missing mm). No automatic tolerance increase follows this failure. Other recoverable errors may use the existing bbox-cluster/sequential recovery. booleanReport records the actual strategy. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented.",
   "title": "Fuse bodies",
   "category": "modification",
   "synonyms": [
@@ -142,7 +146,7 @@
     "boolean"
   ],
   "description": "Fuse bodies",
-  "schemaHash": "sha256:0033037633884db20f72dcbe81b7416c7afa42274686e27cb72ded2e0628d434",
+  "schemaHash": "sha256:0cffa88933d92addbfaaa70ad077e825c7ca95e3df6a6579dc87fd0e2a8a9df6",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -203,7 +207,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. If the operands do not share material, the step may still commit as a compound: booleanReport.fused=false and a warning 未融合、仍为 N 个实体; this is not a single solid. Subsequent fillet requires one solid. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented."
+    "refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. If the operands do not share material, the step may still commit as a compound: booleanReport.fused=false and a warning 未融合、仍为 N 个实体; this is not a single solid. Subsequent fillet requires one solid. For a design that requires physical continuity, explicitly set requireConnected:true and verify the reported solid count. Generic union can still produce a compound. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Local multi-fuse validates the BRep, volume and six input extents before any seam blend. A result that loses an input extent beyond the numeric margin plus the explicit fuzzy tolerance fails atomically with report.sourceCoverage.missing (source index, axis, side, missing mm). No automatic tolerance increase follows this failure. Other recoverable errors may use the existing bbox-cluster/sequential recovery. booleanReport records the actual strategy. Scalar blendRadiusMm is exact: no automatic radius reduction; an explicit minMm/maxMm object authorizes at most 6 attempts; no reliable sharp seam or failed blend rejects the entire step without committing an unblended Boolean. Services union accepts 2–33 single-solid inputs and one connected result; constant seam radius or an explicit bounded search range. Services cut blend is not implemented."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -267,7 +271,7 @@
   "contract": {
     "purpose": "Fuse bodies",
     "whenToUse": [
-      "refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. If the operands do not share material, the step may still commit as a compound: booleanReport.fused=false and a warning 未融合、仍为 N 个实体; this is not a single solid. Subsequent fillet requires one solid. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
+      "refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. If the operands do not share material, the step may still commit as a compound: booleanReport.fused=false and a warning 未融合、仍为 N 个实体; this is not a single solid. Subsequent fillet requires one solid. For a design that requires physical continuity, explicitly set requireConnected:true and verify the reported solid count. Generic union can still produce a compound. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Local multi-fuse validates the BRep, volume and six input extents before any seam blend. A result that loses an input extent beyond the numeric margin plus the explicit fuzzy tolerance fails atomically with report.sourceCoverage.missing (source index, axis, side, missing mm). No automatic tolerance increase follows this failure. Other recoverable errors may use the existing bbox-cluster/sequential recovery. booleanReport records the actual strategy."
     ],
     "whenNotToUse": [
       {
@@ -311,6 +315,17 @@
       },
       "glue": {
         "meaning": "Explicit OCCT glue mode; default off.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "requireConnected": {
+        "meaning": "Require exactly one resulting solid. Reject and preserve all inputs for a disconnected result.",
         "unit": "none",
         "range": [
           null,
@@ -480,7 +495,7 @@
   },
   "purpose": "Fuse bodies",
   "whenToUse": [
-    "refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. If the operands do not share material, the step may still commit as a compound: booleanReport.fused=false and a warning 未融合、仍为 N 个实体; this is not a single solid. Subsequent fillet requires one solid. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Other unions use one non-destructive multi-argument fuse, validate BRep and material volume, and permits one bbox-cluster/sequential recovery. booleanReport records the actual strategy; failure report identifies input IDs and bounding-box centers."
+    "refs[0] is the target. The result body keeps the target body display name; the boolean name only labels the history step (renameTarget:true names the body after the step). Optional keepTools preserves refs[1..] as separate original bodies. Each fusion must retain at least the volume of its largest operand and may not exceed their summed volume; GEOMETRY_INVALID rolls back a result outside this material range. If the operands do not share material, the step may still commit as a compound: booleanReport.fused=false and a warning 未融合、仍为 N 个实体; this is not a single solid. Subsequent fillet requires one solid. For a design that requires physical continuity, explicitly set requireConnected:true and verify the reported solid count. Generic union can still produce a compound. Default unions in histories with ordinal face/edge selections retain the original sequential recipe and serial rebuild. Local multi-fuse validates the BRep, volume and six input extents before any seam blend. A result that loses an input extent beyond the numeric margin plus the explicit fuzzy tolerance fails atomically with report.sourceCoverage.missing (source index, axis, side, missing mm). No automatic tolerance increase follows this failure. Other recoverable errors may use the existing bbox-cluster/sequential recovery. booleanReport records the actual strategy."
   ],
   "whenNotToUse": [
     {
@@ -851,5 +866,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:7a2b2453ea8024769fe0d1e46c51de462b9db5990936ba45af573524e4c248f9"
+  "docsHash": "sha256:ffef89cca183b33c417336028976bb960576c0d1b25c61b02df986e0e4d29238"
 }

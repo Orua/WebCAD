@@ -876,9 +876,9 @@ if (picture.status !== 'read') throw new Error(picture.error?.code || 'capture f
 
 `api.files` 提供 `capabilities`、`register`、`new`、`open`、`import`、`save`、`export`、`read`、`download`、`write`、`release`。`capabilities()` 返回当前浏览器限制和格式。`register({name,data,mime?})` 的 `data` 是实际 `File`、`Blob`、`ArrayBuffer` 或 `Uint8Array`，`name` 是安全文件名；不能用本机路径字符串或远端 URL 代替。它返回 `resourceId`、字节长度和 SHA-256。`new({context})`、`open({context,resourceId})`、`import({context,resourceId})`、`save({context,name?})`、`export({context,format,ids?,name?})` 使用当前完整上下文。页面 API 的新建/打开遇 dirty **一律拒绝** `UNSAVED_REPLACEMENT`；UI 的真实用户确认是另一条路径。坏文件或重建失败保留原几何、历史、身份和 dirty。原生 `.webcad` 默认仅包含最终对象的精确 BRep 或完整网格，不保存建模步骤和撤销时间线；保留对象 ID、显隐、外观和锚点。会话可继续编辑，重开后不能编辑保存前的历史参数，重开生成新的 `documentInstanceId`。
 
-`save`/`export` 返回 `status: 'generated'` 的资源描述；`read({resourceId,as:'blob'|'bytes'})` 返回实际 Blob 或 `Uint8Array`。`download({resourceId})` 仅返回 `download_initiated`；`write({resourceId,handle})` 在已授权的 File System Access 句柄写入、关闭并校验回读大小和 SHA-256 后返回 `write_verified`。保存旧快照时若已有新 revision，dirty 仍为真。`release({resourceId})` 释放资源；已经启动的下载 Object URL 由定时器回收，不因 release 立即撤销。文件选择或授权可能需要真实用户操作，页面 API 不会伪造授权点击。跨插件 JSON 边界不能假设 Blob 会无损传递；客户端不能传真实字节时，可由用户在 WebCAD 页面选择文件。当前浏览器资源普通单项100 MiB；STEP/STP/BREP/BRP/STL各128 MiB、`.mesh`384 MiB、v4工程512 MiB，最多32项、合计512 MiB、有效期30分钟，按 `files.capabilities()` 与工具卡回读。宿主普通图像/PDF/矢量附件20 MiB是独立限制，不得替代页面分类型容量。
+`save`/`export` 返回 `status: 'generated'` 的资源描述；`read({resourceId,as:'blob'|'bytes'})` 返回实际 Blob 或 `Uint8Array`。`download({resourceId})` 仅返回 `download_initiated`；`write({resourceId,handle})` 在已授权的 File System Access 句柄写入、关闭并校验回读大小和 SHA-256 后返回 `write_verified`。保存旧快照时若已有新 revision，dirty 仍为真。`release({resourceId})` 释放资源；已经启动的下载 Object URL 由定时器回收，不因 release 立即撤销。文件选择或授权可能需要真实用户操作，页面 API 不会伪造授权点击。跨插件 JSON 边界不能假设 Blob 会无损传递；客户端不能传真实字节时，可由用户在 WebCAD 页面选择文件。`files.capabilities()` 和文件工具卡提供实际输入与资源池限额。当前 STEP/STP/BREP/BRP/STL 各 256 MiB，`.mesh` 768 MiB，`.webcad` 1024 MiB。页面可保留 32 项资源，合计 1024 MiB，有效期 30 分钟。宿主普通图像/PDF/矢量附件20 MiB是独立限制，不得替代页面分类型容量。
 
-运行工程最多2000个建模特征；旧JSON格式20 MiB、v4容器512 MiB且JSON元数据20 MiB。默认保存最终精确BRep或完整网格及对象状态，不保存配方和撤销时间线；旧工程继续可读。会话撤销最多20次，时间线最多20状态/512 KiB。2000不是撤销步数。新增、预览、导入及批量操作计算前预检容量、提交前检查完整大小；超限返回 `SIZE_LIMIT` 并保留原工程、revision和撤销栈。具体按工具卡 `documentLimits` 与文件分类限额，不以原始导入文件大小代替最终容量。
+运行工程最多 2000 个建模特征。v4 工程的 ZIP 容器最多 512 个条目，展开后最多 1024 MiB，JSON 元数据最多 20 MiB。目录、清单和字节限额由 `files.capabilities().projectContainerLimits` 回读。旧 JSON 与 v3 工程的文件限额为 20 MiB。默认保存最终精确BRep或完整网格及对象状态，不保存配方和撤销时间线；旧工程继续可读。会话撤销最多20次，时间线最多20状态/512 KiB。2000不是撤销步数。新增、预览、导入及批量操作计算前预检容量、提交前检查完整大小；超限返回 `SIZE_LIMIT` 并保留原工程、revision和撤销栈。具体按工具卡 `documentLimits` 与文件分类限额，不以原始导入文件大小代替最终容量。
 
 静态版不含原有本机 IGES 转换器，也不含 DWG/DXF/矢量 PDF/AI 的服务端转换器。目录中相应卡片标为 `unavailable`，执行应返回 `CAPABILITY_UNAVAILABLE`。可先在现有 CAD 工具中离线转 STEP；这不算 WebCAD 的原生 IGES 支持。
 
@@ -1122,3 +1122,11 @@ getState().kernelPerformance 含 workerTiming、phaseTimings、snapshotStats、r
 平面贴图可设置 `texture.side` 为 `positive`、`negative` 或 `both`，分别按 XY / XZ / YZ 平面的法向轴 Z / Y / X 判断朝向。贴花只在指定图幅内着色，`rotationDeg` 与 `backRotationDeg` 分别指定正侧和负侧方向。普通透明用 `opacity<1, transmission:0`，折射用 `transmission>0`。可先读全景光照并核对应用后的 `display.refractionBodies`、`display.submittedTriangles`，后者是最后实际绘制帧的提交量。
 
 `inspectFit` 返回两个实体的身份、最短距离、公共体积与 `locationMm`。有正体积时返回相交区域的 `overlapBoundsMm`，并区分是否超过调用方体积阈值。无重叠时提供最近点对。使用 `setView` 将镜头目标移至 `locationMm`。复合件先提取明确的单一实体，对称件由调用方指定配对。
+
+## 插入模型或原生工程
+
+文件菜单「插入到当前设计…」和 `files.import` 追加模型，目标工程保持原实例和已有编辑。先用 `files.register` 登记原件。STL 接受完整的 ASCII 或二进制来源，明确填写 `units:'mm'|'cm'|'m'|'in'`。typed mesh 使用毫米。
+
+原生 `.webcad` 可以用 `files.inspectInsert` 读取来源范围和对象数。插入时 `projectMode:'assembly'` 生成一个可选、移动、旋转和复制的装配对象，`projectMode:'parts'` 保留各零件的独立可选性。省略 `placement` 时原生工程保留源坐标，`scale` 为统一比例且默认 1。使用显式快照坐标架可指定姿态。装配按子件保存精确几何、网格、显隐和外观，逐件面边查询使用分件模式。
+
+插入只提交一次。原生、网格和显式定位请求须携带同一实例的 `context` 和唯一 `idempotencyKey`。在 `inserted` 读取来源 SHA-256、对象数、资产增量字节及各对象范围。几何提交以 `status:'committed'` 为准，匹配帧从 `display.rendered` 核对。工作台可把已授权对话文件交给同一插入命令，返回原命令回执和渲染核对结果。

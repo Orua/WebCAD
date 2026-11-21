@@ -91,6 +91,7 @@ namespace Goldenluck.WebCAD.Hosting
                     case "prepare": path = "/api/webcad/sessions/" + sessionId + "/prepare"; break;
                     case "snapshot": path = "/api/webcad/sessions/" + sessionId + "/snapshot"; break;
                     case "release": path = "/api/webcad/sessions/" + sessionId + "/release"; break;
+                    case "project-insert-file": path = "/api/webcad/sessions/" + sessionId + "/project-insert-file"; break;
                     case "artifact-upload-start": path = "/api/webcad/sessions/" + sessionId + "/artifacts/uploads"; break;
                     case "artifact-upload-complete":
                         path = "/api/webcad/sessions/" + sessionId + "/artifacts/uploads/" + SafeId(context.Request["uploadId"]) + "/complete?commandId=" + SafeId(context.Request["commandId"]); body = new JObject(); break;

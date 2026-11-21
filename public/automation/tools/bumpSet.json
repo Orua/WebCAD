@@ -64,6 +64,10 @@
           }
         }
       },
+      "requireConnected": {
+        "type": "boolean",
+        "description": "New features default to true: reject if the fused result is not a single solid. Older recipes without this field keep their saved behavior."
+      },
       "blendRadiusMm": {
         "oneOf": [
           {
@@ -167,7 +171,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports the exact used radius; rejects the entire operation if no trustworthy blend exists; does not round unrelated source edges.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. A previously sculpted body is one operand even if its faces retain several older source labels. Only seams involving the current operands qualify. Reports the exact used radius; rejects the whole operation if no trustworthy blend exists, or if requireConnected is true and a bump is detached.",
   "title": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
   "category": "modification",
   "synonyms": [
@@ -177,7 +181,7 @@
     "bump Set operation"
   ],
   "description": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
-  "schemaHash": "sha256:6d59714684334084d9f3fdd6689a377fbc1a29325b0839f0b503c02a193489f3",
+  "schemaHash": "sha256:736fd29cf02c1bf05e38d96179c5df82aca5906f13e5b5d338ed24ff718c08f6",
   "apiCompatibility": [
     "page-v2"
   ],
@@ -238,7 +242,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports the exact used radius; rejects the entire operation if no trustworthy blend exists; does not round unrelated source edges."
+    "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. A previously sculpted body is one operand even if its faces retain several older source labels. Only seams involving the current operands qualify. Reports the exact used radius; rejects the whole operation if no trustworthy blend exists, or if requireConnected is true and a bump is detached."
   ],
   "exampleNotes": {
     "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
@@ -335,7 +339,7 @@
   "contract": {
     "purpose": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
     "whenToUse": [
-      "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports the exact used radius; rejects the entire operation if no trustworthy blend exists; does not round unrelated source edges."
+      "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. A previously sculpted body is one operand even if its faces retain several older source labels. Only seams involving the current operands qualify. Reports the exact used radius; rejects the whole operation if no trustworthy blend exists, or if requireConnected is true and a bump is detached."
     ],
     "whenNotToUse": [
       {
@@ -351,6 +355,17 @@
           1,
           64
         ]
+      },
+      "requireConnected": {
+        "meaning": "New features default to true: reject if the fused result is not a single solid. Older recipes without this field keep their saved behavior.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       },
       "blendRadiusMm": {
         "meaning": "blendRadiusMm: 批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
@@ -543,7 +558,7 @@
   },
   "purpose": "批量凸点 / Fuse spherical or exact rational ellipsoid bumps and blend their seams once",
   "whenToUse": [
-    "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. Reports the exact used radius; rejects the entire operation if no trustworthy blend exists; does not round unrelated source edges."
+    "One current solid source. Bumps use explicit world centers and either one sphere radius or three ellipsoid radii. Local ellipsoids are exact rational quadratic patches, not a mesh or fitted substitute. One non-destructive multi-fuse, then one seam blend. A previously sculpted body is one operand even if its faces retain several older source labels. Only seams involving the current operands qualify. Reports the exact used radius; rejects the whole operation if no trustworthy blend exists, or if requireConnected is true and a bump is detached."
   ],
   "whenNotToUse": [
     {
@@ -910,5 +925,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:038f55e96681b59101b72fe15bbab149ab765c70a8b5ddd9d7d072ebc534c2ce"
+  "docsHash": "sha256:1e3eddc095a56b82288eb1dad65f31589d8a6ff78a130ffd847077bdafd4ccbe"
 }

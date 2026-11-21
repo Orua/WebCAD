@@ -4,7 +4,7 @@ import {debugJournal,traceDebug} from '../debug-journal.js';
 import {LIMITS} from '../limits.js';
 
 /** Host capability is injected. No model-provided code, origins, URLs or disk paths. */
-export function createHostAdapter({api, session, report, artifact, onStateChange=()=>{}, now=()=>Date.now(), wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}) {
+export function createHostAdapter({api, session, report, artifact, prepareImport, confirmImport, onStateChange=()=>{}, now=()=>Date.now(), wait=ms=>new Promise(resolve=>setTimeout(resolve,ms))}) {
   if (!api?.connect || !api?.invoke || !api?.getState || typeof report!=='function') throw failure('host_unavailable','Current public page API and an authorized result channel required');
   const binding={...session.binding}, scopes=[...session.scopes];
   const log=(action,data,level='info')=>debugJournal.record('agent',action,{cadSessionId:session.cadSessionId,leaseEpoch:session.leaseEpoch,...data},level);
@@ -21,7 +21,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
 
   function archiveFinished() {
     for(const [id,entry] of commands)if(endedTasks.has(entry.command.taskId)&&entry.reported&&!pending(entry)){
-      archived.set(id,{requestHash:entry.command.requestHash,payload:JSON.stringify(entry.command.payload),taskId:entry.command.taskId});
+      archived.set(id,{requestHash:entry.command.requestHash,payload:JSON.stringify([entry.command.payload,entry.command.hostInput]),taskId:entry.command.taskId});
       commands.delete(id);
     }
   }
@@ -59,6 +59,18 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
 
   async function finish(entry, result) {
     if(result && typeof result==='object' && !result.status)result={status:'read',...result};
+    if(entry.inputResource){
+      const {resourceId,sha256,size}=entry.inputResource;
+      if(result.status==='committed'&&confirmImport){
+        try{result=await confirmImport(result);}
+        catch(error){result={...result,render:{status:'unverified',code:error.code||'DISPLAY_FAILED'}};}
+      }
+      result={...result,input:{status:'registered',sha256,size}};
+      if(result.status!=='unknown'){
+        try{await api.files.release({resourceId});}catch(error){log('input-release-failed',{...identity(entry.command),error},'warn');}
+        entry.inputResource=null;
+      }
+    }
     if(result?.status!=='unknown')entry.editing=false;
     entry.resolveExecution?.();
     onStateChange();
@@ -167,9 +179,19 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
       if(!recoverySave)activeTask=command.taskId;
       entry.editing=editsDocument(command.payload);
       onStateChange();
+      let payload=command.payload;
+      if(command.hostInput){
+        if(payload.method!=='files.import'||payload.args.resourceId!==undefined||typeof prepareImport!=='function')
+          throw failure('CAPABILITY_UNAVAILABLE','Authorized host file import is unavailable');
+        entry.inputResource=await prepareImport(command.hostInput,payload.args.context,command);
+        if(!accepting||endedTasks.has(command.taskId)||command.deadline*1000<=now())
+          throw failure('COMMAND_EXPIRED','Import authorization ended before page dispatch');
+        samePage();
+        payload={...payload,args:{...payload.args,resourceId:entry.inputResource.resourceId}};
+      }
       if (JOB_METHODS.has(command.payload.method)) {
         entry.jobId='wc_'+command.commandId;
-        api.submit({jobId:entry.jobId,method:command.payload.method,args:command.payload.args});
+        api.submit({jobId:entry.jobId,method:payload.method,args:payload.args});
         entry.submitted=true;
         log('page-job-submitted',{...identity(command),pageJobId:entry.jobId});
         await report('ack',command,{pageJobId:entry.jobId});
@@ -178,7 +200,7 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
       }
       await report('ack',command,{});
       log('command-acknowledged',identity(command));
-      return await finish(entry,await api.invoke(command.payload));
+      return await finish(entry,await api.invoke(payload));
     } catch(error) {
       log('command-dispatch-error',{...identity(command),submitted:!!entry.submitted,pageJobId:entry.jobId,error},'error');
       // A lost HTTP acknowledgement may follow a real page submit. Keep its
@@ -198,11 +220,11 @@ export function createHostAdapter({api, session, report, artifact, onStateChange
     const previous=commands.get(command.commandId);
     const saved=archived.get(command.commandId);
     if(saved){
-      if(saved.requestHash!==command.requestHash||saved.payload!==JSON.stringify(command.payload))throw failure('idempotency_conflict','Command ID reused with a different payload');
+      if(saved.requestHash!==command.requestHash||saved.payload!==JSON.stringify([command.payload,command.hostInput]))throw failure('idempotency_conflict','Command ID reused with a different payload');
       return Promise.resolve({status:'already_reported',commandId:command.commandId});
     }
     if (previous) {
-      if (JSON.stringify(previous.command.payload)!==JSON.stringify(command.payload) || previous.command.requestHash!==command.requestHash) throw failure('idempotency_conflict','Command ID reused with a different payload');
+      if (JSON.stringify([previous.command.payload,previous.command.hostInput])!==JSON.stringify([command.payload,command.hostInput]) || previous.command.requestHash!==command.requestHash) throw failure('idempotency_conflict','Command ID reused with a different payload');
       if (previous.result) return sendResult(previous).then(()=>previous.result);
       return previous.promise;
     }

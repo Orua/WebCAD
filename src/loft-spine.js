@@ -43,6 +43,9 @@ function defaultSpineDepth(params,widthMm){
  return widthMm;
 }
 export function buildSpineLoft(params,cad){
+ // Recipes saved before rollMode retain the original per-station rotation.
+ const rollMode=params.rollMode??'incremental';
+ if(!['absolute','incremental'].includes(rollMode))throw new Error('rollMode 须为 absolute 或 incremental');
  const spine=params.spine,points=spine?.pointsMm;if(!Array.isArray(points)||points.length<2||points.length>128||!points.every(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)))throw new Error('spine.pointsMm 须为 2–128 个有限 XYZ 点');
  if(spine.kind!==undefined&&!['polyline','bspline'].includes(spine.kind))throw new Error('spine.kind 须为 polyline 或 bspline');
  for(let i=1;i<points.length;i++)if(dist(points[i],points[i-1])<1e-8)throw new Error('脊线相邻点不得重合');
@@ -55,12 +58,15 @@ export function buildSpineLoft(params,cad){
  for(const t of ts){const centerMm=centerAt(t),eps=Math.min(1e-4,Math.max(1e-7,.25/(points.length-1))),a=centerAt(Math.max(0,t-eps)),b=centerAt(Math.min(1,t+eps)),normal=unit(b.map((v,i)=>v-a[i]));
   let width;if(!previousTangent){width=cross(up,normal);if(norm(width)<1e-8){const axes=[[1,0,0],[0,1,0],[0,0,1]].toSorted((a,b)=>Math.abs(dot(a,normal))-Math.abs(dot(b,normal)));width=cross(axes[0],normal);}width=unit(width);}else{const axis=cross(previousTangent,normal),s=norm(axis),c=Math.max(-1,Math.min(1,dot(previousTangent,normal)));width=s<1e-9?(c<0?previousWidth.map(v=>-v):previousWidth):rotate(previousWidth,axis.map(v=>v/s),Math.atan2(s,c));
    width=unit(width.map((v,i)=>v-normal[i]*dot(width,normal)));if(norm(width)<1e-8)throw new Error('脊线转折处无法构造稳定的旋转最小标架');}
-  const roll=law(params.rollLawDeg,t,0,'rollLawDeg');width=unit(rotate(width,normal,roll*Math.PI/180));
+  const roll=law(params.rollLawDeg,t,0,'rollLawDeg');
+  const rolledWidth=unit(rotate(width,normal,roll*Math.PI/180));
   const widthMm=law(params.widthLaw,t,defaultSpineWidth(params),'widthLaw'),depthMm=law(params.depthLaw,t,defaultSpineDepth(params,widthMm),'depthLaw');if(widthMm<=0||depthMm<=0)throw new Error('widthLaw/depthLaw 必须始终为正');
   const profileLaw=params.profileLaw;if(profileLaw!==undefined&&(!Array.isArray(profileLaw)||profileLaw.length<2||profileLaw.length>64||profileLaw.some((item,i)=>!Array.isArray(item)||item.length!==2||!Number.isFinite(item[0])||item[0]<0||item[0]>1||!item[1]||typeof item[1]!=='object'||(i&&item[0]<=profileLaw[i-1][0]))))throw new Error('profileLaw 须为 t 严格递增且位于 0..1 的 [[t,profile], ...]');let profile;
   if(profileLaw){const nearest=profileLaw.reduce((best,item)=>Math.abs(item[0]-t)<Math.abs(best[0]-t)?item:best,profileLaw[0]);profile=nearest[1];}
-  stations.push({centerMm,normal,widthDirection:width,widthMm,depthMm,...(profile?{profile}:{})});previousTangent=normal;previousWidth=width;
+  stations.push({centerMm,normal,widthDirection:rolledWidth,widthMm,depthMm,...(profile?{profile}:{})});
+  previousTangent=normal;
+  previousWidth=rollMode==='absolute'?width:rolledWidth;
  }
- const result=buildSectionCurveLoft({...params,pathType:'sections',stations},cad);result.loftReport={...result.loftReport,spineFrames:stations.map((s,i)=>({i,t:ts[i],normal:s.normal,widthDirection:s.widthDirection})),spineKind:spineEdge?'bspline':'polyline'};return result;
+ const result=buildSectionCurveLoft({...params,pathType:'sections',stations},cad);result.loftReport={...result.loftReport,spineFrames:stations.map((s,i)=>({i,t:ts[i],normal:s.normal,widthDirection:s.widthDirection})),spineKind:spineEdge?'bspline':'polyline',rollMode};return result;
  }finally{dispose(spineEdge)}
 }

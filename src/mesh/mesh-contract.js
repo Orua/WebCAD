@@ -5,7 +5,13 @@ export const MESH_TYPES=Object.freeze(['rawMesh','solidMesh','displayMesh']);
 export const MESH_UNITS=Object.freeze({mm:1,cm:10,m:1000,in:25.4});
 export function meshError(code,message){return Object.assign(new Error(message),{code});}
 export function meshScale(units){if(!Object.hasOwn(MESH_UNITS,units))throw meshError('MESH_UNITS_REQUIRED','STL has no units: explicitly select mm/cm/m/in.');return MESH_UNITS[units];}
-export function checkedSourceBytes(bytes){if(!(bytes instanceof Uint8Array)||!bytes.length||bytes.length>MESH_LIMITS.maxSourceBytes)throw meshError('MESH_SIZE_LIMIT','Source must be nonempty and within 128 MiB.');return bytes;}
+export function checkedSourceBytes(bytes){if(!(bytes instanceof Uint8Array)||!bytes.length||bytes.length>MESH_LIMITS.maxSourceBytes)throw meshError('MESH_SIZE_LIMIT','Source must be nonempty and within 256 MiB.');return bytes;}
+export function checkedInputTriangleCount(count){
+ const max=Math.min(MESH_LIMITS.maxInputTriangles,MESH_LIMITS.maxResultTriangles,Math.floor(MESH_LIMITS.maxVertices/3));
+ if(!Number.isSafeInteger(count)||count<=0)throw meshError('MESH_SOURCE_INVALID','STL must contain at least one complete triangle.');
+ if(count>max)throw meshError('MESH_SIZE_LIMIT','STL triangle count exceeds the bounded input mesh limits.');
+ return count;
+}
 export function checkedMesh(mesh){
  const {positions,indices}=mesh;
  if(!(positions instanceof Float64Array)||positions.length%3||positions.length/3>MESH_LIMITS.maxVertices||!(indices instanceof Uint32Array)||indices.length%3||!indices.length||indices.length/3>MESH_LIMITS.maxResultTriangles)throw meshError('MESH_CODEC_INVALID','Bounded Float64 positions and Uint32 triangle indices required.');

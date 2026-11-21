@@ -15,6 +15,7 @@ import {mountModelLibrary} from './ui/model-library-workspace.js';
 import {modelLibrary} from './model-library.js';
 import {layeredReliefProperties} from './ui/forms/relief-layer-properties.js';
 import {showQuickDrawing,showAlignBodies} from './ui/forms/quick-workbench-dialogs.js';
+import {askModelInsertion} from './ui/forms/model-insert.js';
 import {timelineList} from './document-timeline.js';
 import {uiPatternIntent} from './machining-intent.js';
 import {showReliefPlateDialog} from './ui/forms/relief-plate-dialog.js';
@@ -881,6 +882,7 @@ if(body?.badgeReport){const r=body.badgeReport;area.append(element('p',{class:'p
  api.setPanels=panels=>{for(const [side,visible]of Object.entries(panels)){const narrow=app.clientWidth<(side==='left'?1280:960);app.classList.toggle(side+'-open',narrow&&visible);app.classList.toggle(side+'-collapsed',!visible);persistPanel(side+'OpenNarrow',narrow&&visible);persistPanel(side+'Collapsed',!visible);}syncPanelButtons();};
  api.getWorkspaceLayout=()=>({...workspaceLayout,modelLibraryOpen:workspaceLayout.workspace==='library',modelLibraryPresentation:'floating-menu',agentSettingsOpen:dialog?.dataset.agentSettings==='true'});
  api.setWorkspaceLayout=applyWorkspaceLayout;
+ api.askModelInsertion=input=>askModelInsertion(input,{openDialog,closeDialog,element,button});
  api.refreshLibrary=()=>{if(workspaceLayout.workspace==='library')gallery.render();};
  api.getPanels=()=>({left:leftToggle.dataset.expanded==='true',right:rightToggle.dataset.expanded==='true'});
  api.hasDirtyPropertyDraft=()=>propertyDraftDirty;
