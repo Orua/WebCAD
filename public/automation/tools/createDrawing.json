@@ -2,7 +2,7 @@
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.75.3",
+  "version": "1.75.4",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -261,5 +261,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b8d607f6c38f9e337051e10c332b591da773b5f530c0eaad4c8c16b4b87666a8"
+  "docsHash": "sha256:7f711a1961da1bfbf0c26d8d07762acba25cf0aa6c1620b986b196ec4e265cdd"
 }

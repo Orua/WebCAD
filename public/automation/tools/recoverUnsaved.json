@@ -2,7 +2,7 @@
   "id": "recoverUnsaved",
   "title": "recoverUnsaved",
   "category": "page-method",
-  "version": "1.75.3",
+  "version": "1.75.4",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -157,5 +157,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:faaa5eac093df7070cdf8f99937b2b70586cc6a27e4bbaf10e30b2c2e8d6ad88"
+  "docsHash": "sha256:f5bd9dd009bd23de6d4f3c2789a4f3f13a6ea7553b02ffeeaf740edd96c22668"
 }

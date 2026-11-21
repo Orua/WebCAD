@@ -1,4 +1,5 @@
 import * as cad from 'replicad';
+import {verifyUnionMaterial} from './union-material.js';
 import {booleanFaceOrigins,copyFaceOrigins} from './face-origins.js';
 import {topologyDetails} from './rounding/topology.js';
 const dispose=x=>{try{x?.delete?.();}catch{}};
@@ -34,7 +35,8 @@ function groups(boxes){
   while(pending.size){const group=[pending.values().next().value];pending.delete(group[0]);for(let k=0;k<group.length;k++)for(const i of [...pending])if([0,1,2].every(a=>boxes[i][0][a]<=boxes[group[k]][1][a]+1e-7&&boxes[group[k]][0][a]<=boxes[i][1][a]+1e-7)){group.push(i);pending.delete(i);}result.push(group);}
   return result;
 }
-export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[],measure=s=>Math.abs(cad.measureVolume(s)),allowFallback=true,simplifyResult=true,requireConnected=false}={}){
+export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[],measure=s=>Math.abs(cad.measureVolume(s)),allowFallback=true,simplifyResult=true,requireConnected=false,verifyMaterial=false}={}){
+  if(typeof verifyMaterial!=='boolean')throw Object.assign(new Error('verifyMaterial须为boolean'),{code:'PARAM_SCHEMA_INVALID'});
   if(!Number.isFinite(fuzzyMm)||fuzzyMm<0||fuzzyMm>.1||!['off','shift','full'].includes(glue))throw Object.assign(new Error('fuzzyMm须为0–0.1mm，glue须为off/shift/full'),{code:'PARAM_SCHEMA_INVALID'});
   const oc=cad.getOC(),volumes=shapes.map(measure),lower=Math.max(...volumes),upper=volumes.reduce((a,b)=>a+b,0),start=performance.now(),attempts=[];
   const volumeTolerance=1e-7+upper*1e-8;
@@ -105,6 +107,7 @@ export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[]
           finally{dispose(repaired);}
         }
       }
+      const materialCoverage=verifyMaterial?verifyUnionMaterial(shapes,result,{cad,measure,toolIds}):undefined;
       const solids=solidCount(result),fused=solids===1;
       if(requireConnected&&!fused){
         throw Object.assign(new Error(`指定必须融合为单一实体，结果有 ${solids} 个实体`),{solidCount:solids});
@@ -112,19 +115,19 @@ export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[]
       const warnings=[];
       if(!fused)warnings.push({code:'UNION_NOT_FUSED',message:`未融合、仍为 ${solids} 个实体。并集没有把它们做成单一实体；请先调整位置使实体相交后再合并，或改用组合（group）。`});
       if(oneSided.length)warnings.push({code:'UNION_ONE_SIDED_EDGES',message:`并集后仍有单侧面边 ${oneSided.join(', ')}，整件圆角将跳过这些边。`});
-      result.booleanReport={strategy,attempts:[...attempts,{strategy,status:'completed'}],fuzzyMm:usedFuzzy,glue:usedGlue,simplified:simplifyResult,volumeBefore:volumes,volumeAfter,elapsedMs:performance.now()-start,fused,solidCount:solids,...(oneSided.length?{oneSidedEdgeIds:oneSided}:{})};
+      result.booleanReport={strategy,attempts:[...attempts,{strategy,status:'completed'}],fuzzyMm:usedFuzzy,glue:usedGlue,simplified:simplifyResult,volumeBefore:volumes,volumeAfter,elapsedMs:performance.now()-start,fused,solidCount:solids,...(materialCoverage?{materialCoverage}:{}),...(oneSided.length?{oneSidedEdgeIds:oneSided}:{})};
       if(warnings.length)result.warnings=[...(result.warnings||[]),...warnings];
       const output=result;result=null;return output;
     }catch(error){
       lastError=error;
       attempts.push({strategy,status:'failed',message:String(error.message||error)});
-      if(error.sourceCoverage||error.solidCount!==undefined)break;
+      if(error.sourceCoverage||error.materialCoverage||error.solidCount!==undefined)break;
     }
     finally{dispose(result);owned.forEach(dispose);}
   }
   const tools=inputBounds.map(([min,max],i)=>({toolId:toolIds[i],toolName:toolNames[i],pointMm:min.map((v,j)=>(v+max[j])/2),volumeMm3:volumes[i]}));
   const pointsMm=invalidSubshapes?.pointsMm?.length?invalidSubshapes.pointsMm:tools.map(t=>t.pointMm);
   const sourceCoverage=lastError?.sourceCoverage;
-  const details={strategy:attempts.at(-1)?.strategy,attempts,tools,toolIds:tools.map(t=>t.toolId),...invalidSubshapes,...(sourceCoverage?{sourceCoverage}:{}),...(lastError?.solidCount!==undefined?{solidCount:lastError.solidCount,requiredSolidCount:1}:{}),pointsMm,pointSource:invalidSubshapes?.pointsMm?.length?'invalid-subshape-bounds-center':'participating-tool-bounds-center',volumeBefore:volumes,suggestion:sourceCoverage?'检查报告中的源对象与缩水方向；未提交融合，保留原始实体。':lastError?.solidCount!==undefined?'核对接触面和真实重叠量；当前连接未提交。':"检查共面端面；可在确认公差后指定glue:'shift'或fuzzyMm。",elapsedMs:performance.now()-start};
+  const details={...(lastError?.materialCoverage?{materialCoverage:lastError.materialCoverage}:{}),strategy:attempts.at(-1)?.strategy,attempts,tools,toolIds:tools.map(t=>t.toolId),...invalidSubshapes,...(sourceCoverage?{sourceCoverage}:{}),...(lastError?.solidCount!==undefined?{solidCount:lastError.solidCount,requiredSolidCount:1}:{}),pointsMm,pointSource:invalidSubshapes?.pointsMm?.length?'invalid-subshape-bounds-center':'participating-tool-bounds-center',volumeBefore:volumes,suggestion:lastError?.materialCoverage?'检查逐源精确差集覆盖报告；不自动放宽材料公差，保留输入并单独复现连接。':sourceCoverage?'检查报告中的源对象与缩水方向；未提交融合，保留原始实体。':lastError?.solidCount!==undefined?'核对接触面和真实重叠量；当前连接未提交。':"检查共面端面；可在确认公差后指定glue:'shift'或fuzzyMm。",elapsedMs:performance.now()-start};
   throw Object.assign(new Error('融合失败：'+String(lastError?.message||lastError)+'；原模型保留。'),{code:'GEOMETRY_INVALID',details,report:details});
 }

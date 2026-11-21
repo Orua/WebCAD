@@ -2,7 +2,7 @@
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.75.3",
+  "version": "1.75.4",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -145,5 +145,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d1cd88f6ad8e963a3936265740f6d6b4526810667ca8440a2f1f07d84e1e9aee"
+  "docsHash": "sha256:5e89345cfec5eee172d67a5c800ef210098e2ca0274eb31b83c269d9a7596aad"
 }

@@ -2,7 +2,7 @@
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.75.3",
+  "version": "1.75.4",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -244,5 +244,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:0075258a9040e0320c0303d25c43caa82df15acf0e5eec8018c52419a39b9dbb"
+  "docsHash": "sha256:75d6149a99087051d001e4459ce04e33e959eeab5b1c6a4819ac102f44e276ca"
 }

@@ -7,7 +7,7 @@
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.75.3",
+  "version": "1.75.4",
   "contextPolicy": "none",
   "label": "文件能力",
   "synonyms": [
@@ -130,5 +130,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:b3bc3c0010d1b1807013b00568f8551f069c969a18023f8eeed97a0ee6dab17e"
+  "docsHash": "sha256:81f708e36b5ce7cf9cd3c3cdb1cb5af8b6e2ad3faf3328a419fdb5cbc1345e74"
 }

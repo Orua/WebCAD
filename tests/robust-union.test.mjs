@@ -4,6 +4,9 @@ import fs from 'node:fs';
 import init from 'replicad-opencascadejs';
 import * as cad from 'replicad';
 import {robustUnion,unionSourceExtentLoss} from '../src/modeling/robust-union.js';
+import {verifyUnionMaterial} from '../src/modeling/union-material.js';
+import {getOperation} from '../src/operation-registry.js';
+import {assertCompilableFeature} from '../src/services/geometry-exchange.js';
 import {usesOrdinalTopology} from '../src/legacy-topology-policy.js';
 test('saved ordinal selections disable reordered Boolean recipes; semantic selections keep the optimized route',()=>{
   assert.equal(usesOrdinalTopology([{params:{faceIds:[3,4,6,7]}}]),true);
@@ -57,4 +60,84 @@ test('ten-tool material and timing benchmark compares the prior sequential volum
     assert(Math.abs(volume(serial)-volume(multi))/volume(serial)<.001);
     console.log(JSON.stringify({case:'ten-tool-union',sequentialMs,multiMs,notSlower:multiMs<=sequentialMs,volumeMm3:volume(multi),faces:multi.faces.length,strategy:multi.booleanReport.strategy}));
   }finally{serial?.delete();multi?.delete();shapes.forEach(shape=>shape.delete());}
+});
+
+
+test('exact union coverage detects a missing bridge with identical extents and covered vertices',()=>{
+  const stock=cad.makeBox([0,0,0],[10,10,10]),hole=cad.makeBox([2,2,-1],[8,8,11]);
+  const ring=stock.cut(hole),bridge=cad.makeBox([1,4,4],[9,6,6]);let joined;
+  const box=shape=>{const b=shape.boundingBox;try{return b.bounds;}finally{b.delete();}};
+  try{
+    assert.deepEqual(unionSourceExtentLoss([box(ring),box(bridge)],box(ring),1e-4),[]);
+    assert.ok(volume(ring)>=volume(bridge));
+    const ringSolids=ring.solids,query=new cad.DistanceQuery(ringSolids[0]),vertices=[1,9].flatMap(x=>[4,6].flatMap(y=>[4,6].map(z=>cad.makeVertex([x,y,z]))));
+    try{for(const vertex of vertices)assert.ok(query.distanceTo(vertex)<1e-7);}finally{query.delete();vertices.forEach(v=>v.delete());ringSolids.forEach(s=>s.delete());}
+    assert.throws(()=>verifyUnionMaterial([ring,bridge],ring,{cad,measure:volume,toolIds:['ring','bridge']}),error=>{
+      const report=error.details.materialCoverage;
+      assert.equal(error.code,'GEOMETRY_INVALID');assert.equal(report.status,'failed');
+      assert.equal(report.checks[1].toolId,'bridge');
+      assert.ok(Math.abs(report.checks[1].missingVolumeMm3-24)<1e-6);
+      return true;
+    });
+    joined=robustUnion([ring,bridge],{measure:volume,verifyMaterial:true,requireConnected:true,toolIds:['ring','bridge']});
+    assert.equal(joined.booleanReport.materialCoverage.status,'verified');
+    assert.equal(joined.booleanReport.materialCoverage.checks.length,2);
+    assert.ok(joined.booleanReport.materialCoverage.checks.every(c=>c.missingVolumeMm3<=c.toleranceMm3));
+    assert.ok(Math.abs(volume(joined)-664)<1e-6);
+    assert.ok(Math.abs(volume(ring)-640)<1e-6,'read-only coverage must not alter its input');
+  }finally{[joined,ring,bridge,hole,stock].forEach(s=>s?.delete());}
+});
+
+test('exact coverage accepts contained and disconnected material; connection is a separate policy',()=>{
+  const a=cad.makeBox([0,0,0],[10,10,10]),inside=cad.makeBox([2,2,2],[3,3,3]),far=cad.makeBox([20,0,0],[21,1,1]);let joined;
+  try{
+    joined=robustUnion([a,inside,far],{measure:volume,verifyMaterial:true});
+    assert.equal(joined.booleanReport.materialCoverage.status,'verified');
+    assert.equal(joined.booleanReport.solidCount,2);
+    assert.ok(Math.abs(volume(joined)-1001)<1e-6);
+  }finally{[joined,a,inside,far].forEach(s=>s?.delete());}
+});
+
+test('material verification is opt-in, discoverable and never silently compiled without native support',()=>{
+  assert.equal(getOperation('union').inputSchema.properties.verifyMaterial.type,'boolean');
+  assert.throws(()=>assertCompilableFeature({op:'union',refs:['a','b'],params:{verifyMaterial:true}}),e=>e.code==='OPERATION_UNAVAILABLE');
+  const a=cad.makeBox([0,0,0],[2,2,2]),b=cad.makeBox([1,0,0],[3,2,2]);let joined;
+  try{
+    joined=robustUnion([a,b],{measure:volume});assert.equal(joined.booleanReport.materialCoverage,undefined);
+    assert.throws(()=>robustUnion([a,b],{verifyMaterial:'true'}),e=>e.code==='PARAM_SCHEMA_INVALID');
+    const broken={cut(){throw new Error('controlled verification failure');}};
+    assert.throws(()=>verifyUnionMaterial([broken],a,{cad,measure:()=>8}),e=>e.code==='GEOMETRY_INVALID'&&e.details.materialCoverage.status==='unverified');
+  }finally{[joined,a,b].forEach(s=>s?.delete());}
+});
+
+
+test('requested exact verification fails closed without retrying or mutating sources',()=>{
+  const a=cad.makeBox([0,0,0],[2,2,2]),b=cad.makeBox([1,0,0],[3,2,2]);
+  const originalCut=oc.BRepAlgoAPI_Cut;
+  oc.BRepAlgoAPI_Cut=class{constructor(){throw new Error('controlled exact verifier failure');}};
+  try{
+    assert.throws(()=>robustUnion([a,b],{measure:volume,verifyMaterial:true}),error=>{
+      assert.equal(error.code,'GEOMETRY_INVALID');
+      assert.equal(error.details.materialCoverage.status,'unverified');
+      assert.equal(error.details.materialCoverage.stage,'before-seam-blend');
+      assert.equal(error.details.attempts.length,1,'no fallback to a weaker check');
+      return true;
+    });
+    assert.ok(Math.abs(volume(a)-8)<1e-8);assert.ok(Math.abs(volume(b)-8)<1e-8);
+  }finally{oc.BRepAlgoAPI_Cut=originalCut;a.delete();b.delete();}
+});
+
+
+test('coverage keeps small positive residuals without changing source or candidate BReps',()=>{
+  const candidate=cad.makeBox([0,0,0],[10,10,10]),source=cad.makeBox([0,0,0],[10,10,10.00001]);
+  const before=[source.serialize(),candidate.serialize()];
+  try{
+    assert.throws(()=>verifyUnionMaterial([source],candidate,{cad,measure:volume}),error=>{
+      const check=error.details.materialCoverage.checks[0];
+      assert.equal(error.details.materialCoverage.status,'failed');
+      assert.ok(Math.abs(check.missingVolumeMm3-.001)<1e-7);
+      assert.ok(check.missingVolumeMm3>check.toleranceMm3);return true;
+    });
+    assert.deepEqual([source.serialize(),candidate.serialize()],before);
+  }finally{source.delete();candidate.delete();}
 });

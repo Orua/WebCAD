@@ -118,3 +118,18 @@ test('a legacy union with keepTools (pre-multi-fuse parameter) still rebuilds wi
     assert.equal(kernel.shapes.get('joined').serialize(),reference.shapes.get('joined').serialize(),'same ordered topology as the plain legacy union');
   }finally{kernel.dispose();reference.dispose();}
 });
+
+
+test('material verification preserves saved ordered topology semantics',async()=>{
+  const document=legacyDocument();document.features.at(-1).params.verifyMaterial=true;
+  assert.equal(unionStrategy(document.features.at(-1)),'ordered-pairwise');
+  const kernel=new CadKernel(oc);
+  try{
+    await kernel.rebuild(document,{headless:true});
+    const report=kernel.shapes.get('joined').booleanReport;
+    assert.equal(report.strategy,'ordered-pairwise');
+    assert.equal(report.materialCoverage.status,'verified');
+    assert.equal(report.materialCoverage.checks.length,4);
+    assert.ok(Math.abs(kernel.measure('joined','body').volume-2800)<1e-5);
+  }finally{kernel.dispose();}
+});

@@ -1,7 +1,8 @@
 # api.guide.boolean
 
 # 布尔与局部修补
-明确目标实体与刀具体，选择 union/cut/intersect；名称、位置和材料意图须一致。复制/组合显示不等于布尔融合。
+明确目标实体与刀具体，选择 union/cut/intersect；名称、位置和材料意图须一致。复制/组合显示不等于布尔融合。连续体块的造型先读 api.modeling.methods.organic-form；并集不保证接缝光顺。
+高风险 union 可传 verifyMaterial:true，在接缝修顺前对每输入做精确差集覆盖校验；查看 booleanReport.materialCoverage.checks。默认外包围与总体积检查不是材料包含证明。该选项仅本地支持，增加每输入一次布尔成本，失败不自动改回弱校验；requireConnected:true 另行约束单一实体。
 读当前目标卡中的 refs 顺序、消耗/保留输入、结果数量与副作用，不能假定所有工具都保留刀具。用 queryGeometry/measure 核对交叠及有效性后提交。
 按返回的新实体与 replacements 更新引用；不要继续使用已被替换的实体/边编号。核对被切除/保留区域、孔、连接和对象数。
 没有相交、相切退化、无效实体和结果未知是不同问题。若未提交，可针对明确原因修正来源；partial 保留成功部分；unknown 查原回执，不重复切削，不重建全部。相关 api.run。

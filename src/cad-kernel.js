@@ -22,6 +22,7 @@ import {exportColoredSTEP} from './modeling/io/step-export.js';
 import {meshIntegrity,binaryStl} from './modeling/io/mesh-integrity.js';
 import {applyMirrorVariation,overriddenParams} from './mirror-variation.js';
 import {robustUnion} from './modeling/robust-union.js';
+import {verifyUnionMaterial} from './modeling/union-material.js';
 import {unionStrategy} from './legacy-topology-policy.js';
 import {initializeFaceOrigins,copyFaceOrigins,blendContext,originSignatures,restoreFaceOrigins,cutWithFaceOrigins,orderedFuseWithFaceOrigins} from './modeling/face-origins.js';
 import {buildBlendRadius} from './blend-radius.js';
@@ -730,6 +731,10 @@ export class CadKernel {
             dispose(out); out = next;
           }
           if(feature.op==='cut'&&p.keepSolidAt!==undefined){const selected=selectBooleanSolid(out,p,cad);dispose(out);out=selected;}
+          if(feature.op==='union'&&p.verifyMaterial){
+            const materialCoverage=verifyUnionMaterial(sources,out,{cad,measure:shape=>preciseVolume(shape,this.oc),toolIds:refs});
+            out.booleanReport={...out.booleanReport,strategy:'ordered-pairwise',materialCoverage};
+          }
           if(feature.op==='union'&&p.requireConnected){
             const solids=out.solids;
             try{

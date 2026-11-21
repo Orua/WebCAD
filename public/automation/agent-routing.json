@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:fce3d1b09e53186207fedff6d6c2d1702518ff14f8fd925180d542743045d706",
-  "docsHash": "sha256:76133ec8edec4a48c2e737a75c49ac31e8344313e0464a1d5b904767f3994247",
+  "catalogHash": "sha256:5f9ef30f23db23de11b4f0a4ef168eb60190443337a6438be11e8daf9f04fe04",
+  "docsHash": "sha256:3d802369b7eb256b68f6f434b0cae7a0ca4c151812b5a86a997e978f48ad03f5",
   "workflowDelivery": {
     "schemaVersion": 1,
     "coreDocIds": [
@@ -842,6 +842,8 @@
           "id": "spine",
           "tools": [
             "curveSweep",
+            "guidedLoft",
+            "fittedSurface",
             "measure"
           ]
         },

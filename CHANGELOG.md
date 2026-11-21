@@ -1,3 +1,8 @@
+## 1.75.4 — sculpting material verification and agent workflow
+
+- Add opt-in local union `verifyMaterial:true`: exact per-source difference checks catch omitted material that total volume, bounding extents and even source vertices miss. Failed/unavailable verification preserves inputs; reports distinguish material coverage from connectivity and seam smoothing. Saved ordered Boolean topology remains ordered; Services rejects this unsupported option instead of ignoring it.
+- Expand the discoverable organic modeling route with representation boundaries, continuous primary forms, batch/incremental detail differences, fading-detail limits, numerical vs visual evidence, verified save/reopen and timeout recovery.
+
 # Changelog
 
 ## 1.63.4 — released 2026-11-08
