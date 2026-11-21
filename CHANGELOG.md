@@ -1,3 +1,7 @@
+## 1.75.9 — point-cap zero tip on spine fading recesses
+
+- Allow spine `widthLaw`/`depthLaw` to reach exactly 0 at a path endpoint. The kernel drops the degenerate ellipse and closes that end with an existing ThruSections point cap at the path point, reported as `loftReport.zeroEndDepth` and `tipPoints`. Mid-path zeros and negative values are still rejected, and at least two positive stations remain required. This is not surface-projected grooving. Guidance, contracts and headless cut tests are updated together.
+
 ## 1.75.8 — read-only region volume for local sculpt evidence
 
 - Add measure kind `region` with axis-aligned `minMm`/`maxMm`. The kernel isolates a BREP copy and returns the exact AABB ∩ solid volume, solidCount, empty/overlap and intersection bounds without writing the document or filling whole-body metrics. Disjoint regions return volume 0; meshes and whole assemblies are explicitly unavailable. Fading-recess guidance now prefers this over a destructive intersect on the live solid. Headless tests confirm the documented cutter regions and that the source shape is unchanged.

@@ -2,7 +2,7 @@
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.75.8",
+  "version": "1.75.9",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -96,5 +96,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a93ce379ec7050da8a838029e0a158c2c1fd91996370aad5943c6c19bee83d38"
+  "docsHash": "sha256:feaefb17f1f5a052dd1219e2b5f19e21b17701720152cd5bd326344fff4c8836"
 }

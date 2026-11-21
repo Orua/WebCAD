@@ -6,6 +6,7 @@ import init from 'replicad-opencascadejs';
 import * as cad from 'replicad';
 import {buildCurveSweep} from '../src/curve-sweep.js';
 import {getOperation} from '../src/operation-registry.js';
+import {measureRegionVolume} from '../src/modeling/inspection/region-volume.js';
 const oc=await init({wasmBinary:fs.readFileSync(new URL('../node_modules/replicad-opencascadejs/dist/replicad_single.wasm',import.meta.url))});cad.setOC(oc);
 
 test('UP-32 straight spine creates a measured round solid with compact station laws',()=>{
@@ -81,7 +82,7 @@ test('ordered ellipse stations retain material through the prepared curved fruit
 
 test('documented fading cutter uses full section depth, keeps a positive tip and cuts deeper at the start',()=>{
   const law=samples=>({kind:'spline',samples});
-  assert.throws(()=>buildCurveSweep({pathType:'spine',spine:{kind:'polyline',pointsMm:[[2,3,8],[18,3,8]]},stations:{count:6},widthLaw:1,depthLaw:law([[0,1.6],[1,0]]),rollMode:'absolute',section:'ellipse'},cad),/正深度/);
+  assert.throws(()=>buildCurveSweep({pathType:'spine',spine:{kind:'polyline',pointsMm:[[2,3,8],[18,3,8]]},stations:{count:6},widthLaw:1,depthLaw:law([[0,1.6],[.5,0],[1,0.2]]),rollMode:'absolute',section:'ellipse'},cad),/路径内部/);
   const stock=cad.makeBox([0,0,0],[20,6,8]);
   const guide=MODELING_DOCS['api.modeling.methods.fading-recess'];
   const params=JSON.parse(guide.match(/```json\n([\s\S]*?)\n```/)[1]);
@@ -100,4 +101,23 @@ test('documented fading cutter uses full section depth, keeps a positive tip and
     assert.ok(startVol<endVol-0.05,JSON.stringify({startVol,endVol}));
     assert.ok(cad.measureVolume(stock)-cad.measureVolume(result)>0.2);
   }finally{[endRemain,startRemain,endProbe,startProbe,result,cutter,stock].forEach(s=>s?.delete?.());}
+});
+
+test('a spine may close a zero-depth endpoint with a point cap and still cut deeper at the start',()=>{
+  const law=samples=>({kind:'spline',samples});
+  const cutter=buildCurveSweep({pathType:'spine',spine:{kind:'polyline',pointsMm:[[2,3,8],[18,3,8]]},stations:{count:8},widthLaw:1,depthLaw:law([[0,1.6],[1,0]]),rollMode:'absolute',section:'ellipse'},cad);
+  const stock=cad.makeBox([0,0,0],[20,6,8]);
+  let result;
+  try{
+    assert.deepEqual(cutter.loftReport.zeroEndDepth,{start:false,end:true});
+    assert.ok(Math.hypot(...cutter.loftReport.tipPoints.end.map((v,i)=>v-[18,3,8][i]))<1e-6,JSON.stringify(cutter.loftReport.tipPoints));
+    assert.equal(cutter.loftReport.diagnostics.capKinds.end,'point');
+    const analyzer=new oc.BRepCheck_Analyzer(cutter.wrapped,true,false,false);
+    try{assert.ok(analyzer.IsValid());assert.equal(cutter.solids.length,1);}finally{analyzer.delete();}
+    result=stock.cut(cutter);
+    const deep=measureRegionVolume(result,[1,2,7],[3,4,8],cad);
+    const shallow=measureRegionVolume(result,[17,2,7],[19,4,8],cad);
+    assert.ok(deep.volume<shallow.volume-0.05,JSON.stringify({deep:deep.volume,shallow:shallow.volume}));
+    assert.ok(cad.measureVolume(stock)-cad.measureVolume(result)>0.2);
+  }finally{[result,cutter,stock].forEach(s=>s?.delete?.());}
 });

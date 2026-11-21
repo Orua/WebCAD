@@ -6,6 +6,18 @@ const unit=v=>{const n=norm(v);if(n<1e-10)throw new Error('脊线包含零长度
 const dist=(a,b)=>norm(a.map((x,i)=>x-b[i]));
 const dispose=v=>{try{v?.delete?.()}catch{}};
 const rotate=(v,axis,angle)=>{const c=Math.cos(angle),s=Math.sin(angle),d=dot(axis,v),cx=cross(axis,v);return v.map((x,i)=>x*c+cx[i]*s+axis[i]*d*(1-c));};
+function assertInteriorLawPositive(value,name){
+ if(value===undefined||typeof value==='number'&&value>0)return;
+ if(typeof value==='number')throw new Error(`${name} 在路径内部必须始终为正；常数 0 会让全部截面退化`);
+ const samples=value?.samples;
+ if(value?.kind!=='spline'||!Array.isArray(samples))return;
+ for(const sample of samples){
+  if(!Array.isArray(sample)||sample.length!==2||!sample.every(Number.isFinite))continue;
+  const [t,v]=sample;
+  if(v<0)throw new Error(`${name} 必须为非负有限值`);
+  if(v===0&&t!==0&&t!==1)throw new Error(`${name} 在路径内部必须始终为正；只有脊线端点可以为 0，此时以该路径点做点收尾，不能在中途把截面收到 0`);
+ }
+}
 function law(value,t,fallback,name){
  if(value===undefined)return fallback;
  if(typeof value==='number')return value;
@@ -54,19 +66,31 @@ export function buildSpineLoft(params,cad){
  if(spine.kind==='bspline'&&points.length>2)spineEdge=cad.makeBSplineApproximation(points,{tolerance:params.tolerance??.01});
  const centerAt=t=>{if(!spineEdge)return interpolate(points,t,'polyline');const p=spineEdge.pointAt(t);try{return typeof p?.toTuple==='function'?p.toTuple():[p.x,p.y,p.z]}finally{dispose(p)}};
  try{
- const stations=[];let previousTangent=null,previousWidth=null;
+ assertInteriorLawPositive(params.widthLaw,'widthLaw');assertInteriorLawPositive(params.depthLaw,'depthLaw');
+const stations=[],tipCaps={};let previousTangent=null,previousWidth=null;
  for(const t of ts){const centerMm=centerAt(t),eps=Math.min(1e-4,Math.max(1e-7,.25/(points.length-1))),a=centerAt(Math.max(0,t-eps)),b=centerAt(Math.min(1,t+eps)),normal=unit(b.map((v,i)=>v-a[i]));
   let width;if(!previousTangent){width=cross(up,normal);if(norm(width)<1e-8){const axes=[[1,0,0],[0,1,0],[0,0,1]].toSorted((a,b)=>Math.abs(dot(a,normal))-Math.abs(dot(b,normal)));width=cross(axes[0],normal);}width=unit(width);}else{const axis=cross(previousTangent,normal),s=norm(axis),c=Math.max(-1,Math.min(1,dot(previousTangent,normal)));width=s<1e-9?(c<0?previousWidth.map(v=>-v):previousWidth):rotate(previousWidth,axis.map(v=>v/s),Math.atan2(s,c));
    width=unit(width.map((v,i)=>v-normal[i]*dot(width,normal)));if(norm(width)<1e-8)throw new Error('脊线转折处无法构造稳定的旋转最小标架');}
   const roll=law(params.rollLawDeg,t,0,'rollLawDeg');
   const rolledWidth=unit(rotate(width,normal,roll*Math.PI/180));
-  const widthMm=law(params.widthLaw,t,defaultSpineWidth(params),'widthLaw'),depthMm=law(params.depthLaw,t,defaultSpineDepth(params,widthMm),'depthLaw');if(widthMm<=0||depthMm<=0)throw new Error('widthLaw/depthLaw 必须始终为正；渐消凹纹请在端点保留很小的正深度，不能把规律收到 0');
-  const profileLaw=params.profileLaw;if(profileLaw!==undefined&&(!Array.isArray(profileLaw)||profileLaw.length<2||profileLaw.length>64||profileLaw.some((item,i)=>!Array.isArray(item)||item.length!==2||!Number.isFinite(item[0])||item[0]<0||item[0]>1||!item[1]||typeof item[1]!=='object'||(i&&item[0]<=profileLaw[i-1][0]))))throw new Error('profileLaw 须为 t 严格递增且位于 0..1 的 [[t,profile], ...]');let profile;
-  if(profileLaw){const nearest=profileLaw.reduce((best,item)=>Math.abs(item[0]-t)<Math.abs(best[0]-t)?item:best,profileLaw[0]);profile=nearest[1];}
-  stations.push({centerMm,normal,widthDirection:rolledWidth,widthMm,depthMm,...(profile?{profile}:{})});
+  const widthMm=law(params.widthLaw,t,defaultSpineWidth(params),'widthLaw'),depthMm=law(params.depthLaw,t,defaultSpineDepth(params,widthMm),'depthLaw');
+  if(!Number.isFinite(widthMm)||!Number.isFinite(depthMm)||widthMm<0||depthMm<0)throw new Error('widthLaw/depthLaw 必须为非负有限值');
+  const atTip=t===ts[0]||t===ts.at(-1);
+  if(widthMm===0||depthMm===0){
+    if(!atTip)throw new Error('widthLaw/depthLaw 在路径内部必须始终为正；只有脊线端点可以为 0，此时以该路径点做点收尾，不能在中途把截面收到 0');
+    const side=t===ts[0]?'start':'end',key=`${side}Cap`,existing=params[key];
+    if(existing?.kind&&!['flat','point'].includes(existing.kind))throw new Error(`端点截面为 0 时不能再使用 ${key}.kind=${existing.kind}；零深度端点会在该路径点生成 point 收尾`);
+    if(existing?.kind==='point'&&existing.pointMm&&dist(existing.pointMm,centerMm)>1e-6)throw new Error(`${key}.pointMm 必须与零深度端点的路径坐标重合`);
+    tipCaps[key]={kind:'point',pointMm:centerMm};
+  }else{
+    const profileLaw=params.profileLaw;if(profileLaw!==undefined&&(!Array.isArray(profileLaw)||profileLaw.length<2||profileLaw.length>64||profileLaw.some((item,i)=>!Array.isArray(item)||item.length!==2||!Number.isFinite(item[0])||item[0]<0||item[0]>1||!item[1]||typeof item[1]!=='object'||(i&&item[0]<=profileLaw[i-1][0]))))throw new Error('profileLaw 须为 t 严格递增且位于 0..1 的 [[t,profile], ...]');let profile;
+    if(profileLaw){const nearest=profileLaw.reduce((best,item)=>Math.abs(item[0]-t)<Math.abs(best[0]-t)?item:best,profileLaw[0]);profile=nearest[1];}
+    stations.push({centerMm,normal,widthDirection:rolledWidth,widthMm,depthMm,t,...(profile?{profile}:{})});
+  }
   previousTangent=normal;
   previousWidth=rollMode==='absolute'?width:rolledWidth;
  }
- const result=buildSectionCurveLoft({...params,pathType:'sections',stations},cad);result.loftReport={...result.loftReport,spineFrames:stations.map((s,i)=>({i,t:ts[i],normal:s.normal,widthDirection:s.widthDirection})),spineKind:spineEdge?'bspline':'polyline',rollMode};return result;
+ if(stations.length<2)throw new Error('零深度端点之外至少还需要两个正截面，才能生成点收尾的刀具');
+ const result=buildSectionCurveLoft({...params,...tipCaps,pathType:'sections',stations},cad);result.loftReport={...result.loftReport,spineFrames:stations.map((s,i)=>({i,t:s.t,normal:s.normal,widthDirection:s.widthDirection})),spineKind:spineEdge?'bspline':'polyline',rollMode,zeroEndDepth:{start:!!tipCaps.startCap,end:!!tipCaps.endCap},tipPoints:{start:tipCaps.startCap?.pointMm??null,end:tipCaps.endCap?.pointMm??null}};return result;
  }finally{dispose(spineEdge)}
 }

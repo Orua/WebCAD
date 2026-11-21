@@ -2,7 +2,7 @@
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.75.8",
+  "version": "1.75.9",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -197,5 +197,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bc5262f95f5c368ad6fc4e019d372bdd9792146c2e4cd8afa2c21c7641a6e633"
+  "docsHash": "sha256:ff24f4f38cd4202fb606c49e1bc601685b29e79571aceb7cfe1f37f01c66a55d"
 }

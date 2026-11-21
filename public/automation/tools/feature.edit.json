@@ -8,7 +8,7 @@
   "title": "修改参数",
   "description": "args:{featureId,params,name?,placement?,opVersion?,schemaHash?}；省略 opVersion/schemaHash 时按被编辑特征的 op 当前工具卡自动补齐，显式传入且不一致才报错。params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.75.8",
+  "version": "1.75.9",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -270,5 +270,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f269796e17b2beef31b87d9c5be7d9b4394e09ad31467686cb307da94d62ffc2"
+  "docsHash": "sha256:1e85d135e5f8c43b3389289e8c6090ef46df7426c401abfbaf4980e5a5191b19"
 }

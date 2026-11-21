@@ -2,7 +2,7 @@
   "id": "reliefDesignField",
   "title": "reliefDesignField",
   "category": "page-method",
-  "version": "1.75.8",
+  "version": "1.75.9",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -262,5 +262,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:88574c4f1d8d8e48b23fa85c1a7f5b72d6e371d7cb71c496c750fa177cc3d00e"
+  "docsHash": "sha256:b3f0d6df7ac3d334af46a8fd8805250c87779df80aac4c4420e6987f3f34c41c"
 }

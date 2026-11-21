@@ -2,7 +2,7 @@
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.75.8",
+  "version": "1.75.9",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -134,5 +134,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:785b5c24742ee60d4e4ab69965e6670404faf267b39556121409f390fabf7cd1"
+  "docsHash": "sha256:2c5ae7e70f1a3a8f92f2ffe249666d3b43aa50370885ffe6783b63a0bee843b8"
 }

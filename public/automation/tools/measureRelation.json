@@ -2,7 +2,7 @@
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.75.8",
+  "version": "1.75.9",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -287,5 +287,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4f96918df63c0fb90df5017e4a166670a26c46dbc668bc15e22110972092f360"
+  "docsHash": "sha256:59af5fa0d085a31d07201a2223a158254958185d09ec3452c81b90d82018a2f3"
 }

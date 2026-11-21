@@ -54,7 +54,7 @@ test('downloaded modeling routes cover construction, process and diagnostics wit
       const selected=await readLocalKnowledge(cache,{docIds:[route.readFirst],maxChars:8000});
       assert.equal(selected.items[0].status,'read');
       const guide=selected.items[0].text;
-      for(const term of ['正深度','不是自动曲面投影','半轴','kind:"region"','exact-brep-aabb-intersection','总体积','NOT_REVIEWED'])assert.ok(guide.includes(term),term);
+      for(const term of ['正深度','不是自动曲面投影','点收尾','zeroEndDepth','半轴','kind:"region"','exact-brep-aabb-intersection','总体积','NOT_REVIEWED'])assert.ok(guide.includes(term),term);
       assert(selected.usedChars<8000);
     }
     for(const id of ['curveSweep','cut','intersect','measure']){
@@ -87,5 +87,5 @@ test('organic route exposes current shaping cards and the optional material guar
   const union=cards.find(card=>card.id==='union');
   assert.equal(union.inputSchema.properties.verifyMaterial.type,'boolean');
   const text=readDocs({docId:route.readFirst,limitChars:16000}).text;
-  for(const term of ['source-minus-result','affectedControlPoints','maxDisplacementMm','protectVertexIds','Services','reopen','unknown','视觉未验证','正深度','curveSweep','cut'])assert.ok(text.includes(term),term);
+  for(const term of ['source-minus-result','affectedControlPoints','maxDisplacementMm','protectVertexIds','Services','reopen','unknown','视觉未验证','正深度','点收尾','curveSweep','cut'])assert.ok(text.includes(term),term);
 });

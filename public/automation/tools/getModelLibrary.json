@@ -2,7 +2,7 @@
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.75.8",
+  "version": "1.75.9",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -118,5 +118,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:712d6993173b72a14c03c310177b3935d99402ad693018633878e539ca4b92bb"
+  "docsHash": "sha256:462d703001bc7aeea27bb9ff746239ec9d9ed0a3c9407769d1960b6a6f2a0eb5"
 }
