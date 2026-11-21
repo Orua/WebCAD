@@ -6,7 +6,7 @@ export const MODELING_DOCS = Object.freeze({
 
 先做一个容易辨认的小样，冻结尺寸、主方向、两个关键轮廓和要保持的位置。验收先看正、侧和三分之四视图，再读有效实体数、包围盒与局部测量。
 
-- 不对称体块或凹果窝：用 subdBody 的封闭四边控制笼先定宽扁与凹凸。push/inflate 沿法向增减，move 配 deltaMm 按明确方向拖动控制点，smooth 小步平均。看 brushReport，实际命中后才能判定笔刷生效。面预算含额外一层收敛检查。
+- 不对称体块或凹果窝：用 subdBody 的封闭四边控制笼先定宽扁与凹凸。push/inflate 沿法向增减，move 配 deltaMm 按明确方向拖动控制点，smooth 小步平均。需要保住相邻体块时，在该笔填写 protectVertexIds（原始控制笼顶点序号）。看 brushReport 的 affectedControlPoints、protectedInRange 和警告；实际移动后才能判定笔刷生效。钉住控制点并不锁定拟合曲面。面预算含额外一层收敛检查。
 - 连续弯曲、沿程变粗细：用 curveSweep 的 spine、widthLaw 与 depthLaw。新特征默认绝对滚转。全椭圆截面保持标架对应，避免截面被重新对接造成折颈。固定一个角度后改变站数，截面不应随站数越扭越多。检查 loftReport.ratio 与多视角连续外轮廓，实测后再提高采样。
 - 实体加局部体积：先确认工具确实与对应表面相交。连续两次使用 bumpSet 时按回执换用当前实体 ID。指定接缝修顺半径后，查看圆角回执、材料增加和单一实体证据。union 返回覆盖丢失时保留全部源件，不能以总体积或渲染效果替代覆盖。
 - 编辑带支撑的局部曲面网格：meshReliefEdit 使用当前网格哈希、明确投影方向、实际表面种子与保护区。可编辑的是可投影为单值高度的局部，保持三角拓扑。整体任意三维变形要另外确认当前环境的可执行工具。
@@ -17,7 +17,7 @@ export const MODELING_DOCS = Object.freeze({
 
 |表示/工具|适用范围|不要误认|
 |---|---|---|
-|subdBody|封闭四边笼的整体体量、局部拖拽与凹凸|笔刷作用于原始控制笼，不是在最终细分面上雕刻；先确认密度和 brushReport|
+|subdBody|封闭四边笼的整体体量、局部拖拽与凹凸|笔刷作用于原始控制笼，不是在最终细分面上雕刻；protectVertexIds 只固定列出的控制点，不锁定拟合曲面|
 |curveSweep spine / guidedLoft|沿程可控截面、弯曲渐缩体和连续块面|更多站点不自动改善造型；新配方显式 rollMode:absolute，旧 incremental 的滚转逐站累计|
 |fittedSurface|点阵控制的单片曲面|输出是面，不是可直接布尔的封闭实体；按当前卡完成加厚/封闭再测量|
 |meshReliefEdit / relief|当前契约支持的局部高度场|不能用单值投影表达下切、背面或任意三维拓扑|

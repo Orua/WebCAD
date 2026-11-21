@@ -67,5 +67,5 @@ test('organic route exposes current shaping cards and the optional material guar
   const union=cards.find(card=>card.id==='union');
   assert.equal(union.inputSchema.properties.verifyMaterial.type,'boolean');
   const text=readDocs({docId:route.readFirst,limitChars:16000}).text;
-  for(const term of ['source-minus-result','affectedControlPoints','maxDisplacementMm','Services','reopen','unknown','视觉未验证','沿程减小深度'])assert.ok(text.includes(term),term);
+  for(const term of ['source-minus-result','affectedControlPoints','maxDisplacementMm','protectVertexIds','Services','reopen','unknown','视觉未验证','沿程减小深度'])assert.ok(text.includes(term),term);
 });

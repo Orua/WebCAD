@@ -1,3 +1,7 @@
+## 1.75.5 — public cage-handle protection
+
+- Add optional `protectVertexIds` on each `subdBody` brush: listed original cage vertex indices stay fixed for that stroke, with `protectedInRange` and `SUBD_BRUSH_PROTECTED_ONLY` when every in-range handle is pinned. Adjacent unlisted handles may still move, so this is not a fitted-surface lock. Public schema, tool notes, discoverable organic guidance and recovery catalog stay consistent.
+
 ## 1.75.4 — sculpting material verification and agent workflow
 
 - Add opt-in local union `verifyMaterial:true`: exact per-source difference checks catch omitted material that total volume, bounding extents and even source vertices miss. Failed/unavailable verification preserves inputs; reports distinguish material coverage from connectivity and seam smoothing. Saved ordered Boolean topology remains ordered; Services rejects this unsupported option instead of ignoring it.

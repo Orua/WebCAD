@@ -88,5 +88,5 @@ test('absolute camera pose drains actual OrbitControls damping and remains fixed
 test('pitfall contract covers frame, IDs, unknown receipt and correct undo action',()=>{
   const doc=readDocs({docId:'api.modeling-pitfalls'});
   const text=JSON.stringify(doc);
-  for(const term of ['history.undo','getBatchReceipt','SUBD_BRUSH_NO_HIT','sampleDepth + 1','replacements','model-origin'])assert(text.includes(term),term);
+  for(const term of ['history.undo','getBatchReceipt','SUBD_BRUSH_NO_HIT','SUBD_BRUSH_PROTECTED_ONLY','sampleDepth + 1','replacements','model-origin'])assert(text.includes(term),term);
 });

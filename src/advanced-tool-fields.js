@@ -18,7 +18,7 @@ export const advancedNotes = {
   ellipsoid:'三个半轴半径均须大于零。以八片精确有理二次曲面生成封闭实体，体积对照 4/3 × π × a × b × c；中心通过参考锚点定位。可用于后续布尔和圆角，不使用网格替代。',
   guidedLoft:'截面给出 frame:{centerMm,normal,widthDirection} 与 profile 椭圆或四边曲线；1–2 条导轨必须逐站经过对应轮廓边界。新建时两端 G0、来源留空。接续时只选一个端为 G1/G2，来源填 {featureId:"当前来源ID",end:"start"或"end"}；end 指来源端。读取来源当前 B 样条导数，原段保留，不会为自动避让移动连接段。接续双方使用冻结坐标原点锚点。',
   bumpSet:'先选择来源实体，再填写1–64个世界坐标凸点。球使用 centerMm:[x,y,z]、radiusMm；椭球使用 centerMm 和 radiiMm:[a,b,c]。所有凸点一次融合，再联动处理来源交线；失败时保留布尔结果并报告实际半径或跳过原因，不处理无关锐边。',
-  subdBody:'编辑封闭、绕向一致的四边控制笼。顶点为毫米 XYZ，面是四个顶点序号；creases 使用 edge:[起点,终点]、sharpness:0–1，1 保留尖边。笔刷是按顺序保存的 {mode:"push"/"inflate"/"smooth",centerMm:[x,y,z],radiusMm,strength,falloff:"smooth"/"linear"}；推拉与膨胀强度单位 mm，平滑为0–1。先预览再应用，之后可在历史参数中继续编辑。结果为拟合并缝合的 B 样条实体，极点区域使用有误差检测的近似。',
+  subdBody:'编辑封闭、绕向一致的四边控制笼。顶点为毫米 XYZ，面是四个顶点序号；creases 使用 edge:[起点,终点]、sharpness:0–1，1 保留尖边。笔刷是按顺序保存的 {mode:"push"/"inflate"/"smooth"/"move",centerMm,radiusMm,falloff,strength 或 move 的 deltaMm}。可选 protectVertexIds 钉住本笔中列出的原始控制笼顶点序号；未列出的相邻顶点仍可移动，因此不会锁定拟合或极限曲面。先预览再应用，之后可在历史参数中继续编辑。结果为拟合并缝合的 B 样条实体，极点区域使用有误差检测的近似。',
   autoRound:'选一个实体，自动检测全部尖锐边，包括孔和文字边，统一倒圆。已相切接缝会跳过。半径过大或某条边无法处理时整步拒绝，不默默跳过。完成后在属性或建模历史中修改半径，可更圆或退回；0.1 mm 为示例。',
   smoothTransition:'按 Ctrl 选择相交的多个面，将这些面之间的尖锐接缝联动倒圆；交汇处也一起求解。选择整个外壳的面可处理外缘，文字面须另选。半径过大、自交或目标接缝仍尖锐时拒绝。与未选面的结束边界仍可能锐利，将单独报告。完成后可在属性修改原步骤半径，不重复叠加加工。默认 0.1 mm 是示例；预览后确认。',
   curveSweep:'sections 为 2–24 个有序椭圆截面，每项明确 centerMm、normal、widthDirection、widthMm、depthMm；支持料宽和侧深变化，开口实体，不保证源件等价。圆弧恰好三个 XYZ 点；样条为 3–30 点的公差内逼近。segments 为 2–64 段连续直线/三点圆弧，前段末点须与后段起点相同；闭环须选 closed。round 使用半径；chamferedSquare 使用边长和倒角切入量；ellipse 独立输入正面料宽与侧深。非圆截面路径须同处 XY 平面。单位 mm。',

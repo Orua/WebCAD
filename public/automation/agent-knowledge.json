@@ -1,30 +1,30 @@
 {
   "schemaVersion": 1,
-  "buildId": "820cd058f6ff50c8979da59aef8563dfc2f3c0d0-src-c44a20d0610d71c4-working",
-  "knowledgeVersion": "sha256:a454408f680fc992b5fc4afee380ae4d93c8a837e4cbc309091bd54772eef5f2",
-  "pageApiVersion": "1.75.4",
-  "catalogHash": "sha256:5f9ef30f23db23de11b4f0a4ef168eb60190443337a6438be11e8daf9f04fe04",
-  "docsHash": "sha256:3d802369b7eb256b68f6f434b0cae7a0ca4c151812b5a86a997e978f48ad03f5",
+  "buildId": "9f364f24da6a0470eff38b8e87527b96cead36f9-src-f211d574f7bc8080-working",
+  "knowledgeVersion": "sha256:b55de22c9e507cd5833192678e0aa87fa44807d4387d4d6a1ec3931d2bd7fed2",
+  "pageApiVersion": "1.75.5",
+  "catalogHash": "sha256:74daf2ea7de1418ef83f174ea6806637163d1ac17700c84b1105c8baa8b7764e",
+  "docsHash": "sha256:813984a2cde06b439008402c5b3b506794259bb06429d70c721adbaa8a66c107",
   "archive": {
     "url": "agent-bundle.zip",
     "format": "zip",
-    "sizeBytes": 739438,
-    "sha256": "sha256:ca74a45fb0b3800f78f97d9aef62e23749e7225b8bcce454e1180c33a588d22a",
+    "sizeBytes": 740404,
+    "sha256": "sha256:0db6da4d38f32386d6c8dbcb84aeca0728336545d148df223aef05b5fb5f0f7f",
     "files": [
       {
         "name": "index.json",
-        "sizeBytes": 4952177,
-        "sha256": "sha256:5da99777b7bfd410ebb4b19fd52df7f718825dd3d49e3e00dd981c64a0507a83"
+        "sizeBytes": 4955183,
+        "sha256": "sha256:1b2b409a5d59ffd701a38a67d3e20b03f03ecc50fc193434fa6c3dc06c56f36f"
       },
       {
         "name": "agent-routing.json",
         "sizeBytes": 63252,
-        "sha256": "sha256:98127b74b9da7510cd1c08ecbcbd96f410ad3b8a7f910bc0bb8cdd30e4c12249"
+        "sha256": "sha256:e7536d0bfc5ab5c185551b94b269f7983373660167c400684ed9c5c5d82cfa97"
       },
       {
         "name": "routes.json",
         "sizeBytes": 74654,
-        "sha256": "sha256:b30bee7f3bf8027a3c6cad15890b4274010d841ff3ddded06de8b3826297347d"
+        "sha256": "sha256:feefaafaa4fed1e51f9dc09a05a684f2a6a6ca30f1f02db8c23971e98bca9a7a"
       },
       {
         "name": "webcad-page-api/SKILL.md",
@@ -39,7 +39,7 @@
       {
         "name": "agent-kit.json",
         "sizeBytes": 2601,
-        "sha256": "sha256:2651dd542be3a61350fbe103e7148d3574592b79340032f335c667b42b5b869d"
+        "sha256": "sha256:52e692340825310f816b377cfbb2e1969902c1af8962de8612513cada057ef2d"
       },
       {
         "name": "webcad-page-api/scripts/page-client.mjs",
@@ -59,12 +59,12 @@
       {
         "name": "remote-agent.json",
         "sizeBytes": 1314,
-        "sha256": "sha256:7b5aa6ccfed5c4418112df8311ee1289a3c3b0908aa56c5700b1649b3ce24348"
+        "sha256": "sha256:3c0f39ee7dd84da827525fbaf8ff4e10a6c15c7cb463aa2b8fdce36540a67abe"
       },
       {
         "name": "remote-agent/host-adapter.js",
-        "sizeBytes": 122108,
-        "sha256": "sha256:bd3e3996c6d527ef44d3995c04b297d2ee93acf72abfe2627d3cff1bf544cd18"
+        "sizeBytes": 122588,
+        "sha256": "sha256:4a7bc5b3455cc3d2542e542ccf0dd0dc3057940e61531365d1060f5169409e2c"
       },
       {
         "name": "remote-agent/runtime-contract.json",
@@ -89,23 +89,23 @@
     {
       "name": "index.json",
       "url": "index.json",
-      "sizeBytes": 4952177,
-      "sha256": "sha256:5da99777b7bfd410ebb4b19fd52df7f718825dd3d49e3e00dd981c64a0507a83"
+      "sizeBytes": 4955183,
+      "sha256": "sha256:1b2b409a5d59ffd701a38a67d3e20b03f03ecc50fc193434fa6c3dc06c56f36f"
     },
     {
       "name": "agent-routing.json",
       "url": "agent-routing.json",
       "sizeBytes": 63252,
-      "sha256": "sha256:98127b74b9da7510cd1c08ecbcbd96f410ad3b8a7f910bc0bb8cdd30e4c12249"
+      "sha256": "sha256:e7536d0bfc5ab5c185551b94b269f7983373660167c400684ed9c5c5d82cfa97"
     },
     {
       "name": "routes.json",
       "url": "routes.json",
       "sizeBytes": 74654,
-      "sha256": "sha256:b30bee7f3bf8027a3c6cad15890b4274010d841ff3ddded06de8b3826297347d"
+      "sha256": "sha256:feefaafaa4fed1e51f9dc09a05a684f2a6a6ca30f1f02db8c23971e98bca9a7a"
     }
   ],
-  "totalBytes": 5090083,
+  "totalBytes": 5093089,
   "routing": "agent-routing.json",
   "index": "index.json",
   "uiRoutes": "routes.json",

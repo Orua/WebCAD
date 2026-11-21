@@ -7,7 +7,7 @@
   "id": "files.inspectInsert",
   "title": "files.inspectInsert",
   "category": "file",
-  "version": "1.75.4",
+  "version": "1.75.5",
   "contextPolicy": "none",
   "label": "inspectInsert",
   "synonyms": [
@@ -222,5 +222,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:ed40bd34ba9fdb7601fe91fccc51c06e36e736bfebe64256ecb75aa3907ffa7d"
+  "docsHash": "sha256:b49e0ed95f7a29f8b7ed61f87643793a49883b22082b59d8426ca9b07f830c7d"
 }

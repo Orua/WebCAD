@@ -531,6 +531,14 @@ Services 浮雕响应与请求、哈希或误差不一致。
 
 代码：`SESSION_EXPIRED`、`SESSION_REQUIRED`
 
+### no-effect
+
+笔刷范围内的控制点全部被 protectVertexIds 固定，控制笼未移动。
+
+检查保护序号是否过宽，或缩小保护列表后重放该笔；钉住控制点不会锁定拟合曲面。
+
+代码：`SUBD_BRUSH_PROTECTED_ONLY`
+
 ### unsaved
 
 当前工程尚未保存或不能同时替换多个工程。

@@ -36,7 +36,7 @@ curveSweep 的 pathType:'spine' 新特征默认写入 rollMode:'absolute'。roll
 sections[].normal 与 widthDirection 必须接近垂直，容差 5°；normal 有非零 Y 不代表必失败，判断是归一化点积。需要修正方向时令 n=normal/|normal|，w'=normalize(w-dot(w,n)*n)，核实意图后显式提交；平行时投影为零不能自动猜方向。
 SubD 笔刷作用于控制笼顶点，不是细分后的曲面采样点。push/inflate strength 为带符号毫米位移上限，乘距离衰减；smooth strength 为 [0,1] 无量纲插值比例。
 当目标是把果窝、眼窝或一片体块侧向移动时，选 mode:'move'，用 deltaMm:[dx,dy,dz] 直接表达控制笼坐标系中的毫米位移；不要填 strength。先用影响半径圈定控制点，再检查实际命中、保持区和曲面。如需改导入实体或通用闭合网格，先发现对应工具，不能把这一步当成全实体自由变形。
-每笔的命中控制点数和最大实际位移见 bodies[].subdApproximation.brushReport；零命中仍可创建有效未变形实体，但回执 warnings 包含 SUBD_BRUSH_NO_HIT，不能宣称雕刻生效。
+每笔的命中控制点数和最大实际位移见 bodies[].subdApproximation.brushReport；零命中仍可创建有效未变形实体，但回执 warnings 包含 SUBD_BRUSH_NO_HIT，不能宣称雕刻生效。protectVertexIds 只固定列出的控制笼顶点；范围内全部被钉住时警告为 SUBD_BRUSH_PROTECTED_ONLY。相邻未列出顶点仍可移动，拟合或极限曲面可以继续变化，不能把它当成曲面锁定或区域蒙版。
 面预算在细分前检查，包含额外一层收敛对照：cage.faces.length * 4 ** (sampleDepth + 1) <= 200000。24面、depth6为393216，必须降低深度，不是196608。
 控制笼须封闭四边面且绕序一致；冲突错误返回两个从0开始的面索引和共边。修改后重新核验整个笼子，不自动更改用户拓扑。
 

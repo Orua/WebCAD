@@ -1,4 +1,5 @@
 import {assertBodyResizeParams} from './body-resize.js';
+import {assertSubdBrushProtection} from './subd-brushes.js';
 import {reliefPlateExample} from './mesh/relief-plate.js';
 import {heightfieldReliefExample} from './mesh/heightfield-relief.js';
 import {meshBooleanExample} from './mesh/mesh-boolean.js';
@@ -316,6 +317,7 @@ export function normalizeOperationParams(op, params, { selectionToken, phase = '
   if(op==='cone'&&normalized.radius1===0&&normalized.radius2===0)contractError('PARAM_RANGE_INVALID','params.radius2','At least one cone radius must be positive.');
   if(op==='torus'&&normalized.majorRadius<=normalized.minorRadius)contractError('PARAM_RANGE_INVALID','params.majorRadius','majorRadius must exceed minorRadius; use centerline radius and tube radius, not diameters.');
   if(op==='linearPattern'&&[normalized.dx,normalized.dy,normalized.dz].every(value=>value===0))contractError('PARAM_RANGE_INVALID','params','Linear pattern requires at least one nonzero step.');
+  if(op==='subdBody')assertSubdBrushProtection(normalized);
   return normalized;
 }
 
