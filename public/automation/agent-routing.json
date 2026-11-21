@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:74daf2ea7de1418ef83f174ea6806637163d1ac17700c84b1105c8baa8b7764e",
-  "docsHash": "sha256:813984a2cde06b439008402c5b3b506794259bb06429d70c721adbaa8a66c107",
+  "catalogHash": "sha256:115c5773ab922ccdb97edf10c85a013b42e6bca2e0819cacf843db5977b61c32",
+  "docsHash": "sha256:59397ef80ee534862b17a668024a3bf366326c6645a181f9cef11968f26ebfd5",
   "workflowDelivery": {
     "schemaVersion": 1,
     "coreDocIds": [
@@ -852,6 +852,14 @@
           "tools": [
             "bumpSet",
             "union",
+            "measure"
+          ]
+        },
+        {
+          "id": "fading-recess",
+          "tools": [
+            "curveSweep",
+            "cut",
             "measure"
           ]
         },

@@ -2,7 +2,7 @@
   "id": "reliefDesignReference",
   "title": "reliefDesignReference",
   "category": "page-method",
-  "version": "1.75.5",
+  "version": "1.75.6",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -208,5 +208,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:a47e198a7894423852dbc55ef57363abdd1173be64092d4fcb9900157b35c74b"
+  "docsHash": "sha256:20691306da66d8688ed81774ec5b25785d85a8cb1b8a0090318a54379dc2a011"
 }

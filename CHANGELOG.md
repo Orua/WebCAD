@@ -1,3 +1,7 @@
+## 1.75.6 — fading recess recipe on existing spine and cut tools
+
+- Document the supported fading-groove route: a `curveSweep` spine cutter with strictly positive shrinking `depthLaw`, then `cut`. Zero end depth is rejected with an explicit message. Discoverable organic routing now includes the `cut` card. A headless test checks that the deep end removes more material than the shallow end; this is not a new projection-groove engine and was not visually reviewed.
+
 ## 1.75.5 — public cage-handle protection
 
 - Add optional `protectVertexIds` on each `subdBody` brush: listed original cage vertex indices stay fixed for that stroke, with `protectedInRange` and `SUBD_BRUSH_PROTECTED_ONLY` when every in-range handle is pinned. Adjacent unlisted handles may still move, so this is not a fitted-surface lock. Public schema, tool notes, discoverable organic guidance and recovery catalog stay consistent.

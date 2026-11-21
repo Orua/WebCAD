@@ -2,7 +2,7 @@
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.75.5",
+  "version": "1.75.6",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -208,5 +208,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:b56a540bac9b32141d11a04fac4bb600f920066cf8d5d7a7d2bdb9f1a3bdf340"
+  "docsHash": "sha256:4451d63747fe91ce77c756c24df952e9468b37af8e19e2023753b69f8fb66b14"
 }

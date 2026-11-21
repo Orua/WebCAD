@@ -2,7 +2,7 @@
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.75.5",
+  "version": "1.75.6",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -218,5 +218,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:88881ea09f3831eebf81c4ac53c769ae29b43f131fb1e5792e236b18ec1883be"
+  "docsHash": "sha256:eab2786a72e6c477911b93c7667bf350385bf9efcc57b46c1c7ab703fdbb3ce7"
 }

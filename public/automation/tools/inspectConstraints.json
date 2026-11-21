@@ -2,7 +2,7 @@
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.75.5",
+  "version": "1.75.6",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -205,5 +205,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5ff7b0ddbf647447ce89d66cfd4e86f68abdbae991bbbdb8b0c7b6e342d8d79c"
+  "docsHash": "sha256:43799e8de6dcf5709f328a30d4a79b94de2b0481743ad9e33bf95fd88008450e"
 }

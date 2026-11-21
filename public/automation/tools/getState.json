@@ -2,7 +2,7 @@
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.75.5",
+  "version": "1.75.6",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -190,5 +190,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:856e4ed3cac04df460f8ed31477ddd55f9b59cc174d236841eef6c914a0527a3"
+  "docsHash": "sha256:03cf8352cfac810c0524e607201a4bd369058152f72e6925d0513f389ee64657"
 }

@@ -63,9 +63,9 @@ test('downloaded modeling routes cover construction, process and diagnostics wit
 test('organic route exposes current shaping cards and the optional material guard',()=>{
   const route=MODELING_ROUTES.find(r=>r.id==='modeling.organic-form');
   const cards=route.branches.flatMap(branch=>branch.tools).map(id=>getTool({id}));
-  for(const id of ['subdBody','curveSweep','guidedLoft','fittedSurface','bumpSet','union','meshReliefEdit'])assert.ok(cards.some(card=>card.id===id),id);
+  for(const id of ['subdBody','curveSweep','guidedLoft','fittedSurface','bumpSet','union','cut','meshReliefEdit'])assert.ok(cards.some(card=>card.id===id),id);
   const union=cards.find(card=>card.id==='union');
   assert.equal(union.inputSchema.properties.verifyMaterial.type,'boolean');
   const text=readDocs({docId:route.readFirst,limitChars:16000}).text;
-  for(const term of ['source-minus-result','affectedControlPoints','maxDisplacementMm','protectVertexIds','Services','reopen','unknown','视觉未验证','沿程减小深度'])assert.ok(text.includes(term),term);
+  for(const term of ['source-minus-result','affectedControlPoints','maxDisplacementMm','protectVertexIds','Services','reopen','unknown','视觉未验证','正深度','curveSweep','cut'])assert.ok(text.includes(term),term);
 });

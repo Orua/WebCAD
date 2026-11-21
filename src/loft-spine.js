@@ -60,7 +60,7 @@ export function buildSpineLoft(params,cad){
    width=unit(width.map((v,i)=>v-normal[i]*dot(width,normal)));if(norm(width)<1e-8)throw new Error('脊线转折处无法构造稳定的旋转最小标架');}
   const roll=law(params.rollLawDeg,t,0,'rollLawDeg');
   const rolledWidth=unit(rotate(width,normal,roll*Math.PI/180));
-  const widthMm=law(params.widthLaw,t,defaultSpineWidth(params),'widthLaw'),depthMm=law(params.depthLaw,t,defaultSpineDepth(params,widthMm),'depthLaw');if(widthMm<=0||depthMm<=0)throw new Error('widthLaw/depthLaw 必须始终为正');
+  const widthMm=law(params.widthLaw,t,defaultSpineWidth(params),'widthLaw'),depthMm=law(params.depthLaw,t,defaultSpineDepth(params,widthMm),'depthLaw');if(widthMm<=0||depthMm<=0)throw new Error('widthLaw/depthLaw 必须始终为正；渐消凹纹请在端点保留很小的正深度，不能把规律收到 0');
   const profileLaw=params.profileLaw;if(profileLaw!==undefined&&(!Array.isArray(profileLaw)||profileLaw.length<2||profileLaw.length>64||profileLaw.some((item,i)=>!Array.isArray(item)||item.length!==2||!Number.isFinite(item[0])||item[0]<0||item[0]>1||!item[1]||typeof item[1]!=='object'||(i&&item[0]<=profileLaw[i-1][0]))))throw new Error('profileLaw 须为 t 严格递增且位于 0..1 的 [[t,profile], ...]');let profile;
   if(profileLaw){const nearest=profileLaw.reduce((best,item)=>Math.abs(item[0]-t)<Math.abs(best[0]-t)?item:best,profileLaw[0]);profile=nearest[1];}
   stations.push({centerMm,normal,widthDirection:rolledWidth,widthMm,depthMm,...(profile?{profile}:{})});

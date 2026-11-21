@@ -76,3 +76,22 @@ test('ordered ellipse stations retain material through the prepared curved fruit
     assert.equal(diagnostics.solidCount,1);
   }finally{shape.delete();}
 });
+
+
+test('a fading spine cutter must keep a positive tip and removes more material at the deep end',()=>{
+  const law=samples=>({kind:'spline',samples});
+  assert.throws(()=>buildCurveSweep({pathType:'spine',spine:{kind:'polyline',pointsMm:[[2,3,8],[18,3,8]]},stations:{count:6},widthLaw:1,depthLaw:law([[0,1.6],[1,0]]),rollMode:'absolute',section:'ellipse'},cad),/正深度/);
+  const stock=cad.makeBox([0,0,0],[20,6,8]);
+  const cutter=buildCurveSweep({pathType:'spine',spine:{kind:'polyline',pointsMm:[[2,3,8],[18,3,8]]},stations:{count:8},widthLaw:1,depthLaw:law([[0,1.6],[1,0.2]]),rollMode:'absolute',section:'ellipse'},cad);
+  let result,startProbe,endProbe,startRemain,endRemain;
+  try{
+    result=stock.cut(cutter);
+    const analyzer=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);
+    try{assert.ok(analyzer.IsValid());assert.equal(result.solids.length,1);}finally{analyzer.delete();}
+    startProbe=cad.makeBox([1,2,7],[3,4,8]);endProbe=cad.makeBox([17,2,7],[19,4,8]);
+    startRemain=result.intersect(startProbe);endRemain=result.intersect(endProbe);
+    const startVol=cad.measureVolume(startRemain),endVol=cad.measureVolume(endRemain);
+    assert.ok(startVol<endVol-0.05,JSON.stringify({startVol,endVol}));
+    assert.ok(cad.measureVolume(stock)-cad.measureVolume(result)>0.2);
+  }finally{[endRemain,startRemain,endProbe,startProbe,result,cutter,stock].forEach(s=>s?.delete?.());}
+});
