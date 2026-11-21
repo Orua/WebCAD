@@ -80,7 +80,8 @@ self.onmessage = ({ data }) => {
       else if(type==='measureRelation')result=engine.measureRelation(data.input);
       else if(type==='planAlignment')result={plan:engine.planAlignment(data.input,data.referenceSystem)};
       else if(type==='measure'){
-        if(Array.isArray(data.ids)){
+        if(data.topologyType==='region'||data.kind==='region')result=engine.measureRegion(data.bodyId,data.minMm,data.maxMm);
+        else if(Array.isArray(data.ids)){
           const items=data.ids.map(id=>engine.measure(data.bodyId,data.selectionType||data.topologyType,id));
           result={items,length:items.reduce((n,v)=>n+(v.length||0),0),area:items.reduce((n,v)=>n+(v.area||0),0)};
         } else {

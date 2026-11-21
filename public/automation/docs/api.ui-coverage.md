@@ -1380,7 +1380,7 @@
       "getState"
     ],
     "method": "measure",
-    "usage": "实体/面/边精确测量；属性区“计算精确尺寸、面积与体积”调用 measure(kind:body)，完成后读 getState().bodies[].area，单位mm²。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。"
+    "usage": "实体/面/边精确测量；属性区“计算精确尺寸、面积与体积”调用 measure(kind:body)，完成后读 getState().bodies[].area，单位mm²。局部材料用 kind:region 加轴对齐 minMm/maxMm，只读交集体积，不回填整体度量。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。"
   },
   "inspectPrintability": {
     "tools": [

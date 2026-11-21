@@ -41,7 +41,7 @@ export const METHOD_PREPARATION_SCHEMAS={
  searchTools:schema({query:{type:'string',maxLength:500},limit:{type:'integer',minimum:1,maximum:50},category:str,cursor:str},['query']),getTools:schema({ids:{...ids,maxItems:20},knownHashes:obj},['ids']),getTool:schema({id:str,version:str},['id']),
  queryReferences:scoped('bodyIds kind filter limit offset requireUnique'),
  execute:context({idempotencyKey:str,action:str,args:obj},['idempotencyKey','action','args']),
- measure:context({bodyId:str,kind:{enum:['body','face','edge']},topologyId:integer,points:{type:'array',minItems:2,maxItems:2,items:vector}}),
+ measure:context({bodyId:str,kind:{enum:['body','face','edge','region']},topologyId:integer,minMm:vector,maxMm:vector,points:{type:'array',minItems:2,maxItems:2,items:vector}}),
  measureRelation:context({mode:{enum:['shortest','centerDistance','axisAlignment','pointFace','parallelFaces','planeSample','rayHits']},first:obj,second:obj,face:obj,pointWorld:vector,plane:{enum:['XY','XZ','YZ']},offset:{type:'number'},samples:{type:'integer',minimum:4,maximum:512},includePoints:{type:'boolean'},direction:vector},['mode']),
  inspectPrintability:body({angleLimitDeg:{type:'number',exclusiveMinimum:0,exclusiveMaximum:90}}),inspectProfile:body(),inspectConstraints:body(),
  prepareProfileEdit:body({mode:{enum:['intersections','trim','extend','trimCircle','fillet']},...fields(['entityId','targetId','edgeIds','endpoint','candidateId','startCandidateId','endCandidateId','keepSide','radiusMm','arcId','output'])},['mode']),

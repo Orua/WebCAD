@@ -45,7 +45,7 @@ test('Agent can execute the public rectangle card and explicit user depth throug
       document=next;bodies=result.bodies.map(body=>({id:body.id,bounds:body.bounds,volume:body.volume,solidCount:body.solidCount,faceCount:body.faceGroups.length,edgeCount:body.edges.length}));revision++;
     },
   });
-  const api=createPageAPI({buildId:'test',state:()=>service.getState({sessionId:identity.sessionId,include:['summary','features','bodies']}),display:()=>({status:'not_rendered'}),execute:input=>service.execute(input),measure:input=>kernel.measure(input.bodyId,input.kind,input.topologyId),files:async()=>({status:'read'}),confirmSaved:async()=>({saved:true})});
+  const api=createPageAPI({buildId:'test',state:()=>service.getState({sessionId:identity.sessionId,include:['summary','features','bodies']}),display:()=>({status:'not_rendered'}),execute:input=>service.execute(input),measure:input=>input.kind==='region'?kernel.measureRegion(input.bodyId,input.minMm,input.maxMm):kernel.measure(input.bodyId,input.kind,input.topologyId),files:async()=>({status:'read'}),confirmSaved:async()=>({saved:true})});
   try{
     const connection=api.connect({toolIds:['sketchProfile','profileExtrude'],includeContracts:true});
     const shape=connection.contracts.items.find(item=>item.id==='sketchProfile').card.normalExample;

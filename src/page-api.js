@@ -355,9 +355,9 @@ export function createPageAPI(host){
       check(input,['context','bodyId','materialId']);return {status:'read',source:measurement.source,...materialWeight(measurement.volume,host.materialSettings(),input.bodyId,input.materialId),context:current().context};
     }),
     measure:guarded(async input=>{
-      check(input,['context','bodyId','kind','topologyId','points']);
+      check(input,['context','bodyId','kind','topologyId','points','minMm','maxMm']);
       if(input.points!==undefined){
-        if(input.bodyId!==undefined||input.kind!==undefined||input.topologyId!==undefined||!Array.isArray(input.points)||input.points.length!==2||input.points.some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v))))fail('PARAM_SCHEMA_INVALID','Provide two finite XYZ points only');
+        if(input.bodyId!==undefined||input.kind!==undefined||input.topologyId!==undefined||input.minMm!==undefined||input.maxMm!==undefined||!Array.isArray(input.points)||input.points.length!==2||input.points.some(p=>!Array.isArray(p)||p.length!==3||p.some(v=>!Number.isFinite(v))))fail('PARAM_SCHEMA_INVALID','Provide two finite XYZ points only');
         const delta=input.points[1].map((v,i)=>v-input.points[0][i]);
         const distance=Math.hypot(...delta);
         if(!Number.isFinite(distance))fail('PARAM_RANGE_INVALID','Coordinate difference exceeds finite measurement range');
@@ -365,13 +365,23 @@ export function createPageAPI(host){
       }
       const body=current().bodies.find(b=>b.id===input.bodyId);
       if(!body)fail('STALE_REFERENCE','Unknown current body');
-      if(input.kind!==undefined&&!['body','face','edge'].includes(input.kind))fail('PARAM_SCHEMA_INVALID','kind must be body, face or edge');
+      if(input.kind==='region'){
+        if(input.topologyId!==undefined)fail('PARAM_SCHEMA_INVALID','topologyId cannot be combined with kind:region');
+        const axis=value=>Array.isArray(value)&&value.length===3&&value.every(Number.isFinite);
+        if(!axis(input.minMm)||!axis(input.maxMm))fail('PARAM_SCHEMA_INVALID','kind:region requires finite minMm and maxMm');
+        if(input.minMm.some((n,i)=>!(input.maxMm[i]>n)))fail('PARAM_RANGE_INVALID','minMm 每个轴必须严格小于 maxMm');
+        if(input.minMm.some((n,i)=>input.maxMm[i]-n>1e6))fail('PARAM_RANGE_INVALID','测量区域边长不能超过 1e6 mm');
+        const result=await host.measure(input);check(input,['context','bodyId','kind','topologyId','points','minMm','maxMm']);
+        return {status:'read',source:'exact-brep-aabb-intersection',units:{length:'mm',area:'mm^2',volume:'mm^3'},context:current().context,...result,source:'exact-brep-aabb-intersection'};
+      }
+      if(input.minMm!==undefined||input.maxMm!==undefined)fail('PARAM_SCHEMA_INVALID','minMm/maxMm require kind:region');
+      if(input.kind!==undefined&&!['body','face','edge'].includes(input.kind))fail('PARAM_SCHEMA_INVALID','kind must be body, face, edge or region');
       if(input.kind==='face'||input.kind==='edge'){
         if(!Number.isSafeInteger(input.topologyId)||input.topologyId<0)fail('PARAM_SCHEMA_INVALID','A nonnegative topologyId is required');
         const count=input.kind==='face'?body.faceCount:body.edgeCount;
         if(Number.isSafeInteger(count)&&input.topologyId>=count)fail('STALE_REFERENCE','Topology index is outside the current body; query geometry again');
       }else if(input.topologyId!==undefined)fail('PARAM_SCHEMA_INVALID','topologyId requires kind:face or kind:edge');
-      const result=await host.measure(input);check(input,['context','bodyId','kind','topologyId','points']);
+      const result=await host.measure(input);check(input,['context','bodyId','kind','topologyId','points','minMm','maxMm']);
       return {status:'read',source:'exact-brep',units:{length:'mm',area:'mm^2',volume:'mm^3'},context:current().context,...result};
     }),
     inspectPrintability:guarded(async input=>{

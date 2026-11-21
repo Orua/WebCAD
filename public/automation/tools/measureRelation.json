@@ -2,7 +2,7 @@
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.75.7",
+  "version": "1.75.8",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -245,7 +245,7 @@
     "alternatives": [
       {
         "id": "measure",
-        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，用 kind:region 读取轴对齐盒内的只读交集体积，或明确点间距离。"
       },
       {
         "id": "queryGeometry",
@@ -287,5 +287,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5e0c5d8778f97e2272ed536a380e0583e5ce853128220f01598dafd4396db778"
+  "docsHash": "sha256:4f96918df63c0fb90df5017e4a166670a26c46dbc668bc15e22110972092f360"
 }

@@ -2,7 +2,7 @@
   "id": "prepareToolCall",
   "title": "prepareToolCall",
   "category": "page-method",
-  "version": "1.75.7",
+  "version": "1.75.8",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -193,5 +193,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0ba74b0b0dd061d1a12e95f9c6006515755c2e5647fc5dcb56a0e9ac7664edab"
+  "docsHash": "sha256:8f3a985a72deafcc72248b0b5e73479eecc562a6be1c982784346d0e3e8dcef5"
 }

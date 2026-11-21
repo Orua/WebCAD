@@ -2,7 +2,7 @@
   "id": "reliefWizard",
   "title": "reliefWizard",
   "category": "page-method",
-  "version": "1.75.7",
+  "version": "1.75.8",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -296,5 +296,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:b03493e5ae318b1885047830c4b2d5dcd7a1cc27bfc924bdf0ca0c85bc6c9088"
+  "docsHash": "sha256:b7e4e5ba0241f1dad4d6fcb7bca3f49fda4b523b847204955e69df927c33e186"
 }

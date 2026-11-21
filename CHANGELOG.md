@@ -1,3 +1,7 @@
+## 1.75.8 — read-only region volume for local sculpt evidence
+
+- Add measure kind `region` with axis-aligned `minMm`/`maxMm`. The kernel isolates a BREP copy and returns the exact AABB ∩ solid volume, solidCount, empty/overlap and intersection bounds without writing the document or filling whole-body metrics. Disjoint regions return volume 0; meshes and whole assemblies are explicitly unavailable. Fading-recess guidance now prefers this over a destructive intersect on the live solid. Headless tests confirm the documented cutter regions and that the source shape is unchanged.
+
 ## 1.75.7 — discover fading recesses from the modeling brief
 
 - Route Chinese and English fading-groove requests to a focused guide and current curveSweep/cut/intersect/measure cards. Explain full section depth versus actual surface penetration, positive-tip limits, safe diagnostic copies and local volume evidence. Surface-projection queries explicitly reach unsupported-capability guidance, not a claim of a new groove engine. Verify routing and full card retrieval through the generated, hashed offline knowledge package.

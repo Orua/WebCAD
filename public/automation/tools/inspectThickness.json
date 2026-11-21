@@ -2,7 +2,7 @@
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.75.7",
+  "version": "1.75.8",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -211,7 +211,7 @@
     "alternatives": [
       {
         "id": "measure",
-        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，用 kind:region 读取轴对齐盒内的只读交集体积，或明确点间距离。"
       },
       {
         "id": "measureRelation",
@@ -253,5 +253,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:31d84254e228d5595cfc697ce5596a4d4579ba1913cc623b1da874176efd4457"
+  "docsHash": "sha256:ebc6a7a3920f958c6ea65c8ac5e4e9a8c99aabfa7dee487136add0c7239668bb"
 }

@@ -30,7 +30,7 @@ widthLaw/depthLaw 都必须始终为正。椭圆的 depthLaw 是完整截面尺�
 
 ## 局部证据与恢复
 
-- 总体积减少只证明某处切掉了材料，不能证明沿线渐浅。可在独立诊断副本上，用同尺寸局部探针分别 intersect 深端和浅端，再 measure 各剩余体积；深端应更少。intersect 是写操作，不能拿唯一工作实体做试验；测量空结果前先确认是否还有实体。
+- 总体积减少只证明某处切掉了材料，不能证明沿线渐浅。优先用只读 measure({kind:"region",minMm,maxMm}) 测量深端和浅端同等大小的轴对齐区域：比较交集体积，深端应更少；source 为 exact-brep-aabb-intersection。这不改 revision，也不回填实体整体体积。不要用唯一工作实体做 destructive intersect；若仍用 intersect，只能在独立诊断副本上进行，测量空结果前先确认是否还有实体。
 - 零深度被拒绝时保留原件，把端点改为适合模型尺度的正深度；不反复重试相同参数。刀具无交集时检查中心线、截面方向与单位，不用增大宽度掩盖深度/定位错误。
 - 实体有效、体积减少不等于视觉合格。用一致光照和视角检查端部封口、痕迹连续性与高光；没有看图时写 NOT_REVIEWED，不能宣称视觉验收通过。
 
@@ -62,7 +62,7 @@ widthLaw/depthLaw 都必须始终为正。椭圆的 depthLaw 是完整截面尺�
 
 1. connect/route 选择本路线，getTools 只取所选分支的完整卡；核对参数、当前 context、表示与 canExecute，不调用隐藏几何入口。
 2. 在独立小样固定尺寸和视角，用少量宽范围 move/push/smooth 形成连续主块。核对 affectedControlPoints 和 maxDisplacementMm；未命中时调整控制笼/半径，而不是盲目增加强度。
-3. 次级凹凸先在同一连续表示上减小笔刷位移。smooth 径向衰减只在半径边界渐消，不是沿线深度规律。沿线渐消凹纹用 curveSweep 的 spine 与始终为正的 widthLaw/depthLaw 生成刀具，再 cut 到目标实体；不能把“减小宽度”当作“减小深度”。depthLaw 不能收到 0，否则会被拒绝，须在端点保留很小的正深度，并用局部测量确认深端比浅端多切除材料。这不是任意曲面的投影刻槽，也不要用浮起的细管冒充凹纹；平面等深槽才用 slot。
+3. 次级凹凸先在同一连续表示上减小笔刷位移。smooth 径向衰减只在半径边界渐消，不是沿线深度规律。沿线渐消凹纹用 curveSweep 的 spine 与始终为正的 widthLaw/depthLaw 生成刀具，再 cut 到目标实体；不能把“减小宽度”当作“减小深度”。depthLaw 不能收到 0，否则会被拒绝，须在端点保留很小的正深度，并用 kind:region 的局部体积确认深端比浅端多切除材料。这不是任意曲面的投影刻槽，也不要用浮起的细管冒充凹纹；平面等深槽才用 slot。
 4. 一次多凸点可用 bumpSet 的 bumps 数组，只做一次当前接缝修顺。增量再做一批时，当前已雕刻结果是一个新操作数，历史接缝不保证等同一次批量；失败先保留已成功实体，用新 ID 和当前卡复现差异，不把重复并集当作连续曲面塑形。
 5. 必须接成一体的 union 用 requireConnected:true。可在高风险局部连接增加 verifyMaterial:true：本地逐输入做 source-minus-result 精确差集，检查 booleanReport.materialCoverage 的每件 missingVolumeMm3 与 toleranceMm3；它在接缝修顺之前运行，会增加每输入一次布尔成本，Services 暂不支持。默认的体积与外包围范围只是必要检查，不能证明内包围范围内的材料没有丢失；覆盖验证也不证明光顺或没有多余材料。
 6. 每个稳定阶段保存外部配方（原始笼、笔刷数组、截面/规律和逻辑引用）与原生工程。按 api.guide.files 完成 save → read → 宿主写入 → SHA256/大小确认，在独立文档 reopen 后复测实体数、包围盒与体积。.webcad 保存最终几何，不保证保留可重建的笔刷/历史；没有落盘回执不能宣称已保存。

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.75.7",
-  "buildId": "0025095698fc3bab798b73b19a46239af234115b-src-d225c24449bbae35-working",
-  "catalogHash": "sha256:59b94112a93a3add7d2f12274941d37243eb67a5abd3bae080a54bce05c85ca4",
-  "docsHash": "sha256:62f57cc1866fadfa6bf230fb9d3d34b4cf9b070253c7fba1dbf91e717b22a33c",
+  "pageApiVersion": "1.75.8",
+  "buildId": "2d83b9498200a068d0be2280c3236d7577616195-src-ce11b4667194529f-working",
+  "catalogHash": "sha256:88ef3ad51db679523992813341b9cbff9a4759599e12fe9755951b5d4084703e",
+  "docsHash": "sha256:38e76eb5943ee2a3727aba3ed4dc610a3a3ce0c8c9769484ce9fadd04a4c40a7",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -671,7 +671,7 @@
         "getState"
       ],
       "method": "measure",
-      "usage": "实体/面/边精确测量；属性区“计算精确尺寸、面积与体积”调用 measure(kind:body)，完成后读 getState().bodies[].area，单位mm²。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。"
+      "usage": "实体/面/边精确测量；属性区“计算精确尺寸、面积与体积”调用 measure(kind:body)，完成后读 getState().bodies[].area，单位mm²。局部材料用 kind:region 加轴对齐 minMm/maxMm，只读交集体积，不回填整体度量。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。"
     },
     "measureRelation": {
       "tools": [

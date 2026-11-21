@@ -98,7 +98,7 @@ export const UI_API_ROUTES = Object.freeze({
   parameters:{tools:['document.parameters'],method:'execute'},undo:{tools:['history.undo'],method:'execute'},redo:{tools:['history.redo'],method:'execute'},
   preview:{tools:['preview.start','convertLogoPdf'],method:'execute',usage:'PDF 字节可用 convertLogoPdf 取得待复核 regions，再用 preview.start 放置。'},commitPreview:{tools:['preview.commit'],method:'execute'},cancelPreview:{tools:['preview.cancel'],method:'execute'},
   sketch:{tools:['extrude'],method:'execute',usage:'兼容的轮廓并拉伸入口对应 extrude，传 profile/points/plane 等显式参数。主绘制轮廓入口用 sketchProfile，再单独 profileExtrude；不需要模拟逐点点击。'},
-  measure:{tools:['measure','queryGeometry','getState'],method:'measure',usage:'实体/面/边精确测量；属性区“计算精确尺寸、面积与体积”调用 measure(kind:body)，完成后读 getState().bodies[].area，单位mm²。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。'},
+  measure:{tools:['measure','queryGeometry','getState'],method:'measure',usage:'实体/面/边精确测量；属性区“计算精确尺寸、面积与体积”调用 measure(kind:body)，完成后读 getState().bodies[].area，单位mm²。局部材料用 kind:region 加轴对齐 minMm/maxMm，只读交集体积，不回填整体度量。两点距离用 points:[XYZ,XYZ]，来源标为输入坐标。'},
   inspectPrintability:{tools:['inspectPrintability'],method:'inspectPrintability',usage:'选定当前 bodyId 与 angleLimitDeg；返回网格悬垂事实和六个摆放方向，不判定工艺合格。'},
   inspectProfile:{tools:['inspectProfile'],method:'inspectProfile',usage:'选定当前可编辑解析轮廓 bodyId；返回端点、零长、重线和直线相交问题，不修改工程。'},
   profileConstraints:{tools:['profileConstraints','inspectConstraints'],method:'execute',usage:'inspectConstraints({context,bodyId})读真实局部图元、约束图及自由度；profileConstraints新建派生轮廓，继承来源关系。feature.edit修改原constraints数组驱动下游。'},

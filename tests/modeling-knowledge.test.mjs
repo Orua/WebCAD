@@ -54,7 +54,7 @@ test('downloaded modeling routes cover construction, process and diagnostics wit
       const selected=await readLocalKnowledge(cache,{docIds:[route.readFirst],maxChars:8000});
       assert.equal(selected.items[0].status,'read');
       const guide=selected.items[0].text;
-      for(const term of ['正深度','不是自动曲面投影','半轴','intersect','总体积','NOT_REVIEWED'])assert.ok(guide.includes(term),term);
+      for(const term of ['正深度','不是自动曲面投影','半轴','kind:"region"','exact-brep-aabb-intersection','总体积','NOT_REVIEWED'])assert.ok(guide.includes(term),term);
       assert(selected.usedChars<8000);
     }
     for(const id of ['curveSweep','cut','intersect','measure']){

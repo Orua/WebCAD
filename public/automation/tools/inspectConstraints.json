@@ -2,7 +2,7 @@
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.75.7",
+  "version": "1.75.8",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -155,7 +155,7 @@
     "alternatives": [
       {
         "id": "measure",
-        "chooseWhen": "读取一个体/面/边的尺寸面积体积，或明确点间距离。"
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，用 kind:region 读取轴对齐盒内的只读交集体积，或明确点间距离。"
       },
       {
         "id": "measureRelation",
@@ -205,5 +205,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:33724f34ecdf2ff5a5561be133b0424140ef3dcbe5bc83096c47b8f461f0ce43"
+  "docsHash": "sha256:ee331661f5f472d386e6d1f036510bda7cfbc889685e4f4ec676e1beade2288d"
 }

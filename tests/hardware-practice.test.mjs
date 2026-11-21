@@ -34,7 +34,7 @@ test('complete practice batches pass the public API with exact kernel geometry a
     },
   });
   const api=createPageAPI({buildId:'test',state:()=>service.getState({sessionId:identity.sessionId,include:['summary','features','bodies']}),
-    display:()=>({status:'not_rendered'}),execute:input=>service.execute(input),measure:input=>kernel.measure(input.bodyId,input.kind,input.topologyId),
+    display:()=>({status:'not_rendered'}),execute:input=>service.execute(input),measure:input=>input.kind==='region'?kernel.measureRegion(input.bodyId,input.minMm,input.maxMm):kernel.measure(input.bodyId,input.kind,input.topologyId),
     view:async input=>{view=input;},files:()=>{throw new Error('Practice must not export files');},confirmSaved:()=>{throw new Error('Practice must not claim a save');}});
   try{
     const result=await runHardwarePractice(api);

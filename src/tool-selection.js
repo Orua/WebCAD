@@ -218,7 +218,7 @@ const groups = [
     planPatternMachining:'根据明确意图选择恒深/浮雕等加工路线；规划不等于几何提交。',
   }],
   ['inspection','测量、拓扑与质量检查',{
-    measure:'读取一个体/面/边的尺寸面积体积，或明确点间距离。',
+    measure:'读取一个体/面/边的尺寸面积体积，用 kind:region 读取轴对齐盒内的只读交集体积，或明确点间距离。',
     measureRelation:'读取两个目标的最短距、中心距、平行度、轴关系等相互关系。',
     queryGeometry:'按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。',
     queryReferences:'查询点、轴、标架等几何参考；不直接修改工作锚点。',

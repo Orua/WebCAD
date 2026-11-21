@@ -673,7 +673,21 @@ async function navigateHistory(direction,options={}){
     checkTransaction(options.signal,options.expectedRevision);assertDocumentCapacity(next);documentModel=clone(next);revision++;dirty=true;void autosave();viewport.setWorkFrame?.(next.referenceSystem.workFrame);flushDisplayBatch();viewport.markModel({documentId:next.documentId,documentInstanceId,revision});refresh();
   }else await rebuild(clone(next),{...options,record:false,restoring:true});source.pop();(direction==='undo'?redoStack:undoStack).push(old);try{refresh();}catch(error){lastWarnings.push({code:'DISPLAY_FAILED',message:error.message});}
 }
-async function measureCurrentGeometry({bodyId,kind,topologyId}){
+async function measureCurrentGeometry({bodyId,kind,topologyId,minMm,maxMm}){
+  if(kind==='region'){
+    const body=bodies.find(item=>item.id===bodyId);
+    if(!body)throw Object.assign(new Error('Unknown current body'),{code:'STALE_REFERENCE'});
+    const atRevision=revision,atInstance=documentInstanceId,atWorker=worker;
+    try{
+      const measured=await request('measure',{bodyId,topologyType:'region',minMm,maxMm},{hardTimeoutMs:rebuildHardTimeoutMs(getServicesConfig().localTimeoutMs)});
+      if(worker!==atWorker||revision!==atRevision||documentInstanceId!==atInstance||!bodies.includes(body)||busy||previewNext||previewComputing)
+        throw Object.assign(new Error('工程或几何已变化，请重新测量'),{code:'STALE_REFERENCE'});
+      return measured;
+    }catch(error){
+      if(kernelFailure(error)&&worker===atWorker&&!busy)void restartWorker(error).catch(()=>{});
+      throw error;
+    }
+  }
   if(kind==='edge'||kind==='face')return request('measure',{bodyId,topologyType:kind,topologyId});
   const body=bodies.find(item=>item.id===bodyId);
   if(!body)throw Object.assign(new Error('Unknown current body'),{code:'STALE_REFERENCE'});

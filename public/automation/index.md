@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.75.7 · 操作目录 sha256:59b94112a93a3add7d2f12274941d37243eb67a5abd3bae080a54bce05c85ca4
+API 1.75.8 · 操作目录 sha256:88ef3ad51db679523992813341b9cbff9a4759599e12fe9755951b5d4084703e
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -332,7 +332,7 @@ API 1.75.7 · 操作目录 sha256:59b94112a93a3add7d2f12274941d37243eb67a5abd3ba
 - `queryReferences` · page-method · queryReferences({context,bodyIds:[],kind:"point"|"axis"|"frame",filter?:{types?:["cad-vertex","edge-midpoint","circle-center","edge-nearest","trimmed-face-point",...],near?:{point:[x,y,z],radiusMm}},limit?,offset?,requireUnique?})。
 - `resolvePlacement` · page-method · resolvePlacement({context,op,params,refs,placement})；当前支持 C/T 以及已登记的轴和平面操作。
 - `execute` · page-method · execute({context,idempotencyKey,action,args}); action 来自当前命令合同。
-- `measure` · page-method · measure({context,bodyId,kind?:"body"|"face"|"edge",topologyId?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId，坐标点模式不可混用实体字段。
+- `measure` · page-method · measure({context,bodyId,kind?:"body"|"face"|"edge"|"region",topologyId?,minMm?,maxMm?}) 或 measure({context,points:[[x,y,z],[x,y,z]]}); 面/边需当前范围内的非负整数 topologyId；整个实体测量不接受 topologyId。kind:region 用轴对齐 minMm/maxMm 做只读精确交集体积，不接受 topologyId 或 points，也不回填实体的整体体积。坐标点模式不可混用实体或区域字段。
 - `measureRelation` · page-method · measureRelation({context,mode:"shortest"|"centerDistance"|"axisAlignment"|"pointFace"|"parallelFaces"|"planeSample"|"rayHits",first?,second?,face?,pointWorld?,plane?,offset?,samples?,includePoints?,direction?})；引用形式 {bodyId,kind:"body"|"edge"|"face",topologyId?}。planeSample：first 为实体，plane XY|XZ|YZ + offset（世界坐标）+ samples 4–512（默认 64），一次返回该截面的环数、每环长度/面积/平面内宽高与总范围（includePoints:true 才附采样点），用于取机身某站位的宽高，不必建截面特征再 queryGeometry。rayHits：first 为实体，pointWorld 起点 + direction 方向，返回沿射线按距离排序的全部精确交点（hitCount、hits[{pointWorld,distanceMm}]、firstHit），用于量蒙皮某处到中心线的距离。
 - `inspectDesign` · page-method · inspectDesign({context,requirements,requirePass?:false})；1–64项{id,bodyId,kind:bounds|solidCount|material,evidence:{kind:drawing|user|assumption,reference}}。bounds加sizeMm:[X,Y,Z]/明确toleranceMm；solidCount加count；material加points/expected:inside|outside，可选toleranceMm。总计<=128个世界XYZ材料点。完整字段与示例见api.design-checks。
 - `inspectPrintability` · page-method · inspectPrintability({context,bodyId,angleLimitDeg?:45}); angleLimitDeg 在 0 与 90 度之间。

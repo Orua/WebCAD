@@ -89,6 +89,7 @@ import {buildHelix,buildCoil,buildThread} from './modeling/manufacturing/helical
 import {buildFaceMachining} from './modeling/manufacturing/face-machining.js';
 import {profileSolidIds,mechanicalPreservedIds} from './mechanical-tool-contracts.js';
 import {resolveProfileRecipe,constrainProfileRecipe} from './modeling/profiles/profile-constraint-history.js';
+import {measureRegionVolume} from './modeling/inspection/region-volume.js';
 
 // This adapter owns every BRep handle; displayed topology IDs are array indices,
 // not OpenCascade's transient hash codes. It is also executable in Node tests.
@@ -1501,6 +1502,10 @@ export class CadKernel {
   planAlignment(input,referenceSystem){
     const plan=planBodyAlignment(input,[...this.active.values()],referenceSystem,body=>this.exactBodyBounds(this.activeShape(body.id)));
     return {...plan,boundsSource:'authoritative-world-geometry'};
+  }
+  measureRegion(bodyId,minMm,maxMm){
+    const shape=this.activeShape(bodyId);
+    return {bodyId,...measureRegionVolume(shape,minMm,maxMm,cad,{geometryType:shape.geometryType,isAssembly:isAssembly(shape)})};
   }
   measure(bodyId,topologyType,topologyId) {
     const shape=this.activeShape(bodyId);
