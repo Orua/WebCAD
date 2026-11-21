@@ -2,7 +2,7 @@
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.75.6",
+  "version": "1.75.7",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -253,5 +253,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7e9bccfec4378bd3ae12901fd0967d21cd7d6d02324b8cee17de3fb6060b93fe"
+  "docsHash": "sha256:31d84254e228d5595cfc697ce5596a4d4579ba1913cc623b1da874176efd4457"
 }

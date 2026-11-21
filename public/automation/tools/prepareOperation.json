@@ -2,7 +2,7 @@
   "id": "prepareOperation",
   "title": "prepareOperation",
   "category": "page-method",
-  "version": "1.75.6",
+  "version": "1.75.7",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -433,5 +433,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8c392e056593b7ad5f3aff8e42657ce81dda32d24a527f4d8bad7494a12bbdf4"
+  "docsHash": "sha256:80fb5eb4f1ca545c16b7312c418ce14f2313fbc1efd1ddf1b526f8d6d330f0e9"
 }

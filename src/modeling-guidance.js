@@ -2,6 +2,40 @@
 // Self-contained source: no G: path, junction, old cards or historical receipts required.
 import {INTERLOCKED_ASSEMBLY_GUIDANCE} from './interlocked-assembly-guidance.js';
 export const MODELING_DOCS = Object.freeze({
+  "api.modeling.methods.fading-recess": `# 沿线渐浅凹纹：需求、刀具与能力边界
+
+## 先确认能做什么
+
+现有路线是 curveSweep 的 spine 变截面实体刀具，再 cut 目标实体；不是自动曲面投影，也不支持把 depthLaw 端点收到 0。曲面投影刻槽、下切表面跟随、真正零深度收尾目前都是能力缺口，不要从命中本路线推断已经支持。平面等深槽改读 slot 卡。
+
+## 深度不是宽度，也不是刀具中心高度
+
+widthLaw/depthLaw 都必须始终为正。椭圆的 depthLaw 是完整截面尺寸，不是实际切入目标表面的深度；中心线位于平面上且深度方向垂直该面时，切入量才约为半轴 depthLaw/2。中心线偏移、曲面法向和 roll 都会改变实际切深。只缩 widthLaw 不等于渐浅，刀具浮在表面之上也不会得到凹纹。
+
+先在独立平板小样上固定坐标、法向和尺寸。下面仅是 curveSweep 的 params 小样，不是完整 execute 请求；从当前 getTools 卡读取 context、refs 和提交方式，不复用旧实体 ID。先将工作坐标与此小样坐标对齐，避免当前插入框架额外平移/旋转。完整卡片按需逐张读取，curveSweep 卡可能超过默认 32000 字符预算；离线读取须检查 omitted 状态并使用足够预算（单卡上限 64000），不能拿摘要当作完整契约。
+
+\`\`\`json
+{
+  "pathType": "spine",
+  "spine": {"kind": "polyline", "pointsMm": [[2,3,8],[18,3,8]]},
+  "stations": {"count": 8},
+  "widthLaw": 1,
+  "depthLaw": {"kind": "spline", "samples": [[0,1.6],[1,0.2]]},
+  "rollMode": "absolute",
+  "section": "ellipse"
+}
+\`\`\`
+
+配合范围为 [0,0,0] 到 [20,6,8] mm 的平板，小样刀具中心线在顶面 z=8，深端理论切入约 0.8 mm，浅端约 0.1 mm；不是 1.6/0.2 mm。保留可用的正深度，不盲目追求接近内核容差的极小值。先确认刀具相交，再 cut；沿当前回执重新取得目标实体 ID 和 revision。
+
+## 局部证据与恢复
+
+- 总体积减少只证明某处切掉了材料，不能证明沿线渐浅。可在独立诊断副本上，用同尺寸局部探针分别 intersect 深端和浅端，再 measure 各剩余体积；深端应更少。intersect 是写操作，不能拿唯一工作实体做试验；测量空结果前先确认是否还有实体。
+- 零深度被拒绝时保留原件，把端点改为适合模型尺度的正深度；不反复重试相同参数。刀具无交集时检查中心线、截面方向与单位，不用增大宽度掩盖深度/定位错误。
+- 实体有效、体积减少不等于视觉合格。用一致光照和视角检查端部封口、痕迹连续性与高光；没有看图时写 NOT_REVIEWED，不能宣称视觉验收通过。
+
+整体体块与控制笼工作流见[有机雕刻](api.modeling.methods.organic-form)。
+`,
   "api.modeling.methods.organic-form": `# 有机体块、局部雕刻与渐缩弯体
 
 先做一个容易辨认的小样，冻结尺寸、主方向、两个关键轮廓和要保持的位置。验收先看正、侧和三分之四视图，再读有效实体数、包围盒与局部测量。
@@ -21,6 +55,8 @@ export const MODELING_DOCS = Object.freeze({
 |curveSweep spine / guidedLoft|沿程可控截面、弯曲渐缩体和连续块面|更多站点不自动改善造型；新配方显式 rollMode:absolute，旧 incremental 的滚转逐站累计|
 |fittedSurface|点阵控制的单片曲面|输出是面，不是可直接布尔的封闭实体；按当前卡完成加厚/封闭再测量|
 |meshReliefEdit / relief|当前契约支持的局部高度场|不能用单值投影表达下切、背面或任意三维拓扑|
+
+渐消凹纹的刀具定位、截面尺寸与局部验收见[沿线渐浅凹纹](api.modeling.methods.fading-recess)。
 
 ## 从大形到渐消细节
 
@@ -77,6 +113,7 @@ export const MODELING_DOCS = Object.freeze({
   "api.modeling.sources": "建模方法移植自本次 text-to-cad 全库参考整理的 0.3.0 指导：安装插件0.7.19的106个文件及本地参考仓库0.7.14的2895个跟踪文件已盘点分类；这不代表所有源码逐行审计或全部样例实际执行。运行包仅收录适用于WebCAD的方法、工作流、诊断和推理示例，不分发原仓库、历史测试回执、旧版工具卡或外部引擎。WebCAD当前页面/文档/CommandService/Worker仍是执行依据；制造、打印、仿真等外部交接不冒充页面已具备的能力。方法示例不代表当前任务几何验收，实际证据需逐项取得。"
 });
 export const MODELING_ROUTES = [
+  {"id": "modeling.fading-recess", "title": "沿线渐浅凹纹与投影刻槽能力边界", "keywords": ["渐消凹纹", "渐浅凹纹", "渐浅刻槽", "刻槽逐渐变浅", "沿线渐浅", "fading groove", "tapered recess", "surface-projected groove", "曲面投影刻槽"], "readFirst": "api.modeling.methods.fading-recess", "docs": ["api.modeling.methods.fading-recess", "api.modeling.methods.organic-form"], "tools": ["curveSweep", "cut", "intersect", "measure"], "branches": []},
   {
     id:"modeling.organic-form",title:"有机体块与立体雕刻",
     keywords:["有机造型","立体雕刻","异形体块","控制笼","果窝","局部拖拽","弯曲渐缩","三维雕刻","organic sculpt"],

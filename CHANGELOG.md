@@ -1,3 +1,7 @@
+## 1.75.7 — discover fading recesses from the modeling brief
+
+- Route Chinese and English fading-groove requests to a focused guide and current curveSweep/cut/intersect/measure cards. Explain full section depth versus actual surface penetration, positive-tip limits, safe diagnostic copies and local volume evidence. Surface-projection queries explicitly reach unsupported-capability guidance, not a claim of a new groove engine. Verify routing and full card retrieval through the generated, hashed offline knowledge package.
+
 ## 1.75.6 — fading recess recipe on existing spine and cut tools
 
 - Document the supported fading-groove route: a `curveSweep` spine cutter with strictly positive shrinking `depthLaw`, then `cut`. Zero end depth is rejected with an explicit message. Discoverable organic routing now includes the `cut` card. A headless test checks that the deep end removes more material than the shallow end; this is not a new projection-groove engine and was not visually reviewed.

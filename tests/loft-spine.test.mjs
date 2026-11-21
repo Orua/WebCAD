@@ -1,3 +1,4 @@
+import {MODELING_DOCS} from '../src/modeling-guidance.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
@@ -78,13 +79,18 @@ test('ordered ellipse stations retain material through the prepared curved fruit
 });
 
 
-test('a fading spine cutter must keep a positive tip and removes more material at the deep end',()=>{
+test('documented fading cutter uses full section depth, keeps a positive tip and cuts deeper at the start',()=>{
   const law=samples=>({kind:'spline',samples});
   assert.throws(()=>buildCurveSweep({pathType:'spine',spine:{kind:'polyline',pointsMm:[[2,3,8],[18,3,8]]},stations:{count:6},widthLaw:1,depthLaw:law([[0,1.6],[1,0]]),rollMode:'absolute',section:'ellipse'},cad),/正深度/);
   const stock=cad.makeBox([0,0,0],[20,6,8]);
-  const cutter=buildCurveSweep({pathType:'spine',spine:{kind:'polyline',pointsMm:[[2,3,8],[18,3,8]]},stations:{count:8},widthLaw:1,depthLaw:law([[0,1.6],[1,0.2]]),rollMode:'absolute',section:'ellipse'},cad);
+  const guide=MODELING_DOCS['api.modeling.methods.fading-recess'];
+  const params=JSON.parse(guide.match(/```json\n([\s\S]*?)\n```/)[1]);
+  const cutter=buildCurveSweep(params,cad);
   let result,startProbe,endProbe,startRemain,endRemain;
   try{
+    const [min,max]=cutter.boundingBox.bounds;
+    assert.ok(Math.abs(min[2]-7.2)<1e-5,JSON.stringify(min));
+    assert.ok(Math.abs(max[2]-8.8)<1e-5,JSON.stringify(max));
     result=stock.cut(cutter);
     const analyzer=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);
     try{assert.ok(analyzer.IsValid());assert.equal(result.solids.length,1);}finally{analyzer.delete();}

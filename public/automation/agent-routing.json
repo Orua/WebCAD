@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:115c5773ab922ccdb97edf10c85a013b42e6bca2e0819cacf843db5977b61c32",
-  "docsHash": "sha256:59397ef80ee534862b17a668024a3bf366326c6645a181f9cef11968f26ebfd5",
+  "catalogHash": "sha256:59b94112a93a3add7d2f12274941d37243eb67a5abd3bae080a54bce05c85ca4",
+  "docsHash": "sha256:62f57cc1866fadfa6bf230fb9d3d34b4cf9b070253c7fba1dbf91e717b22a33c",
   "workflowDelivery": {
     "schemaVersion": 1,
     "coreDocIds": [
@@ -808,6 +808,34 @@
         "files.write"
       ],
       "readFirst": "api.guide.files",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
+    },
+    {
+      "id": "modeling.fading-recess",
+      "title": "沿线渐浅凹纹与投影刻槽能力边界",
+      "keywords": [
+        "渐消凹纹",
+        "渐浅凹纹",
+        "渐浅刻槽",
+        "刻槽逐渐变浅",
+        "沿线渐浅",
+        "fading groove",
+        "tapered recess",
+        "surface-projected groove",
+        "曲面投影刻槽"
+      ],
+      "readFirst": "api.modeling.methods.fading-recess",
+      "docs": [
+        "api.modeling.methods.fading-recess",
+        "api.modeling.methods.organic-form"
+      ],
+      "tools": [
+        "curveSweep",
+        "cut",
+        "intersect",
+        "measure"
+      ],
+      "branches": [],
       "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {

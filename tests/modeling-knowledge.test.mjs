@@ -46,6 +46,26 @@ test('downloaded modeling routes cover construction, process and diagnostics wit
       assert.equal(selected.items.length,1);assert.equal(selected.items[0].status,'read');
       assert(selected.usedChars<8000);
     }
+    for(const query of ['渐消凹纹','让刻槽逐渐变浅','沿线渐浅','fading groove','tapered recess','surface-projected groove','曲面投影刻槽']){
+      const routes=await routeKnowledge(cache,query,{scope:'modeling'});
+      assert.equal(routes[0]?.id,'modeling.fading-recess',query);
+      const route=routes[0];
+      assert.deepEqual(route.tools,['curveSweep','cut','intersect','measure']);
+      const selected=await readLocalKnowledge(cache,{docIds:[route.readFirst],maxChars:8000});
+      assert.equal(selected.items[0].status,'read');
+      const guide=selected.items[0].text;
+      for(const term of ['正深度','不是自动曲面投影','半轴','intersect','总体积','NOT_REVIEWED'])assert.ok(guide.includes(term),term);
+      assert(selected.usedChars<8000);
+    }
+    for(const id of ['curveSweep','cut','intersect','measure']){
+      const selected=await readLocalKnowledge(cache,{toolIds:[id],maxChars:64000});
+      assert.equal(selected.items[0].status,'read',id);
+      assert.deepEqual(selected.items[0].card,getTool({id}));
+    }
+    for(const query of ['平面等深槽','安装板通孔']){
+      const routes=await routeKnowledge(cache,query,{scope:'modeling'});
+      assert(!routes.some(route=>route.id==='modeling.fading-recess'),query);
+    }
     for(const query of ['AMBIGUOUS_SELECTION','REVISION_CONFLICT','孔没出现导致失败','放样扭转失败','提交超时断线']){
       const route=(await routeKnowledge(cache,query,{scope:'modeling'}))[0];
       assert.equal(route.id,'modeling.diagnosis',query);
