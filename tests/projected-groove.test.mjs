@@ -86,9 +86,10 @@ test('guidance routes surface-follow queries to the scoped projectedGroove card'
   assert.ok(route.keywords.includes('沿面渐浅'));
   assert.ok(route.keywords.includes('跨面刻槽'));
   assert.ok(route.keywords.includes('变槽宽'));
+  assert.ok(route.keywords.includes('就近推断面号'));
   assert.deepEqual(route.tools,['projectedGroove','measure']);
   const guide=MODELING_DOCS['api.modeling.methods.projected-groove'];
-  for(const term of ['一张面','surface-normal-spine','不是平面','NOT_REVIEWED','kind:"region"','0.1','depthLaw','切入量','完整截面高度','zeroEndDepth','widthLaw','完整槽宽','zeroEndWidth','不是半宽','faceIds','共享边','不是测地线'])assert.ok(guide.includes(term),term);
+  for(const term of ['一张面','surface-normal-spine','不是平面','NOT_REVIEWED','kind:"region"','0.1','depthLaw','切入量','完整截面高度','zeroEndDepth','widthLaw','完整槽宽','zeroEndWidth','不是半宽','faceIds','共享边','不是测地线','就近推断','faceIdsInferred','不会自动寻路'])assert.ok(guide.includes(term),term);
   const fading=MODELING_DOCS['api.modeling.methods.fading-recess'];
   assert.ok(fading.includes('不是自动曲面投影'));
   assert.ok(fading.includes('projectedGroove'));
@@ -181,6 +182,7 @@ test('projected groove can continue across a shared box edge without cutting the
     result=buildProjectedGroove(stock,{faceIds:[top,side],pointsMm:points,widthMm:2,depthMm:0.8},cad);
     const report=result.projectedGrooveReport;
     assert.equal(report.crossingCount,1);
+    assert.equal(report.faceIdsInferred,false);
     assert.equal(report.crossingMethod,'shared-edge-shortest-polyline');
     assert.deepEqual(report.faceIds.slice().sort((a,b)=>a-b),[top,side].sort((a,b)=>a-b));
     assert.ok(Math.hypot(...report.crossings[0].point.map((v,i)=>v-[20,10,20][i]))<0.2,JSON.stringify(report.crossings));
@@ -309,4 +311,58 @@ test('kernel projectedGroove accepts widthLaw without widthMm',async()=>{
   assert.ok(wideShoulder.volume<stockShoulder.volume-0.05,JSON.stringify({wideShoulder:wideShoulder.volume,stockShoulder:stockShoulder.volume}));
   assert.ok(Math.abs(narrowShoulder.volume-stockNarrow.volume)<1e-6,JSON.stringify({narrowShoulder:narrowShoulder.volume,stockNarrow:stockNarrow.volume}));
   assert.ok(blank.stats.volume-cut.stats.volume>0.2);
+});
+
+test('projected groove can infer adjacent faces from path points without face ids',()=>{
+  const stock=cad.makeBox([0,0,0],[20,20,20]);
+  const top=planeFaceAt(stock,2,20,'top');
+  const side=planeFaceAt(stock,0,20,'side');
+  const bottom=planeFaceAt(stock,2,0,'bottom');
+  const points=[[5,10,20],[20,10,10]];
+  let result,withCorner;
+  try{
+    result=buildProjectedGroove(stock,{pointsMm:points,widthMm:2,depthMm:0.8},cad);
+    const report=result.projectedGrooveReport;
+    assert.equal(report.faceIdsInferred,true);
+    assert.equal(report.crossingCount,1);
+    assert.equal(report.crossingMethod,'shared-edge-shortest-polyline');
+    assert.deepEqual(report.faceIds.slice().sort((a,b)=>a-b),[top,side].sort((a,b)=>a-b));
+    assert.ok(Math.hypot(...report.crossings[0].point.map((v,i)=>v-[20,10,20][i]))<0.2,JSON.stringify(report.crossings));
+    const topCut=measureRegionVolume(result,[9,9,19],[11,11,20.2],cad);
+    const topStock=measureRegionVolume(stock,[9,9,19],[11,11,20.2],cad);
+    const sideCut=measureRegionVolume(result,[19,9,9],[20.2,11,11],cad);
+    const sideStock=measureRegionVolume(stock,[19,9,9],[20.2,11,11],cad);
+    const interior=measureRegionVolume(result,[11.5,9,14],[13.5,11,16],cad);
+    const interiorStock=measureRegionVolume(stock,[11.5,9,14],[13.5,11,16],cad);
+    assert.ok(topCut.volume<topStock.volume-0.2,JSON.stringify({topCut:topCut.volume,topStock:topStock.volume}));
+    assert.ok(sideCut.volume<sideStock.volume-0.2,JSON.stringify({sideCut:sideCut.volume,sideStock:sideStock.volume}));
+    assert.ok(Math.abs(interior.volume-interiorStock.volume)<1e-6,JSON.stringify({interior:interior.volume,interiorStock:interiorStock.volume}));
+    withCorner=buildProjectedGroove(stock,{pointsMm:[[5,10,20],[20,10,20],[20,10,10]],widthMm:2,depthMm:0.8},cad);
+    assert.equal(withCorner.projectedGrooveReport.faceIdsInferred,true);
+    assert.equal(withCorner.projectedGrooveReport.crossingCount,1);
+    assert.throws(()=>buildProjectedGroove(stock,{pointsMm:[[5,10,20],[5,10,0]],widthMm:2,depthMm:0.8},cad),/不相邻|跨面跳跃|投影刻槽失败/);
+    assert.throws(()=>buildProjectedGroove(stock,{pointsMm:[[20,10,20],[5,10,20]],widthMm:2,depthMm:0.8},cad),/同时靠近|无法就近|投影刻槽失败/);
+  }finally{[result,withCorner,stock].forEach(dispose);}
+});
+
+test('kernel projectedGroove infers faceIds from world points',async()=>{
+  const blank=await run([f('box','box',{width:20,depth:20,height:20})]);
+  const topStock=kernel.measureRegion('box',[9,9,19],[11,11,20.2]);
+  const sideStock=kernel.measureRegion('box',[19,9,9],[20.2,11,11]);
+  const interiorStock=kernel.measureRegion('box',[11.5,9,14],[13.5,11,16]);
+  const cut=await run([
+    f('box','box',{width:20,depth:20,height:20}),
+    f('groove','projectedGroove',{pointsMm:[[5,10,20],[20,10,10]],widthMm:2,depthMm:0.8},['box'])
+  ]);
+  assert.equal(cut.stats.solids,1);
+  const report=cut.bodies[0].projectedGrooveReport;
+  assert.equal(report.faceIdsInferred,true);
+  assert.equal(report.crossingCount,1);
+  assert.ok(blank.stats.volume-cut.stats.volume>0.5);
+  const topCut=kernel.measureRegion(cut.bodies[0].id,[9,9,19],[11,11,20.2]);
+  const sideCut=kernel.measureRegion(cut.bodies[0].id,[19,9,9],[20.2,11,11]);
+  const interior=kernel.measureRegion(cut.bodies[0].id,[11.5,9,14],[13.5,11,16]);
+  assert.ok(topCut.volume<topStock.volume-0.2,JSON.stringify({topCut:topCut.volume,topStock:topStock.volume}));
+  assert.ok(sideCut.volume<sideStock.volume-0.2,JSON.stringify({sideCut:sideCut.volume,sideStock:sideStock.volume}));
+  assert.ok(Math.abs(interior.volume-interiorStock.volume)<1e-6,JSON.stringify({interior:interior.volume,interiorStock:interiorStock.volume}));
 });

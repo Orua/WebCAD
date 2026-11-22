@@ -870,7 +870,7 @@
       },
       {
         "id": "projectedGroove",
-        "chooseWhen": "把世界折线吸附到当前一张面，或吸附到有共享边的若干面（faceIds）上，沿各面法向切入；可用 depthLaw 做实际切入量变化，可用 widthLaw 做完整槽宽变化。跨面不是测地线，也不是平面胶囊槽。"
+        "chooseWhen": "把世界折线吸附到当前一张面，或吸附到有共享边的若干面（faceIds）上，也可省略面号、按路径点就近推断面链；沿各面法向切入；可用 depthLaw 做实际切入量变化，可用 widthLaw 做完整槽宽变化。就近推断不会自动寻路，跨面不是测地线，也不是平面胶囊槽。"
       },
       {
         "id": "faceGroove",
@@ -916,5 +916,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8a1592b7f5076a9867d75ae9323551bde21cc6c1a2f1026b8e6e27d53c241f60"
+  "docsHash": "sha256:6a9ae6b125e2f84d44fbf2a21b9b5c8c1f87fe928eee6c36b276ea7c4597f736"
 }

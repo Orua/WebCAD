@@ -3,7 +3,7 @@
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.75.13",
+  "version": "1.75.14",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -66,5 +66,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a7bf0ca93bfe489a166bf131b86029d6121418138f98a97cebbef0400aea8caf"
+  "docsHash": "sha256:0f97307dc46c5a7e7d72ca324f6a628bb5e73f5430d1250891b796820a586d48"
 }

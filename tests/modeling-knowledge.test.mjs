@@ -57,14 +57,14 @@ test('downloaded modeling routes cover construction, process and diagnostics wit
       for(const term of ['正深度','不是自动曲面投影','点收尾','zeroEndDepth','半轴','kind:"region"','exact-brep-aabb-intersection','总体积','NOT_REVIEWED','projectedGroove'])assert.ok(guide.includes(term),term);
       assert(selected.usedChars<8000);
     }
-    for(const query of ['surface-projected groove','曲面投影刻槽','下切表面跟随','沿面法向刻槽','沿面渐浅','曲面渐浅凹纹','跨面刻槽','multi-face groove','变槽宽','variable-width groove']){
+    for(const query of ['surface-projected groove','曲面投影刻槽','下切表面跟随','沿面法向刻槽','沿面渐浅','曲面渐浅凹纹','跨面刻槽','multi-face groove','变槽宽','variable-width groove','就近推断面号','省略面号']){
       const routes=await routeKnowledge(cache,query,{scope:'modeling'});
       assert.equal(routes[0]?.id,'modeling.projected-groove',query);
       assert.deepEqual(routes[0].tools,['projectedGroove','measure']);
       const selected=await readLocalKnowledge(cache,{docIds:[routes[0].readFirst],maxChars:8000});
       assert.equal(selected.items[0].status,'read');
       const guide=selected.items[0].text;
-      for(const term of ['一张面','surface-normal-spine','不是平面','NOT_REVIEWED','kind:"region"','projectedGrooveReport','depthLaw','切入量','完整截面高度','zeroEndDepth','widthLaw','完整槽宽','zeroEndWidth','不是半宽','faceIds','共享边','不是测地线'])assert.ok(guide.includes(term),term);
+      for(const term of ['一张面','surface-normal-spine','不是平面','NOT_REVIEWED','kind:"region"','projectedGrooveReport','depthLaw','切入量','完整截面高度','zeroEndDepth','widthLaw','完整槽宽','zeroEndWidth','不是半宽','faceIds','共享边','不是测地线','就近推断','faceIdsInferred','不会自动寻路'])assert.ok(guide.includes(term),term);
       assert(selected.usedChars<8000);
     }
     for(const id of ['curveSweep','cut','intersect','measure','projectedGroove']){

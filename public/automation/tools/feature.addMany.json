@@ -329,7 +329,7 @@
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。api.run 里用 method:addMany（本卡 batchCapable=true，batchMethod=addMany），不要逐步 add。",
   "category": "command",
-  "version": "1.75.13",
+  "version": "1.75.14",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -1000,5 +1000,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1535724f528616e218c0b9792ad3a63f870e5406b889c8e73530851ccdd3b0ee"
+  "docsHash": "sha256:0458d7e329da82ca579e122c9c128a2bb0e068c6849c7de1f349705a4398f6d4"
 }

@@ -8,7 +8,7 @@
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}。generation 是 expectedGeneration 的别名。仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.75.13",
+  "version": "1.75.14",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -234,5 +234,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f34c656d080f0504492b6cdd6281569c9f2ecc0c5263b5c06b55c6f8772e02d4"
+  "docsHash": "sha256:1beab0612685092eec002a1d04776513f4dd44c6d393f853ed8aeeedb2e5d0c0"
 }

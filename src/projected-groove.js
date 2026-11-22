@@ -81,7 +81,7 @@ function grooveWidthAt(params){
 }
 function resolveFaceIds(params,faces){
   const listed=params.faceIds,hasList=listed!==undefined,hasFace=params.faceId!==undefined;
-  check(hasList||hasFace,'请提供 faceId 或 faceIds');
+  if(!hasList&&!hasFace)return {ids:null,inferred:true};
   let ids=[];
   if(hasList){
     check(Array.isArray(listed)&&listed.length>=1&&listed.length<=8,'faceIds 须为 1–8 个当前面号');
@@ -94,7 +94,7 @@ function resolveFaceIds(params,faces){
     if(ids.length&&!ids.includes(params.faceId))throw new Error('faceId 必须包含在 faceIds 中');
     if(!ids.length)ids=[params.faceId];
   }
-  return ids;
+  return {ids,inferred:false};
 }
 function adjacency(faces,hold){
   const neighbours=faces.map(()=>new Map());
@@ -116,7 +116,7 @@ function edgePoint(edge,t,hold){
   return tuple(hold(edge.pointAt(t)));
 }
 function crossingOnSharedEdges(edges,from,to,hold){
-  check(edges?.length,'所列曲面不相邻，不能跨面跳跃；请给出有共享边的 faceIds，这不是测地线自动寻面');
+  check(edges?.length,'路径点就近落到的面不相邻，不能跨面跳跃；请改给有共享边的 faceIds。就近推断不会自动寻路，也不是测地线');
   let best=null;
   for(const edge of edges){
     const samples=32;
@@ -128,23 +128,42 @@ function crossingOnSharedEdges(edges,from,to,hold){
   }
   return best.point;
 }
-function projectToAllowed(faces,allowed,point,cad,hold,snapToleranceMm,index){
-  let best=null;
+function projectToAllowed(faces,allowed,point,cad,hold,snapToleranceMm,index,options={}){
+  const tieMm=1e-5;
+  const where=index!==undefined?`第 ${index+1} 个路径点`:'采样点';
+  let best=null,tied=[];
   for(const id of allowed){
     const snapped=projectPoint(faces[id],cad,point,hold);
-    if(!best||snapped.residualMm<best.residualMm)best={...snapped,faceId:id};
+    if(snapped.residualMm>snapToleranceMm)continue;
+    if(!best||snapped.residualMm<best.residualMm-tieMm){
+      best={...snapped,faceId:id};
+      tied=[best];
+    }else if(Math.abs(snapped.residualMm-best.residualMm)<=tieMm){
+      const item={...snapped,faceId:id};
+      tied.push(item);
+      if(snapped.residualMm<best.residualMm)best=item;
+    }else if(!best||snapped.residualMm<best.residualMm){
+      best={...snapped,faceId:id};
+    }
   }
-  check(best&&best.residualMm<=snapToleranceMm,`${index!==undefined?`第 ${index+1} 个路径点`:'采样点'}距所列曲面 ${best?best.residualMm.toFixed(3):'∞'} mm，超过 ${snapToleranceMm} mm 吸附限`);
+  if(options.inferTies&&tied.length>1){
+    const prefer=options.preferFaceId;
+    const kept=prefer!==undefined?tied.find(item=>item.faceId===prefer):undefined;
+    if(!kept)throw new Error(`${where}同时靠近多张面，无法就近唯一确定面号；请改给 faceId 或 faceIds`);
+    best=kept;
+  }
+  check(best&&best.residualMm<=snapToleranceMm,`${where}距目标曲面 ${best?best.residualMm.toFixed(3):'∞'} mm，超过 ${snapToleranceMm} mm 吸附限`);
   return best;
 }
 
 // Project a world polyline onto one face, or onto an explicit chain of
 // topologically adjacent faces, and cut a groove whose section depth follows
-// each local surface normal. A face change is inserted at the shared-edge
-// point that minimizes the 3D polyline length, not a UV geodesic. Optional
-// widthLaw varies the full groove width. Optional depthLaw varies actual
-// inward penetration. The two laws use different units and may each close a
-// path endpoint with a point cap; mid-path zeros of either are rejected.
+// each local surface normal. If faceId and faceIds are omitted, each point
+// snaps to the nearest current face (0.1 mm) and the inferred chain must
+// still share edges; this is not a UV geodesic and does not search a route.
+// A face change is inserted at the shared-edge point that minimizes the 3D
+// polyline length. Optional widthLaw varies the full groove width. Optional
+// depthLaw varies actual inward penetration.
 export function buildProjectedGroove(source,params,cad){
   const widthAt=grooveWidthAt(params);
   const penetrationAt=penetrationLaw(params);
@@ -156,17 +175,21 @@ export function buildProjectedGroove(source,params,cad){
   let tool=null,result=null;
   try{
     const faces=source.faces;hold(...faces);
-    const allowed=resolveFaceIds(params,faces);
+    const resolved=resolveFaceIds(params,faces);
+    const inferred=resolved.inferred;
     const neighbours=adjacency(faces,hold);
     const snapToleranceMm=0.1;
+    const pool=resolved.ids||faces.map((_,id)=>id);
     const anchors=[];
     for(let i=0;i<points.length;i++){
-      const snapped=projectToAllowed(faces,allowed,points[i],cad,hold,snapToleranceMm,i);
+      const snapped=projectToAllowed(faces,pool,points[i],cad,hold,snapToleranceMm,i,{inferTies:inferred,preferFaceId:anchors.at(-1)?.faceId});
       if(i&&dist(snapped.point,anchors.at(-1).point)<1e-6)throw new Error('投影后的相邻路径点不得重合');
       const normal=faceNormal(faces[snapped.faceId],snapped.point,hold);
       if(i&&snapped.faceId===anchors.at(-1).faceId&&dot(normal,anchors.at(-1).normal)<0.5)throw new Error('相邻投影点的面法向变化过大，请沿路径加密点，勿一次跨过可见半周或不同面');
       anchors.push({...snapped,normal});
     }
+    const allowed=resolved.ids||[...new Set(anchors.map(item=>item.faceId))];
+    if(inferred)check(allowed.length<=8,'就近推断得到的面超过 8 张，请改用 faceIds 明确列出路径经过的面');
     const refined=[];
     const crossings=[];
     for(let i=0;i<anchors.length;i++){
@@ -176,8 +199,8 @@ export function buildProjectedGroove(source,params,cad){
         if(!refined.length||dist(refined.at(-1).point,crossing)>1e-6){
           const arriving=faceNormal(faces[anchors[i-1].faceId],crossing,hold);
           refined.push({point:crossing,faceId:anchors[i-1].faceId,normal:arriving,kind:'crossing'});
-          crossings.push({point:crossing,fromFaceId:anchors[i-1].faceId,toFaceId:anchors[i].faceId});
         }
+        crossings.push({point:crossing,fromFaceId:anchors[i-1].faceId,toFaceId:anchors[i].faceId});
       }
       if(!refined.length||dist(refined.at(-1).point,anchors[i].point)>1e-6)refined.push({...anchors[i],kind:'anchor'});
     }
@@ -286,6 +309,7 @@ export function buildProjectedGroove(source,params,cad){
       source:'exact-brep-face-projection',
       faceId:allowed.length===1?allowed[0]:usedIds[0],
       faceIds:usedIds,
+      faceIdsInferred:inferred,
       faceGeomType:faces[usedIds[0]].geomType,
       faceGeomTypes:usedIds.map(id=>faces[id].geomType),
       crossingCount:crossings.length,
@@ -313,7 +337,7 @@ export function buildProjectedGroove(source,params,cad){
       zeroEndWidth:{start:startWidthMm===0,end:endWidthMm===0},
       zeroEndDepth:{start:startPenetrationMm===0,end:endPenetrationMm===0},
       tipPoints:{start:tipCaps.startCap?.pointMm??null,end:tipCaps.endCap?.pointMm??null},
-      limits:'world polyline snapped to one face or an explicit chain of topologically adjacent faces; crossings are shared-edge shortest 3D polylines, not UV geodesics; widthLaw is full groove width, not half-width; depthLaw is actual inward normal penetration, not curveSweep full-section height; mid-path zeros of either law are rejected; not a planar cutter'
+      limits:'world polyline snapped to one face, an explicit adjacent face chain, or an inferred adjacent chain from nearest-face snap when face ids are omitted; crossings are shared-edge shortest 3D polylines, not UV geodesics; omitting face ids does not search a route; widthLaw is full groove width, not half-width; depthLaw is actual inward normal penetration, not curveSweep full-section height; mid-path zeros of either law are rejected; not a planar cutter'
     };
     const complete=result;result=null;return complete;
   }catch(error){

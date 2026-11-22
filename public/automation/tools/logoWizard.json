@@ -2,7 +2,7 @@
   "id": "logoWizard",
   "title": "logoWizard",
   "category": "page-method",
-  "version": "1.75.13",
+  "version": "1.75.14",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -368,5 +368,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:0e5aae487b563fcc77b2b3d16f418e3d9491f61ff19ffea90d06d3fc9499a492"
+  "docsHash": "sha256:7df5041332c34267b0e7b300e1be3bdec4338338314df34616fd275c3cc9975c"
 }
