@@ -1,6 +1,6 @@
 import {binaryHash} from './contracts/operation-schema.js';
-const REPORTS=['resizeReport','alignmentReport','ellipsoidReport','loftReport','guidedLoftReport','variationReport','booleanReport','blendRadiusReport','radiusSearchReport','sourceFreeJunctionReport','sourceJunctionReport','subdApproximation','chainReport','warnings'];
-const TOPOLOGY=new Set(['edgeId','edgeIds','faceId','faceIds','resolvedEdgeIds','resolvedFaceIds','limitingEdgeIds','selectedEdgeIds','selectedFaceIds']);
+const REPORTS=['resizeReport','alignmentReport','ellipsoidReport','loftReport','projectedGrooveReport','guidedLoftReport','variationReport','booleanReport','blendRadiusReport','radiusSearchReport','sourceFreeJunctionReport','sourceJunctionReport','subdApproximation','chainReport','warnings'];
+const TOPOLOGY=new Set(['edgeId','edgeIds','faceId','faceIds','fromFaceId','toFaceId','resolvedEdgeIds','resolvedFaceIds','limitingEdgeIds','selectedEdgeIds','selectedFaceIds']);
 const digest=reports=>binaryHash(new TextEncoder().encode(JSON.stringify(reports)));
 function clean(value,depth=0){
  if(depth>12)return undefined;
