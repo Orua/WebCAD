@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.75.14 · sha256:00b1625a2ce6edc2ef6ea572e6b3e5e70d1882a557883432e0ced1d6deac79ca
+API 1.75.14 · sha256:c637b39f59ccc39822e993618c2f9772b31cadf4a9380b882e4f4c1ff2f8cadb
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -77313,7 +77313,21 @@ files.release: contextPolicy=none
     "maxBytes": 209715200,
     "preflightReserveBytes": 4096
   },
-  "placementPolicy": null,
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "placementSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -77609,7 +77623,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8835ea18a539b6989190d0ce2eddee67d68025878f7fcdf6499172bc100fc8ba"
+  "docsHash": "sha256:6ab2fbb6fc7e3f4b3521419259084a1610e69c7a945b67e8247d224f552306b0"
 }
 ```
 

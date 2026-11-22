@@ -684,7 +684,21 @@
     "maxBytes": 209715200,
     "preflightReserveBytes": 4096
   },
-  "placementPolicy": null,
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
   "placementSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -980,5 +994,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8835ea18a539b6989190d0ce2eddee67d68025878f7fcdf6499172bc100fc8ba"
+  "docsHash": "sha256:6ab2fbb6fc7e3f4b3521419259084a1610e69c7a945b67e8247d224f552306b0"
 }

@@ -1,9 +1,9 @@
 {
   "version": "1.75.14",
-  "buildId": "ef03e75d9301b6dbcd23fbb87f7f1979b4f187ca-src-4987d3c8db2b38c4-working",
+  "buildId": "2d47a8db0ed3c248488c7bc44d99fb8507bfd32a-src-e5b6f834b3e4f5d3-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:00b1625a2ce6edc2ef6ea572e6b3e5e70d1882a557883432e0ced1d6deac79ca",
-  "docsHash": "sha256:fe760293374df6ab72573e5d6dff9d98b9099f01e912ac32aff5283e47693d65",
+  "catalogHash": "sha256:c637b39f59ccc39822e993618c2f9772b31cadf4a9380b882e4f4c1ff2f8cadb",
+  "docsHash": "sha256:2703f224bc28bc3b009b7188ded4fb0442274a44f527ce43abb5da7709a1c8b0",
   "apiMethods": [
     "reliefWizard",
     "prepareToolCall",
@@ -636,7 +636,7 @@
       "label": "沿面法向的投影刻槽 / Surface-normal projected groove",
       "category": "modification",
       "version": "legacy-1",
-      "docsHash": "sha256:8835ea18a539b6989190d0ce2eddee67d68025878f7fcdf6499172bc100fc8ba",
+      "docsHash": "sha256:6ab2fbb6fc7e3f4b3521419259084a1610e69c7a945b67e8247d224f552306b0",
       "url": "tools/projectedGroove.json"
     },
     {
