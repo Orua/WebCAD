@@ -12,6 +12,7 @@ const finitePositive = (value,name) => {
   check(typeof value==='number' && Number.isFinite(value) && value>0,`${name} 必须为正的有限数值`);
   return value;
 };
+const tuple = value => typeof value?.toTuple==='function'?value.toTuple():[value.x,value.y,value.z];
 function solidCount(shape) {
   const solids=shape.solids;
   try{return solids.length;}finally{solids.forEach(dispose);}
@@ -22,6 +23,9 @@ function projectPoint(face,cad,point,hold){
   const residualMm=query.distanceTo(anchor);
   const snapped=hold(query.wrapped.PointOnShape1(1));
   return {point:[snapped.X(),snapped.Y(),snapped.Z()],residualMm};
+}
+function faceNormal(face,point,hold){
+  return unit(tuple(hold(face.normalAt(point))));
 }
 function polylineLength(points){
   let length=0;
@@ -34,11 +38,11 @@ function pointAtLength(points,target){
     const step=dist(points[i],points[i-1]);
     if(walked+step>=target||i===points.length-1){
       const span=Math.max(step,1e-15),f=Math.min(1,Math.max(0,(target-walked)/span));
-      return points[i-1].map((v,j)=>v*(1-f)+points[i][j]*f);
+      return {point:points[i-1].map((v,j)=>v*(1-f)+points[i][j]*f),segment:i-1};
     }
     walked+=step;
   }
-  return points.at(-1);
+  return {point:points.at(-1),segment:Math.max(0,points.length-2)};
 }
 function boundaryEdges(face,cad,hold){
   const oc=cad.getOC(),edges=face.edges;
@@ -63,12 +67,70 @@ function penetrationLaw(params){
     return value;
   };
 }
+function resolveFaceIds(params,faces){
+  const listed=params.faceIds,hasList=listed!==undefined,hasFace=params.faceId!==undefined;
+  check(hasList||hasFace,'请提供 faceId 或 faceIds');
+  let ids=[];
+  if(hasList){
+    check(Array.isArray(listed)&&listed.length>=1&&listed.length<=8,'faceIds 须为 1–8 个当前面号');
+    check(listed.every(id=>Number.isInteger(id)&&faces[id]),'faceIds 含有无效面号');
+    check(new Set(listed).size===listed.length,'faceIds 不得重复');
+    ids=listed.slice();
+  }
+  if(hasFace){
+    check(Number.isInteger(params.faceId)&&faces[params.faceId],'请选择有效曲面 faceId');
+    if(ids.length&&!ids.includes(params.faceId))throw new Error('faceId 必须包含在 faceIds 中');
+    if(!ids.length)ids=[params.faceId];
+  }
+  return ids;
+}
+function adjacency(faces,hold){
+  const neighbours=faces.map(()=>new Map());
+  const buckets=new Map();
+  faces.forEach((face,id)=>{
+    const edges=face.edges;hold(...edges);
+    for(const edge of edges){
+      const bucket=buckets.get(edge.hashCode)||[];
+      for(const other of bucket)if(other.edge.isSame(edge)){
+        const to=neighbours[id].get(other.id)||[];to.push(edge);neighbours[id].set(other.id,to);
+        const back=neighbours[other.id].get(id)||[];back.push(other.edge);neighbours[other.id].set(id,back);
+      }
+      bucket.push({id,edge});buckets.set(edge.hashCode,bucket);
+    }
+  });
+  return neighbours;
+}
+function edgePoint(edge,t,hold){
+  return tuple(hold(edge.pointAt(t)));
+}
+function crossingOnSharedEdges(edges,from,to,hold){
+  check(edges?.length,'所列曲面不相邻，不能跨面跳跃；请给出有共享边的 faceIds，这不是测地线自动寻面');
+  let best=null;
+  for(const edge of edges){
+    const samples=32;
+    for(let i=0;i<=samples;i++){
+      const point=edgePoint(edge,i/samples,hold);
+      const cost=dist(from,point)+dist(point,to);
+      if(!best||cost<best.cost)best={point,cost};
+    }
+  }
+  return best.point;
+}
+function projectToAllowed(faces,allowed,point,cad,hold,snapToleranceMm,index){
+  let best=null;
+  for(const id of allowed){
+    const snapped=projectPoint(faces[id],cad,point,hold);
+    if(!best||snapped.residualMm<best.residualMm)best={...snapped,faceId:id};
+  }
+  check(best&&best.residualMm<=snapToleranceMm,`${index!==undefined?`第 ${index+1} 个路径点`:'采样点'}距所列曲面 ${best?best.residualMm.toFixed(3):'∞'} mm，超过 ${snapToleranceMm} mm 吸附限`);
+  return best;
+}
 
-// Project a world polyline onto ONE current face and cut a groove whose
-// section depth follows the local surface normal. Width is constant.
-// Optional depthLaw varies actual inward penetration along the path (not
-// curveSweep's full ellipse height). This is not a planar slot, not logo
-// engrave, and not a multi-face or UV-geodesic projector.
+// Project a world polyline onto one face, or onto an explicit chain of
+// topologically adjacent faces, and cut a groove whose section depth follows
+// each local surface normal. A face change is inserted at the shared-edge
+// point that minimizes the 3D polyline length, not a UV geodesic. Width is
+// constant. Optional depthLaw varies actual inward penetration.
 export function buildProjectedGroove(source,params,cad){
   const widthMm=finitePositive(params.widthMm,'槽宽 widthMm');
   const penetrationAt=penetrationLaw(params);
@@ -80,82 +142,133 @@ export function buildProjectedGroove(source,params,cad){
   let tool=null,result=null;
   try{
     const faces=source.faces;hold(...faces);
-    check(Number.isInteger(params.faceId)&&faces[params.faceId],'请选择有效曲面 faceId');
-    const face=faces[params.faceId];
+    const allowed=resolveFaceIds(params,faces);
+    const neighbours=adjacency(faces,hold);
     const snapToleranceMm=0.1;
     const anchors=[];
     for(let i=0;i<points.length;i++){
-      const snapped=projectPoint(face,cad,points[i],hold);
-      check(snapped.residualMm<=snapToleranceMm,`第 ${i+1} 个路径点距所选面 ${snapped.residualMm.toFixed(3)} mm，超过 ${snapToleranceMm} mm 吸附限`);
+      const snapped=projectToAllowed(faces,allowed,points[i],cad,hold,snapToleranceMm,i);
       if(i&&dist(snapped.point,anchors.at(-1).point)<1e-6)throw new Error('投影后的相邻路径点不得重合');
-      const normalVec=hold(face.normalAt(snapped.point));
-      const normal=unit(typeof normalVec.toTuple==='function'?normalVec.toTuple():[normalVec.x,normalVec.y,normalVec.z]);
-      if(i&&dot(normal,anchors.at(-1).normal)<0.5)throw new Error('相邻投影点的面法向变化过大，请沿路径加密点，勿一次跨过可见半周或不同面');
+      const normal=faceNormal(faces[snapped.faceId],snapped.point,hold);
+      if(i&&snapped.faceId===anchors.at(-1).faceId&&dot(normal,anchors.at(-1).normal)<0.5)throw new Error('相邻投影点的面法向变化过大，请沿路径加密点，勿一次跨过可见半周或不同面');
       anchors.push({...snapped,normal});
     }
-    const boundary=boundaryEdges(face,cad,hold);
-    const path=anchors.map(item=>item.point);
+    const refined=[];
+    const crossings=[];
+    for(let i=0;i<anchors.length;i++){
+      if(i&&anchors[i].faceId!==anchors[i-1].faceId){
+        const shared=neighbours[anchors[i-1].faceId].get(anchors[i].faceId);
+        const crossing=crossingOnSharedEdges(shared,anchors[i-1].point,anchors[i].point,hold);
+        if(!refined.length||dist(refined.at(-1).point,crossing)>1e-6){
+          const arriving=faceNormal(faces[anchors[i-1].faceId],crossing,hold);
+          refined.push({point:crossing,faceId:anchors[i-1].faceId,normal:arriving,kind:'crossing'});
+          crossings.push({point:crossing,fromFaceId:anchors[i-1].faceId,toFaceId:anchors[i].faceId});
+        }
+      }
+      if(!refined.length||dist(refined.at(-1).point,anchors[i].point)>1e-6)refined.push({...anchors[i],kind:'anchor'});
+    }
+    const path=refined.map(item=>item.point);
     const length=polylineLength(path);
     check(length>=Math.max(1e-3,widthMm*0.05),'投影路径过短，无法生成沿面刻槽');
-    const count=Math.min(64,Math.max(path.length,16));
-    const stations=[],projected=[],tipCaps={};let maxResidual={value:0,index:0};
-    let previousWidth=null,previousTangent=null;
-    for(let i=0;i<count;i++){
-      const target=length*i/(count-1);
-      const seed=pointAtLength(path,target);
-      const snapped=projectPoint(face,cad,seed,hold);
-      if(snapped.residualMm>maxResidual.value)maxResidual={value:snapped.residualMm,index:i};
-      if(onBoundary(snapped.point,boundary,cad,hold)&&snapped.residualMm>snapToleranceMm)throw new Error('路径离开所选面的内部，当前不支持跨面延续或沿边界滑移');
-      const normalVec=hold(face.normalAt(snapped.point));
-      const surfaceNormal=unit(typeof normalVec.toTuple==='function'?normalVec.toTuple():[normalVec.x,normalVec.y,normalVec.z]);
-      projected.push({point:snapped.point,residualMm:snapped.residualMm,normal:surfaceNormal});
+    const runs=[];
+    let run=[refined[0]];
+    for(const item of refined.slice(1)){
+      if(item.faceId!==run.at(-1).faceId){
+        runs.push(run);
+        run=[{...run.at(-1),faceId:item.faceId,kind:'crossing',normal:faceNormal(faces[item.faceId],run.at(-1).point,hold)},item];
+      }else run.push(item);
     }
-    for(let i=0;i<projected.length;i++){
-      const t=i/(count-1);
-      const prev=projected[Math.max(0,i-1)].point,next=projected[Math.min(projected.length-1,i+1)].point;
-      const rawTangent=next.map((v,j)=>v-prev[j]);
-      check(norm(rawTangent)>=1e-8,'沿面采样后的相邻站点过近，请调整路径或减少加密');
-      const surfaceNormal=projected[i].normal;
-      const tangentOnFace=rawTangent.map((v,j)=>v-dot(rawTangent,surfaceNormal)*surfaceNormal[j]);
-      check(norm(tangentOnFace)>=1e-8,'路径几乎沿面法向，无法在曲面上构造槽宽方向');
-      const tangent=unit(previousTangent&&dot(unit(tangentOnFace),previousTangent)<0?tangentOnFace.map(v=>-v):tangentOnFace);
-      let widthDirection=unit(cross(tangent,surfaceNormal));
-      if(previousWidth&&dot(widthDirection,previousWidth)<0)widthDirection=widthDirection.map(v=>-v);
-      const penetrationMm=penetrationAt(t);
-      const atTip=t===0||t===1;
-      if(penetrationMm===0){
-        if(!atTip)throw new Error('depthLaw 在路径内部必须始终为正；只有路径端点可以为 0，此时以该路径点做点收尾，不能在中途把截面收到 0');
-        const side=t===0?'start':'end';
-        tipCaps[`${side}Cap`]={kind:'point',pointMm:projected[i].point};
-      }else{
-        if(!(penetrationMm>0))throw new Error('depthLaw 必须为非负有限值');
-        stations.push({
-          centerMm:projected[i].point,
-          normal:tangent,
-          widthDirection,
-          widthMm,
-          depthMm:2*penetrationMm,
-          t,
-          penetrationMm
-        });
+    runs.push(run);
+    check(runs.every(row=>row.length>=2),'跨面路径在某一面上的段落过短，请在共享边两侧都给出点');
+    const runStarts=[];
+    let walked=0;
+    for(const row of runs){
+      runStarts.push(walked);
+      walked+=polylineLength(row.map(item=>item.point));
+    }
+    let work=null;
+    const allProjected=[],allStations=[];
+    const tipCaps={};let maxResidual={value:0,index:0};
+    try{
+      for(let r=0;r<runs.length;r++){
+        const row=runs[r],runPath=row.map(item=>item.point),runLength=polylineLength(runPath);
+        const count=Math.min(64,Math.max(runPath.length,8));
+        const projected=[];
+        let previousWidth=null,previousTangent=null;
+        const stations=[];
+        for(let i=0;i<count;i++){
+          const local=runLength*i/(count-1);
+          const seed=pointAtLength(runPath,local);
+          const snapped=projectPoint(faces[row[0].faceId],cad,seed.point,hold);
+          if(snapped.residualMm>maxResidual.value)maxResidual={value:snapped.residualMm,index:allProjected.length};
+          const single=allowed.length===1;
+          if(onBoundary(snapped.point,boundaryEdges(faces[row[0].faceId],cad,hold),cad,hold)&&snapped.residualMm>snapToleranceMm){
+            throw new Error(single?'路径离开所选面的内部，当前不支持跨面延续或沿边界滑移':'路径离开所列曲面的内部；跨面只能经过共享边，不能沿开放边界滑出');
+          }
+          const surfaceNormal=faceNormal(faces[row[0].faceId],snapped.point,hold);
+          if(!projected.length||dist(projected.at(-1).point,snapped.point)>1e-6)projected.push({point:snapped.point,residualMm:snapped.residualMm,normal:surfaceNormal,faceId:row[0].faceId,t:(runStarts[r]+local)/length});
+        }
+        for(let i=0;i<projected.length;i++){
+          const t=projected[i].t;
+          const prev=projected[Math.max(0,i-1)].point,next=projected[Math.min(projected.length-1,i+1)].point;
+          const rawTangent=next.map((v,j)=>v-prev[j]);
+          check(norm(rawTangent)>=1e-8,'沿面采样后的相邻站点过近，请调整路径或减少加密');
+          const surfaceNormal=projected[i].normal;
+          const tangentOnFace=rawTangent.map((v,j)=>v-dot(rawTangent,surfaceNormal)*surfaceNormal[j]);
+          check(norm(tangentOnFace)>=1e-8,'路径几乎沿面法向，无法在曲面上构造槽宽方向');
+          const tangent=unit(previousTangent&&dot(unit(tangentOnFace),previousTangent)<0?tangentOnFace.map(v=>-v):tangentOnFace);
+          let widthDirection=unit(cross(tangent,surfaceNormal));
+          if(previousWidth&&dot(widthDirection,previousWidth)<0)widthDirection=widthDirection.map(v=>-v);
+          if(i&&dot(surfaceNormal,projected[i-1].normal)<0.5)throw new Error('相邻投影点的面法向变化过大，请沿路径加密点，勿一次跨过可见半周或不同面');
+          const penetrationMm=penetrationAt(t);
+          const atTip=t===0||t===1;
+          if(penetrationMm===0){
+            if(!atTip)throw new Error('depthLaw 在路径内部必须始终为正；只有路径端点可以为 0，此时以该路径点做点收尾，不能在中途把截面收到 0');
+            const side=t===0?'start':'end';
+            tipCaps[`${side}Cap`]={kind:'point',pointMm:projected[i].point};
+          }else{
+            if(!(penetrationMm>0))throw new Error('depthLaw 必须为非负有限值');
+            stations.push({centerMm:projected[i].point,normal:tangent,widthDirection,widthMm,depthMm:2*penetrationMm,t,penetrationMm});
+          }
+          previousTangent=tangent;
+          previousWidth=widthDirection;
+        }
+        if(stations.length<2)throw new Error('零深度端点之外至少还需要两个正截面，才能生成点收尾的刀具');
+        const caps={};
+        if(r===0&&tipCaps.startCap)caps.startCap=tipCaps.startCap;
+        if(r===runs.length-1&&tipCaps.endCap)caps.endCap=tipCaps.endCap;
+        const piece=buildSectionCurveLoft({pathType:'sections',stations,...caps},cad);
+        const target=work||source;
+        const before=Math.abs(cad.measureVolume(target));
+        let next=null;
+        try{
+          next=target.cut(piece);
+          check(!next.isNull && solidCount(next)===1,'投影刻槽使实体断开或无效，请减小切深或槽宽');
+          const after=Math.abs(cad.measureVolume(next));
+          check(before-after>Math.max(1e-8,before*1e-12),'投影刻槽未切入材料，请检查面号、路径和切深方向');
+        }finally{dispose(piece);}
+        if(work)dispose(work);
+        work=next;
+        allProjected.push(...projected);
+        allStations.push(...stations);
       }
-      previousTangent=tangent;
-      previousWidth=widthDirection;
-    }
-    if(stations.length<2)throw new Error('零深度端点之外至少还需要两个正截面，才能生成点收尾的刀具');
-    tool=buildSectionCurveLoft({pathType:'sections',stations,...tipCaps},cad);
-    const before=Math.abs(cad.measureVolume(source));
-    result=source.cut(tool);
-    check(!result.isNull && solidCount(result)===1,'投影刻槽使实体断开或无效，请减小切深或槽宽');
-    const after=Math.abs(cad.measureVolume(result));
-    check(before-after>Math.max(1e-8,before*1e-12),'投影刻槽未切入材料，请检查面号、路径和切深方向');
+      result=work;work=null;
+    }finally{dispose(work);}
+    const projected=allProjected,stations=allStations;
+
     const startPenetrationMm=penetrationAt(0),endPenetrationMm=penetrationAt(1),midPenetrationMm=penetrationAt(0.5);
     const variableDepth=params.depthLaw!==undefined&&!(typeof params.depthLaw==='number');
+    const usedIds=[...new Set(projected.map(item=>item.faceId))];
     result.projectedGrooveReport={
       method:'surface-normal-spine',
       source:'exact-brep-face-projection',
-      faceId:params.faceId,
-      faceGeomType:face.geomType,
+      faceId:allowed.length===1?allowed[0]:usedIds[0],
+      faceIds:usedIds,
+      faceGeomType:faces[usedIds[0]].geomType,
+      faceGeomTypes:usedIds.map(id=>faces[id].geomType),
+      crossingCount:crossings.length,
+      crossings:crossings.map(item=>({point:item.point,fromFaceId:item.fromFaceId,toFaceId:item.toFaceId})),
+      crossingMethod:crossings.length?'shared-edge-shortest-polyline':undefined,
       snapToleranceMm,
       widthMm,
       variableDepth:!!variableDepth||startPenetrationMm!==endPenetrationMm,
@@ -173,7 +286,7 @@ export function buildProjectedGroove(source,params,cad){
       midNormal:projected[Math.floor(projected.length/2)].normal,
       zeroEndDepth:{start:!!tipCaps.startCap,end:!!tipCaps.endCap},
       tipPoints:{start:tipCaps.startCap?.pointMm??null,end:tipCaps.endCap?.pointMm??null},
-      limits:'single-face world polyline snapped to the face; constant width; depthLaw is actual inward normal penetration, not curveSweep full-section height; not multi-face, not a UV geodesic, not a planar cutter'
+      limits:'world polyline snapped to one face or an explicit chain of topologically adjacent faces; crossings are shared-edge shortest 3D polylines, not UV geodesics; constant width; depthLaw is actual inward normal penetration, not curveSweep full-section height; not a planar cutter'
     };
     const complete=result;result=null;return complete;
   }catch(error){

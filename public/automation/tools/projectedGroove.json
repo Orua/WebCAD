@@ -12,6 +12,24 @@
         "quantityKind": "index",
         "quantizationPolicy": "none"
       },
+      "faceIds": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 8,
+        "uniqueItems": true,
+        "items": {
+          "type": "integer",
+          "description": "Zero-based face index of the current body",
+          "minimum": 0,
+          "unit": "1",
+          "quantityKind": "index",
+          "quantizationPolicy": "none"
+        },
+        "description": "Explicit chain of current faces; path face changes must share an edge",
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
       "pointsMm": {
         "type": "array",
         "minItems": 2,
@@ -25,7 +43,7 @@
           "maxItems": 3,
           "description": "World coordinate [x,y,z] in mm"
         },
-        "description": "World polyline (mm) snapped onto the selected face"
+        "description": "World polyline (mm) snapped onto the selected face or faceIds"
       },
       "widthMm": {
         "type": "number",
@@ -89,7 +107,6 @@
       }
     },
     "required": [
-      "faceId",
       "pointsMm",
       "widthMm"
     ],
@@ -125,17 +142,17 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit (that law is full section height). Width stays constant; this is not multi-face continuation and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport after success.",
-  "title": "沿单面法向的投影刻槽 / Surface-normal projected groove",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId or faceIds; if both are set, faceId must be one of faceIds. Points snap within 0.1 mm to the nearest listed face. A change of face is allowed only across a shared edge; the crossing is the shared-edge point that minimizes the 3D polyline length, not a UV geodesic, and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. Width stays constant. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport.faceIds, crossingCount and crossings after success.",
+  "title": "沿面法向的投影刻槽 / Surface-normal projected groove",
   "category": "modification",
   "synonyms": [
     "projectedGroove",
-    "沿单面法向的投影刻槽",
+    "沿面法向的投影刻槽",
     "Surface-normal projected groove",
     "projected Groove operation"
   ],
-  "description": "沿单面法向的投影刻槽 / Surface-normal projected groove",
-  "schemaHash": "sha256:aabbfad1c5b14263566530bff25befbe04557e27e7cdded9767e1572e58703ff",
+  "description": "沿面法向的投影刻槽 / Surface-normal projected groove",
+  "schemaHash": "sha256:5538ea08a404fcf8cf1e5245db4a15aa3f8d5bf4a83bae6215d41601bc2500ce",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -196,7 +213,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit (that law is full section height). Width stays constant; this is not multi-face continuation and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport after success.",
+    "Project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId or faceIds; if both are set, faceId must be one of faceIds. Points snap within 0.1 mm to the nearest listed face. A change of face is allowed only across a shared edge; the crossing is the shared-edge point that minimizes the 3D polyline length, not a UV geodesic, and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. Width stays constant. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport.faceIds, crossingCount and crossings after success.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "exampleNotes": {
@@ -298,9 +315,9 @@
     "kernel": "See test run report; card generation is not proof of kernel execution."
   },
   "contract": {
-    "purpose": "沿单面法向的投影刻槽 / Surface-normal projected groove",
+    "purpose": "沿面法向的投影刻槽 / Surface-normal projected groove",
     "whenToUse": [
-      "Project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit (that law is full section height). Width stays constant; this is not multi-face continuation and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport after success."
+      "Project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId or faceIds; if both are set, faceId must be one of faceIds. Points snap within 0.1 mm to the nearest listed face. A change of face is allowed only across a shared edge; the crossing is the shared-edge point that minimizes the 3D polyline length, not a UV geodesic, and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. Width stays constant. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport.faceIds, crossingCount and crossings after success."
     ],
     "whenNotToUse": [
       {
@@ -315,10 +332,24 @@
         "range": [
           0,
           null
-        ]
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "faceIds": {
+        "meaning": "Explicit chain of current faces; path face changes must share an edge",
+        "unit": "1",
+        "range": [
+          1,
+          8
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       },
       "pointsMm": {
-        "meaning": "World polyline (mm) snapped onto the selected face",
+        "meaning": "World polyline (mm) snapped onto the selected face or faceIds",
         "unit": "mm",
         "range": [
           2,
@@ -510,16 +541,16 @@
     ],
     "synonyms": [
       "projectedGroove",
-      "沿单面法向的投影刻槽",
+      "沿面法向的投影刻槽",
       "Surface-normal projected groove",
       "projected Groove operation"
     ],
     "status": "experimental",
     "sourcePaths": []
   },
-  "purpose": "沿单面法向的投影刻槽 / Surface-normal projected groove",
+  "purpose": "沿面法向的投影刻槽 / Surface-normal projected groove",
   "whenToUse": [
-    "Project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit (that law is full section height). Width stays constant; this is not multi-face continuation and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport after success."
+    "Project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId or faceIds; if both are set, faceId must be one of faceIds. Points snap within 0.1 mm to the nearest listed face. A change of face is allowed only across a shared edge; the crossing is the shared-edge point that minimizes the 3D polyline length, not a UV geodesic, and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. Width stays constant. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport.faceIds, crossingCount and crossings after success."
   ],
   "whenNotToUse": [
     {
@@ -589,7 +620,7 @@
   },
   "status": "experimental",
   "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
-  "label": "沿单面法向的投影刻槽 / Surface-normal projected groove",
+  "label": "沿面法向的投影刻槽 / Surface-normal projected groove",
   "validationMode": "schema-validation-with-kernel-prerequisites",
   "documentLimits": {
     "maxFeatures": 2000,
@@ -822,7 +853,7 @@
   "selectionGuide": {
     "groupId": "holes",
     "groupTitle": "孔、槽、凸台与车削",
-    "chooseWhen": "把世界折线吸附到当前一张面上，沿面法向切入；可用 depthLaw 做实际切深的沿线变化，槽宽仍是常数。不是平面胶囊槽，也不跨面。",
+    "chooseWhen": "把世界折线吸附到当前一张面，或吸附到有共享边的若干面（faceIds）上，沿各面法向切入；可用 depthLaw 做实际切深变化，槽宽仍是常数。跨面不是测地线，也不是平面胶囊槽。",
     "alternatives": [
       {
         "id": "hole",
@@ -892,5 +923,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:eacee4b457c6ab73f6c05d0ad8cad78492589e1ed1b32050e81ac403407257fd"
+  "docsHash": "sha256:abefe9e364abe42d0efad2eadc5f788cc9cb8cc200123b4aae14d7291424b55f"
 }

@@ -84,9 +84,10 @@ test('guidance routes surface-follow queries to the scoped projectedGroove card'
   const route=MODELING_ROUTES.find(item=>item.id==='modeling.projected-groove');
   assert.ok(route);
   assert.ok(route.keywords.includes('沿面渐浅'));
+  assert.ok(route.keywords.includes('跨面刻槽'));
   assert.deepEqual(route.tools,['projectedGroove','measure']);
   const guide=MODELING_DOCS['api.modeling.methods.projected-groove'];
-  for(const term of ['一张面','surface-normal-spine','不是平面','NOT_REVIEWED','kind:"region"','0.1','depthLaw','切入量','完整截面高度','zeroEndDepth','槽宽仍是常数'])assert.ok(guide.includes(term),term);
+  for(const term of ['一张面','surface-normal-spine','不是平面','NOT_REVIEWED','kind:"region"','0.1','depthLaw','切入量','完整截面高度','zeroEndDepth','槽宽仍是常数','faceIds','共享边','不是测地线'])assert.ok(guide.includes(term),term);
   const fading=MODELING_DOCS['api.modeling.methods.fading-recess'];
   assert.ok(fading.includes('不是自动曲面投影'));
   assert.ok(fading.includes('projectedGroove'));
@@ -153,4 +154,72 @@ test('depthLaw may close a zero tip but rejects a mid-path zero or a missing dep
     assert.throws(()=>buildProjectedGroove(plate,{faceId:topId,pointsMm:[[2,3,8],[18,3,8]],widthMm:1,depthLaw:{kind:'spline',samples:[[0,0.8],[0.5,0],[1,0.8]]}},cad),/路径内部/);
     assert.throws(()=>buildProjectedGroove(plate,{faceId:topId,pointsMm:[[2,3,8],[18,3,8]],widthMm:1},cad),/depthMm 或 depthLaw/);
   }finally{[tip,plate].forEach(dispose);}
+});
+
+const planeFaceAt=(shape,axis,value,label)=>{
+  const faces=shape.faces;
+  try{
+    const id=faces.findIndex(face=>{
+      if(face.geomType!=='PLANE')return false;
+      const c=face.center;
+      try{return Math.abs(c.toTuple()[axis]-value)<1e-6;}finally{dispose(c);}
+    });
+    assert.ok(id>=0,label||`${axis}=${value}`);
+    return id;
+  }finally{faces.forEach(dispose);}
+};
+
+test('projected groove can continue across a shared box edge without cutting the interior chord',()=>{
+  const stock=cad.makeBox([0,0,0],[20,20,20]);
+  const top=planeFaceAt(stock,2,20,'top');
+  const side=planeFaceAt(stock,0,20,'side');
+  const bottom=planeFaceAt(stock,2,0,'bottom');
+  const points=[[5,10,20],[20,10,10]];
+  let result,explicit;
+  try{
+    result=buildProjectedGroove(stock,{faceIds:[top,side],pointsMm:points,widthMm:2,depthMm:0.8},cad);
+    const report=result.projectedGrooveReport;
+    assert.equal(report.crossingCount,1);
+    assert.equal(report.crossingMethod,'shared-edge-shortest-polyline');
+    assert.deepEqual(report.faceIds.slice().sort((a,b)=>a-b),[top,side].sort((a,b)=>a-b));
+    assert.ok(Math.hypot(...report.crossings[0].point.map((v,i)=>v-[20,10,20][i]))<0.2,JSON.stringify(report.crossings));
+    const topCut=measureRegionVolume(result,[9,9,19],[11,11,20.2],cad);
+    const topStock=measureRegionVolume(stock,[9,9,19],[11,11,20.2],cad);
+    const sideCut=measureRegionVolume(result,[19,9,9],[20.2,11,11],cad);
+    const sideStock=measureRegionVolume(stock,[19,9,9],[20.2,11,11],cad);
+    const interior=measureRegionVolume(result,[11.5,9,14],[13.5,11,16],cad);
+    const interiorStock=measureRegionVolume(stock,[11.5,9,14],[13.5,11,16],cad);
+    assert.ok(topCut.volume<topStock.volume-0.2,JSON.stringify({topCut:topCut.volume,topStock:topStock.volume}));
+    assert.ok(sideCut.volume<sideStock.volume-0.2,JSON.stringify({sideCut:sideCut.volume,sideStock:sideStock.volume}));
+    assert.ok(Math.abs(interior.volume-interiorStock.volume)<1e-6,JSON.stringify({interior:interior.volume,interiorStock:interiorStock.volume}));
+    explicit=buildProjectedGroove(stock,{faceId:top,faceIds:[top,side],pointsMm:[[5,10,20],[15,10,20],[20,10,15],[20,10,10]],widthMm:2,depthMm:0.8},cad);
+    assert.equal(explicit.projectedGrooveReport.crossingCount,1);
+    assert.throws(()=>buildProjectedGroove(stock,{faceIds:[top,bottom],pointsMm:[[5,10,20],[5,10,0]],widthMm:2,depthMm:0.8},cad),/不相邻|跨面跳跃|投影刻槽失败/);
+    assert.throws(()=>buildProjectedGroove(stock,{faceId:top,pointsMm:[[5,10,20],[20,10,10]],widthMm:2,depthMm:0.8},cad),/距所选面|离开所选面|投影刻槽失败/);
+  }finally{[result,explicit,stock].forEach(dispose);}
+});
+
+test('kernel projectedGroove accepts faceIds and reports the shared-edge crossing',async()=>{
+  const blank=await run([f('box','box',{width:20,depth:20,height:20})]);
+  const faces=(await kernel.queryGeometry('box','face',{})).items;
+  const top=faces.find(face=>face.geomType==='PLANE'&&Math.abs(face.center[2]-20)<1e-6);
+  const side=faces.find(face=>face.geomType==='PLANE'&&Math.abs(face.center[0]-20)<1e-6);
+  assert.ok(top&&side,JSON.stringify(faces.map(f=>({id:f.faceId,c:f.center,g:f.geomType}))));
+  const topStock=kernel.measureRegion('box',[9,9,19],[11,11,20.2]);
+  const sideStock=kernel.measureRegion('box',[19,9,9],[20.2,11,11]);
+  const interiorStock=kernel.measureRegion('box',[11.5,9,14],[13.5,11,16]);
+  const cut=await run([
+    f('box','box',{width:20,depth:20,height:20}),
+    f('groove','projectedGroove',{faceIds:[top.faceId,side.faceId],pointsMm:[[5,10,20],[20,10,10]],widthMm:2,depthMm:0.8},['box'])
+  ]);
+  assert.equal(cut.stats.solids,1);
+  assert.ok(blank.stats.volume-cut.stats.volume>0.5);
+  const report=cut.bodies[0].projectedGrooveReport;
+  assert.equal(report.crossingCount,1);
+  const topCut=kernel.measureRegion(cut.bodies[0].id,[9,9,19],[11,11,20.2]);
+  const sideCut=kernel.measureRegion(cut.bodies[0].id,[19,9,9],[20.2,11,11]);
+  const interior=kernel.measureRegion(cut.bodies[0].id,[11.5,9,14],[13.5,11,16]);
+  assert.ok(topCut.volume<topStock.volume-0.2,JSON.stringify({topCut:topCut.volume,topStock:topStock.volume}));
+  assert.ok(sideCut.volume<sideStock.volume-0.2,JSON.stringify({sideCut:sideCut.volume,sideStock:sideStock.volume}));
+  assert.ok(Math.abs(interior.volume-interiorStock.volume)<1e-6,JSON.stringify({interior:interior.volume,interiorStock:interiorStock.volume}));
 });

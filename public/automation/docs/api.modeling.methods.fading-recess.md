@@ -4,7 +4,7 @@
 
 ## 先确认能做什么
 
-现有路线是 curveSweep 的 spine 变截面实体刀具，再 cut 目标实体；不是自动曲面投影，也不做下切表面跟随。depthLaw/widthLaw 在路径内部必须始终为正；只有脊线端点可以为 0，内核会在该路径点做点收尾（loftReport.zeroEndDepth / tipPoints），而不是生成退化椭圆。单面世界折线的沿面法向槽（含用 depthLaw 做实际切入量变化的沿面渐浅）请改读 projectedGroove 与[单面沿面法向投影刻槽](api.modeling.methods.projected-groove)。projectedGroove 的 depthLaw 不是本路线椭圆全高；不要把这里的 1.6/0.2 原样搬过去。不要从命中本路线或端点为 0 推断已经支持跨面或草图投影刻槽。平面等深槽改读 slot 卡。
+现有路线是 curveSweep 的 spine 变截面实体刀具，再 cut 目标实体；不是自动曲面投影，也不做下切表面跟随。depthLaw/widthLaw 在路径内部必须始终为正；只有脊线端点可以为 0，内核会在该路径点做点收尾（loftReport.zeroEndDepth / tipPoints），而不是生成退化椭圆。沿面法向槽（含 depthLaw 切入量变化，以及在共享边上延续到相邻面的 faceIds）请改读 projectedGroove 与[沿面法向投影刻槽](api.modeling.methods.projected-groove)。projectedGroove 的 depthLaw 不是本路线椭圆全高；不要把这里的 1.6/0.2 原样搬过去。不要从命中本路线或端点为 0 推断已经支持测地线或草图投影刻槽。平面等深槽改读 slot 卡。
 
 ## 深度不是宽度，也不是刀具中心高度
 

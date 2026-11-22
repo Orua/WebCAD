@@ -1,3 +1,7 @@
+## 1.75.12 — scoped multi-face projected groove across shared edges
+
+- Extend `projectedGroove` with optional `faceIds` (1–8). Points snap to the nearest listed face (0.1 mm). A face change is allowed only across a shared topological edge; the crossing is the shared-edge point that minimizes the 3D polyline length, not a UV geodesic. Each face is cut with its own surface-normal cutter; sharp corners are not blended. Single-face `faceId` remains valid. Width is still constant. Headless tests on a box show material removed on both the top and side, while an interior diagonal region is unchanged. Visual status is NOT_REVIEWED.
+
 ## 1.75.11 — variable-depth projected groove along one face
 
 - Extend `projectedGroove` with optional `depthLaw` (number or spline samples). The law is actual inward penetration along the projected path, not `curveSweep` full-section height. Constant `depthMm` remains valid; if `depthLaw` is present it governs penetration. Interior zeros are rejected; a path endpoint may be 0 and is closed with the existing ThruSections point cap, reported as `projectedGrooveReport.zeroEndDepth` / `tipPoints`. Width is still constant. This is not multi-face continuation or geodesic projection. Headless tests check a fading groove on a cylinder and a plane, mid-path rejection, and a zero tip. Visual status is NOT_REVIEWED.

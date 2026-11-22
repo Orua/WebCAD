@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:922fca8719e3e82fff7901bfb5bfe151e2683e2b61e06e3319d0a137ca3212f6",
-  "docsHash": "sha256:acfeda7bf55315636db0738039ad160c0d75d5e52f315036d0a701debc79d9a2",
+  "catalogHash": "sha256:a0a10e7ad6474403939c6bc02bf98ff01fda22a8fecb8e9073ada8fcb2d9dda5",
+  "docsHash": "sha256:e2b7184ec8049f5c0cc52e7229755c1041a7a35fad4971507c3cfb0d7d65a1aa",
   "workflowDelivery": {
     "schemaVersion": 1,
     "coreDocIds": [
@@ -812,7 +812,7 @@
     },
     {
       "id": "modeling.projected-groove",
-      "title": "单面沿面法向投影刻槽",
+      "title": "沿面法向投影刻槽",
       "keywords": [
         "曲面投影刻槽",
         "下切表面跟随",
@@ -820,9 +820,12 @@
         "沿面法向刻槽",
         "沿面渐浅",
         "曲面渐浅凹纹",
+        "跨面刻槽",
+        "跨面延续",
         "surface-projected groove",
         "surface-following groove",
         "surface-following fading groove",
+        "multi-face groove",
         "projectedGroove"
       ],
       "readFirst": "api.modeling.methods.projected-groove",
