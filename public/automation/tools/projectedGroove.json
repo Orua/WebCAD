@@ -37,18 +37,61 @@
       },
       "depthMm": {
         "type": "number",
-        "description": "Inward penetration along the local surface normal (mm)",
+        "description": "Constant inward penetration along the local surface normal; omit when depthLaw is provided (mm)",
         "exclusiveMinimum": 0,
         "unit": "mm",
         "quantityKind": "length",
         "quantizationPolicy": "none"
+      },
+      "depthLaw": {
+        "oneOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "samples"
+            ],
+            "properties": {
+              "kind": {
+                "const": "spline"
+              },
+              "samples": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 64,
+                "items": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "number",
+                    "unit": "1",
+                    "quantityKind": "scalar",
+                    "quantizationPolicy": "none"
+                  },
+                  "unit": "1",
+                  "quantityKind": "scalar",
+                  "quantizationPolicy": "none"
+                },
+                "description": "[t, penetrationMm] samples; t in 0..1",
+                "unit": "1",
+                "quantityKind": "scalar",
+                "quantizationPolicy": "none"
+              }
+            }
+          }
+        ],
+        "description": "Actual inward penetration (mm) along the projected path: a number or spline samples. Not curveSweep full-section height. Interior samples must stay positive; a path endpoint may be 0 and is then closed with a point cap."
       }
     },
     "required": [
       "faceId",
       "pointsMm",
-      "widthMm",
-      "depthMm"
+      "widthMm"
     ],
     "additionalProperties": false,
     "$schema": "https://json-schema.org/draft/2020-12/schema"
@@ -82,7 +125,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. First slice only: project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. depthMm is actual inward penetration; the cutter is an ellipse of height 2*depthMm centered on the projected path. This is not a planar slot, not logo engrave, not multi-face continuation, and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Read projectedGrooveReport after success.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit (that law is full section height). Width stays constant; this is not multi-face continuation and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport after success.",
   "title": "沿单面法向的投影刻槽 / Surface-normal projected groove",
   "category": "modification",
   "synonyms": [
@@ -92,7 +135,7 @@
     "projected Groove operation"
   ],
   "description": "沿单面法向的投影刻槽 / Surface-normal projected groove",
-  "schemaHash": "sha256:4ade785713e20689057f3a161f77b8c35b67ba15071d70745bf398062da27bba",
+  "schemaHash": "sha256:aabbfad1c5b14263566530bff25befbe04557e27e7cdded9767e1572e58703ff",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -153,7 +196,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "First slice only: project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. depthMm is actual inward penetration; the cutter is an ellipse of height 2*depthMm centered on the projected path. This is not a planar slot, not logo engrave, not multi-face continuation, and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Read projectedGrooveReport after success.",
+    "Project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit (that law is full section height). Width stays constant; this is not multi-face continuation and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport after success.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "exampleNotes": {
@@ -257,7 +300,7 @@
   "contract": {
     "purpose": "沿单面法向的投影刻槽 / Surface-normal projected groove",
     "whenToUse": [
-      "First slice only: project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. depthMm is actual inward penetration; the cutter is an ellipse of height 2*depthMm centered on the projected path. This is not a planar slot, not logo engrave, not multi-face continuation, and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Read projectedGrooveReport after success."
+      "Project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit (that law is full section height). Width stays constant; this is not multi-face continuation and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport after success."
     ],
     "whenNotToUse": [
       {
@@ -291,12 +334,26 @@
         ]
       },
       "depthMm": {
-        "meaning": "Inward penetration along the local surface normal (mm)",
+        "meaning": "Constant inward penetration along the local surface normal; omit when depthLaw is provided (mm)",
         "unit": "mm",
         "range": [
           0,
           null
-        ]
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "depthLaw": {
+        "meaning": "Actual inward penetration (mm) along the projected path: a number or spline samples. Not curveSweep full-section height. Interior samples must stay positive; a path endpoint may be 0 and is then closed with a point cap.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
       }
     },
     "refs": {
@@ -462,7 +519,7 @@
   },
   "purpose": "沿单面法向的投影刻槽 / Surface-normal projected groove",
   "whenToUse": [
-    "First slice only: project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. depthMm is actual inward penetration; the cutter is an ellipse of height 2*depthMm centered on the projected path. This is not a planar slot, not logo engrave, not multi-face continuation, and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Read projectedGrooveReport after success."
+    "Project a 2–64 point world polyline onto ONE current face (0.1 mm snap), resample along that path, and cut a constant-width groove whose section depth follows the local surface normal. Provide depthMm or depthLaw (or both; depthLaw wins). Values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit (that law is full section height). Width stays constant; this is not multi-face continuation and not a UV geodesic. Consecutive samples whose surface normals differ by more than about 60° are rejected; densify the polyline on sharp curvature. Paths that leave the trimmed face or remove no material are rejected. Endpoint depth 0 uses a point cap (projectedGrooveReport.zeroEndDepth / tipPoints). Mid-path zeros are rejected. Read projectedGrooveReport after success."
   ],
   "whenNotToUse": [
     {
@@ -765,7 +822,7 @@
   "selectionGuide": {
     "groupId": "holes",
     "groupTitle": "孔、槽、凸台与车削",
-    "chooseWhen": "把世界折线吸附到当前一张面上，沿面法向做等深槽；不是平面胶囊槽，也不跨面。",
+    "chooseWhen": "把世界折线吸附到当前一张面上，沿面法向切入；可用 depthLaw 做实际切深的沿线变化，槽宽仍是常数。不是平面胶囊槽，也不跨面。",
     "alternatives": [
       {
         "id": "hole",
@@ -835,5 +892,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:358256e7b22bf7d35789dba968e2b5ddbf796d42c331f7e8b21a72f20d2601ac"
+  "docsHash": "sha256:eacee4b457c6ab73f6c05d0ad8cad78492589e1ed1b32050e81ac403407257fd"
 }

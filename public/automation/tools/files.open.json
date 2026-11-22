@@ -8,7 +8,7 @@
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.75.10",
+  "version": "1.75.11",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -250,5 +250,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:991e64cd202afb197ac0bef32ccffde3cfc941f23c1e3c86bfe3224233de3a70"
+  "docsHash": "sha256:4c88956fda4a17ff033fa89e0afbc39c57864c769fa9c3f1f704b17375f8fd92"
 }

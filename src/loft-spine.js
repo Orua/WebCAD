@@ -6,7 +6,7 @@ const unit=v=>{const n=norm(v);if(n<1e-10)throw new Error('脊线包含零长度
 const dist=(a,b)=>norm(a.map((x,i)=>x-b[i]));
 const dispose=v=>{try{v?.delete?.()}catch{}};
 const rotate=(v,axis,angle)=>{const c=Math.cos(angle),s=Math.sin(angle),d=dot(axis,v),cx=cross(axis,v);return v.map((x,i)=>x*c+cx[i]*s+axis[i]*d*(1-c));};
-function assertInteriorLawPositive(value,name){
+export function assertInteriorLawPositive(value,name){
  if(value===undefined||typeof value==='number'&&value>0)return;
  if(typeof value==='number')throw new Error(`${name} 在路径内部必须始终为正；常数 0 会让全部截面退化`);
  const samples=value?.samples;
@@ -18,7 +18,7 @@ function assertInteriorLawPositive(value,name){
   if(v===0&&t!==0&&t!==1)throw new Error(`${name} 在路径内部必须始终为正；只有脊线端点可以为 0，此时以该路径点做点收尾，不能在中途把截面收到 0`);
  }
 }
-function law(value,t,fallback,name){
+export function sampleLaw(value,t,fallback,name){
  if(value===undefined)return fallback;
  if(typeof value==='number')return value;
  const samples=value?.samples;if(value?.kind!=='spline'||!Array.isArray(samples)||samples.length<2||samples.some(s=>!Array.isArray(s)||s.length!==2||!s.every(Number.isFinite)||s[0]<0||s[0]>1))throw new Error(`${name} 须为数字或含 [t,value] 的 spline.samples`);
@@ -71,9 +71,9 @@ const stations=[],tipCaps={};let previousTangent=null,previousWidth=null;
  for(const t of ts){const centerMm=centerAt(t),eps=Math.min(1e-4,Math.max(1e-7,.25/(points.length-1))),a=centerAt(Math.max(0,t-eps)),b=centerAt(Math.min(1,t+eps)),normal=unit(b.map((v,i)=>v-a[i]));
   let width;if(!previousTangent){width=cross(up,normal);if(norm(width)<1e-8){const axes=[[1,0,0],[0,1,0],[0,0,1]].toSorted((a,b)=>Math.abs(dot(a,normal))-Math.abs(dot(b,normal)));width=cross(axes[0],normal);}width=unit(width);}else{const axis=cross(previousTangent,normal),s=norm(axis),c=Math.max(-1,Math.min(1,dot(previousTangent,normal)));width=s<1e-9?(c<0?previousWidth.map(v=>-v):previousWidth):rotate(previousWidth,axis.map(v=>v/s),Math.atan2(s,c));
    width=unit(width.map((v,i)=>v-normal[i]*dot(width,normal)));if(norm(width)<1e-8)throw new Error('脊线转折处无法构造稳定的旋转最小标架');}
-  const roll=law(params.rollLawDeg,t,0,'rollLawDeg');
+  const roll=sampleLaw(params.rollLawDeg,t,0,'rollLawDeg');
   const rolledWidth=unit(rotate(width,normal,roll*Math.PI/180));
-  const widthMm=law(params.widthLaw,t,defaultSpineWidth(params),'widthLaw'),depthMm=law(params.depthLaw,t,defaultSpineDepth(params,widthMm),'depthLaw');
+  const widthMm=sampleLaw(params.widthLaw,t,defaultSpineWidth(params),'widthLaw'),depthMm=sampleLaw(params.depthLaw,t,defaultSpineDepth(params,widthMm),'depthLaw');
   if(!Number.isFinite(widthMm)||!Number.isFinite(depthMm)||widthMm<0||depthMm<0)throw new Error('widthLaw/depthLaw 必须为非负有限值');
   const atTip=t===ts[0]||t===ts.at(-1);
   if(widthMm===0||depthMm===0){

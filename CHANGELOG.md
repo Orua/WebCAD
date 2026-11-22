@@ -1,3 +1,7 @@
+## 1.75.11 — variable-depth projected groove along one face
+
+- Extend `projectedGroove` with optional `depthLaw` (number or spline samples). The law is actual inward penetration along the projected path, not `curveSweep` full-section height. Constant `depthMm` remains valid; if `depthLaw` is present it governs penetration. Interior zeros are rejected; a path endpoint may be 0 and is closed with the existing ThruSections point cap, reported as `projectedGrooveReport.zeroEndDepth` / `tipPoints`. Width is still constant. This is not multi-face continuation or geodesic projection. Headless tests check a fading groove on a cylinder and a plane, mid-path rejection, and a zero tip. Visual status is NOT_REVIEWED.
+
 ## 1.75.10 — single-face surface-normal projected groove
 
 - Add `projectedGroove`: snap a 2–64 point world polyline onto one current face (0.1 mm) and cut a constant-width groove whose section depth follows the local surface normal. `depthMm` is actual inward penetration. This is not a planar slot, not logo engrave, and not multi-face or geodesic projection. Guidance routes surface-follow queries to this first slice; fading-recess remains the variable-depth spine path. Headless tests distinguish a cylindrical-arc groove from a chord-wise planar cut. Visual status is NOT_REVIEWED.

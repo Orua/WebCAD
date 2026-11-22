@@ -1,4 +1,5 @@
 import {buildSectionCurveLoft} from './section-curve-loft.js';
+import {assertInteriorLawPositive,sampleLaw} from './loft-spine.js';
 
 const dispose = object => { try { object?.delete?.(); } catch {} };
 const dot = (a,b) => a.reduce((sum,v,i)=>sum+v*b[i],0);
@@ -49,14 +50,28 @@ function onBoundary(point,edges,cad,hold){
   const vertex=hold(cad.makeVertex(point));
   return edges.some(edge=>cad.measureDistanceBetween(vertex,edge)<=1e-5);
 }
+function penetrationLaw(params){
+  const hasLaw=params.depthLaw!==undefined,hasDepth=params.depthMm!==undefined;
+  check(hasLaw||hasDepth,'请提供 depthMm 或 depthLaw；depthLaw 是沿路径的实际法向切入量，不是 curveSweep 椭圆全高');
+  if(hasLaw)assertInteriorLawPositive(params.depthLaw,'depthLaw');
+  else finitePositive(params.depthMm,'切深 depthMm');
+  if(hasDepth&&hasLaw===false)finitePositive(params.depthMm,'切深 depthMm');
+  if(hasDepth&&(typeof params.depthMm!=='number'||!Number.isFinite(params.depthMm)||params.depthMm<0))throw new Error('depthMm 必须为非负有限值');
+  return t=>{
+    const value=sampleLaw(params.depthLaw,t,hasDepth?params.depthMm:undefined,'depthLaw');
+    if(!Number.isFinite(value)||value<0)throw new Error('depthLaw 必须为非负有限值');
+    return value;
+  };
+}
 
-// First slice of surface-following grooves: snap a world polyline onto ONE
-// current face, frame each station so section depth follows the local surface
-// normal, then cut. This is not a planar slot, not a closed logo engrave, and
-// not a multi-face or UV-geodesic projector.
+// Project a world polyline onto ONE current face and cut a groove whose
+// section depth follows the local surface normal. Width is constant.
+// Optional depthLaw varies actual inward penetration along the path (not
+// curveSweep's full ellipse height). This is not a planar slot, not logo
+// engrave, and not a multi-face or UV-geodesic projector.
 export function buildProjectedGroove(source,params,cad){
   const widthMm=finitePositive(params.widthMm,'槽宽 widthMm');
-  const penetrationMm=finitePositive(params.depthMm,'切深 depthMm');
+  const penetrationAt=penetrationLaw(params);
   const points=params.pointsMm;
   check(Array.isArray(points)&&points.length>=2&&points.length<=64,'pointsMm 须为 2–64 个世界坐标点');
   check(points.every(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)),'pointsMm 的每个点必须是有限 XYZ');
@@ -83,7 +98,7 @@ export function buildProjectedGroove(source,params,cad){
     const length=polylineLength(path);
     check(length>=Math.max(1e-3,widthMm*0.05),'投影路径过短，无法生成沿面刻槽');
     const count=Math.min(64,Math.max(path.length,16));
-    const stations=[],projected=[];let maxResidual={value:0,index:0};
+    const stations=[],projected=[],tipCaps={};let maxResidual={value:0,index:0};
     let previousWidth=null,previousTangent=null;
     for(let i=0;i<count;i++){
       const target=length*i/(count-1);
@@ -96,6 +111,7 @@ export function buildProjectedGroove(source,params,cad){
       projected.push({point:snapped.point,residualMm:snapped.residualMm,normal:surfaceNormal});
     }
     for(let i=0;i<projected.length;i++){
+      const t=i/(count-1);
       const prev=projected[Math.max(0,i-1)].point,next=projected[Math.min(projected.length-1,i+1)].point;
       const rawTangent=next.map((v,j)=>v-prev[j]);
       check(norm(rawTangent)>=1e-8,'沿面采样后的相邻站点过近，请调整路径或减少加密');
@@ -105,23 +121,36 @@ export function buildProjectedGroove(source,params,cad){
       const tangent=unit(previousTangent&&dot(unit(tangentOnFace),previousTangent)<0?tangentOnFace.map(v=>-v):tangentOnFace);
       let widthDirection=unit(cross(tangent,surfaceNormal));
       if(previousWidth&&dot(widthDirection,previousWidth)<0)widthDirection=widthDirection.map(v=>-v);
-      stations.push({
-        centerMm:projected[i].point,
-        normal:tangent,
-        widthDirection,
-        widthMm,
-        depthMm:2*penetrationMm,
-        t:i/(count-1)
-      });
+      const penetrationMm=penetrationAt(t);
+      const atTip=t===0||t===1;
+      if(penetrationMm===0){
+        if(!atTip)throw new Error('depthLaw 在路径内部必须始终为正；只有路径端点可以为 0，此时以该路径点做点收尾，不能在中途把截面收到 0');
+        const side=t===0?'start':'end';
+        tipCaps[`${side}Cap`]={kind:'point',pointMm:projected[i].point};
+      }else{
+        if(!(penetrationMm>0))throw new Error('depthLaw 必须为非负有限值');
+        stations.push({
+          centerMm:projected[i].point,
+          normal:tangent,
+          widthDirection,
+          widthMm,
+          depthMm:2*penetrationMm,
+          t,
+          penetrationMm
+        });
+      }
       previousTangent=tangent;
       previousWidth=widthDirection;
     }
-    tool=buildSectionCurveLoft({pathType:'sections',stations},cad);
+    if(stations.length<2)throw new Error('零深度端点之外至少还需要两个正截面，才能生成点收尾的刀具');
+    tool=buildSectionCurveLoft({pathType:'sections',stations,...tipCaps},cad);
     const before=Math.abs(cad.measureVolume(source));
     result=source.cut(tool);
     check(!result.isNull && solidCount(result)===1,'投影刻槽使实体断开或无效，请减小切深或槽宽');
     const after=Math.abs(cad.measureVolume(result));
     check(before-after>Math.max(1e-8,before*1e-12),'投影刻槽未切入材料，请检查面号、路径和切深方向');
+    const startPenetrationMm=penetrationAt(0),endPenetrationMm=penetrationAt(1),midPenetrationMm=penetrationAt(0.5);
+    const variableDepth=params.depthLaw!==undefined&&!(typeof params.depthLaw==='number');
     result.projectedGrooveReport={
       method:'surface-normal-spine',
       source:'exact-brep-face-projection',
@@ -129,8 +158,12 @@ export function buildProjectedGroove(source,params,cad){
       faceGeomType:face.geomType,
       snapToleranceMm,
       widthMm,
-      penetrationMm,
-      sectionDepthMm:2*penetrationMm,
+      variableDepth:!!variableDepth||startPenetrationMm!==endPenetrationMm,
+      penetrationMm:variableDepth||startPenetrationMm!==endPenetrationMm?undefined:startPenetrationMm,
+      startPenetrationMm,
+      endPenetrationMm,
+      midPenetrationMm,
+      sectionDepthMm:variableDepth||startPenetrationMm!==endPenetrationMm?undefined:2*startPenetrationMm,
       stationCount:stations.length,
       pathLengthMm:length,
       maxResampleResidualMm:maxResidual.value,
@@ -138,7 +171,9 @@ export function buildProjectedGroove(source,params,cad){
       endMm:projected.at(-1).point,
       midMm:projected[Math.floor(projected.length/2)].point,
       midNormal:projected[Math.floor(projected.length/2)].normal,
-      limits:'single-face world polyline snapped to the face; constant width and inward normal depth; not multi-face, not a UV geodesic, not a planar cutter'
+      zeroEndDepth:{start:!!tipCaps.startCap,end:!!tipCaps.endCap},
+      tipPoints:{start:tipCaps.startCap?.pointMm??null,end:tipCaps.endCap?.pointMm??null},
+      limits:'single-face world polyline snapped to the face; constant width; depthLaw is actual inward normal penetration, not curveSweep full-section height; not multi-face, not a UV geodesic, not a planar cutter'
     };
     const complete=result;result=null;return complete;
   }catch(error){

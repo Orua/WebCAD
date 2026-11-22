@@ -809,7 +809,7 @@
       },
       {
         "id": "projectedGroove",
-        "chooseWhen": "把世界折线吸附到当前一张面上，沿面法向做等深槽；不是平面胶囊槽，也不跨面。"
+        "chooseWhen": "把世界折线吸附到当前一张面上，沿面法向切入；可用 depthLaw 做实际切深的沿线变化，槽宽仍是常数。不是平面胶囊槽，也不跨面。"
       },
       {
         "id": "faceGroove",
@@ -859,5 +859,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1eea895a9a06e1a04d1b13f2fa98c4209c7a3ebfd4d9ac29947eb14b6cf9eeb5"
+  "docsHash": "sha256:6a921e84d9433a6e8c7cd470ff92714d36db4e3938db7ffa6d4ba9f5c783a2b1"
 }

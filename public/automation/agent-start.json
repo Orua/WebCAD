@@ -1,9 +1,9 @@
 {
   "product": "WebCAD",
-  "pageApiVersion": "1.75.10",
-  "buildId": "421e8a69557faebaaa01c38278e7621f80e564de-src-faffac8872378be9-working",
-  "catalogHash": "sha256:d9875e0198aee02a72b9556e7819be4c92811c8b58c45b8bfca1b55679d2c50b",
-  "docsHash": "sha256:e6f9214edfd1001998bd549493d97240b69dc1a52fb06ba7f32e1bb0877817c8",
+  "pageApiVersion": "1.75.11",
+  "buildId": "7e6c8d7955c3d4a3190220d80a0810056419fe9f-src-71382bdd378346fe-working",
+  "catalogHash": "sha256:922fca8719e3e82fff7901bfb5bfe151e2683e2b61e06e3319d0a137ca3212f6",
+  "docsHash": "sha256:acfeda7bf55315636db0738039ad160c0d75d5e52f315036d0a701debc79d9a2",
   "version": 1,
   "entrypoint": "window.webcad.api.connect",
   "startUrl": "automation/agent-start.html",

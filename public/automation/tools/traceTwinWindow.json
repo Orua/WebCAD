@@ -2,7 +2,7 @@
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.75.10",
+  "version": "1.75.11",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -215,5 +215,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:77e393c3b9402831ad5c30e2239892dfcca02f54d9bf57b4c12a33c84c0a584b"
+  "docsHash": "sha256:c5794f914e62537e9446313d72e1cc13cb83e1a712bfb12abfa51a37b06bd7e4"
 }

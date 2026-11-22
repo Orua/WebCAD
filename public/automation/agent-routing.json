@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:d9875e0198aee02a72b9556e7819be4c92811c8b58c45b8bfca1b55679d2c50b",
-  "docsHash": "sha256:e6f9214edfd1001998bd549493d97240b69dc1a52fb06ba7f32e1bb0877817c8",
+  "catalogHash": "sha256:922fca8719e3e82fff7901bfb5bfe151e2683e2b61e06e3319d0a137ca3212f6",
+  "docsHash": "sha256:acfeda7bf55315636db0738039ad160c0d75d5e52f315036d0a701debc79d9a2",
   "workflowDelivery": {
     "schemaVersion": 1,
     "coreDocIds": [
@@ -818,8 +818,11 @@
         "下切表面跟随",
         "表面跟随槽",
         "沿面法向刻槽",
+        "沿面渐浅",
+        "曲面渐浅凹纹",
         "surface-projected groove",
         "surface-following groove",
+        "surface-following fading groove",
         "projectedGroove"
       ],
       "readFirst": "api.modeling.methods.projected-groove",
