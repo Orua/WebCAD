@@ -1549,6 +1549,25 @@
       "manualChecks": []
     },
     {
+      "operation": "projectedGroove",
+      "sourcePaths": [
+        "src/projected-groove.js",
+        "src/cad-kernel.js",
+        "src/operation-catalog.js"
+      ],
+      "localImpact": "Snap a world polyline onto one current face and cut a constant-width groove along the local surface normal",
+      "servicesImpact": "Local execution; no Services algorithm change",
+      "logoImpact": "none: unrelated to logo conversion",
+      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
+      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "requiredTests": [
+        "tests/operation-contract.test.mjs",
+        "tests/projected-groove.test.mjs"
+      ],
+      "manualChecks": []
+    },
+    {
       "operation": "multiPocket",
       "sourcePaths": [
         "src/cad-kernel.js",

@@ -839,6 +839,10 @@
         "chooseWhen": "在多个世界起点依次切圆孔；不是孔向导的孔型选择。"
       },
       {
+        "id": "projectedGroove",
+        "chooseWhen": "把世界折线吸附到当前一张面上，沿面法向做等深槽；不是平面胶囊槽，也不跨面。"
+      },
+      {
         "id": "faceGroove",
         "chooseWhen": "在指定平面面上铣矩形凹槽。"
       },
@@ -886,5 +890,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:df0e0941bab1397b0eeb31ccc17064f6dcd3f11b3154b5a632255b0ed4812406"
+  "docsHash": "sha256:f985113fc350870cb48a377ec268e0ef490345925ebb939b885584891bd8a503"
 }

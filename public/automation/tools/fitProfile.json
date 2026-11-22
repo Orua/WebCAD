@@ -2,7 +2,7 @@
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.75.9",
+  "version": "1.75.10",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -232,5 +232,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:76a6f19e06135dc26ebe6e3ca1bc85af48e37e5d2e87968a7c8469609f2dab9e"
+  "docsHash": "sha256:5f39d8b30776943d444204b7df8e3f7f09319b4b6dea45f1e20d8fdad2045e8f"
 }

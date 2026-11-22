@@ -2,7 +2,7 @@
   "id": "getBatchReceipt",
   "title": "getBatchReceipt",
   "category": "page-method",
-  "version": "1.75.9",
+  "version": "1.75.10",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -115,5 +115,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b40beda42e63fa78ced4c84a3b39e1f69038f568d247407a34a17e7f2e1223fa"
+  "docsHash": "sha256:45a6d46892b49aa51d2fe76cc7dbb15e9c062fe6ec0a6cfd7d5ccafb254e772b"
 }

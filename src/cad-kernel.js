@@ -55,6 +55,7 @@ import { buildShell } from './modeling/shell-solid.js';
 import { buildArcProfile } from './arc-profile.js';
 import { buildCurvedLogo } from './curved-logo.js';
 import { buildProjectedLogo } from './projected-logo.js';
+import { buildProjectedGroove } from './projected-groove.js';
 import { buildFittedSurface } from './fitted-surface.js';
 import { buildFaceThickness } from './surface-thickness.js';
 import { extractPlaneSection, extractFaceBoundary } from './reference-curves.js';
@@ -580,6 +581,7 @@ export class CadKernel {
           const result=applyMirrorVariation(mirrored,p.variation);dispose(mirrored);mirrored=null;return result;
         }finally{dispose(mirrored);dispose(linked);dispose(plane);}
       }
+      case 'projectedGroove': return buildProjectedGroove(source(),p,cad);
       case 'slot': {
         const shape=source(),length=positive(p,'length',20),width=positive(p,'width',6),depth=positive(p,'depth',5);
         if(length<width)throw new Error('槽总长须大于或等于槽宽');
@@ -1226,7 +1228,7 @@ export class CadKernel {
       mappedEdges??=wire.edgeGroups.map(g => ({edgeId:edgeMap.get(g.edgeId),positions:Array.from(wire.lines.slice(g.start*3,(g.start+g.count)*3))}));
       if(adaptive)measured.snapPoints=mappedEdges.filter(e=>e.positions.length).flatMap(e=>[{point:e.positions.slice(0,3),type:'endpoint',edgeId:e.edgeId},{point:e.positions.slice(-3),type:'endpoint',edgeId:e.edgeId}]);
       if (mappedFaces.some(g => g.faceId === undefined) || mappedEdges.some(g => g.edgeId === undefined)) throw new Error('拓扑索引映射失败');
-      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,adaptiveDisplay:adaptive&&!sharedTrimMesh?{initialTolerance:settings.tolerance,requestedQuality:quality,source:'exact-brep',sourceChanged:false,heavyFaceIds:complexity.poles.flatMap((n,i)=>n>=DISPLAY_BUDGET.adaptivePoles?[i]:[]),...(complexity.unsafeRequestedTolerance?{limited:true,requestedTolerance:requested.tolerance,budgetedTolerance:settings.tolerance}:{}),...(complexity.heavy?{heavy:true,heavyFaceIds:[...complexity.heavyFaces],splinePoles:complexity.totalPoles,coarsen:this.displayCoarsen||1}:{})}:undefined,logoProjectionReport:shape.logoProjectionReport,badgeReport:shape.badgeReport,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport,chainReport:shape.chainReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
+      return { id: feature.id, name: feature.name || feature.id, positions: new Float32Array(mesh.vertices), normals: new Float32Array(mesh.normals), indices: new Uint32Array(mesh.triangles), faceGroups: mappedFaces, edges: mappedEdges,...measured,adaptiveDisplay:adaptive&&!sharedTrimMesh?{initialTolerance:settings.tolerance,requestedQuality:quality,source:'exact-brep',sourceChanged:false,heavyFaceIds:complexity.poles.flatMap((n,i)=>n>=DISPLAY_BUDGET.adaptivePoles?[i]:[]),...(complexity.unsafeRequestedTolerance?{limited:true,requestedTolerance:requested.tolerance,budgetedTolerance:settings.tolerance}:{}),...(complexity.heavy?{heavy:true,heavyFaceIds:[...complexity.heavyFaces],splinePoles:complexity.totalPoles,coarsen:this.displayCoarsen||1}:{})}:undefined,logoProjectionReport:shape.logoProjectionReport,projectedGrooveReport:shape.projectedGrooveReport,badgeReport:shape.badgeReport,reliefReport:shape.reliefReport, refineReport:shape.refineReport, roundReport:shape.roundReport,endRoundingReport:shape.endRoundingReport,roundingReport:shape.roundingReport, transitionReport:shape.transitionReport, blendReport:shape.blendReport, repairReport:shape.repairReport, threadReport:shape.threadReport,chainReport:shape.chainReport, constraintReport:shape.constraintReport, surfaceDiagnostics: feature.op==='sewFaces'?diagnoseSurface(shape,cad):undefined };
     } finally { [...faces, ...edges].forEach(dispose); }
   }
   async rebuild(document,{displayCoarsen=1,headless=false,deferMassProperties=false}={}) {
@@ -1367,7 +1369,7 @@ export class CadKernel {
         if(cached)body={...cached.body,name:feature.name||feature.id};
         else if((headless||deferred.has(id))&&!isAssembly(next.get(id))&&next.get(id).geometryType!=='mesh'){
           const shape=next.get(id),faces=shape.faces,edges=shape.edges;
-          try{body={id,name:feature.name||id,...displayMetadata(shape,faces,edges,this.oc),...(headless?{volume:preciseVolume(shape,this.oc),metricsDeferred:false}:{displayDeferred:true}),positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],loftReport:shape.loftReport,logoProjectionReport:shape.logoProjectionReport,transitionReport:shape.transitionReport,alignmentReport:shape.alignmentReport,resizeReport:shape.resizeReport};}
+          try{body={id,name:feature.name||id,...displayMetadata(shape,faces,edges,this.oc),...(headless?{volume:preciseVolume(shape,this.oc),metricsDeferred:false}:{displayDeferred:true}),positions:new Float32Array(),normals:new Float32Array(),indices:new Uint32Array(),faceGroups:[],edges:[],loftReport:shape.loftReport,logoProjectionReport:shape.logoProjectionReport,projectedGrooveReport:shape.projectedGrooveReport,transitionReport:shape.transitionReport,alignmentReport:shape.alignmentReport,resizeReport:shape.resizeReport};}
           finally{faces.forEach(dispose);edges.forEach(dispose);}
         }else body=this.describe(next.get(id), feature,deferMassProperties);
         if(!isAssembly(next.get(id))&&!body.displayDeferred&&(feature.op==='group'||document.surface?.[id]?.solidColors)){

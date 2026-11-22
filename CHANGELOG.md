@@ -1,3 +1,7 @@
+## 1.75.10 — single-face surface-normal projected groove
+
+- Add `projectedGroove`: snap a 2–64 point world polyline onto one current face (0.1 mm) and cut a constant-width groove whose section depth follows the local surface normal. `depthMm` is actual inward penetration. This is not a planar slot, not logo engrave, and not multi-face or geodesic projection. Guidance routes surface-follow queries to this first slice; fading-recess remains the variable-depth spine path. Headless tests distinguish a cylindrical-arc groove from a chord-wise planar cut. Visual status is NOT_REVIEWED.
+
 ## 1.75.9 — point-cap zero tip on spine fading recesses
 
 - Allow spine `widthLaw`/`depthLaw` to reach exactly 0 at a path endpoint. The kernel drops the degenerate ellipse and closes that end with an existing ThruSections point cap at the path point, reported as `loftReport.zeroEndDepth` and `tipPoints`. Mid-path zeros and negative values are still rejected, and at least two positive stations remain required. This is not surface-projected grooving. Guidance, contracts and headless cut tests are updated together.

@@ -6,7 +6,7 @@ export const MODELING_DOCS = Object.freeze({
 
 ## 先确认能做什么
 
-现有路线是 curveSweep 的 spine 变截面实体刀具，再 cut 目标实体；不是自动曲面投影，也不做下切表面跟随。depthLaw/widthLaw 在路径内部必须始终为正；只有脊线端点可以为 0，内核会在该路径点做点收尾（loftReport.zeroEndDepth / tipPoints），而不是生成退化椭圆。曲面投影刻槽和下切表面跟随仍是能力缺口，不要从命中本路线或端点为 0 推断已经支持投影刻槽。平面等深槽改读 slot 卡。
+现有路线是 curveSweep 的 spine 变截面实体刀具，再 cut 目标实体；不是自动曲面投影，也不做下切表面跟随。depthLaw/widthLaw 在路径内部必须始终为正；只有脊线端点可以为 0，内核会在该路径点做点收尾（loftReport.zeroEndDepth / tipPoints），而不是生成退化椭圆。单面世界折线的沿面法向等深槽请改读 projectedGroove 与[单面沿面法向投影刻槽](api.modeling.methods.projected-groove)；不要从命中本路线或端点为 0 推断已经支持跨面或草图投影刻槽。平面等深槽改读 slot 卡。
 
 ## 深度不是宽度，也不是刀具中心高度
 
@@ -36,6 +36,37 @@ widthLaw/depthLaw 都必须始终为正。椭圆的 depthLaw 是完整截面尺�
 
 整体体块与控制笼工作流见[有机雕刻](api.modeling.methods.organic-form)。
 `,
+  "api.modeling.methods.projected-groove": `# 单面沿面法向投影刻槽：第一刀范围与验收
+
+## 先确认能做什么
+
+projectedGroove 把一条世界坐标折线吸附到当前实体的**一张面**上，再切一条槽宽恒定、沿**局部面法向**向内切入的等深槽。刀具截面在投影路径上居中，depthMm 是实际法向切入量，完整椭圆高度为 2×depthMm。这不是平面 slot 沿单一方向挤出，也不是 logo 的闭合区域等深凹刻。
+
+当前只覆盖这一刀：
+
+- 必须给出当前 body 的 faceId，以及 2–64 个已靠近该面的世界点（吸附限 0.1 mm）。
+- 只跟随这一张修剪面。路径离开该面、投影落到非周期边界之外，或相邻点的面法向变化超过约 60°，都会被拒绝；请沿路径加密点，不要一次跨过可见半周或另一张面。
+- 折线在三维中按弦线插值后再吸附回面，因此两点不会自动走长弧或测地线；弯面、柱面圆弧请自己给出足够密的点。
+- 槽宽和切深这一刀是常数，没有 widthLaw/depthLaw，也不能跨面连续。
+- 封闭轮廓凹刻仍用 logo；平面胶囊槽仍用 slot；沿线渐浅凹纹仍用 curveSweep spine 再 cut。
+
+成功后在当前实体读 projectedGrooveReport：method 为 surface-normal-spine，source 为 exact-brep-face-projection，并给出 faceGeomType、stationCount、penetrationMm 和起止点。不要把报告或体积减少当成视觉验收。
+
+## 小样
+
+下面只是 feature.add 的 params 示意，不是完整 execute 请求。先 queryGeometry 确认柱面 faceId，再从当前 getTool({id:"projectedGroove"}) 读 schema 与提交方式，不复用旧实体 ID。
+
+\`\`\`json
+{
+  "faceId": 0,
+  "pointsMm": [[9.397,3.420,10],[10,0,10],[9.397,-3.420,10]],
+  "widthMm": 2,
+  "depthMm": 0.8
+}
+\`\`\`
+
+配合半径 10 mm、高 20 mm、沿 +Z 的圆柱，路径在 z=10 的柱面上约 ±20°。切深 0.8 mm 沿柱面法向指向轴，中点附近材料应出现在 r≈9.2–10 一带；弦线中点内侧（约 x=7.7）不应被这条浅槽切到。用只读 measure({kind:"region",minMm,maxMm}) 比较柱面中点附近与弦线内侧的交集体积。总体积减少只证明某处切掉了材料。没有看图时写 NOT_REVIEWED。
+`,
   "api.modeling.methods.organic-form": `# 有机体块、局部雕刻与渐缩弯体
 
 先做一个容易辨认的小样，冻结尺寸、主方向、两个关键轮廓和要保持的位置。验收先看正、侧和三分之四视图，再读有效实体数、包围盒与局部测量。
@@ -56,13 +87,13 @@ widthLaw/depthLaw 都必须始终为正。椭圆的 depthLaw 是完整截面尺�
 |fittedSurface|点阵控制的单片曲面|输出是面，不是可直接布尔的封闭实体；按当前卡完成加厚/封闭再测量|
 |meshReliefEdit / relief|当前契约支持的局部高度场|不能用单值投影表达下切、背面或任意三维拓扑|
 
-渐消凹纹的刀具定位、截面尺寸与局部验收见[沿线渐浅凹纹](api.modeling.methods.fading-recess)。
+渐消凹纹的刀具定位、截面尺寸与局部验收见[沿线渐浅凹纹](api.modeling.methods.fading-recess)。单面世界折线的沿面法向等深槽见[单面沿面法向投影刻槽](api.modeling.methods.projected-groove)。
 
 ## 从大形到渐消细节
 
 1. connect/route 选择本路线，getTools 只取所选分支的完整卡；核对参数、当前 context、表示与 canExecute，不调用隐藏几何入口。
 2. 在独立小样固定尺寸和视角，用少量宽范围 move/push/smooth 形成连续主块。核对 affectedControlPoints 和 maxDisplacementMm；未命中时调整控制笼/半径，而不是盲目增加强度。
-3. 次级凹凸先在同一连续表示上减小笔刷位移。smooth 径向衰减只在半径边界渐消，不是沿线深度规律。沿线渐消凹纹用 curveSweep 的 spine 与 widthLaw/depthLaw 生成刀具，再 cut 到目标实体；不能把“减小宽度”当作“减小深度”。路径内部须保持正深度；只有端点可以为 0，并由点收尾闭合。用 kind:region 的局部体积确认深端比浅端多切除材料。这不是任意曲面的投影刻槽，也不要用浮起的细管冒充凹纹；平面等深槽才用 slot。
+3. 次级凹凸先在同一连续表示上减小笔刷位移。smooth 径向衰减只在半径边界渐消，不是沿线深度规律。沿线渐消凹纹用 curveSweep 的 spine 与 widthLaw/depthLaw 生成刀具，再 cut 到目标实体；不能把“减小宽度”当作“减小深度”。路径内部须保持正深度；只有端点可以为 0，并由点收尾闭合。用 kind:region 的局部体积确认深端比浅端多切除材料。单面世界折线的沿面法向等深槽用 projectedGroove，不是任意曲面、跨面或草图投影；也不要用浮起的细管冒充凹纹；平面等深槽才用 slot。
 4. 一次多凸点可用 bumpSet 的 bumps 数组，只做一次当前接缝修顺。增量再做一批时，当前已雕刻结果是一个新操作数，历史接缝不保证等同一次批量；失败先保留已成功实体，用新 ID 和当前卡复现差异，不把重复并集当作连续曲面塑形。
 5. 必须接成一体的 union 用 requireConnected:true。可在高风险局部连接增加 verifyMaterial:true：本地逐输入做 source-minus-result 精确差集，检查 booleanReport.materialCoverage 的每件 missingVolumeMm3 与 toleranceMm3；它在接缝修顺之前运行，会增加每输入一次布尔成本，Services 暂不支持。默认的体积与外包围范围只是必要检查，不能证明内包围范围内的材料没有丢失；覆盖验证也不证明光顺或没有多余材料。
 6. 每个稳定阶段保存外部配方（原始笼、笔刷数组、截面/规律和逻辑引用）与原生工程。按 api.guide.files 完成 save → read → 宿主写入 → SHA256/大小确认，在独立文档 reopen 后复测实体数、包围盒与体积。.webcad 保存最终几何，不保证保留可重建的笔刷/历史；没有落盘回执不能宣称已保存。
@@ -113,7 +144,8 @@ widthLaw/depthLaw 都必须始终为正。椭圆的 depthLaw 是完整截面尺�
   "api.modeling.sources": "建模方法移植自本次 text-to-cad 全库参考整理的 0.3.0 指导：安装插件0.7.19的106个文件及本地参考仓库0.7.14的2895个跟踪文件已盘点分类；这不代表所有源码逐行审计或全部样例实际执行。运行包仅收录适用于WebCAD的方法、工作流、诊断和推理示例，不分发原仓库、历史测试回执、旧版工具卡或外部引擎。WebCAD当前页面/文档/CommandService/Worker仍是执行依据；制造、打印、仿真等外部交接不冒充页面已具备的能力。方法示例不代表当前任务几何验收，实际证据需逐项取得。"
 });
 export const MODELING_ROUTES = [
-  {"id": "modeling.fading-recess", "title": "沿线渐浅凹纹与投影刻槽能力边界", "keywords": ["渐消凹纹", "渐浅凹纹", "渐浅刻槽", "刻槽逐渐变浅", "沿线渐浅", "fading groove", "tapered recess", "surface-projected groove", "曲面投影刻槽"], "readFirst": "api.modeling.methods.fading-recess", "docs": ["api.modeling.methods.fading-recess", "api.modeling.methods.organic-form"], "tools": ["curveSweep", "cut", "intersect", "measure"], "branches": []},
+  {"id": "modeling.projected-groove", "title": "单面沿面法向投影刻槽", "keywords": ["曲面投影刻槽", "下切表面跟随", "表面跟随槽", "沿面法向刻槽", "surface-projected groove", "surface-following groove", "projectedGroove"], "readFirst": "api.modeling.methods.projected-groove", "docs": ["api.modeling.methods.projected-groove", "api.modeling.methods.fading-recess", "api.modeling.methods.organic-form"], "tools": ["projectedGroove", "measure"], "branches": []},
+  {"id": "modeling.fading-recess", "title": "沿线渐浅凹纹与能力边界", "keywords": ["渐消凹纹", "渐浅凹纹", "渐浅刻槽", "刻槽逐渐变浅", "沿线渐浅", "fading groove", "tapered recess"], "readFirst": "api.modeling.methods.fading-recess", "docs": ["api.modeling.methods.fading-recess", "api.modeling.methods.organic-form"], "tools": ["curveSweep", "cut", "intersect", "measure"], "branches": []},
   {
     id:"modeling.organic-form",title:"有机体块与立体雕刻",
     keywords:["有机造型","立体雕刻","异形体块","控制笼","果窝","局部拖拽","弯曲渐缩","三维雕刻","organic sculpt"],
@@ -125,6 +157,7 @@ export const MODELING_ROUTES = [
       {id:"spine",tools:["curveSweep","guidedLoft","fittedSurface","measure"]},
       {id:"connected-detail",tools:["bumpSet","union","measure"]},
       {id:"fading-recess",tools:["curveSweep","cut","measure"]},
+      {id:"projected-groove",tools:["projectedGroove","measure"]},
       {id:"mesh-height",tools:["meshReliefEdit","sampleMeshRelief"]}
     ]
   },

@@ -2,7 +2,7 @@
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.75.9",
+  "version": "1.75.10",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -185,5 +185,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4d8a58b4df5a06942aca564f93b92ad9f49b362be3141bd57999c6f2f4c5fcfb"
+  "docsHash": "sha256:6b75c181b72c54c0987cea18d5a7dca91f929a098c17a5798518a2c22fe220f8"
 }

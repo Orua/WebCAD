@@ -28,6 +28,7 @@ export const operationExamples = {badge:{faceId:0,thicknessMm:2,side:'double',di
   faceExtrude: { faceId: 0, height: 2 }, fillet: { radius: 0.5, edgeIds: [0] },
   chamfer: { distance: 0.5, edgeIds: [0] }, shell: { thickness: 1, faceIds: [0] },
   slot: { length: 10, width: 3, depth: 5, x: 20, y: 15, z: 4, direction: -1 },
+  projectedGroove: { faceId: 0, pointsMm: [[10,0,10],[7.071,7.071,10],[0,10,10]], widthMm: 2, depthMm: 0.6 },
   linearPattern: { count: 3, dx: 20 }, circularPattern: { count: 3, angle: 360, axis: 'Z' },
   split: { plane: 'XY', offset: 1 }, extractSolid: { solidIndex: 0 }, group: {}, union: {}, cut: {}, intersect: {},
   quickModel: { kind: 'tube' }, remove: {}, import: {},

@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.75.9 · 操作目录 sha256:172fa633b6fddb2f36a7eb39f4818994c241eb22e5732b148d5c5733faf88b9e
+API 1.75.10 · 操作目录 sha256:d9875e0198aee02a72b9556e7819be4c92811c8b58c45b8bfca1b55679d2c50b
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -187,6 +187,7 @@ API 1.75.9 · 操作目录 sha256:172fa633b6fddb2f36a7eb39f4818994c241eb22e5732b
 - `profileRepair` · migrated · Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement
 - `profileRevolve` · migrated · Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result
 - `profileSweep` · migrated · Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result
+- `projectedGroove` · advisory · 沿单面法向的投影刻槽 / Surface-normal projected groove
 - `quickModel` · advisory · Parameterized product model; prefer getTool({id:"quickModel"}) then execute(request)
 - `referenceExtrude` · advisory · 选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。
 - `referenceLoft` · advisory · 按顺序选择 2–12 个平面闭合截面对象，每个对象仅一个外环，无内孔。复用精确曲线，支持不同位置/尺寸截面；由内核匹配边对应关系，结果须核对截面与外形。可选直纹。保留来源；失败不修改原工程。不保证任意原件完整重建。

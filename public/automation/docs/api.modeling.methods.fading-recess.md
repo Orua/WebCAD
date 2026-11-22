@@ -4,7 +4,7 @@
 
 ## 先确认能做什么
 
-现有路线是 curveSweep 的 spine 变截面实体刀具，再 cut 目标实体；不是自动曲面投影，也不做下切表面跟随。depthLaw/widthLaw 在路径内部必须始终为正；只有脊线端点可以为 0，内核会在该路径点做点收尾（loftReport.zeroEndDepth / tipPoints），而不是生成退化椭圆。曲面投影刻槽和下切表面跟随仍是能力缺口，不要从命中本路线或端点为 0 推断已经支持投影刻槽。平面等深槽改读 slot 卡。
+现有路线是 curveSweep 的 spine 变截面实体刀具，再 cut 目标实体；不是自动曲面投影，也不做下切表面跟随。depthLaw/widthLaw 在路径内部必须始终为正；只有脊线端点可以为 0，内核会在该路径点做点收尾（loftReport.zeroEndDepth / tipPoints），而不是生成退化椭圆。单面世界折线的沿面法向等深槽请改读 projectedGroove 与[单面沿面法向投影刻槽](api.modeling.methods.projected-groove)；不要从命中本路线或端点为 0 推断已经支持跨面或草图投影刻槽。平面等深槽改读 slot 卡。
 
 ## 深度不是宽度，也不是刀具中心高度
 

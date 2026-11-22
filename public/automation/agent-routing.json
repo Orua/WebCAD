@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:172fa633b6fddb2f36a7eb39f4818994c241eb22e5732b148d5c5733faf88b9e",
-  "docsHash": "sha256:fd22b0da54d0ea788cfa76c32887d0f1d32932cf53c213998abb3ee65e924118",
+  "catalogHash": "sha256:d9875e0198aee02a72b9556e7819be4c92811c8b58c45b8bfca1b55679d2c50b",
+  "docsHash": "sha256:e6f9214edfd1001998bd549493d97240b69dc1a52fb06ba7f32e1bb0877817c8",
   "workflowDelivery": {
     "schemaVersion": 1,
     "coreDocIds": [
@@ -811,8 +811,33 @@
       "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
     },
     {
+      "id": "modeling.projected-groove",
+      "title": "单面沿面法向投影刻槽",
+      "keywords": [
+        "曲面投影刻槽",
+        "下切表面跟随",
+        "表面跟随槽",
+        "沿面法向刻槽",
+        "surface-projected groove",
+        "surface-following groove",
+        "projectedGroove"
+      ],
+      "readFirst": "api.modeling.methods.projected-groove",
+      "docs": [
+        "api.modeling.methods.projected-groove",
+        "api.modeling.methods.fading-recess",
+        "api.modeling.methods.organic-form"
+      ],
+      "tools": [
+        "projectedGroove",
+        "measure"
+      ],
+      "branches": [],
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
+    },
+    {
       "id": "modeling.fading-recess",
-      "title": "沿线渐浅凹纹与投影刻槽能力边界",
+      "title": "沿线渐浅凹纹与能力边界",
       "keywords": [
         "渐消凹纹",
         "渐浅凹纹",
@@ -820,9 +845,7 @@
         "刻槽逐渐变浅",
         "沿线渐浅",
         "fading groove",
-        "tapered recess",
-        "surface-projected groove",
-        "曲面投影刻槽"
+        "tapered recess"
       ],
       "readFirst": "api.modeling.methods.fading-recess",
       "docs": [
@@ -888,6 +911,13 @@
           "tools": [
             "curveSweep",
             "cut",
+            "measure"
+          ]
+        },
+        {
+          "id": "projected-groove",
+          "tools": [
+            "projectedGroove",
             "measure"
           ]
         },

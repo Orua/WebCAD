@@ -863,6 +863,10 @@
         "chooseWhen": "切两半圆加两直边的胶囊形槽。"
       },
       {
+        "id": "projectedGroove",
+        "chooseWhen": "把世界折线吸附到当前一张面上，沿面法向做等深槽；不是平面胶囊槽，也不跨面。"
+      },
+      {
         "id": "faceGroove",
         "chooseWhen": "在指定平面面上铣矩形凹槽。"
       },
@@ -910,5 +914,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ad48ef869deb801466f13b4c403dd03fff66cd20cc0e6b3677efbd32d1a8977b"
+  "docsHash": "sha256:5c4d764d4b1cd7a7a5ad0c5ead82caaa1d8f337bda19d416e66fac5fef2fd7c4"
 }

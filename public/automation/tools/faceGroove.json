@@ -836,6 +836,10 @@
         "chooseWhen": "切两半圆加两直边的胶囊形槽。"
       },
       {
+        "id": "projectedGroove",
+        "chooseWhen": "把世界折线吸附到当前一张面上，沿面法向做等深槽；不是平面胶囊槽，也不跨面。"
+      },
+      {
         "id": "multiPocket",
         "chooseWhen": "多个矩形/圆角矩形口袋切除，不是胶囊槽或圆孔阵列。"
       },
@@ -879,5 +883,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d2a1a0823f2db0d71f104ff30224916d0554ae8f28852249322d9205fa9574f2"
+  "docsHash": "sha256:f28081064e401bde83b35c2bc7c628bd9e1c703765bdf0e6907026ef3f016834"
 }

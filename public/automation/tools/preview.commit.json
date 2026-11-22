@@ -8,7 +8,7 @@
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}。preview.start 回执的 generation 可作为 expectedGeneration 的别名。字段名错误时 error.details.unknownField 与 expected 会指出应使用的字段。仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤，并复用预览已算出的形状。",
   "category": "command",
-  "version": "1.75.9",
+  "version": "1.75.10",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -226,5 +226,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fc213d792115eee8248050039a5c778c1e69fc38fbcd6b815bb595f6e6fda384"
+  "docsHash": "sha256:cbdb4876bbbd02fd1eb2d4acbc07cba56b2d4cc53c31367a4f9e6efb0ef5c1a7"
 }

@@ -20,13 +20,13 @@
 |fittedSurface|点阵控制的单片曲面|输出是面，不是可直接布尔的封闭实体；按当前卡完成加厚/封闭再测量|
 |meshReliefEdit / relief|当前契约支持的局部高度场|不能用单值投影表达下切、背面或任意三维拓扑|
 
-渐消凹纹的刀具定位、截面尺寸与局部验收见[沿线渐浅凹纹](api.modeling.methods.fading-recess)。
+渐消凹纹的刀具定位、截面尺寸与局部验收见[沿线渐浅凹纹](api.modeling.methods.fading-recess)。单面世界折线的沿面法向等深槽见[单面沿面法向投影刻槽](api.modeling.methods.projected-groove)。
 
 ## 从大形到渐消细节
 
 1. connect/route 选择本路线，getTools 只取所选分支的完整卡；核对参数、当前 context、表示与 canExecute，不调用隐藏几何入口。
 2. 在独立小样固定尺寸和视角，用少量宽范围 move/push/smooth 形成连续主块。核对 affectedControlPoints 和 maxDisplacementMm；未命中时调整控制笼/半径，而不是盲目增加强度。
-3. 次级凹凸先在同一连续表示上减小笔刷位移。smooth 径向衰减只在半径边界渐消，不是沿线深度规律。沿线渐消凹纹用 curveSweep 的 spine 与 widthLaw/depthLaw 生成刀具，再 cut 到目标实体；不能把“减小宽度”当作“减小深度”。路径内部须保持正深度；只有端点可以为 0，并由点收尾闭合。用 kind:region 的局部体积确认深端比浅端多切除材料。这不是任意曲面的投影刻槽，也不要用浮起的细管冒充凹纹；平面等深槽才用 slot。
+3. 次级凹凸先在同一连续表示上减小笔刷位移。smooth 径向衰减只在半径边界渐消，不是沿线深度规律。沿线渐消凹纹用 curveSweep 的 spine 与 widthLaw/depthLaw 生成刀具，再 cut 到目标实体；不能把“减小宽度”当作“减小深度”。路径内部须保持正深度；只有端点可以为 0，并由点收尾闭合。用 kind:region 的局部体积确认深端比浅端多切除材料。单面世界折线的沿面法向等深槽用 projectedGroove，不是任意曲面、跨面或草图投影；也不要用浮起的细管冒充凹纹；平面等深槽才用 slot。
 4. 一次多凸点可用 bumpSet 的 bumps 数组，只做一次当前接缝修顺。增量再做一批时，当前已雕刻结果是一个新操作数，历史接缝不保证等同一次批量；失败先保留已成功实体，用新 ID 和当前卡复现差异，不把重复并集当作连续曲面塑形。
 5. 必须接成一体的 union 用 requireConnected:true。可在高风险局部连接增加 verifyMaterial:true：本地逐输入做 source-minus-result 精确差集，检查 booleanReport.materialCoverage 的每件 missingVolumeMm3 与 toleranceMm3；它在接缝修顺之前运行，会增加每输入一次布尔成本，Services 暂不支持。默认的体积与外包围范围只是必要检查，不能证明内包围范围内的材料没有丢失；覆盖验证也不证明光顺或没有多余材料。
 6. 每个稳定阶段保存外部配方（原始笼、笔刷数组、截面/规律和逻辑引用）与原生工程。按 api.guide.files 完成 save → read → 宿主写入 → SHA256/大小确认，在独立文档 reopen 后复测实体数、包围盒与体积。.webcad 保存最终几何，不保证保留可重建的笔刷/历史；没有落盘回执不能宣称已保存。
