@@ -1,3 +1,4 @@
+import {releaseNativeBoolean} from '../io/native-boolean-lifetime.js';
 import {topologyDetails} from './topology.js';
 import {assertRoundingQualityEvidence, assertAutomaticPolishingQualityEvidence} from './quality-evidence.js';
 import {measureKernelEdgeFaceNormal} from './kernel-normal.js';
@@ -53,7 +54,7 @@ export function cutRoundingDifferenceNonDestructive(first, second, cad) {
       fail('material', '非破坏性 BRep 材料差集计算未完成', {}, 'MATERIAL_CHECK_FAILED');
     }
     return cad.cast(builder.Shape());
-  } finally {[progress, tools, objects, builder].forEach(dispose);}
+  } finally {try{releaseNativeBoolean(builder);}finally{[progress, tools, objects].forEach(dispose);}}
 }
 
 function bounds(shape) {

@@ -1,3 +1,6 @@
+import {measureSignedVolume} from './signed-volume.js';
+import {buildProjectedPattern} from './projected-groove-pattern.js';
+import {projectPointToFace as projectPoint,normalAtFace as faceNormal} from './surface-projection.js';
 import {buildSectionCurveLoft} from './section-curve-loft.js';
 import {assertInteriorLawPositive,sampleLaw} from './loft-spine.js';
 
@@ -16,16 +19,6 @@ const tuple = value => typeof value?.toTuple==='function'?value.toTuple():[value
 function solidCount(shape) {
   const solids=shape.solids;
   try{return solids.length;}finally{solids.forEach(dispose);}
-}
-function projectPoint(face,cad,point,hold){
-  const anchor=hold(cad.makeVertex(point));
-  const query=hold(new cad.DistanceQuery(face));
-  const residualMm=query.distanceTo(anchor);
-  const snapped=hold(query.wrapped.PointOnShape1(1));
-  return {point:[snapped.X(),snapped.Y(),snapped.Z()],residualMm};
-}
-function faceNormal(face,point,hold){
-  return unit(tuple(hold(face.normalAt(point))));
 }
 function polylineLength(points){
   let length=0;
@@ -118,12 +111,26 @@ function edgePoint(edge,t,hold){
 function crossingOnSharedEdges(edges,from,to,hold){
   check(edges?.length,'路径点就近落到的面不相邻，不能跨面跳跃；请改给有共享边的 faceIds。就近推断不会自动寻路，也不是测地线');
   let best=null;
+  const evaluate=(edge,t)=>{
+    const point=edgePoint(edge,t,hold),cost=dist(from,point)+dist(point,to);
+    if(!best||cost<best.cost)best={point,cost};
+    return cost;
+  };
   for(const edge of edges){
     const samples=32;
+    const costs=Array.from({length:samples+1},(_,i)=>evaluate(edge,i/samples));
+    // The coarse scan locates candidate basins; it is not the crossing itself.
+    // Refine every sampled local minimum, keeping endpoints as candidates.
     for(let i=0;i<=samples;i++){
-      const point=edgePoint(edge,i/samples,hold);
-      const cost=dist(from,point)+dist(point,to);
-      if(!best||cost<best.cost)best={point,cost};
+      if((i>0&&costs[i]>costs[i-1])||(i<samples&&costs[i]>costs[i+1]))continue;
+      let lo=Math.max(0,i-1)/samples,hi=Math.min(samples,i+1)/samples;
+      const ratio=(Math.sqrt(5)-1)/2;
+      let a=hi-ratio*(hi-lo),b=lo+ratio*(hi-lo);
+      let fa=evaluate(edge,a),fb=evaluate(edge,b);
+      for(let step=0;step<48;step++){
+        if(fa<fb){hi=b;b=a;fb=fa;a=hi-ratio*(hi-lo);fa=evaluate(edge,a);}
+        else{lo=a;a=b;fa=fb;b=lo+ratio*(hi-lo);fb=evaluate(edge,b);}
+      }
     }
   }
   return best.point;
@@ -164,7 +171,7 @@ function projectToAllowed(faces,allowed,point,cad,hold,snapToleranceMm,index,opt
 // A face change is inserted at the shared-edge point that minimizes the 3D
 // polyline length. Optional widthLaw varies the full groove width. Optional
 // depthLaw varies actual inward penetration.
-export function buildProjectedGroove(source,params,cad){
+function buildGroove(source,params,cad,{collectOnly=false}={}){
   const widthAt=grooveWidthAt(params);
   const penetrationAt=penetrationLaw(params);
   const points=params.pointsMm;
@@ -172,19 +179,19 @@ export function buildProjectedGroove(source,params,cad){
   check(points.every(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)),'pointsMm 的每个点必须是有限 XYZ');
   check(solidCount(source)===1,'投影刻槽需要一个封闭实体');
   const resources=[],hold=(...objects)=>{for(const object of objects)resources.push(object);return objects[0];};
-  let tool=null,result=null;
+  let tool=null,result=null,phase='faces';const toolPieces=[];
   try{
     const faces=source.faces;hold(...faces);
     const resolved=resolveFaceIds(params,faces);
     const inferred=resolved.inferred;
-    const neighbours=adjacency(faces,hold);
+    phase='adjacency';const neighbours=adjacency(faces,hold);
     const snapToleranceMm=0.1;
     const pool=resolved.ids||faces.map((_,id)=>id);
     const anchors=[];
     for(let i=0;i<points.length;i++){
-      const snapped=projectToAllowed(faces,pool,points[i],cad,hold,snapToleranceMm,i,{inferTies:inferred,preferFaceId:anchors.at(-1)?.faceId});
+      phase='anchor-'+i;const snapped=projectToAllowed(faces,pool,points[i],cad,hold,snapToleranceMm,i,{inferTies:inferred,preferFaceId:anchors.at(-1)?.faceId});
       if(i&&dist(snapped.point,anchors.at(-1).point)<1e-6)throw new Error('投影后的相邻路径点不得重合');
-      const normal=faceNormal(faces[snapped.faceId],snapped.point,hold);
+      const normal=faceNormal(faces[snapped.faceId],snapped.point,hold,snapped.uv,cad);
       if(i&&snapped.faceId===anchors.at(-1).faceId&&dot(normal,anchors.at(-1).normal)<0.5)throw new Error('相邻投影点的面法向变化过大，请沿路径加密点，勿一次跨过可见半周或不同面');
       anchors.push({...snapped,normal});
     }
@@ -237,13 +244,14 @@ export function buildProjectedGroove(source,params,cad){
         for(let i=0;i<count;i++){
           const local=runLength*i/(count-1);
           const seed=pointAtLength(runPath,local);
-          const snapped=projectPoint(faces[row[0].faceId],cad,seed.point,hold);
+          phase='resample-'+i;const snapped=projectPoint(faces[row[0].faceId],cad,seed.point,hold);
           if(snapped.residualMm>maxResidual.value)maxResidual={value:snapped.residualMm,index:allProjected.length};
           const single=allowed.length===1;
+          phase='resample-boundary-'+i;
           if(onBoundary(snapped.point,boundaryEdges(faces[row[0].faceId],cad,hold),cad,hold)&&snapped.residualMm>snapToleranceMm){
             throw new Error(single?'路径离开所选面的内部，当前不支持跨面延续或沿边界滑移':'路径离开所列曲面的内部；跨面只能经过共享边，不能沿开放边界滑出');
           }
-          const surfaceNormal=faceNormal(faces[row[0].faceId],snapped.point,hold);
+          phase='resample-normal-'+i;const surfaceNormal=faceNormal(faces[row[0].faceId],snapped.point,hold,snapped.uv,cad);
           if(!projected.length||dist(projected.at(-1).point,snapped.point)>1e-6)projected.push({point:snapped.point,residualMm:snapped.residualMm,normal:surfaceNormal,faceId:row[0].faceId,t:(runStarts[r]+local)/length});
         }
         for(let i=0;i<projected.length;i++){
@@ -280,22 +288,23 @@ export function buildProjectedGroove(source,params,cad){
         const caps={};
         if(r===0&&tipCaps.startCap)caps.startCap=tipCaps.startCap;
         if(r===runs.length-1&&tipCaps.endCap)caps.endCap=tipCaps.endCap;
-        const piece=buildSectionCurveLoft({pathType:'sections',stations,...caps},cad);
+        phase='loft';const piece=buildSectionCurveLoft({pathType:'sections',stations,...caps,...(collectOnly?{loftDegree:2}:{})},cad);
+        if(collectOnly){toolPieces.push(piece);allProjected.push(...projected);allStations.push(...stations);continue;}
         const target=work||source;
-        const before=Math.abs(cad.measureVolume(target));
+        const before=measureSignedVolume(target,cad).volumeMm3;check(Number.isFinite(before)&&before>0,'源实体必须有正的有向体积，不能用绝对值掩盖方向错误');
         let next=null;
         try{
           next=target.cut(piece);
           check(!next.isNull && solidCount(next)===1,'投影刻槽使实体断开或无效，请减小切深或槽宽');
-          const after=Math.abs(cad.measureVolume(next));
+          const after=measureSignedVolume(next,cad).volumeMm3;check(Number.isFinite(after)&&after>0,'刻槽结果必须有正的有向体积');
           check(before-after>Math.max(1e-8,before*1e-12),'投影刻槽未切入材料，请检查面号、路径和切深方向');
-        }finally{dispose(piece);}
+        }catch(error){dispose(next);throw error;}finally{dispose(piece);}
         if(work)dispose(work);
         work=next;
         allProjected.push(...projected);
         allStations.push(...stations);
       }
-      result=work;work=null;
+      if(collectOnly){if(toolPieces.length===1)result=toolPieces.pop();else{result=cad.makeCompound(toolPieces);toolPieces.forEach(dispose);toolPieces.length=0;}}else{result=work;work=null;}
     }finally{dispose(work);}
     const projected=allProjected,stations=allStations;
 
@@ -307,6 +316,7 @@ export function buildProjectedGroove(source,params,cad){
     result.projectedGrooveReport={
       method:'surface-normal-spine',
       source:'exact-brep-face-projection',
+      ...(collectOnly?{samples:allProjected.map(q=>({point:q.point,normal:q.normal,faceId:q.faceId}))}:{}),
       faceId:allowed.length===1?allowed[0]:usedIds[0],
       faceIds:usedIds,
       faceIdsInferred:inferred,
@@ -315,6 +325,7 @@ export function buildProjectedGroove(source,params,cad){
       crossingCount:crossings.length,
       crossings:crossings.map(item=>({point:item.point,fromFaceId:item.fromFaceId,toFaceId:item.toFaceId})),
       crossingMethod:crossings.length?'shared-edge-shortest-polyline':undefined,
+      crossingSearch:crossings.length?{method:'sampled-basin-golden-section',scanIntervals:32,refinementIterations:48,globalMinimumGuaranteed:false}:undefined,
       snapToleranceMm,
       widthMm:variableWidth||startWidthMm!==endWidthMm?undefined:startWidthMm,
       variableWidth:!!variableWidth||startWidthMm!==endWidthMm,
@@ -341,8 +352,13 @@ export function buildProjectedGroove(source,params,cad){
     };
     const complete=result;result=null;return complete;
   }catch(error){
-    throw new Error('曲面投影刻槽失败：'+(error.message||String(error)));
+    throw Object.assign(new Error('曲面投影刻槽失败：'+(error.message||String(error)),{cause:error}),{code:error.code||'GEOMETRY_INVALID',report:{phase,native:error.report}});
   }finally{
-    dispose(result);dispose(tool);resources.reverse().forEach(dispose);
+    toolPieces.forEach(dispose);dispose(result);dispose(tool);resources.reverse().forEach(dispose);
   }
+}
+
+export function buildProjectedGroove(source,params,cad){
+ if(params.pattern!==undefined)return buildProjectedPattern(source,params,cad,p=>buildGroove(source,p,cad,{collectOnly:true}));
+ return buildGroove(source,params,cad);
 }

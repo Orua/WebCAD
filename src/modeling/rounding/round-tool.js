@@ -1,3 +1,4 @@
+import {ownNativeBoolean} from '../io/native-boolean-lifetime.js';
 import * as cad from 'replicad';
 import {buildEndRounding} from './end-rounding.js';
 import {buildEdgeBlend} from '../../edge-blend.js';
@@ -74,7 +75,7 @@ export function planRoundTool(shape,p){
   if(p.radiusMm!==undefined)fail('圆头使用处理范围；请清除精确半径或改为只磨边缘。','PARAM_SCHEMA_INVALID');
   const oc=cad.getOC(),probeDepth=Math.max(minor*.6,reach+.01),pos=end-direction*probeDepth;
   const point=new oc.gp_Pnt(...[0,0,0].map((_,i)=>i===axisIndex?pos:0)),normal=new oc.gp_Dir(...[0,0,0].map((_,i)=>i===axisIndex?1:0));owned.push(point,normal);
-  const plane=new oc.gp_Pln(point,normal),section=new oc.BRepAlgoAPI_Section(),progress=new oc.Message_ProgressRange();owned.push(plane,section,progress);
+  const plane=new oc.gp_Pln(point,normal),section=ownNativeBoolean(new oc.BRepAlgoAPI_Section(),value=>owned.push(value)),progress=new oc.Message_ProgressRange();owned.push(plane,progress);
   section.Init1(shape.wrapped);section.Init2(plane);section.SetNonDestructive(true);section.Build(progress);
   if(!section.IsDone()||section.HasErrors())fail('无法读取杆身截面，请指定杆身方向。');
   const profile=cad.cast(section.Shape()),pb=profile.boundingBox;owned.push(profile,pb);

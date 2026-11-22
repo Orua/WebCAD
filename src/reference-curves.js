@@ -1,3 +1,4 @@
+import {releaseNativeBoolean} from './modeling/io/native-boolean-lifetime.js';
 // Reference geometry helpers. They return a displayable compound and never mutate the source shape.
 import {rotateVector,worldPoint} from './work-frame.js';
 const dispose = value => { try { value?.delete?.(); } catch {} };
@@ -140,6 +141,6 @@ export function extractPlaneSection(shape, { plane, offset = 0, frame, result: r
     try { return sectionResult(result, resultEdges, resultMode, samples, cad); }
     finally { resultEdges.forEach(dispose); }
   } finally {
-    dispose(builder); dispose(planeFace); dispose(sketch); dispose(drawing); dispose(box);
+    releaseNativeBoolean(builder); dispose(planeFace); dispose(sketch); dispose(drawing); dispose(box);
   }
 }

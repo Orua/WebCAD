@@ -14,7 +14,7 @@ export function validateProject(document){
       if(!feature.id||ids.has(feature.id)||typeof feature.op!=='string'||!Array.isArray(feature.refs))throw new Error('特征ID重复或结构无效');
       validateOperationRefs(feature.op,feature.refs);
       for(const id of feature.refs)if(!ids.has(id))throw new Error('特征引用不存在或指向后续特征');
-      if(feature.placement!==undefined)validateResolvedPlacement(feature.placement,feature.op);
+      if(feature.placement!==undefined)validateResolvedPlacement(feature.placement,feature.op,{documentVersion:document.version,semanticsVersion:feature.semanticsVersion});
       validateOperationExample(feature.op,feature.params);ids.add(feature.id);
     }catch(error){throw Object.assign(error,{featureId:feature.id,checks});}
   }

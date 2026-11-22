@@ -344,3 +344,15 @@ test('execute warnings exclude leftover union messages from unrelated bodies (W-
  assert.equal(result.warnings.some(w=>w.code==='UNION_NOT_FUSED'),false);
  assert.ok(result.warnings.some(w=>w.code==='DISPLAY_FAILED'));
 });
+
+
+import {createPageAPI} from '../src/page-api.js';
+test('public Page API rejects an impossible landmark budget before host execution and preserves valid authoring',async()=>{
+ const s={sessionId:'law-s',documentId:'law-d',documentInstanceId:'law-i',revision:0,kernelReady:true,busy:false,referenceSystem:createReferenceSystem(),bodies:[],features:[]},calls=[];
+ const service=createCommandService({allowAdvisory:true,snapshot:()=>structuredClone(s),execute:async(command,args)=>{calls.push({command,args});s.features.push({id:'law-feature',op:args.op,params:args.params});s.bodies.push({id:'law-feature'});s.revision++;}});
+ const api=createPageAPI({buildId:'law-contract',files:async()=>({status:'read'}),confirmSaved:async()=>({saved:true}),state:()=>service.getState({sessionId:s.sessionId,include:['summary','features','bodies']}),display:()=>({}),execute:r=>service.execute(r)});
+ const card=api.getTool({id:'curveSweep'}),params={pathType:'spine',spine:{pointsMm:[[0,0,0],[30,0,0]]},stations:{count:3},widthLaw:{kind:'spline',samples:[[0,3.5],[.17,11],[.4,6],[1,2]]},depthLaw:3,lawSampling:'preserveKnots'};
+ const send=async p=>api.execute({context:api.createRequestContext(api.getState().context),idempotencyKey:crypto.randomUUID(),action:'feature.add',args:{op:'curveSweep',opVersion:card.version,schemaHash:card.schemaHash,refs:[],params:p}});
+ const rejected=await send(params);assert.equal(rejected.status,'failed');assert.equal(rejected.error.code,'PARAM_SCHEMA_INVALID');assert.equal(calls.length,0);assert.equal(s.revision,0);
+ const committed=await send({...params,stations:{count:4}});assert.equal(committed.status,'committed');assert.equal(calls.length,1);assert.equal(calls[0].args.params.lawSampling,'preserveKnots');assert.deepEqual(calls[0].args.params.widthLaw,params.widthLaw);
+});

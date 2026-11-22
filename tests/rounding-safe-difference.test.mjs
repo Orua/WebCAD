@@ -19,6 +19,7 @@ function fixture(failed = false) {
     Build() {assert.equal(this.safe, true); assert.equal(this.parallel, false); assert.equal(this.history, false); calls.push('build');}
     IsDone() {return !failed;} HasErrors() {return failed;} NonDestructive() {return this.safe;}
     Shape() {calls.push('result'); return built;}
+    Clear() {calls.push('clear-working-data');}
     delete() {calls.push('delete-builder');}
   }
   const oc = {BRepAlgoAPI_Cut: Cut, NCollection_List_TopoDS_Shape: List, Message_ProgressRange: class {delete() {}}};
@@ -29,12 +30,12 @@ test('rounding differences configure serial safe processing before building eith
   const {calls, built, cad} = fixture(), first = {wrapped: {id: 'source'}}, second = {wrapped: {id: 'candidate'}};
   const result = cutRoundingDifferenceNonDestructive(first, second, cad);
   assert.equal(result.wrapped, built);
-  assert.deepEqual(calls, ['empty-constructor', 'safe', 'serial', 'no-history', 'build', 'result', 'delete-builder']);
+  assert.deepEqual(calls, ['empty-constructor', 'safe', 'serial', 'no-history', 'build', 'result', 'clear-working-data', 'delete-builder']);
   assert.deepEqual(first.wrapped, {id: 'source'}); assert.deepEqual(second.wrapped, {id: 'candidate'});
 });
 
 test('failed safe differences reject without returning a result shape', () => {
   const {calls, cad} = fixture(true);
   assert.throws(() => cutRoundingDifferenceNonDestructive({wrapped: {}}, {wrapped: {}}, cad), error => error.code === 'MATERIAL_CHECK_FAILED');
-  assert(!calls.includes('result')); assert(calls.includes('delete-builder'));
+  assert(!calls.includes('result')); assert(calls.includes('clear-working-data')); assert(calls.includes('delete-builder'));
 });

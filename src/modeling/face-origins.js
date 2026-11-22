@@ -1,3 +1,4 @@
+import {releaseNativeBoolean} from './io/native-boolean-lifetime.js';
 import * as cad from 'replicad';
 const dispose=v=>{try{v?.delete?.();}catch{}};
 const pendingOrigins=new WeakMap();
@@ -68,12 +69,12 @@ export function orderedFuseWithFaceOrigins(target,tool){
     const result=cad.cast(builder.Shape());
     if(!cad.isShape3D(result)){dispose(result);throw new Error('Could not fuse as a 3d shape');}
     return booleanFaceOrigins([target,tool],result,builder);
-  }finally{dispose(builder);}
+  }finally{releaseNativeBoolean(builder);}
 }
 export function cutWithFaceOrigins(target,tool){
   const oc=cad.getOC();let builder,args,tools,progress,result;
   try{
     builder=new oc.BRepAlgoAPI_Cut();args=new oc.NCollection_List_TopoDS_Shape();tools=new oc.NCollection_List_TopoDS_Shape();args.Append(target.wrapped);tools.Append(tool.wrapped);builder.SetArguments(args);builder.SetTools(tools);builder.SetNonDestructive(true);builder.SetRunParallel(false);
     progress=new oc.Message_ProgressRange();builder.Build(progress);if(!builder.IsDone()||builder.HasErrors())throw Object.assign(new Error('切除运算未完成，原模型保留'),{code:'GEOMETRY_INVALID'});builder.SimplifyResult(true,true,1e-7);result=cad.cast(builder.Shape());booleanFaceOrigins([target,tool],result,builder);const output=result;result=null;return output;
-  }finally{[result,progress,tools,args,builder].forEach(dispose);}
+  }finally{try{releaseNativeBoolean(builder);}finally{[result,progress,tools,args].forEach(dispose);}}
 }

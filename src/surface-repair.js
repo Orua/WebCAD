@@ -1,3 +1,4 @@
+import {releaseNativeBoolean} from './modeling/io/native-boolean-lifetime.js';
 const dispose=value=>{try{value?.delete();}catch{}};
 const requireThat=(ok,message)=>{if(!ok)throw new Error(message);};
 function count(shape,key){const items=shape[key];try{return items.length;}finally{items.forEach(dispose);}}
@@ -50,5 +51,5 @@ export function surfaceTrim({face,tool,mode='common'}={},cad){
     requireThat(builder.IsDone(),'修剪运算未完成');result=cad.cast(builder.Shape());
     requireThat(result&&!result.isNull&&count(result,'faces')>0,'修剪结果为空');
     validate(result,cad);const output=result;result=null;return output;
-  }finally{dispose(result);dispose(builder);}
+  }finally{dispose(result);releaseNativeBoolean(builder);}
 }

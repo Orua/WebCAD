@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
+import {runInNewContext} from 'node:vm';
 import { createBrowserFiles } from '../src/browser-files.js';
 
 if (!globalThis.crypto) globalThis.crypto = webcrypto;
@@ -258,4 +259,50 @@ test('large exact sources use typed import, preview and export without the legac
     await assert.rejects(files.register({name:`oversized.${ext}`,data:{byteLength:256 * 1024 * 1024 + 1}}),{code:'SIZE_LIMIT'});
   }
   files.release({resourceId:resource.resourceId});
+});
+
+// A parent page calling an iframe API passes typed arrays from another realm.
+test('public register accepts foreign-realm Uint8Array views and ArrayBuffers without losing bytes or sharing mutable storage',async()=>{
+  for(const expression of ['new Uint8Array([99,0,1,255,88]).subarray(1,4)','new Uint8Array([0,1,255]).buffer']){
+    const data=runInNewContext(expression);
+    assert.equal(data instanceof Uint8Array||data instanceof ArrayBuffer,false);
+    const h=harness(),resource=await h.files.register({name:'cross-realm.webcad',data});
+    assert.equal(resource.status,'registered');assert.equal(resource.size,3);
+    if(ArrayBuffer.isView(data))data.fill(7);else new Uint8Array(data).fill(7);
+    assert.deepEqual([...await h.files.read({resourceId:resource.resourceId,as:'bytes'})],[0,1,255]);
+    await h.files.open({context:context(),resourceId:resource.resourceId,unsaved:'fail'});
+    assert.equal(h.calls.at(-1).action,'open');assert.ok(h.calls.at(-1).args.data instanceof Uint8Array);
+    assert.deepEqual([...h.calls.at(-1).args.data],[0,1,255]);
+  }
+});
+
+test('public register rejects other binary views and spoofed byte containers without invoking their methods',async()=>{
+  const h=harness();let called=false;
+  const wrong=[new Int8Array([1]),new Uint16Array([1]),new Uint8ClampedArray([1]),new DataView(new ArrayBuffer(2)),
+    runInNewContext('new Int8Array([1])'),{[Symbol.toStringTag]:'ArrayBuffer',byteLength:1},
+    {[Symbol.toStringTag]:'Uint8Array',length:1,0:1},
+    {[Symbol.toStringTag]:'Blob',size:1,arrayBuffer(){called=true;return new ArrayBuffer(1);}}];
+  const disguised=new Uint16Array([1]);Object.defineProperty(disguised,Symbol.toStringTag,{value:'Uint8Array'});wrong.push(disguised);
+  for(const data of wrong)await assert.rejects(h.files.register({name:'wrong.webcad',data}),{code:'ASSET_INVALID'});
+  assert.equal(called,false);assert.equal(h.calls.length,0);
+});
+
+
+test('register retains File and sliced Blob bytes and ignores overridden payload conversion methods',async()=>{
+  const source=[0,1,255],blob=new Blob([new Uint8Array([88,...source,99])]).slice(1,4);
+  blob.arrayBuffer=()=>{throw new Error('Must use native Blob bytes');};
+  for(const data of [blob,new File([new Uint8Array(source)],'picked.webcad')]){
+    const h=harness(),resource=await h.files.register({name:'picked.webcad',data});
+    assert.equal(resource.size,3);assert.deepEqual([...await h.files.read({resourceId:resource.resourceId,as:'bytes'})],source);
+    await h.files.open({context:context(),resourceId:resource.resourceId,unsaved:'fail'});
+    assert.deepEqual([...h.calls.at(-1).args.data],source);
+  }
+});
+
+test('register recognizes genuine Uint8Array brands even with own misleading tags and rejects shared buffers',async()=>{
+  const h=harness(),data=runInNewContext('new Uint8Array([0,127,255])');
+  Object.defineProperty(data,Symbol.toStringTag,{value:'Other'});
+  const resource=await h.files.register({name:'brand.webcad',data});
+  assert.deepEqual([...await h.files.read({resourceId:resource.resourceId,as:'bytes'})],[0,127,255]);
+  await assert.rejects(h.files.register({name:'shared.webcad',data:new SharedArrayBuffer(3)}),{code:'ASSET_INVALID'});
 });

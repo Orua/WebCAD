@@ -1,3 +1,4 @@
+import {ownNativeBoolean} from './modeling/io/native-boolean-lifetime.js';
 // Small exact solids and Boolean cutters. Independent of the UI and worker.
 const field = (key, label, labelEn) => ({key, label, labelEn, type:'number', min:0.1, step:0.1});
 const nonnegativeField = (key, label, labelEn) => ({key, label, labelEn, type:'number', min:0, step:0.1});
@@ -75,7 +76,7 @@ export function buildHardwareTemplate(params, cad) {
   };
   const resources = [], hold = object => { resources.push(object); return object; };
   const fuse = (left, right) => {
-    const builder=hold(new (cad.getOC().BRepAlgoAPI_Fuse)(left.wrapped,right.wrapped));
+    const builder=ownNativeBoolean(new (cad.getOC().BRepAlgoAPI_Fuse)(left.wrapped,right.wrapped),hold);
     builder.Build();
     const fused=cad.cast(builder.Shape());
     dispose(left);
@@ -180,7 +181,7 @@ export function buildHardwareTemplate(params, cad) {
         const bottom=hold(bottomDrawing.sketchOnPlane(bottomPlane)), top=hold(topDrawing.sketchOnPlane(topPlane));
         head=hold(cad.loft([bottom.wire,top.wire]));
       }
-      const builder=hold(new (cad.getOC().BRepAlgoAPI_Fuse)(shaft.wrapped,head.wrapped));
+      const builder=ownNativeBoolean(new (cad.getOC().BRepAlgoAPI_Fuse)(shaft.wrapped,head.wrapped),hold);
       builder.Build();
       result=cad.cast(builder.Shape());
     }

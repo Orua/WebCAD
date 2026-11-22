@@ -534,6 +534,14 @@
           }
         ]
       },
+      "lawSampling": {
+        "type": "string",
+        "enum": [
+          "stations",
+          "preserveKnots"
+        ],
+        "description": "Spine only. Omission/stations retains legacy station-only sampling. preserveKnots places widthLaw, depthLaw and rollLawDeg sample parameters on actual generated sections while retaining stations.count as a hard count/budget (2–64). If the union of knots plus endpoints needs more stations, increase count, simplify laws or split the shape. Does not interpolate categorical profileLaw or prevent geometric overshoot between sections."
+      },
       "rollMode": {
         "type": "string",
         "enum": [
@@ -848,7 +856,7 @@
     "滚转"
   ],
   "description": "Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
-  "schemaHash": "sha256:c3f2397502ebe4f6dd691c842a4237c2d313ea7ac8eb5da2c057cfffc2b30187",
+  "schemaHash": "sha256:388b2718c0a46913810f5ae3f0e490064425361919628def7e30a44f625e81a4",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -1151,6 +1159,17 @@
       },
       "rollLawDeg": {
         "meaning": "rollLawDeg: Sweep a constant section along a curve, loft up to 64 ordered custom sections, or generate sections on a rotation-minimizing spine",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "lawSampling": {
+        "meaning": "Spine only. Omission/stations retains legacy station-only sampling. preserveKnots places widthLaw, depthLaw and rollLawDeg sample parameters on actual generated sections while retaining stations.count as a hard count/budget (2–64). If the union of knots plus endpoints needs more stations, increase count, simplify laws or split the shape. Does not interpolate categorical profileLaw or prevent geometric overshoot between sections.",
         "unit": "none",
         "range": [
           null,
@@ -1944,5 +1963,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.sweep-loft",
-  "docsHash": "sha256:bb89546f745facb51d18af6f6796b361d41de6622cc96624c2cd96d44ea46bee"
+  "docsHash": "sha256:782dd6ede74abd71a51b5eb28a5927e57268c656544b2d9941ee2c8f592c7032"
 }

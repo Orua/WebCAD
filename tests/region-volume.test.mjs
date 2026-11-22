@@ -85,3 +85,43 @@ test('page measure kind:region forwards bounds, labels AABB source and leaves re
   assert.deepEqual(forwarded.minMm,[1,2,7]);
   assert.equal(api.getState().context.revision,3);
 });
+
+
+test('region inspection releases owned intersection solid and bounding-box handles on success and failure',()=>{
+ for(const fail of [false,true]){
+  const deleted=[],owned=name=>({delete(){deleted.push(name);}}),solid=owned('solid'),bounds={...owned('bounds'),bounds:[[0,0,0],[1,1,1]]},common={...owned('common'),solids:[solid],boundingBox:bounds},work={...owned('work'),intersect:()=>common},probe=owned('probe'),fakeCad={deserializeShape:()=>work,makeBox:()=>probe,measureVolume:()=>{if(fail)throw Error('native measure failed');return 1;}};
+  fakeCad.getOC=()=>({BRepAlgoAPI_Common:class{Build(){}Clear(){}IsDone(){return true;}SimplifyResult(){}Shape(){return {...owned('raw'),IsNull:()=>false};}delete(){deleted.push('builder');}}});fakeCad.cast=()=>common;
+  const invoke=()=>measureRegionVolume({serialize:()=>''},[0,0,0],[1,1,1],fakeCad);
+  if(fail)assert.throws(invoke,/native measure/);else assert.equal(invoke().volume,1);
+  assert.ok(deleted.includes('solid'),'intersection solid retains native surface data unless explicitly released');
+  if(!fail)assert.ok(deleted.includes('bounds'));
+  assert.ok(deleted.includes('common')&&deleted.includes('work')&&deleted.includes('probe'));
+ }
+});
+
+
+test('region inspection owns its native Common builder and never reports a native exception as empty material',()=>{
+ for(const mode of ['empty','throw','not-done']){
+  const deleted=[],owned=name=>({wrapped:{},delete(){deleted.push(name);}}),raw={...owned('raw'),IsNull:()=>true},work={...owned('work'),intersect(){throw Error('native common failed');}},fakeCad={deserializeShape:()=>work,makeBox:()=>owned('probe'),getOC:()=>({BRepAlgoAPI_Common:class{Build(){if(mode==='throw')throw Error('native common failed');}Clear(){}IsDone(){return mode!=='not-done';}SimplifyResult(){}Shape(){return raw;}delete(){deleted.push('builder');}}})};
+  const invoke=()=>measureRegionVolume({serialize:()=>''},[0,0,0],[1,1,1],fakeCad);
+  if(mode==='empty')assert.equal(invoke().empty,true);else assert.throws(invoke,/native common failed|区域交集/);
+  assert.ok(deleted.includes('builder'),'the retained native BOP data structure is much larger than its returned shape');
+ }
+});
+
+
+test('repeated native material queries clear retained Boolean working data on success and failure',()=>{
+ for(const broken of [false,true]){
+  let retained=0,cleared=0,deleted=0;
+  const fakeCad={deserializeShape:()=>({wrapped:{},delete(){}}),makeBox:()=>({wrapped:{},delete(){}}),getOC:()=>({BRepAlgoAPI_Common:class{
+   constructor(){retained++;}Build(){if(broken)throw Error('native operation failed');}IsDone(){return true;}Shape(){return {IsNull:()=>true,delete(){}};}
+   Clear(){retained--;cleared++;}delete(){deleted++;}
+  }})};
+  for(let i=0;i<12;i++){
+   const inspect=()=>measureRegionVolume({serialize:()=>''},[0,0,0],[1,1,1],fakeCad);
+   if(broken)assert.throws(inspect,/native operation failed/);else assert.equal(inspect().empty,true);
+   assert.equal(retained,0,'a finished/failed query must not retain the native Boolean working data until process exit');
+  }
+  assert.equal(cleared,12);assert.equal(deleted,12);
+ }
+});

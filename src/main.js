@@ -824,17 +824,18 @@ async function saveProject(){
   setStatus(projectFileHandle?'已保存':'已开始下载');refresh();
 }
 async function chooseFile(accept='.webcad,.json,.step,.stp,.brep,.brp,.iges,.igs,.stl,.mesh',multiple=true){
+  debugJournal.record('file-picker','request',{accept,multiple,nativePickerAvailable:typeof window.showOpenFilePicker==='function'});
   if(accept==='.webcad,.json,.step,.stp,.brep,.brp,.iges,.igs,.stl,.mesh'&&window.showOpenFilePicker){
-    try{const handles=await window.showOpenFilePicker({multiple,types:[{description:'WebCAD、CAD 与网格文件',accept:{'application/json':['.webcad','.json'],'application/octet-stream':['.step','.stp','.brep','.brp','.iges','.igs','.stl','.mesh']}}]});return Promise.all(handles.map(handle=>handle.getFile()));}
-    catch(error){if(error.name==='AbortError')return [];if(error.name!=='NotAllowedError')throw error;}
+    try{const handles=await window.showOpenFilePicker({multiple,types:[{description:'WebCAD、CAD 与网格文件',accept:{'application/json':['.webcad','.json'],'application/octet-stream':['.step','.stp','.brep','.brp','.iges','.igs','.stl','.mesh']}}]});debugJournal.record('file-picker','selected',{source:'native',count:handles.length});return Promise.all(handles.map(handle=>handle.getFile()));}
+    catch(error){debugJournal.record('file-picker',error.name==='AbortError'?'cancelled':'native-error',{name:error.name,message:error.message});if(error.name==='AbortError')return [];if(error.name!=='NotAllowedError')throw error;}
   }
-  return new Promise(resolve=>{const input=document.createElement('input');input.type='file';input.accept=accept;input.multiple=multiple;input.addEventListener('change',()=>resolve([...input.files]));input.addEventListener('cancel',()=>resolve([]));input.click();});
+  return new Promise((resolve,reject)=>{const input=document.createElement('input');input.type='file';input.accept=accept;input.multiple=multiple;input.hidden=true;const finish=files=>{input.remove();resolve(files);};input.addEventListener('change',()=>{debugJournal.record('file-picker','selected',{source:'html-input',count:input.files.length});finish([...input.files]);},{once:true});input.addEventListener('cancel',()=>{debugJournal.record('file-picker','cancelled',{source:'html-input'});finish([]);},{once:true});document.body.append(input);debugJournal.record('file-picker','html-input-requested',{accept,multiple});try{input.click();}catch(error){input.remove();reject(error);}});
 }
 function base64(array){let text='';for(let i=0;i<array.length;i+=0x8000)text+=String.fromCharCode(...array.subarray(i,i+0x8000));return btoa(text);}
 function validateDocument(doc){
   if(!doc||![1,2,3,4].includes(doc.version)||!Array.isArray(doc.features)||typeof doc.imports!=='object'||!doc.imports)throw new Error('不是有效的 WebCAD 1.x/2.x/3.x/4.x 工程文件。');
   assertDocumentCapacity(doc);
-  const ids=new Set();for(const f of doc.features){if(!f.id||ids.has(f.id)||typeof f.op!=='string'||!f.params||!Array.isArray(f.refs))throw new Error('工程特征结构无效。');for(const ref of f.refs)if(!ids.has(ref))throw new Error('工程包含无效的操作引用。');if(f.placement!==undefined){if(![2,3,4].includes(doc.version)||f.semanticsVersion!==2)throw Object.assign(new Error('定位特征需要工程版本 2 和语义版本 2。'),{code:'DOCUMENT_VERSION_UNSUPPORTED'});validateResolvedPlacement(f.placement,f.op);}ids.add(f.id);}
+  const ids=new Set();for(const f of doc.features){if(!f.id||ids.has(f.id)||typeof f.op!=='string'||!f.params||!Array.isArray(f.refs))throw new Error('工程特征结构无效。');for(const ref of f.refs)if(!ids.has(ref))throw new Error('工程包含无效的操作引用。');if(f.placement!==undefined)validateResolvedPlacement(f.placement,f.op,{documentVersion:doc.version,semanticsVersion:f.semanticsVersion});ids.add(f.id);}
   validateReliefDesigns(doc.reliefDesigns);
   if(doc.timeline)validateTimedTimeline(doc);
   const normalized={...(doc.renderMaterials?{renderMaterials:validateMetalMaterials(doc.renderMaterials)}:{}),materialSettings:validateMaterialSettings(doc.materialSettings??loadMaterialSettings()),...(doc.timeline?clone(doc):{}),...(doc.reliefDesigns!==undefined?{reliefDesigns:validateReliefDesigns(doc.reliefDesigns)}:{}),version:doc.version>=3?doc.version:2,...(doc.version===4?{binaryAssets:doc.binaryAssets||{}}:{}),...(doc.version>=3?{compiledArtifacts:doc.compiledArtifacts||{}}:{}),referenceSystem:doc.referenceSystem!==undefined?validateReferenceSystem(doc.referenceSystem):createReferenceSystem(),...(doc.parameters!==undefined?{parameters:doc.parameters}:{}),documentId:typeof doc.documentId==='string'&&doc.documentId.length>0&&doc.documentId.length<=150?doc.documentId:crypto.randomUUID(),name:String(doc.name||'导入工程'),features:doc.features,imports:doc.imports,hidden:Array.isArray(doc.hidden)?doc.hidden:[],appearance:doc.appearance&&typeof doc.appearance==='object'?doc.appearance:{},...(doc.surface!==undefined?{surface:sanitizeSurface(doc.surface)}:{}),colors:doc.colors&&typeof doc.colors==='object'?Object.fromEntries(Object.entries(doc.colors).filter(([,v])=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v))):{},renderFinish:doc.renderFinish??null};
@@ -1144,7 +1145,8 @@ async function performAction(action,params={}){
     await rebuild(emptyDocument(),{fit:true,newInstance:true,record:false});undoStack=[];redoStack=[];selectedIds=[];dirty=false;refresh();return;
   }
   if(action==='open'){
-    const [file]=await chooseFile(undefined,false);if(file)await openDocument(file);return;
+    setStatus('请选择要打开的文件。若未出现系统选择器，可将文件拖入画布。');
+    const [file]=await chooseFile(undefined,false);if(file)await openDocument(file);else setStatus('打开已取消，当前工程保留。若未出现系统选择器，可将文件拖入画布。');return;
   }
   if(action==='restoreRecovery')return restoreUnsavedProject();
   if(action==='importAtFrame'){

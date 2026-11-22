@@ -1,3 +1,4 @@
+import {releaseNativeBoolean} from '../io/native-boolean-lifetime.js';
 // Constructive nonconstant contact blend over a closed planar extrusion rim.
 // It uses the caller's current OC instance and does not alter the source shape.
 import * as defaultCad from 'replicad';
@@ -518,5 +519,5 @@ export function buildAdaptivePlanarRim(shape,params,scope=params?.scope,cad=defa
       contourCount:1,contourEdgeIds:[[...candidate.report.actualEdgeIds]],surfaceCount:provenance.generatedFaceIds.length,
       dimensionKind:'rounding-scale',adaptive,scale,measuredScaleMm:scale.measuredScaleMm,adaptiveScaleRatios:{min:.35,max:1.0001},validation};
     result=null;return output;
-  } finally {dispose(result);dispose(builder);dispose(argumentsList);dispose(toolsList);candidate.disposeCandidate();}
+  } finally {dispose(result);releaseNativeBoolean(builder);dispose(argumentsList);dispose(toolsList);candidate.disposeCandidate();}
 }

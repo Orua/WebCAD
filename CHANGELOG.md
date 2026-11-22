@@ -1,3 +1,38 @@
+## 1.75.19 — bounded real-surface staggered engraving
+
+- Optional `projectedGroove.pattern` projects every guide row and contour footprint onto one actual trimmed BRep face. Independent adaptive-polyline row lengths support equal spacing and stagger phases; explicit contour/projection/count budgets fail closed.
+- Cut the original skin with a compound of bounded surface-normal tools, keeping one solid instead of floating positive copies. Reject boundaries/seams and unsupported variable laws; this is not raised scale embossing, geodesic wrapping or automatic fusion.
+- Fixed-order BRepGProp quadrature on trimmed BSplines could report increased volume after a real cut. Surface-groove material checks now use signed span-aware adaptive integration, with measured convergence, not absolute volumes or relaxed removal checks.
+- Region inspection now explicitly owns its native Common builder, returned solids and bounds. Completed null/zero-solid results are empty; native exceptions and unfinished operations are errors, never invented zero material. Numeric acceptance thresholds are unchanged.
+- Curved/tapered, translated/scaled, endpoint material witnesses and public PageAPI + native save/reopen probes accompany the change. Browser artistic approval remains separate.
+
+## 1.75.18 — preserve sculpted spine-law landmarks within the station budget
+
+- Add explicit `curveSweep` spine `lawSampling:"preserveKnots"` for width/depth/roll scalar-law sample parameters. Keep `stations.count` as a hard 2–64 budget; reject insufficient budgets before public host execution. Omitted/`stations` recipes retain legacy sampling, and categorical profile laws are unchanged.
+- Report actual section parameter, center, width and depth through `loftReport.spineFrames`, with requested/generated station counts and preserved knots. This corrects clipped mane/shoulder flares without promising no between-section overshoot.
+- Document anatomy/negative-space-first sculpting and retain a reproducible public Page API anatomical dragon probe. Browser review loaded 29 objects/29 solids/45 history entries and found recognizable head/limbs but short torso, crowded mane/neck and unclear jaw/palm connections. This is basic display evidence, not full visual, connectivity or manufacturing acceptance.
+- Preserve cubic S-body overshoot/negative-volume failures; the model uses an explicitly tested quadratic body, not absolute volume or silent fallback. Native picker, shared-edge mesh seams and ellipsoid zero-tip Boolean limitations remain unresolved.
+
+## 1.75.17 — cross-realm public file registration
+
+- Accept genuine Uint8Array, ArrayBuffer and Blob/File inputs across the public file boundary without relying on same-realm constructor identity. Copy bytes into local storage; retain strict type and byte-budget checks.
+- Reject unrelated views and forged tags; cover foreign subviews, request objects, copy isolation, Blob/File inputs and exact open forwarding.
+- Keep the review fixture's parent-realm input and verify registration SHA-256/byte length before opening. Independent browser review reported successful registration and a one-solid, 14-feature open; this is not native-picker or detailed mesh/shape acceptance.
+- The older 1.75.15 saved-model metadata correction remains required. Native-picker behavior, six mesh boundary segments and rational-face zero-depth point-cap Boolean failures remain unresolved.
+
+## 1.75.16 — browser-compatible probe files and saved-placement validation
+
+- Match saved-placement version validation between browser open and the headless validator. Correct the probe writer to emit the same semantics metadata as the page host. Earlier probe files lacking this metadata are not browser-openable.
+- Add file-picker lifecycle diagnostics, cancellation feedback, and an explicit local public-files-API review fixture. Native file-picker behavior and visual acceptance remain separate checks.
+- Distinguish input, audited, and discarded degenerate triangle counts. Keep real boundary-edge warnings.
+- Do not ship the experimental cubic point-cap change: the original sample passes, but a translated half-scale regression still fails. The zero-depth rational-face Boolean issue remains unresolved.
+
+## 1.75.15 — refine shared-edge groove crossings
+
+- Replace the 32-grid-point crossing choice with bounded refinement of sampled local-minimum basins, removing visible sideways detours on non-grid-aligned paths. This remains a 3D shared-edge polyline, not a geodesic or guaranteed global optimizer.
+- Dispose rejected groove cut candidates, and document the unresolved rational-face zero-depth point-cap boolean limitation.
+- Add a reproducible public Page API → command service → real OCCT coiled-dragon probe, including exact save/reopen checks. Browser visual acceptance remains separate.
+
 ## 1.75.14 — infer projectedGroove faces from nearest-face snap
 
 - Allow `projectedGroove` to omit `faceId` and `faceIds`. Each path point snaps to the nearest current face within 0.1 mm, and the inferred chain must still change faces only across a shared topological edge. This is not a UV geodesic and does not search for a route on faces the polyline does not already approach. An inferred snap equally near two faces stays on the previous face when that face is one of the ties; otherwise it is rejected and the caller should pass explicit face ids. If a path point already lies on the shared edge, the crossing is still reported and is not dropped as a duplicate station. Explicit `faceId` / `faceIds` keep the 1.75.13 behavior. Width and depth laws are unchanged. Headless tests on a box omit face ids and still cut the top and side while leaving the interior diagonal unchanged, reject a non-adjacent inferred pair, and reject an ambiguous first point on a shared edge. Visual status is NOT_REVIEWED.

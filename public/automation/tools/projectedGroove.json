@@ -4,6 +4,78 @@
   "inputSchema": {
     "type": "object",
     "properties": {
+      "pattern": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "spacingMm",
+          "rowOffsetsMm",
+          "points2dMm",
+          "maxCount"
+        ],
+        "description": "Optional one-trimmed-face subtractive contour pattern. pointsMm becomes the projected row guide; real face projection supplies all normals and contour points. Constant widthMm/depthMm only. Numerical per-row adaptive projected-polyline arc length, not geodesic wrapping. Fails at trim boundaries/seams or explicit budgets; does not add floating copies.",
+        "properties": {
+          "spacingMm": {
+            "type": "number",
+            "description": "Distance between centers on each independently projected row (mm) (mm)",
+            "exclusiveMinimum": 0
+          },
+          "rowOffsetsMm": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {
+              "type": "number"
+            },
+            "description": "Offsets along guide tangent × actual face normal (mm); each row is reprojected before spacing"
+          },
+          "phaseFractions": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "exclusiveMaximum": 1
+            },
+            "description": "One fractional-spacing phase per row; default [0,0.5,0]"
+          },
+          "points2dMm": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 16,
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "type": "number"
+              }
+            },
+            "description": "Open contour [lateral,flow] in mm, projected at every vertex and adaptive midpoint, not rigid copies"
+          },
+          "maxCount": {
+            "type": "integer",
+            "description": "Explicit total contour-instance budget; fails rather than truncating",
+            "minimum": 1,
+            "maximum": 48
+          },
+          "maxProjectionMm": {
+            "type": "number",
+            "minimum": 0.01,
+            "maximum": 5,
+            "default": 2
+          },
+          "layoutToleranceMm": {
+            "type": "number",
+            "minimum": 0.005,
+            "maximum": 0.2,
+            "default": 0.03,
+            "description": "Maximum sampled accepted segment midpoint sag (mm), not a mathematical global fitting bound"
+          }
+        }
+      },
       "faceId": {
         "type": "integer",
         "description": "Zero-based face index of the current body",
@@ -185,7 +257,7 @@
     "volume": "mm^3",
     "scale": "dimensionless"
   },
-  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId, faceIds, or omit both to infer the face chain by snapping each point to the nearest current face within 0.1 mm. If both faceId and faceIds are set, faceId must be one of faceIds. Explicit lists snap to the nearest listed face. Inferred consecutive faces must already share an edge; this is not a UV geodesic and does not search for a path on faces the polyline does not already approach. An inferred snap that is equally near two faces is kept on the previous face if possible, otherwise rejected. A change of face is allowed only across a shared edge; the crossing is the shared-edge point that minimizes the 3D polyline length, not a UV geodesic, and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide widthMm or widthLaw (or both; widthLaw wins). Width is the full groove width in the local tangent plane, not half-width, and not the depthLaw penetration unit. Provide depthMm or depthLaw (or both; depthLaw wins). Depth values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint width or depth 0 uses a point cap (projectedGrooveReport.zeroEndWidth / zeroEndDepth / tipPoints). Mid-path zeros of either law are rejected. Read projectedGrooveReport.faceIds, faceIdsInferred, crossingCount, startWidthMm and startPenetrationMm after success.",
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Optional pattern repeats an open caller contour on ONE trimmed face using independently projected row polyline arclength, real face normals and stagger phases. Requires constant widthMm/depthMm. Explicit maxCount (1–48) rejects overflow; boundaries/seams and excessive residual/sag are rejected. It incises continuous original skin, not raised copies, exact geodesics or arbitrary face wrapping. See pattern schema and projectedGrooveReport. Without pattern: project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId, faceIds, or omit both to infer the face chain by snapping each point to the nearest current face within 0.1 mm. If both faceId and faceIds are set, faceId must be one of faceIds. Explicit lists snap to the nearest listed face. Inferred consecutive faces must already share an edge; this is not a UV geodesic and does not search for a path on faces the polyline does not already approach. An inferred snap that is equally near two faces is kept on the previous face if possible, otherwise rejected. A change of face is allowed only across a shared edge; the crossing is a shared-edge point numerically refined in sampled local-minimum basins after a 32-interval scan to reduce the 3D polyline length (not a guaranteed global minimum on arbitrary curved edges, and not a UV geodesic), and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide widthMm or widthLaw (or both; widthLaw wins). Width is the full groove width in the local tangent plane, not half-width, and not the depthLaw penetration unit. Provide depthMm or depthLaw (or both; depthLaw wins). Depth values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint width or depth 0 uses a point cap (projectedGrooveReport.zeroEndWidth / zeroEndDepth / tipPoints). Mid-path zeros of either law are rejected. Read projectedGrooveReport.faceIds, faceIdsInferred, crossingCount, startWidthMm and startPenetrationMm after success.",
   "title": "沿面法向的投影刻槽 / Surface-normal projected groove",
   "category": "modification",
   "synonyms": [
@@ -195,7 +267,7 @@
     "projected Groove operation"
   ],
   "description": "沿面法向的投影刻槽 / Surface-normal projected groove",
-  "schemaHash": "sha256:0d3d13a5e7f7432e0d39bb6963305756f1643d36e000657de655a4391e0df067",
+  "schemaHash": "sha256:36fcb300f5d432b93b41ac0279de340870e0ae30aace2f3bcdbfd3511c778f9c",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -256,7 +328,7 @@
     }
   ],
   "knownUnsupportedCases": [
-    "Project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId, faceIds, or omit both to infer the face chain by snapping each point to the nearest current face within 0.1 mm. If both faceId and faceIds are set, faceId must be one of faceIds. Explicit lists snap to the nearest listed face. Inferred consecutive faces must already share an edge; this is not a UV geodesic and does not search for a path on faces the polyline does not already approach. An inferred snap that is equally near two faces is kept on the previous face if possible, otherwise rejected. A change of face is allowed only across a shared edge; the crossing is the shared-edge point that minimizes the 3D polyline length, not a UV geodesic, and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide widthMm or widthLaw (or both; widthLaw wins). Width is the full groove width in the local tangent plane, not half-width, and not the depthLaw penetration unit. Provide depthMm or depthLaw (or both; depthLaw wins). Depth values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint width or depth 0 uses a point cap (projectedGrooveReport.zeroEndWidth / zeroEndDepth / tipPoints). Mid-path zeros of either law are rejected. Read projectedGrooveReport.faceIds, faceIdsInferred, crossingCount, startWidthMm and startPenetrationMm after success.",
+    "Optional pattern repeats an open caller contour on ONE trimmed face using independently projected row polyline arclength, real face normals and stagger phases. Requires constant widthMm/depthMm. Explicit maxCount (1–48) rejects overflow; boundaries/seams and excessive residual/sag are rejected. It incises continuous original skin, not raised copies, exact geodesics or arbitrary face wrapping. See pattern schema and projectedGrooveReport. Without pattern: project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId, faceIds, or omit both to infer the face chain by snapping each point to the nearest current face within 0.1 mm. If both faceId and faceIds are set, faceId must be one of faceIds. Explicit lists snap to the nearest listed face. Inferred consecutive faces must already share an edge; this is not a UV geodesic and does not search for a path on faces the polyline does not already approach. An inferred snap that is equally near two faces is kept on the previous face if possible, otherwise rejected. A change of face is allowed only across a shared edge; the crossing is a shared-edge point numerically refined in sampled local-minimum basins after a 32-interval scan to reduce the 3D polyline length (not a guaranteed global minimum on arbitrary curved edges, and not a UV geodesic), and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide widthMm or widthLaw (or both; widthLaw wins). Width is the full groove width in the local tangent plane, not half-width, and not the depthLaw penetration unit. Provide depthMm or depthLaw (or both; depthLaw wins). Depth values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint width or depth 0 uses a point cap (projectedGrooveReport.zeroEndWidth / zeroEndDepth / tipPoints). Mid-path zeros of either law are rejected. Read projectedGrooveReport.faceIds, faceIdsInferred, crossingCount, startWidthMm and startPenetrationMm after success.",
     "The page validates the listed parameter schema. Specialized normalization and all geometric prerequisites are not certified; inspect the actual result."
   ],
   "exampleNotes": {
@@ -360,7 +432,7 @@
   "contract": {
     "purpose": "沿面法向的投影刻槽 / Surface-normal projected groove",
     "whenToUse": [
-      "Project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId, faceIds, or omit both to infer the face chain by snapping each point to the nearest current face within 0.1 mm. If both faceId and faceIds are set, faceId must be one of faceIds. Explicit lists snap to the nearest listed face. Inferred consecutive faces must already share an edge; this is not a UV geodesic and does not search for a path on faces the polyline does not already approach. An inferred snap that is equally near two faces is kept on the previous face if possible, otherwise rejected. A change of face is allowed only across a shared edge; the crossing is the shared-edge point that minimizes the 3D polyline length, not a UV geodesic, and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide widthMm or widthLaw (or both; widthLaw wins). Width is the full groove width in the local tangent plane, not half-width, and not the depthLaw penetration unit. Provide depthMm or depthLaw (or both; depthLaw wins). Depth values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint width or depth 0 uses a point cap (projectedGrooveReport.zeroEndWidth / zeroEndDepth / tipPoints). Mid-path zeros of either law are rejected. Read projectedGrooveReport.faceIds, faceIdsInferred, crossingCount, startWidthMm and startPenetrationMm after success."
+      "Optional pattern repeats an open caller contour on ONE trimmed face using independently projected row polyline arclength, real face normals and stagger phases. Requires constant widthMm/depthMm. Explicit maxCount (1–48) rejects overflow; boundaries/seams and excessive residual/sag are rejected. It incises continuous original skin, not raised copies, exact geodesics or arbitrary face wrapping. See pattern schema and projectedGrooveReport. Without pattern: project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId, faceIds, or omit both to infer the face chain by snapping each point to the nearest current face within 0.1 mm. If both faceId and faceIds are set, faceId must be one of faceIds. Explicit lists snap to the nearest listed face. Inferred consecutive faces must already share an edge; this is not a UV geodesic and does not search for a path on faces the polyline does not already approach. An inferred snap that is equally near two faces is kept on the previous face if possible, otherwise rejected. A change of face is allowed only across a shared edge; the crossing is a shared-edge point numerically refined in sampled local-minimum basins after a 32-interval scan to reduce the 3D polyline length (not a guaranteed global minimum on arbitrary curved edges, and not a UV geodesic), and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide widthMm or widthLaw (or both; widthLaw wins). Width is the full groove width in the local tangent plane, not half-width, and not the depthLaw penetration unit. Provide depthMm or depthLaw (or both; depthLaw wins). Depth values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint width or depth 0 uses a point cap (projectedGrooveReport.zeroEndWidth / zeroEndDepth / tipPoints). Mid-path zeros of either law are rejected. Read projectedGrooveReport.faceIds, faceIdsInferred, crossingCount, startWidthMm and startPenetrationMm after success."
     ],
     "whenNotToUse": [
       {
@@ -369,6 +441,17 @@
       }
     ],
     "params": {
+      "pattern": {
+        "meaning": "Optional one-trimmed-face subtractive contour pattern. pointsMm becomes the projected row guide; real face projection supplies all normals and contour points. Constant widthMm/depthMm only. Numerical per-row adaptive projected-polyline arc length, not geodesic wrapping. Fails at trim boundaries/seams or explicit budgets; does not add floating copies.",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
       "faceId": {
         "meaning": "Zero-based face index of the current body",
         "unit": "1",
@@ -607,7 +690,7 @@
   },
   "purpose": "沿面法向的投影刻槽 / Surface-normal projected groove",
   "whenToUse": [
-    "Project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId, faceIds, or omit both to infer the face chain by snapping each point to the nearest current face within 0.1 mm. If both faceId and faceIds are set, faceId must be one of faceIds. Explicit lists snap to the nearest listed face. Inferred consecutive faces must already share an edge; this is not a UV geodesic and does not search for a path on faces the polyline does not already approach. An inferred snap that is equally near two faces is kept on the previous face if possible, otherwise rejected. A change of face is allowed only across a shared edge; the crossing is the shared-edge point that minimizes the 3D polyline length, not a UV geodesic, and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide widthMm or widthLaw (or both; widthLaw wins). Width is the full groove width in the local tangent plane, not half-width, and not the depthLaw penetration unit. Provide depthMm or depthLaw (or both; depthLaw wins). Depth values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint width or depth 0 uses a point cap (projectedGrooveReport.zeroEndWidth / zeroEndDepth / tipPoints). Mid-path zeros of either law are rejected. Read projectedGrooveReport.faceIds, faceIdsInferred, crossingCount, startWidthMm and startPenetrationMm after success."
+    "Optional pattern repeats an open caller contour on ONE trimmed face using independently projected row polyline arclength, real face normals and stagger phases. Requires constant widthMm/depthMm. Explicit maxCount (1–48) rejects overflow; boundaries/seams and excessive residual/sag are rejected. It incises continuous original skin, not raised copies, exact geodesics or arbitrary face wrapping. See pattern schema and projectedGrooveReport. Without pattern: project a 2–64 point world polyline onto one current face, or onto faceIds (1–8). Provide faceId, faceIds, or omit both to infer the face chain by snapping each point to the nearest current face within 0.1 mm. If both faceId and faceIds are set, faceId must be one of faceIds. Explicit lists snap to the nearest listed face. Inferred consecutive faces must already share an edge; this is not a UV geodesic and does not search for a path on faces the polyline does not already approach. An inferred snap that is equally near two faces is kept on the previous face if possible, otherwise rejected. A change of face is allowed only across a shared edge; the crossing is a shared-edge point numerically refined in sampled local-minimum basins after a 32-interval scan to reduce the 3D polyline length (not a guaranteed global minimum on arbitrary curved edges, and not a UV geodesic), and each face is cut with its own surface-normal cutter. Sharp corners are not blended. Provide widthMm or widthLaw (or both; widthLaw wins). Width is the full groove width in the local tangent plane, not half-width, and not the depthLaw penetration unit. Provide depthMm or depthLaw (or both; depthLaw wins). Depth values are actual inward penetration; the cutter ellipse height is 2×penetration and is centered on the projected path. This is not the curveSweep spine depthLaw unit. On one face, normals that change by more than about 60° between samples are rejected. Paths that leave the listed faces, jump without a shared edge, or remove no material are rejected. Endpoint width or depth 0 uses a point cap (projectedGrooveReport.zeroEndWidth / zeroEndDepth / tipPoints). Mid-path zeros of either law are rejected. Read projectedGrooveReport.faceIds, faceIdsInferred, crossingCount, startWidthMm and startPenetrationMm after success."
   ],
   "whenNotToUse": [
     {
@@ -994,5 +1077,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6ab2fbb6fc7e3f4b3521419259084a1610e69c7a945b67e8247d224f552306b0"
+  "docsHash": "sha256:d75e998c75ae66709bf0b4463ddd8296699c8e784c415ae22482803b3dcadf86"
 }

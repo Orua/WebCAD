@@ -1,3 +1,4 @@
+import {releaseNativeBoolean} from './io/native-boolean-lifetime.js';
 import * as cad from 'replicad';
 import {verifyUnionMaterial} from './union-material.js';
 import {booleanFaceOrigins,copyFaceOrigins} from './face-origins.js';
@@ -74,7 +75,7 @@ export function robustUnion(shapes,{fuzzyMm=0,glue='off',toolIds=[],toolNames=[]
       builder=new oc.BRepAlgoAPI_Fuse();args=new oc.NCollection_List_TopoDS_Shape();tools=new oc.NCollection_List_TopoDS_Shape();args.Append(items[0].wrapped);items.slice(1).forEach(s=>tools.Append(s.wrapped));
       builder.SetArguments(args);builder.SetTools(tools);builder.SetNonDestructive(true);builder.SetRunParallel(false);builder.SetFuzzyValue(useFuzzy);builder.SetGlue(oc.BOPAlgo_GlueEnum[{off:'BOPAlgo_GlueOff',shift:'BOPAlgo_GlueShift',full:'BOPAlgo_GlueFull'}[useGlue]]);
       progress=new oc.Message_ProgressRange();builder.Build(progress);if(!builder.IsDone()||builder.HasErrors())throw new Error('多参数布尔运算失败');if(simplifyResult)builder.SimplifyResult(true,true,1e-7);return booleanFaceOrigins(items,cad.cast(builder.Shape()),builder);
-    }finally{[progress,tools,args,builder].forEach(dispose);}
+    }finally{try{releaseNativeBoolean(builder);}finally{[progress,tools,args].forEach(dispose);}}
   }
   let lastError;
   for(let attempt=0;attempt<(allowFallback?2:1);attempt++){

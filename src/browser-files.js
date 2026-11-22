@@ -60,10 +60,20 @@ function commandResult(result) {
   return result;
 }
 
+const typedArrayKind = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(Uint8Array.prototype), Symbol.toStringTag).get;
+const arrayBufferByteLength = Object.getOwnPropertyDescriptor(ArrayBuffer.prototype, 'byteLength').get;
+const blobSize = typeof Blob === 'undefined' ? null : Object.getOwnPropertyDescriptor(Blob.prototype, 'size').get;
+const blobArrayBuffer = typeof Blob === 'undefined' ? null : Blob.prototype.arrayBuffer;
 function inputBytes(data) {
-  if (data instanceof Blob) return data.arrayBuffer().then(buffer => new Uint8Array(buffer));
-  if (data instanceof ArrayBuffer) return Promise.resolve(new Uint8Array(data.slice(0)));
-  if (data instanceof Uint8Array) return Promise.resolve(new Uint8Array(data));
+  // instanceof rejects genuine inputs from a parent window or iframe. Intrinsic
+  // brand checks retain the declared types without trusting tags or duck types.
+  if (ArrayBuffer.isView(data) && typedArrayKind.call(data) === 'Uint8Array') return Promise.resolve(new Uint8Array(data));
+  let buffer = false;
+  try { arrayBufferByteLength.call(data); buffer = true; } catch {}
+  if (buffer) return Promise.resolve(new Uint8Array(new Uint8Array(data)));
+  let blob = false;
+  try { if (blobSize) { blobSize.call(data); blob = true; } } catch {}
+  if (blob) return blobArrayBuffer.call(data).then(buffer => new Uint8Array(buffer));
   throw failure('ASSET_INVALID', 'Expected File, Blob, ArrayBuffer or Uint8Array');
 }
 

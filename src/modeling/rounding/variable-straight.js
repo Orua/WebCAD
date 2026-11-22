@@ -1,3 +1,4 @@
+import {releaseNativeBoolean} from '../io/native-boolean-lifetime.js';
 import * as cad from 'replicad';
 
 const EPS=1e-7;
@@ -42,7 +43,7 @@ function sectionRadius(shape,origin,axis,radial,expected){
     const residual=Math.max(...distances.map(r=>Math.abs(r-radius)));
     if(Math.abs(radius-expected)>1e-5||residual>1e-5)fail('最终截面半径未满足请求的线性规律','GEOMETRY_INVALID');
     return {measuredSectionRadiusMm:radius,radiusErrorMm:radius-expected,sectionFitResidualMm:residual};
-  }finally{edges.forEach(dispose);[section,builder,planeFace,sketch,drawing].forEach(dispose);}
+  }finally{edges.forEach(dispose);try{releaseNativeBoolean(builder);}finally{[section,planeFace,sketch,drawing].forEach(dispose);}}
 }
 
 const samePoint=(a,b)=>norm(sub(a,b))<1e-5;

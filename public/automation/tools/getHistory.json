@@ -2,7 +2,7 @@
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.75.14",
+  "version": "1.75.20",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -103,5 +103,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3da55f2ffc56506ffa2d3c7b2daafeb3d6297b471c2089973bd5dac867459ae0"
+  "docsHash": "sha256:3165c207427b1b24e2e39e6bd970ea7877d66a5ea0b61ca0483c4d2e0b4d80e6"
 }

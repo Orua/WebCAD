@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:c637b39f59ccc39822e993618c2f9772b31cadf4a9380b882e4f4c1ff2f8cadb",
-  "docsHash": "sha256:2703f224bc28bc3b009b7188ded4fb0442274a44f527ce43abb5da7709a1c8b0",
+  "catalogHash": "sha256:6aefa95abe2d209b68f7195c7e0bdeead4990bab34f9b9f9b0ce50664528c873",
+  "docsHash": "sha256:af67ff52643ce8c9de1605922a90e4084dda60ac8f9c87030b0b4dfa067dafae",
   "workflowDelivery": {
     "schemaVersion": 1,
     "coreDocIds": [
@@ -814,6 +814,10 @@
       "id": "modeling.projected-groove",
       "title": "沿面法向投影刻槽",
       "keywords": [
+        "曲面等距错列",
+        "沿面重复细节",
+        "连续凹鳞",
+        "surface staggered engraving",
         "曲面投影刻槽",
         "下切表面跟随",
         "表面跟随槽",

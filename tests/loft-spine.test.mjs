@@ -121,3 +121,42 @@ test('a spine may close a zero-depth endpoint with a point cap and still cut dee
     assert.ok(cad.measureVolume(stock)-cad.measureVolume(result)>0.2);
   }finally{[result,cutter,stock].forEach(s=>s?.delete?.());}
 });
+
+
+test('sculpted mane law landmarks survive a fixed station budget instead of clipping its flare',()=>{
+ const shape=buildCurveSweep({pathType:'spine',spine:{kind:'polyline',pointsMm:[[0,0,0],[30,0,0]]},stations:{count:8},lawSampling:'preserveKnots',widthLaw:{kind:'spline',samples:[[0,3.5],[.17,11],[.4,6],[1,2]]},depthLaw:3,rollMode:'absolute',loftDegree:2},cad);
+ try{
+  const peak=shape.loftReport.spineFrames.find(frame=>frame.t===.17);assert.ok(peak,'the designed flare must be an actual generated section');assert.equal(peak.widthMm,11);assert.equal(peak.depthMm,3);
+  assert.equal(shape.loftReport.spineSampling.coordinateSpace,'operation-local-before-placement');assert.equal(shape.loftReport.spineFrames.length,8);assert.equal(shape.loftReport.lawSampling,'preserveKnots');
+  const check=new oc.BRepCheck_Analyzer(shape.wrapped,true,false,false);try{assert.equal(check.IsValid(),true);}finally{check.delete();}
+ }finally{shape.delete();}
+});
+
+
+test('landmark sampling preserves scalar laws across station budgets, placement and scale',()=>{
+ for(const count of [8,16])for(const scale of [.5,2]){
+  const origin=[13,-7,4],law=samples=>({kind:'spline',samples});
+  const params={pathType:'spine',spine:{kind:'polyline',pointsMm:[origin,[origin[0]+30*scale,origin[1],origin[2]]]},stations:{count,distribution:count===8?'uniform':'curvature'},lawSampling:'preserveKnots',widthLaw:law([[0,3.5*scale],[.17,11*scale],[.4,6*scale],[1,2*scale]]),depthLaw:law([[0,3*scale],[.61,4*scale],[1,2*scale]]),rollLawDeg:law([[0,0],[.23,7],[1,0]]),rollMode:'absolute',loftDegree:2,autoAlign:false};
+  const shape=buildCurveSweep(params,cad);
+  try{const frames=shape.loftReport.spineFrames;assert.equal(frames.length,count);for(const t of [0,.17,.23,.4,.61,1])assert.ok(frames.some(f=>f.t===t),String(t));const peak=frames.find(f=>f.t===.17);assert.equal(peak.widthMm,11*scale);assert.ok(Math.abs(peak.centerMm[0]-(origin[0]+30*scale*.17))<1e-8);assert.equal(shape.loftReport.spineSampling.generatedCount,count);const check=new oc.BRepCheck_Analyzer(shape.wrapped,true,false,false);try{assert.equal(check.IsValid(),true);}finally{check.delete();}}finally{shape.delete();}
+ }
+});
+
+test('landmark sampling fails clearly rather than dropping knots when its station budget is too small',()=>{
+ const params={pathType:'spine',spine:{pointsMm:[[0,0,0],[30,0,0]]},stations:{count:3},widthLaw:{kind:'spline',samples:[[0,3.5],[.17,11],[.4,6],[1,2]]},depthLaw:3,loftDegree:2};
+ assert.throws(()=>buildCurveSweep({...params,lawSampling:'preserveKnots'},cad),e=>e.code==='PARAM_SCHEMA_INVALID'&&e.path==='params.stations.count'&&/4/.test(e.message));
+ const legacy=buildCurveSweep(params,cad),explicit=buildCurveSweep({...params,lawSampling:'stations'},cad);
+ try{assert.equal(legacy.loftReport.lawSampling,'stations');assert.deepEqual(legacy.loftReport.spineFrames.map(f=>f.t),[0,.5,1]);assert.deepEqual(legacy.loftReport.spineFrames,explicit.loftReport.spineFrames);assert.ok(Math.abs(cad.measureVolume(legacy)-cad.measureVolume(explicit))<1e-8);}finally{legacy.delete();explicit.delete();}
+});
+
+
+test('landmark sampling honors min/max budgets and shares duplicate knots across scalar laws',()=>{
+ for(const count of [2,64]){
+  const params={pathType:'spine',spine:{pointsMm:[[0,0,0],[30,0,0]]},stations:{count},widthLaw:2,depthLaw:1,lawSampling:'preserveKnots',loftDegree:2,autoAlign:false};
+  const shape=buildCurveSweep(params,cad);
+  try{assert.equal(shape.loftReport.spineFrames.length,count);assert.ok(cad.measureVolume(shape)>0);}finally{shape.delete();}
+ }
+ const law={kind:'spline',samples:[[0,2],[.17,3],[1,2]]};
+ const shape=buildCurveSweep({pathType:'spine',spine:{pointsMm:[[0,0,0],[30,0,0]]},stations:{count:3},widthLaw:law,depthLaw:law,rollLawDeg:{kind:'spline',samples:[[0,0],[.17,5],[1,0]]},lawSampling:'preserveKnots',loftDegree:2},cad);
+ try{assert.deepEqual(shape.loftReport.spineFrames.map(f=>f.t),[0,.17,1]);}finally{shape.delete();}
+});

@@ -1,3 +1,4 @@
+import {ownNativeBoolean} from '../io/native-boolean-lifetime.js';
 // Profile-preserving free-end reconstruction. Inherited small creases are
 // explicitly reported; this operation never claims whole-body G1 continuity.
 import * as cad from 'replicad';
@@ -16,7 +17,7 @@ export function buildEndRounding(input,params){
  const oc=cad.getOC(),owned=[],keep=x=>(owned.push(x),x),tol=1e-5;
  const exactBounds=shape=>{const box=keep(new oc.Bnd_Box());oc.BRepBndLib.AddOptimal(shape.wrapped,box,false,false);const a=keep(box.CornerMin()),b=keep(box.CornerMax());return[vec(a),vec(b)];};
  const volume=shape=>{const solids=shape.solids;owned.push(...solids);if(!solids.length)return 0;const p=keep(new oc.GProp_GProps());const e=oc.BRepGProp.VolumePropertiesGK(shape.wrapped,p,1e-10,true,true,false,false,false);if(e<0||!Number.isFinite(p.Mass()))fail('体积量测失败','GEOMETRY_INVALID');return Math.abs(p.Mass());};
- function boolean(type,a,b){const builder=keep(new oc[type]()),args=keep(new oc.NCollection_List_TopoDS_Shape()),tools=keep(new oc.NCollection_List_TopoDS_Shape());args.Append(a.wrapped);tools.Append(b.wrapped);builder.SetArguments(args);builder.SetTools(tools);builder.SetNonDestructive(true);builder.SetRunParallel(false);builder.Build(keep(new oc.Message_ProgressRange()));if(!builder.IsDone()||builder.HasErrors())fail('端头组装失败，原模型保留','KERNEL_BUILD_FAILED');return keep(cad.cast(builder.Shape()));}
+ function boolean(type,a,b){const builder=ownNativeBoolean(new oc[type](),keep),args=keep(new oc.NCollection_List_TopoDS_Shape()),tools=keep(new oc.NCollection_List_TopoDS_Shape());args.Append(a.wrapped);tools.Append(b.wrapped);builder.SetArguments(args);builder.SetTools(tools);builder.SetNonDestructive(true);builder.SetRunParallel(false);builder.Build(keep(new oc.Message_ProgressRange()));if(!builder.IsDone()||builder.HasErrors())fail('端头组装失败，原模型保留','KERNEL_BUILD_FAILED');return keep(cad.cast(builder.Shape()));}
  try{
   const original=cad.deserializeShape(input.serialize()).asShape3D();keep(original);
   const originalSolids=original.solids;owned.push(...originalSolids);if(originalSolids.length!==1)fail('端头圆润需要单一实体');
@@ -32,7 +33,7 @@ export function buildEndRounding(input,params){
   const sourceEdges=source.edges;owned.push(...sourceEdges);
   const targetPoints=[];
   for(const id of edgeIds){if(!Number.isInteger(id)||!sourceEdges[id])fail('当前实体边号无效','PARAM_SCHEMA_INVALID');const b=exactBounds(sourceEdges[id]);if(b[0][1]<s0-tol)fail('选中的边超出端头重建区，请调整方向或深度');targetPoints.push(tuple(sourceEdges[id].pointAt(.5)));}
-  function section(s,withFace=true){const p=keep(new oc.gp_Pnt(0,s,0)),n=keep(new oc.gp_Dir(0,1,0)),plane=keep(new oc.gp_Pln(p,n)),b=keep(new oc.BRepAlgoAPI_Section());b.Init1(source.wrapped);b.Init2(plane);b.SetNonDestructive(true);b.Build(keep(new oc.Message_ProgressRange()));if(!b.IsDone()||b.HasErrors())fail('无法提取端头截面');const shape=keep(cad.cast(b.Shape())),edges=shape.edges;owned.push(...edges);if(!edges.length||edges.length>64)fail('截面过于复杂');let wire=shape,face=null;if(withFace){wire=keep(cad.assembleWire(edges));const used=wire.edges;owned.push(...used);if(used.length!==edges.length)fail('截面边未完整连接，不能忽略缺边');face=keep(cad.makeFace(wire));const check=keep(new oc.BRepCheck_Analyzer(face.wrapped,true,false));if(!check.IsValid())fail('截面不是一个有效闭合外环');}return{wire,face,edges,bounds:exactBounds(shape)};}
+  function section(s,withFace=true){const p=keep(new oc.gp_Pnt(0,s,0)),n=keep(new oc.gp_Dir(0,1,0)),plane=keep(new oc.gp_Pln(p,n)),b=ownNativeBoolean(new oc.BRepAlgoAPI_Section(),keep);b.Init1(source.wrapped);b.Init2(plane);b.SetNonDestructive(true);b.Build(keep(new oc.Message_ProgressRange()));if(!b.IsDone()||b.HasErrors())fail('无法提取端头截面');const shape=keep(cad.cast(b.Shape())),edges=shape.edges;owned.push(...edges);if(!edges.length||edges.length>64)fail('截面过于复杂');let wire=shape,face=null;if(withFace){wire=keep(cad.assembleWire(edges));const used=wire.edges;owned.push(...used);if(used.length!==edges.length)fail('截面边未完整连接，不能忽略缺边');face=keep(cad.makeFace(wire));const check=keep(new oc.BRepCheck_Analyzer(face.wrapped,true,false));if(!check.IsValid())fail('截面不是一个有效闭合外环');}return{wire,face,edges,bounds:exactBounds(shape)};}
   const profile=section(s0),sb=profile.bounds,centerX=(sb[0][0]+sb[1][0])/2,width=sb[1][0]-sb[0][0],height=sb[1][2]-sb[0][2],radius=width/2;
   if(profile.edges.some(e=>!['LINE','CIRCLE'].includes(e.geomType)))fail('首版端头圆润支持直线与圆弧截面；椭圆或样条截面暂不支持');
   if(Math.min(width,height)<=tol||radius>depthMm+tol)fail(`重建深度须至少为半宽 ${radius.toFixed(6)} mm，避免加长零件`);

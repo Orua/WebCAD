@@ -1,3 +1,4 @@
+import {runInNewContext} from 'node:vm';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPageAPI } from '../src/page-api.js';
@@ -377,4 +378,18 @@ test('capture waits for a matching rendered frame and preserves display failure'
   assert.equal(frameFailure.error.code, 'DISPLAY_FAILED');
   assert.equal(f.calls.capture, 1);
   assert.equal(f.api.getState().context.revision, 7);
+});
+
+
+test('page files API accepts a foreign-realm request object and forwards only copied exact bytes to open',async()=>{
+  const f=fixture();let forwarded;
+  f.host.files=async input=>{forwarded=input;return {status:'committed'};};
+  const request=runInNewContext('({name:"foreign.webcad",data:new Uint8Array([88,0,1,255,99]).subarray(1,4)})');
+  const resource=await f.api.files.register(request);request.data.fill(9);
+  assert.equal(resource.status,'registered');assert.equal(resource.size,3);
+  assert.deepEqual([...await f.api.files.read({resourceId:resource.resourceId,as:'bytes'})],[0,1,255]);
+  const opened=await f.api.files.open({context:context(),resourceId:resource.resourceId,unsaved:'fail'});
+  assert.equal(opened.status,'committed');assert.equal(forwarded.action,'open');
+  assert.ok(forwarded.args.data instanceof Uint8Array);assert.deepEqual([...forwarded.args.data],[0,1,255]);
+  assert.equal(forwarded.args.unsaved,'fail');
 });

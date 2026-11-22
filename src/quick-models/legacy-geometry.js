@@ -1,3 +1,4 @@
+import {ownNativeBoolean} from '../modeling/io/native-boolean-lifetime.js';
 // Shared geometry for models migrated from the original quick-model builder.
 import { HARDWARE_TEMPLATES, buildHardwareTemplate } from '../hardware-templates.js';
 const dispose=o=>{try{o?.delete();}catch{}};
@@ -273,7 +274,7 @@ export function buildLegacyQuickModel(params,cad,{roundAll}={},definitions,build
         result=outerSketch.extrude(thickness);
         for(const center of centers){
           const boss=hold(cad.makeCylinder(outerDiameter/2,bossHeight,[center[0],0,-bossHeight])),old=result;
-          const builder=hold(new (cad.getOC().BRepAlgoAPI_Fuse)(old.wrapped,boss.wrapped));builder.Build();result=cad.cast(builder.Shape());dispose(old);
+          const builder=ownNativeBoolean(new (cad.getOC().BRepAlgoAPI_Fuse)(old.wrapped,boss.wrapped),hold);builder.Build();result=cad.cast(builder.Shape());dispose(old);
         }
         for(const center of centers){const tool=hold(cad.makeCylinder(boreDiameter/2,bossHeight+thickness+2,[center[0],0,-bossHeight-1])),old=result;result=old.cut(tool);dispose(old);}
       }
@@ -288,7 +289,7 @@ export function buildLegacyQuickModel(params,cad,{roundAll}={},definitions,build
     try {
       const flange=hold(cad.makeCylinder(flangeDiameter/2,flangeThickness,[0,0,0]));
       const body=hold(cad.makeCylinder(bodyDiameter/2,bodyHeight,[0,0,flangeThickness]));
-      const builder=hold(new (cad.getOC().BRepAlgoAPI_Fuse)(flange.wrapped,body.wrapped));builder.Build();result=cad.cast(builder.Shape());
+      const builder=ownNativeBoolean(new (cad.getOC().BRepAlgoAPI_Fuse)(flange.wrapped,body.wrapped),hold);builder.Build();result=cad.cast(builder.Shape());
       const bore=hold(cad.makeCylinder(boreDiameter/2,bodyHeight+flangeThickness+2,[0,0,-1]));const old=result;result=old.cut(bore);dispose(old);
       const complete=result;result=null;return complete;
     } finally {dispose(result);resources.reverse().forEach(dispose);}
@@ -329,7 +330,7 @@ export function buildLegacyQuickModel(params,cad,{roundAll}={},definitions,build
       const profileDrawing=hold(cad.drawCircle(centerRadius)),profile=hold(profileDrawing.sketchOnPlane(plane));
       const ring=hold(cad.genericSweep(profile.wire,path,{frenet:false,transitionMode:'right'}));
       const bar=hold(cad.makeCylinder(diameter/2,iw+size,[-a-centerRadius,0,depth],[1,0,0]));
-      const builder=hold(new (cad.getOC().BRepAlgoAPI_Fuse)(ring.wrapped,bar.wrapped));builder.Build();result=cad.cast(builder.Shape());
+      const builder=ownNativeBoolean(new (cad.getOC().BRepAlgoAPI_Fuse)(ring.wrapped,bar.wrapped),hold);builder.Build();result=cad.cast(builder.Shape());
       const checker=hold(new (cad.getOC().BRepCheck_Analyzer)(result.wrapped,true,false,false));
       const solids=result.solids;try{check(checker.IsValid()&&solids.length===1,'椭圆圈与横杆未形成有效单实体');}finally{solids.forEach(dispose);}
       const complete=result;result=null;return complete;
@@ -353,7 +354,7 @@ export function buildLegacyQuickModel(params,cad,{roundAll}={},definitions,build
       const ring=hold(cad.genericSweep(profile.wire,path,{frenet:false,transitionMode:'right'}));
       const outerHeight=ih+2*size;
       const cutter=hold(cad.makeBox([-gap/2,-outerHeight/2-size,-size],[gap/2,-outerHeight/2+2*size,size]));
-      const builder=hold(new (cad.getOC().BRepAlgoAPI_Cut)(ring.wrapped,cutter.wrapped));builder.Build();
+      const builder=ownNativeBoolean(new (cad.getOC().BRepAlgoAPI_Cut)(ring.wrapped,cutter.wrapped),hold);builder.Build();
       result=cad.cast(builder.Shape());
       const checker=hold(new (cad.getOC().BRepCheck_Analyzer)(result.wrapped,true,false,false));
       const solids=result.solids;try{check(checker.IsValid()&&solids.length===1,'椭圆开缝切口未形成有效单实体');}finally{solids.forEach(dispose);}
@@ -432,7 +433,7 @@ export function buildLegacyQuickModel(params,cad,{roundAll}={},definitions,build
     const tool=hold(cad.makeCylinder(d/2,length,origin,[1,0,0])),old=shape;
     // Keep OCCT's exact intersection topology: Replicad's unconditional
     // SimplifyResult(angularTolerance=.001) can invalidate round-wire joins.
-    const builder=hold(new (cad.getOC().BRepAlgoAPI_Fuse)(old.wrapped,tool.wrapped));
+    const builder=ownNativeBoolean(new (cad.getOC().BRepAlgoAPI_Fuse)(old.wrapped,tool.wrapped),hold);
     builder.Build();shape=cad.cast(builder.Shape());dispose(old);
   };
   try {

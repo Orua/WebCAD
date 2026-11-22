@@ -1,3 +1,4 @@
+import {ownNativeBoolean} from '../io/native-boolean-lifetime.js';
 import {validateRegions} from '../../logo-model.js';
 import {contourWire,wireFromContourPlan} from './relief-curves.js';
 import {planRegionContours} from './relief-region-plan.js';
@@ -40,7 +41,7 @@ export function maskReliefTool(tool,p,frame,oc,cad,onProgress,{regionGroups}={})
    return solid;
   };
   const boolean=(type,a,b)=>{
-   const builder=hold(new oc[type]()),args=hold(new oc.NCollection_List_TopoDS_Shape()),tools=hold(new oc.NCollection_List_TopoDS_Shape());
+   const builder=ownNativeBoolean(new oc[type](),hold),args=hold(new oc.NCollection_List_TopoDS_Shape()),tools=hold(new oc.NCollection_List_TopoDS_Shape());
    args.Append(a.wrapped);tools.Append(b.wrapped);builder.SetArguments(args);builder.SetTools(tools);builder.SetNonDestructive(true);builder.SetFuzzyValue(1e-7);builder.Build();
    if(builder.HasErrors())fail('浮雕轮廓布尔计算失败');
    return hold(cad.cast(builder.Shape()));
@@ -91,7 +92,7 @@ export function maskReliefTool(tool,p,frame,oc,cad,onProgress,{regionGroups}={})
   // source must still produce exactly one valid solid, never a grouped overlay.
   let result;
   if(regionGroups?.length>1&&pieces.length>1){
-   const builder=hold(new oc.BRepAlgoAPI_Fuse()),args=hold(new oc.NCollection_List_TopoDS_Shape()),tools=hold(new oc.NCollection_List_TopoDS_Shape());args.Append(pieces[0].wrapped);for(const piece of pieces.slice(1))tools.Append(piece.wrapped);builder.SetArguments(args);builder.SetTools(tools);builder.SetNonDestructive(true);builder.SetFuzzyValue(1e-7);builder.Build();if(builder.HasErrors())fail('同高层精确材料合组失败');result=cad.cast(builder.Shape());
+   const builder=ownNativeBoolean(new oc.BRepAlgoAPI_Fuse(),hold),args=hold(new oc.NCollection_List_TopoDS_Shape()),tools=hold(new oc.NCollection_List_TopoDS_Shape());args.Append(pieces[0].wrapped);for(const piece of pieces.slice(1))tools.Append(piece.wrapped);builder.SetArguments(args);builder.SetTools(tools);builder.SetNonDestructive(true);builder.SetFuzzyValue(1e-7);builder.Build();if(builder.HasErrors())fail('同高层精确材料合组失败');result=cad.cast(builder.Shape());
   }else result=cad.makeCompound(pieces);
   const sum=key=>conversions.reduce((s,r)=>s+(r[key]??0),0),area=key=>conversions.reduce((s,r)=>s+(r.role==='hole'?-1:1)*(r[key]??0),0);
   result.curveConversionReport={maskStrategy:strategy,legacyPolylineFallbackAllowed:!p.maskStrategy,reference:'supplied-polyline-after-explicit-cleanup',sourceRegionCount:p.regions?.length??0,regionCount:regions.length,holeCount:regions.reduce((s,r)=>s+r.holes.length,0),sourceEdgeCount:sum('sourceEdgeCount'),resultEdgeCount:sum('resultEdgeCount'),sourceAreaMm2:area('sourceAreaMm2'),resultAreaMm2:area('resultAreaMm2'),maxSampledDeviationMm:Math.max(0,...conversions.map(r=>r.maxSampledDeviationMm)),sampleCount:sum('sampleCount'),errorBound:'sampled-not-global',connectionCheck:'exact-kernel-mask-validity',sourceSplineDeviation:'unknown',rings:conversions,ringCount:conversions.length,truncated:false};

@@ -1,3 +1,4 @@
+import {releaseNativeBoolean} from './modeling/io/native-boolean-lifetime.js';
 import {applyBodyResize} from './body-resize.js';
 import {selectBooleanSolid,validSolidSelection} from './modeling/boolean-result-selection.js';
 import {resultDisplayNames} from './boolean-naming.js';
@@ -664,7 +665,7 @@ export class CadKernel {
               } finally {solids.forEach(dispose);}
               if(after-before<=Math.max(1e-8,before*1e-12))throw Object.assign(new Error(`第 ${index+1} 个凸台未增加材料，请检查位置或重复凸台`),{code:'NO_MATERIAL_ADDED'});
               dispose(current);current=next;next=null;
-            } finally {[next,builder,tool].forEach(dispose);}
+            } finally {try{releaseNativeBoolean(builder);}finally{[next,tool].forEach(dispose);}}
           }
           const result=current;current=null;return result;
         } finally {dispose(current);}

@@ -99,3 +99,13 @@ test('organic route exposes current shaping cards and the optional material guar
   const text=readDocs({docId:route.readFirst,limitChars:16000}).text;
   for(const term of ['source-minus-result','affectedControlPoints','maxDisplacementMm','protectVertexIds','Services','reopen','unknown','视觉未验证','正深度','点收尾','curveSweep','cut'])assert.ok(text.includes(term),term);
 });
+
+
+test('organic guidance and downloadable curveSweep contract agree on explicit landmark budgets',async()=>{
+ const card=getTool({id:'curveSweep'}),downloaded=JSON.parse(await readFile('public/automation/tools/curveSweep.json','utf8'));
+ assert.deepEqual(card.inputSchema.properties.lawSampling.enum,['stations','preserveKnots']);
+ assert.equal(downloaded.schemaHash,card.schemaHash);
+ assert.deepEqual(downloaded.inputSchema.properties.lawSampling,card.inputSchema.properties.lawSampling);
+ const text=readDocs({docId:'api.modeling.methods.organic-form',limitChars:16000}).text;
+ for(const phrase of ['preserveKnots','stations.count','spineFrames','placement/sourceAnchor','不保证截面之间无外鼓'])assert.ok(text.includes(phrase),phrase);
+});

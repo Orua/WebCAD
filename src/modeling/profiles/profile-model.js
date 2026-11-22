@@ -1,3 +1,4 @@
+import {releaseNativeBoolean} from '../io/native-boolean-lifetime.js';
 import {inspectProfileModel} from './profile-inspection.js';
 import {expandProfilePrimitives} from './profile-primitives.js';
 const fail = (message, path = 'params') => { throw Object.assign(new Error(message), { code: 'PROFILE_INVALID', path }); };
@@ -85,7 +86,7 @@ export function validateProfile(params) {
 }
 
 const dispose = value => { try { value?.delete?.(); } catch {} };
-function commonArea(left,right,cad){let builder,result;try{builder=new (cad.getOC().BRepAlgoAPI_Common)(left.wrapped,right.wrapped);builder.Build();if(!builder.IsDone())fail('区域包含关系的精确求交失败','params.regions');result=cad.cast(builder.Shape());return result.isNull?0:cad.measureArea(result);}finally{dispose(result);dispose(builder);}}
+function commonArea(left,right,cad){let builder,result;try{builder=new (cad.getOC().BRepAlgoAPI_Common)(left.wrapped,right.wrapped);builder.Build();if(!builder.IsDone())fail('区域包含关系的精确求交失败','params.regions');result=cad.cast(builder.Shape());return result.isNull?0:cad.measureArea(result);}finally{dispose(result);releaseNativeBoolean(builder);}}
 export function buildSketchProfile(params, cad) {
   const profile = validateProfile(params), owned = [], hold = value => { owned.push(value); return value; };
   const edge = (entity, reversed = false) => {

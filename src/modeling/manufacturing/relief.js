@@ -1,3 +1,4 @@
+import {ownNativeBoolean} from '../io/native-boolean-lifetime.js';
 import {LIMITS} from '../../limits.js';
 import {planarFace} from '../../reference-profile-wires.js';
 import {validateSchema,contractError,contractHash,binaryHash} from '../../contracts/operation-schema.js';
@@ -118,7 +119,7 @@ export function buildRelief(source,p,oc,cad,{supportFace:anchorFace=null,startHe
    // Layered ornaments need topology validation, not two expensive adaptive
    // integrals of the increasingly complex body after every small layer.
    const before=measureMaterial?volume(copy,oc):null,direction=p.mode==='engrave'?-1:1;
-   const builder=hold(direction===1?new oc.BRepAlgoAPI_Fuse():new oc.BRepAlgoAPI_Cut());
+   const builder=ownNativeBoolean(direction===1?new oc.BRepAlgoAPI_Fuse():new oc.BRepAlgoAPI_Cut(),hold);
    const args=hold(new oc.NCollection_List_TopoDS_Shape()),tools=hold(new oc.NCollection_List_TopoDS_Shape());
    args.Append(copy.wrapped);tools.Append(tool.wrapped);builder.SetArguments(args);builder.SetTools(tools);
    builder.SetFuzzyValue(1e-7);builder.SetNonDestructive(true);builder.SetUseOBB(true);

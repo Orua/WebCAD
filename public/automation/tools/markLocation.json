@@ -2,7 +2,7 @@
   "id": "markLocation",
   "title": "markLocation",
   "category": "page-method",
-  "version": "1.75.14",
+  "version": "1.75.20",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -166,5 +166,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a5b860d51036c489a4860336af25632da020ade5e9586383d0f4ebf2d14de517"
+  "docsHash": "sha256:2741d436e3346c6aff754aa0840b756fd5b1e8d3caa6e9c5ece5d6cefd5b9340"
 }

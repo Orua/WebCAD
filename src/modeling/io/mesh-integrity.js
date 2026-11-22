@@ -17,7 +17,7 @@ export function meshIntegrity(vertices,triangles,{faceCount,faceGroups=[],brepVo
   const rows=[...edges.values()],boundaryEdges=rows.filter(e=>e.count===1).length,nonManifoldEdges=rows.filter(e=>e.count>2).length,inconsistentEdges=rows.filter(e=>e.count===2&&e.balance!==0).length;
   const covered=new Set(faceGroups.filter(g=>g.count>0).map(g=>g.faceId)),untriangulatedFaceIds=Number.isInteger(faceCount)?Array.from({length:faceCount},(_,i)=>i).filter(i=>!covered.has(i)):[];
   const meshVolumeMm3=Math.abs(volume),volumeErrorRatio=typeof brepVolumeMm3==='number'&&brepVolumeMm3>0?Math.abs(meshVolumeMm3-brepVolumeMm3)/brepVolumeMm3:null;
-  return {status:untriangulatedFaceIds.length?'incomplete':'complete',untriangulatedFaceIds,watertight:boundaryEdges===0&&nonManifoldEdges===0&&inconsistentEdges===0&&mesh.triangles.length>0,boundaryEdges,nonManifoldEdges,inconsistentEdges,meshVolumeMm3,brepVolumeMm3:brepVolumeMm3??null,volumeErrorRatio,degenerateTriangles:mesh.degenerateTriangles,weldToleranceMm};
+  return {inputTriangleCount:triangles.length/3,auditedTriangleCount:mesh.triangles.length/3,discardedDegenerateTriangles:mesh.degenerateTriangles,status:untriangulatedFaceIds.length?'incomplete':'complete',untriangulatedFaceIds,watertight:boundaryEdges===0&&nonManifoldEdges===0&&inconsistentEdges===0&&mesh.triangles.length>0,boundaryEdges,nonManifoldEdges,inconsistentEdges,meshVolumeMm3,brepVolumeMm3:brepVolumeMm3??null,volumeErrorRatio,degenerateTriangles:mesh.degenerateTriangles,weldToleranceMm};
 }
 export function binaryStl(mesh){
   const welded=weldedMesh(mesh.vertices,mesh.triangles),bytes=new Uint8Array(84+welded.triangles.length/3*50),view=new DataView(bytes.buffer);

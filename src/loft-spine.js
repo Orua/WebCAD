@@ -1,4 +1,5 @@
 import {buildSectionCurveLoft} from './section-curve-loft.js';
+import {spineLawKnots} from './spine-law-sampling.js';
 
 const norm=v=>Math.hypot(...v), dot=(a,b)=>a.reduce((s,x,i)=>s+x*b[i],0);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
@@ -40,6 +41,17 @@ function parameters(count,distribution,points){
  const density=cumulative.map((d,i)=>d+curv.slice(0,i+1).reduce((s,x)=>s+x,0)*Math.max(cumulative.at(-1),1));const max=density.at(-1);
  return Array.from({length:count},(_,k)=>{const target=max*k/(count-1);let i=1;while(density[i]<target&&i<density.length-1)i++;const f=(target-density[i-1])/(density[i]-density[i-1]||1);return (cumulative[i-1]*(1-f)+cumulative[i]*f)/cumulative.at(-1);});
 }
+function preserveLawKnots(base,params){
+ const knots=spineLawKnots(params),required=new Set(knots);
+ const result=base.slice();
+ for(const t of knots){
+  if(result.includes(t))continue;
+  let index=-1,distance=Infinity;
+  for(let i=1;i<result.length-1;i++)if(!required.has(result[i])&&Math.abs(result[i]-t)<distance){index=i;distance=Math.abs(result[i]-t);}
+  result[index]=t;
+ }
+ return {parameters:result.sort((a,b)=>a-b),knots};
+}
 function defaultSpineWidth(params){
  // pathType:spine historically defaulted to a 10 mm section. Honor the shared
  // curveSweep radius / sectionWidth / sectionSize so agents are not given a
@@ -61,12 +73,15 @@ export function buildSpineLoft(params,cad){
  const spine=params.spine,points=spine?.pointsMm;if(!Array.isArray(points)||points.length<2||points.length>128||!points.every(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)))throw new Error('spine.pointsMm 须为 2–128 个有限 XYZ 点');
  if(spine.kind!==undefined&&!['polyline','bspline'].includes(spine.kind))throw new Error('spine.kind 须为 polyline 或 bspline');
  for(let i=1;i<points.length;i++)if(dist(points[i],points[i-1])<1e-8)throw new Error('脊线相邻点不得重合');
- const count=params.stations?.count??32,ts=parameters(count,params.stations?.distribution??'uniform',points),up=params.upHint??[0,0,1];if(!Array.isArray(up)||up.length!==3||!up.every(Number.isFinite)||norm(up)<1e-9)throw new Error('upHint 须为非零有限 XYZ');
+ const count=params.stations?.count??32,baseParameters=parameters(count,params.stations?.distribution??'uniform',points),up=params.upHint??[0,0,1];if(!Array.isArray(up)||up.length!==3||!up.every(Number.isFinite)||norm(up)<1e-9)throw new Error('upHint 须为非零有限 XYZ');
  let spineEdge=null;
  if(spine.kind==='bspline'&&points.length>2)spineEdge=cad.makeBSplineApproximation(points,{tolerance:params.tolerance??.01});
  const centerAt=t=>{if(!spineEdge)return interpolate(points,t,'polyline');const p=spineEdge.pointAt(t);try{return typeof p?.toTuple==='function'?p.toTuple():[p.x,p.y,p.z]}finally{dispose(p)}};
  try{
  assertInteriorLawPositive(params.widthLaw,'widthLaw');assertInteriorLawPositive(params.depthLaw,'depthLaw');
+ const lawSampling=params.lawSampling??'stations';
+ if(!['stations','preserveKnots'].includes(lawSampling))throw new Error('lawSampling 须为 stations 或 preserveKnots');
+ const sampling=lawSampling==='preserveKnots'?preserveLawKnots(baseParameters,params):{parameters:baseParameters,knots:[]},ts=sampling.parameters;
 const stations=[],tipCaps={};let previousTangent=null,previousWidth=null;
  for(const t of ts){const centerMm=centerAt(t),eps=Math.min(1e-4,Math.max(1e-7,.25/(points.length-1))),a=centerAt(Math.max(0,t-eps)),b=centerAt(Math.min(1,t+eps)),normal=unit(b.map((v,i)=>v-a[i]));
   let width;if(!previousTangent){width=cross(up,normal);if(norm(width)<1e-8){const axes=[[1,0,0],[0,1,0],[0,0,1]].toSorted((a,b)=>Math.abs(dot(a,normal))-Math.abs(dot(b,normal)));width=cross(axes[0],normal);}width=unit(width);}else{const axis=cross(previousTangent,normal),s=norm(axis),c=Math.max(-1,Math.min(1,dot(previousTangent,normal)));width=s<1e-9?(c<0?previousWidth.map(v=>-v):previousWidth):rotate(previousWidth,axis.map(v=>v/s),Math.atan2(s,c));
@@ -91,6 +106,6 @@ const stations=[],tipCaps={};let previousTangent=null,previousWidth=null;
   previousWidth=rollMode==='absolute'?width:rolledWidth;
  }
  if(stations.length<2)throw new Error('零深度端点之外至少还需要两个正截面，才能生成点收尾的刀具');
- const result=buildSectionCurveLoft({...params,...tipCaps,pathType:'sections',stations},cad);result.loftReport={...result.loftReport,spineFrames:stations.map((s,i)=>({i,t:s.t,normal:s.normal,widthDirection:s.widthDirection})),spineKind:spineEdge?'bspline':'polyline',rollMode,zeroEndDepth:{start:!!tipCaps.startCap,end:!!tipCaps.endCap},tipPoints:{start:tipCaps.startCap?.pointMm??null,end:tipCaps.endCap?.pointMm??null}};return result;
+ const result=buildSectionCurveLoft({...params,...tipCaps,pathType:'sections',stations},cad);result.loftReport={...result.loftReport,spineFrames:stations.map((s,i)=>({i,t:s.t,centerMm:s.centerMm,widthMm:s.widthMm,depthMm:s.depthMm,normal:s.normal,widthDirection:s.widthDirection})),lawSampling,spineSampling:{coordinateSpace:'operation-local-before-placement',requestedCount:count,generatedCount:ts.length,requiredKnots:sampling.knots},spineKind:spineEdge?'bspline':'polyline',rollMode,zeroEndDepth:{start:!!tipCaps.startCap,end:!!tipCaps.endCap},tipPoints:{start:tipCaps.startCap?.pointMm??null,end:tipCaps.endCap?.pointMm??null}};return result;
  }finally{dispose(spineEdge)}
 }

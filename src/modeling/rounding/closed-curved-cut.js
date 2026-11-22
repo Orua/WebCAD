@@ -1,3 +1,4 @@
+import {releaseNativeBoolean} from '../io/native-boolean-lifetime.js';
 import {createClosedNativeGrindingContactCutter} from './closed-contact-cutter.js';
 
 const dispose=value=>{try{value?.delete?.();}catch{}};
@@ -52,5 +53,5 @@ export function buildClosedCurvedCut(shape,{edgeIds,contours=[{sourceEdgeIds:edg
     const returned={shape:result,...provenance,actualEdgeIds:[...edgeIds],constructionKind:'automatic-curved-cut',
       cutterReports:cutters.map(cutter=>cutter.report),constructionScaleMm:Math.min(...cutters.map(cutter=>cutter.report.halfWidthMm)),cutBuildCalls:1};
     result=null;return returned;
-  }finally{dispose(result);[progress,tools,objects,builder].forEach(dispose);cutters.forEach(cutter=>cutter.disposeCandidate());}
+  }finally{dispose(result);try{releaseNativeBoolean(builder);}finally{[progress,tools,objects].forEach(dispose);}cutters.forEach(cutter=>cutter.disposeCandidate());}
 }

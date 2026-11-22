@@ -101,7 +101,8 @@ export function resolvePlacement(placement,system,op,params={}){
   validateSchema(PLACEMENT_SCHEMA,placement,'args.placement');
   return {version:1,resolverVersion:1,frameSnapshot:frame,sourceAnchor:structuredClone(a),sourceFrameRef,sourcePoint};
 }
-export function validateResolvedPlacement(placement,op){
+export function validateResolvedPlacement(placement,op,savedFeature){
+  if(savedFeature&&(![2,3,4].includes(savedFeature.documentVersion)||savedFeature.semanticsVersion!==2))fail('DOCUMENT_VERSION_UNSUPPORTED','feature.semanticsVersion','定位特征需要工程版本 2 和语义版本 2。');
   const path='feature.placement';
   fields(placement,['version','resolverVersion','frameSnapshot','sourceAnchor','sourceFrameRef','sourcePoint'],path);
   if(placement.version!==1||placement.resolverVersion!==1||!['C','T','S','X'].includes(placementPolicy(op)))fail('FRAME_INVALID',path,'Unsupported resolved placement');

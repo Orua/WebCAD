@@ -192,7 +192,7 @@ export function buildSectionCurveLoft(params,cad){
   mark('validity');
   const analyzer=hold(new (cad.getOC().BRepCheck_Analyzer)(result.wrapped,true,false,false));if(!analyzer.IsValid())throw new Error('多截面放样拓扑无效，请检查截面顺序、自交及宽深');
   diagnostics.valid=true;mark('solids');
-  const solids=result.solids;let volume;try{diagnostics.solidCount=solids.length;if(solids.length!==1)throw new Error('多截面放样须得到一个实体');mark('volume');volume=cad.measureVolume(result);if(!Number.isFinite(volume)||volume<=1e-9)throw new Error('多截面放样须得到一个正体积实体');}finally{solids.forEach(dispose)}
+  const solids=result.solids;let volume;try{diagnostics.solidCount=solids.length;if(solids.length!==1)throw new Error('多截面放样须得到一个实体');mark('volume');volume=cad.measureVolume(result);diagnostics.volumeMm3=volume;if(!Number.isFinite(volume)||volume<=1e-9)throw new Error('多截面放样须得到一个正体积实体');}finally{solids.forEach(dispose)}
   mark('volume-estimate');
   let estimate=0;for(let i=0;i<resolved.length-1;i++){const a=sampled[i],b=sampled[i+1],dist=Math.hypot(...resolved[i+1].centerMm.map((v,j)=>v-resolved[i].centerMm[j]));const tangent=unit(resolved[i+1].centerMm.map((v,j)=>v-resolved[i].centerMm[j]));const projected=Math.abs(dot(tangent,unit(resolved[i].normal.map((v,j)=>v+resolved[i+1].normal[j]))));estimate+=(areaOf(a)+areaOf(b))/2*dist*Math.max(projected,.05);}
   const ratio=estimate>1e-12?volume/estimate:null;let suspectStations=[];

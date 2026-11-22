@@ -16,3 +16,12 @@ test('headless CLI validates geometry and locates invalid feature without a brow
     assert.equal(bad.status,2);assert.equal(failed.rebuild.failedFeature.id,'box-one');
   }finally{await fs.rm(dir,{recursive:true,force:true});}
 });
+
+test('headless validation rejects saved placed features that the browser cannot open',async()=>{
+  const {validateProject}=await import('../src/document-validation.js');
+  const placement={version:1,resolverVersion:1,frameSnapshot:{origin:[0,0,0],quaternion:[0,0,0,1]},sourceAnchor:{kind:'model-origin'},sourceFrameRef:{kind:'world'},sourcePoint:[0,0,0]};
+  const doc={version:2,imports:{},features:[{id:'placed-box',op:'box',params:{width:10,depth:8,height:6},refs:[],placement}]};
+  assert.throws(()=>validateProject(doc),error=>error.code==='DOCUMENT_VERSION_UNSUPPORTED'&&error.featureId==='placed-box');
+  doc.features[0].semanticsVersion=2;assert.equal(validateProject(doc).idsRefsPlacement,true);
+  doc.version=1;assert.throws(()=>validateProject(doc),error=>error.code==='DOCUMENT_VERSION_UNSUPPORTED');
+});

@@ -6,6 +6,8 @@
 
 - 不对称体块或凹果窝：用 subdBody 的封闭四边控制笼先定宽扁与凹凸。push/inflate 沿法向增减，move 配 deltaMm 按明确方向拖动控制点，smooth 小步平均。需要保住相邻体块时，在该笔填写 protectVertexIds（原始控制笼顶点序号）。看 brushReport 的 affectedControlPoints、protectedInRange 和警告；实际移动后才能判定笔刷生效。钉住控制点并不锁定拟合曲面。面预算含额外一层收敛检查。
 - 连续弯曲、沿程变粗细：用 curveSweep 的 spine、widthLaw 与 depthLaw。新特征默认绝对滚转。全椭圆截面保持标架对应，避免截面被重新对接造成折颈。固定一个角度后改变站数，截面不应随站数越扭越多。检查 loftReport.ratio 与多视角连续外轮廓，实测后再提高采样。
+- 设计明确的肩峰、鬃片展开或爪根收束时，可显式设 lawSampling:"preserveKnots"，把 widthLaw/depthLaw/rollLawDeg 的每个 sample 参数落在真实截面上。stations.count 仍是硬预算，关键点并集超过预算就增加 count（最多64）或拆段，不会静默丢点。读取 loftReport.spineFrames 的 t、centerMm、widthMm、depthMm 和 spineSampling；这些中心/方向是 placement/sourceAnchor 应用前的操作局部坐标，排布到世界坐标时须应用该特征冻结的 placement；显式 world + model-origin 才可直接使用。缺省 stations 保留旧配方仅按站分布采样。它不保证截面之间无外鼓，也不把 profileLaw 的最近项变成连续混合。
+- 复杂解剖先验证负空间与体块流向：同一控制笼建立额头/颊/长吻，独立下颌保留口腔开口；眼眶/鼻孔要有真实凹陷，再安排眉脊。分叉角和分开的指爪应从有厚度的根部沿弯曲路径渐细，先验证一个分叉/一只爪，不用球/锥的批量堆叠代替连续塑形。可保留有意装配，但重叠不等于已经融合；若要求实体连接，明确 requireConnected 并做局部验证。鳞甲样片应在轮廓成立后再扩展。
 - 实体加局部体积：先确认工具确实与对应表面相交。连续两次使用 bumpSet 时按回执换用当前实体 ID。指定接缝修顺半径后，查看圆角回执、材料增加和单一实体证据。union 返回覆盖丢失时保留全部源件，不能以总体积或渲染效果替代覆盖。
 - 编辑带支撑的局部曲面网格：meshReliefEdit 使用当前网格哈希、明确投影方向、实际表面种子与保护区。可编辑的是可投影为单值高度的局部，保持三角拓扑。整体任意三维变形要另外确认当前环境的可执行工具。
 

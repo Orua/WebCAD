@@ -1,3 +1,4 @@
+import {ownNativeBoolean} from './modeling/io/native-boolean-lifetime.js';
 import { validateRegions } from './logo-model.js';
 
 const dispose = object => { try { object?.delete(); } catch {} };
@@ -88,7 +89,7 @@ export function buildCurvedLogo(source,params,cad) {
         for(const hole of region.holes)drawing=own(drawing.cut(drawRing(hole)));
         const sketch=own(drawing.sketchOnPlane(plane)),mask=own(sketch.extrude(-2*reach));
         const oc=cad.getOC();
-        const common=own(new oc.BRepAlgoAPI_Common(face.wrapped,mask.wrapped));
+        const common=ownNativeBoolean(new oc.BRepAlgoAPI_Common(face.wrapped,mask.wrapped),own);
         common.Build();const projected=own(cad.cast(common.Shape())),patches=projected.faces;
         local.push(...patches);
         const front=patches.filter(patch=>dot(unit(own(patch.normalAt())),normal)>0.15);

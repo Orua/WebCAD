@@ -16,3 +16,10 @@ test('whole-shape box mesh and exported STL are closed and volume matches',async
     const out=await k.export('stl');assert.equal(out.report.watertight,true);const view=new DataView(out.data.buffer);assert.equal(out.data.byteLength,84+50*view.getUint32(80,true));
   }finally{k.dispose();}
 });
+
+test('collapsed input triangles are disclosed as discarded and do not make a closed audited mesh open',()=>{
+  const report=meshIntegrity([0,0,0,1,0,0,0,1,0,0,0,1],[0,2,1,0,1,3,1,2,3,2,0,3,0,0,1]);
+  assert.equal(report.inputTriangleCount,5);assert.equal(report.auditedTriangleCount,4);
+  assert.equal(report.discardedDegenerateTriangles,1);assert.equal(report.degenerateTriangles,1);
+  assert.equal(report.watertight,true);assert.equal(report.boundaryEdges,0);
+});

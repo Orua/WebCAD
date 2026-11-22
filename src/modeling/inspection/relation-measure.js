@@ -1,3 +1,4 @@
+import {ownNativeBoolean} from '../io/native-boolean-lifetime.js';
 import {extractPlaneSection,sampleSectionChains,PLANE_SECTION_SAMPLES} from '../../reference-curves.js';
 const dispose=value=>{try{value?.delete?.();}catch{}};
 const vec=value=>[value.X(),value.Y(),value.Z()];
@@ -58,7 +59,7 @@ export function measureRelationExact(input,getShape,oc,cad){
       if(!finitePoint(input.direction)||norm(input.direction)<1e-12)fail('rayHits 需要非零方向 direction','direction');
       const shape=part(input.first),box=hold(shape.boundingBox),[lo,hi]=box.bounds,corners=[0,1,2,3,4,5,6,7].map(i=>[i&1?hi[0]:lo[0],i&2?hi[1]:lo[1],i&4?hi[2]:lo[2]]);
       const length=Math.max(...corners.map(c=>norm(delta(c,input.pointWorld))))+1,d=input.direction.map(x=>x/norm(input.direction)),end=input.pointWorld.map((x,i)=>x+d[i]*length);
-      const ray=hold(cad.makeLine(input.pointWorld,end)),builder=hold(new oc.BRepAlgoAPI_Section(shape.wrapped,ray.wrapped,false));builder.Build();
+      const ray=hold(cad.makeLine(input.pointWorld,end)),builder=ownNativeBoolean(new oc.BRepAlgoAPI_Section(shape.wrapped,ray.wrapped,false),hold);builder.Build();
       if(!builder.IsDone())throw new Error('射线求交未完成');
       const result=hold(builder.Shape()),points=[];let overlapEdges=0;
       for(const v of cad.iterTopo(result,'vertex')){const p=hold(oc.BRep_Tool.Pnt(v));points.push(vec(p));dispose(v);}

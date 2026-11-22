@@ -1,3 +1,4 @@
+import {releaseNativeBoolean} from './io/native-boolean-lifetime.js';
 const coverageIdentity={method:'source-minus-result',stage:'before-seam-blend',scope:'input-containment-only'};
 const dispose=value=>{try{value?.delete?.();}catch{}};
 
@@ -12,7 +13,7 @@ function sourceRemainder(source,result,cad){
     if(!builder.IsDone()||builder.HasErrors())throw new Error('输入减结果的覆盖差集未完成');
     // Do not simplify this diagnostic: simplification can hide small residuals.
     return cad.cast(builder.Shape());
-  }finally{[progress,tools,args,builder].forEach(dispose);}
+  }finally{try{releaseNativeBoolean(builder);}finally{[progress,tools,args].forEach(dispose);}}
 }
 
 // Unlike extents and total volume, source-minus-result detects a missing lobe

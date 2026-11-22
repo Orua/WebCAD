@@ -366,3 +366,109 @@ test('kernel projectedGroove infers faceIds from world points',async()=>{
   assert.ok(sideCut.volume<sideStock.volume-0.2,JSON.stringify({sideCut:sideCut.volume,sideStock:sideStock.volume}));
   assert.ok(Math.abs(interior.volume-interiorStock.volume)<1e-6,JSON.stringify({interior:interior.volume,interiorStock:interiorStock.volume}));
 });
+
+test('shared-edge crossing refines between coarse grid samples instead of bending the path sideways',()=>{
+  const stock=cad.makeBox([0,0,0],[20,20,20]);let result;
+  try{
+    result=buildProjectedGroove(stock,{pointsMm:[[3.7,7.3,20],[20,7.3,6.2]],widthMm:1.2,depthMm:.5},cad);
+    const report=result.projectedGrooveReport,crossing=report.crossings[0].point;
+    assert.equal(report.crossingCount,1);
+    assert.ok(Math.abs(crossing[0]-20)<1e-6,JSON.stringify(crossing));
+    assert.ok(Math.abs(crossing[1]-7.3)<2e-6,JSON.stringify(crossing));
+    assert.ok(Math.abs(crossing[2]-20)<1e-6,JSON.stringify(crossing));
+    assert.equal(solidCountForTest(result),1);
+    assert.ok(cad.measureVolume(stock)-cad.measureVolume(result)>.2);
+  }finally{[result,stock].forEach(dispose);}
+});
+
+function solidCountForTest(shape){const solids=shape.solids;try{return solids.length;}finally{solids.forEach(dispose);}}
+
+test('public Page API complex dragon probe commits, reads crossing reports and reopens the exact solid',async()=>{
+  const {mkdtemp,readFile,rm}=await import('node:fs/promises'),os=await import('node:os'),path=await import('node:path'),{spawnSync}=await import('node:child_process');
+  const dir=await mkdtemp(path.join(os.tmpdir(),'webcad-dragon-'));
+  try{
+    const run=spawnSync(process.execPath,['scripts/probes/dragon-public.mjs',dir],{encoding:'utf8',timeout:120000});
+    assert.equal(run.status,0,run.stdout+'\n'+run.stderr);
+    const evidence=JSON.parse(await readFile(path.join(dir,'evidence.json'),'utf8'));
+    const {decodeProject}=await import('../src/project-container.js'),saved=await decodeProject(await readFile(path.join(dir,'dragon.webcad')));
+    assert.ok(saved.features.filter(feature=>feature.placement).every(feature=>feature.semanticsVersion===2));
+    assert.equal(evidence.visualStatus,'NOT_REVIEWED');assert.equal(evidence.zeroDepthExperiment,false);
+    assert.equal(evidence.steps.length,14);assert.equal(evidence.failures.length,0);
+    assert.ok(evidence.steps.every(step=>step.result.status==='committed'));
+    const groove=evidence.steps.find(step=>step.op==='projectedGroove');
+    assert.equal(groove.projectedGrooveReport.crossingSearch.method,'sampled-basin-golden-section');
+    assert.equal(groove.projectedGrooveReport.faceIdsInferred,true);
+    assert.equal(evidence.final.valid,true);assert.equal(evidence.final.measure.solidCount,1);
+    assert.equal(evidence.reopen.solidCount,1);
+    assert.ok(Math.abs(evidence.reopen.volumeMm3-evidence.final.measure.volume)<.001);
+  }finally{await rm(dir,{recursive:true,force:true});}
+});
+
+
+test('projected pattern repeats a caller contour at staggered surface-row arclengths without adding floating bodies',()=>{
+ const stock=cad.makeBox([0,0,0],[60,24,8]),before=cad.measureVolume(stock);let result;
+ try{
+  result=buildProjectedGroove(stock,{pointsMm:[[5,12,8],[55,12,8]],widthMm:.6,depthMm:.4,pattern:{spacingMm:10,rowOffsetsMm:[-4,0,4],points2dMm:[[-2,-2],[0,2],[2,-2]],maxCount:18}},cad);
+  const report=result.projectedGrooveReport;
+  assert.equal(report.method,'surface-projected-staggered-pattern');assert.equal(report.rows.length,3);assert.ok(report.instanceCount>=12);
+  for(const row of report.rows){for(let i=1;i<row.centers.length;i++)assert.ok(Math.abs(row.centers[i].arcLengthMm-row.centers[i-1].arcLengthMm-10)<1e-7);for(const c of row.centers)assert.ok(Math.abs(c.point[2]-8)<1e-7);}
+  assert.equal(report.rows[0].phaseFraction,0);assert.equal(report.rows[1].phaseFraction,.5);
+  assert.ok(cad.measureVolume(result)<before);assert.equal(cad.measureVolume(stock),before);
+  const check=new oc.BRepCheck_Analyzer(result.wrapped,true,false,false);try{assert.equal(check.IsValid(),true);}finally{check.delete();}
+  const solids=result.solids;try{assert.equal(solids.length,1);}finally{solids.forEach(dispose);}
+ }finally{dispose(result);dispose(stock);}
+});
+
+test('projected pattern rejects insufficient detail budgets before altering source geometry',()=>{
+ const stock=cad.makeBox([0,0,0],[60,24,8]),before=cad.measureVolume(stock);
+ try{assert.throws(()=>buildProjectedGroove(stock,{pointsMm:[[5,12,8],[55,12,8]],widthMm:.6,depthMm:.4,pattern:{spacingMm:10,rowOffsetsMm:[0],points2dMm:[[-2,-2],[0,2],[2,-2]],maxCount:1}},cad),/预算|budget/);assert.equal(cad.measureVolume(stock),before);}finally{dispose(stock);}
+});
+
+
+test('projected pattern follows a translated variable-radius bending solid including the contour arms',async()=>{
+ const {buildCurveSweep}=await import('../src/curve-sweep.js');
+ const make=(scale,shift)=>{
+  const transform=v=>v.map((x,i)=>x*scale+shift[i]);
+  const source=buildCurveSweep({pathType:'sections',loftDegree:2,autoAlign:false,stations:[
+   {centerMm:[0,0,0],widthMm:18,depthMm:18},{centerMm:[14,0,5],widthMm:26,depthMm:24},{centerMm:[30,0,12],widthMm:15,depthMm:16},{centerMm:[46,0,10],widthMm:11,depthMm:12}
+  ].map(v=>({...v,centerMm:transform(v.centerMm),normal:[1,0,0],widthDirection:[0,1,0],widthMm:v.widthMm*scale,depthMm:v.depthMm*scale})),tolerance:.01*scale},cad);
+  return {source,params:{pointsMm:[[7,0,15],[14,0,17],[24,0,19],[33,0,19]].map(transform),widthMm:.65*scale,depthMm:.55*scale,pattern:{spacingMm:8*scale,rowOffsetsMm:[-3*scale,0,3*scale],points2dMm:[[-2.4,-2],[0,2],[2.4,-2]].map(v=>v.map(x=>x*scale)),maxCount:12,maxProjectionMm:5,layoutToleranceMm:.03*scale}}};
+ };
+ let first;
+ for(const [scale,shift]of [[1,[0,0,0]],[1.4,[125,-48,23]]]){
+  const {source,params}=make(scale,shift);let result;
+  try{
+   result=buildProjectedGroove(source,params,cad);const r=result.projectedGrooveReport;
+   assert.ok(r.maxSeedProjectionMm>.1*scale,'fixture must distinguish tangent-plane placements from actual surface');assert.ok(r.maxFootprintResidualMm<1e-5);assert.ok(r.maxAcceptedChordSagMm<=params.pattern.layoutToleranceMm);assert.equal(r.verifiedCutSampleCount,3*r.instanceCount);assert.equal(solidCountForTest(result),1);
+   if(!first)first=r;else{assert.equal(r.instanceCount,first.instanceCount);assert.ok(Math.abs(r.removedVolumeMm3/scale**3-first.removedVolumeMm3)<.05);for(let i=0;i<r.rows.length;i++)assert.ok(Math.abs(r.rows[i].lengthMm/scale-first.rows[i].lengthMm)<.03);}
+  }finally{dispose(result);dispose(source);}
+ }
+});
+
+test('projected pattern rejects boundary crossings and invalid phase/law contracts without changing stock',()=>{
+ const stock=cad.makeBox([0,0,0],[60,24,8]),before=cad.measureVolume(stock),base={pointsMm:[[5,12,8],[55,12,8]],widthMm:.6,depthMm:.4,pattern:{spacingMm:10,rowOffsetsMm:[0],points2dMm:[[-2,-2],[0,2],[2,-2]],maxCount:8}};
+ try{
+  for(const params of [{...base,pattern:{...base.pattern,rowOffsetsMm:[-12]}},{...base,pattern:{...base.pattern,phaseFractions:[1]}},{...base,widthLaw:1},{...base,pattern:{...base.pattern,points2dMm:[[0,0],[0,0]]}}])assert.throws(()=>buildProjectedGroove(stock,params,cad));
+  assert.equal(cad.measureVolume(stock),before);
+ }finally{dispose(stock);}
+});
+
+
+test('public Page API surface pattern commits via current tool card and restores native checkpoint reports',async()=>{
+ const {mkdtemp,readFile,rm}=await import('node:fs/promises'),os=await import('node:os'),path=await import('node:path'),{spawnSync}=await import('node:child_process');
+ const dir=await mkdtemp(path.join(os.tmpdir(),'webcad-pattern-'));
+ try{
+  const run=spawnSync(process.execPath,['scripts/probes/surface-pattern-public.mjs',dir],{encoding:'utf8',timeout:120000});assert.equal(run.status,0,run.stdout+'\n'+run.stderr);
+  const e=JSON.parse(await readFile(path.join(dir,'probe-evidence.json'),'utf8'));assert.equal(e.failures.length,0);assert.equal(e.steps.length,2);assert.ok(e.steps.every(s=>s.result.status==='committed'));assert.equal(e.pattern.method,'surface-projected-staggered-pattern');assert.equal(e.final.bodies,1);assert.equal(e.reopen.sameVolumes,true);assert.equal(e.visualStatus,'NOT_REVIEWED');
+ }finally{await rm(dir,{recursive:true,force:true});}
+});
+
+
+test('projected pattern handles cylindrical rows but refuses the actual periodic seam',()=>{
+ const stock=cad.makeCylinder(10,40),faceId=faceIdOf(stock,'CYLINDRE');let result;
+ try{
+  const params={faceId,pointsMm:[[0,10,5],[0,10,32]],widthMm:.5,depthMm:.4,pattern:{spacingMm:10,rowOffsetsMm:[-2,0,2],points2dMm:[[-1.5,-1],[0,1],[1.5,-1]],maxCount:9}};
+  result=buildProjectedGroove(stock,params,cad);assert.equal(solidCountForTest(result),1);const r=result.projectedGrooveReport;assert.equal(r.rows.length,3);assert.equal(r.verifiedCutSampleCount,3*r.instanceCount);assert.ok(r.details.every(d=>d.path.every(p=>Math.abs(Math.hypot(p[0],p[1])-10)<1e-5)));
+  assert.throws(()=>buildProjectedGroove(stock,{...params,pointsMm:[[10,0,5],[10,0,32]]},cad),/边界|接缝/);
+ }finally{dispose(result);dispose(stock);}
+});

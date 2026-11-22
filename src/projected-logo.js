@@ -1,3 +1,4 @@
+import {ownNativeBoolean} from './modeling/io/native-boolean-lifetime.js';
 import { validateRegions } from './logo-model.js';
 
 const dispose = value => { try { value?.delete(); } catch {} };
@@ -71,7 +72,7 @@ export function buildProjectedLogo(source, params, cad) {
         const sketch = own(drawing.sketchOnPlane(plane)), mask = own(sketch.extrude(-2 * reach));
         const candidates = new Map();
         for (const [id, candidate] of faces.entries()) {
-          const common = own(new (cad.getOC().BRepAlgoAPI_Common)(candidate.wrapped, mask.wrapped));
+          const common = ownNativeBoolean(new (cad.getOC().BRepAlgoAPI_Common)(candidate.wrapped, mask.wrapped),own);
           common.Build(); const clipped = own(cad.cast(common.Shape())), patches = clipped.faces; local.push(...patches);
           const front = patches.filter(patch => dot(unit(own(patch.normalAt())), normal) > .15);
           if (front.length) candidates.set(id, front);
