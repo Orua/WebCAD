@@ -2,7 +2,7 @@
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.75.12",
+  "version": "1.75.13",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -219,5 +219,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f72c4d8129683cc7386428c7bcb9014734de703ee4db916b4676df69322b35c2"
+  "docsHash": "sha256:fd2037b7aca832cf073ff24c84f8e1b9f3c332f75f26595b86f83a0522fe8c54"
 }

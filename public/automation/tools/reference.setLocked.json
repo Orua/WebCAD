@@ -8,7 +8,7 @@
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.75.12",
+  "version": "1.75.13",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -238,5 +238,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a9ea9a06835877038d845c6be9cdc4b0ef43dc3feb31fcc0528716b1a6970e57"
+  "docsHash": "sha256:bb788cf3a66e03417df9c2317df75d3b583479602058cbb0eee6009bd6245432"
 }

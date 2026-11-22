@@ -8,7 +8,7 @@
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.75.12",
+  "version": "1.75.13",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -164,5 +164,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:856ed25a16b0fb1a62df4e9d804c9d775994f3b7b79517b18bdbc6a0f511d174"
+  "docsHash": "sha256:854f3c6568575482da0eb6664399abaaf3849195e2b3d5880ae0b6c4ac5a0c51"
 }

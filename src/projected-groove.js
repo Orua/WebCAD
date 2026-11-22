@@ -67,6 +67,18 @@ function penetrationLaw(params){
     return value;
   };
 }
+function grooveWidthAt(params){
+  const hasLaw=params.widthLaw!==undefined,hasWidth=params.widthMm!==undefined;
+  check(hasLaw||hasWidth,'请提供 widthMm 或 widthLaw；widthLaw 是沿路径的完整槽宽，不是半宽，也不是 depthLaw 的切入量单位');
+  if(hasLaw)assertInteriorLawPositive(params.widthLaw,'widthLaw');
+  else finitePositive(params.widthMm,'槽宽 widthMm');
+  if(hasWidth&&(typeof params.widthMm!=='number'||!Number.isFinite(params.widthMm)||params.widthMm<0))throw new Error('widthMm 必须为非负有限值');
+  return t=>{
+    const value=sampleLaw(params.widthLaw,t,hasWidth?params.widthMm:undefined,'widthLaw');
+    if(!Number.isFinite(value)||value<0)throw new Error('widthLaw 必须为非负有限值');
+    return value;
+  };
+}
 function resolveFaceIds(params,faces){
   const listed=params.faceIds,hasList=listed!==undefined,hasFace=params.faceId!==undefined;
   check(hasList||hasFace,'请提供 faceId 或 faceIds');
@@ -129,10 +141,12 @@ function projectToAllowed(faces,allowed,point,cad,hold,snapToleranceMm,index){
 // Project a world polyline onto one face, or onto an explicit chain of
 // topologically adjacent faces, and cut a groove whose section depth follows
 // each local surface normal. A face change is inserted at the shared-edge
-// point that minimizes the 3D polyline length, not a UV geodesic. Width is
-// constant. Optional depthLaw varies actual inward penetration.
+// point that minimizes the 3D polyline length, not a UV geodesic. Optional
+// widthLaw varies the full groove width. Optional depthLaw varies actual
+// inward penetration. The two laws use different units and may each close a
+// path endpoint with a point cap; mid-path zeros of either are rejected.
 export function buildProjectedGroove(source,params,cad){
-  const widthMm=finitePositive(params.widthMm,'槽宽 widthMm');
+  const widthAt=grooveWidthAt(params);
   const penetrationAt=penetrationLaw(params);
   const points=params.pointsMm;
   check(Array.isArray(points)&&points.length>=2&&points.length<=64,'pointsMm 须为 2–64 个世界坐标点');
@@ -169,7 +183,8 @@ export function buildProjectedGroove(source,params,cad){
     }
     const path=refined.map(item=>item.point);
     const length=polylineLength(path);
-    check(length>=Math.max(1e-3,widthMm*0.05),'投影路径过短，无法生成沿面刻槽');
+    const spanWidth=Math.max(0,...[0,0.25,0.5,0.75,1].map(widthAt).filter(value=>value>0));
+    check(length>=Math.max(1e-3,spanWidth*0.05),'投影路径过短，无法生成沿面刻槽');
     const runs=[];
     let run=[refined[0]];
     for(const item of refined.slice(1)){
@@ -220,13 +235,18 @@ export function buildProjectedGroove(source,params,cad){
           let widthDirection=unit(cross(tangent,surfaceNormal));
           if(previousWidth&&dot(widthDirection,previousWidth)<0)widthDirection=widthDirection.map(v=>-v);
           if(i&&dot(surfaceNormal,projected[i-1].normal)<0.5)throw new Error('相邻投影点的面法向变化过大，请沿路径加密点，勿一次跨过可见半周或不同面');
+          const widthMm=widthAt(t);
           const penetrationMm=penetrationAt(t);
           const atTip=t===0||t===1;
-          if(penetrationMm===0){
-            if(!atTip)throw new Error('depthLaw 在路径内部必须始终为正；只有路径端点可以为 0，此时以该路径点做点收尾，不能在中途把截面收到 0');
+          if(widthMm===0||penetrationMm===0){
+            if(!atTip){
+              const name=widthMm===0?'widthLaw':'depthLaw';
+              throw new Error(`${name} 在路径内部必须始终为正；只有路径端点可以为 0，此时以该路径点做点收尾，不能在中途把截面收到 0`);
+            }
             const side=t===0?'start':'end';
             tipCaps[`${side}Cap`]={kind:'point',pointMm:projected[i].point};
           }else{
+            if(!(widthMm>0))throw new Error('widthLaw 必须为非负有限值');
             if(!(penetrationMm>0))throw new Error('depthLaw 必须为非负有限值');
             stations.push({centerMm:projected[i].point,normal:tangent,widthDirection,widthMm,depthMm:2*penetrationMm,t,penetrationMm});
           }
@@ -256,7 +276,9 @@ export function buildProjectedGroove(source,params,cad){
     }finally{dispose(work);}
     const projected=allProjected,stations=allStations;
 
+    const startWidthMm=widthAt(0),endWidthMm=widthAt(1),midWidthMm=widthAt(0.5);
     const startPenetrationMm=penetrationAt(0),endPenetrationMm=penetrationAt(1),midPenetrationMm=penetrationAt(0.5);
+    const variableWidth=params.widthLaw!==undefined&&!(typeof params.widthLaw==='number');
     const variableDepth=params.depthLaw!==undefined&&!(typeof params.depthLaw==='number');
     const usedIds=[...new Set(projected.map(item=>item.faceId))];
     result.projectedGrooveReport={
@@ -270,7 +292,11 @@ export function buildProjectedGroove(source,params,cad){
       crossings:crossings.map(item=>({point:item.point,fromFaceId:item.fromFaceId,toFaceId:item.toFaceId})),
       crossingMethod:crossings.length?'shared-edge-shortest-polyline':undefined,
       snapToleranceMm,
-      widthMm,
+      widthMm:variableWidth||startWidthMm!==endWidthMm?undefined:startWidthMm,
+      variableWidth:!!variableWidth||startWidthMm!==endWidthMm,
+      startWidthMm,
+      endWidthMm,
+      midWidthMm,
       variableDepth:!!variableDepth||startPenetrationMm!==endPenetrationMm,
       penetrationMm:variableDepth||startPenetrationMm!==endPenetrationMm?undefined:startPenetrationMm,
       startPenetrationMm,
@@ -284,9 +310,10 @@ export function buildProjectedGroove(source,params,cad){
       endMm:projected.at(-1).point,
       midMm:projected[Math.floor(projected.length/2)].point,
       midNormal:projected[Math.floor(projected.length/2)].normal,
-      zeroEndDepth:{start:!!tipCaps.startCap,end:!!tipCaps.endCap},
+      zeroEndWidth:{start:startWidthMm===0,end:endWidthMm===0},
+      zeroEndDepth:{start:startPenetrationMm===0,end:endPenetrationMm===0},
       tipPoints:{start:tipCaps.startCap?.pointMm??null,end:tipCaps.endCap?.pointMm??null},
-      limits:'world polyline snapped to one face or an explicit chain of topologically adjacent faces; crossings are shared-edge shortest 3D polylines, not UV geodesics; constant width; depthLaw is actual inward normal penetration, not curveSweep full-section height; not a planar cutter'
+      limits:'world polyline snapped to one face or an explicit chain of topologically adjacent faces; crossings are shared-edge shortest 3D polylines, not UV geodesics; widthLaw is full groove width, not half-width; depthLaw is actual inward normal penetration, not curveSweep full-section height; mid-path zeros of either law are rejected; not a planar cutter'
     };
     const complete=result;result=null;return complete;
   }catch(error){

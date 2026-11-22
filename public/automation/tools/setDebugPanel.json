@@ -2,7 +2,7 @@
   "id": "setDebugPanel",
   "title": "setDebugPanel",
   "category": "page-method",
-  "version": "1.75.12",
+  "version": "1.75.13",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -104,5 +104,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:102e5cb1ee296169d8170adad9ccbdeec251f3e82406fe89233108e261e4c700"
+  "docsHash": "sha256:8098bb35beded90817268b0b7407b2bba48177fc49d1c04c8060cd1d4c8da98d"
 }

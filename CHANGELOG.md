@@ -1,3 +1,7 @@
+## 1.75.13 — variable-width projected groove along the existing path
+
+- Extend `projectedGroove` with optional `widthLaw` (number or spline samples). The law is the full groove width in the local tangent plane, the same unit as `widthMm`, not half-width and not the `depthLaw` penetration unit. Constant `widthMm` remains valid; if `widthLaw` is present it governs width. Interior zeros are rejected; a path endpoint may be 0 and is closed with the existing ThruSections point cap, reported as `projectedGrooveReport.zeroEndWidth` / `tipPoints`. `depthLaw` is unchanged. `zeroEndDepth` now reflects only a zero penetration tip, so a zero-width tip does not claim a zero-depth tip. This is not UV geodesic projection or blended multi-face corners. Headless tests check a widening-to-narrowing plane groove against an off-axis shoulder, mid-path rejection, and a zero-width tip. Visual status is NOT_REVIEWED.
+
 ## 1.75.12 — scoped multi-face projected groove across shared edges
 
 - Extend `projectedGroove` with optional `faceIds` (1–8). Points snap to the nearest listed face (0.1 mm). A face change is allowed only across a shared topological edge; the crossing is the shared-edge point that minimizes the 3D polyline length, not a UV geodesic. Each face is cut with its own surface-normal cutter; sharp corners are not blended. Single-face `faceId` remains valid. Width is still constant. Headless tests on a box show material removed on both the top and side, while an interior diagonal region is unchanged. Visual status is NOT_REVIEWED.
