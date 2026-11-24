@@ -559,7 +559,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -655,5 +655,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:093afcee4449b986f4f0160813f390be84ee1381633d47ff14646b0e31fe9b72"
+  "docsHash": "sha256:2b518d1bb5acdb9367f0a2d31711f797642573347a8a8ad2f68ec0556fae9716"
 }

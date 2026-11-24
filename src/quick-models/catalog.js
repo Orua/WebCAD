@@ -1,3 +1,6 @@
+import magneticButton from './magneticButton/index.js';
+import snapButton from './snapButton/index.js';
+import sewButton from './sewButton/index.js';
 import {QUICK_LABELS,QUICK_GROUPS,QUICK_HIDDEN_KINDS} from './presentation.js';
 // Edit this one ordered list to publish, hide, or reorder installed models.
 import uEndHolePlate from './uEndHolePlate/index.js';
@@ -56,6 +59,7 @@ import {ironFootDefinition,buildIronFoot} from './iron-foot.js';
 import {buildModelScript} from './model-script.js';
 const chainEntries=Object.entries(chainDefinitions).map(([kind,definition])=>({kind,definition,build:buildChain,iconUrl:new URL('./ring/icon.svg',import.meta.url).href}));
 const installed = [
+  snapButton, sewButton, magneticButton,
   ...chainEntries,
   {kind:'ironFoot',definition:ironFootDefinition,build:buildIronFoot,iconUrl:new URL('./uStrapClip/icon.svg',import.meta.url).href},
   ring, washer, tube, domedPin, spring, screw, threadedSleeve, alloyEyelet,

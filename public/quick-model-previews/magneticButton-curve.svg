@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="220" viewBox="0 0 600 220">
+  <defs>
+    <linearGradient id="metal" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#f0f3ef"/><stop offset=".48" stop-color="#b5bec0"/><stop offset="1" stop-color="#727c81"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="220" fill="#f1f4f6"/>
+  <g fill="url(#metal)" stroke="#5b666c" stroke-width="1.6" stroke-linejoin="round">
+    <path d="M28 103c0-31 24-50 50-50s50 19 50 50-24 50-50 50-50-19-50-50Zm38 0a12 12 0 1 0 24 0 12 12 0 1 0-24 0ZM49 87v32h6V87Zm52 0v32h6V87Z" fill-rule="evenodd"/>
+    <path d="M171 107h11v58l-11 9Zm65 0h11v58l-11 9Z"/>
+    <ellipse cx="209" cy="105" rx="51" ry="29"/>
+    <path d="M192 101V85c0-5 7-9 17-9s17 4 17 9v16c0 5-7 9-17 9s-17-4-17-9Z"/>
+    <path d="M302 107h11v58l-11 9Zm65 0h11v58l-11 9Z"/>
+    <path d="M289 105v-9c0-16 23-29 51-29s51 13 51 29v9c0 17-23 30-51 30s-51-13-51-30Z"/>
+    <ellipse cx="340" cy="95" rx="18" ry="10" fill="#75848c"/>
+    <path d="M421 103c0-31 24-50 50-50s50 19 50 50-24 50-50 50-50-19-50-50Zm38 0a12 12 0 1 0 24 0 12 12 0 1 0-24 0Zm-17-16v32h6V87Zm52 0v32h6V87Z" fill-rule="evenodd"/>
+  </g>
+</svg>

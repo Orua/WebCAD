@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.75.20 · sha256:6aefa95abe2d209b68f7195c7e0bdeead4990bab34f9b9f9b0ce50664528c873
+API 1.75.20 · sha256:412f62293143396bbe6df7c6ee1fa40f75d54e3a3340409cc7f20f9a4147c0f1
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -9733,6 +9733,9 @@ files.release: contextPolicy=none
 - template.bowedTwinWindowPlate：正视鼓弧侧边与跑道形孔的平板双窗；不是侧视圆筒拱弯。
 
 ## 孔板、凸柱板与薄壁壳
+- template.magneticButton：磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。
+- template.snapButton：急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。
+- template.sewButton：车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。
 - template.rectBadge：牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。
 - template.mountingPlate：平板上两个对称贯穿光孔；孔中心距独立。
 - template.fourHolePlate：平板四角贯穿光孔；边距与外角 R 独立。
@@ -80241,6 +80244,219 @@ files.release: contextPolicy=none
           "kind"
         ],
         "additionalProperties": false,
+        "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "snapButton"
+          },
+          "variant": {
+            "type": "string",
+            "default": "domed",
+            "description": "款式",
+            "enum": [
+              "domed",
+              "flat",
+              "cut"
+            ]
+          },
+          "part": {
+            "type": "string",
+            "default": "all",
+            "description": "生成配件",
+            "enum": [
+              "all",
+              "maleFoot",
+              "stud",
+              "socket",
+              "femaleFoot"
+            ]
+          },
+          "size": {
+            "type": "string",
+            "default": "15",
+            "description": "产品外径",
+            "enum": [
+              "8",
+              "10",
+              "12.5",
+              "15",
+              "custom"
+            ]
+          },
+          "diameter": {
+            "type": "number",
+            "default": 15,
+            "description": "自定义外径",
+            "minimum": 0.01,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "sewButton"
+          },
+          "variant": {
+            "type": "string",
+            "default": "domed",
+            "description": "款式",
+            "enum": [
+              "domed",
+              "flat",
+              "cut"
+            ]
+          },
+          "part": {
+            "type": "string",
+            "default": "all",
+            "description": "生成配件",
+            "enum": [
+              "all",
+              "maleFoot",
+              "stud",
+              "socket",
+              "femaleFoot"
+            ]
+          },
+          "size": {
+            "type": "string",
+            "default": "15",
+            "description": "产品外径",
+            "enum": [
+              "8",
+              "10",
+              "12.5",
+              "15",
+              "custom"
+            ]
+          },
+          "diameter": {
+            "type": "number",
+            "default": 15,
+            "description": "自定义外径",
+            "minimum": 0.01,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "素面双折脚磁钮。勾选需要的公件、母件和底片。盘径联动凸头、凹窝及折脚横截面；盘厚、脚长等按输入毫米值生成。脚距及底片外径填 0 时随盘径缩放。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "magneticButton"
+          },
+          "male": {
+            "type": "boolean",
+            "default": true,
+            "description": "磁钮公件"
+          },
+          "female": {
+            "type": "boolean",
+            "default": true,
+            "description": "磁钮母件"
+          },
+          "malePlate": {
+            "type": "boolean",
+            "default": true,
+            "description": "公钮双槽底片"
+          },
+          "femalePlate": {
+            "type": "boolean",
+            "default": true,
+            "description": "母钮双槽底片"
+          },
+          "diameter": {
+            "type": "number",
+            "default": 20,
+            "description": "磁钮外径",
+            "minimum": 0.01,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "maleThickness": {
+            "type": "number",
+            "default": 1,
+            "description": "公件盘厚",
+            "minimum": 0.01,
+            "unit": "mm"
+          },
+          "femaleThickness": {
+            "type": "number",
+            "default": 4.3,
+            "description": "母件盘厚",
+            "minimum": 0.01,
+            "unit": "mm"
+          },
+          "studHeight": {
+            "type": "number",
+            "default": 2.04,
+            "description": "公件凸头高度",
+            "minimum": 0.01,
+            "unit": "mm"
+          },
+          "socketDepth": {
+            "type": "number",
+            "default": 2.2,
+            "description": "母件凹窝深度",
+            "minimum": 0.01,
+            "unit": "mm"
+          },
+          "legLength": {
+            "type": "number",
+            "default": 9,
+            "description": "折脚长度",
+            "minimum": 0.01,
+            "unit": "mm"
+          },
+          "legPitch": {
+            "type": "number",
+            "default": 0,
+            "description": "双脚中心距（0 自动）",
+            "minimum": 0,
+            "unit": "mm"
+          },
+          "plateDiameter": {
+            "type": "number",
+            "default": 0,
+            "description": "底片外径（0 自动）",
+            "minimum": 0,
+            "unit": "mm"
+          },
+          "plateThickness": {
+            "type": "number",
+            "default": 0.45,
+            "description": "底片厚度",
+            "minimum": 0.01,
+            "unit": "mm"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
         "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
         "properties": {
           "kind": {
@@ -82187,6 +82403,33 @@ files.release: contextPolicy=none
       "holeDiameterMm": 2.5,
       "holeDepthMm": 5
     },
+    "snapButton": {
+      "variant": "domed",
+      "part": "all",
+      "size": "15",
+      "diameter": 15
+    },
+    "sewButton": {
+      "variant": "domed",
+      "part": "all",
+      "size": "15",
+      "diameter": 15
+    },
+    "magneticButton": {
+      "male": true,
+      "female": true,
+      "malePlate": true,
+      "femalePlate": true,
+      "diameter": 20,
+      "maleThickness": 1,
+      "femaleThickness": 4.3,
+      "studHeight": 2.04,
+      "socketDepth": 2.2,
+      "legLength": 9,
+      "legPitch": 0,
+      "plateDiameter": 0,
+      "plateThickness": 0.45
+    },
     "screw": {
       "headType": "flat",
       "headWidthMm": 6,
@@ -82408,7 +82651,7 @@ files.release: contextPolicy=none
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c",
+  "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -86120,6 +86363,365 @@ files.release: contextPolicy=none
       }
     },
     {
+      "kind": "snapButton",
+      "title": "急钮",
+      "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+      "visibleInLibrary": true,
+      "category": "fasteners",
+      "categoryLabel": "连接件",
+      "defaults": {
+        "variant": "domed",
+        "part": "all",
+        "size": "15",
+        "diameter": 15
+      },
+      "fields": [
+        {
+          "key": "variant",
+          "label": "款式",
+          "type": "select",
+          "options": [
+            {
+              "value": "domed",
+              "label": "明面（弧形外包面）"
+            },
+            {
+              "value": "flat",
+              "label": "暗面（平脚）"
+            },
+            {
+              "value": "cut",
+              "label": "切脚（Ø6 铆装脚）"
+            }
+          ]
+        },
+        {
+          "key": "part",
+          "label": "生成配件",
+          "type": "select",
+          "options": [
+            {
+              "value": "all",
+              "label": "整套"
+            },
+            {
+              "value": "maleFoot",
+              "label": "公脚"
+            },
+            {
+              "value": "stud",
+              "label": "公件（钮珠）"
+            },
+            {
+              "value": "socket",
+              "label": "母件（弹弓件）"
+            },
+            {
+              "value": "femaleFoot",
+              "label": "母脚"
+            }
+          ]
+        },
+        {
+          "key": "size",
+          "label": "产品外径",
+          "type": "select",
+          "options": [
+            {
+              "value": "8",
+              "label": "8 mm"
+            },
+            {
+              "value": "10",
+              "label": "10 mm"
+            },
+            {
+              "value": "12.5",
+              "label": "12.5 mm"
+            },
+            {
+              "value": "15",
+              "label": "15 mm"
+            },
+            {
+              "value": "custom",
+              "label": "自定义"
+            }
+          ]
+        },
+        {
+          "key": "diameter",
+          "label": "自定义外径",
+          "type": "number",
+          "unit": "mm",
+          "min": 0.01,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "snapButton"
+      },
+      "normalExample": {
+        "kind": "snapButton",
+        "variant": "domed",
+        "part": "all",
+        "size": "15",
+        "diameter": 15
+      }
+    },
+    {
+      "kind": "sewButton",
+      "title": "车缝钮",
+      "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+      "visibleInLibrary": true,
+      "category": "fasteners",
+      "categoryLabel": "连接件",
+      "defaults": {
+        "variant": "domed",
+        "part": "all",
+        "size": "15",
+        "diameter": 15
+      },
+      "fields": [
+        {
+          "key": "variant",
+          "label": "款式",
+          "type": "select",
+          "options": [
+            {
+              "value": "domed",
+              "label": "明面（弧形外包面）"
+            },
+            {
+              "value": "flat",
+              "label": "暗面（平脚）"
+            },
+            {
+              "value": "cut",
+              "label": "切脚（Ø6 铆装脚）"
+            }
+          ]
+        },
+        {
+          "key": "part",
+          "label": "生成配件",
+          "type": "select",
+          "options": [
+            {
+              "value": "all",
+              "label": "整套"
+            },
+            {
+              "value": "maleFoot",
+              "label": "公脚"
+            },
+            {
+              "value": "stud",
+              "label": "公件"
+            },
+            {
+              "value": "socket",
+              "label": "母件"
+            },
+            {
+              "value": "femaleFoot",
+              "label": "母脚"
+            }
+          ]
+        },
+        {
+          "key": "size",
+          "label": "产品外径",
+          "type": "select",
+          "options": [
+            {
+              "value": "8",
+              "label": "8 mm"
+            },
+            {
+              "value": "10",
+              "label": "10 mm"
+            },
+            {
+              "value": "12.5",
+              "label": "12.5 mm"
+            },
+            {
+              "value": "15",
+              "label": "15 mm"
+            },
+            {
+              "value": "custom",
+              "label": "自定义"
+            }
+          ]
+        },
+        {
+          "key": "diameter",
+          "label": "自定义外径",
+          "type": "number",
+          "unit": "mm",
+          "min": 0.01,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "sewButton"
+      },
+      "normalExample": {
+        "kind": "sewButton",
+        "variant": "domed",
+        "part": "all",
+        "size": "15",
+        "diameter": 15
+      }
+    },
+    {
+      "kind": "magneticButton",
+      "title": "磁钮",
+      "description": "素面双折脚磁钮。勾选需要的公件、母件和底片。盘径联动凸头、凹窝及折脚横截面；盘厚、脚长等按输入毫米值生成。脚距及底片外径填 0 时随盘径缩放。",
+      "visibleInLibrary": true,
+      "category": "fasteners",
+      "categoryLabel": "连接件",
+      "defaults": {
+        "male": true,
+        "female": true,
+        "malePlate": true,
+        "femalePlate": true,
+        "diameter": 20,
+        "maleThickness": 1,
+        "femaleThickness": 4.3,
+        "studHeight": 2.04,
+        "socketDepth": 2.2,
+        "legLength": 9,
+        "legPitch": 0,
+        "plateDiameter": 0,
+        "plateThickness": 0.45
+      },
+      "fields": [
+        {
+          "key": "male",
+          "label": "磁钮公件",
+          "type": "boolean"
+        },
+        {
+          "key": "female",
+          "label": "磁钮母件",
+          "type": "boolean"
+        },
+        {
+          "key": "malePlate",
+          "label": "公钮双槽底片",
+          "type": "boolean"
+        },
+        {
+          "key": "femalePlate",
+          "label": "母钮双槽底片",
+          "type": "boolean"
+        },
+        {
+          "key": "diameter",
+          "label": "磁钮外径",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "maleThickness",
+          "label": "公件盘厚",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "femaleThickness",
+          "label": "母件盘厚",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "studHeight",
+          "label": "公件凸头高度",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "socketDepth",
+          "label": "母件凹窝深度",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "legLength",
+          "label": "折脚长度",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "legPitch",
+          "label": "双脚中心距（0 自动）",
+          "type": "number",
+          "min": 0,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "plateDiameter",
+          "label": "底片外径（0 自动）",
+          "type": "number",
+          "min": 0,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "plateThickness",
+          "label": "底片厚度",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "magneticButton"
+      },
+      "normalExample": {
+        "kind": "magneticButton",
+        "male": true,
+        "female": true,
+        "malePlate": true,
+        "femalePlate": true,
+        "diameter": 20,
+        "maleThickness": 1,
+        "femaleThickness": 4.3,
+        "studHeight": 2.04,
+        "socketDepth": 2.2,
+        "legLength": 9,
+        "legPitch": 0,
+        "plateDiameter": 0,
+        "plateThickness": 0.45
+      }
+    },
+    {
       "kind": "screw",
       "title": "螺丝",
       "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
@@ -88815,7 +89417,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:05d7023b2c170b6cb046829b484d7b66a339205a6c0cef330c8a2eef042789d5"
+  "docsHash": "sha256:86767566e7b79debaea479ba471f047210ad7f7d616e83fbe7226145143c0949"
 }
 ```
 
@@ -116535,7 +117137,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -116620,7 +117222,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f7f47a22a784d1252ce4f04b83ca5cab0c811b3aff2ae2544674ddb69a274c62"
+  "docsHash": "sha256:cc19b703b1a1da6eec7dc1c24f35a56d0529947d9f72bce9180922225d79b111"
 }
 ```
 
@@ -117137,7 +117739,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -117214,7 +117816,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:16a876f7ab84ecc4549f1a535e0923c151b4a0abe9f9e446d3e6af0d5a6237b9"
+  "docsHash": "sha256:b70fbffef6eef2703c1b9f9b6ee9a09afcd3e620d85dbac4a3f5fc7121d14933"
 }
 ```
 
@@ -117715,7 +118317,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -117787,7 +118389,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a40450d58847aa8d808843e0b74812c24806bbbd9d4dc46ee29cb7b5b6c657ae"
+  "docsHash": "sha256:2d89f8fceb21e2947e94e313ee9cf47434f897428e49779e6a326faa1c619bb8"
 }
 ```
 
@@ -118334,7 +118936,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -118413,7 +119015,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cf9dbf7f916a0d9be7879ba8aa527bd41a89a09d9ff4b031d4e0b4e0be60c384"
+  "docsHash": "sha256:a136c7cadafb760291c6ecb0a856c391c5b75749d65b29dc4572d00fdc1fc080"
 }
 ```
 
@@ -118994,7 +119596,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -119086,7 +119688,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f83a6eccaf73007c46c7d1850e2232e96f1c5bbd7c45c69a4ed0ba1f19b1f7e1"
+  "docsHash": "sha256:7a6d98ea3ffb36b0721bcb3fceab99f5d6bee967eae7da2981592ff48b27595a"
 }
 ```
 
@@ -119617,7 +120219,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -119703,7 +120305,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0237df802ccfbc74d33d7917c3ae0ee7463a1b4f00b59071d2e4bdf725df5507"
+  "docsHash": "sha256:812e9ce5314562ec4715ea6d5af6b2926cef704b3f86259ad7bfe6d62cbf6a7b"
 }
 ```
 
@@ -120284,7 +120886,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -120372,7 +120974,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fc140a19015bea41b01cbb80784c5b8f372ec6bdf576d197c4411951ef4fba06"
+  "docsHash": "sha256:5a9c5156260ce9ed0ba7e6bf37612177e873d728d75d2a6db590765a3ce5415a"
 }
 ```
 
@@ -120887,7 +121489,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -120976,7 +121578,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7fcb8a3f6304d18a4a96e58535024420e7a1f76a751faa393eaaf14b2004ab6c"
+  "docsHash": "sha256:2419a32b5ec2af9389a6682bf6c63bd91312554d2d077cddc46fc142098fe88d"
 }
 ```
 
@@ -121544,7 +122146,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -121640,7 +122242,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:093afcee4449b986f4f0160813f390be84ee1381633d47ff14646b0e31fe9b72"
+  "docsHash": "sha256:2b518d1bb5acdb9367f0a2d31711f797642573347a8a8ad2f68ec0556fae9716"
 }
 ```
 
@@ -122221,7 +122823,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -122290,7 +122892,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:feb451da544ff28f73ff0aad2e0ac1a0fec347825ffaa3406bc00b5395dee0e6"
+  "docsHash": "sha256:11ee6c880b13eb659355d436e047c4fe65d861b35b987b6d395137d297047806"
 }
 ```
 
@@ -122887,7 +123489,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -122957,7 +123559,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c4af84eb6dd8781b1239eb43dd7829ca1d2deec98bc9861b9e142baffdf2b40d"
+  "docsHash": "sha256:75a2d57c546431e8335ceb19fc76d0d60a0ff4aebb7dc7c87d14c8939e8a4b87"
 }
 ```
 
@@ -123570,7 +124172,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -123640,7 +124242,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2ccf73279b8bd6b6b9a12addf1037dc3ff6f9f5be268e6e0e86bf3583da0c978"
+  "docsHash": "sha256:5a08e0b58b56feb11cac88dd1ee9f09665bd1319c720c3e8915794d701ad934b"
 }
 ```
 
@@ -124187,7 +124789,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -124254,7 +124856,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3c657846004c6ad23dbb716dc6f731451ab71289ba46a9b98119a0ded852f329"
+  "docsHash": "sha256:5e4d85e5d8bf819fced1c0913a17ac234fca2ee97981685ffa37e5136e6369eb"
 }
 ```
 
@@ -124851,7 +125453,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -124937,7 +125539,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:986df6343d4e5d4f354b5dfe170418b3fdfb1e6ca34fc342d0a6bb7352fe5259"
+  "docsHash": "sha256:f835986d9c1cff8eee88a9d834b189d2b4ba05197186fa6b8ed7b57e8ce85e83"
 }
 ```
 
@@ -125550,7 +126152,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -125636,7 +126238,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:235fb71ab689be338de20c754d04b07dccd2acae331df947761116a4d665be3f"
+  "docsHash": "sha256:4e32179d5566b397293ed63d9d2c270d1e4702a34f337ddd9fa72b6f80777165"
 }
 ```
 
@@ -126201,7 +126803,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -126287,7 +126889,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:df8838100916058654cf598e7e0bdadf5e360361a4ebeb59f20727a062dbcc1d"
+  "docsHash": "sha256:c81d6c1fa5f3e06e88d9eff028971f6d21ebb629a3e76d3b002cbf849384e33d"
 }
 ```
 
@@ -126900,7 +127502,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -126990,7 +127592,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:460a25219a46e1da0cf09d7e1f5c3bd7dbec693fe4a9594e1ec623b1b31e37df"
+  "docsHash": "sha256:6f0205093af94ad05e38407a7b7166fc8c26fbecd26067cf084410675d044d00"
 }
 ```
 
@@ -127505,7 +128107,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -127590,7 +128192,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c58f3cc00f70e0a070584903f2f6a72226eed6f1e16d50fad073cb9d8e5bf5d7"
+  "docsHash": "sha256:02050bb92e25c24b22d95b1b1ee0f4387f47615e473f1a7d014a913d2b3e5c9c"
 }
 ```
 
@@ -128137,7 +128739,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -128224,7 +128826,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5c885565113d20e280277e9f2e90f89e390a196d21d29303d06d42904677f251"
+  "docsHash": "sha256:fe0dd58a9704d387d8473e825f682e2cb0a928bc1eca9496a7bee2b6dd771abd"
 }
 ```
 
@@ -128837,7 +129439,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -128916,7 +129518,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:55f28ad24ae71d539b1be92ea68950faf8121686f16509f38428f9ef29e23c4b"
+  "docsHash": "sha256:1b9de5aa77a8f31e4e83e7cf41b3933324f8f0979adbabf39dd33a7e6d130c1d"
 }
 ```
 
@@ -129613,7 +130215,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -129752,7 +130354,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:74e94e0ee6fbbffe9f04e7c80fc60a6b8156f71e9429dd9b10f08f1912649da8"
+  "docsHash": "sha256:a6c08d069248ac9f713b4b5ed4fcc193178726b13f7a1328b64fa950bf8f326d"
 }
 ```
 
@@ -130365,7 +130967,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -130443,7 +131045,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:27bf30068a15b6e75c0c8050c6324a8595797cd4b80b35ea6963bea9565d71c0"
+  "docsHash": "sha256:d56676c92f9c9c5f20fba76aa2516bd112a24ac4f7de174dead967bccb52490c"
 }
 ```
 
@@ -130990,7 +131592,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -131065,7 +131667,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b89d052bcb184a6af0e9720961c99e25daa72968c14e876f4ea49e6a757b9f83"
+  "docsHash": "sha256:d14f127e4571a7a5c3ea6c26da32263d7610352b8e0fde3d89dfec500fa5f42a"
 }
 ```
 
@@ -131676,7 +132278,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -131755,7 +132357,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ddab3cc2537df15dd11a9a214a8982782d14af49bc875bf365193ad0e68a74b0"
+  "docsHash": "sha256:3fb7d6cb12c599f437fe5e017ea8890bb5af235a2e0f073c3770eaf4d2a32204"
 }
 ```
 
@@ -132370,7 +132972,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -132449,7 +133051,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6bba0b6339557c62b7535e43b2273d07a2b31e43b146483bfc531997feb94620"
+  "docsHash": "sha256:78da4a8f96178cc71fcff6259d9846eba43b737be33c607e89731244dd56723c"
 }
 ```
 
@@ -133038,7 +133640,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -133091,6 +133693,18 @@ files.release: contextPolicy=none
     "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。",
     "alternatives": [
       {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
         "id": "template.mountingPlate",
         "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
       },
@@ -133126,7 +133740,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6aedc41df3957e918ff1e89520ede04b48fe2fc6fdb86a15fbced3bd1b013772"
+  "docsHash": "sha256:ef07cf8c8da396e3ba766127e793bc0ca3ea8df1758ac11ed32fe2babf17bbc3"
 }
 ```
 
@@ -133699,7 +134313,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -133752,6 +134366,18 @@ files.release: contextPolicy=none
     "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。",
     "alternatives": [
       {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
         "id": "template.rectBadge",
         "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
       },
@@ -133787,7 +134413,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9e98aa41143793b1262d32c3c243fbc5f0fe8e6a58b11c6e7605b40332cb745b"
+  "docsHash": "sha256:a8125d1e5caa7a34490821a7d2f6317df03b38d164debacc8ef69f496b98a28c"
 }
 ```
 
@@ -134376,7 +135002,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -134430,6 +135056,18 @@ files.release: contextPolicy=none
     "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。",
     "alternatives": [
       {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
         "id": "template.rectBadge",
         "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
       },
@@ -134465,7 +135103,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2087605f8f9fa5aa4319d6075087349a5491eafe90407e7edce0c4cb947f39d8"
+  "docsHash": "sha256:b83fb7269c5a451876e7c5cba23afc92bb75bd05ecfb3e7e7d90b987dad030d2"
 }
 ```
 
@@ -135068,7 +135706,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -135123,6 +135761,18 @@ files.release: contextPolicy=none
     "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。",
     "alternatives": [
       {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
         "id": "template.rectBadge",
         "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
       },
@@ -135158,7 +135808,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a3f208e3ed8f92048d6e84de5b0bdfda5d03c948cad55b05cc196886d6ab08fa"
+  "docsHash": "sha256:a8b34cc40deb1d38238a32945db70dd273ca01945acf700e988cf31a52d0927f"
 }
 ```
 
@@ -135848,7 +136498,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -135906,6 +136556,18 @@ files.release: contextPolicy=none
     "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。",
     "alternatives": [
       {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
         "id": "template.rectBadge",
         "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
       },
@@ -135941,7 +136603,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4ef7c27ff1e87a3c6340eb7277f1ee300facaada356d76b041d304af2fda072a"
+  "docsHash": "sha256:52fac406b115baaa4b2239a5c9dd525750db5677c0553d45ca8ee4b04c807203"
 }
 ```
 
@@ -136582,7 +137244,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -136639,6 +137301,18 @@ files.release: contextPolicy=none
     "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。",
     "alternatives": [
       {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
         "id": "template.rectBadge",
         "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
       },
@@ -136674,7 +137348,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:778473d09fb70c3ac8f490d369a28717dd1806504d68f32a4af0e49ac6b794fb"
+  "docsHash": "sha256:6bcf364e29e0777ef258f3e1b15f8888b9e820d7958379f8ee0fd4613caf039e"
 }
 ```
 
@@ -137443,7 +138117,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -137518,7 +138192,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:87c0482684ca67f61ce73ed61c205997ffbd562a6a46340a7080d6f52c34e2dd"
+  "docsHash": "sha256:cc2a3d0595f6cbc68725b3d5da9fdf60f1c659acb084cf9a92309972cb4d66fb"
 }
 ```
 
@@ -138076,7 +138750,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -138151,7 +138825,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b8825323291123200e9d1af60e6271510260bd9a33e14d2a54b05767bd1b48b3"
+  "docsHash": "sha256:62f15a2bc732337460675b27d89bd1fe67088e28debbca6a369a0019cc14e556"
 }
 ```
 
@@ -138792,7 +139466,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -138872,7 +139546,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:23a394495d8c5424a3dcd69df4b7272544f1750100c9bdc3b08774b3b8e3f58a"
+  "docsHash": "sha256:c5f40f302b18e6db749d44ef4994fdfc45f084b4489cfb2469b352bbb79643c3"
 }
 ```
 
@@ -139475,7 +140149,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -139553,7 +140227,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:69f8e42724e7ab2b0239cceb13802005cab10cd1358555bc05b85d4aecba9437"
+  "docsHash": "sha256:dcbbabd06ba91ecfa03ba79bb51e2cad4932ff351b6be3c78dee5715d125041c"
 }
 ```
 
@@ -140105,7 +140779,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -140188,7 +140862,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1c3c6aba57be9dbefb0949d510c61abf743a3406e9b9b97c62c057c064d0238e"
+  "docsHash": "sha256:4f9e43fdd3453dd2b692379476379f475ac33684bf9f3a9b8b5c9f60abc211f7"
 }
 ```
 
@@ -140847,7 +141521,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -140935,7 +141609,2157 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:daa97a78bd5a1ed02f7abbd1a6104b61d60ff072269ae79af83d5022981e07a4"
+  "docsHash": "sha256:a347a2e0060dd1525d17ca8f8d5b71d90937c8ea94fffd9eac411c02d7ea07a5"
+}
+```
+
+## 工具 template.snapButton · 急钮
+
+```json
+{
+  "id": "template.snapButton",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "急钮",
+  "category": "template",
+  "synonyms": [
+    "snapButton",
+    "急钮",
+    "Snap button"
+  ],
+  "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "snapButton",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "急钮",
+  "visibleInLibrary": true,
+  "libraryCategory": "fasteners",
+  "libraryCategoryLabel": "连接件",
+  "purpose": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+  "whenToUse": [
+    "This selected template matches the required structure; its complete parameters and placement contract are in this card."
+  ],
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "snapButton"
+      },
+      "variant": {
+        "type": "string",
+        "default": "domed",
+        "description": "款式",
+        "enum": [
+          "domed",
+          "flat",
+          "cut"
+        ]
+      },
+      "part": {
+        "type": "string",
+        "default": "all",
+        "description": "生成配件",
+        "enum": [
+          "all",
+          "maleFoot",
+          "stud",
+          "socket",
+          "femaleFoot"
+        ]
+      },
+      "size": {
+        "type": "string",
+        "default": "15",
+        "description": "产品外径",
+        "enum": [
+          "8",
+          "10",
+          "12.5",
+          "15",
+          "custom"
+        ]
+      },
+      "diameter": {
+        "type": "number",
+        "default": 15,
+        "description": "自定义外径",
+        "minimum": 0.01,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    }
+  },
+  "schemaHash": "sha256:247f7f2b3fda3c1dc74c6c64192a8772696204696825ec5beded06fc53fb099c",
+  "defaults": {
+    "variant": "domed",
+    "part": "all",
+    "size": "15",
+    "diameter": 15
+  },
+  "fields": [
+    {
+      "key": "variant",
+      "label": "款式",
+      "type": "select",
+      "options": [
+        {
+          "value": "domed",
+          "label": "明面（弧形外包面）"
+        },
+        {
+          "value": "flat",
+          "label": "暗面（平脚）"
+        },
+        {
+          "value": "cut",
+          "label": "切脚（Ø6 铆装脚）"
+        }
+      ]
+    },
+    {
+      "key": "part",
+      "label": "生成配件",
+      "type": "select",
+      "options": [
+        {
+          "value": "all",
+          "label": "整套"
+        },
+        {
+          "value": "maleFoot",
+          "label": "公脚"
+        },
+        {
+          "value": "stud",
+          "label": "公件（钮珠）"
+        },
+        {
+          "value": "socket",
+          "label": "母件（弹弓件）"
+        },
+        {
+          "value": "femaleFoot",
+          "label": "母脚"
+        }
+      ]
+    },
+    {
+      "key": "size",
+      "label": "产品外径",
+      "type": "select",
+      "options": [
+        {
+          "value": "8",
+          "label": "8 mm"
+        },
+        {
+          "value": "10",
+          "label": "10 mm"
+        },
+        {
+          "value": "12.5",
+          "label": "12.5 mm"
+        },
+        {
+          "value": "15",
+          "label": "15 mm"
+        },
+        {
+          "value": "custom",
+          "label": "自定义"
+        }
+      ]
+    },
+    {
+      "key": "diameter",
+      "label": "自定义外径",
+      "type": "number",
+      "unit": "mm",
+      "min": 0.01,
+      "step": 0.1
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "bottom-center",
+    "automaticArrangement": false,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "additionalDocs": [
+    "api.placement"
+  ],
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "quickModel"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "parentContract": {
+    "opVersion": "legacy-1",
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use this callSchema and current context; run supplies the parent version/hash"
+    }
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "snapButton"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "snapButton",
+      "variant": "domed",
+      "part": "all",
+      "size": "15",
+      "diameter": 15
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "template.snapButton",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。",
+    "alternatives": [
+      {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:aba33547e56c3c6a3c6ef964dc1f0c6c8cbae37005869a12ffd831ef30c5457d"
+}
+```
+
+## 工具 template.sewButton · 车缝钮
+
+```json
+{
+  "id": "template.sewButton",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "车缝钮",
+  "category": "template",
+  "synonyms": [
+    "sewButton",
+    "车缝钮",
+    "Sew-on button"
+  ],
+  "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "sewButton",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "车缝钮",
+  "visibleInLibrary": true,
+  "libraryCategory": "fasteners",
+  "libraryCategoryLabel": "连接件",
+  "purpose": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+  "whenToUse": [
+    "This selected template matches the required structure; its complete parameters and placement contract are in this card."
+  ],
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "sewButton"
+      },
+      "variant": {
+        "type": "string",
+        "default": "domed",
+        "description": "款式",
+        "enum": [
+          "domed",
+          "flat",
+          "cut"
+        ]
+      },
+      "part": {
+        "type": "string",
+        "default": "all",
+        "description": "生成配件",
+        "enum": [
+          "all",
+          "maleFoot",
+          "stud",
+          "socket",
+          "femaleFoot"
+        ]
+      },
+      "size": {
+        "type": "string",
+        "default": "15",
+        "description": "产品外径",
+        "enum": [
+          "8",
+          "10",
+          "12.5",
+          "15",
+          "custom"
+        ]
+      },
+      "diameter": {
+        "type": "number",
+        "default": 15,
+        "description": "自定义外径",
+        "minimum": 0.01,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    }
+  },
+  "schemaHash": "sha256:70b647bfd13984d9de6c91fade1f0fa49f63bd33417e0dba362d8e0f2b87f544",
+  "defaults": {
+    "variant": "domed",
+    "part": "all",
+    "size": "15",
+    "diameter": 15
+  },
+  "fields": [
+    {
+      "key": "variant",
+      "label": "款式",
+      "type": "select",
+      "options": [
+        {
+          "value": "domed",
+          "label": "明面（弧形外包面）"
+        },
+        {
+          "value": "flat",
+          "label": "暗面（平脚）"
+        },
+        {
+          "value": "cut",
+          "label": "切脚（Ø6 铆装脚）"
+        }
+      ]
+    },
+    {
+      "key": "part",
+      "label": "生成配件",
+      "type": "select",
+      "options": [
+        {
+          "value": "all",
+          "label": "整套"
+        },
+        {
+          "value": "maleFoot",
+          "label": "公脚"
+        },
+        {
+          "value": "stud",
+          "label": "公件"
+        },
+        {
+          "value": "socket",
+          "label": "母件"
+        },
+        {
+          "value": "femaleFoot",
+          "label": "母脚"
+        }
+      ]
+    },
+    {
+      "key": "size",
+      "label": "产品外径",
+      "type": "select",
+      "options": [
+        {
+          "value": "8",
+          "label": "8 mm"
+        },
+        {
+          "value": "10",
+          "label": "10 mm"
+        },
+        {
+          "value": "12.5",
+          "label": "12.5 mm"
+        },
+        {
+          "value": "15",
+          "label": "15 mm"
+        },
+        {
+          "value": "custom",
+          "label": "自定义"
+        }
+      ]
+    },
+    {
+      "key": "diameter",
+      "label": "自定义外径",
+      "type": "number",
+      "unit": "mm",
+      "min": 0.01,
+      "step": 0.1
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "bottom-center",
+    "automaticArrangement": false,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "additionalDocs": [
+    "api.placement"
+  ],
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "quickModel"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "parentContract": {
+    "opVersion": "legacy-1",
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use this callSchema and current context; run supplies the parent version/hash"
+    }
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "sewButton"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "sewButton",
+      "variant": "domed",
+      "part": "all",
+      "size": "15",
+      "diameter": 15
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "template.sewButton",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。",
+    "alternatives": [
+      {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:ed6fe88921024eb4713262732bdb3d9902069f1d095a3380398566e69ff9bad1"
+}
+```
+
+## 工具 template.magneticButton · 磁钮
+
+```json
+{
+  "id": "template.magneticButton",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "磁钮",
+  "category": "template",
+  "synonyms": [
+    "magneticButton",
+    "磁钮",
+    "Magnetic snap"
+  ],
+  "description": "素面双折脚磁钮。勾选需要的公件、母件和底片。盘径联动凸头、凹窝及折脚横截面；盘厚、脚长等按输入毫米值生成。脚距及底片外径填 0 时随盘径缩放。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "magneticButton",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "磁钮",
+  "visibleInLibrary": true,
+  "libraryCategory": "fasteners",
+  "libraryCategoryLabel": "连接件",
+  "purpose": "素面双折脚磁钮。勾选需要的公件、母件和底片。盘径联动凸头、凹窝及折脚横截面；盘厚、脚长等按输入毫米值生成。脚距及底片外径填 0 时随盘径缩放。",
+  "whenToUse": [
+    "This selected template matches the required structure; its complete parameters and placement contract are in this card."
+  ],
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "素面双折脚磁钮。勾选需要的公件、母件和底片。盘径联动凸头、凹窝及折脚横截面；盘厚、脚长等按输入毫米值生成。脚距及底片外径填 0 时随盘径缩放。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "magneticButton"
+      },
+      "male": {
+        "type": "boolean",
+        "default": true,
+        "description": "磁钮公件"
+      },
+      "female": {
+        "type": "boolean",
+        "default": true,
+        "description": "磁钮母件"
+      },
+      "malePlate": {
+        "type": "boolean",
+        "default": true,
+        "description": "公钮双槽底片"
+      },
+      "femalePlate": {
+        "type": "boolean",
+        "default": true,
+        "description": "母钮双槽底片"
+      },
+      "diameter": {
+        "type": "number",
+        "default": 20,
+        "description": "磁钮外径",
+        "minimum": 0.01,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "maleThickness": {
+        "type": "number",
+        "default": 1,
+        "description": "公件盘厚",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "femaleThickness": {
+        "type": "number",
+        "default": 4.3,
+        "description": "母件盘厚",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "studHeight": {
+        "type": "number",
+        "default": 2.04,
+        "description": "公件凸头高度",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "socketDepth": {
+        "type": "number",
+        "default": 2.2,
+        "description": "母件凹窝深度",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "legLength": {
+        "type": "number",
+        "default": 9,
+        "description": "折脚长度",
+        "minimum": 0.01,
+        "unit": "mm"
+      },
+      "legPitch": {
+        "type": "number",
+        "default": 0,
+        "description": "双脚中心距（0 自动）",
+        "minimum": 0,
+        "unit": "mm"
+      },
+      "plateDiameter": {
+        "type": "number",
+        "default": 0,
+        "description": "底片外径（0 自动）",
+        "minimum": 0,
+        "unit": "mm"
+      },
+      "plateThickness": {
+        "type": "number",
+        "default": 0.45,
+        "description": "底片厚度",
+        "minimum": 0.01,
+        "unit": "mm"
+      }
+    }
+  },
+  "schemaHash": "sha256:b17ea172cdf6bbff25112309535a204aca904f37b915d4c25ac5338084d31001",
+  "defaults": {
+    "male": true,
+    "female": true,
+    "malePlate": true,
+    "femalePlate": true,
+    "diameter": 20,
+    "maleThickness": 1,
+    "femaleThickness": 4.3,
+    "studHeight": 2.04,
+    "socketDepth": 2.2,
+    "legLength": 9,
+    "legPitch": 0,
+    "plateDiameter": 0,
+    "plateThickness": 0.45
+  },
+  "fields": [
+    {
+      "key": "male",
+      "label": "磁钮公件",
+      "type": "boolean"
+    },
+    {
+      "key": "female",
+      "label": "磁钮母件",
+      "type": "boolean"
+    },
+    {
+      "key": "malePlate",
+      "label": "公钮双槽底片",
+      "type": "boolean"
+    },
+    {
+      "key": "femalePlate",
+      "label": "母钮双槽底片",
+      "type": "boolean"
+    },
+    {
+      "key": "diameter",
+      "label": "磁钮外径",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.01,
+      "unit": "mm"
+    },
+    {
+      "key": "maleThickness",
+      "label": "公件盘厚",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.01,
+      "unit": "mm"
+    },
+    {
+      "key": "femaleThickness",
+      "label": "母件盘厚",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.01,
+      "unit": "mm"
+    },
+    {
+      "key": "studHeight",
+      "label": "公件凸头高度",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.01,
+      "unit": "mm"
+    },
+    {
+      "key": "socketDepth",
+      "label": "母件凹窝深度",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.01,
+      "unit": "mm"
+    },
+    {
+      "key": "legLength",
+      "label": "折脚长度",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.01,
+      "unit": "mm"
+    },
+    {
+      "key": "legPitch",
+      "label": "双脚中心距（0 自动）",
+      "type": "number",
+      "min": 0,
+      "step": 0.01,
+      "unit": "mm"
+    },
+    {
+      "key": "plateDiameter",
+      "label": "底片外径（0 自动）",
+      "type": "number",
+      "min": 0,
+      "step": 0.01,
+      "unit": "mm"
+    },
+    {
+      "key": "plateThickness",
+      "label": "底片厚度",
+      "type": "number",
+      "min": 0.01,
+      "step": 0.01,
+      "unit": "mm"
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "bottom-center",
+    "automaticArrangement": false,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "additionalDocs": [
+    "api.placement"
+  ],
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "quickModel"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "parentContract": {
+    "opVersion": "legacy-1",
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use this callSchema and current context; run supplies the parent version/hash"
+    }
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "magneticButton"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "magneticButton",
+      "male": true,
+      "female": true,
+      "malePlate": true,
+      "femalePlate": true,
+      "diameter": 20,
+      "maleThickness": 1,
+      "femaleThickness": 4.3,
+      "studHeight": 2.04,
+      "socketDepth": 2.2,
+      "legLength": 9,
+      "legPitch": 0,
+      "plateDiameter": 0,
+      "plateThickness": 0.45
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "template.magneticButton",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。",
+    "alternatives": [
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:2bde8f0b7e0c76e6e93963cb548ce8eeb0518fe38bee35437a90a7cd070e926d"
 }
 ```
 
@@ -141582,7 +144406,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -141666,7 +144490,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:87b3a377d3799b29bc78453b6c65e8aeecde7a2b4b532ac38afb15dfc5331053"
+  "docsHash": "sha256:8651898caee43fdd3745d8fd1453e651d674cf740fc2b93aff1b4e9e20f986d9"
 }
 ```
 
@@ -142208,7 +145032,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -142295,7 +145119,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cb3f3724b1219d51e182730741d919947b96cad40b7f77c755e1e04f562152c6"
+  "docsHash": "sha256:1e841b73288bebd7b38bb8dda209e6e76c6914c63e3dc57f38109b1c312adca6"
 }
 ```
 
@@ -142841,7 +145665,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -142924,7 +145748,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f2c3ddf95cbdfc76781ce923cc47e387b80df71cb3aabb891f00d4e0148cf70e"
+  "docsHash": "sha256:a912d9c34c531038949c0187409d4c543833dde702c06cce750d52ab3f802d3f"
 }
 ```
 
@@ -143674,7 +146498,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -143748,7 +146572,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:794402e3fb8e5fad568993db5111cc04abb9e5d99a3ba0b6f5df14ec8642a8ed"
+  "docsHash": "sha256:efef52d06d27025a2550c58311ad8816364bb70dfd4f41b63d72678610d80b9a"
 }
 ```
 
@@ -144464,7 +147288,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -144536,7 +147360,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:25f56dbb6373f9e3fd3b6f39e9f7421020764743b01679d1c5a9158c5e7da821"
+  "docsHash": "sha256:a4830e65c94db3d263f3b08311cabefff57f003023e5f0202c2b822a4c2d9b8b"
 }
 ```
 
@@ -145377,7 +148201,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -145469,7 +148293,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3cf3b68e16cf557d369057a49a95966f7aa2275dc8cc5d18c7478a8a9f8cd95b"
+  "docsHash": "sha256:cbfa9f165b249f14c0dedbd70f117977603bdaa4fe18eaa01d05299a82ca173b"
 }
 ```
 
@@ -146271,7 +149095,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -146361,7 +149185,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f7c8e9f3f5378a714060d16358df8df725284f35893b6a7e48c85c78442d82fd"
+  "docsHash": "sha256:d05ce3d540dad41cc52e29961a9686ace286f1a226657656d1c56497b692a42e"
 }
 ```
 
@@ -146997,7 +149821,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -147062,7 +149886,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7a6363814b9e518420b9efc7a26da2b03bc28381862c87f58bf4cdc1ea62f786"
+  "docsHash": "sha256:3fce295b89a937f53d275c13768d40a520fa67ddd744579bf1a50b4b54f7294f"
 }
 ```
 
@@ -147698,7 +150522,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -147763,7 +150587,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:063660c88a3208722a59ef799f055572a95a227ea564e5afb0a148a7c44caa83"
+  "docsHash": "sha256:65d9004cd9979273bad54acb679391d5292e411f5f075d09f6621b9fa88808ae"
 }
 ```
 
@@ -148435,7 +151259,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -148502,7 +151326,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:568ffb79aed8122ee5f2ef63de4a7f3426ad8ff094a36e67108049514bf4d560"
+  "docsHash": "sha256:01cb7727afa8aa0625d7e73d477417b61924c5bba891cac7c047857eb2b14655"
 }
 ```
 
@@ -149065,7 +151889,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -149148,7 +151972,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:10e2ee73627fb953a8a0a833746d390a9b64ac4824baac459a22ed0a4f651664"
+  "docsHash": "sha256:2ff36211450b635ba25c1c706e7a769af01788659b92787715396b64e8fb2ac1"
 }
 ```
 
@@ -149747,7 +152571,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -149802,6 +152626,18 @@ files.release: contextPolicy=none
     "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。",
     "alternatives": [
       {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
         "id": "template.rectBadge",
         "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
       },
@@ -149837,7 +152673,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a826e5278456d02f8200f69d5f50027512adf8dfa0c265373274f06fd1a91b64"
+  "docsHash": "sha256:6337677a0875ddbf6fe8398fef39d5f0bca5028cdef1f45f9750d1a3f721d8d5"
 }
 ```
 
@@ -150452,7 +153288,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -150508,6 +153344,18 @@ files.release: contextPolicy=none
     "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。",
     "alternatives": [
       {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
         "id": "template.rectBadge",
         "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
       },
@@ -150551,7 +153399,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:099cb576fa2bd86625e823a5773d0a1d11965b6739c71cb94974c20691528029"
+  "docsHash": "sha256:52fe75cbafed0721ea59aef7d84df86b279d7119a06a7e21ca9da850bc5f6903"
 }
 ```
 
@@ -151184,7 +154032,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -151241,6 +154089,18 @@ files.release: contextPolicy=none
     "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。",
     "alternatives": [
       {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
         "id": "template.rectBadge",
         "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
       },
@@ -151284,7 +154144,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cd534ff758ef58a6d70b03a644fb62345854c5b49fd29147e73abb529d741a93"
+  "docsHash": "sha256:72c7ad27989c42daf846c83ce30db1cb74058888f80f10f7993260a0ea1df8a2"
 }
 ```
 
@@ -151851,7 +154711,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -151935,7 +154795,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c0aff764e483f51b7f13345849fef693c59f76874b2290b407a5883ef277d72e"
+  "docsHash": "sha256:6f2992ed241ce02cbe098471f383b0a72abe8ada8707b4a80b170c0bcbdeebca"
 }
 ```
 
@@ -152550,7 +155410,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -152637,7 +155497,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b4c6d9b73cc8570ddb50047590aac3e584f7ad4ab4b9e072450dd436c46728cd"
+  "docsHash": "sha256:c7a40eb88bea42ec6bc01667b8b7efc2074d8380a9081d1ba9f449ae7086089f"
 }
 ```
 
@@ -153236,7 +156096,7 @@ files.release: contextPolicy=none
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -153322,7 +156182,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5784555a935315b25b73fd8c2048446b90347483ac0f247e78481ddee691ac43"
+  "docsHash": "sha256:4c5108333c7e39e2c8ab5b19ff8e29ca8157b7493cb091bf06d56c4794b6d0fc"
 }
 ```
 

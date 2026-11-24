@@ -2500,6 +2500,219 @@
           "kind"
         ],
         "additionalProperties": false,
+        "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "snapButton"
+          },
+          "variant": {
+            "type": "string",
+            "default": "domed",
+            "description": "款式",
+            "enum": [
+              "domed",
+              "flat",
+              "cut"
+            ]
+          },
+          "part": {
+            "type": "string",
+            "default": "all",
+            "description": "生成配件",
+            "enum": [
+              "all",
+              "maleFoot",
+              "stud",
+              "socket",
+              "femaleFoot"
+            ]
+          },
+          "size": {
+            "type": "string",
+            "default": "15",
+            "description": "产品外径",
+            "enum": [
+              "8",
+              "10",
+              "12.5",
+              "15",
+              "custom"
+            ]
+          },
+          "diameter": {
+            "type": "number",
+            "default": 15,
+            "description": "自定义外径",
+            "minimum": 0.01,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "sewButton"
+          },
+          "variant": {
+            "type": "string",
+            "default": "domed",
+            "description": "款式",
+            "enum": [
+              "domed",
+              "flat",
+              "cut"
+            ]
+          },
+          "part": {
+            "type": "string",
+            "default": "all",
+            "description": "生成配件",
+            "enum": [
+              "all",
+              "maleFoot",
+              "stud",
+              "socket",
+              "femaleFoot"
+            ]
+          },
+          "size": {
+            "type": "string",
+            "default": "15",
+            "description": "产品外径",
+            "enum": [
+              "8",
+              "10",
+              "12.5",
+              "15",
+              "custom"
+            ]
+          },
+          "diameter": {
+            "type": "number",
+            "default": 15,
+            "description": "自定义外径",
+            "minimum": 0.01,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "素面双折脚磁钮。勾选需要的公件、母件和底片。盘径联动凸头、凹窝及折脚横截面；盘厚、脚长等按输入毫米值生成。脚距及底片外径填 0 时随盘径缩放。",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "magneticButton"
+          },
+          "male": {
+            "type": "boolean",
+            "default": true,
+            "description": "磁钮公件"
+          },
+          "female": {
+            "type": "boolean",
+            "default": true,
+            "description": "磁钮母件"
+          },
+          "malePlate": {
+            "type": "boolean",
+            "default": true,
+            "description": "公钮双槽底片"
+          },
+          "femalePlate": {
+            "type": "boolean",
+            "default": true,
+            "description": "母钮双槽底片"
+          },
+          "diameter": {
+            "type": "number",
+            "default": 20,
+            "description": "磁钮外径",
+            "minimum": 0.01,
+            "unit": "mm",
+            "quantityKind": "length",
+            "quantizationPolicy": "none"
+          },
+          "maleThickness": {
+            "type": "number",
+            "default": 1,
+            "description": "公件盘厚",
+            "minimum": 0.01,
+            "unit": "mm"
+          },
+          "femaleThickness": {
+            "type": "number",
+            "default": 4.3,
+            "description": "母件盘厚",
+            "minimum": 0.01,
+            "unit": "mm"
+          },
+          "studHeight": {
+            "type": "number",
+            "default": 2.04,
+            "description": "公件凸头高度",
+            "minimum": 0.01,
+            "unit": "mm"
+          },
+          "socketDepth": {
+            "type": "number",
+            "default": 2.2,
+            "description": "母件凹窝深度",
+            "minimum": 0.01,
+            "unit": "mm"
+          },
+          "legLength": {
+            "type": "number",
+            "default": 9,
+            "description": "折脚长度",
+            "minimum": 0.01,
+            "unit": "mm"
+          },
+          "legPitch": {
+            "type": "number",
+            "default": 0,
+            "description": "双脚中心距（0 自动）",
+            "minimum": 0,
+            "unit": "mm"
+          },
+          "plateDiameter": {
+            "type": "number",
+            "default": 0,
+            "description": "底片外径（0 自动）",
+            "minimum": 0,
+            "unit": "mm"
+          },
+          "plateThickness": {
+            "type": "number",
+            "default": 0.45,
+            "description": "底片厚度",
+            "minimum": 0.01,
+            "unit": "mm"
+          }
+        }
+      },
+      {
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
         "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
         "properties": {
           "kind": {
@@ -4446,6 +4659,33 @@
       "holeDiameterMm": 2.5,
       "holeDepthMm": 5
     },
+    "snapButton": {
+      "variant": "domed",
+      "part": "all",
+      "size": "15",
+      "diameter": 15
+    },
+    "sewButton": {
+      "variant": "domed",
+      "part": "all",
+      "size": "15",
+      "diameter": 15
+    },
+    "magneticButton": {
+      "male": true,
+      "female": true,
+      "malePlate": true,
+      "femalePlate": true,
+      "diameter": 20,
+      "maleThickness": 1,
+      "femaleThickness": 4.3,
+      "studHeight": 2.04,
+      "socketDepth": 2.2,
+      "legLength": 9,
+      "legPitch": 0,
+      "plateDiameter": 0,
+      "plateThickness": 0.45
+    },
     "screw": {
       "headType": "flat",
       "headWidthMm": 6,
@@ -4667,7 +4907,7 @@
     "快捷模型"
   ],
   "description": "Parameterized product model; prefer getTool({id:\"quickModel\"}) then execute(request)",
-  "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c",
+  "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b",
   "apiCompatibility": [
     "page-advisory"
   ],
@@ -8379,6 +8619,365 @@
       }
     },
     {
+      "kind": "snapButton",
+      "title": "急钮",
+      "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+      "visibleInLibrary": true,
+      "category": "fasteners",
+      "categoryLabel": "连接件",
+      "defaults": {
+        "variant": "domed",
+        "part": "all",
+        "size": "15",
+        "diameter": 15
+      },
+      "fields": [
+        {
+          "key": "variant",
+          "label": "款式",
+          "type": "select",
+          "options": [
+            {
+              "value": "domed",
+              "label": "明面（弧形外包面）"
+            },
+            {
+              "value": "flat",
+              "label": "暗面（平脚）"
+            },
+            {
+              "value": "cut",
+              "label": "切脚（Ø6 铆装脚）"
+            }
+          ]
+        },
+        {
+          "key": "part",
+          "label": "生成配件",
+          "type": "select",
+          "options": [
+            {
+              "value": "all",
+              "label": "整套"
+            },
+            {
+              "value": "maleFoot",
+              "label": "公脚"
+            },
+            {
+              "value": "stud",
+              "label": "公件（钮珠）"
+            },
+            {
+              "value": "socket",
+              "label": "母件（弹弓件）"
+            },
+            {
+              "value": "femaleFoot",
+              "label": "母脚"
+            }
+          ]
+        },
+        {
+          "key": "size",
+          "label": "产品外径",
+          "type": "select",
+          "options": [
+            {
+              "value": "8",
+              "label": "8 mm"
+            },
+            {
+              "value": "10",
+              "label": "10 mm"
+            },
+            {
+              "value": "12.5",
+              "label": "12.5 mm"
+            },
+            {
+              "value": "15",
+              "label": "15 mm"
+            },
+            {
+              "value": "custom",
+              "label": "自定义"
+            }
+          ]
+        },
+        {
+          "key": "diameter",
+          "label": "自定义外径",
+          "type": "number",
+          "unit": "mm",
+          "min": 0.01,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "snapButton"
+      },
+      "normalExample": {
+        "kind": "snapButton",
+        "variant": "domed",
+        "part": "all",
+        "size": "15",
+        "diameter": 15
+      }
+    },
+    {
+      "kind": "sewButton",
+      "title": "车缝钮",
+      "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+      "visibleInLibrary": true,
+      "category": "fasteners",
+      "categoryLabel": "连接件",
+      "defaults": {
+        "variant": "domed",
+        "part": "all",
+        "size": "15",
+        "diameter": 15
+      },
+      "fields": [
+        {
+          "key": "variant",
+          "label": "款式",
+          "type": "select",
+          "options": [
+            {
+              "value": "domed",
+              "label": "明面（弧形外包面）"
+            },
+            {
+              "value": "flat",
+              "label": "暗面（平脚）"
+            },
+            {
+              "value": "cut",
+              "label": "切脚（Ø6 铆装脚）"
+            }
+          ]
+        },
+        {
+          "key": "part",
+          "label": "生成配件",
+          "type": "select",
+          "options": [
+            {
+              "value": "all",
+              "label": "整套"
+            },
+            {
+              "value": "maleFoot",
+              "label": "公脚"
+            },
+            {
+              "value": "stud",
+              "label": "公件"
+            },
+            {
+              "value": "socket",
+              "label": "母件"
+            },
+            {
+              "value": "femaleFoot",
+              "label": "母脚"
+            }
+          ]
+        },
+        {
+          "key": "size",
+          "label": "产品外径",
+          "type": "select",
+          "options": [
+            {
+              "value": "8",
+              "label": "8 mm"
+            },
+            {
+              "value": "10",
+              "label": "10 mm"
+            },
+            {
+              "value": "12.5",
+              "label": "12.5 mm"
+            },
+            {
+              "value": "15",
+              "label": "15 mm"
+            },
+            {
+              "value": "custom",
+              "label": "自定义"
+            }
+          ]
+        },
+        {
+          "key": "diameter",
+          "label": "自定义外径",
+          "type": "number",
+          "unit": "mm",
+          "min": 0.01,
+          "step": 0.1
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "sewButton"
+      },
+      "normalExample": {
+        "kind": "sewButton",
+        "variant": "domed",
+        "part": "all",
+        "size": "15",
+        "diameter": 15
+      }
+    },
+    {
+      "kind": "magneticButton",
+      "title": "磁钮",
+      "description": "素面双折脚磁钮。勾选需要的公件、母件和底片。盘径联动凸头、凹窝及折脚横截面；盘厚、脚长等按输入毫米值生成。脚距及底片外径填 0 时随盘径缩放。",
+      "visibleInLibrary": true,
+      "category": "fasteners",
+      "categoryLabel": "连接件",
+      "defaults": {
+        "male": true,
+        "female": true,
+        "malePlate": true,
+        "femalePlate": true,
+        "diameter": 20,
+        "maleThickness": 1,
+        "femaleThickness": 4.3,
+        "studHeight": 2.04,
+        "socketDepth": 2.2,
+        "legLength": 9,
+        "legPitch": 0,
+        "plateDiameter": 0,
+        "plateThickness": 0.45
+      },
+      "fields": [
+        {
+          "key": "male",
+          "label": "磁钮公件",
+          "type": "boolean"
+        },
+        {
+          "key": "female",
+          "label": "磁钮母件",
+          "type": "boolean"
+        },
+        {
+          "key": "malePlate",
+          "label": "公钮双槽底片",
+          "type": "boolean"
+        },
+        {
+          "key": "femalePlate",
+          "label": "母钮双槽底片",
+          "type": "boolean"
+        },
+        {
+          "key": "diameter",
+          "label": "磁钮外径",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "maleThickness",
+          "label": "公件盘厚",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "femaleThickness",
+          "label": "母件盘厚",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "studHeight",
+          "label": "公件凸头高度",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "socketDepth",
+          "label": "母件凹窝深度",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "legLength",
+          "label": "折脚长度",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "legPitch",
+          "label": "双脚中心距（0 自动）",
+          "type": "number",
+          "min": 0,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "plateDiameter",
+          "label": "底片外径（0 自动）",
+          "type": "number",
+          "min": 0,
+          "step": 0.01,
+          "unit": "mm"
+        },
+        {
+          "key": "plateThickness",
+          "label": "底片厚度",
+          "type": "number",
+          "min": 0.01,
+          "step": 0.01,
+          "unit": "mm"
+        }
+      ],
+      "knownUnsupportedCases": [
+        "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+      ],
+      "minimalExample": {
+        "kind": "magneticButton"
+      },
+      "normalExample": {
+        "kind": "magneticButton",
+        "male": true,
+        "female": true,
+        "malePlate": true,
+        "femalePlate": true,
+        "diameter": 20,
+        "maleThickness": 1,
+        "femaleThickness": 4.3,
+        "studHeight": 2.04,
+        "socketDepth": 2.2,
+        "legLength": 9,
+        "legPitch": 0,
+        "plateDiameter": 0,
+        "plateThickness": 0.45
+      }
+    },
+    {
       "kind": "screw",
       "title": "螺丝",
       "description": "头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。",
@@ -11074,5 +11673,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:05d7023b2c170b6cb046829b484d7b66a339205a6c0cef330c8a2eef042789d5"
+  "docsHash": "sha256:86767566e7b79debaea479ba471f047210ad7f7d616e83fbe7226145143c0949"
 }

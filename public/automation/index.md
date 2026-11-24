@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.75.20 · 操作目录 sha256:6aefa95abe2d209b68f7195c7e0bdeead4990bab34f9b9f9b0ce50664528c873
+API 1.75.20 · 操作目录 sha256:412f62293143396bbe6df7c6ee1fa40f75d54e3a3340409cc7f20f9a4147c0f1
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -256,6 +256,9 @@ API 1.75.20 · 操作目录 sha256:6aefa95abe2d209b68f7195c7e0bdeead4990bab34f9b
 - `template.hangingRod` · advisory · 常规吊杆：水平圆杆两端做圆角，上方居中融合一个Z深度由根部向顶部收窄的椭圆截面U形吊环。杆长、杆径、端部圆角、吊环内宽、根部深度、根部圆角和净高均可调；不包含文字、花纹或多个吊环。
 - `template.archedBridge` · advisory · 常规 U 形拱桥：圆截面直腿与精确半圆连续成型，两端可开同轴底孔。外宽、外高、线径和底孔尺寸可调；不包含螺纹牙型、底片、装饰或异形截面。
 - `template.squareArchedBridge` · advisory · 平顶方线 U 形桥身，内外宽高、前后厚度、内外转角及棱边 R 独立可调；可选两端底孔。结构和默认包络沿用历史来源的桥身案例，不宣称自主源几何或完整复刻。底孔为光孔，不生成螺纹、螺丝或底片；不复刻源件微拱顶面。XY 为正面，开口朝 -Y，底端 Y=0，厚度沿 Z 居中。
+- `template.snapButton` · advisory · 以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。
+- `template.sewButton` · advisory · 以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。
+- `template.magneticButton` · advisory · 素面双折脚磁钮。勾选需要的公件、母件和底片。盘径联动凸头、凹窝及折脚横截面；盘厚、脚长等按输入毫米值生成。脚距及底片外径填 0 时随盘径缩放。
 - `template.screw` · advisory · 头在参考位置下端，牙杆朝本地 +Z。沉头外缘固定直升位 0.20 mm。M 使用常用粗牙螺距，真实 V 型牙槽；不含配合公差。
 - `template.threadedSleeve` · advisory · 底面在参考位置，面端朝本地 -Z；从下方面端向上攻牙。牙径采用支持的名义 M 粗牙直径，不含配合公差。
 - `template.spring` · advisory · 圆线沿精确螺旋路径扫掠。螺距大于线径；半径是中心线半径。

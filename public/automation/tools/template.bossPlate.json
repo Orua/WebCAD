@@ -594,7 +594,7 @@
   },
   "parentContract": {
     "opVersion": "legacy-1",
-    "schemaHash": "sha256:22ba3caa32fb719e6130e9b7846d60d79cc3e3b205e993c38d38cc52241f1e7c"
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
   },
   "mcpCall": {
     "tool": "webcad_submit",
@@ -649,6 +649,18 @@
     "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。",
     "alternatives": [
       {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.snapButton",
+        "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
         "id": "template.rectBadge",
         "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
       },
@@ -684,5 +696,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a3f208e3ed8f92048d6e84de5b0bdfda5d03c948cad55b05cc196886d6ab08fa"
+  "docsHash": "sha256:a8b34cc40deb1d38238a32945db70dd273ca01945acf700e988cf31a52d0927f"
 }

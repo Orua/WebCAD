@@ -1,9 +1,9 @@
 {
   "version": "1.75.20",
-  "buildId": "6d804dc7cfd597aa913fb4621db0d3e997c906ee-src-d29aa6f33f2aef75",
+  "buildId": "320c5e6693a1e688dc99eb359816a7bfa880af0b-src-5b2e07775aa319f5-working",
   "searchVersion": "2",
-  "catalogHash": "sha256:6aefa95abe2d209b68f7195c7e0bdeead4990bab34f9b9f9b0ce50664528c873",
-  "docsHash": "sha256:af67ff52643ce8c9de1605922a90e4084dda60ac8f9c87030b0b4dfa067dafae",
+  "catalogHash": "sha256:412f62293143396bbe6df7c6ee1fa40f75d54e3a3340409cc7f20f9a4147c0f1",
+  "docsHash": "sha256:0e5e602612d58e7f4009a9dc3c924e80f6cd80422981fdb77323df87d27c8c6b",
   "apiMethods": [
     "reliefWizard",
     "prepareToolCall",
@@ -645,7 +645,7 @@
       "label": "快捷模型",
       "category": "creation",
       "version": "legacy-1",
-      "docsHash": "sha256:05d7023b2c170b6cb046829b484d7b66a339205a6c0cef330c8a2eef042789d5",
+      "docsHash": "sha256:86767566e7b79debaea479ba471f047210ad7f7d616e83fbe7226145143c0949",
       "url": "tools/quickModel.json"
     },
     {
@@ -924,7 +924,7 @@
       "label": "平垫圈",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:f7f47a22a784d1252ce4f04b83ca5cab0c811b3aff2ae2544674ddb69a274c62",
+      "docsHash": "sha256:cc19b703b1a1da6eec7dc1c24f35a56d0529947d9f72bce9180922225d79b111",
       "url": "tools/template.washer.json"
     },
     {
@@ -933,7 +933,7 @@
       "label": "圆筒（C件默认）",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:16a876f7ab84ecc4549f1a535e0923c151b4a0abe9f9e446d3e6af0d5a6237b9",
+      "docsHash": "sha256:b70fbffef6eef2703c1b9f9b6ee9a09afcd3e620d85dbac4a3f5fc7121d14933",
       "url": "tools/template.tube.json"
     },
     {
@@ -942,7 +942,7 @@
       "label": "半圆钉",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:a40450d58847aa8d808843e0b74812c24806bbbd9d4dc46ee29cb7b5b6c657ae",
+      "docsHash": "sha256:2d89f8fceb21e2947e94e313ee9cf47434f897428e49779e6a326faa1c619bb8",
       "url": "tools/template.domedPin.json"
     },
     {
@@ -951,7 +951,7 @@
       "label": "圆柱轴套",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:cf9dbf7f916a0d9be7879ba8aa527bd41a89a09d9ff4b031d4e0b4e0be60c384",
+      "docsHash": "sha256:a136c7cadafb760291c6ecb0a856c391c5b75749d65b29dc4572d00fdc1fc080",
       "url": "tools/template.flangedBushing.json"
     },
     {
@@ -960,7 +960,7 @@
       "label": "圆圈",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:f83a6eccaf73007c46c7d1850e2232e96f1c5bbd7c45c69a4ed0ba1f19b1f7e1",
+      "docsHash": "sha256:7a6d98ea3ffb36b0721bcb3fceab99f5d6bee967eae7da2981592ff48b27595a",
       "url": "tools/template.ring.json"
     },
     {
@@ -969,7 +969,7 @@
       "label": "椭圆开口圈",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:0237df802ccfbc74d33d7917c3ae0ee7463a1b4f00b59071d2e4bdf725df5507",
+      "docsHash": "sha256:812e9ce5314562ec4715ea6d5af6b2926cef704b3f86259ad7bfe6d62cbf6a7b",
       "url": "tools/template.ellipseOpenWire.json"
     },
     {
@@ -978,7 +978,7 @@
       "label": "大开口 C 环",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:fc140a19015bea41b01cbb80784c5b8f372ec6bdf576d197c4411951ef4fba06",
+      "docsHash": "sha256:5a9c5156260ce9ed0ba7e6bf37612177e873d728d75d2a6db590765a3ce5415a",
       "url": "tools/template.openArcRing.json"
     },
     {
@@ -987,7 +987,7 @@
       "label": "椭圆截面圆圈",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:7fcb8a3f6304d18a4a96e58535024420e7a1f76a751faa393eaaf14b2004ab6c",
+      "docsHash": "sha256:2419a32b5ec2af9389a6682bf6c63bd91312554d2d077cddc46fc142098fe88d",
       "url": "tools/template.ellipseSectionRing.json"
     },
     {
@@ -996,7 +996,7 @@
       "label": "匙圈",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:093afcee4449b986f4f0160813f390be84ee1381633d47ff14646b0e31fe9b72",
+      "docsHash": "sha256:2b518d1bb5acdb9367f0a2d31711f797642573347a8a8ad2f68ec0556fae9716",
       "url": "tools/template.keyRing.json"
     },
     {
@@ -1005,7 +1005,7 @@
       "label": "扁线方扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:feb451da544ff28f73ff0aad2e0ac1a0fec347825ffaa3406bc00b5395dee0e6",
+      "docsHash": "sha256:11ee6c880b13eb659355d436e047c4fe65d861b35b987b6d395137d297047806",
       "url": "tools/template.flatFrame.json"
     },
     {
@@ -1014,7 +1014,7 @@
       "label": "方线方扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:c4af84eb6dd8781b1239eb43dd7829ca1d2deec98bc9861b9e142baffdf2b40d",
+      "docsHash": "sha256:75a2d57c546431e8335ceb19fc76d0d60a0ff4aebb7dc7c87d14c8939e8a4b87",
       "url": "tools/template.roundedFlatFrame.json"
     },
     {
@@ -1023,7 +1023,7 @@
       "label": "圆线方扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:2ccf73279b8bd6b6b9a12addf1037dc3ff6f9f5be268e6e0e86bf3583da0c978",
+      "docsHash": "sha256:5a08e0b58b56feb11cac88dd1ee9f09665bd1319c720c3e8915794d701ad934b",
       "url": "tools/template.rectBuckle.json"
     },
     {
@@ -1032,7 +1032,7 @@
       "label": "椭圆截面方扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:3c657846004c6ad23dbb716dc6f731451ab71289ba46a9b98119a0ded852f329",
+      "docsHash": "sha256:5e4d85e5d8bf819fced1c0913a17ac234fca2ee97981685ffa37e5136e6369eb",
       "url": "tools/template.ellipseSectionRectFrame.json"
     },
     {
@@ -1041,7 +1041,7 @@
       "label": "方线D扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:986df6343d4e5d4f354b5dfe170418b3fdfb1e6ca34fc342d0a6bb7352fe5259",
+      "docsHash": "sha256:f835986d9c1cff8eee88a9d834b189d2b4ba05197186fa6b8ed7b57e8ce85e83",
       "url": "tools/template.dFlatFrame.json"
     },
     {
@@ -1050,7 +1050,7 @@
       "label": "圆线D扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:235fb71ab689be338de20c754d04b07dccd2acae331df947761116a4d665be3f",
+      "docsHash": "sha256:4e32179d5566b397293ed63d9d2c270d1e4702a34f337ddd9fa72b6f80777165",
       "url": "tools/template.dBuckle.json"
     },
     {
@@ -1059,7 +1059,7 @@
       "label": "方线D扣圆横杆",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:df8838100916058654cf598e7e0bdadf5e360361a4ebeb59f20727a062dbcc1d",
+      "docsHash": "sha256:c81d6c1fa5f3e06e88d9eff028971f6d21ebb629a3e76d3b002cbf849384e33d",
       "url": "tools/template.dBarBuckle.json"
     },
     {
@@ -1068,7 +1068,7 @@
       "label": "椭圆旦扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:460a25219a46e1da0cf09d7e1f5c3bd7dbec693fe4a9594e1ec623b1b31e37df",
+      "docsHash": "sha256:6f0205093af94ad05e38407a7b7166fc8c26fbecd26067cf084410675d044d00",
       "url": "tools/template.ovalBuckle.json"
     },
     {
@@ -1077,7 +1077,7 @@
       "label": "圆线直边旦扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:c58f3cc00f70e0a070584903f2f6a72226eed6f1e16d50fad073cb9d8e5bf5d7",
+      "docsHash": "sha256:02050bb92e25c24b22d95b1b1ee0f4387f47615e473f1a7d014a913d2b3e5c9c",
       "url": "tools/template.capsuleWire.json"
     },
     {
@@ -1086,7 +1086,7 @@
       "label": "方线直边旦扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:5c885565113d20e280277e9f2e90f89e390a196d21d29303d06d42904677f251",
+      "docsHash": "sha256:fe0dd58a9704d387d8473e825f682e2cb0a928bc1eca9496a7bee2b6dd771abd",
       "url": "tools/template.profileLoop.json"
     },
     {
@@ -1095,7 +1095,7 @@
       "label": "扁线日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:55f28ad24ae71d539b1be92ea68950faf8121686f16509f38428f9ef29e23c4b",
+      "docsHash": "sha256:1b9de5aa77a8f31e4e83e7cf41b3933324f8f0979adbabf39dd33a7e6d130c1d",
       "url": "tools/template.twinWindowPlate.json"
     },
     {
@@ -1104,7 +1104,7 @@
       "label": "圆线日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:74e94e0ee6fbbffe9f04e7c80fc60a6b8156f71e9429dd9b10f08f1912649da8",
+      "docsHash": "sha256:a6c08d069248ac9f713b4b5ed4fcc193178726b13f7a1328b64fa950bf8f326d",
       "url": "tools/template.sliderBuckle.json"
     },
     {
@@ -1113,7 +1113,7 @@
       "label": "圆圈日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:27bf30068a15b6e75c0c8050c6324a8595797cd4b80b35ea6963bea9565d71c0",
+      "docsHash": "sha256:d56676c92f9c9c5f20fba76aa2516bd112a24ac4f7de174dead967bccb52490c",
       "url": "tools/template.ringBar.json"
     },
     {
@@ -1122,7 +1122,7 @@
       "label": "椭圆日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:b89d052bcb184a6af0e9720961c99e25daa72968c14e876f4ea49e6a757b9f83",
+      "docsHash": "sha256:d14f127e4571a7a5c3ea6c26da32263d7610352b8e0fde3d89dfec500fa5f42a",
       "url": "tools/template.ellipseBar.json"
     },
     {
@@ -1131,7 +1131,7 @@
       "label": "弧面扁线日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:ddab3cc2537df15dd11a9a214a8982782d14af49bc875bf365193ad0e68a74b0",
+      "docsHash": "sha256:3fb7d6cb12c599f437fe5e017ea8890bb5af235a2e0f073c3770eaf4d2a32204",
       "url": "tools/template.archedTwinWindowPlate.json"
     },
     {
@@ -1140,7 +1140,7 @@
       "label": "椭圆孔扁线日字扣",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:6bba0b6339557c62b7535e43b2273d07a2b31e43b146483bfc531997feb94620",
+      "docsHash": "sha256:78da4a8f96178cc71fcff6259d9846eba43b737be33c607e89731244dd56723c",
       "url": "tools/template.bowedTwinWindowPlate.json"
     },
     {
@@ -1149,7 +1149,7 @@
       "label": "牌仔（牌子／方牌）",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:6aedc41df3957e918ff1e89520ede04b48fe2fc6fdb86a15fbced3bd1b013772",
+      "docsHash": "sha256:ef07cf8c8da396e3ba766127e793bc0ca3ea8df1758ac11ed32fe2babf17bbc3",
       "url": "tools/template.rectBadge.json"
     },
     {
@@ -1158,7 +1158,7 @@
       "label": "双孔底片",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:9e98aa41143793b1262d32c3c243fbc5f0fe8e6a58b11c6e7605b40332cb745b",
+      "docsHash": "sha256:a8125d1e5caa7a34490821a7d2f6317df03b38d164debacc8ef69f496b98a28c",
       "url": "tools/template.mountingPlate.json"
     },
     {
@@ -1167,7 +1167,7 @@
       "label": "四孔底片",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:2087605f8f9fa5aa4319d6075087349a5491eafe90407e7edce0c4cb947f39d8",
+      "docsHash": "sha256:b83fb7269c5a451876e7c5cba23afc92bb75bd05ecfb3e7e7d90b987dad030d2",
       "url": "tools/template.fourHolePlate.json"
     },
     {
@@ -1176,7 +1176,7 @@
       "label": "双圆柱底片",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:a3f208e3ed8f92048d6e84de5b0bdfda5d03c948cad55b05cc196886d6ab08fa",
+      "docsHash": "sha256:a8b34cc40deb1d38238a32945db70dd273ca01945acf700e988cf31a52d0927f",
       "url": "tools/template.bossPlate.json"
     },
     {
@@ -1185,7 +1185,7 @@
       "label": "铁脚仔",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:4ef7c27ff1e87a3c6340eb7277f1ee300facaada356d76b041d304af2fda072a",
+      "docsHash": "sha256:52fac406b115baaa4b2239a5c9dd525750db5677c0553d45ca8ee4b04c807203",
       "url": "tools/template.ironFoot.json"
     },
     {
@@ -1194,7 +1194,7 @@
       "label": "U型尾夹",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:778473d09fb70c3ac8f490d369a28717dd1806504d68f32a4af0e49ac6b794fb",
+      "docsHash": "sha256:6bcf364e29e0777ef258f3e1b15f8888b9e820d7958379f8ee0fd4613caf039e",
       "url": "tools/template.uStrapClip.json"
     },
     {
@@ -1203,7 +1203,7 @@
       "label": "合金螺丝鸡眼面",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:87c0482684ca67f61ce73ed61c205997ffbd562a6a46340a7080d6f52c34e2dd",
+      "docsHash": "sha256:cc2a3d0595f6cbc68725b3d5da9fdf60f1c659acb084cf9a92309972cb4d66fb",
       "url": "tools/template.frameEyelet.json"
     },
     {
@@ -1212,7 +1212,7 @@
       "label": "针扣的针",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:b8825323291123200e9d1af60e6271510260bd9a33e14d2a54b05767bd1b48b3",
+      "docsHash": "sha256:62f15a2bc732337460675b27d89bd1fe67088e28debbca6a369a0019cc14e556",
       "url": "tools/template.buckleTongue.json"
     },
     {
@@ -1221,7 +1221,7 @@
       "label": "拉芯扣的芯",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:23a394495d8c5424a3dcd69df4b7272544f1750100c9bdc3b08774b3b8e3f58a",
+      "docsHash": "sha256:c5f40f302b18e6db749d44ef4994fdfc45f084b4489cfb2469b352bbb79643c3",
       "url": "tools/template.pullCoreBar.json"
     },
     {
@@ -1230,7 +1230,7 @@
       "label": "吊杆",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:69f8e42724e7ab2b0239cceb13802005cab10cd1358555bc05b85d4aecba9437",
+      "docsHash": "sha256:dcbbabd06ba91ecfa03ba79bb51e2cad4932ff351b6be3c78dee5715d125041c",
       "url": "tools/template.hangingRod.json"
     },
     {
@@ -1239,7 +1239,7 @@
       "label": "圆线拱桥（可选双底孔）",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:1c3c6aba57be9dbefb0949d510c61abf743a3406e9b9b97c62c057c064d0238e",
+      "docsHash": "sha256:4f9e43fdd3453dd2b692379476379f475ac33684bf9f3a9b8b5c9f60abc211f7",
       "url": "tools/template.archedBridge.json"
     },
     {
@@ -1248,8 +1248,35 @@
       "label": "方线拱桥",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:daa97a78bd5a1ed02f7abbd1a6104b61d60ff072269ae79af83d5022981e07a4",
+      "docsHash": "sha256:a347a2e0060dd1525d17ca8f8d5b71d90937c8ea94fffd9eac411c02d7ea07a5",
       "url": "tools/template.squareArchedBridge.json"
+    },
+    {
+      "id": "template.snapButton",
+      "title": "急钮",
+      "label": "急钮",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:aba33547e56c3c6a3c6ef964dc1f0c6c8cbae37005869a12ffd831ef30c5457d",
+      "url": "tools/template.snapButton.json"
+    },
+    {
+      "id": "template.sewButton",
+      "title": "车缝钮",
+      "label": "车缝钮",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:ed6fe88921024eb4713262732bdb3d9902069f1d095a3380398566e69ff9bad1",
+      "url": "tools/template.sewButton.json"
+    },
+    {
+      "id": "template.magneticButton",
+      "title": "磁钮",
+      "label": "磁钮",
+      "category": "template",
+      "version": "legacy-1",
+      "docsHash": "sha256:2bde8f0b7e0c76e6e93963cb548ce8eeb0518fe38bee35437a90a7cd070e926d",
+      "url": "tools/template.magneticButton.json"
     },
     {
       "id": "template.screw",
@@ -1257,7 +1284,7 @@
       "label": "螺丝",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:87b3a377d3799b29bc78453b6c65e8aeecde7a2b4b532ac38afb15dfc5331053",
+      "docsHash": "sha256:8651898caee43fdd3745d8fd1453e651d674cf740fc2b93aff1b4e9e20f986d9",
       "url": "tools/template.screw.json"
     },
     {
@@ -1266,7 +1293,7 @@
       "label": "丝筒",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:cb3f3724b1219d51e182730741d919947b96cad40b7f77c755e1e04f562152c6",
+      "docsHash": "sha256:1e841b73288bebd7b38bb8dda209e6e76c6914c63e3dc57f38109b1c312adca6",
       "url": "tools/template.threadedSleeve.json"
     },
     {
@@ -1275,7 +1302,7 @@
       "label": "弹簧",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:f2c3ddf95cbdfc76781ce923cc47e387b80df71cb3aabb891f00d4e0148cf70e",
+      "docsHash": "sha256:a912d9c34c531038949c0187409d4c543833dde702c06cce750d52ab3f802d3f",
       "url": "tools/template.spring.json"
     },
     {
@@ -1284,7 +1311,7 @@
       "label": "铜皮鸡眼",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:794402e3fb8e5fad568993db5111cc04abb9e5d99a3ba0b6f5df14ec8642a8ed",
+      "docsHash": "sha256:efef52d06d27025a2550c58311ad8816364bb70dfd4f41b63d72678610d80b9a",
       "url": "tools/template.twoPieceEyelet.json"
     },
     {
@@ -1293,7 +1320,7 @@
       "label": "合金鸡眼",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:25f56dbb6373f9e3fd3b6f39e9f7421020764743b01679d1c5a9158c5e7da821",
+      "docsHash": "sha256:a4830e65c94db3d263f3b08311cabefff57f003023e5f0202c2b822a4c2d9b8b",
       "url": "tools/template.alloyEyelet.json"
     },
     {
@@ -1302,7 +1329,7 @@
       "label": "奶嘴钉",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:3cf3b68e16cf557d369057a49a95966f7aa2275dc8cc5d18c7478a8a9f8cd95b",
+      "docsHash": "sha256:cbfa9f165b249f14c0dedbd70f117977603bdaa4fe18eaa01d05299a82ca173b",
       "url": "tools/template.nippleStud.json"
     },
     {
@@ -1311,7 +1338,7 @@
       "label": "单面蘑菇撞钉",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:f7c8e9f3f5378a714060d16358df8df725284f35893b6a7e48c85c78442d82fd",
+      "docsHash": "sha256:d05ce3d540dad41cc52e29961a9686ace286f1a226657656d1c56497b692a42e",
       "url": "tools/template.mushroomRivet.json"
     },
     {
@@ -1320,7 +1347,7 @@
       "label": "O字链",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:7a6363814b9e518420b9efc7a26da2b03bc28381862c87f58bf4cdc1ea62f786",
+      "docsHash": "sha256:3fce295b89a937f53d275c13768d40a520fa67ddd744579bf1a50b4b54f7294f",
       "url": "tools/template.oChain.json"
     },
     {
@@ -1329,7 +1356,7 @@
       "label": "钮链",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:063660c88a3208722a59ef799f055572a95a227ea564e5afb0a148a7c44caa83",
+      "docsHash": "sha256:65d9004cd9979273bad54acb679391d5292e411f5f075d09f6621b9fa88808ae",
       "url": "tools/template.twistedChain.json"
     },
     {
@@ -1338,7 +1365,7 @@
       "label": "磨链",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:568ffb79aed8122ee5f2ef63de4a7f3426ad8ff094a36e67108049514bf4d560",
+      "docsHash": "sha256:01cb7727afa8aa0625d7e73d477417b61924c5bba891cac7c047857eb2b14655",
       "url": "tools/template.groundChain.json"
     },
     {
@@ -1347,7 +1374,7 @@
       "label": "沉孔／沉头孔刀具",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:10e2ee73627fb953a8a0a833746d390a9b64ac4824baac459a22ed0a4f651664",
+      "docsHash": "sha256:2ff36211450b635ba25c1c706e7a769af01788659b92787715396b64e8fb2ac1",
       "url": "tools/template.counterboreTool.json"
     },
     {
@@ -1356,7 +1383,7 @@
       "label": "双柱圆牌底座",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:a826e5278456d02f8200f69d5f50027512adf8dfa0c265373274f06fd1a91b64",
+      "docsHash": "sha256:6337677a0875ddbf6fe8398fef39d5f0bca5028cdef1f45f9750d1a3f721d8d5",
       "url": "tools/template.roundBadge.json"
     },
     {
@@ -1365,7 +1392,7 @@
       "label": "双空心柱薄壁壳",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:099cb576fa2bd86625e823a5773d0a1d11965b6739c71cb94974c20691528029",
+      "docsHash": "sha256:52fe75cbafed0721ea59aef7d84df86b279d7119a06a7e21ca9da850bc5f6903",
       "url": "tools/template.thinWallTray.json"
     },
     {
@@ -1374,7 +1401,7 @@
       "label": "圆角双柱薄壁壳",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:cd534ff758ef58a6d70b03a644fb62345854c5b49fd29147e73abb529d741a93",
+      "docsHash": "sha256:72c7ad27989c42daf846c83ce30db1cb74058888f80f10f7993260a0ea1df8a2",
       "url": "tools/template.roundedBossTray.json"
     },
     {
@@ -1383,7 +1410,7 @@
       "label": "半圆冠双端孔 U 板",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:c0aff764e483f51b7f13345849fef693c59f76874b2290b407a5883ef277d72e",
+      "docsHash": "sha256:6f2992ed241ce02cbe098471f383b0a72abe8ada8707b4a80b170c0bcbdeebca",
       "url": "tools/template.uEndHolePlate.json"
     },
     {
@@ -1392,7 +1419,7 @@
       "label": "双孔弧形带板",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:b4c6d9b73cc8570ddb50047590aac3e584f7ad4ab4b9e072450dd436c46728cd",
+      "docsHash": "sha256:c7a40eb88bea42ec6bc01667b8b7efc2074d8380a9081d1ba9f449ae7086089f",
       "url": "tools/template.arcBandPlate.json"
     },
     {
@@ -1401,7 +1428,7 @@
       "label": "斜肩开口框",
       "category": "template",
       "version": "legacy-1",
-      "docsHash": "sha256:5784555a935315b25b73fd8c2048446b90347483ac0f247e78481ddee691ac43",
+      "docsHash": "sha256:4c5108333c7e39e2c8ab5b19ff8e29ca8157b7493cb091bf06d56c4794b6d0fc",
       "url": "tools/template.gableOpenFrame.json"
     },
     {
@@ -3164,7 +3191,7 @@
     },
     {
       "id": "api.tool-selection",
-      "docsHash": "sha256:616c5931befd01a9a47f21b1dfc76f47dc2ec828e6bbf39e29b3c01a0f974ce6",
+      "docsHash": "sha256:8e6039bc82e5aa9affca95f4410a31a910e030ef8bafc2a3ad5205ae7ddeb1bd",
       "url": "docs/api.tool-selection.md"
     },
     {

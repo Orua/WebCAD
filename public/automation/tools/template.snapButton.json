@@ -1,0 +1,688 @@
+{
+  "id": "template.snapButton",
+  "version": "legacy-1",
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 0
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. Template-specific parameters and defaults come from getTool({id:\"quickModel\"}), not arbitrary geometry code.",
+  "title": "急钮",
+  "category": "template",
+  "synonyms": [
+    "snapButton",
+    "急钮",
+    "Snap button"
+  ],
+  "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+  "apiCompatibility": [
+    "page-advisory"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": false,
+  "v2Executable": true,
+  "contractStatus": "advisory",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "compound (operation-dependent)"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "Template-specific geometric relations are enforced by the existing kernel; the advisory schema is not a guarantee of a successful solid."
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from get_state_v2. Numeric topology examples are placeholders: query the actual current body; never assume faceId/edgeId 0 has a spatial meaning.",
+    "validation": "advisory-schema-only; kernel prerequisites are not certified by this example"
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "kind": "snapButton",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Unknown fields are rejected by the page adapter before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "quickModel",
+    "measure",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-contract.test.mjs"
+  ],
+  "verification": {
+    "contract": "not_migrated",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "validationMode": "schema-validation-with-kernel-prerequisites",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "operationId": "quickModel",
+  "label": "急钮",
+  "visibleInLibrary": true,
+  "libraryCategory": "fasteners",
+  "libraryCategoryLabel": "连接件",
+  "purpose": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+  "whenToUse": [
+    "This selected template matches the required structure; its complete parameters and placement contract are in this card."
+  ],
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "kind"
+    ],
+    "additionalProperties": false,
+    "description": "以 15 mm 为参考规格。弧面由相切曲线回转生成。整套分解排列，单件底面中心为插入点。切脚保留 Ø6 mm 铆装脚。",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "const": "snapButton"
+      },
+      "variant": {
+        "type": "string",
+        "default": "domed",
+        "description": "款式",
+        "enum": [
+          "domed",
+          "flat",
+          "cut"
+        ]
+      },
+      "part": {
+        "type": "string",
+        "default": "all",
+        "description": "生成配件",
+        "enum": [
+          "all",
+          "maleFoot",
+          "stud",
+          "socket",
+          "femaleFoot"
+        ]
+      },
+      "size": {
+        "type": "string",
+        "default": "15",
+        "description": "产品外径",
+        "enum": [
+          "8",
+          "10",
+          "12.5",
+          "15",
+          "custom"
+        ]
+      },
+      "diameter": {
+        "type": "number",
+        "default": 15,
+        "description": "自定义外径",
+        "minimum": 0.01,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    }
+  },
+  "schemaHash": "sha256:247f7f2b3fda3c1dc74c6c64192a8772696204696825ec5beded06fc53fb099c",
+  "defaults": {
+    "variant": "domed",
+    "part": "all",
+    "size": "15",
+    "diameter": 15
+  },
+  "fields": [
+    {
+      "key": "variant",
+      "label": "款式",
+      "type": "select",
+      "options": [
+        {
+          "value": "domed",
+          "label": "明面（弧形外包面）"
+        },
+        {
+          "value": "flat",
+          "label": "暗面（平脚）"
+        },
+        {
+          "value": "cut",
+          "label": "切脚（Ø6 铆装脚）"
+        }
+      ]
+    },
+    {
+      "key": "part",
+      "label": "生成配件",
+      "type": "select",
+      "options": [
+        {
+          "value": "all",
+          "label": "整套"
+        },
+        {
+          "value": "maleFoot",
+          "label": "公脚"
+        },
+        {
+          "value": "stud",
+          "label": "公件（钮珠）"
+        },
+        {
+          "value": "socket",
+          "label": "母件（弹弓件）"
+        },
+        {
+          "value": "femaleFoot",
+          "label": "母脚"
+        }
+      ]
+    },
+    {
+      "key": "size",
+      "label": "产品外径",
+      "type": "select",
+      "options": [
+        {
+          "value": "8",
+          "label": "8 mm"
+        },
+        {
+          "value": "10",
+          "label": "10 mm"
+        },
+        {
+          "value": "12.5",
+          "label": "12.5 mm"
+        },
+        {
+          "value": "15",
+          "label": "15 mm"
+        },
+        {
+          "value": "custom",
+          "label": "自定义"
+        }
+      ]
+    },
+    {
+      "key": "diameter",
+      "label": "自定义外径",
+      "type": "number",
+      "unit": "mm",
+      "min": 0.01,
+      "step": 0.1
+    }
+  ],
+  "placementPolicy": {
+    "mode": "creation-frame",
+    "placementSupported": true,
+    "originUsage": "new-object-insertion",
+    "orientationUsage": "new-object-orientation",
+    "omittedPlacement": "current-work-frame-snapshot",
+    "legacyCoordinates": "world",
+    "newCoordinates": "frame-local",
+    "sourceAnchorRequired": true,
+    "defaultInsertionAnchor": "bottom-center",
+    "automaticArrangement": false,
+    "historyBinding": "snapshot",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "additionalDocs": [
+    "api.placement"
+  ],
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "quickModel"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "parentContract": {
+    "opVersion": "legacy-1",
+    "schemaHash": "sha256:529f2799fbd04952fc1513dd644374a45cf888e8c73b9df877afeb156fabaf4b"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use this callSchema and current context; run supplies the parent version/hash"
+    }
+  },
+  "runtimeAvailability": "requires_ready_page",
+  "usage": "这是所选变体的完整执行卡，已含参数、定位 schema 和 MCP 调用形状；无需再读包含全部其他模板的 quickModel 卡。先按用途、结构和截面选择。Use run method:add, op:quickModel and this params.kind. run supplies the parent operation version/hash; this subset schemaHash is not the parent hash. 显式位置用 placement.frame kind:snapshot，并按 placementPolicy 指定 sourceAnchor；完整形状见 placementSchema / api.placement。",
+  "minimalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "snapButton"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "quickModel",
+    "params": {
+      "kind": "snapButton",
+      "variant": "domed",
+      "part": "all",
+      "size": "15",
+      "diameter": 15
+    },
+    "refs": []
+  },
+  "docs": "api.workflow",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "template.snapButton",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "plates-shells",
+    "groupTitle": "孔板、凸柱板与薄壁壳",
+    "chooseWhen": "急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。",
+    "alternatives": [
+      {
+        "id": "template.magneticButton",
+        "chooseWhen": "磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。"
+      },
+      {
+        "id": "template.sewButton",
+        "chooseWhen": "车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。"
+      },
+      {
+        "id": "template.rectBadge",
+        "chooseWhen": "牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。"
+      },
+      {
+        "id": "template.mountingPlate",
+        "chooseWhen": "平板上两个对称贯穿光孔；孔中心距独立。"
+      },
+      {
+        "id": "template.fourHolePlate",
+        "chooseWhen": "平板四角贯穿光孔；边距与外角 R 独立。"
+      },
+      {
+        "id": "template.bossPlate",
+        "chooseWhen": "平板上两根空心柱；孔贯穿柱和底板，不是普通孔板。"
+      },
+      {
+        "id": "template.thinWallTray",
+        "chooseWhen": "顶部敞口的直角薄壁托壳及双空心柱；内高、壁厚、底厚不同。"
+      },
+      {
+        "id": "template.roundedBossTray",
+        "chooseWhen": "圆角矩形敞口薄壁壳及双空心柱；外角 R、壁厚、底厚独立。"
+      },
+      {
+        "id": "template.roundBadge",
+        "chooseWhen": "圆形牌体、边框与背柱组合；不是只有两个通孔的底片。"
+      },
+      {
+        "id": "template.ironFoot",
+        "chooseWhen": "顶片、安装孔与下折脚的一体支架；总高含顶片，不是平板或 U 形尾夹。"
+      },
+      {
+        "id": "template.uStrapClip",
+        "chooseWhen": "恒壁厚开口 U 夹，前后片可不同高；内净距及内外弯角定义，不是封闭帽套。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:aba33547e56c3c6a3c6ef964dc1f0c6c8cbae37005869a12ffd831ef30c5457d"
+}

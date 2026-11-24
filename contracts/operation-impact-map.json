@@ -1,4 +1,16 @@
 {
+  "buttonQuickModels": {
+    "localImpact": "Local WASM builds snap and sew-on button sets or individual parts using tangent-continuous revolved profiles, and builds magnetic snaps with dimensioned discs, folded legs and backing plates.",
+    "servicesImpact": "None, quick models execute locally.",
+    "logoImpact": "None.",
+    "nativeImpact": "None.",
+    "contractImpact": "Existing quickModel entry with snap/sew variant, part and nominal diameter, and magnetic button part flags and dimensions.",
+    "documentImpact": "New recipes create exact curved BReps; existing saved exact bodies retain their geometry.",
+    "cacheImpact": "Regenerate button guides, the tool catalog and the downloadable knowledge package.",
+    "requiredTests": [
+      "All snap and sew-on variants, G1 rotary joins, nominal and custom scaling, fixed cut feet, magnetic default and picker discovery."
+    ]
+  },
   "modelInsertion": {
     "localImpact": "Insert STL or a native model into the current document with explicit placement and units. Native projects support an ordered logical assembly or independently selectable parts. Copies share exact BRep sources.",
     "servicesImpact": "None. Source decoding and placement run in the browser Worker.",

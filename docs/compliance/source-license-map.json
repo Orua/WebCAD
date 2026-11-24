@@ -820,7 +820,7 @@
     {
       "id": "quick-model-previews",
       "path": "public/quick-model-previews/**",
-      "component": "Referenced generated quick-model previews",
+      "component": "Quick-model previews and dimensional guides",
       "originType": "generated",
       "aiAssisted": null,
       "sourceUrl": null,
@@ -837,7 +837,7 @@
       ],
       "evidenceStatus": "verified",
       "provenanceStatus": "verified-generated-source-and-bytes",
-      "evidence": "All 108 currently referenced images and four registered generation sources match retained hashes. Provenance is verified; redistribution rights inherit only an approved application-rights parent. Unreferenced legacy images are not implicitly approved.",
+      "evidence": "Original author-generated renders and vector diagrams for built-in quick models.",
       "files": [
         {
           "path": "public/quick-model-previews/alloyEyelet-c0e2f4912057.png",
@@ -2134,16 +2134,40 @@
             "scripts/generate-quick-model-previews.mjs",
             "scripts/render-quick-model-previews.py"
           ]
+        },
+        {
+          "path": "public/quick-model-previews/magneticButton-curve-guide.svg",
+          "sha256": "6306b6d990baa753a106a95ef215a22bfdc170b41ef8288bbc9b0c1fa64657cb"
+        },
+        {
+          "path": "public/quick-model-previews/magneticButton-curve.svg",
+          "sha256": "5c6ea8ac804a1f4c5225473d80eb84ec4891960da2d4fd62e49067a1f295684f"
+        },
+        {
+          "path": "public/quick-model-previews/sewButton-curve-guide.svg",
+          "sha256": "43b26e4617a06ee67140a02800d05e17c5641509b61527388887721bf198f1fa"
+        },
+        {
+          "path": "public/quick-model-previews/sewButton-curve.svg",
+          "sha256": "a9169cf24e5542e651c08405d832b733af74b2a4200beef9bfa07f61ce571c39"
+        },
+        {
+          "path": "public/quick-model-previews/snapButton-curve-guide.svg",
+          "sha256": "22ee4c31b52afd2bff275b784493a9979a272ead54762e1276d88ff5c5fcba0a"
+        },
+        {
+          "path": "public/quick-model-previews/snapButton-curve.svg",
+          "sha256": "7208d101061a91f896d2cf8b632ab9df46f5864e28f667e09733a5225e46bf3f"
         }
       ],
       "sourceFiles": [
         {
           "path": "src/quick-models/catalog.js",
-          "normalizedSha256": "d3c325df510742dda2bf6727533630fbf8a0bda15454eed652b81507d1a544d1"
+          "normalizedSha256": "6c1178934d5f990ad6b10fa143426c67894227072057f9fcdc8533fdbf31a8bc"
         },
         {
           "path": "src/quick-models/preview-assets.js",
-          "normalizedSha256": "1c3c2b5c8d5db89c97a9f695b0afb79a581fb182932378b6cabe172d03d323a3"
+          "normalizedSha256": "63e3a597b2b18592ed68fdfe3c7cfdb346fdb0bf918b1351fcb642fa48cbf747"
         },
         {
           "path": "scripts/generate-quick-model-previews.mjs",

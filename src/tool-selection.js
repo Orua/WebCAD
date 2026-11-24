@@ -55,6 +55,9 @@ const groups = [
     'template.bowedTwinWindowPlate':'正视鼓弧侧边与跑道形孔的平板双窗；不是侧视圆筒拱弯。',
   }],
   ['plates-shells','孔板、凸柱板与薄壁壳',{
+    'template.magneticButton':'磁钮公件凸头和母件凹窝定位，背面双折脚配双槽底片。按外径建模，可任意勾选公母件及底片。',
+    'template.snapButton':'急钮整套或独立公脚、钮珠、弹弓件、母脚，可选明面、暗面、切脚。',
+    'template.sewButton':'车缝钮整套或独立公脚、公件、母件、母脚，可选明面、暗面、切脚。',
     'template.rectBadge':'牌仔／牌子／方牌：无孔矩形或圆角矩形平牌，长宽厚与轮廓 R 独立，正反面可分别设 45° 倒角；0 为不倒角。不是从已有面增厚的 badge 加工。',
     'template.mountingPlate':'平板上两个对称贯穿光孔；孔中心距独立。',
     'template.fourHolePlate':'平板四角贯穿光孔；边距与外角 R 独立。',

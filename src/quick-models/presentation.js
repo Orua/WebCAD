@@ -10,7 +10,7 @@ export const QUICK_GROUPS=Object.freeze([
  {id:'sliders',label:'日字扣',kinds:['twinWindowPlate','sliderBuckle','ringBar','ellipseBar','archedTwinWindowPlate','bowedTwinWindowPlate']},
  {id:'plates',label:'底片',kinds:['rectBadge','mountingPlate','fourHolePlate','bossPlate']},
  {id:'installation',label:'安装及配件',kinds:['ironFoot','uStrapClip','frameEyelet','buckleTongue','pullCoreBar','hangingRod','archedBridge','squareArchedBridge']},
- {id:'fasteners',label:'连接件',kinds:['screw','threadedSleeve','spring','twoPieceEyelet','alloyEyelet','nippleStud','mushroomRivet']},
+ {id:'fasteners',label:'连接件',kinds:['snapButton','sewButton','magneticButton','screw','threadedSleeve','spring','twoPieceEyelet','alloyEyelet','nippleStud','mushroomRivet']},
  {id:'chains',label:'链条',kinds:['oChain','twistedChain','groundChain']},
  {id:'cutters',label:'辅助刀具',kinds:['counterboreTool']},
 ]);
