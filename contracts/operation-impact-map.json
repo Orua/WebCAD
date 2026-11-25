@@ -3665,6 +3665,34 @@
       ]
     },
     {
+      "operation": "geometry-file-export",
+      "semanticVersion": "geometry-file-export-1.1",
+      "sourcePaths": [
+        "src/cad-kernel.js",
+        "src/cad-worker.js",
+        "src/modeling/io/combined-stl-export.js",
+        "src/modeling/io/faceted-step-export.js",
+        "src/mesh/stl-source.js",
+        "src/browser-files.js",
+        "src/ui.js"
+      ],
+      "localImpact": "Worker exports world-positioned independent STL shells and per-shell faceted STEP. Exact STEP surfaces retain their OCCT representation, including in mixed files.",
+      "servicesImpact": "none: browser Worker handles generation and no Services protocol changes",
+      "logoImpact": "none: source geometry and Logo conversion unchanged",
+      "nativeImpact": "none: no server-native implementation or protocol changes",
+      "contractImpact": "files.export scope, format aliases, mesh semantics, per-body reports and errors; matching UI and Agent knowledge",
+      "documentImpact": "Read-only export from the current revision; undo, stored sources and application document formats are unchanged.",
+      "cacheImpact": "Page API 1.75.21; regenerate catalog, docs and knowledge bundle.",
+      "requiredTests": [
+        "tests/mesh-kernel.test.mjs",
+        "tests/browser-files.test.mjs",
+        "tests/page-api.test.mjs"
+      ],
+      "publicToolIds": ["files.capabilities","files.export","files.read","files.download"],
+      "targetedTests": ["tests/mesh-kernel.test.mjs","tests/browser-files.test.mjs"],
+      "manualChecks": ["Download all and selected bodies from the local export menu, then independently reopen and verify each shell."]
+    },
+    {
       "operation": "workspace-model-library",
       "semanticVersion": "workspace-library-1.0",
       "sourcePaths": [

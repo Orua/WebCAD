@@ -304,7 +304,8 @@
     "outputs": {
       "geometryType": "rawMesh",
       "exportFormats": [
-        "stl"
+        "stl",
+        "step (faceted)"
       ],
       "consumesRefs": true,
       "metrics": [
@@ -447,7 +448,8 @@
   "outputs": {
     "geometryType": "rawMesh",
     "exportFormats": [
-      "stl"
+      "stl",
+      "step (faceted)"
     ],
     "consumesRefs": true,
     "metrics": [
@@ -826,5 +828,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:fad16bf1589d3af30f365aeed555bb0c1b5ad975a407727a5bf3475f33798bfd"
+  "docsHash": "sha256:eaeea6e949948138be4bcfd4b0ad431c26eca0fa1cbe3076d97e0a668f38e221"
 }

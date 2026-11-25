@@ -361,7 +361,7 @@
       "files.export"
     ],
     "method": "execute",
-    "usage": "选择2–16个实体按顺序做网格并集/差集/交集（manifold-3d）；精确实体先按 toleranceMm 细分，结果为封闭网格，可导出STL，不是BRep/STEP。"
+    "usage": "选择2–16个实体按顺序做网格并集/差集/交集（manifold-3d）；精确实体先按 toleranceMm 细分，结果为封闭网格，可导出 STL 或分面 STEP。"
   },
   "meshHeightfieldRelief": {
     "tools": [
@@ -1257,7 +1257,8 @@
     "tools": [
       "files.export"
     ],
-    "method": "files.export"
+    "method": "files.export",
+    "usage": "按全部对象或选中实体 ID 导出。STEP 保留精确曲面及合格网格原三角分面；STL 保持各件世界坐标；BREP 仅支持精确实体。"
   },
   "rename": {
     "tools": [

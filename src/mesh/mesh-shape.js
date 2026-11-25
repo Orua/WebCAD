@@ -40,5 +40,14 @@ export class MeshShape{
   if(!Number.isFinite(maxPreviewErrorMm)||maxPreviewErrorMm>.005)throw meshError('MESH_DISPLAY_CAPACITY','Source range exceeds the tested Float32 preview precision; original document retained.');
   return {id:feature.id,name:feature.name||feature.id,...metrics,...(this.resizeReport?{resizeReport:this.resizeReport}:{}),positions,previewOrigin,indices:mesh.indices,displayPatches:createDisplayPatches(positions,mesh.indices),faceGroups:[],edges:[],meshReport:{...metrics.meshReport,previewOrigin,maxPreviewErrorMm,displayLOD:'full; exact-coordinate index reuse; no face reduction',displayVertexCount:mesh.positions.length/3,formalTriangleCount:formal.indices.length/3}};
  }
- exportSTL(){const unchanged=this.matrix.every((x,i)=>x===identity()[i]);if(unchanged&&this.sourceFormat==='stl'&&this.units==='mm'&&this.sourceBytes instanceof Uint8Array)return {data:this.sourceBytes,mime:'model/stl',extension:'stl',meshReport:{sourceBytesUnchanged:true,sourceHash:this.sourceHash,sourceFormat:this.report.sourceFormat,units:'mm'}};const result=exportBinarySTL(this.transformed());return {data:result.bytes,mime:'model/stl',extension:'stl',meshReport:result.report};}
+ originalSTL(){
+  return this.sourceFormat==='stl'&&this.units==='mm'&&this.sourceBytes instanceof Uint8Array
+    &&this.matrix.every((x,i)=>x===identity()[i])?this.sourceBytes:null;
+ }
+ exportSTL(){
+  const original=this.originalSTL();
+  if(original)return {data:original,mime:'model/stl',extension:'stl',meshReport:{sourceBytesUnchanged:true,sourceHash:this.sourceHash,sourceFormat:this.report.sourceFormat,units:'mm'}};
+  const result=exportBinarySTL(this.transformed());
+  return {data:result.bytes,mime:'model/stl',extension:'stl',meshReport:result.report};
+ }
 }

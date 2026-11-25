@@ -790,7 +790,6 @@ function download(data,name,mime='application/octet-stream'){
 async function exportData(format='step',ids){
   if(previewNext)throw new Error('请先应用或取消预览。 / Apply or cancel preview first.');
   if(!kernelReady)throw new Error('内核尚未就绪，请保存工程后刷新页面。');
-  if(!bodies.length)throw new Error('当前工程没有可导出的实体。');
   if(busy)throw new Error('请等待当前计算完成。');setBusy(true,'正在生成导出文件…');
   try{const result=await request('export',{format,ids,appearance:{colors:clone(documentModel.colors||{}),defaultColor:viewport.displayPreferences.defaultColor}});setStatus('导出内容已生成。');return result;}
   catch(error){setStatus(errorRecovery(error).userMessage,'error');throw error;}
@@ -1154,9 +1153,8 @@ async function performAction(action,params={}){
     if(file)return insertLocalFile(file);
   }
   if(action==='export'){
-    if(params.selected&&!selectedIds.length)throw new Error('请先选择要导出的实体。');
     const format=params.format||'step';
-    const artifact=await pageAPI.files.export({context:pageAPI.getState().context,format,name:safeName(documentModel.name)+'.'+(format==='step'?'stp':format),...(params.selected?{ids:selectedIds}:{})});
+    const artifact=await pageAPI.files.export({context:pageAPI.getState().context,format,name:safeName(documentModel.name)+'.'+(format==='step'?'stp':format),...(params.ids===undefined?{}:{ids:params.ids})});
     retainOutput(artifact);const result=await pageAPI.files.download({resourceId:artifact.resourceId});
     ui.showFileReceipt(artifact,result);setStatus('导出内容已生成并发起下载；请在浏览器下载记录中确认。');return;
   }
@@ -1464,7 +1462,7 @@ async function executeAI(command,args={},options={}){
       result={extension:'png',mime:'image/png',data:Uint8Array.from(atob(cap.dataUrl.split(',')[1]),c=>c.charCodeAt(0))};
     }else result=await exportData(args.format,args.ids);
     checkTransaction(options.signal,options.expectedRevision);
-    return {revision,extension:result.extension,mime:result.mime,encoding:'bytes',data:typeof result.data==='string'?new TextEncoder().encode(result.data):new Uint8Array(result.data),...(result.meshReport?{meshReport:result.meshReport}:{}),...(result.report?{report:result.report}:{})};
+    return {revision,extension:result.extension,mime:result.mime,encoding:'bytes',data:typeof result.data==='string'?new TextEncoder().encode(result.data):result.data,...(result.meshReport?{meshReport:result.meshReport}:{}),...(result.report?{report:result.report}:{})};
   }
   if(command==='inspect_geometry'){
     const startRevision=revision;const result=await measureCurrentGeometry(args);

@@ -8,7 +8,7 @@
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.75.20",
+  "version": "1.75.21",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -294,5 +294,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2ee064451f3bed614823f4d22edb8a29daf2b2467cc1cb1bab28c4a5a4a27d62"
+  "docsHash": "sha256:993e76fdd81c63ac07e19679c8e2801f6ad638a389975758481cf8fcd6d77a88"
 }

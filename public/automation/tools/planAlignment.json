@@ -2,7 +2,7 @@
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.75.20",
+  "version": "1.75.21",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -277,5 +277,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:945a19bb10d224689f7592df947ca4f3fccae2b902767318004c536f269f4163"
+  "docsHash": "sha256:e65e06477b8dd19013ca3848fd4c8ee80217818d939e11285dd43762cdc6b4ce"
 }

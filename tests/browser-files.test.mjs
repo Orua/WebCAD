@@ -194,6 +194,20 @@ test('export transfers large binary exactly and releases bounded resources', asy
   await assert.rejects(h.files.export({ context: { ...context(), expectedRevision: 3 }, format: 'step' }), { code: 'REVISION_CONFLICT' });
 });
 
+test('export preserves STEP suffix aliases and the previous output after an invalid scope',async()=>{
+  const data=new Uint8Array([1,2,3]);
+  const files=createBrowserFiles({confirmSaved:async()=>({}),command:async({args})=>{
+    assert.equal(args.format,'step');
+    if(args.ids?.[0]==='missing')
+      return {status:'failed',error:{code:'STALE_REFERENCE',featureId:'missing',path:'args.ids',message:'Unknown body'}};
+    return {status:'read',revision:4,extension:'step',encoding:'bytes',data};
+  }});
+  const output=await files.export({context:context(),format:'stp',name:'part.stp'});
+  assert.equal(output.name,'part.stp');
+  await assert.rejects(files.export({context:context(),format:'step',ids:['missing']}),{code:'STALE_REFERENCE',featureId:'missing',path:'args.ids'});
+  assert.deepEqual(await files.read({resourceId:output.resourceId,as:'bytes'}),data);
+});
+
 test('a pending authorized write blocks competing write/release and confirmation failure does not hide disk success', async () => {
   const command = async () => ({ status: 'read', revision: 4, documentId: 'doc', documentInstanceId: 'instance',
     extension: 'webcad', mime: 'application/json', encoding: 'base64', data: payload('saved bytes') });

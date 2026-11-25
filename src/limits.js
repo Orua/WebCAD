@@ -7,6 +7,7 @@ export const LIMITS=freeze({
  heightfield:{minSide:2,maxSide:2049,maxSamples:1900000,maxSmoothing:8,maxHeightMm:100,maxStrokes:512,maxStrokePoints:20000},
  meshReliefPlate:{maxTriangles:200000},meshReliefEdit:{maxTriangles:200000,maxAffectedVertices:20000,maxRayTests:12000000,maxSpatialEntries:2000000},
  mesh:{maxSourceBytes:256*1024*1024,maxAssetBytes:768*1024*1024,maxProjectBytes:1024*1024*1024,maxInputTriangles:2000000,maxResultTriangles:4000000,maxVertices:12000000},
+  meshExport:{maxFacetedStepTriangles:300_000,maxFacetedStepBytes:128*1024*1024,maxCombinedStlTriangles:4_000_000,maxStlQuantizationErrorMm:.005},
  meshBoolean:{minRefs:2,maxRefs:16,minToleranceMm:.005,maxToleranceMm:1,defaultToleranceMm:.05},
  document:{maxFeatures:2000,maxBytes:20*1024*1024},
  // Agent transport: single source of truth for every host (page, broker, MCP, bridge).

@@ -54,6 +54,8 @@ function commandResult(result) {
   if (!result || typeof result !== 'object') throw failure('FILE_COMMAND_FAILED', 'File command returned no result');
   if (result.status === 'failed' || result.status === 'unknown') {
     const error = failure(result.error?.code || 'FILE_COMMAND_FAILED', result.error?.message || 'File command failed');
+    if(result.error?.featureId)error.featureId=result.error.featureId;
+    if(result.error?.path)error.path=result.error.path;
     error.result = result;
     throw error;
   }
@@ -214,7 +216,11 @@ export function createBrowserFiles({ command, confirmSaved, capture } = {}) {
     },
     save({ context, name } = {}) { return generated({ context, action: 'save', name }); },
     export({ context, format, ids, name } = {}) {
+      if(format==='stp')format='step';
+      if(format==='brp')format='brep';
       if (!['step', 'stl', 'brep', 'png'].includes(format)) throw failure('FORMAT_UNSUPPORTED', 'Unsupported export format');
+      if(ids!==undefined&&(!Array.isArray(ids)||ids.some(id=>typeof id!=='string'||!id)))
+        throw failure('PARAM_SCHEMA_INVALID','ids 须为当前实体 ID 数组。');
       return generated({ context, action: 'export', args: { format, ...(ids === undefined ? {} : { ids }) }, name });
     },
     reattach({resourceId}={}){

@@ -7,16 +7,16 @@
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.75.20",
+  "version": "1.75.21",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
     "导出文件",
     "export"
   ],
-  "description": "export({context,format,ids?,name?}); format step/stl/brep/png. ids must be current body ids (unknown ids fail); do not drop bodies whose volume is null because metricsDeferred:true only means the exact volume was not computed yet. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).",
-  "inputContract": "export({context,format,ids?,name?}); format step/stl/brep/png. ids must be current body ids (unknown ids fail); do not drop bodies whose volume is null because metricsDeferred:true only means the exact volume was not computed yet. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).",
-  "outputContract": "status=generated output resource with exact source snapshot.",
+  "description": "export({context,format,ids?,name?}); format step/stp/stl/brep/brp/png. Omitted ids export all current bodies, including hidden bodies; an explicit list exports only those current IDs. Empty or stale IDs fail. STEP preserves exact surfaces and writes eligible closed meshes as faceted solids in the same file. STL writes independent shells without fusing them. BREP requires exact geometry. name may omit its extension; matching .stp/.brp suffixes are retained.",
+  "inputContract": "export({context,format,ids?,name?}); format step/stp/stl/brep/brp/png. Omitted ids export all current bodies, including hidden bodies; an explicit list exports only those current IDs. Empty or stale IDs fail. STEP preserves exact surfaces and writes eligible closed meshes as faceted solids in the same file. STL writes independent shells without fusing them. BREP requires exact geometry. name may omit its extension; matching .stp/.brp suffixes are retained.",
+  "outputContract": "status=generated with an output resource bound to the requested snapshot. Mixed/faceted STEP and multi-body STL containing meshes report per-body geometry types and mesh facet counts.",
   "units": {
     "length": "mm",
     "angle": "degrees"
@@ -63,7 +63,9 @@
     "maxBytes": 209715200,
     "preflightReserveBytes": 4096
   },
-  "caveats": [],
+  "caveats": [
+    "Faceted STEP uses original world-space triangles and checks closed, consistently outward manifold shells and facet precision. It does not perform full self-intersection analysis or reconstruct smooth surfaces. Export capacity is available in files.capabilities().limits.meshExport."
+  ],
   "errorCodes": [
     "PARAM_SCHEMA_INVALID",
     "CAPABILITY_UNAVAILABLE",
@@ -76,9 +78,18 @@
     "ASSET_INVALID",
     "NAME_INVALID",
     "RESOURCE_LIMIT",
-    "FORMAT_UNSUPPORTED"
+    "FORMAT_UNSUPPORTED",
+    "EXPORT_EMPTY_SELECTION",
+    "STALE_REFERENCE",
+    "GEOMETRY_INVALID",
+    "MESH_BREP_UNAVAILABLE",
+    "MESH_FACETED_STEP_INVALID",
+    "MESH_STEP_SCHEMA_UNSUPPORTED",
+    "MESH_EXPORT_PRECISION",
+    "MESH_NONFINITE",
+    "MESH_CODEC_INVALID",
+    "MESH_INDEX_INVALID"
   ],
-  "batchCapable": true,
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -117,12 +128,20 @@
       "format": {
         "enum": [
           "step",
+          "stp",
           "stl",
           "brep",
+          "brp",
           "png"
         ]
       },
-      "ids": {},
+      "ids": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
       "name": {}
     },
     "required": [
@@ -130,57 +149,7 @@
       "format"
     ]
   },
-  "preparationSchema": {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {
-      "context": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "sessionId": {
-            "type": "string",
-            "minLength": 1
-          },
-          "documentId": {
-            "type": "string",
-            "minLength": 1
-          },
-          "documentInstanceId": {
-            "type": "string",
-            "minLength": 1
-          },
-          "revision": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "expectedRevision": {
-            "type": "integer",
-            "minimum": 0
-          }
-        },
-        "required": [
-          "sessionId",
-          "documentId",
-          "documentInstanceId"
-        ]
-      },
-      "format": {
-        "enum": [
-          "step",
-          "stl",
-          "brep",
-          "png"
-        ]
-      },
-      "ids": {},
-      "name": {}
-    },
-    "required": [
-      "context",
-      "format"
-    ]
-  },
+  "batchCapable": true,
   "preparation": {
     "method": "prepareToolCall",
     "readOnly": true,
@@ -248,5 +217,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:e4d56da2ead909050fe9a737e8176e29f9c8728db924a2a128849bcca16f8960"
+  "docsHash": "sha256:371dc932e3524cd2b6e1d4ca45e31f9d34ea667c1784a3b1dec9516662f94bb2"
 }

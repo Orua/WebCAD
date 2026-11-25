@@ -1,6 +1,6 @@
 # WebCAD 页面 API 索引
 
-API 1.75.20 · 操作目录 sha256:412f62293143396bbe6df7c6ee1fa40f75d54e3a3340409cc7f20f9a4147c0f1
+API 1.75.21 · 操作目录 sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fefb67f50cf109890ac243
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
@@ -416,7 +416,7 @@ API 1.75.20 · 操作目录 sha256:412f62293143396bbe6df7c6ee1fa40f75d54e3a33404
 - `files.import` · browser-file-adapter · import({context,resourceId,units?,placement?,idempotencyKey?,projectMode?,scale?})。STEP、BRep、STL、typed mesh 和 .webcad 先登记原件。STL 支持完整二进制与 ASCII，显式传单位。网格、原生工程和显式定位需要幂等键。原生工程接受 assembly（默认）或 parts，以及有限正数的统一比例，默认 1。放置坐标架支持姿态。原生工程默认保留源坐标，旧 STEP/BRep 和网格调用省略 placement 时仍使用当前工作基准。
 - `files.inspectInsert` · browser-file-adapter · inspectInsert({context,resourceId})。读取已登记 .webcad 来源最终对象的世界包围范围、对象数和 SHA-256。兼容来源已有建模历史时在隔离内核中求最终形态。
 - `files.save` · browser-file-adapter · save({context,name?}); complete current context. Save committed data even while busy, previewing or the kernel is unavailable. Normally final BRep/typed mesh with ids/appearance/visibility/material/anchors; if final checkpoints are unavailable, retain the original committed recipe and embedded assets in a recovery project. Codec failure uses direct encoding; no geometry recomputation. name may omit .webcad.
-- `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stl/brep/png. ids must be current body ids (unknown ids fail); do not drop bodies whose volume is null because metricsDeferred:true only means the exact volume was not computed yet. name may omit its extension; output suffix follows the generated format (matching .stp/.brp aliases retained).
+- `files.export` · browser-file-adapter · export({context,format,ids?,name?}); format step/stp/stl/brep/brp/png. Omitted ids export all current bodies, including hidden bodies; an explicit list exports only those current IDs. Empty or stale IDs fail. STEP preserves exact surfaces and writes eligible closed meshes as faceted solids in the same file. STL writes independent shells without fusing them. BREP requires exact geometry. name may omit its extension; matching .stp/.brp suffixes are retained.
 - `files.reattach` · browser-file-adapter · reattach({context,resourceId}); 使用尚未过期的已生成资源，重新附加到当前任务。
 - `files.read` · browser-file-adapter · read({resourceId,as}); as is required: "bytes", "text", or "blob". Omitting as is PARAM_SCHEMA_INVALID and does not return an empty object. text is UTF-8; bytes is a Uint8Array; blob is an in-page Blob that a JSON host would otherwise stringify as {}.
 - `files.download` · browser-file-adapter · download({resourceId}); generated output only.

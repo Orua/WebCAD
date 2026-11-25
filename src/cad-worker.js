@@ -90,7 +90,10 @@ self.onmessage = ({ data }) => {
         }
       } else throw new Error(`未知请求 ${type}`);
       if(data.assetRefs){const retained=new Set(Object.entries(data.assetRefs).flatMap(([table,hashes])=>hashes.map(hash=>`${table}:${hash}`)));for(const key of assetCache.keys())if(!retained.has(key))assetCache.delete(key);}
-      self.postMessage({ requestId, ok: true, ...result,registeredAssets:[...assetCache.keys()] },type==='refineDisplay'?result.patches.flatMap(p=>p.limited?[]:[p.positions.buffer,p.normals.buffer,p.indices.buffer]):type==='encodeProject'?[result.bytes.buffer]:['decodeProject','freezeProjectSource'].includes(type)?decodedProjectTransfers(result.document):[]);
+      const transfers=type==='export'&&result.data instanceof Uint8Array&&!result.meshReport?.sourceBytesUnchanged?[result.data.buffer]
+        :type==='refineDisplay'?result.patches.flatMap(p=>p.limited?[]:[p.positions.buffer,p.normals.buffer,p.indices.buffer])
+        :type==='encodeProject'?[result.bytes.buffer]:['decodeProject','freezeProjectSource'].includes(type)?decodedProjectTransfers(result.document):[];
+      self.postMessage({ requestId, ok: true, ...result,registeredAssets:[...assetCache.keys()] },transfers);
     } catch (error) { const report=boundedDiagnosticReport(error?.report),details=boundedDiagnosticReport(error?.details);self.postMessage({ requestId, ok: false, error: error?.message || String(error), featureId: error?.featureId, code: error?.code, path: error?.path, recoveryAction: error?.recoveryAction,report,details }); }
   }).catch(()=>{});
 };

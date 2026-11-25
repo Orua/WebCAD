@@ -1,30 +1,30 @@
 {
   "schemaVersion": 1,
-  "buildId": "320c5e6693a1e688dc99eb359816a7bfa880af0b-src-5b2e07775aa319f5-working",
-  "knowledgeVersion": "sha256:806b71a10da58faf3cfb87dffe1710be94e5091529ac795f611227d5b51881ec",
-  "pageApiVersion": "1.75.20",
-  "catalogHash": "sha256:412f62293143396bbe6df7c6ee1fa40f75d54e3a3340409cc7f20f9a4147c0f1",
-  "docsHash": "sha256:0e5e602612d58e7f4009a9dc3c924e80f6cd80422981fdb77323df87d27c8c6b",
+  "buildId": "532558d031cf9817069759f95cbac67a5ab5fe18-src-7bc164b2a0f4f60a-working",
+  "knowledgeVersion": "sha256:33b1e8519043ea2cf269aaaf4f9932a49628968abf741a1571650d2afb8acaa5",
+  "pageApiVersion": "1.75.21",
+  "catalogHash": "sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fefb67f50cf109890ac243",
+  "docsHash": "sha256:6f7c6be5c7fd3d7f4e72b23861c7e1bc624162b5f1aa29901ab2f2b17bfbcb83",
   "archive": {
     "url": "agent-bundle.zip",
     "format": "zip",
-    "sizeBytes": 758803,
-    "sha256": "sha256:ab627aad052d5a1e2b0ead29e8945c35575f97c6c6e358c726345f61d517dcef",
+    "sizeBytes": 759950,
+    "sha256": "sha256:f806b320d80ca5d8ca9618c1ae35813823e80168678bcd0a0c1fc5ac6d66498d",
     "files": [
       {
         "name": "index.json",
-        "sizeBytes": 5068834,
-        "sha256": "sha256:17e6efe19974104b4dc0ea3e77f4d3a22135dd9554c82867332776abf1f4a5d1"
+        "sizeBytes": 5070098,
+        "sha256": "sha256:74a222cab98103510220be3802e418d61f88738d58e36c962b4d7af12c084de2"
       },
       {
         "name": "agent-routing.json",
         "sizeBytes": 65566,
-        "sha256": "sha256:ad1841a43d74a5a8713a9a9cb357598ed24773fd25dabbf329817d72acc9dde9"
+        "sha256": "sha256:14580eac9ed7f4f6caa7e7cc78d8118d1ededf3e72113cad4bea7398ea57d6b6"
       },
       {
         "name": "routes.json",
-        "sizeBytes": 75040,
-        "sha256": "sha256:c92883c9870584abd45283135d7f9976adc7d3caa70c3729973c021ea5bc3cbf"
+        "sizeBytes": 75216,
+        "sha256": "sha256:8ca708c2faf53b02a30361c6e5f23b338ee51187e37ff599b48501988a5eab63"
       },
       {
         "name": "webcad-page-api/SKILL.md",
@@ -39,7 +39,7 @@
       {
         "name": "agent-kit.json",
         "sizeBytes": 2602,
-        "sha256": "sha256:56ce36f3a431890de7da100b3a4b7b183b4addf8308a588519358cfd5011fda4"
+        "sha256": "sha256:081a2b9d722e836e01bcc736905fd5acb9766cb74c77895b4f530276552e76cd"
       },
       {
         "name": "webcad-page-api/scripts/page-client.mjs",
@@ -59,12 +59,12 @@
       {
         "name": "remote-agent.json",
         "sizeBytes": 1314,
-        "sha256": "sha256:18cf6ac9e16bb239897e40fd69ed2ad5b02d9844e1468afe00ed6f0366cecbf6"
+        "sha256": "sha256:fd62127e78014a5a038052e9927618e180f5bd951b5231f27ea1c66fd5e3f486"
       },
       {
         "name": "remote-agent/host-adapter.js",
-        "sizeBytes": 122588,
-        "sha256": "sha256:4a7bc5b3455cc3d2542e542ccf0dd0dc3057940e61531365d1060f5169409e2c"
+        "sizeBytes": 123444,
+        "sha256": "sha256:5dda3f5150a1a4daa0d5ddf9b5e974e7b60d3142f4188d0fa83a308ab01665ec"
       },
       {
         "name": "remote-agent/runtime-contract.json",
@@ -89,23 +89,23 @@
     {
       "name": "index.json",
       "url": "index.json",
-      "sizeBytes": 5068834,
-      "sha256": "sha256:17e6efe19974104b4dc0ea3e77f4d3a22135dd9554c82867332776abf1f4a5d1"
+      "sizeBytes": 5070098,
+      "sha256": "sha256:74a222cab98103510220be3802e418d61f88738d58e36c962b4d7af12c084de2"
     },
     {
       "name": "agent-routing.json",
       "url": "agent-routing.json",
       "sizeBytes": 65566,
-      "sha256": "sha256:ad1841a43d74a5a8713a9a9cb357598ed24773fd25dabbf329817d72acc9dde9"
+      "sha256": "sha256:14580eac9ed7f4f6caa7e7cc78d8118d1ededf3e72113cad4bea7398ea57d6b6"
     },
     {
       "name": "routes.json",
       "url": "routes.json",
-      "sizeBytes": 75040,
-      "sha256": "sha256:c92883c9870584abd45283135d7f9976adc7d3caa70c3729973c021ea5bc3cbf"
+      "sizeBytes": 75216,
+      "sha256": "sha256:8ca708c2faf53b02a30361c6e5f23b338ee51187e37ff599b48501988a5eab63"
     }
   ],
-  "totalBytes": 5209440,
+  "totalBytes": 5210880,
   "routing": "agent-routing.json",
   "index": "index.json",
   "uiRoutes": "routes.json",

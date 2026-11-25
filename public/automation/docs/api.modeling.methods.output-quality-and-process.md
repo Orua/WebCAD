@@ -2,7 +2,7 @@
 
 # 输出精度与制造条件
 
-参考text-to-cad的supported-exports、migrations及DFM资料，输出格式先由用途决定：精确交换用已有BRep导出能力；STL用于网格交付；需要继续编辑时另考虑工程文件。文件后缀不赋予几何新的精确度。
+参考text-to-cad的supported-exports、migrations及DFM资料，输出格式先由用途决定：精确交换用已有BRep导出能力；STL用于网格交付，闭合网格也可用分面STEP交付；需要继续编辑时另考虑工程文件。文件后缀不赋予几何新的精确度。
 
 显示精度、导出离散精度和建模几何精度是不同控制。text-to-cad某些网格误差参数使用部件包围对角线的相对比例；不能把这个数值移植成WebCAD的mm阈值。WebCAD的setRenderQuality是显示重网格化，不能由它推断STL导出公差或STEP精度；具体输出参数按当前files.export和相关契约。
 

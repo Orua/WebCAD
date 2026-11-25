@@ -15,11 +15,14 @@ import {editMeshRelief} from './mesh/relief-edit.js';
 import {assertPatternExecution} from './machining-intent.js';
 import {sameSurfaceType} from './surface-type.js';
 import {meshError} from './mesh/mesh-contract.js';
+import {LIMITS} from './limits.js';
 import {createTechnicalDrawing} from './drawing/technical-drawing.js';
 import {inspectDesignRequirements} from './design-inspection.js';
 import {findExactDragSnap} from './modeling/interaction/drag-snap.js';
 import * as cad from 'replicad';
 import {exportColoredSTEP} from './modeling/io/step-export.js';
+import {exportFacetedSTEP} from './modeling/io/faceted-step-export.js';
+import {exportCombinedSTL} from './modeling/io/combined-stl-export.js';
 import {meshIntegrity,binaryStl} from './modeling/io/mesh-integrity.js';
 import {applyMirrorVariation,overriddenParams} from './mirror-variation.js';
 import {robustUnion} from './modeling/robust-union.js';
@@ -1619,32 +1622,62 @@ export class CadKernel {
   }
   async export(format, ids, {colors = {}, defaultColor = '#aac4d9'} = {}) {
     const selected = ids === undefined ? [...this.active.keys()] : ids;
-    if (!Array.isArray(selected) || !selected.length) throw new Error('没有可导出的实体');
-    const shapes = selected.map(id => { if (!this.active.has(id)) throw new Error(`找不到导出实体 ${id}`); return this.shapes.get(id); });
-    if(shapes.some(shape=>shape.geometryType==='mesh')){if(format!=='stl')throw meshError('MESH_BREP_UNAVAILABLE','Mesh exports support full STL, not exact STEP/BRep.');if(shapes.length!==1)throw meshError('MESH_COMBINATION_UNAVAILABLE','Mixed/unjoined meshes cannot be exported as one solid.');return shapes[0].exportSTL();}
-    if (format === 'step') {
-      const configs = shapes.map((shape, i) => {
-        const id = selected[i], color = colors[id] ?? defaultColor;
-        if (typeof color !== 'string' || !/^#[0-9a-f]{6}$/i.test(color)) throw new Error(`实体 ${id} 的导出颜色无效`);
-        return {shape, name: this.active.get(id).name || id, color};
-      });
-      return {data:exportColoredSTEP(configs, this.oc), mime:'application/step', extension:'step'};
+    if (!Array.isArray(selected)) throw meshError('PARAM_SCHEMA_INVALID','导出范围须为当前实体 ID 数组。');
+    if (!selected.length) throw meshError('EXPORT_EMPTY_SELECTION','没有可导出的实体。');
+    const items=[...new Set(selected)].map(id=>{
+      const feature=this.active.get(id),shape=this.shapes.get(id);
+      if(!feature||!shape)throw Object.assign(meshError('STALE_REFERENCE',`找不到导出实体 ${id}，请重新选择。`),{featureId:id,path:'args.ids'});
+      return {id,shape,name:feature.name||id};
+    });
+    const withBody=(item,exportBody)=>{
+      try{return exportBody();}
+      catch(error){throw Object.assign(meshError(error?.code||'GEOMETRY_INVALID',`实体「${item.name}」 (${item.id})：${error?.message||error}`),{featureId:item.id,path:'args.ids'});}
+    };
+    const raw=items.filter(({shape})=>shape.geometryType==='mesh');
+    if(format==='stl'&&raw.length){
+      if(items.length===1){
+        const result=withBody(raw[0],()=>raw[0].shape.exportSTL());
+        return {...result,report:{...result.meshReport,bodies:[{id:raw[0].id,geometryType:'rawMesh',triangleCount:raw[0].shape.mesh.indices.length/3}]}};
+      }
+      return exportCombinedSTL(items,shape=>this.exportExactSTL(shape),withBody);
     }
+    if (format === 'step') {
+      let triangleCount=0;
+      for(const item of raw)withBody(item,()=>{
+        triangleCount+=item.shape.mesh.indices.length/3;
+        if(triangleCount>LIMITS.meshExport.maxFacetedStepTriangles)
+          throw meshError('SIZE_LIMIT',`分面 STEP 最多导出 ${LIMITS.meshExport.maxFacetedStepTriangles} 个网格三角面，请分组选取实体。`);
+      });
+      const configs = items.filter(({shape})=>shape.geometryType!=='mesh').map(item=>withBody(item,()=>{
+        const color = colors[item.id] ?? defaultColor;
+        if (typeof color !== 'string' || !/^#[0-9a-f]{6}$/i.test(color)) throw new Error('导出颜色无效。');
+        return {...item,color};
+      }));
+      const exactBytes=configs.length?exportColoredSTEP(configs,this.oc):undefined;
+      if(!raw.length)return {data:exactBytes,mime:'application/step',extension:'step'};
+      const {data,bodies}=exportFacetedSTEP(raw,exactBytes,withBody);
+      return {data,mime:'application/step',extension:'step',
+        report:{units:'mm',triangleCount,bodies:[...configs.map(({id})=>({id,geometryType:'brep'})),...bodies]}};
+    }
+    if(raw.length)withBody(raw[0],()=>{throw meshError('MESH_BREP_UNAVAILABLE','原始网格请导出 STL 或分面 STEP。');});
+    if(format!=='stl'&&format!=='brep')throw meshError('FORMAT_UNSUPPORTED','不支持的导出格式。');
+    const shapes=items.map(({shape})=>shape);
+    if(format==='stl')return this.exportExactSTL(...shapes);
+    const owned=shapes.length>1?shapes.map(shape=>cad.deserializeShape(shape.serialize())):[];
+    const combined=owned.length?cad.makeCompound(owned):shapes[0];
+    try{return {data:combined.serialize(),mime:'application/octet-stream',extension:'brep'};}
+    finally{if(owned.length){dispose(combined);owned.forEach(dispose);}}
+  }
+  exportExactSTL(...shapes){
     // makeCompound consumes wrappers and can alter shared topology flags;
     // STL meshing changes triangulations too. Isolate exports from history.
-    const owned = format === 'stl' || shapes.length > 1 ? shapes.map(shape=>cad.deserializeShape(shape.serialize())) : [];
-    const exportShapes = owned.length ? owned : shapes;
-    const combined = exportShapes.length > 1 ? cad.makeCompound(exportShapes) : exportShapes[0];
+    const owned = shapes.map(shape=>cad.deserializeShape(shape.serialize()));
+    const combined = owned.length > 1 ? cad.makeCompound(owned) : owned[0];
     try {
-      if (format === 'stl') {
-        // One shape-wide mesh uses the same discretization on shared BRep edges.
-        const mesh=combined.mesh({tolerance:0.05,angularTolerance:0.1});
-        const report=meshIntegrity(mesh.vertices,mesh.triangles);
-        return {data:binaryStl(mesh),mime:'model/stl',extension:'stl',report};
-      }
-      if (format === 'brep') return { data: combined.serialize(), mime: 'application/octet-stream', extension: 'brep' };
-      throw new Error('不支持的导出格式');
-    } finally { if (owned.length) {dispose(combined);owned.forEach(dispose);} }
+      const mesh=combined.mesh({tolerance:0.05,angularTolerance:0.1});
+      const report=meshIntegrity(mesh.vertices,mesh.triangles);
+      return {data:binaryStl(mesh),mime:'model/stl',extension:'stl',report};
+    } finally {dispose(combined);owned.forEach(dispose);}
   }
   dispose() { this.importBases?.forEach(dispose);this.importBases?.clear();this.featureFingerprints=new Map();this.shapes.forEach(dispose); this.shapes.clear(); this.active.clear(); this.renderCache.clear();this.reliefLayerCache.clear();this.geometryMetrics=new WeakMap();this.bodyMeasurements=new WeakMap();this.bodyDimensionCache=new WeakMap(); this.historySignature = []; this.importsSignature = ''; }
 }

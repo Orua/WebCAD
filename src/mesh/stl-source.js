@@ -1,4 +1,5 @@
 import {checkedInputTriangleCount,checkedMesh,checkedSourceBytes,MESH_LIMITS,meshError,meshScale} from './mesh-contract.js';
+import {LIMITS} from '../limits.js';
 
 // Raw bytes remain authoritative. No welding, deletion, orientation repair,
 // normal rewriting or watertightness assumption takes place on import.
@@ -109,11 +110,21 @@ export function decodeBinarySTL(bytes,units){
 }
 
 export function exportBinarySTL(mesh){
- checkedMesh(mesh);const count=mesh.indices.length/3,bytes=new Uint8Array(84+count*50),view=new DataView(bytes.buffer);view.setUint32(80,count,true);let maxQuantizationErrorMm=0;
+ const count=mesh.indices.length/3,bytes=new Uint8Array(84+count*50),view=new DataView(bytes.buffer);
+ view.setUint32(80,count,true);
+ return {bytes,report:writeSTLFacets(mesh,view,84)};
+}
+
+export function writeSTLFacets(mesh,view,offset){
+ checkedMesh(mesh);
+ const count=mesh.indices.length/3;
+ let maxQuantizationErrorMm=0;
  for(let f=0;f<count;f++){
-  const points=[];for(let j=0;j<3;j++){const at=mesh.indices[f*3+j]*3,p=Array.from(mesh.positions.subarray(at,at+3));points.push(p);for(let k=0;k<3;k++){const value=Math.fround(p[k]);if(!Number.isFinite(value))throw meshError('MESH_EXPORT_PRECISION','Coordinates exceed STL float range.');maxQuantizationErrorMm=Math.max(maxQuantizationErrorMm,Math.abs(p[k]-value));view.setFloat32(84+f*50+12+(j*3+k)*4,value,true);}}
-  const [a,b,c]=points,u=b.map((x,i)=>x-a[i]),w=c.map((x,i)=>x-a[i]),n=[u[1]*w[2]-u[2]*w[1],u[2]*w[0]-u[0]*w[2],u[0]*w[1]-u[1]*w[0]],length=Math.hypot(...n);for(let k=0;k<3;k++)view.setFloat32(84+f*50+k*4,length?n[k]/length:0,true);
+  const record=offset+f*50,points=[];
+  for(let j=0;j<3;j++){const at=mesh.indices[f*3+j]*3,p=Array.from(mesh.positions.subarray(at,at+3));points.push(p);for(let k=0;k<3;k++){const value=Math.fround(p[k]);if(!Number.isFinite(value))throw meshError('MESH_EXPORT_PRECISION','坐标超过 STL 浮点数范围。');maxQuantizationErrorMm=Math.max(maxQuantizationErrorMm,Math.abs(p[k]-value));view.setFloat32(record+12+(j*3+k)*4,value,true);}}
+  const [a,b,c]=points,u=b.map((x,i)=>x-a[i]),w=c.map((x,i)=>x-a[i]),n=[u[1]*w[2]-u[2]*w[1],u[2]*w[0]-u[0]*w[2],u[0]*w[1]-u[1]*w[0]],length=Math.hypot(...n);for(let k=0;k<3;k++)view.setFloat32(record+k*4,length?n[k]/length:0,true);
  }
- if(maxQuantizationErrorMm>.005)throw meshError('MESH_EXPORT_PRECISION','STL quantization exceeds 0.005 mm; use the Float64 mesh asset.');
- return {bytes,report:{maxQuantizationErrorMm,triangleCount:count,source:'authoritative-mesh',units:'mm'}};
+ if(maxQuantizationErrorMm>LIMITS.meshExport.maxStlQuantizationErrorMm)
+  throw meshError('MESH_EXPORT_PRECISION','STL 量化误差超过 0.005 mm，请使用 Float64 网格或分面 STEP。');
+ return {maxQuantizationErrorMm,triangleCount:count,source:'authoritative-mesh',units:'mm'};
 }

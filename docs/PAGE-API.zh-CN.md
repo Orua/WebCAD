@@ -764,6 +764,15 @@ await a.run({
 
 面板的“下载”只表示发起下载。`files.save/export` 返回生成资源；脚本取字节使用 `files.read({resourceId,as:'bytes'})`，不能误传 `as:'base64'`。只有 `files.write` 对已授权句柄写入并回读匹配后才是 `write_verified`。
 
+
+### 多实体 STL 与分面 STEP
+
+`files.export({context,format,ids?,name?})` 与导出菜单共用同一个 Worker 实现。省略 `ids` 导出当前全部对象，包含隐藏对象。显式传入 ID 数组仅导出这些对象。空数组或失效 ID 会失败，错误回执指明原因，能定位至单件时提供 `featureId`。
+
+STL 按各件当前世界坐标写入同一文件，保留独立壳。未变换的单件毫米 STL 保留原字节。网格变换后写出时每坐标最大量化误差为 0.005 mm，精确实体沿用原有离散设置。STEP/STP 保留精确件曲面，以原三角面、毫米坐标写出有效闭合、朝外的流形网格壳。混合选择同时保留两类几何。分面检查覆盖闭合拓扑、退化三角面和朝向，完整自交分析需由独立 CAD 检查。BREP 只接受精确件。
+
+含网格的 STEP 限 300000 个网格三角面、文件 128 MiB。含网格的多件 STL 限 4000000 个三角面。超限时可分组选取。实际限制可从 `files.capabilities().limits.meshExport` 读取。失败保留工程和上次有效输出。
+
 ## 单步发现与调用
 
 ```js
