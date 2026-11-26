@@ -2,7 +2,7 @@
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -234,6 +234,10 @@
         "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -253,5 +257,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2dfdf9df06f2ca141d2a393f3a615114a82d41fcebfa5e35b1f4ad640e225187"
+  "docsHash": "sha256:45a7bf08001477c4bcdbf4cd615f34de09909ab525ecd464f63526bbd365addc"
 }

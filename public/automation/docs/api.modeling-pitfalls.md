@@ -123,6 +123,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity

@@ -68,6 +68,7 @@ self.onmessage = ({ data }) => {
       else if(type==='inspectDesign')result=engine.inspectDesign(data.input);
       else if(type==='inspectFit')result=engine.inspectFit(data.bodyAId,data.bodyBId,data.toleranceMm,data.volumeThresholdMm3);
       else if(type==='inspectThickness')result=engine.inspectThickness(data.input);
+      else if(type==='surfaceAnalysis')result=engine.surfaceAnalysis(data.input);
       else if(type==='sampleMeshRelief')result=engine.sampleMeshRelief(data.input);
       else if(type==='inspectDraft')result=engine.inspectDraft(data.input);
       else if(type==='inspectRound')result=engine.inspectRound(data.input);

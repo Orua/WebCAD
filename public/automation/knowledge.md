@@ -1,6 +1,6 @@
 # WebCAD AI 完整知识库
 
-API 1.75.21 · sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fefb67f50cf109890ac243
+API 1.75.25 · sha256:f4b85b1c8295f33213dbf9235c528e1db6ecdbda1ee8eb90c5bbacfc0f9f6bb5
 
 这是一份构建时的完整快照。调用前读取页面 info() 对比版本和目录哈希；变化时更新相关工具卡。尺寸单位 mm。
 
@@ -90,6 +90,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -265,6 +266,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -390,6 +392,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -529,6 +532,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -650,6 +654,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -795,6 +800,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -920,6 +926,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -1041,6 +1048,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -1162,6 +1170,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -1283,6 +1292,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -1365,7 +1375,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 读取工具卡与实际能力；仅选择输入、输出、孔洞、尺寸和深度语义一致的已支持工具。没有等价工具时说明缺口并停止，不换核兜底。
 
-代码：`ADAPTIVE_FAMILY_UNMATCHED`、`AGENT_COMPOSER_UNAVAILABLE`、`ANALYTIC_FAMILY_UNMATCHED`、`CAPABILITY_UNAVAILABLE`、`CONTINUITY_UNSUPPORTED`、`CONTINUOUS_SCULPT_UNAVAILABLE`、`DESIGN_CHECK_UNSUPPORTED`、`DOMAIN_SHAPE_UNSUPPORTED`、`END_ROUNDING_UNSUPPORTED`、`ENGINE_UNAVAILABLE`、`EVIDENCE_UNAVAILABLE`、`FORMAT_UNSUPPORTED`、`FORMAT_VARIANT_UNSUPPORTED`、`GUIDED_LOFT_BINDING_SHAPE_MISSING`、`GUIDED_LOFT_BINDING_SOURCE_UNSUPPORTED`、`HOST_UNAVAILABLE`、`LOCAL_VECTOR_UNSUPPORTED`、`LOFT_GUIDE_UNSUPPORTED`、`LOFT_POINT_CAP_UNSUPPORTED`、`MESH_BOOLEAN_UNAVAILABLE`、`MESH_BREP_UNAVAILABLE`、`MESH_OPERATION_UNAVAILABLE`、`MESH_RECOVERY_UNAVAILABLE`、`MESH_TOOL_UNAVAILABLE`、`MESH_TOPOLOGY_UNAVAILABLE`、`NATIVE_ACCEPTANCE_INVALID`、`NATIVE_POLISHING_NETWORK_UNAVAILABLE`、`OPERATION_TBD`、`OPERATION_UNAVAILABLE`、`PDF_RENDERER_UNAVAILABLE`、`PIPELINE_OPTION_UNSUPPORTED`、`PROFILE_CONSTRAINT_UNSUPPORTED`、`PROJECT_SNAPSHOT_UNAVAILABLE`、`REFINE_UNSUPPORTED`、`RELIEF_PATCH_UNSUPPORTED`、`RELIEF_PLAN_UNSUPPORTED`、`RELIEF_SHOULDER_UNSUPPORTED`、`RELIEF_SOURCE_UNSUPPORTED`、`RELIEF_UNSUPPORTED`、`RELIEF_WORKER_UNAVAILABLE`、`SCOPE_EXPANSION_REQUIRED`、`SELECTION_UNSUPPORTED`、`SERVICES_OPERATION_UNAVAILABLE`、`SERVICES_UNAVAILABLE`、`TARGET_PEAK_UNAVAILABLE`、`UNKNOWN_OPERATION`、`UNSUPPORTED_CURVE_PROJECTION`、`UNSUPPORTED_FORMAT`、`VARIABLE_FAMILY_UNMATCHED`、`VOLUME_UNAVAILABLE`、`WIDTH_FAMILY_UNMATCHED`
+代码：`ADAPTIVE_FAMILY_UNMATCHED`、`AGENT_COMPOSER_UNAVAILABLE`、`ANALYTIC_FAMILY_UNMATCHED`、`CAPABILITY_UNAVAILABLE`、`CONTINUITY_UNSUPPORTED`、`CONTINUOUS_SCULPT_UNAVAILABLE`、`DESIGN_CHECK_UNSUPPORTED`、`DOMAIN_SHAPE_UNSUPPORTED`、`END_ROUNDING_UNSUPPORTED`、`ENGINE_UNAVAILABLE`、`EVIDENCE_UNAVAILABLE`、`FAIRING_SOURCE_UNSUPPORTED`、`FORMAT_UNSUPPORTED`、`FORMAT_VARIANT_UNSUPPORTED`、`GUIDED_LOFT_BINDING_SHAPE_MISSING`、`GUIDED_LOFT_BINDING_SOURCE_UNSUPPORTED`、`HOST_UNAVAILABLE`、`LOCAL_VECTOR_UNSUPPORTED`、`LOFT_GUIDE_UNSUPPORTED`、`LOFT_POINT_CAP_UNSUPPORTED`、`MESH_BOOLEAN_UNAVAILABLE`、`MESH_BREP_UNAVAILABLE`、`MESH_OPERATION_UNAVAILABLE`、`MESH_RECOVERY_UNAVAILABLE`、`MESH_TOOL_UNAVAILABLE`、`MESH_TOPOLOGY_UNAVAILABLE`、`NATIVE_ACCEPTANCE_INVALID`、`NATIVE_POLISHING_NETWORK_UNAVAILABLE`、`OPERATION_TBD`、`OPERATION_UNAVAILABLE`、`PDF_RENDERER_UNAVAILABLE`、`PIPELINE_OPTION_UNSUPPORTED`、`PROFILE_CONSTRAINT_UNSUPPORTED`、`PROJECT_SNAPSHOT_UNAVAILABLE`、`REFINE_UNSUPPORTED`、`RELIEF_PATCH_UNSUPPORTED`、`RELIEF_PLAN_UNSUPPORTED`、`RELIEF_SHOULDER_UNSUPPORTED`、`RELIEF_SOURCE_UNSUPPORTED`、`RELIEF_UNSUPPORTED`、`RELIEF_WORKER_UNAVAILABLE`、`SCOPE_EXPANSION_REQUIRED`、`SCULPT_UNSUPPORTED_FACE`、`SELECTION_UNSUPPORTED`、`SERVICES_OPERATION_UNAVAILABLE`、`SERVICES_UNAVAILABLE`、`TARGET_PEAK_UNAVAILABLE`、`UNKNOWN_OPERATION`、`UNSUPPORTED_CURVE_PROJECTION`、`UNSUPPORTED_FORMAT`、`VARIABLE_FAMILY_UNMATCHED`、`VOLUME_UNAVAILABLE`、`WIDTH_FAMILY_UNMATCHED`
 
 ### preview
 
@@ -1477,7 +1487,7 @@ Agent 是独立助手。error.recovery 的 scope=failed-operation、stop 只约�
 
 保留当前工程与原始错误回执，先检查提交和任务状态；将明确的失败原因及需要的下一项信息告知用户。
 
-代码：`BOOLEAN_DISCARD_LIMIT`、`BOOLEAN_RESULT_LIMIT`、`BOOLEAN_RESULT_POINT_INVALID`、`KERNEL_QUEUE_TIMEOUT`、`KERNEL_RECOVERY_TIMEOUT`、`UNION_NOT_FUSED`、`UNION_ONE_SIDED_EDGES`
+代码：`BOOLEAN_DISCARD_LIMIT`、`BOOLEAN_RESULT_LIMIT`、`BOOLEAN_RESULT_POINT_INVALID`、`FAIRING_FIELD_INVALID`、`FAIRING_FIT_FAILED`、`FAIRING_INVALID_SOLID`、`FAIRING_SOURCE_MISMATCH`、`FREEFORM_BRIDGE`、`FREEFORM_CURVE`、`FREEFORM_INSPECTION`、`FREEFORM_NETWORK`、`FREEFORM_PROJECTION`、`FREEFORM_REFERENCE`、`FREEFORM_REPLACE`、`FREEFORM_TOLERANCE`、`KERNEL_QUEUE_TIMEOUT`、`KERNEL_RECOVERY_TIMEOUT`、`SCULPT_BOUNDARY_CHANGED`、`SCULPT_CAPACITY`、`SCULPT_DISPLACEMENT_UNMET`、`SCULPT_FOLD`、`SCULPT_INVALID_REGION`、`SCULPT_OUTSIDE_FACE`、`SURFACE_FILL_BOUNDARY`、`SURFACE_FILL_REFERENCE`、`SURFACE_FILL_SOLVER`、`SURFACE_FILL_SUPPORT`、`SURFACE_FILL_THICKNESS`、`SURFACE_FILL_TOLERANCE`、`UNION_NOT_FUSED`、`UNION_ONE_SIDED_EDGES`
 
 ### display
 
@@ -1966,6 +1976,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -2087,6 +2098,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -2208,6 +2220,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -2330,6 +2343,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -2513,6 +2527,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -2637,6 +2652,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -2758,6 +2774,156 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
+inspectThickness: contextPolicy=identity
+inspectDraft: contextPolicy=identity
+inspectRound: contextPolicy=identity
+readVector: contextPolicy=identity
+connectVector: contextPolicy=none
+fitProfile: contextPolicy=identity
+traceTwinWindow: contextPolicy=identity
+executeText: contextPolicy=revision
+setDisplayPreferences: contextPolicy=identity
+getAgentPanel: contextPolicy=none
+configureAgentPanel: contextPolicy=revision
+setAgentPanel: contextPolicy=revision
+markLocation: contextPolicy=revision
+getServices: contextPolicy=none
+setServices: contextPolicy=revision
+getServicesCapabilities: contextPolicy=none
+getServicesRouting: contextPolicy=none
+clearServicesCredential: contextPolicy=revision
+getServicesJob: contextPolicy=none
+getServicesRequest: contextPolicy=none
+cancelServicesJob: contextPolicy=revision
+getLogoConverter: contextPolicy=none
+setLogoConverter: contextPolicy=revision
+convertLogoPdf: contextPolicy=revision
+setView: contextPolicy=identity
+redraw: contextPolicy=identity
+capture: contextPolicy=identity
+getEvidenceImage: contextPolicy=revision
+run: contextPolicy=revision
+getPerformanceState: contextPolicy=none
+configurePerformance: contextPolicy=identity
+acknowledgePerformanceAdvisory: contextPolicy=identity
+files.capabilities: contextPolicy=none
+files.register: contextPolicy=none
+files.new: contextPolicy=none
+files.open: contextPolicy=revision
+files.import: contextPolicy=revision
+files.inspectInsert: contextPolicy=none
+files.save: contextPolicy=revision
+files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
+files.read: contextPolicy=none
+files.download: contextPolicy=none
+files.write: contextPolicy=none
+files.confirmWritten: contextPolicy=none
+files.release: contextPolicy=none
+
+## api.freeform-modeling
+
+# 异形件建模与验收
+
+## 入口和顺序
+
+先打开当前工程，调用 connect 发现工具，确认 canExecute 与 blockers。读取本版本完整工具卡和 api.run 或 feature.add。所有坐标、位置容差和厚度用毫米。数字型 edgeId、faceId 由 queryGeometry 当前读回；每次换面、修面、撤销、开档或改上游后重新读取。refs 是有序的当前对象 ID，refIndex 从 0 开始。空间操作使用世界坐标。
+
+| 工作 | 工具 | 输入与实际结果 |
+| --- | --- | --- |
+| 画瓣脊、截面与空间边界 | spatialSpline | points 按曲线行进顺序输入 XYZ 或 {refIndex,edgeId,nearMm}。顶点吸附到一条精确边的端点。开放曲线可选择 interpolate 或 fit，闭合曲线使用 interpolate，首点只输入一次。回读精确边及过点偏差。 |
+| 按纵横多条线建面 | networkSurface | 各组 2–6 条开放精确边，uEdges 按横向位置排列，vEdges 亦按另一方向位置排列。跨组各有一个交点，首尾交点到达所选边端点。计算双向插值和交点修正，回读 uDeviationMm、vDeviationMm。 |
+| 按外圈和导向建面 | surfaceFill | 单闭环由空间坐标、顶点或精确边确定。points 控制内点，guideEdges 可直接选 spatialSpline 结果。G1/G2 边绑定所属邻面。输出独立曲面或带符号厚度的实体。 |
+| 局部调整已生成的面 | surfaceSculpt | 选当前非周期 B 样条面，指定一个点或闭合区域、方向、位移和影响范围。锁定完整剪裁边界及孔圈。读取位移回执并检查合用的后续面。 |
+| 在面上敷线和分区 | projectCurveOnFace | target 指定当前精确面，curves 指定 1–8 条精确边。direction 给世界方向，reach=forward 或 both，output=curves 或 faces。分面结果覆盖原目标面，源保留；可用 extractFaces 提取所需面片。 |
+| 接顺两张面 | surfaceBridge | a/b 指定开放边及其同对象邻面，给定 G0、G1 或 G2。pairing=direct 连接同参数端点，reverse 连接相反端点。tension 控制侧边接入尺度。回读最终接缝的法向和曲率采样误差。 |
+| 单独修回旧件 | replaceSurfacePatch | refs[0] 是要换面的单一实体，其余 refs 是已做好的新面来源。removeFaceIds 与 patches 分别指定旧面和新面，核对外缘和全部自由边界后缝合为一个闭合 BRep。结果单独生成，原实体可用于比较。 |
+| 修顺原 STEP 的高频起伏 | surfaceFairing | 使用原坐标导入且身份匹配的 STEP 和绑定的高度位移场。保留外轮廓、共边、孔圈与来源的附属结构。 |
+| 成体 | thickenFace / sewFaces | 已有一张有效面时可沿法向增厚。有完整封闭外壳时用 sewFaces 且 makeSolid=true。检查实际 solidCount、封闭结果与版本。 |
+
+## 曲率、接缝和壁厚回读
+
+surfaceAnalysis({context,mode,bodyId,...}) 使用当前修订号。zebra 在视图中按法向生成反光条纹，zebraDirection 为 vertical 或 horizontal，stripes 为 6–36。comb 指定 edgeId，可用 8–64 点取样，返回实际采样位置、曲率和曲率向量。thickness 指定 1–4 张当前 faceIds、每方向采样数 grid 及可选的 thresholdMm 和世界方向 direction；总候选点不超过 100。使用每个点首次离开连续材料的厚度，回读 thinnest、belowThreshold、outside 和 unresolved。按已测出的点着色，最薄值以实际测点为范围。showInView:false 仅返回数据，mode=clear 清除临时覆盖。进入预览或更新几何后重新检查。
+
+## 提交、故障和示例
+
+预览和应用使用当前工具卡的 opVersion/schemaHash、明确 refs 与 params。预览只产生当前候选几何。复核 preview.scope 的拟合偏差或接缝数据后，用返回的 previewId 和 generation 提交。getState 可读回 bodies[].freeformReport、surfaceFillReport 或 surfaceSculptReport；measure、queryGeometry 和 surfaceAnalysis 对已提交的几何独立复核。指定公差、自由边或连续性失败时，当前工程保持原提交版本。检查断口、端点对应、来源面和冲突约束，再调整候选。
+
+例如先用 spatialSpline 画瓣脊，在 surfaceFill.guideEdges 指向该边，生成瓣面并预览，再用 surfaceSculpt 在瓣腹推抬，查询新的周边与孔圈。已有花瓣轮廓时，可用两组曲线做 networkSurface，再用 projectCurveOnFace 把叶脉投影到瓣面。旧件需要换面时先核对原剪裁环，新面在这些边界验收通过后缝回。最后用斑马纹看光顺，增厚后用壁厚色图查瓣尖及孔柱附近。
+
+
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+reliefWizard: contextPolicy=identity
+prepareToolCall: contextPolicy=identity
+prepareOperation: contextPolicy=identity
+applyPreparedOperation: contextPolicy=identity
+getDebugReport: contextPolicy=none
+setDebugPanel: contextPolicy=identity
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
+reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
+reliefDesignReference: contextPolicy=revision
+reliefDesignField: contextPolicy=revision
+readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
+getBatchReceipt: contextPolicy=none
+probeBlendRadius: contextPolicy=identity
+recoverUnsaved: contextPolicy=revision
+recoverKernel: contextPolicy=revision
+sampleMeshRelief: contextPolicy=identity
+getModelLibrary: contextPolicy=none
+updateModelLibrary: contextPolicy=revision
+resolveModelLibrary: contextPolicy=identity
+planPatternMachining: contextPolicy=identity
+decideServicesWait: contextPolicy=none
+recoverServicesJob: contextPolicy=none
+prepareReliefTopologyUpgrade: contextPolicy=identity
+sampleReliefHeight: contextPolicy=identity
+prepareReliefSculpt: contextPolicy=identity
+readRelief: contextPolicy=identity
+getHistory: contextPolicy=none
+planAlignment: contextPolicy=identity
+selectRectangle: contextPolicy=identity
+createDrawing: contextPolicy=revision
+exportDrawing: contextPolicy=revision
+getQuickModelUsage: contextPolicy=none
+copySelection: contextPolicy=revision
+pasteSelection: contextPolicy=revision
+createRequestContext: contextPolicy=none
+getUILayout: contextPolicy=none
+setRenderQuality: contextPolicy=identity
+invoke: contextPolicy=none
+submit: contextPolicy=none
+getJob: contextPolicy=none
+cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
+connect: contextPolicy=none
+info: contextPolicy=none
+getState: contextPolicy=none
+searchTools: contextPolicy=none
+getTools: contextPolicy=none
+getTool: contextPolicy=none
+readDocs: contextPolicy=none
+queryGeometry: contextPolicy=identity
+queryReferences: contextPolicy=identity
+resolvePlacement: contextPolicy=identity
+execute: contextPolicy=revision
+measure: contextPolicy=identity
+measureRelation: contextPolicy=identity
+inspectDesign: contextPolicy=identity
+inspectPrintability: contextPolicy=identity
+inspectProfile: contextPolicy=identity
+prepareProfileEdit: contextPolicy=identity
+inspectConstraints: contextPolicy=identity
+projectProfile: contextPolicy=identity
+inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -2884,6 +3050,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -3012,6 +3179,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -3138,6 +3306,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -3265,6 +3434,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -3391,6 +3561,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -3517,6 +3688,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -3643,6 +3815,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -3764,6 +3937,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -3886,6 +4060,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -4013,6 +4188,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -4134,6 +4310,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -4277,6 +4454,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -4404,6 +4582,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -4526,6 +4705,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -4647,6 +4827,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -4768,6 +4949,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -4889,6 +5071,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -5061,6 +5244,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -6111,6 +6295,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -6251,6 +6436,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -6385,6 +6571,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -6524,6 +6711,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -6655,6 +6843,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -6786,6 +6975,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -6921,6 +7111,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -7042,6 +7233,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -7170,6 +7362,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -7291,6 +7484,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -7412,6 +7606,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -7533,6 +7728,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -7654,6 +7850,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -7775,6 +7972,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -7896,6 +8094,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -8017,6 +8216,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -8148,6 +8348,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -8283,6 +8484,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -8404,6 +8606,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -8525,6 +8728,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -8646,6 +8850,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -8775,6 +8980,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -8909,6 +9115,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -9030,6 +9237,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -9159,6 +9367,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -9280,6 +9489,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -9401,6 +9611,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -9523,6 +9734,373 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
+inspectThickness: contextPolicy=identity
+inspectDraft: contextPolicy=identity
+inspectRound: contextPolicy=identity
+readVector: contextPolicy=identity
+connectVector: contextPolicy=none
+fitProfile: contextPolicy=identity
+traceTwinWindow: contextPolicy=identity
+executeText: contextPolicy=revision
+setDisplayPreferences: contextPolicy=identity
+getAgentPanel: contextPolicy=none
+configureAgentPanel: contextPolicy=revision
+setAgentPanel: contextPolicy=revision
+markLocation: contextPolicy=revision
+getServices: contextPolicy=none
+setServices: contextPolicy=revision
+getServicesCapabilities: contextPolicy=none
+getServicesRouting: contextPolicy=none
+clearServicesCredential: contextPolicy=revision
+getServicesJob: contextPolicy=none
+getServicesRequest: contextPolicy=none
+cancelServicesJob: contextPolicy=revision
+getLogoConverter: contextPolicy=none
+setLogoConverter: contextPolicy=revision
+convertLogoPdf: contextPolicy=revision
+setView: contextPolicy=identity
+redraw: contextPolicy=identity
+capture: contextPolicy=identity
+getEvidenceImage: contextPolicy=revision
+run: contextPolicy=revision
+getPerformanceState: contextPolicy=none
+configurePerformance: contextPolicy=identity
+acknowledgePerformanceAdvisory: contextPolicy=identity
+files.capabilities: contextPolicy=none
+files.register: contextPolicy=none
+files.new: contextPolicy=none
+files.open: contextPolicy=revision
+files.import: contextPolicy=revision
+files.inspectInsert: contextPolicy=none
+files.save: contextPolicy=revision
+files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
+files.read: contextPolicy=none
+files.download: contextPolicy=none
+files.write: contextPolicy=none
+files.confirmWritten: contextPolicy=none
+files.release: contextPolicy=none
+
+## api.surface-fairing
+
+曲面保形修顺 surfaceFairing。以原坐标导入的毫米制 STEP 单实体及该文件的原始 Z 位移场为输入。位移场记录当前造型相对中性高度的增量，按规则网格以 X 最快、再 Y、再 Z 存 signed i16le，乘 mmPerCount 得毫米，首尾层为零。sourceSha256 验证原文件。smoothingMm 是 XY 高斯标准差，maxAdjustmentMm 是实际 Z 改变量上限；protectedCenter 与 protectedRadiusMm 保护孔口附近，网格外和首尾高度固定。先平滑原始位移，反解当前点的中性高度，把平滑差量重拟合到多项式样条面、共边和顶点。输入需为 STEP 中可拟合的非有理样条，最多 400 面、48 MiB 源文件和 900000 场节点。让工作台通过 曲面 → 曲面处理 → 曲面保形修顺 读入相同的 JSON 配方并预览。后台用 connect({toolIds:['surfaceFairing','getState','files.export']}) 取卡，再 feature.add 或 preview.start，refs 只含当前原 STEP bodyId，应用后 getState().bodies[].surfaceFairingReport 读变更、拟合残差和保护核对。只在本地 worker 执行。原件和已提交工程在失败时保留，输出用 files.export({format:'step',ids:[结果ID],context})。
+
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+reliefWizard: contextPolicy=identity
+prepareToolCall: contextPolicy=identity
+prepareOperation: contextPolicy=identity
+applyPreparedOperation: contextPolicy=identity
+getDebugReport: contextPolicy=none
+setDebugPanel: contextPolicy=identity
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
+reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
+reliefDesignReference: contextPolicy=revision
+reliefDesignField: contextPolicy=revision
+readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
+getBatchReceipt: contextPolicy=none
+probeBlendRadius: contextPolicy=identity
+recoverUnsaved: contextPolicy=revision
+recoverKernel: contextPolicy=revision
+sampleMeshRelief: contextPolicy=identity
+getModelLibrary: contextPolicy=none
+updateModelLibrary: contextPolicy=revision
+resolveModelLibrary: contextPolicy=identity
+planPatternMachining: contextPolicy=identity
+decideServicesWait: contextPolicy=none
+recoverServicesJob: contextPolicy=none
+prepareReliefTopologyUpgrade: contextPolicy=identity
+sampleReliefHeight: contextPolicy=identity
+prepareReliefSculpt: contextPolicy=identity
+readRelief: contextPolicy=identity
+getHistory: contextPolicy=none
+planAlignment: contextPolicy=identity
+selectRectangle: contextPolicy=identity
+createDrawing: contextPolicy=revision
+exportDrawing: contextPolicy=revision
+getQuickModelUsage: contextPolicy=none
+copySelection: contextPolicy=revision
+pasteSelection: contextPolicy=revision
+createRequestContext: contextPolicy=none
+getUILayout: contextPolicy=none
+setRenderQuality: contextPolicy=identity
+invoke: contextPolicy=none
+submit: contextPolicy=none
+getJob: contextPolicy=none
+cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
+connect: contextPolicy=none
+info: contextPolicy=none
+getState: contextPolicy=none
+searchTools: contextPolicy=none
+getTools: contextPolicy=none
+getTool: contextPolicy=none
+readDocs: contextPolicy=none
+queryGeometry: contextPolicy=identity
+queryReferences: contextPolicy=identity
+resolvePlacement: contextPolicy=identity
+execute: contextPolicy=revision
+measure: contextPolicy=identity
+measureRelation: contextPolicy=identity
+inspectDesign: contextPolicy=identity
+inspectPrintability: contextPolicy=identity
+inspectProfile: contextPolicy=identity
+prepareProfileEdit: contextPolicy=identity
+inspectConstraints: contextPolicy=identity
+projectProfile: contextPolicy=identity
+inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
+inspectThickness: contextPolicy=identity
+inspectDraft: contextPolicy=identity
+inspectRound: contextPolicy=identity
+readVector: contextPolicy=identity
+connectVector: contextPolicy=none
+fitProfile: contextPolicy=identity
+traceTwinWindow: contextPolicy=identity
+executeText: contextPolicy=revision
+setDisplayPreferences: contextPolicy=identity
+getAgentPanel: contextPolicy=none
+configureAgentPanel: contextPolicy=revision
+setAgentPanel: contextPolicy=revision
+markLocation: contextPolicy=revision
+getServices: contextPolicy=none
+setServices: contextPolicy=revision
+getServicesCapabilities: contextPolicy=none
+getServicesRouting: contextPolicy=none
+clearServicesCredential: contextPolicy=revision
+getServicesJob: contextPolicy=none
+getServicesRequest: contextPolicy=none
+cancelServicesJob: contextPolicy=revision
+getLogoConverter: contextPolicy=none
+setLogoConverter: contextPolicy=revision
+convertLogoPdf: contextPolicy=revision
+setView: contextPolicy=identity
+redraw: contextPolicy=identity
+capture: contextPolicy=identity
+getEvidenceImage: contextPolicy=revision
+run: contextPolicy=revision
+getPerformanceState: contextPolicy=none
+configurePerformance: contextPolicy=identity
+acknowledgePerformanceAdvisory: contextPolicy=identity
+files.capabilities: contextPolicy=none
+files.register: contextPolicy=none
+files.new: contextPolicy=none
+files.open: contextPolicy=revision
+files.import: contextPolicy=revision
+files.inspectInsert: contextPolicy=none
+files.save: contextPolicy=revision
+files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
+files.read: contextPolicy=none
+files.download: contextPolicy=none
+files.write: contextPolicy=none
+files.confirmWritten: contextPolicy=none
+files.release: contextPolicy=none
+
+## api.surface-fill
+
+约束填充曲面 surfaceFill 位于曲面 → 曲面生成。先确定一个闭合外圈，再用内点和导向边控制高低。有邻面的边可以分别选 G0（位置）、G1（切向）、G2（曲率）。坐标均为世界 XYZ 毫米。boundary.kind=points 使用按外圈顺序的 points 和 curve=smooth 或 segments，自动闭合。boundary.kind=edges 使用当前真实 edgeId；G1/G2 需在同一 refIndex 指明拥有这条边的 supportFaceId。用 refs 数组携带当前对象 ID，点选顶点以 refIndex、edgeId、nearMm 吸附至唯一的精确端点。points 是可选内点，guideEdges 是可选导向边，均须落在填充后的面内。最多 24 个边界点或边、32 个内点、8 条导向边、16 个来源。默认位置公差 0.01 mm，允许 0.001–0.05 mm；邻接线法向夹角目标 0.01 rad，G2 采样法曲率差上限 0.1/mm。output.kind=surface 输出曲面；thickened 须指定带符号的 thicknessMm，可生成验证过的单一实体。完整闭合外壳也可另用 sewFaces 的 makeSolid。建议 connect({toolIds:["surfaceFill","queryGeometry","preview.start"]})、解析当前拓扑、预览并读取 surfaceFillReport，再提交。报告含边界、内点、导向采样误差及接缝切线和曲率误差。公差或有效性不满足时保留当前工程，调整冲突约束后重新预览。
+
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+reliefWizard: contextPolicy=identity
+prepareToolCall: contextPolicy=identity
+prepareOperation: contextPolicy=identity
+applyPreparedOperation: contextPolicy=identity
+getDebugReport: contextPolicy=none
+setDebugPanel: contextPolicy=identity
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
+reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
+reliefDesignReference: contextPolicy=revision
+reliefDesignField: contextPolicy=revision
+readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
+getBatchReceipt: contextPolicy=none
+probeBlendRadius: contextPolicy=identity
+recoverUnsaved: contextPolicy=revision
+recoverKernel: contextPolicy=revision
+sampleMeshRelief: contextPolicy=identity
+getModelLibrary: contextPolicy=none
+updateModelLibrary: contextPolicy=revision
+resolveModelLibrary: contextPolicy=identity
+planPatternMachining: contextPolicy=identity
+decideServicesWait: contextPolicy=none
+recoverServicesJob: contextPolicy=none
+prepareReliefTopologyUpgrade: contextPolicy=identity
+sampleReliefHeight: contextPolicy=identity
+prepareReliefSculpt: contextPolicy=identity
+readRelief: contextPolicy=identity
+getHistory: contextPolicy=none
+planAlignment: contextPolicy=identity
+selectRectangle: contextPolicy=identity
+createDrawing: contextPolicy=revision
+exportDrawing: contextPolicy=revision
+getQuickModelUsage: contextPolicy=none
+copySelection: contextPolicy=revision
+pasteSelection: contextPolicy=revision
+createRequestContext: contextPolicy=none
+getUILayout: contextPolicy=none
+setRenderQuality: contextPolicy=identity
+invoke: contextPolicy=none
+submit: contextPolicy=none
+getJob: contextPolicy=none
+cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
+connect: contextPolicy=none
+info: contextPolicy=none
+getState: contextPolicy=none
+searchTools: contextPolicy=none
+getTools: contextPolicy=none
+getTool: contextPolicy=none
+readDocs: contextPolicy=none
+queryGeometry: contextPolicy=identity
+queryReferences: contextPolicy=identity
+resolvePlacement: contextPolicy=identity
+execute: contextPolicy=revision
+measure: contextPolicy=identity
+measureRelation: contextPolicy=identity
+inspectDesign: contextPolicy=identity
+inspectPrintability: contextPolicy=identity
+inspectProfile: contextPolicy=identity
+prepareProfileEdit: contextPolicy=identity
+inspectConstraints: contextPolicy=identity
+projectProfile: contextPolicy=identity
+inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
+inspectThickness: contextPolicy=identity
+inspectDraft: contextPolicy=identity
+inspectRound: contextPolicy=identity
+readVector: contextPolicy=identity
+connectVector: contextPolicy=none
+fitProfile: contextPolicy=identity
+traceTwinWindow: contextPolicy=identity
+executeText: contextPolicy=revision
+setDisplayPreferences: contextPolicy=identity
+getAgentPanel: contextPolicy=none
+configureAgentPanel: contextPolicy=revision
+setAgentPanel: contextPolicy=revision
+markLocation: contextPolicy=revision
+getServices: contextPolicy=none
+setServices: contextPolicy=revision
+getServicesCapabilities: contextPolicy=none
+getServicesRouting: contextPolicy=none
+clearServicesCredential: contextPolicy=revision
+getServicesJob: contextPolicy=none
+getServicesRequest: contextPolicy=none
+cancelServicesJob: contextPolicy=revision
+getLogoConverter: contextPolicy=none
+setLogoConverter: contextPolicy=revision
+convertLogoPdf: contextPolicy=revision
+setView: contextPolicy=identity
+redraw: contextPolicy=identity
+capture: contextPolicy=identity
+getEvidenceImage: contextPolicy=revision
+run: contextPolicy=revision
+getPerformanceState: contextPolicy=none
+configurePerformance: contextPolicy=identity
+acknowledgePerformanceAdvisory: contextPolicy=identity
+files.capabilities: contextPolicy=none
+files.register: contextPolicy=none
+files.new: contextPolicy=none
+files.open: contextPolicy=revision
+files.import: contextPolicy=revision
+files.inspectInsert: contextPolicy=none
+files.save: contextPolicy=revision
+files.export: contextPolicy=revision
+files.reattach: contextPolicy=none
+files.read: contextPolicy=none
+files.download: contextPolicy=none
+files.write: contextPolicy=none
+files.confirmWritten: contextPolicy=none
+files.release: contextPolicy=none
+
+## api.surface-sculpt
+
+局部曲面变形 surfaceSculpt。在曲面 → 曲面处理中打开工具，在当前 STEP 样条面上点选或依次圈出同一面内的闭环。沿法线、按倾角和方位角或用三维方向向量推压。amountMm 沿该方向计量，负数反向；influenceMm 是点模式影响半径或圈区外的过渡宽度。倾角从外法线起算，方位角从曲面 U 切向朝外法线叉 U 的方向起算。范围沿面逐渐恢复原形，外沿、孔圈、共边和邻面锁住。首版接受非周期、至少三次的 B 样条，输入为一个有效实体或一张独立面，最多 100000 个拟合控制点。可预览、撤销和导出真实 STEP。先 connect({toolIds:['surfaceSculpt','queryGeometry','getState']})，从目标工程获取当前 refs、faceId 和同一面上的世界坐标毫米点。用 feature.add 或 preview.start，scope:{kind:'point',pointMm:[x,y,z]} 或 scope:{kind:'region',pointsMm:[[x1,y1,z1],...] }。应用后 getState().bodies[].surfaceSculptReport 读取实际位移、方向、锁边偏差和采样翻折检查。失败会保留当前实体；几何采样不代表制造验收。
+
+Context policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.
+reliefWizard: contextPolicy=identity
+prepareToolCall: contextPolicy=identity
+prepareOperation: contextPolicy=identity
+applyPreparedOperation: contextPolicy=identity
+getDebugReport: contextPolicy=none
+setDebugPanel: contextPolicy=identity
+getMetalMaterials: contextPolicy=none
+setMetalMaterials: contextPolicy=identity
+getMaterials: contextPolicy=none
+measureMass: contextPolicy=identity
+reliefDesignFit: contextPolicy=revision
+prepareReliefDesignRelief: contextPolicy=revision
+reliefDesignReference: contextPolicy=revision
+reliefDesignField: contextPolicy=revision
+readLogo: contextPolicy=identity
+reviewLogo: contextPolicy=identity
+logoWizard: contextPolicy=identity
+getBatchReceipt: contextPolicy=none
+probeBlendRadius: contextPolicy=identity
+recoverUnsaved: contextPolicy=revision
+recoverKernel: contextPolicy=revision
+sampleMeshRelief: contextPolicy=identity
+getModelLibrary: contextPolicy=none
+updateModelLibrary: contextPolicy=revision
+resolveModelLibrary: contextPolicy=identity
+planPatternMachining: contextPolicy=identity
+decideServicesWait: contextPolicy=none
+recoverServicesJob: contextPolicy=none
+prepareReliefTopologyUpgrade: contextPolicy=identity
+sampleReliefHeight: contextPolicy=identity
+prepareReliefSculpt: contextPolicy=identity
+readRelief: contextPolicy=identity
+getHistory: contextPolicy=none
+planAlignment: contextPolicy=identity
+selectRectangle: contextPolicy=identity
+createDrawing: contextPolicy=revision
+exportDrawing: contextPolicy=revision
+getQuickModelUsage: contextPolicy=none
+copySelection: contextPolicy=revision
+pasteSelection: contextPolicy=revision
+createRequestContext: contextPolicy=none
+getUILayout: contextPolicy=none
+setRenderQuality: contextPolicy=identity
+invoke: contextPolicy=none
+submit: contextPolicy=none
+getJob: contextPolicy=none
+cancelJob: contextPolicy=none
+waitFor: contextPolicy=none
+awaitJob: contextPolicy=revision
+connect: contextPolicy=none
+info: contextPolicy=none
+getState: contextPolicy=none
+searchTools: contextPolicy=none
+getTools: contextPolicy=none
+getTool: contextPolicy=none
+readDocs: contextPolicy=none
+queryGeometry: contextPolicy=identity
+queryReferences: contextPolicy=identity
+resolvePlacement: contextPolicy=identity
+execute: contextPolicy=revision
+measure: contextPolicy=identity
+measureRelation: contextPolicy=identity
+inspectDesign: contextPolicy=identity
+inspectPrintability: contextPolicy=identity
+inspectProfile: contextPolicy=identity
+prepareProfileEdit: contextPolicy=identity
+inspectConstraints: contextPolicy=identity
+projectProfile: contextPolicy=identity
+inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -9644,6 +10222,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -9824,6 +10403,14 @@ files.release: contextPolicy=none
 
 ## 曲面、壳与厚度
 - fittedSurface：由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。
+- surfaceFairing：用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。
+- surfaceSculpt：点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。
+- surfaceFill：用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。
+- networkSurface：用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。
+- spatialSpline：从按序给出的世界坐标或精确边端点构造独立三维样条。
+- surfaceBridge：在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。
+- projectCurveOnFace：用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。
+- replaceSurfacePatch：核对待替换面的边和孔圈，用新面缝回有效的单一实体。
 - subdBody：用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。
 - extractFaces：复制明确选定面，保留孔及来源；不自动缝合或补洞。
 - extractShell：按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。
@@ -9923,6 +10510,7 @@ files.release: contextPolicy=none
 - inspectDesign：按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。
 - inspectFit：检查两体干涉/配合关系；不是单体壁厚。
 - inspectThickness：沿明确射线测局部厚度；不代表整件最小壁厚证明。
+- surfaceAnalysis：用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。
 - inspectDraft：按指定脱模方向检查拔模；不是修改斜度。
 - inspectPrintability：按过程合同检查打印相关几何；不能替代一般产品验收。
 - inspectProfile：只读解析轮廓的闭合、交点等情况，不修复图元。
@@ -10125,6 +10713,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -10604,6 +11193,16 @@ files.release: contextPolicy=none
     "method": "execute",
     "usage": "getTool({id:\"multiPocket\"}) 读取 strict v2 卡；feature.add 或 run add 传 depth/axis/direction/pockets、真实 refs；feature.edit 修改历史凹槽列表。"
   },
+  "networkSurface": {
+    "tools": [
+      "networkSurface",
+      "queryGeometry",
+      "preview.start",
+      "preview.commit"
+    ],
+    "method": "execute",
+    "usage": "分别提供按序选中的两组精确边，以 refs/refIndex 绑定来源。预览回读纵横偏差。"
+  },
   "offsetSolid": {
     "tools": [
       "offsetSolid"
@@ -10682,6 +11281,16 @@ files.release: contextPolicy=none
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "projectCurveOnFace": {
+    "tools": [
+      "projectCurveOnFace",
+      "queryGeometry",
+      "preview.start",
+      "preview.commit"
+    ],
+    "method": "execute",
+    "usage": "给定当前目标面、来源边、投影方向及结果为曲线或分面。"
+  },
   "projectedGroove": {
     "tools": [
       "projectedGroove"
@@ -10759,6 +11368,16 @@ files.release: contextPolicy=none
     "method": "execute",
     "usage": "args:{bodyIds}；删除当前实体。"
   },
+  "replaceSurfacePatch": {
+    "tools": [
+      "replaceSurfacePatch",
+      "queryGeometry",
+      "preview.start",
+      "preview.commit"
+    ],
+    "method": "execute",
+    "usage": "refs[0] 是原实体，选择待换面及独立替换面。校验外圈、孔圈及缝合后的有效封闭实体。"
+  },
   "revolve": {
     "tools": [
       "revolve",
@@ -10802,6 +11421,16 @@ files.release: contextPolicy=none
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
   },
+  "spatialSpline": {
+    "tools": [
+      "spatialSpline",
+      "queryGeometry",
+      "preview.start",
+      "preview.commit"
+    ],
+    "method": "execute",
+    "usage": "用当前精确端点或世界 XYZ 明确过点曲线，显式指定开放/闭合、插值或公差拟合。"
+  },
   "sphere": {
     "tools": [
       "sphere"
@@ -10822,6 +11451,57 @@ files.release: contextPolicy=none
     ],
     "method": "execute",
     "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+  },
+  "surfaceBridge": {
+    "tools": [
+      "surfaceBridge",
+      "queryGeometry",
+      "preview.start",
+      "preview.commit"
+    ],
+    "method": "execute",
+    "usage": "分别给定两条边与所属邻面、端点配对和 G0/G1/G2。回读实际接缝误差。"
+  },
+  "surfaceFairing": {
+    "tools": [
+      "surfaceFairing",
+      "getState",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "history.undo",
+      "files.export"
+    ],
+    "method": "execute",
+    "usage": "选择按原坐标直接导入的 STEP 闭合实体，载入源件 SHA-256 绑定的 Z 位移场 JSON。feature.add op=surfaceFairing，refs:[bodyId]，params 为修顺配方。可用 preview.start 预览并提交，getState.bodies[].surfaceFairingReport 读取拟合、圆柱孔柱与轮廓回执。"
+  },
+  "surfaceFill": {
+    "tools": [
+      "surfaceFill",
+      "getState",
+      "queryGeometry",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "history.undo",
+      "files.export"
+    ],
+    "method": "execute",
+    "usage": "曲面 → 约束填充曲面。feature.add 的参数使用一个明确的坐标/顶点或模型边闭环、可选内点和导向边、G1/G2 支持面以及输出厚度。refs 按约束的 refIndex 对应当前对象。预览和 getState.bodies[].surfaceFillReport 都可回读实际误差。"
+  },
+  "surfaceSculpt": {
+    "tools": [
+      "surfaceSculpt",
+      "getState",
+      "queryGeometry",
+      "preview.start",
+      "preview.commit",
+      "preview.cancel",
+      "history.undo",
+      "files.export"
+    ],
+    "method": "execute",
+    "usage": "在当前 STEP 精确曲面上点选或依次圈区，feature.add op=surfaceSculpt，refs:[bodyId]，params 包含当前 faceId、scope 世界坐标、方向及带符号的位移和影响范围。预览后应用，getState.bodies[].surfaceSculptReport 读取实际位移和锁边核对。"
   },
   "surfaceTrim": {
     "tools": [
@@ -11246,6 +11926,27 @@ files.release: contextPolicy=none
     ],
     "method": "prepareReliefSculpt",
     "usage": "浮雕历史属性→浮雕精修；独立毫米域用 patch:{id,domainMm,samples,protectionMm}，域内增量独立保存，边界两排固定；实际柱面及邻层预览用 preview.start args:{featureEdit:{featureId,params}}，再 preview.commit/cancel；patchId 对应独立域吸取。prepareReliefSculpt({context,featureId,strokes,draft?})只读返回params.sculpt；检查canCommit/blockers后feature.edit提交。笔刷raise/lower/smooth/flatten/fill/scrape/sharpen/restore/mask/unmask，hardness为0–1、symmetry为none/x/y/xy，局部points为[-.5,.5]，radiusMm/amountMm/targetMm为毫米，strength为0–1。工程保存原始高度及deltaMm/mask；关闭/切层暂存草稿、应用当前层一次撤销；Alt吸取对应sampleReliefHeight({context,featureId,point,draft?})，返回targetMm可给flatten，quantity区分height/depth，与UI共用采样；轮廓外或孔内失败RELIEF_SAMPLE_OUTSIDE；预览旋转缩放不改模型。"
+  },
+  "inspectSurfaceQuality": {
+    "tools": [
+      "surfaceAnalysis"
+    ],
+    "method": "surfaceAnalysis",
+    "usage": "通过 mode=zebra 显示指定对象的斑马纹，或 mode=comb 对当前 edgeId 取样曲率。mode=clear 清除视图分析。"
+  },
+  "inspectWallThicknessMap": {
+    "tools": [
+      "surfaceAnalysis"
+    ],
+    "method": "surfaceAnalysis",
+    "usage": "通过 mode=thickness 在指定实体的面上采样，读取各测点与最薄测点，可设置薄壁阈值。"
+  },
+  "surfaceAnalysis": {
+    "tools": [
+      "surfaceAnalysis"
+    ],
+    "method": "surfaceAnalysis",
+    "usage": "用当前 revision 的 bodyId、edgeId 或 faceIds 调用显式检查模式。showInView:false 只回读数值；clear 清除图层。"
   },
   "precisionSettings": {
     "tools": [
@@ -11818,6 +12519,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -11939,6 +12641,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -12061,6 +12764,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -12203,6 +12907,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -12324,6 +13029,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -12470,6 +13176,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -12595,6 +13302,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -12720,6 +13428,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -12845,6 +13554,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -12970,6 +13680,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -13095,6 +13806,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -13220,6 +13932,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -13345,6 +14058,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -13470,6 +14184,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -13595,6 +14310,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -13720,6 +14436,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -13845,6 +14562,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -13970,6 +14688,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -14095,6 +14814,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -14220,6 +14940,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -14345,6 +15066,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -14470,6 +15192,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -14595,6 +15318,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -14720,6 +15444,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -14845,6 +15570,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -14970,6 +15696,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -15095,6 +15822,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -15220,6 +15948,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -15345,6 +16074,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -15470,6 +16200,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -15595,6 +16326,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -15720,6 +16452,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -15845,6 +16578,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -15970,6 +16704,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -16095,6 +16830,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -16216,6 +16952,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -16338,6 +17075,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -16459,6 +17197,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -16580,6 +17319,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -16701,6 +17441,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -16822,6 +17563,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -16943,6 +17685,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -17064,6 +17807,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -17185,6 +17929,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -17306,6 +18051,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -17427,6 +18173,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -17548,6 +18295,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -17669,6 +18417,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -17790,6 +18539,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -17911,6 +18661,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -18032,6 +18783,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -18153,6 +18905,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -18274,6 +19027,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -18395,6 +19149,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -18516,6 +19271,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -18637,6 +19393,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -18758,6 +19515,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -18879,6 +19637,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -19000,6 +19759,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -19121,6 +19881,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -19242,6 +20003,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -19364,6 +20126,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -19485,6 +20248,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -19606,6 +20370,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -19727,6 +20492,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -19848,6 +20614,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -19969,6 +20736,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -20090,6 +20858,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -20211,6 +20980,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -20332,6 +21102,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -20455,6 +21226,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -20576,6 +21348,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -20697,6 +21470,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -20818,6 +21592,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -20939,6 +21714,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -21060,6 +21836,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -21181,6 +21958,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -21302,6 +22080,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -21423,6 +22202,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -21544,6 +22324,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -21665,6 +22446,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -21786,6 +22568,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -21907,6 +22690,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -22030,6 +22814,7 @@ prepareProfileEdit: contextPolicy=identity
 inspectConstraints: contextPolicy=identity
 projectProfile: contextPolicy=identity
 inspectFit: contextPolicy=identity
+surfaceAnalysis: contextPolicy=revision
 inspectThickness: contextPolicy=identity
 inspectDraft: contextPolicy=identity
 inspectRound: contextPolicy=identity
@@ -39932,6 +40717,38 @@ files.release: contextPolicy=none
         "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
       },
       {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
         "id": "subdBody",
         "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
       },
@@ -39967,7 +40784,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8ee188d6581ac6ee78660624341ac530a05c5e318d918af2b0a721c57f4860dc"
+  "docsHash": "sha256:41e5f5981b10972d5b0b3364b5471701efc36febfd120f8d09034d64f5c6616d"
 }
 ```
 
@@ -40634,6 +41451,38 @@ files.release: contextPolicy=none
         "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
       },
       {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
         "id": "subdBody",
         "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
       },
@@ -40669,7 +41518,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e9faa8cf12dc3fc19231b1da911f81b9a0cc4c29a50787195f976e15eeb5150f"
+  "docsHash": "sha256:4d90abd40d2aa72206032435dda2fec8c76ccb54f90b3ce9fb4b56cc9b8e7c5a"
 }
 ```
 
@@ -47712,6 +48561,38 @@ files.release: contextPolicy=none
     "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。",
     "alternatives": [
       {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
         "id": "subdBody",
         "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
       },
@@ -47751,7 +48632,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a3ff0d66227e075db1cfafae72bb0c2b5aaed4784501c0c10015795db2c68e1f"
+  "docsHash": "sha256:3f2e73a715004c8b788b1104b85ed5ed2fccba1353ef0a482f8301ceca3ae1ec"
 }
 ```
 
@@ -67175,6 +68056,966 @@ files.release: contextPolicy=none
 }
 ```
 
+## 工具 networkSurface · 双向曲线网格曲面 / B-spline surface constrained by two crossing families of exact curves
+
+```json
+{
+  "id": "networkSurface",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "uEdges": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "refIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 15
+            },
+            "edgeId": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            }
+          },
+          "required": [
+            "refIndex",
+            "edgeId"
+          ]
+        },
+        "minItems": 2,
+        "maxItems": 6
+      },
+      "vEdges": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "refIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 15
+            },
+            "edgeId": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            }
+          },
+          "required": [
+            "refIndex",
+            "edgeId"
+          ]
+        },
+        "minItems": 2,
+        "maxItems": 6
+      },
+      "toleranceMm": {
+        "type": "number",
+        "minimum": 0.001,
+        "maximum": 0.05,
+        "default": 0.01,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    },
+    "required": [
+      "uEdges",
+      "vEdges"
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 16
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 两组边各按横向位置排序。每对纵横曲线要有唯一交点，首尾交点应在边的两端。通过两组曲线插值和交点修正生成真样条面，回读两组边的采样偏差。首版使用两端分开的开放边，并输出独立曲面。",
+  "title": "双向曲线网格曲面 / B-spline surface constrained by two crossing families of exact curves",
+  "category": "surface",
+  "synonyms": [
+    "networkSurface",
+    "双向曲线网格曲面",
+    "B-spline surface constrained by two crossing families of exact curves",
+    "network Surface operation",
+    "纵横曲线",
+    "双向曲线网格",
+    "曲线网曲面",
+    "curve network",
+    "Gordon surface"
+  ],
+  "description": "双向曲线网格曲面 / B-spline surface constrained by two crossing families of exact curves",
+  "schemaHash": "sha256:dbe51e72cba0f5dbcf9acff1d00aaefa060fa272214abc54e5ccd1860b73d141",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "face"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": true,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "两组边各按横向位置排序。每对纵横曲线要有唯一交点，首尾交点应在边的两端。通过两组曲线插值和交点修正生成真样条面，回读两组边的采样偏差。首版使用两端分开的开放边，并输出独立曲面。"
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "minimalExample": {
+    "op": "networkSurface",
+    "params": {
+      "uEdges": [
+        {
+          "refIndex": 0,
+          "edgeId": 0
+        },
+        {
+          "refIndex": 0,
+          "edgeId": 1
+        }
+      ],
+      "vEdges": [
+        {
+          "refIndex": 0,
+          "edgeId": 2
+        },
+        {
+          "refIndex": 0,
+          "edgeId": 3
+        }
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "normalExample": {
+    "op": "networkSurface",
+    "params": {
+      "uEdges": [
+        {
+          "refIndex": 0,
+          "edgeId": 0
+        },
+        {
+          "refIndex": 0,
+          "edgeId": 1
+        }
+      ],
+      "vEdges": [
+        {
+          "refIndex": 0,
+          "edgeId": 2
+        },
+        {
+          "refIndex": 0,
+          "edgeId": 3
+        }
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "uEdges": [
+          {
+            "refIndex": 0,
+            "edgeId": 0
+          },
+          {
+            "refIndex": 0,
+            "edgeId": 1
+          }
+        ],
+        "vEdges": [
+          {
+            "refIndex": 0,
+            "edgeId": 2
+          },
+          {
+            "refIndex": 0,
+            "edgeId": 3
+          }
+        ],
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "FREEFORM_REFERENCE",
+    "FREEFORM_NETWORK",
+    "FREEFORM_TOLERANCE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "双向曲线网格曲面 / B-spline surface constrained by two crossing families of exact curves",
+    "whenToUse": [
+      "两组边各按横向位置排序。每对纵横曲线要有唯一交点，首尾交点应在边的两端。通过两组曲线插值和交点修正生成真样条面，回读两组边的采样偏差。首版使用两端分开的开放边，并输出独立曲面。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "uEdges": {
+        "meaning": "uEdges: 双向曲线网格曲面 / B-spline surface constrained by two crossing families of exact curves",
+        "unit": "none",
+        "range": [
+          2,
+          6
+        ]
+      },
+      "vEdges": {
+        "meaning": "vEdges: 双向曲线网格曲面 / B-spline surface constrained by two crossing families of exact curves",
+        "unit": "none",
+        "range": [
+          2,
+          6
+        ]
+      },
+      "toleranceMm": {
+        "meaning": "toleranceMm: 双向曲线网格曲面 / B-spline surface constrained by two crossing families of exact curves",
+        "unit": "mm",
+        "range": [
+          0.001,
+          0.05
+        ],
+        "default": 0.01
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 16,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_REFERENCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_NETWORK",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_TOLERANCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "networkSurface",
+        "params": {
+          "uEdges": [
+            {
+              "refIndex": 0,
+              "edgeId": 0
+            },
+            {
+              "refIndex": 0,
+              "edgeId": 1
+            }
+          ],
+          "vEdges": [
+            {
+              "refIndex": 0,
+              "edgeId": 2
+            },
+            {
+              "refIndex": 0,
+              "edgeId": 3
+            }
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "normal": {
+        "op": "networkSurface",
+        "params": {
+          "uEdges": [
+            {
+              "refIndex": 0,
+              "edgeId": 0
+            },
+            {
+              "refIndex": 0,
+              "edgeId": 1
+            }
+          ],
+          "vEdges": [
+            {
+              "refIndex": 0,
+              "edgeId": 2
+            },
+            {
+              "refIndex": 0,
+              "edgeId": 3
+            }
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "invalid": [
+        {
+          "params": {
+            "uEdges": [
+              {
+                "refIndex": 0,
+                "edgeId": 0
+              },
+              {
+                "refIndex": 0,
+                "edgeId": 1
+              }
+            ],
+            "vEdges": [
+              {
+                "refIndex": 0,
+                "edgeId": 2
+              },
+              {
+                "refIndex": 0,
+                "edgeId": 3
+              }
+            ],
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "networkSurface",
+      "双向曲线网格曲面",
+      "B-spline surface constrained by two crossing families of exact curves",
+      "network Surface operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "双向曲线网格曲面 / B-spline surface constrained by two crossing families of exact curves",
+  "whenToUse": [
+    "两组边各按横向位置排序。每对纵横曲线要有唯一交点，首尾交点应在边的两端。通过两组曲线插值和交点修正生成真样条面，回读两组边的采样偏差。首版使用两端分开的开放边，并输出独立曲面。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_REFERENCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_NETWORK",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_TOLERANCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "label": "双向曲线网格曲面",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "networkSurface"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
+  "docs": "api.freeform-modeling",
+  "relatedDocs": [
+    "api.freeform-modeling"
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls",
+    "api.placement"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "networkSurface",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:2df81a9653d788432adcaedd8a9a5767213e50fe388af6808edd29fc3583e91a"
+}
+```
+
 ## 工具 offsetSolid · Exact signed offset of all boundary faces of one solid
 
 ```json
@@ -67865,6 +69706,38 @@ files.release: contextPolicy=none
         "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
       },
       {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
         "id": "subdBody",
         "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
       },
@@ -67900,7 +69773,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ddc3c6508f9cebbc035a5670d2c53d972fa3bb9cbb9fdc3332af22ece97359bd"
+  "docsHash": "sha256:2fa3dadfcfd0dfd7d0daeb7490a321b477e024dc5bb3a9523cef0fa2eaec4d7f"
 }
 ```
 
@@ -68594,6 +70467,38 @@ files.release: contextPolicy=none
         "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
       },
       {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
         "id": "subdBody",
         "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
       },
@@ -68629,7 +70534,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7ceab9b9259b4ee85d2c9d3ccbea05b4557a5e404d75a8acfdd3d5475296b57a"
+  "docsHash": "sha256:8f21dc764c29a7e29e346b664f051a5665193089e59faeaf21182fb70c08329f"
 }
 ```
 
@@ -76675,6 +78580,970 @@ files.release: contextPolicy=none
   },
   "readingGuide": "api.guide.sweep-loft",
   "docsHash": "sha256:caf1f37e032031fe3317af5b1a9d1226dcbab39f470d705988e193969b47657d"
+}
+```
+
+## 工具 projectCurveOnFace · 曲线投影与分面 / Directional projection onto a selected exact face
+
+```json
+{
+  "id": "projectCurveOnFace",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "target": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "refIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 15
+          },
+          "faceId": {
+            "type": "integer",
+            "minimum": 0,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          }
+        },
+        "required": [
+          "refIndex",
+          "faceId"
+        ]
+      },
+      "curves": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "refIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 15
+            },
+            "edgeId": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            }
+          },
+          "required": [
+            "refIndex",
+            "edgeId"
+          ]
+        },
+        "minItems": 1,
+        "maxItems": 8
+      },
+      "direction": {
+        "type": "array",
+        "items": {
+          "type": "number",
+          "minimum": -10000,
+          "maximum": 10000,
+          "unit": "1",
+          "quantityKind": "direction",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
+      },
+      "reach": {
+        "enum": [
+          "forward",
+          "both"
+        ]
+      },
+      "output": {
+        "enum": [
+          "curves",
+          "faces"
+        ]
+      }
+    },
+    "required": [
+      "target",
+      "curves",
+      "direction",
+      "reach",
+      "output"
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 16
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 选单张精确目标面及来源边，使用世界方向向量投影。forward 从边出发沿正向，both 向双侧投影。曲线模式输出实际交线；分面模式输出独立的精确面片集合并核对覆盖面积。保留来源。",
+  "title": "曲线投影与分面 / Directional projection onto a selected exact face",
+  "category": "surface",
+  "synonyms": [
+    "projectCurveOnFace",
+    "曲线投影与分面",
+    "Directional projection onto a selected exact face",
+    "project Curve On Face operation",
+    "贴面投影",
+    "曲线分割曲面",
+    "叶脉投影",
+    "project curve",
+    "split face"
+  ],
+  "description": "曲线投影与分面 / Directional projection onto a selected exact face",
+  "schemaHash": "sha256:17f3daee95360d5dea38e8a480bfe75f615d246493630f59ca09d327233775a2",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "wire",
+    "face"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": true,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "选单张精确目标面及来源边，使用世界方向向量投影。forward 从边出发沿正向，both 向双侧投影。曲线模式输出实际交线；分面模式输出独立的精确面片集合并核对覆盖面积。保留来源。"
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "minimalExample": {
+    "op": "projectCurveOnFace",
+    "params": {
+      "target": {
+        "refIndex": 0,
+        "faceId": 0
+      },
+      "curves": [
+        {
+          "refIndex": 0,
+          "edgeId": 0
+        }
+      ],
+      "direction": [
+        0,
+        0,
+        -1
+      ],
+      "reach": "both",
+      "output": "curves"
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "normalExample": {
+    "op": "projectCurveOnFace",
+    "params": {
+      "target": {
+        "refIndex": 0,
+        "faceId": 0
+      },
+      "curves": [
+        {
+          "refIndex": 0,
+          "edgeId": 0
+        }
+      ],
+      "direction": [
+        0,
+        0,
+        -1
+      ],
+      "reach": "both",
+      "output": "curves"
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "target": {
+          "refIndex": 0,
+          "faceId": 0
+        },
+        "curves": [
+          {
+            "refIndex": 0,
+            "edgeId": 0
+          }
+        ],
+        "direction": [
+          0,
+          0,
+          -1
+        ],
+        "reach": "both",
+        "output": "curves",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "FREEFORM_REFERENCE",
+    "FREEFORM_PROJECTION"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "曲线投影与分面 / Directional projection onto a selected exact face",
+    "whenToUse": [
+      "选单张精确目标面及来源边，使用世界方向向量投影。forward 从边出发沿正向，both 向双侧投影。曲线模式输出实际交线；分面模式输出独立的精确面片集合并核对覆盖面积。保留来源。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "target": {
+        "meaning": "target: 曲线投影与分面 / Directional projection onto a selected exact face",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "curves": {
+        "meaning": "curves: 曲线投影与分面 / Directional projection onto a selected exact face",
+        "unit": "none",
+        "range": [
+          1,
+          8
+        ]
+      },
+      "direction": {
+        "meaning": "direction: 曲线投影与分面 / Directional projection onto a selected exact face",
+        "unit": "1",
+        "range": [
+          3,
+          3
+        ]
+      },
+      "reach": {
+        "meaning": "reach: 曲线投影与分面 / Directional projection onto a selected exact face",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "output": {
+        "meaning": "output: 曲线投影与分面 / Directional projection onto a selected exact face",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 16,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_REFERENCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_PROJECTION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "projectCurveOnFace",
+        "params": {
+          "target": {
+            "refIndex": 0,
+            "faceId": 0
+          },
+          "curves": [
+            {
+              "refIndex": 0,
+              "edgeId": 0
+            }
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "reach": "both",
+          "output": "curves"
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "normal": {
+        "op": "projectCurveOnFace",
+        "params": {
+          "target": {
+            "refIndex": 0,
+            "faceId": 0
+          },
+          "curves": [
+            {
+              "refIndex": 0,
+              "edgeId": 0
+            }
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "reach": "both",
+          "output": "curves"
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "invalid": [
+        {
+          "params": {
+            "target": {
+              "refIndex": 0,
+              "faceId": 0
+            },
+            "curves": [
+              {
+                "refIndex": 0,
+                "edgeId": 0
+              }
+            ],
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "reach": "both",
+            "output": "curves",
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "projectCurveOnFace",
+      "曲线投影与分面",
+      "Directional projection onto a selected exact face",
+      "project Curve On Face operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "曲线投影与分面 / Directional projection onto a selected exact face",
+  "whenToUse": [
+    "选单张精确目标面及来源边，使用世界方向向量投影。forward 从边出发沿正向，both 向双侧投影。曲线模式输出实际交线；分面模式输出独立的精确面片集合并核对覆盖面积。保留来源。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_REFERENCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_PROJECTION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "label": "曲线投影与分面",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "projectCurveOnFace"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
+  "docs": "api.freeform-modeling",
+  "relatedDocs": [
+    "api.freeform-modeling"
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls",
+    "api.placement"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "projectCurveOnFace",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:8a983dd33a7d293fa5d9bc5cdc967ed7a4fd12393413cb4b3acf709bc0cb61ef"
 }
 ```
 
@@ -95948,6 +98817,886 @@ files.release: contextPolicy=none
 }
 ```
 
+## 工具 replaceSurfacePatch · 局部换面并缝回实体 / Replace selected solid faces with exact compatible patches
+
+```json
+{
+  "id": "replaceSurfacePatch",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "removeFaceIds": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minItems": 1,
+        "maxItems": 12
+      },
+      "patches": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "refIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 15
+            },
+            "faceId": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            }
+          },
+          "required": [
+            "refIndex",
+            "faceId"
+          ]
+        },
+        "minItems": 1,
+        "maxItems": 12
+      },
+      "toleranceMm": {
+        "type": "number",
+        "minimum": 0.001,
+        "maximum": 0.05,
+        "default": 0.01,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    },
+    "required": [
+      "removeFaceIds",
+      "patches"
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 2,
+    "maxItems": 16
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. refs 第一项为单一原实体，removeFaceIds 取该实体的当前面编号。替换面选自其余来源。先验证原面片与替换面片的自由边界（含内孔）相配，再与保留的面缝回唯一有效闭合实体。保留源实体。",
+  "title": "局部换面并缝回实体 / Replace selected solid faces with exact compatible patches",
+  "category": "surface",
+  "synonyms": [
+    "replaceSurfacePatch",
+    "局部换面并缝回实体",
+    "Replace selected solid faces with exact compatible patches",
+    "replace Surface Patch operation",
+    "局部换面",
+    "更换旧面",
+    "缝回原实体",
+    "repair patch",
+    "replace face"
+  ],
+  "description": "局部换面并缝回实体 / Replace selected solid faces with exact compatible patches",
+  "schemaHash": "sha256:27faf461aaba524db50d6c5b844afc333c6406194232ffa179e5cfaa1d6cc56f",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": true,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "refs 第一项为单一原实体，removeFaceIds 取该实体的当前面编号。替换面选自其余来源。先验证原面片与替换面片的自由边界（含内孔）相配，再与保留的面缝回唯一有效闭合实体。保留源实体。"
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "minimalExample": {
+    "op": "replaceSurfacePatch",
+    "params": {
+      "removeFaceIds": [
+        0
+      ],
+      "patches": [
+        {
+          "refIndex": 1,
+          "faceId": 0
+        }
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>",
+      "<current-bodyId-2>"
+    ]
+  },
+  "normalExample": {
+    "op": "replaceSurfacePatch",
+    "params": {
+      "removeFaceIds": [
+        0
+      ],
+      "patches": [
+        {
+          "refIndex": 1,
+          "faceId": 0
+        }
+      ]
+    },
+    "refs": [
+      "<current-bodyId-1>",
+      "<current-bodyId-2>"
+    ]
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "removeFaceIds": [
+          0
+        ],
+        "patches": [
+          {
+            "refIndex": 1,
+            "faceId": 0
+          }
+        ],
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "FREEFORM_REFERENCE",
+    "FREEFORM_REPLACE",
+    "FREEFORM_TOLERANCE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "局部换面并缝回实体 / Replace selected solid faces with exact compatible patches",
+    "whenToUse": [
+      "refs 第一项为单一原实体，removeFaceIds 取该实体的当前面编号。替换面选自其余来源。先验证原面片与替换面片的自由边界（含内孔）相配，再与保留的面缝回唯一有效闭合实体。保留源实体。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "removeFaceIds": {
+        "meaning": "removeFaceIds: 局部换面并缝回实体 / Replace selected solid faces with exact compatible patches",
+        "unit": "none",
+        "range": [
+          1,
+          12
+        ]
+      },
+      "patches": {
+        "meaning": "patches: 局部换面并缝回实体 / Replace selected solid faces with exact compatible patches",
+        "unit": "none",
+        "range": [
+          1,
+          12
+        ]
+      },
+      "toleranceMm": {
+        "meaning": "toleranceMm: 局部换面并缝回实体 / Replace selected solid faces with exact compatible patches",
+        "unit": "mm",
+        "range": [
+          0.001,
+          0.05
+        ],
+        "default": 0.01
+      }
+    },
+    "refs": {
+      "min": 2,
+      "max": 16,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_REFERENCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_REPLACE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_TOLERANCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "replaceSurfacePatch",
+        "params": {
+          "removeFaceIds": [
+            0
+          ],
+          "patches": [
+            {
+              "refIndex": 1,
+              "faceId": 0
+            }
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>",
+          "<current-bodyId-2>"
+        ]
+      },
+      "normal": {
+        "op": "replaceSurfacePatch",
+        "params": {
+          "removeFaceIds": [
+            0
+          ],
+          "patches": [
+            {
+              "refIndex": 1,
+              "faceId": 0
+            }
+          ]
+        },
+        "refs": [
+          "<current-bodyId-1>",
+          "<current-bodyId-2>"
+        ]
+      },
+      "invalid": [
+        {
+          "params": {
+            "removeFaceIds": [
+              0
+            ],
+            "patches": [
+              {
+                "refIndex": 1,
+                "faceId": 0
+              }
+            ],
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "replaceSurfacePatch",
+      "局部换面并缝回实体",
+      "Replace selected solid faces with exact compatible patches",
+      "replace Surface Patch operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "局部换面并缝回实体 / Replace selected solid faces with exact compatible patches",
+  "whenToUse": [
+    "refs 第一项为单一原实体，removeFaceIds 取该实体的当前面编号。替换面选自其余来源。先验证原面片与替换面片的自由边界（含内孔）相配，再与保留的面缝回唯一有效闭合实体。保留源实体。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_REFERENCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_REPLACE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_TOLERANCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "label": "局部换面",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "replaceSurfacePatch"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
+  "docs": "api.freeform-modeling",
+  "relatedDocs": [
+    "api.freeform-modeling"
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls",
+    "api.placement"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "replaceSurfacePatch",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:9228281e450beccc9e41c4cc1e3028d45e3af0bb57c793b454b95087f3da0556"
+}
+```
+
 ## 工具 revolve · Revolve a closed profile
 
 ```json
@@ -101433,6 +105182,38 @@ files.release: contextPolicy=none
         "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
       },
       {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
         "id": "subdBody",
         "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
       },
@@ -101468,7 +105249,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ef8f1550642f41e2ebeec011520e82a527eada2eecad92c8c81f9f34bfc57d2e"
+  "docsHash": "sha256:260e153a6d00bd0de40f3001e2ead17140352af0aa34da61bce58406fb7ea918"
 }
 ```
 
@@ -102221,6 +106002,38 @@ files.release: contextPolicy=none
         "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
       },
       {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
         "id": "subdBody",
         "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
       },
@@ -102264,7 +106077,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2d58dd1f43a2f7fc0f013a76feb7451b38939bb5ed5d7631050b936c7db90bdd"
+  "docsHash": "sha256:7aadba5490df971c62b8c4f149cbaacc875ef882318e3713176c898aa0e1027d"
 }
 ```
 
@@ -105445,6 +109258,983 @@ files.release: contextPolicy=none
 }
 ```
 
+## 工具 spatialSpline · 空间样条曲线 / Interpolate ordered 3D points or fit them to tolerance
+
+```json
+{
+  "id": "spatialSpline",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "points": {
+        "type": "array",
+        "items": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "minimum": -10000,
+                "maximum": 10000,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "minItems": 3,
+              "maxItems": 3,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "refIndex": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 15
+                },
+                "edgeId": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "unit": "1",
+                  "quantityKind": "index",
+                  "quantizationPolicy": "none"
+                },
+                "nearMm": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": -10000,
+                    "maximum": 10000
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              },
+              "required": [
+                "refIndex",
+                "edgeId",
+                "nearMm"
+              ],
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            }
+          ],
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 2,
+        "maxItems": 64,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "closed": {
+        "type": "boolean"
+      },
+      "method": {
+        "enum": [
+          "interpolate",
+          "fit"
+        ]
+      },
+      "toleranceMm": {
+        "type": "number",
+        "minimum": 0.001,
+        "maximum": 0.05,
+        "default": 0.01,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    },
+    "required": [
+      "points",
+      "closed",
+      "method"
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 16
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 世界 XYZ 毫米，有序点可为坐标或当前精确边的端点。闭合插值至少三个不同的点，自动闭合。公差拟合用开放样条。结果是一条独立精确边，供填充、曲线网格和扫掠引用。",
+  "title": "空间样条曲线 / Interpolate ordered 3D points or fit them to tolerance",
+  "category": "reference",
+  "synonyms": [
+    "spatialSpline",
+    "空间样条曲线",
+    "Interpolate ordered 3D points or fit them to tolerance",
+    "spatial Spline operation",
+    "三维曲线",
+    "空间样条",
+    "穿点曲线",
+    "拟合导向线",
+    "interpolate curve"
+  ],
+  "description": "空间样条曲线 / Interpolate ordered 3D points or fit them to tolerance",
+  "schemaHash": "sha256:67f5eccbed9e682f2878858a7db7b395525c2a2fb09085f05649418c020533ef",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "edge"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": true,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "世界 XYZ 毫米，有序点可为坐标或当前精确边的端点。闭合插值至少三个不同的点，自动闭合。公差拟合用开放样条。结果是一条独立精确边，供填充、曲线网格和扫掠引用。"
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "minimalExample": {
+    "op": "spatialSpline",
+    "params": {
+      "points": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          7,
+          2,
+          3
+        ],
+        [
+          15,
+          5,
+          1
+        ]
+      ],
+      "closed": false,
+      "method": "interpolate"
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "spatialSpline",
+    "params": {
+      "points": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          7,
+          2,
+          3
+        ],
+        [
+          15,
+          5,
+          1
+        ]
+      ],
+      "closed": false,
+      "method": "interpolate"
+    },
+    "refs": []
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "points": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            7,
+            2,
+            3
+          ],
+          [
+            15,
+            5,
+            1
+          ]
+        ],
+        "closed": false,
+        "method": "interpolate",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "FREEFORM_REFERENCE",
+    "FREEFORM_CURVE",
+    "FREEFORM_TOLERANCE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "空间样条曲线 / Interpolate ordered 3D points or fit them to tolerance",
+    "whenToUse": [
+      "世界 XYZ 毫米，有序点可为坐标或当前精确边的端点。闭合插值至少三个不同的点，自动闭合。公差拟合用开放样条。结果是一条独立精确边，供填充、曲线网格和扫掠引用。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "points": {
+        "meaning": "points: 空间样条曲线 / Interpolate ordered 3D points or fit them to tolerance",
+        "unit": "mm",
+        "range": [
+          2,
+          64
+        ]
+      },
+      "closed": {
+        "meaning": "closed: 空间样条曲线 / Interpolate ordered 3D points or fit them to tolerance",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "method": {
+        "meaning": "method: 空间样条曲线 / Interpolate ordered 3D points or fit them to tolerance",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "toleranceMm": {
+        "meaning": "toleranceMm: 空间样条曲线 / Interpolate ordered 3D points or fit them to tolerance",
+        "unit": "mm",
+        "range": [
+          0.001,
+          0.05
+        ],
+        "default": 0.01
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 16,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_REFERENCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_CURVE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_TOLERANCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "spatialSpline",
+        "params": {
+          "points": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              7,
+              2,
+              3
+            ],
+            [
+              15,
+              5,
+              1
+            ]
+          ],
+          "closed": false,
+          "method": "interpolate"
+        },
+        "refs": []
+      },
+      "normal": {
+        "op": "spatialSpline",
+        "params": {
+          "points": [
+            [
+              0,
+              0,
+              0
+            ],
+            [
+              7,
+              2,
+              3
+            ],
+            [
+              15,
+              5,
+              1
+            ]
+          ],
+          "closed": false,
+          "method": "interpolate"
+        },
+        "refs": []
+      },
+      "invalid": [
+        {
+          "params": {
+            "points": [
+              [
+                0,
+                0,
+                0
+              ],
+              [
+                7,
+                2,
+                3
+              ],
+              [
+                15,
+                5,
+                1
+              ]
+            ],
+            "closed": false,
+            "method": "interpolate",
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "spatialSpline",
+      "空间样条曲线",
+      "Interpolate ordered 3D points or fit them to tolerance",
+      "spatial Spline operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "空间样条曲线 / Interpolate ordered 3D points or fit them to tolerance",
+  "whenToUse": [
+    "世界 XYZ 毫米，有序点可为坐标或当前精确边的端点。闭合插值至少三个不同的点，自动闭合。公差拟合用开放样条。结果是一条独立精确边，供填充、曲线网格和扫掠引用。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_REFERENCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_CURVE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_TOLERANCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "label": "空间样条曲线",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "spatialSpline"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
+  "docs": "api.freeform-modeling",
+  "relatedDocs": [
+    "api.freeform-modeling"
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls",
+    "api.placement"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "spatialSpline",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:71bfab2e9657c446fe5abe7f9ec20e46c94dfb4746f295d3cd208079249c7254"
+}
+```
+
 ## 工具 sphere · Sphere centered at the local origin before placement
 
 ```json
@@ -108286,6 +113076,38 @@ files.release: contextPolicy=none
         "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
       },
       {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
         "id": "extractFaces",
         "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
       },
@@ -108321,7 +113143,4619 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6ef91f90abc9cbe728707179f2041971a2e8082069ae3315bf67a08d5c01f889"
+  "docsHash": "sha256:37cc0c600a328804ce72cf6a67a08a8ed2345d332ca7450aae484252c8f02def"
+}
+```
+
+## 工具 surfaceBridge · 双边光顺过渡面 / Bridge two separate supported edges with positional, tangent or curvature constraints
+
+```json
+{
+  "id": "surfaceBridge",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "a": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "refIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 15
+          },
+          "edgeId": {
+            "type": "integer",
+            "minimum": 0,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "faceId": {
+            "type": "integer",
+            "minimum": 0,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "continuity": {
+            "enum": [
+              "G0",
+              "G1",
+              "G2"
+            ]
+          }
+        },
+        "required": [
+          "refIndex",
+          "edgeId",
+          "faceId",
+          "continuity"
+        ]
+      },
+      "b": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "refIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 15
+          },
+          "edgeId": {
+            "type": "integer",
+            "minimum": 0,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "faceId": {
+            "type": "integer",
+            "minimum": 0,
+            "unit": "1",
+            "quantityKind": "index",
+            "quantizationPolicy": "none"
+          },
+          "continuity": {
+            "enum": [
+              "G0",
+              "G1",
+              "G2"
+            ]
+          }
+        },
+        "required": [
+          "refIndex",
+          "edgeId",
+          "faceId",
+          "continuity"
+        ]
+      },
+      "pairing": {
+        "enum": [
+          "direct",
+          "reverse"
+        ]
+      },
+      "tension": {
+        "type": "number",
+        "minimum": 0.25,
+        "maximum": 1.5,
+        "default": 0.6
+      },
+      "toleranceMm": {
+        "type": "number",
+        "minimum": 0.001,
+        "maximum": 0.05,
+        "default": 0.01,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      }
+    },
+    "required": [
+      "a",
+      "b",
+      "pairing"
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 16
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 在两条分开的开放边之间新建曲面，每条边选择所属的邻面和连续性。direct 连接同参数方向的两端，reverse 交叉指定对应端。张力控制两端接入侧曲线的尺度。对最后生成的面核对接缝偏差、法向和曲率。",
+  "title": "双边光顺过渡面 / Bridge two separate supported edges with positional, tangent or curvature constraints",
+  "category": "surface",
+  "synonyms": [
+    "surfaceBridge",
+    "双边光顺过渡面",
+    "Bridge two separate supported edges with positional, tangent or curvature constraints",
+    "surface Bridge operation",
+    "光顺桥接",
+    "两边过渡",
+    "双边曲面过渡",
+    "blend surface"
+  ],
+  "description": "双边光顺过渡面 / Bridge two separate supported edges with positional, tangent or curvature constraints",
+  "schemaHash": "sha256:2fae3fb77a68c3391f37c9ca79401eb46ae4126efd3c5aba003df623b3f1f2f3",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "face"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": true,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "在两条分开的开放边之间新建曲面，每条边选择所属的邻面和连续性。direct 连接同参数方向的两端，reverse 交叉指定对应端。张力控制两端接入侧曲线的尺度。对最后生成的面核对接缝偏差、法向和曲率。"
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "minimalExample": {
+    "op": "surfaceBridge",
+    "params": {
+      "a": {
+        "refIndex": 0,
+        "edgeId": 0,
+        "faceId": 0,
+        "continuity": "G1"
+      },
+      "b": {
+        "refIndex": 0,
+        "edgeId": 1,
+        "faceId": 1,
+        "continuity": "G2"
+      },
+      "pairing": "reverse"
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "normalExample": {
+    "op": "surfaceBridge",
+    "params": {
+      "a": {
+        "refIndex": 0,
+        "edgeId": 0,
+        "faceId": 0,
+        "continuity": "G1"
+      },
+      "b": {
+        "refIndex": 0,
+        "edgeId": 1,
+        "faceId": 1,
+        "continuity": "G2"
+      },
+      "pairing": "reverse"
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "a": {
+          "refIndex": 0,
+          "edgeId": 0,
+          "faceId": 0,
+          "continuity": "G1"
+        },
+        "b": {
+          "refIndex": 0,
+          "edgeId": 1,
+          "faceId": 1,
+          "continuity": "G2"
+        },
+        "pairing": "reverse",
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "FREEFORM_REFERENCE",
+    "FREEFORM_BRIDGE",
+    "SURFACE_FILL_BOUNDARY",
+    "SURFACE_FILL_SOLVER",
+    "SURFACE_FILL_TOLERANCE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "双边光顺过渡面 / Bridge two separate supported edges with positional, tangent or curvature constraints",
+    "whenToUse": [
+      "在两条分开的开放边之间新建曲面，每条边选择所属的邻面和连续性。direct 连接同参数方向的两端，reverse 交叉指定对应端。张力控制两端接入侧曲线的尺度。对最后生成的面核对接缝偏差、法向和曲率。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "a": {
+        "meaning": "a: 双边光顺过渡面 / Bridge two separate supported edges with positional, tangent or curvature constraints",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "b": {
+        "meaning": "b: 双边光顺过渡面 / Bridge two separate supported edges with positional, tangent or curvature constraints",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "pairing": {
+        "meaning": "pairing: 双边光顺过渡面 / Bridge two separate supported edges with positional, tangent or curvature constraints",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "tension": {
+        "meaning": "tension: 双边光顺过渡面 / Bridge two separate supported edges with positional, tangent or curvature constraints",
+        "unit": "dimensionless",
+        "range": [
+          0.25,
+          1.5
+        ],
+        "default": 0.6
+      },
+      "toleranceMm": {
+        "meaning": "toleranceMm: 双边光顺过渡面 / Bridge two separate supported edges with positional, tangent or curvature constraints",
+        "unit": "mm",
+        "range": [
+          0.001,
+          0.05
+        ],
+        "default": 0.01
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 16,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_REFERENCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FREEFORM_BRIDGE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SURFACE_FILL_BOUNDARY",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SURFACE_FILL_SOLVER",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SURFACE_FILL_TOLERANCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "surfaceBridge",
+        "params": {
+          "a": {
+            "refIndex": 0,
+            "edgeId": 0,
+            "faceId": 0,
+            "continuity": "G1"
+          },
+          "b": {
+            "refIndex": 0,
+            "edgeId": 1,
+            "faceId": 1,
+            "continuity": "G2"
+          },
+          "pairing": "reverse"
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "normal": {
+        "op": "surfaceBridge",
+        "params": {
+          "a": {
+            "refIndex": 0,
+            "edgeId": 0,
+            "faceId": 0,
+            "continuity": "G1"
+          },
+          "b": {
+            "refIndex": 0,
+            "edgeId": 1,
+            "faceId": 1,
+            "continuity": "G2"
+          },
+          "pairing": "reverse"
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "invalid": [
+        {
+          "params": {
+            "a": {
+              "refIndex": 0,
+              "edgeId": 0,
+              "faceId": 0,
+              "continuity": "G1"
+            },
+            "b": {
+              "refIndex": 0,
+              "edgeId": 1,
+              "faceId": 1,
+              "continuity": "G2"
+            },
+            "pairing": "reverse",
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "surfaceBridge",
+      "双边光顺过渡面",
+      "Bridge two separate supported edges with positional, tangent or curvature constraints",
+      "surface Bridge operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "双边光顺过渡面 / Bridge two separate supported edges with positional, tangent or curvature constraints",
+  "whenToUse": [
+    "在两条分开的开放边之间新建曲面，每条边选择所属的邻面和连续性。direct 连接同参数方向的两端，reverse 交叉指定对应端。张力控制两端接入侧曲线的尺度。对最后生成的面核对接缝偏差、法向和曲率。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_REFERENCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FREEFORM_BRIDGE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SURFACE_FILL_BOUNDARY",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SURFACE_FILL_SOLVER",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SURFACE_FILL_TOLERANCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "label": "双边光顺过渡面",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "surfaceBridge"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
+  "docs": "api.freeform-modeling",
+  "relatedDocs": [
+    "api.freeform-modeling"
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls",
+    "api.placement"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "surfaceBridge",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:88343821ed361750726d8d8ead953dd5ba51d36dba18864f0df26e3bade01e42"
+}
+```
+
+## 工具 surfaceFairing · 曲面保形修顺 / Fair a source-bound Z displacement field and refit STEP faces and seams
+
+```json
+{
+  "id": "surfaceFairing",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "smoothingMm",
+      "maxAdjustmentMm",
+      "protectedCenter",
+      "protectedRadiusMm",
+      "field"
+    ],
+    "properties": {
+      "smoothingMm": {
+        "type": "number",
+        "minimum": 0.05,
+        "maximum": 3,
+        "description": "XY Gaussian standard deviation in mm"
+      },
+      "maxAdjustmentMm": {
+        "type": "number",
+        "minimum": 0.005,
+        "maximum": 2,
+        "description": "Upper limit on a sampled Z correction in mm"
+      },
+      "protectedCenter": {
+        "type": "array",
+        "items": {
+          "type": "number",
+          "minimum": -10000,
+          "maximum": 10000
+        },
+        "minItems": 2,
+        "maxItems": 2
+      },
+      "protectedRadiusMm": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1000
+      },
+      "field": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "columns",
+          "rows",
+          "layers",
+          "minMm",
+          "maxMm",
+          "mmPerCount",
+          "offsetsI16le",
+          "sourceSha256"
+        ],
+        "properties": {
+          "columns": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 256
+          },
+          "rows": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 256
+          },
+          "layers": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 256
+          },
+          "minMm": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": -10000,
+              "maximum": 10000
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "maxMm": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": -10000,
+              "maximum": 10000
+            },
+            "minItems": 3,
+            "maxItems": 3
+          },
+          "mmPerCount": {
+            "type": "number",
+            "minimum": 0.000001,
+            "maximum": 0.01
+          },
+          "offsetsI16le": {
+            "type": "string",
+            "minLength": 336,
+            "maxLength": 2400000,
+            "pattern": "^[A-Za-z0-9+/]+={0,2}$",
+            "description": "Base64 of XYZ-major signed little-endian int16 Z offsets; X is contiguous"
+          },
+          "sourceSha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "SHA-256 of the exact STEP input file"
+          }
+        }
+      }
+    },
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 选一个按原坐标直接导入的毫米制闭合 STEP 实体，提供与该文件字节绑定的原始 Z 高度位移场。先在 XY 平滑原位移，再反解源件高度并把差量拟合回原曲面、共边和顶点。保持 X/Y，首尾高度层、圆柱保护区及其边带逐渐过渡。支持范围内的非有理多项式样条，未拟合的机械圆柱必须通过几何核对。网格最多 900000 采样，拒绝位置交错、拟合失败和无效闭合。可预览、应用、撤销并从结果导出 STEP。",
+  "title": "曲面保形修顺 / Fair a source-bound Z displacement field and refit STEP faces and seams",
+  "category": "surface",
+  "synonyms": [
+    "surfaceFairing",
+    "曲面保形修顺",
+    "Fair a source-bound Z displacement field and refit STEP faces and seams",
+    "surface Fairing operation",
+    "原STEP修面",
+    "沿Z修顺",
+    "共边重拟合",
+    "去短波",
+    "height field fairing"
+  ],
+  "description": "曲面保形修顺 / Fair a source-bound Z displacement field and refit STEP faces and seams",
+  "schemaHash": "sha256:94a52f04f1fdd6c946e58ab0843155c412f240068a2aa6a9ef6d033874a98579",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "选一个按原坐标直接导入的毫米制闭合 STEP 实体，提供与该文件字节绑定的原始 Z 高度位移场。先在 XY 平滑原位移，再反解源件高度并把差量拟合回原曲面、共边和顶点。保持 X/Y，首尾高度层、圆柱保护区及其边带逐渐过渡。支持范围内的非有理多项式样条，未拟合的机械圆柱必须通过几何核对。网格最多 900000 采样，拒绝位置交错、拟合失败和无效闭合。可预览、应用、撤销并从结果导出 STEP。"
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "minimalExample": {
+    "op": "surfaceFairing",
+    "params": {
+      "smoothingMm": 0.75,
+      "maxAdjustmentMm": 0.75,
+      "protectedCenter": [
+        0,
+        0
+      ],
+      "protectedRadiusMm": 0,
+      "field": {
+        "columns": 5,
+        "rows": 5,
+        "layers": 5,
+        "minMm": [
+          -2,
+          -2,
+          0
+        ],
+        "maxMm": [
+          2,
+          2,
+          4
+        ],
+        "mmPerCount": 0.001,
+        "offsetsI16le": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+        "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "normalExample": {
+    "op": "surfaceFairing",
+    "params": {
+      "smoothingMm": 0.75,
+      "maxAdjustmentMm": 0.75,
+      "protectedCenter": [
+        0,
+        0
+      ],
+      "protectedRadiusMm": 0,
+      "field": {
+        "columns": 5,
+        "rows": 5,
+        "layers": 5,
+        "minMm": [
+          -2,
+          -2,
+          0
+        ],
+        "maxMm": [
+          2,
+          2,
+          4
+        ],
+        "mmPerCount": 0.001,
+        "offsetsI16le": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+        "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "smoothingMm": 0.75,
+        "maxAdjustmentMm": 0.75,
+        "protectedCenter": [
+          0,
+          0
+        ],
+        "protectedRadiusMm": 0,
+        "field": {
+          "columns": 5,
+          "rows": 5,
+          "layers": 5,
+          "minMm": [
+            -2,
+            -2,
+            0
+          ],
+          "maxMm": [
+            2,
+            2,
+            4
+          ],
+          "mmPerCount": 0.001,
+          "offsetsI16le": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+          "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "FAIRING_SOURCE_UNSUPPORTED",
+    "FAIRING_FIELD_INVALID",
+    "FAIRING_SOURCE_MISMATCH",
+    "FAIRING_FIT_FAILED",
+    "FAIRING_INVALID_SOLID",
+    "NO_CHANGE"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "曲面保形修顺 / Fair a source-bound Z displacement field and refit STEP faces and seams",
+    "whenToUse": [
+      "选一个按原坐标直接导入的毫米制闭合 STEP 实体，提供与该文件字节绑定的原始 Z 高度位移场。先在 XY 平滑原位移，再反解源件高度并把差量拟合回原曲面、共边和顶点。保持 X/Y，首尾高度层、圆柱保护区及其边带逐渐过渡。支持范围内的非有理多项式样条，未拟合的机械圆柱必须通过几何核对。网格最多 900000 采样，拒绝位置交错、拟合失败和无效闭合。可预览、应用、撤销并从结果导出 STEP。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "smoothingMm": {
+        "meaning": "XY Gaussian standard deviation in mm",
+        "unit": "mm",
+        "range": [
+          0.05,
+          3
+        ]
+      },
+      "maxAdjustmentMm": {
+        "meaning": "Upper limit on a sampled Z correction in mm",
+        "unit": "mm",
+        "range": [
+          0.005,
+          2
+        ]
+      },
+      "protectedCenter": {
+        "meaning": "protectedCenter: 曲面保形修顺 / Fair a source-bound Z displacement field and refit STEP faces and seams",
+        "unit": "none",
+        "range": [
+          2,
+          2
+        ]
+      },
+      "protectedRadiusMm": {
+        "meaning": "protectedRadiusMm: 曲面保形修顺 / Fair a source-bound Z displacement field and refit STEP faces and seams",
+        "unit": "mm",
+        "range": [
+          0,
+          1000
+        ]
+      },
+      "field": {
+        "meaning": "field: 曲面保形修顺 / Fair a source-bound Z displacement field and refit STEP faces and seams",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FAIRING_SOURCE_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FAIRING_FIELD_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FAIRING_SOURCE_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FAIRING_FIT_FAILED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "FAIRING_INVALID_SOLID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "NO_CHANGE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "surfaceFairing",
+        "params": {
+          "smoothingMm": 0.75,
+          "maxAdjustmentMm": 0.75,
+          "protectedCenter": [
+            0,
+            0
+          ],
+          "protectedRadiusMm": 0,
+          "field": {
+            "columns": 5,
+            "rows": 5,
+            "layers": 5,
+            "minMm": [
+              -2,
+              -2,
+              0
+            ],
+            "maxMm": [
+              2,
+              2,
+              4
+            ],
+            "mmPerCount": 0.001,
+            "offsetsI16le": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+            "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "normal": {
+        "op": "surfaceFairing",
+        "params": {
+          "smoothingMm": 0.75,
+          "maxAdjustmentMm": 0.75,
+          "protectedCenter": [
+            0,
+            0
+          ],
+          "protectedRadiusMm": 0,
+          "field": {
+            "columns": 5,
+            "rows": 5,
+            "layers": 5,
+            "minMm": [
+              -2,
+              -2,
+              0
+            ],
+            "maxMm": [
+              2,
+              2,
+              4
+            ],
+            "mmPerCount": 0.001,
+            "offsetsI16le": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+            "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000000"
+          }
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "invalid": [
+        {
+          "params": {
+            "smoothingMm": 0.75,
+            "maxAdjustmentMm": 0.75,
+            "protectedCenter": [
+              0,
+              0
+            ],
+            "protectedRadiusMm": 0,
+            "field": {
+              "columns": 5,
+              "rows": 5,
+              "layers": 5,
+              "minMm": [
+                -2,
+                -2,
+                0
+              ],
+              "maxMm": [
+                2,
+                2,
+                4
+              ],
+              "mmPerCount": 0.001,
+              "offsetsI16le": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "sourceSha256": "0000000000000000000000000000000000000000000000000000000000000000"
+            },
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "surfaceFairing",
+      "曲面保形修顺",
+      "Fair a source-bound Z displacement field and refit STEP faces and seams",
+      "surface Fairing operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "曲面保形修顺 / Fair a source-bound Z displacement field and refit STEP faces and seams",
+  "whenToUse": [
+    "选一个按原坐标直接导入的毫米制闭合 STEP 实体，提供与该文件字节绑定的原始 Z 高度位移场。先在 XY 平滑原位移，再反解源件高度并把差量拟合回原曲面、共边和顶点。保持 X/Y，首尾高度层、圆柱保护区及其边带逐渐过渡。支持范围内的非有理多项式样条，未拟合的机械圆柱必须通过几何核对。网格最多 900000 采样，拒绝位置交错、拟合失败和无效闭合。可预览、应用、撤销并从结果导出 STEP。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FAIRING_SOURCE_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FAIRING_FIELD_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FAIRING_SOURCE_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FAIRING_FIT_FAILED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "FAIRING_INVALID_SOLID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "NO_CHANGE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "label": "曲面保形修顺",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "surfaceFairing"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
+  "docs": "api.surface-fairing",
+  "relatedDocs": [
+    "api.freeform-modeling"
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls",
+    "api.placement"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "surfaceFairing",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:45afa339627b349bae568d9103788f6f7a85ace062c8cbcea4a15d84ed56f840"
+}
+```
+
+## 工具 surfaceFill · 约束填充曲面 / Fill a closed boundary with a smooth constrained surface
+
+```json
+{
+  "id": "surfaceFill",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "boundary": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "points"
+              },
+              "curve": {
+                "enum": [
+                  "smooth",
+                  "segments"
+                ]
+              },
+              "points": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "number",
+                        "minimum": -10000,
+                        "maximum": 10000,
+                        "unit": "mm",
+                        "quantityKind": "length",
+                        "quantizationPolicy": "none"
+                      },
+                      "minItems": 3,
+                      "maxItems": 3,
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "refIndex": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 15
+                        },
+                        "edgeId": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "unit": "1",
+                          "quantityKind": "index",
+                          "quantizationPolicy": "none"
+                        },
+                        "nearMm": {
+                          "type": "array",
+                          "items": {
+                            "type": "number",
+                            "minimum": -10000,
+                            "maximum": 10000
+                          },
+                          "minItems": 3,
+                          "maxItems": 3,
+                          "description": "World-space pick near one exact endpoint of the specified edge"
+                        }
+                      },
+                      "required": [
+                        "refIndex",
+                        "edgeId",
+                        "nearMm"
+                      ],
+                      "unit": "mm",
+                      "quantityKind": "length",
+                      "quantizationPolicy": "none"
+                    }
+                  ],
+                  "unit": "mm",
+                  "quantityKind": "length",
+                  "quantizationPolicy": "none"
+                },
+                "minItems": 3,
+                "maxItems": 24,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              }
+            },
+            "required": [
+              "kind",
+              "curve",
+              "points"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "edges"
+              },
+              "edges": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "kind": {
+                          "const": "G0"
+                        },
+                        "refIndex": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 15
+                        },
+                        "edgeId": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "unit": "1",
+                          "quantityKind": "index",
+                          "quantizationPolicy": "none"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "refIndex",
+                        "edgeId"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "kind": {
+                          "const": "G1"
+                        },
+                        "refIndex": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 15
+                        },
+                        "edgeId": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "unit": "1",
+                          "quantityKind": "index",
+                          "quantizationPolicy": "none"
+                        },
+                        "supportFaceId": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "refIndex",
+                        "edgeId",
+                        "supportFaceId"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "kind": {
+                          "const": "G2"
+                        },
+                        "refIndex": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 15
+                        },
+                        "edgeId": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "unit": "1",
+                          "quantityKind": "index",
+                          "quantizationPolicy": "none"
+                        },
+                        "supportFaceId": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "refIndex",
+                        "edgeId",
+                        "supportFaceId"
+                      ]
+                    }
+                  ]
+                },
+                "minItems": 1,
+                "maxItems": 24
+              }
+            },
+            "required": [
+              "kind",
+              "edges"
+            ]
+          }
+        ]
+      },
+      "points": {
+        "type": "array",
+        "items": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "minimum": -10000,
+                "maximum": 10000,
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              },
+              "minItems": 3,
+              "maxItems": 3,
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "refIndex": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 15
+                },
+                "edgeId": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "unit": "1",
+                  "quantityKind": "index",
+                  "quantizationPolicy": "none"
+                },
+                "nearMm": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": -10000,
+                    "maximum": 10000
+                  },
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "description": "World-space pick near one exact endpoint of the specified edge"
+                }
+              },
+              "required": [
+                "refIndex",
+                "edgeId",
+                "nearMm"
+              ],
+              "unit": "mm",
+              "quantityKind": "length",
+              "quantizationPolicy": "none"
+            }
+          ],
+          "unit": "mm",
+          "quantityKind": "length",
+          "quantizationPolicy": "none"
+        },
+        "minItems": 0,
+        "maxItems": 32,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "guideEdges": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "refIndex": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 15
+            },
+            "edgeId": {
+              "type": "integer",
+              "minimum": 0,
+              "unit": "1",
+              "quantityKind": "index",
+              "quantizationPolicy": "none"
+            }
+          },
+          "required": [
+            "refIndex",
+            "edgeId"
+          ]
+        },
+        "minItems": 0,
+        "maxItems": 8
+      },
+      "toleranceMm": {
+        "type": "number",
+        "minimum": 0.001,
+        "maximum": 0.05,
+        "default": 0.01,
+        "unit": "mm",
+        "quantityKind": "length",
+        "quantizationPolicy": "none"
+      },
+      "output": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "surface"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "thickened"
+              },
+              "thicknessMm": {
+                "type": "number",
+                "minimum": -20,
+                "maximum": 20,
+                "not": {
+                  "const": 0
+                },
+                "unit": "mm",
+                "quantityKind": "length",
+                "quantizationPolicy": "none"
+              }
+            },
+            "required": [
+              "kind",
+              "thicknessMm"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "boundary",
+      "output"
+    ],
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 0,
+    "maxItems": 16
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 使用世界坐标毫米，或通过 refs 中的当前精确对象定位边、邻面和边端点。依序输入边界点可生成周期插值曲线或折线；模型边必须组成唯一闭环。内点及导向边控制起伏。G1/G2 需要由选定邻面拥有该边。公差约束位置误差；切向与曲率分别由内核报告。可输出真实样条面或给定法向厚度的有效实体。使用现有缝合转实体将填充面与完整封闭外壳组合。源几何保留。",
+  "title": "约束填充曲面 / Fill a closed boundary with a smooth constrained surface",
+  "category": "surface",
+  "synonyms": [
+    "surfaceFill",
+    "约束填充曲面",
+    "Fill a closed boundary with a smooth constrained surface",
+    "surface Fill operation",
+    "闭边补面",
+    "空间点拟合",
+    "导向曲线",
+    "邻面相切",
+    "曲率连续",
+    "surface patch",
+    "boundary fill"
+  ],
+  "description": "约束填充曲面 / Fill a closed boundary with a smooth constrained surface",
+  "schemaHash": "sha256:3d234209d717ce404caae9a302dceff0fed1be706b099b4044f9a5e27d618916",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use explicit empty refs for independent creation."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "face"
+  ],
+  "consumesInputs": false,
+  "preservesInputs": true,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "使用世界坐标毫米，或通过 refs 中的当前精确对象定位边、邻面和边端点。依序输入边界点可生成周期插值曲线或折线；模型边必须组成唯一闭环。内点及导向边控制起伏。G1/G2 需要由选定邻面拥有该边。公差约束位置误差；切向与曲率分别由内核报告。可输出真实样条面或给定法向厚度的有效实体。使用现有缝合转实体将填充面与完整封闭外壳组合。源几何保留。"
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "minimalExample": {
+    "op": "surfaceFill",
+    "params": {
+      "boundary": {
+        "kind": "points",
+        "curve": "smooth",
+        "points": [
+          [
+            -11,
+            -4,
+            0
+          ],
+          [
+            -6,
+            -9,
+            0
+          ],
+          [
+            6,
+            -8,
+            0
+          ],
+          [
+            12,
+            1,
+            0
+          ],
+          [
+            5,
+            9,
+            0
+          ],
+          [
+            -8,
+            6,
+            0
+          ]
+        ]
+      },
+      "points": [
+        [
+          0,
+          0,
+          2.4
+        ]
+      ],
+      "output": {
+        "kind": "thickened",
+        "thicknessMm": -1.2
+      }
+    },
+    "refs": []
+  },
+  "normalExample": {
+    "op": "surfaceFill",
+    "params": {
+      "boundary": {
+        "kind": "points",
+        "curve": "smooth",
+        "points": [
+          [
+            -11,
+            -4,
+            0
+          ],
+          [
+            -6,
+            -9,
+            0
+          ],
+          [
+            6,
+            -8,
+            0
+          ],
+          [
+            12,
+            1,
+            0
+          ],
+          [
+            5,
+            9,
+            0
+          ],
+          [
+            -8,
+            6,
+            0
+          ]
+        ]
+      },
+      "points": [
+        [
+          0,
+          0,
+          2.4
+        ]
+      ],
+      "output": {
+        "kind": "thickened",
+        "thicknessMm": -1.2
+      }
+    },
+    "refs": []
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "boundary": {
+          "kind": "points",
+          "curve": "smooth",
+          "points": [
+            [
+              -11,
+              -4,
+              0
+            ],
+            [
+              -6,
+              -9,
+              0
+            ],
+            [
+              6,
+              -8,
+              0
+            ],
+            [
+              12,
+              1,
+              0
+            ],
+            [
+              5,
+              9,
+              0
+            ],
+            [
+              -8,
+              6,
+              0
+            ]
+          ]
+        },
+        "points": [
+          [
+            0,
+            0,
+            2.4
+          ]
+        ],
+        "output": {
+          "kind": "thickened",
+          "thicknessMm": -1.2
+        },
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "SURFACE_FILL_REFERENCE",
+    "SURFACE_FILL_BOUNDARY",
+    "SURFACE_FILL_SUPPORT",
+    "SURFACE_FILL_SOLVER",
+    "SURFACE_FILL_TOLERANCE",
+    "SURFACE_FILL_THICKNESS"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "约束填充曲面 / Fill a closed boundary with a smooth constrained surface",
+    "whenToUse": [
+      "使用世界坐标毫米，或通过 refs 中的当前精确对象定位边、邻面和边端点。依序输入边界点可生成周期插值曲线或折线；模型边必须组成唯一闭环。内点及导向边控制起伏。G1/G2 需要由选定邻面拥有该边。公差约束位置误差；切向与曲率分别由内核报告。可输出真实样条面或给定法向厚度的有效实体。使用现有缝合转实体将填充面与完整封闭外壳组合。源几何保留。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "boundary": {
+        "meaning": "boundary: 约束填充曲面 / Fill a closed boundary with a smooth constrained surface",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "points": {
+        "meaning": "points: 约束填充曲面 / Fill a closed boundary with a smooth constrained surface",
+        "unit": "mm",
+        "range": [
+          0,
+          32
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "guideEdges": {
+        "meaning": "guideEdges: 约束填充曲面 / Fill a closed boundary with a smooth constrained surface",
+        "unit": "none",
+        "range": [
+          0,
+          8
+        ],
+        "default": {
+          "behavior": "omitted; retain the operation source default"
+        }
+      },
+      "toleranceMm": {
+        "meaning": "toleranceMm: 约束填充曲面 / Fill a closed boundary with a smooth constrained surface",
+        "unit": "mm",
+        "range": [
+          0.001,
+          0.05
+        ],
+        "default": 0.01
+      },
+      "output": {
+        "meaning": "output: 约束填充曲面 / Fill a closed boundary with a smooth constrained surface",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      }
+    },
+    "refs": {
+      "min": 0,
+      "max": 16,
+      "meaning": "独立创建，不引用已有实体"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": false,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SURFACE_FILL_REFERENCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SURFACE_FILL_BOUNDARY",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SURFACE_FILL_SUPPORT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SURFACE_FILL_SOLVER",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SURFACE_FILL_TOLERANCE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SURFACE_FILL_THICKNESS",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "surfaceFill",
+        "params": {
+          "boundary": {
+            "kind": "points",
+            "curve": "smooth",
+            "points": [
+              [
+                -11,
+                -4,
+                0
+              ],
+              [
+                -6,
+                -9,
+                0
+              ],
+              [
+                6,
+                -8,
+                0
+              ],
+              [
+                12,
+                1,
+                0
+              ],
+              [
+                5,
+                9,
+                0
+              ],
+              [
+                -8,
+                6,
+                0
+              ]
+            ]
+          },
+          "points": [
+            [
+              0,
+              0,
+              2.4
+            ]
+          ],
+          "output": {
+            "kind": "thickened",
+            "thicknessMm": -1.2
+          }
+        },
+        "refs": []
+      },
+      "normal": {
+        "op": "surfaceFill",
+        "params": {
+          "boundary": {
+            "kind": "points",
+            "curve": "smooth",
+            "points": [
+              [
+                -11,
+                -4,
+                0
+              ],
+              [
+                -6,
+                -9,
+                0
+              ],
+              [
+                6,
+                -8,
+                0
+              ],
+              [
+                12,
+                1,
+                0
+              ],
+              [
+                5,
+                9,
+                0
+              ],
+              [
+                -8,
+                6,
+                0
+              ]
+            ]
+          },
+          "points": [
+            [
+              0,
+              0,
+              2.4
+            ]
+          ],
+          "output": {
+            "kind": "thickened",
+            "thicknessMm": -1.2
+          }
+        },
+        "refs": []
+      },
+      "invalid": [
+        {
+          "params": {
+            "boundary": {
+              "kind": "points",
+              "curve": "smooth",
+              "points": [
+                [
+                  -11,
+                  -4,
+                  0
+                ],
+                [
+                  -6,
+                  -9,
+                  0
+                ],
+                [
+                  6,
+                  -8,
+                  0
+                ],
+                [
+                  12,
+                  1,
+                  0
+                ],
+                [
+                  5,
+                  9,
+                  0
+                ],
+                [
+                  -8,
+                  6,
+                  0
+                ]
+              ]
+            },
+            "points": [
+              [
+                0,
+                0,
+                2.4
+              ]
+            ],
+            "output": {
+              "kind": "thickened",
+              "thicknessMm": -1.2
+            },
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "surfaceFill",
+      "约束填充曲面",
+      "Fill a closed boundary with a smooth constrained surface",
+      "surface Fill operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "约束填充曲面 / Fill a closed boundary with a smooth constrained surface",
+  "whenToUse": [
+    "使用世界坐标毫米，或通过 refs 中的当前精确对象定位边、邻面和边端点。依序输入边界点可生成周期插值曲线或折线；模型边必须组成唯一闭环。内点及导向边控制起伏。G1/G2 需要由选定邻面拥有该边。公差约束位置误差；切向与曲率分别由内核报告。可输出真实样条面或给定法向厚度的有效实体。使用现有缝合转实体将填充面与完整封闭外壳组合。源几何保留。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": false,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SURFACE_FILL_REFERENCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SURFACE_FILL_BOUNDARY",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SURFACE_FILL_SUPPORT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SURFACE_FILL_SOLVER",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SURFACE_FILL_TOLERANCE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SURFACE_FILL_THICKNESS",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "label": "约束填充曲面",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "surfaceFill"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
+  "docs": "api.surface-fill",
+  "relatedDocs": [
+    "api.freeform-modeling"
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls",
+    "api.placement"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "surfaceFill",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:4896e314debafd2e9e0edc0c5841144614ba0fd085ab4ed36c0ade553310beb9"
+}
+```
+
+## 工具 surfaceSculpt · 局部曲面变形 / Local soft deformation of an existing STEP face
+
+```json
+{
+  "id": "surfaceSculpt",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "faceId",
+      "scope",
+      "direction",
+      "amountMm",
+      "influenceMm"
+    ],
+    "properties": {
+      "faceId": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Zero-based ID of the current exact B-spline face",
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "scope": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "pointMm": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": -10000,
+                  "maximum": 10000
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "kind",
+              "pointMm"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "region"
+              },
+              "pointsMm": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": -10000,
+                    "maximum": 10000
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "minItems": 3,
+                "maxItems": 32,
+                "description": "Ordered vertices picked on the same face; the loop closes automatically"
+              }
+            },
+            "required": [
+              "kind",
+              "pointsMm"
+            ]
+          }
+        ]
+      },
+      "direction": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "normal"
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "unit": "1",
+            "quantityKind": "direction",
+            "quantizationPolicy": "none"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "angled"
+              },
+              "tiltDeg": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 90,
+                "description": "Tilt away from the outward face normal"
+              },
+              "azimuthDeg": {
+                "type": "number",
+                "minimum": -360,
+                "maximum": 360,
+                "description": "Azimuth from the U tangent towards normal cross U"
+              }
+            },
+            "required": [
+              "kind",
+              "tiltDeg",
+              "azimuthDeg"
+            ],
+            "unit": "1",
+            "quantityKind": "direction",
+            "quantizationPolicy": "none"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "vector"
+              },
+              "vector": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": -10000,
+                  "maximum": 10000
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "kind",
+              "vector"
+            ],
+            "unit": "1",
+            "quantityKind": "direction",
+            "quantizationPolicy": "none"
+          }
+        ],
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
+      },
+      "amountMm": {
+        "type": "number",
+        "minimum": -20,
+        "maximum": 20,
+        "not": {
+          "const": 0
+        },
+        "description": "Signed displacement along the resolved direction in mm"
+      },
+      "influenceMm": {
+        "type": "number",
+        "minimum": 0.15,
+        "maximum": 60,
+        "description": "Distance from the point, or decay width outside the selected region, in mm"
+      }
+    },
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 编辑一个有效实体或一张独立面上的非周期 B 样条。点或有序闭合区域以当前实体的世界坐标毫米输入，投影到精确选面。沿法线、带倾角与方位角或显式世界向量推压，位移在影响范围内向外平滑衰减。面外轮廓、所有内环、共边及邻面锁定。使用孤立样条控制点局部形变，保留真曲面与 STEP 导出。解析面、周期面、共享同一曲面支撑的多个面和超出容量的范围会明确拒绝。",
+  "title": "局部曲面变形 / Local soft deformation of an existing STEP face",
+  "category": "surface",
+  "synonyms": [
+    "surfaceSculpt",
+    "局部曲面变形",
+    "Local soft deformation of an existing STEP face",
+    "surface Sculpt operation",
+    "软编辑",
+    "定向推拉",
+    "STEP 曲面局部抬高",
+    "锁边雕刻",
+    "point deform",
+    "soft edit"
+  ],
+  "description": "局部曲面变形 / Local soft deformation of an existing STEP face",
+  "schemaHash": "sha256:faf87a29838e8152cd784836cfbada9b647e20eb50da82b0ead7b37868ab717b",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "face"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "编辑一个有效实体或一张独立面上的非周期 B 样条。点或有序闭合区域以当前实体的世界坐标毫米输入，投影到精确选面。沿法线、带倾角与方位角或显式世界向量推压，位移在影响范围内向外平滑衰减。面外轮廓、所有内环、共边及邻面锁定。使用孤立样条控制点局部形变，保留真曲面与 STEP 导出。解析面、周期面、共享同一曲面支撑的多个面和超出容量的范围会明确拒绝。"
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "minimalExample": {
+    "op": "surfaceSculpt",
+    "params": {
+      "faceId": 0,
+      "scope": {
+        "kind": "point",
+        "pointMm": [
+          12,
+          5,
+          3
+        ]
+      },
+      "direction": {
+        "kind": "angled",
+        "tiltDeg": 30,
+        "azimuthDeg": 0
+      },
+      "amountMm": 0.8,
+      "influenceMm": 4
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "normalExample": {
+    "op": "surfaceSculpt",
+    "params": {
+      "faceId": 0,
+      "scope": {
+        "kind": "point",
+        "pointMm": [
+          12,
+          5,
+          3
+        ]
+      },
+      "direction": {
+        "kind": "angled",
+        "tiltDeg": 30,
+        "azimuthDeg": 0
+      },
+      "amountMm": 0.8,
+      "influenceMm": 4
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "faceId": 0,
+        "scope": {
+          "kind": "point",
+          "pointMm": [
+            12,
+            5,
+            3
+          ]
+        },
+        "direction": {
+          "kind": "angled",
+          "tiltDeg": 30,
+          "azimuthDeg": 0
+        },
+        "amountMm": 0.8,
+        "influenceMm": 4,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "SCULPT_UNSUPPORTED_FACE",
+    "SCULPT_OUTSIDE_FACE",
+    "SCULPT_INVALID_REGION",
+    "SCULPT_CAPACITY",
+    "SCULPT_BOUNDARY_CHANGED",
+    "SCULPT_FOLD",
+    "SCULPT_DISPLACEMENT_UNMET"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "局部曲面变形 / Local soft deformation of an existing STEP face",
+    "whenToUse": [
+      "编辑一个有效实体或一张独立面上的非周期 B 样条。点或有序闭合区域以当前实体的世界坐标毫米输入，投影到精确选面。沿法线、带倾角与方位角或显式世界向量推压，位移在影响范围内向外平滑衰减。面外轮廓、所有内环、共边及邻面锁定。使用孤立样条控制点局部形变，保留真曲面与 STEP 导出。解析面、周期面、共享同一曲面支撑的多个面和超出容量的范围会明确拒绝。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "faceId": {
+        "meaning": "Zero-based ID of the current exact B-spline face",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "scope": {
+        "meaning": "scope: 局部曲面变形 / Local soft deformation of an existing STEP face",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "direction": {
+        "meaning": "direction: 局部曲面变形 / Local soft deformation of an existing STEP face",
+        "unit": "1",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "amountMm": {
+        "meaning": "Signed displacement along the resolved direction in mm",
+        "unit": "mm",
+        "range": [
+          -20,
+          20
+        ]
+      },
+      "influenceMm": {
+        "meaning": "Distance from the point, or decay width outside the selected region, in mm",
+        "unit": "mm",
+        "range": [
+          0.15,
+          60
+        ]
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_UNSUPPORTED_FACE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_OUTSIDE_FACE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_INVALID_REGION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_CAPACITY",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_BOUNDARY_CHANGED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_FOLD",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_DISPLACEMENT_UNMET",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "surfaceSculpt",
+        "params": {
+          "faceId": 0,
+          "scope": {
+            "kind": "point",
+            "pointMm": [
+              12,
+              5,
+              3
+            ]
+          },
+          "direction": {
+            "kind": "angled",
+            "tiltDeg": 30,
+            "azimuthDeg": 0
+          },
+          "amountMm": 0.8,
+          "influenceMm": 4
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "normal": {
+        "op": "surfaceSculpt",
+        "params": {
+          "faceId": 0,
+          "scope": {
+            "kind": "point",
+            "pointMm": [
+              12,
+              5,
+              3
+            ]
+          },
+          "direction": {
+            "kind": "angled",
+            "tiltDeg": 30,
+            "azimuthDeg": 0
+          },
+          "amountMm": 0.8,
+          "influenceMm": 4
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "invalid": [
+        {
+          "params": {
+            "faceId": 0,
+            "scope": {
+              "kind": "point",
+              "pointMm": [
+                12,
+                5,
+                3
+              ]
+            },
+            "direction": {
+              "kind": "angled",
+              "tiltDeg": 30,
+              "azimuthDeg": 0
+            },
+            "amountMm": 0.8,
+            "influenceMm": 4,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "surfaceSculpt",
+      "局部曲面变形",
+      "Local soft deformation of an existing STEP face",
+      "surface Sculpt operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "局部曲面变形 / Local soft deformation of an existing STEP face",
+  "whenToUse": [
+    "编辑一个有效实体或一张独立面上的非周期 B 样条。点或有序闭合区域以当前实体的世界坐标毫米输入，投影到精确选面。沿法线、带倾角与方位角或显式世界向量推压，位移在影响范围内向外平滑衰减。面外轮廓、所有内环、共边及邻面锁定。使用孤立样条控制点局部形变，保留真曲面与 STEP 导出。解析面、周期面、共享同一曲面支撑的多个面和超出容量的范围会明确拒绝。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_UNSUPPORTED_FACE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_OUTSIDE_FACE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_INVALID_REGION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_CAPACITY",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_BOUNDARY_CHANGED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_FOLD",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_DISPLACEMENT_UNMET",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "label": "局部曲面变形",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "surfaceSculpt"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
+  "docs": "api.surface-sculpt",
+  "relatedDocs": [
+    "api.freeform-modeling"
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls",
+    "api.placement"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "surfaceSculpt",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:ca7cf8cd2a3aed30eaaea383fb1d80386e14fc534c90d95d32a7d15232c0fa38"
 }
 ```
 
@@ -109013,6 +118447,38 @@ files.release: contextPolicy=none
         "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
       },
       {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
         "id": "subdBody",
         "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
       },
@@ -109048,7 +118514,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:419b7d03080b2a7cfba058aaca3c607d275003003417ab3ccfb1230051ed03d0"
+  "docsHash": "sha256:bb725acf7d41b5a50f95985c74ccdeee0330e735346a8f500437c91605e6314b"
 }
 ```
 
@@ -111568,6 +121034,38 @@ files.release: contextPolicy=none
         "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
       },
       {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
         "id": "subdBody",
         "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
       },
@@ -111611,7 +121109,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1258da784437d94ac619e025751e9b292947faaf0556398cef94143b36c057fc"
+  "docsHash": "sha256:5f3aff0f0b2dcd0793067b50853e064e43ea1d9dc490b8a8e3de778227862fb0"
 }
 ```
 
@@ -116401,7 +125899,7 @@ files.release: contextPolicy=none
   "title": "高度图浮雕精修",
   "label": "高度图浮雕精修",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -116518,7 +126016,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:b490e9201049d0f0f7c9e37fdd1f1b36d201a52f912d976f39410c0134c922ae"
+  "docsHash": "sha256:4ac81e66bbd99e7aa26b738a5aa9fc6689b401b354785bf6a1bb7752b4b32db0"
 }
 ```
 
@@ -116530,7 +126028,7 @@ files.release: contextPolicy=none
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -116647,7 +126145,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f139e6166ea0c171ddb24a98e786732670baf4e216256435a9e151b4a629888d"
+  "docsHash": "sha256:b278b584044e8a5e97a27f15a75528eaf00017c23015a4316a8f89d93f9817c0"
 }
 ```
 
@@ -156218,7 +165716,7 @@ files.release: contextPolicy=none
   "id": "reliefWizard",
   "title": "reliefWizard",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -156512,7 +166010,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:54314ecf2dc475a954a940b6b33dd3db52781dc730422120e906ba1376a49dfa"
+  "docsHash": "sha256:acc550d4103c10908c42eb0492ee319771790b4e52d2475ea562a8391dcd04e2"
 }
 ```
 
@@ -156523,7 +166021,7 @@ files.release: contextPolicy=none
   "id": "prepareToolCall",
   "title": "prepareToolCall",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -156714,7 +166212,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bdc2ac1d29a52dc49d726293d1584785ba923eb725d7063147ab818cca5996f1"
+  "docsHash": "sha256:2dc3bf51613f23be04a63f234ece63a0be5f2f3e023ea01719469568e3d3c8cb"
 }
 ```
 
@@ -156725,7 +166223,7 @@ files.release: contextPolicy=none
   "id": "prepareOperation",
   "title": "prepareOperation",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -157156,7 +166654,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:56fee89ff6eca98c48e94433385110aee0c4e25a68d33f7c59ff7d58bf6a63d5"
+  "docsHash": "sha256:8da31d80a6a46caebf411644b03c3201d77b615f7256dda05e8a660ede45334a"
 }
 ```
 
@@ -157167,7 +166665,7 @@ files.release: contextPolicy=none
   "id": "applyPreparedOperation",
   "title": "applyPreparedOperation",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -157370,7 +166868,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:93f0c1ba44ebbcc5c57074e0d846287c157d3ba596e14ef3975e4d8bb761380a"
+  "docsHash": "sha256:283ea682786728271650cf79ef71c7b95271125b43834edaea8388e621569d3c"
 }
 ```
 
@@ -157381,7 +166879,7 @@ files.release: contextPolicy=none
   "id": "getDebugReport",
   "title": "getDebugReport",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -157483,7 +166981,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b7b9640f489176f417bb324ea8edb82e8f7c5509a17fd729203918ecb2fd7ea6"
+  "docsHash": "sha256:3d09aad87d4cdf7306e074dd3d67978c829078f1b1c68c95571a2c9f01003b0a"
 }
 ```
 
@@ -157494,7 +166992,7 @@ files.release: contextPolicy=none
   "id": "setDebugPanel",
   "title": "setDebugPanel",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -157596,7 +167094,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:db3546bb6e2d25a3be0dbe03e07d3172786c77e72fcf7df4256371da942809f1"
+  "docsHash": "sha256:a56cd915ccc3871eb4af559cdce69db48119e7b282bbc832e012bf5daa3a60be"
 }
 ```
 
@@ -157607,7 +167105,7 @@ files.release: contextPolicy=none
   "id": "getMetalMaterials",
   "title": "getMetalMaterials",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -157740,7 +167238,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e3522df6606329ad507208e9a38bc8d21cecc8d439b3c14130020fb7f2b6133d"
+  "docsHash": "sha256:e52981ec6a9a211ec6b6d3ff6e5e55d32c6bc85ab55d15b8d0b6284cfa6b447b"
 }
 ```
 
@@ -157751,7 +167249,7 @@ files.release: contextPolicy=none
   "id": "setMetalMaterials",
   "title": "setMetalMaterials",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -157927,7 +167425,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bc8e1b3250a1557c47d4d200b1040c667ec1af654f34bfa3a49f6e91ef97b426"
+  "docsHash": "sha256:4f5a6ee28b155509dd113ef0b25457076a46a197c0af8df5d447abfa57f21d5e"
 }
 ```
 
@@ -157938,7 +167436,7 @@ files.release: contextPolicy=none
   "id": "getMaterials",
   "title": "getMaterials",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -158004,7 +167502,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:754271c2f81445a5fa6d2c64b4fc712ea739b5841c180038e871aaca68f5e125"
+  "docsHash": "sha256:bced36c070c22955a60c63964f39d44e2ab468b5355423ab9a06691ff6344e69"
 }
 ```
 
@@ -158015,7 +167513,7 @@ files.release: contextPolicy=none
   "id": "measureMass",
   "title": "measureMass",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -158106,7 +167604,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3d16897aa828017b4d0ca70d797b567e3264c5a5d3dae8403caedf43c33855a2"
+  "docsHash": "sha256:eb771dbcb606b0572aa72f85b4bcf89ca54aa58a32927a09b3d475f7bb097925"
 }
 ```
 
@@ -158117,7 +167615,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignFit",
   "title": "reliefDesignFit",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -158385,7 +167883,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:0ce19ca68da6e341743f216e0f3d373f6195585b72f1df7b639c0c0a18ea704a"
+  "docsHash": "sha256:da34b098f25098368a5c2dde311beb43680161b798e81301f2ae5b7244a7d716"
 }
 ```
 
@@ -158396,7 +167894,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefDesignRelief",
   "title": "prepareReliefDesignRelief",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -158811,7 +168309,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:a9e16d74243215a1441c43980e121fd3e9df11858824cd0e332ac29556e59a2e"
+  "docsHash": "sha256:976f2403f2cb52788b642b27d623c9a2bb399f3da5864bf224a94500edfbad9d"
 }
 ```
 
@@ -158822,7 +168320,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignReference",
   "title": "reliefDesignReference",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -159028,7 +168526,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:83ddcc5775f63256deddce01e985e08dfca83ccda27e2d2ca34394f54f68a578"
+  "docsHash": "sha256:c9d55c9569bc69f61b3b1880cf3d6a91829e41ee038f52da37296d02c49f31e6"
 }
 ```
 
@@ -159039,7 +168537,7 @@ files.release: contextPolicy=none
   "id": "reliefDesignField",
   "title": "reliefDesignField",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -159299,7 +168797,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:703a0007fa1a0f0e4e5e1b66f852453f20319ae083c9646dd1d5e5002511d8ab"
+  "docsHash": "sha256:df342a0a6e51719bc303d82931502a11fe94f18394adc159e076d7647c6d138d"
 }
 ```
 
@@ -159310,7 +168808,7 @@ files.release: contextPolicy=none
   "id": "readLogo",
   "title": "readLogo",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -159651,7 +169149,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:c28fa5c4790ed274dc043f7585d60b9b4c068c8ec14780613d5cbd1a7947e516"
+  "docsHash": "sha256:18e730115a6578aedbc7a28cec2aaf442a977654fea77cf598b5507b0518084a"
 }
 ```
 
@@ -159662,7 +169160,7 @@ files.release: contextPolicy=none
   "id": "reviewLogo",
   "title": "reviewLogo",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -159879,7 +169377,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:5b7164ea97b622a5ea377e346114c040d0e834303b01c867acb8e34540f0c876"
+  "docsHash": "sha256:b46abd39fc67b848bb4da7611cc10f327b9843eaa116d7699c6d66167b02e041"
 }
 ```
 
@@ -159890,7 +169388,7 @@ files.release: contextPolicy=none
   "id": "logoWizard",
   "title": "logoWizard",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -160256,7 +169754,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:a3e0eb31dd3e895fba5b13c4cf00584a7c867ed728068ab30553019ece4d7827"
+  "docsHash": "sha256:ba2d23cdbee12cf056ecf45d76e77423c87304d68fd8246904f909b6a0de418f"
 }
 ```
 
@@ -160267,7 +169765,7 @@ files.release: contextPolicy=none
   "id": "getBatchReceipt",
   "title": "getBatchReceipt",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -160380,7 +169878,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2d6797eb83c2721d64469228498d4de5a75cf08a295b82ad2e224783b3e19b80"
+  "docsHash": "sha256:bc94a22790705e2e3b1e29a11788268a79b2b8e09ad45560b6f1535cc0ea0f0e"
 }
 ```
 
@@ -160391,7 +169889,7 @@ files.release: contextPolicy=none
   "id": "probeBlendRadius",
   "title": "probeBlendRadius",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -160666,7 +170164,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:50e3f9700c26feea399e1aef336f45f2e882252e6f434eebab4592ac723789db"
+  "docsHash": "sha256:9f0901518567a8be0715a245be6ab80b49d3daf5d7e58a6213184cc9c901e573"
 }
 ```
 
@@ -160677,7 +170175,7 @@ files.release: contextPolicy=none
   "id": "recoverUnsaved",
   "title": "recoverUnsaved",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -160832,7 +170330,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:672f9b9507b41e70dba892fef85a5f05d3d7f154a479b640f707896224293d37"
+  "docsHash": "sha256:261e6b19253214f5139342f60dc72814aeaf2240f1e95522e602e50250c764c0"
 }
 ```
 
@@ -160843,7 +170341,7 @@ files.release: contextPolicy=none
   "id": "recoverKernel",
   "title": "recoverKernel",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -161031,7 +170529,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2fb1cda3286e391871a36d958a93c77e9ec78d89ce0843eb0f82555ac2b7a0b0"
+  "docsHash": "sha256:74880c7616000b208c2b592f0195cca760f77c2741646a83032bcb719e84749b"
 }
 ```
 
@@ -161042,7 +170540,7 @@ files.release: contextPolicy=none
   "id": "sampleMeshRelief",
   "title": "sampleMeshRelief",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -161260,7 +170758,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:b901a95f9117569df8f47ce816adc4e2bc41bb350631d727647a3e38d9c2b6f2"
+  "docsHash": "sha256:3e8df9750d498fef6d5bf1e6e694d0a8d5c3af64a92b63151663d8706b2d3ee3"
 }
 ```
 
@@ -161271,7 +170769,7 @@ files.release: contextPolicy=none
   "id": "getModelLibrary",
   "title": "getModelLibrary",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -161387,7 +170885,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:90ecadb57650f57dc6b4ea1a898acfdd3f27578684043b416cdfad7b2a9e5f75"
+  "docsHash": "sha256:672a4e913d248d502f765a9337d01e2dab441c9b96a1bcd43aa9c485896eb50e"
 }
 ```
 
@@ -161398,7 +170896,7 @@ files.release: contextPolicy=none
   "id": "updateModelLibrary",
   "title": "updateModelLibrary",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -161629,7 +171127,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7fc2a984aba0e09b6dc1379cec97cc83af22ab681f1e52a2556031ed35ec41d0"
+  "docsHash": "sha256:4ee971baf05f65d8161dd223f217e2a90e9e0e66e34589999f5b676da045d9da"
 }
 ```
 
@@ -161640,7 +171138,7 @@ files.release: contextPolicy=none
   "id": "resolveModelLibrary",
   "title": "resolveModelLibrary",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -161854,7 +171352,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:547044fca4df215c3ad4b4a4eb2162ab2c77b1fce454a0c8322afec9b9e987cb"
+  "docsHash": "sha256:c16c815cac0fef94eb246cd4ee91d32b18da0639b3ada766965bb3b5c1c375df"
 }
 ```
 
@@ -161865,7 +171363,7 @@ files.release: contextPolicy=none
   "id": "planPatternMachining",
   "title": "planPatternMachining",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -162161,7 +171659,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:3435cb7979e54444f20c16bd3511e298582cd16b88d0d2bdc1d3c86fedab2e98"
+  "docsHash": "sha256:f29117d332564d96b3a47b47b37c7b3594721de3bf1643c63f8501e2d732dabb"
 }
 ```
 
@@ -162172,7 +171670,7 @@ files.release: contextPolicy=none
   "id": "decideServicesWait",
   "title": "decideServicesWait",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -162307,7 +171805,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8f8872e1dba105172428521afcb919888066cdbcff0fbb0b41ab38d59ecc3061"
+  "docsHash": "sha256:ccb27af216bce6a27f3d9b6ccf374227ad14443f77334a7b06c3c636abd0c685"
 }
 ```
 
@@ -162318,7 +171816,7 @@ files.release: contextPolicy=none
   "id": "recoverServicesJob",
   "title": "recoverServicesJob",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -162458,7 +171956,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a7e4caa29f4d26e538e42e93c83ed7f30bb999831738fc2c1cd5be521db312f5"
+  "docsHash": "sha256:9b26629eac32687917a04de7bf0a3b2387ac9d99cf03e7bd63a0aa899fcd4dc6"
 }
 ```
 
@@ -162469,7 +171967,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefTopologyUpgrade",
   "title": "prepareReliefTopologyUpgrade",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -162611,7 +172109,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:59a0200095ba300dc82b9759e35c98ac0a1b9198349422574dd2b552a9d883f4"
+  "docsHash": "sha256:52fa9bba41effe03ec2028098050ab3dd3a0c10699dd00840b0f22b438c3ef9e"
 }
 ```
 
@@ -162622,7 +172120,7 @@ files.release: contextPolicy=none
   "id": "sampleReliefHeight",
   "title": "sampleReliefHeight",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -162897,7 +172395,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:d28beddfd6b0be6d04ae2bd5f3eba4572e955184b3c04652f3faaf6a4c5bf446"
+  "docsHash": "sha256:248c53b0b77a86ce1674a67d6f73dc9e77857edd18570f06a50e3aa7250e16a9"
 }
 ```
 
@@ -162908,7 +172406,7 @@ files.release: contextPolicy=none
   "id": "prepareReliefSculpt",
   "title": "prepareReliefSculpt",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -163150,7 +172648,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:69d9f0095af54c07be8dbba36f7e451d483ff760cfb7483758d30d2cbaebb08c"
+  "docsHash": "sha256:4afcd099b6df1ca8e070a8defe9ad44db9d42665f798b185aec18d7cb91b41af"
 }
 ```
 
@@ -163161,7 +172659,7 @@ files.release: contextPolicy=none
   "id": "readRelief",
   "title": "readRelief",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -163521,7 +173019,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:cb3f19b899ff6a8ad30d9201e4af8543344739141633b492f1afe0a3a83386a5"
+  "docsHash": "sha256:d5eabf513a7662c60c42ea0e3b2a1680cc2a6f11151595a641cbac4a43964681"
 }
 ```
 
@@ -163532,7 +173030,7 @@ files.release: contextPolicy=none
   "id": "getHistory",
   "title": "getHistory",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -163633,7 +173131,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:54573539552010c7ae4ce31f8b4edd552af10a6cc35f3e244f57b5d176f894fa"
+  "docsHash": "sha256:1c06fdfbbff3f403d33cd7888ce4123224ae1092fcf3b220931833c947e945a7"
 }
 ```
 
@@ -163644,7 +173142,7 @@ files.release: contextPolicy=none
   "id": "planAlignment",
   "title": "planAlignment",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -163919,7 +173417,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e65e06477b8dd19013ca3848fd4c8ee80217818d939e11285dd43762cdc6b4ce"
+  "docsHash": "sha256:946a516da68f43923dded8971a88c5277a7dfed2002ff968e85b578851c943e3"
 }
 ```
 
@@ -163930,7 +173428,7 @@ files.release: contextPolicy=none
   "id": "selectRectangle",
   "title": "selectRectangle",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -164175,7 +173673,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:72df0741aaffa66d88a84b93fa21272a502e608c4c8595f99b01e17bf5979e95"
+  "docsHash": "sha256:c19d34f94c55326de7cd965a75419a9320e62fcfd429b16d74eac2e11c43842a"
 }
 ```
 
@@ -164186,7 +173684,7 @@ files.release: contextPolicy=none
   "id": "createDrawing",
   "title": "createDrawing",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -164445,7 +173943,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:96009a8637e6545dae188b99b158547c9e670741335d11704eec02fc9f008898"
+  "docsHash": "sha256:af8f864de1741baace47e497c9d8dd190740d7a4d23d31b1eedac8cff51e62e5"
 }
 ```
 
@@ -164456,7 +173954,7 @@ files.release: contextPolicy=none
   "id": "exportDrawing",
   "title": "exportDrawing",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -164665,7 +174163,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:312db5bccf634e7f0f2f6a24760a91a922712aa37e7ced2d963914ee1af61a54"
+  "docsHash": "sha256:92620aa156a0974d62ab7e7a4f9cd6b728149cd2a46a6b02058d1575f5e7ad01"
 }
 ```
 
@@ -164676,7 +174174,7 @@ files.release: contextPolicy=none
   "id": "getQuickModelUsage",
   "title": "getQuickModelUsage",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -164786,7 +174284,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0709d8d4b0e59a1d70a29a859268b5957bf88ad9dd8230450f1a6d559ae13c4b"
+  "docsHash": "sha256:977bbedb4a91fe4c33dec27f840dcf5901eb7aeeb5fb36376e1dcae5cf23c67d"
 }
 ```
 
@@ -164797,7 +174295,7 @@ files.release: contextPolicy=none
   "id": "copySelection",
   "title": "copySelection",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -165002,7 +174500,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9db291e9259624ddf6b416d3dd1928abdf5ca0a1fb2559c04fac47cb9726cc96"
+  "docsHash": "sha256:f5fceae0031ec13e228179e026a0468e14766a708b56f5440041f62bba9eaadd"
 }
 ```
 
@@ -165013,7 +174511,7 @@ files.release: contextPolicy=none
   "id": "pasteSelection",
   "title": "pasteSelection",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -165202,7 +174700,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8b8a7bb747b735e15cebce507399a4e0b6eb7c6af067a6988312d88f1c3f2433"
+  "docsHash": "sha256:a97b6508a7e3f445fbf1602fb59cda33d54cd38e6874fafb1f63f98638758b5f"
 }
 ```
 
@@ -165213,7 +174711,7 @@ files.release: contextPolicy=none
   "id": "createRequestContext",
   "title": "createRequestContext",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -165316,7 +174814,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:89d793d10e398fe07be971884e17992ee9655983eaad0849883726765000ab18"
+  "docsHash": "sha256:410a0679b5b602e1902edea3f151f376a133e223a81f337eb2f406d770591516"
 }
 ```
 
@@ -165327,7 +174825,7 @@ files.release: contextPolicy=none
   "id": "getUILayout",
   "title": "getUILayout",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -165474,7 +174972,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cf08cac440d11b7617116b910154b63147cfcad9cd4a207af4ab4eaac1c44499"
+  "docsHash": "sha256:af1288d5cf577bf3a88230c13074a07615220487c826cedca28fed6237266cf0"
 }
 ```
 
@@ -165485,7 +174983,7 @@ files.release: contextPolicy=none
   "id": "setRenderQuality",
   "title": "setRenderQuality",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -165711,7 +175209,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a01c94c39bcb380d623387198ac27be661c7e740e2a51de104fd3e9c0abd3982"
+  "docsHash": "sha256:c23f067139e11433baa773d615581c376ed283fed91efcab44019738d18198aa"
 }
 ```
 
@@ -165722,7 +175220,7 @@ files.release: contextPolicy=none
   "id": "invoke",
   "title": "invoke",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -165816,7 +175314,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:76b37eb003be8ee9ede5637684a3dd0e084a00c72997c12951cddb56908a8d9b"
+  "docsHash": "sha256:dfce14451ea31de4f816d33c2077d7e119a419c7428aeb39219827860015745c"
 }
 ```
 
@@ -165827,7 +175325,7 @@ files.release: contextPolicy=none
   "id": "submit",
   "title": "submit",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -165925,7 +175423,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7feb0e53da19cc05ddb99eecae02d0b4465f5a46d5636549b586c59f48461f5a"
+  "docsHash": "sha256:bc5a789757a469b4be773a14ef804b5ac152a41915a9c9d730f6ea7e92f7bfcb"
 }
 ```
 
@@ -165936,7 +175434,7 @@ files.release: contextPolicy=none
   "id": "getJob",
   "title": "getJob",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -166061,7 +175559,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:59fd65c8d57671ebb6677d12602828ba008d04bfcb3bb86ead39345a8aa6a945"
+  "docsHash": "sha256:5a8f424374e4a2e5cfb3fa4ebdc3965954289b566715f3b2ea50310c8d847023"
 }
 ```
 
@@ -166072,7 +175570,7 @@ files.release: contextPolicy=none
   "id": "cancelJob",
   "title": "cancelJob",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -166187,7 +175685,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b800e4439a537917850a8d7708a5802eb4af3ee2e74211066af809539ae9cb4d"
+  "docsHash": "sha256:4b471eaef364909b9f0fe0a69dad9f818393baeea3af5605277763493c311444"
 }
 ```
 
@@ -166198,7 +175696,7 @@ files.release: contextPolicy=none
   "id": "waitFor",
   "title": "waitFor",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -166383,7 +175881,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:136efcdf6ef091fae82c091fd4796b6aeb9071a797f2a5dc9ec710b4b02222e2"
+  "docsHash": "sha256:f878203d19a82216a7f74f3d9ad31a37d88e95bbc0952dec7e25b3ecdd4aff51"
 }
 ```
 
@@ -166394,7 +175892,7 @@ files.release: contextPolicy=none
   "id": "awaitJob",
   "title": "awaitJob",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -166508,7 +176006,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c68d85bb57c1dee617cc403f73963117322176674c073f781551721057d94b74"
+  "docsHash": "sha256:344deb0f6818661a927d7feef7f45121d5c4ebb6e4449a8507b2aa7cd5043dc7"
 }
 ```
 
@@ -166519,7 +176017,7 @@ files.release: contextPolicy=none
   "id": "connect",
   "title": "connect",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -166643,7 +176141,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cd8c05dcbeb73b13e94638bd441e65ee951af5257f7a2233565bbfee87b5171c"
+  "docsHash": "sha256:97979acbe25b74aac7583ac03352132f628f2b36f14e80afc9a144545c303f3e"
 }
 ```
 
@@ -166654,7 +176152,7 @@ files.release: contextPolicy=none
   "id": "info",
   "title": "info",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -166757,7 +176255,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:327feb4cc9c52457a30337caabea9d84a79466482e368b3cd90e5ac29b039532"
+  "docsHash": "sha256:dd96d89fdd5e4e2950facd82ed07bc975a9a520287b2a0e4d4aefc5ebb7bd0a4"
 }
 ```
 
@@ -166768,7 +176266,7 @@ files.release: contextPolicy=none
   "id": "getState",
   "title": "getState",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -166956,7 +176454,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bda986bac2dfbaee22d43fd7da80ad1bc744c31e113e8968e1f4ab7b760cce42"
+  "docsHash": "sha256:fe6900013c7169251321269bd943063e55516efed9c76ed9b3f23191f192d691"
 }
 ```
 
@@ -166967,7 +176465,7 @@ files.release: contextPolicy=none
   "id": "searchTools",
   "title": "searchTools",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167115,7 +176613,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5fede220465eaa3532a3b20777c582797e7326b26bb4f0720e16e753ac5143a7"
+  "docsHash": "sha256:22eea2f52025ee38bd90053ef5085d3a6b55ec21aa8ecb54005fbcb06dac69ce"
 }
 ```
 
@@ -167126,7 +176624,7 @@ files.release: contextPolicy=none
   "id": "getTools",
   "title": "getTools",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167267,7 +176765,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2a62a2dd23df7386c34309fa936dccc661e7ef98bb7ac7ce1d66c9ab8b3d6533"
+  "docsHash": "sha256:03c8204ff3d7cab8397830eb3d7c96d5a2b19b20a14df9c984c6cffec8e3c707"
 }
 ```
 
@@ -167278,7 +176776,7 @@ files.release: contextPolicy=none
   "id": "getTool",
   "title": "getTool",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167408,7 +176906,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a28622dcaf3a8e566a15cff6ee4f36aff14cb38cb80cf21a57558afb87a5a1ff"
+  "docsHash": "sha256:fc9b9a14a800e407d82aee2353f16d73b3567de54b537b2432cff4776c4488f9"
 }
 ```
 
@@ -167419,7 +176917,7 @@ files.release: contextPolicy=none
   "id": "readDocs",
   "title": "readDocs",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167551,7 +177049,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fdb77f2d06397f5138db7d8c03086e80d012a7082184173e6b72c643743d733c"
+  "docsHash": "sha256:57ec69bef18605d3beb302266c1915719f40dde601c489de359e4aaea1c9c954"
 }
 ```
 
@@ -167562,7 +177060,7 @@ files.release: contextPolicy=none
   "id": "queryGeometry",
   "title": "queryGeometry",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167724,6 +177222,10 @@ files.release: contextPolicy=none
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -167743,7 +177245,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2252428889655d1462fdeaeaf127b31fc5f2dbf022f89280f6f998f9f7a33e50"
+  "docsHash": "sha256:65168844bfbb0437c210ee94f9276756106eb1b4472e5c8e4a8ca2a3a664fde7"
 }
 ```
 
@@ -167754,7 +177256,7 @@ files.release: contextPolicy=none
   "id": "queryReferences",
   "title": "queryReferences",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -167918,6 +177420,10 @@ files.release: contextPolicy=none
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -167937,7 +177443,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b64eb536cbbf410e5eb948dc1a0ca5b645ef4c1b2cdfbfd54c916cfdee64fed6"
+  "docsHash": "sha256:f2589eb427de1743119f5726ed3f760cb7fe5cfd57f163ceaf58997d4a633d66"
 }
 ```
 
@@ -167948,7 +177454,7 @@ files.release: contextPolicy=none
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -168292,7 +177798,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cb84a662bbe6f55ca931f6ef80b22ef2456d7d4b360671cd4cae0b49ee483484"
+  "docsHash": "sha256:cf146bb098658b3a88b75ca92c7a5b6ed55d8c933882ea909a11efd2760a86ed"
 }
 ```
 
@@ -168303,7 +177809,7 @@ files.release: contextPolicy=none
   "id": "execute",
   "title": "execute",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -168511,7 +178017,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2d87ad9e651dbe94b7fa4aa858ba0988746fdf75b119c9c781ae72450266c5ac"
+  "docsHash": "sha256:927529527007a9c495c45e379104c0b8c7ae101b8e32cb7552d5855b2d47ed82"
 }
 ```
 
@@ -168522,7 +178028,7 @@ files.release: contextPolicy=none
   "id": "measure",
   "title": "measure",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -168776,6 +178282,10 @@ files.release: contextPolicy=none
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -168795,7 +178305,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f17f36d758017314a23c8d7fe2e0c9e377e642555af8972e86a4c56986fb2966"
+  "docsHash": "sha256:07b8954038de53a9d974c08e3c337ad81037a550c9397f93d51882edfd3c27c9"
 }
 ```
 
@@ -168806,7 +178316,7 @@ files.release: contextPolicy=none
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -169072,6 +178582,10 @@ files.release: contextPolicy=none
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -169091,7 +178605,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:44e2f23354db50cb49f904bf69243502e4e6d445bab1367218e9c23c5f97d93d"
+  "docsHash": "sha256:90041010d96b2b4af83efbe8532e4f40c1b5672e0162751a72f5ecd30fc48e10"
 }
 ```
 
@@ -169102,7 +178616,7 @@ files.release: contextPolicy=none
   "id": "inspectDesign",
   "title": "inspectDesign",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -169444,6 +178958,10 @@ files.release: contextPolicy=none
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -169463,7 +178981,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a4703a18166a7b5206b2c1635b87eede955f4b6afd56fd3ca2ddee5b3d1860f9"
+  "docsHash": "sha256:b6477366a3062cab25d74b18b831bbac3fe6e0d4ff578b51c23f14913f051303"
 }
 ```
 
@@ -169474,7 +178992,7 @@ files.release: contextPolicy=none
   "id": "inspectPrintability",
   "title": "inspectPrintability",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -169654,6 +179172,10 @@ files.release: contextPolicy=none
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -169669,7 +179191,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a1c3c181a583c223531d64767f553105d6e703f535e874652fb636110d60ad50"
+  "docsHash": "sha256:a0e2084afced6ffe97d4c7ecb49cf6305ba1a4e7f7731ca08ae2a662a4af88ce"
 }
 ```
 
@@ -169680,7 +179202,7 @@ files.release: contextPolicy=none
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -169850,6 +179372,10 @@ files.release: contextPolicy=none
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -169873,7 +179399,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e3c8de712a0dd912c3810c04bf8ffbc03a6d9f85c68d0c4084db88c9f3a8c117"
+  "docsHash": "sha256:902cee5574893be010ccfdc3c0697b651240c1c771e8c07d61d0cec33f35e76d"
 }
 ```
 
@@ -169884,7 +179410,7 @@ files.release: contextPolicy=none
   "id": "prepareProfileEdit",
   "title": "prepareProfileEdit",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -170129,7 +179655,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f2d34d2727a9d9dd3b9e8cfb64137b7782838597fd59af637c9172f4e50ed6f7"
+  "docsHash": "sha256:ee09b7625b7f17badd5a89900c876cacf90499cf2a8c5faf51e3ea16d09cc419"
 }
 ```
 
@@ -170140,7 +179666,7 @@ files.release: contextPolicy=none
   "id": "inspectConstraints",
   "title": "inspectConstraints",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -170320,6 +179846,10 @@ files.release: contextPolicy=none
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -170343,7 +179873,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4376067f33c9e0121ea10523530198cd5bc954dba19072321cbd59dfaec15637"
+  "docsHash": "sha256:5f7b83150502aab558c8bd5fd8b807a3f4758594f27009e5c6c60de01f52054d"
 }
 ```
 
@@ -170354,7 +179884,7 @@ files.release: contextPolicy=none
   "id": "projectProfile",
   "title": "projectProfile",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -170590,7 +180120,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a1a001a1fdad1d531fda9fbfdcc50b41c2d4792a5618d368cca9bca8197b9254"
+  "docsHash": "sha256:4e7a7cc089e55d4137075a4119e908bbfc50700c1aa0d13b35a5f1412a9f2a02"
 }
 ```
 
@@ -170601,7 +180131,7 @@ files.release: contextPolicy=none
   "id": "inspectFit",
   "title": "inspectFit",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -170795,6 +180325,10 @@ files.release: contextPolicy=none
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -170814,7 +180348,387 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f80a0f818566d0a1cb8e4b7d8c85a3e5ac1e0b79b5789590d3bfa4a90d28b063"
+  "docsHash": "sha256:90c8bd520785f3a4b6b5a7132d99ef1a9d0ecd0613601a0bb1493ac6f506e03d"
+}
+```
+
+## 工具 surfaceAnalysis · surfaceAnalysis
+
+```json
+{
+  "id": "surfaceAnalysis",
+  "title": "surfaceAnalysis",
+  "category": "page-method",
+  "version": "1.75.25",
+  "contextPolicy": "revision",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "inputSchema": {
+    "oneOf": [
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentInstanceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "expectedRevision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "sessionId",
+              "documentId",
+              "documentInstanceId"
+            ]
+          },
+          "mode": {
+            "const": "clear"
+          }
+        },
+        "required": [
+          "context",
+          "mode"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentInstanceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "expectedRevision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "sessionId",
+              "documentId",
+              "documentInstanceId"
+            ]
+          },
+          "mode": {
+            "const": "zebra"
+          },
+          "bodyId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150
+          },
+          "showInView": {
+            "type": "boolean"
+          },
+          "zebraDirection": {
+            "enum": [
+              "vertical",
+              "horizontal"
+            ]
+          },
+          "stripes": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 36
+          }
+        },
+        "required": [
+          "context",
+          "mode",
+          "bodyId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentInstanceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "expectedRevision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "sessionId",
+              "documentId",
+              "documentInstanceId"
+            ]
+          },
+          "mode": {
+            "const": "comb"
+          },
+          "bodyId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150
+          },
+          "showInView": {
+            "type": "boolean"
+          },
+          "edgeId": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "samples": {
+            "type": "integer",
+            "minimum": 8,
+            "maximum": 64
+          }
+        },
+        "required": [
+          "context",
+          "mode",
+          "bodyId",
+          "edgeId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentInstanceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "expectedRevision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "sessionId",
+              "documentId",
+              "documentInstanceId"
+            ]
+          },
+          "mode": {
+            "const": "thickness"
+          },
+          "bodyId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150
+          },
+          "showInView": {
+            "type": "boolean"
+          },
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 4,
+            "uniqueItems": true
+          },
+          "direction": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          },
+          "grid": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 10
+          },
+          "thresholdMm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 500
+          }
+        },
+        "required": [
+          "context",
+          "mode",
+          "bodyId",
+          "faceIds"
+        ]
+      }
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_view",
+    "method": "surfaceAnalysis",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
+  "description": "surfaceAnalysis({context,mode,bodyId,edgeId?,faceIds?,grid?,direction?,thresholdMm?,samples?,zebraDirection?,stripes?,showInView?})；mode=clear 仅发 context 与 mode。",
+  "synonyms": [
+    "surfaceAnalysis",
+    "斑马纹",
+    "曲率梳",
+    "壁厚色图",
+    "曲面光顺检查",
+    "zebra",
+    "curvature comb",
+    "thickness map"
+  ],
+  "inputContract": "surfaceAnalysis({context,mode,bodyId,edgeId?,faceIds?,grid?,direction?,thresholdMm?,samples?,zebraDirection?,stripes?,showInView?})；mode=clear 仅发 context 与 mode。",
+  "outputContract": "read、viewApplied、采样与最薄测点。按当前修订绑定对象与拓扑，显示层不参与几何提交。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "FREEFORM_INSPECTION",
+    "FREEFORM_REFERENCE",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.freeform-modeling",
+  "relatedTools": [
+    "queryGeometry",
+    "surfaceFill",
+    "surfaceSculpt",
+    "inspectThickness"
+  ],
+  "units": {
+    "length": "mm"
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
+    "example": {
+      "toolId": "surfaceAnalysis",
+      "context": "<live context>",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，用 kind:region 读取轴对齐盒内的只读交集体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:21163af28c6bd39f5b0b76442d0cc2a2394a3d33d3312f1d2533e9c8df2b1441"
 }
 ```
 
@@ -170825,7 +180739,7 @@ files.release: contextPolicy=none
   "id": "inspectThickness",
   "title": "inspectThickness",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -171057,6 +180971,10 @@ files.release: contextPolicy=none
         "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -171076,7 +180994,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2dfdf9df06f2ca141d2a393f3a615114a82d41fcebfa5e35b1f4ad640e225187"
+  "docsHash": "sha256:45a7bf08001477c4bcdbf4cd615f34de09909ab525ecd464f63526bbd365addc"
 }
 ```
 
@@ -171087,7 +181005,7 @@ files.release: contextPolicy=none
   "id": "inspectDraft",
   "title": "inspectDraft",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -171285,6 +181203,10 @@ files.release: contextPolicy=none
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectPrintability",
         "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
       },
@@ -171308,7 +181230,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f04745840a5dfcdfa88bf46374f113fd9e4a6e0cd2ee9c3a77aaa27e987326a1"
+  "docsHash": "sha256:a66231696c3584958a8a189a8c6f9ea0c66bda2a1c58fe058ecbca048e33a0ae"
 }
 ```
 
@@ -171319,7 +181241,7 @@ files.release: contextPolicy=none
   "id": "inspectRound",
   "title": "inspectRound",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -171525,7 +181447,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.rounding",
-  "docsHash": "sha256:0a95a7c4669e2999f29a76e3c5d6f9c338ca5c618f4587fded2cfc71dae13257"
+  "docsHash": "sha256:159f561bdf999306df20286450bb981e20b3a47739d1c34efde32c61f42a78a2"
 }
 ```
 
@@ -171536,7 +181458,7 @@ files.release: contextPolicy=none
   "id": "readVector",
   "title": "readVector",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -171752,7 +181674,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ea9e6c73f49d7cb0193d5456824f1c2a7e253b9954257310980a1eb4d503f1d6"
+  "docsHash": "sha256:500c516ac139854d36fe77920f941cdf6f8526bac07528a9d2db1216670636c5"
 }
 ```
 
@@ -171763,7 +181685,7 @@ files.release: contextPolicy=none
   "id": "connectVector",
   "title": "connectVector",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -171987,7 +181909,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:19663a7b69fb3793f23224ccdca455676ed1fb4ec0b1e22015a67ad304b18a1d"
+  "docsHash": "sha256:b3b962f949283ea6e471404b1bbd5858c434371074091ac8918337e81621cbe0"
 }
 ```
 
@@ -171998,7 +181920,7 @@ files.release: contextPolicy=none
   "id": "fitProfile",
   "title": "fitProfile",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -172228,7 +182150,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:15cdbe07e9a87f0a103323e73070580343da4b9a54e8822034266272b62e2821"
+  "docsHash": "sha256:5f7defbac38160a3232b0b66897821c9ee11f1d48bdf29c904c9eec6828b62fb"
 }
 ```
 
@@ -172239,7 +182161,7 @@ files.release: contextPolicy=none
   "id": "traceTwinWindow",
   "title": "traceTwinWindow",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -172452,7 +182374,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4430602babd94d3ec72e73404df5d4e9018328c4635b128539c47f2d53464332"
+  "docsHash": "sha256:1140ef4e1aa12a17e75dbbf8f22ad18aca29eb3bdf26c979787c64aac64143bd"
 }
 ```
 
@@ -172463,7 +182385,7 @@ files.release: contextPolicy=none
   "id": "executeText",
   "title": "executeText",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -172562,7 +182484,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:4079badd8d046e3649ec8024265caf39a5cf803e0280543d3ef4d37eb2f3f434"
+  "docsHash": "sha256:3d37dca7837bb2d7789e57169010d1420b853e594bf58758b3592fc38c25ad6f"
 }
 ```
 
@@ -172573,7 +182495,7 @@ files.release: contextPolicy=none
   "id": "setDisplayPreferences",
   "title": "setDisplayPreferences",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -172790,7 +182712,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fada43f0120390190aef2d20a09a75bf603d4a2c100c1f529688d388a951c7f1"
+  "docsHash": "sha256:ccc16157afb0540869c4be8996911c6a2c3b3c1d928cfe25800b2683c0c6b23d"
 }
 ```
 
@@ -172801,7 +182723,7 @@ files.release: contextPolicy=none
   "id": "getAgentPanel",
   "title": "getAgentPanel",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -172873,7 +182795,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:226543b6c02dd40e339b5a891d9c3117158bcbf98b5dae13bd2bae4a672f003f"
+  "docsHash": "sha256:cac7d8933367a201b83c57511df52a11e0e5dc7dc32fb1e4aa74fc18f0299973"
 }
 ```
 
@@ -172884,7 +182806,7 @@ files.release: contextPolicy=none
   "id": "configureAgentPanel",
   "title": "configureAgentPanel",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -172948,7 +182870,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:bc19432b8191090b8be5c1f2520a4fa17eb2cb6844a730487f3442490e620ad4"
+  "docsHash": "sha256:a5d741c3f911ac8ed142e05c79e3758e476846526edcede1badba1b56d1bf879"
 }
 ```
 
@@ -172959,7 +182881,7 @@ files.release: contextPolicy=none
   "id": "setAgentPanel",
   "title": "setAgentPanel",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -173032,7 +182954,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:52395608f620f5ffd9420e14ddad7ed41da7b7cfb8781b4f92432da05b364f17"
+  "docsHash": "sha256:a13aeeea724cf1adac97890fac778ec85efe6821157cf9027ab2c89b858f7461"
 }
 ```
 
@@ -173043,7 +182965,7 @@ files.release: contextPolicy=none
   "id": "markLocation",
   "title": "markLocation",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -173207,7 +183129,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f1a6bdbabdfd09ca4a237abff968d8d85bef5f6975def74d6508ce6c34a3bf57"
+  "docsHash": "sha256:08915204eb16bca606b9072d3b9eb029fcbcc49be2cd35c40a3c31d59af71276"
 }
 ```
 
@@ -173218,7 +183140,7 @@ files.release: contextPolicy=none
   "id": "getServices",
   "title": "getServices",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -173356,7 +183278,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:54c7887940a592a79859efc9670677ded7f809711e9cda672afaf7fef6244ad4"
+  "docsHash": "sha256:1a3d01a05d2f9ec0ad365ae3fbc52e3cf7c588545f9ed1046f8fb0b627924025"
 }
 ```
 
@@ -173367,7 +183289,7 @@ files.release: contextPolicy=none
   "id": "setServices",
   "title": "setServices",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -173506,7 +183428,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fb2bd12e339eee1897c35947d1911bd2645874139468cc52add042db83186df7"
+  "docsHash": "sha256:83e56e837c2975f4f46adc648a32896297094a8784211574bb78012c88f3dd42"
 }
 ```
 
@@ -173517,7 +183439,7 @@ files.release: contextPolicy=none
   "id": "getServicesCapabilities",
   "title": "getServicesCapabilities",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -173660,7 +183582,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:34eff41c79363fd9d155aa5c50041c63adcc04677c20926d7c4b744260cb76de"
+  "docsHash": "sha256:0733fb6472ea599aceb4155a92acd02eeb845aa374d90ab6d1e5310ba438a1bf"
 }
 ```
 
@@ -173671,7 +183593,7 @@ files.release: contextPolicy=none
   "id": "getServicesRouting",
   "title": "getServicesRouting",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -173809,7 +183731,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f2dc30de09ba198a2edb1bd7a65ccd76a9fb699e956daa2eab9f77b7903da257"
+  "docsHash": "sha256:a2320fc78e74192fc6dc8d7a293c23bdc176f9c27f27022a1e065ac81e36d3ef"
 }
 ```
 
@@ -173820,7 +183742,7 @@ files.release: contextPolicy=none
   "id": "clearServicesCredential",
   "title": "clearServicesCredential",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -173954,7 +183876,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fa3fe858c11c0879d5357a79769273f63c9c97c26689624e69fe806727938892"
+  "docsHash": "sha256:dc28a16d7c1511fd002e8747aaf7e6bfc9f9597210de7c95b60e82db9865656d"
 }
 ```
 
@@ -173965,7 +183887,7 @@ files.release: contextPolicy=none
   "id": "getServicesJob",
   "title": "getServicesJob",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -174106,7 +184028,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:41de50480a6fd27325b5a7fdc11c9e7316fed17e5601aa1de8cfe981b3491a5f"
+  "docsHash": "sha256:a09942e2c79b7b1816bc6e1dc5addcd634423af822e4d6573ce53847e6e767af"
 }
 ```
 
@@ -174117,7 +184039,7 @@ files.release: contextPolicy=none
   "id": "getServicesRequest",
   "title": "getServicesRequest",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -174259,7 +184181,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:a1d4e97bcb6180113ea57479941f1466bff25b7c2bfc8189754f48a3d808a68f"
+  "docsHash": "sha256:8dc3b9626f7d3e85b074df970fade6fcca8729c366a64969f4e255a9486039c5"
 }
 ```
 
@@ -174270,7 +184192,7 @@ files.release: contextPolicy=none
   "id": "cancelServicesJob",
   "title": "cancelServicesJob",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -174416,7 +184338,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ca5588108bff64767243301bcbd6b40b671b5fcec7560adff9599837269bfe66"
+  "docsHash": "sha256:72cc708d645673452215cc295f92c9cd396f3d71020ba134dd216efa3d4fd2e4"
 }
 ```
 
@@ -174427,7 +184349,7 @@ files.release: contextPolicy=none
   "id": "getLogoConverter",
   "title": "getLogoConverter",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -174558,7 +184480,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:f45f716cfd1a5da19ad999c3da02b3a4a4a76651474ae96a87cb019e16b8c8c0"
+  "docsHash": "sha256:8e02008338091de75a7df091ceecdbc777c0a61bfc7f900dc5dca09d82890962"
 }
 ```
 
@@ -174569,7 +184491,7 @@ files.release: contextPolicy=none
   "id": "setLogoConverter",
   "title": "setLogoConverter",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -174705,7 +184627,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:35aca94c94aac3d2216a7299fa020e9be651f6aafd89a8d8d52b2fd1c9a59573"
+  "docsHash": "sha256:487c61be47adf17b0a6061c72cae58d2591c3e250285f61f31dcbb7d2b392fb1"
 }
 ```
 
@@ -174716,7 +184638,7 @@ files.release: contextPolicy=none
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -174866,7 +184788,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:605fc4d251d7cca82c05b4375316fc05bc832bcda59caf06b9d69843cc1db070"
+  "docsHash": "sha256:050ae2b06b70859ba766246df9b145f79dc8ea208feb9b0d1d3b15cb4f301288"
 }
 ```
 
@@ -174877,7 +184799,7 @@ files.release: contextPolicy=none
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -175266,7 +185188,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:25d648a4baada2634a7fb1c5b6b8c285be01a1d8950fe51aa3c95ed22bca282d"
+  "docsHash": "sha256:d44b94cb91fc4b0c5307b38df4008152f54b8b776b31188db49e2922678e8a5c"
 }
 ```
 
@@ -175277,7 +185199,7 @@ files.release: contextPolicy=none
   "id": "redraw",
   "title": "redraw",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -175482,7 +185404,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:ec98754defb33c156555a3cc52796cbb5f024b2590a31e7ffb99ec96f4bfb28d"
+  "docsHash": "sha256:980ab0c2161919c79216b0ce2295872f224bba7a5c9b96178b78185a9cad39c8"
 }
 ```
 
@@ -175493,7 +185415,7 @@ files.release: contextPolicy=none
   "id": "capture",
   "title": "capture",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -175692,7 +185614,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5f81d469197ee498ef9ca205c7128eb7205b016ea036c8bcf597e195a04e2e05"
+  "docsHash": "sha256:c58581f701e332ce8c25ab31e35d0f934b120bb251cac40b4e1350be55056c74"
 }
 ```
 
@@ -175703,7 +185625,7 @@ files.release: contextPolicy=none
   "id": "getEvidenceImage",
   "title": "getEvidenceImage",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -175934,7 +185856,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7debd2632aa5df0510530de3773e0ebd70b499f6bc50ff9cd160a4ae0ff2c151"
+  "docsHash": "sha256:0c45e900bf9030ec40986604734e2b618d599bfe9c9bb5aa2971ec83e98e47e5"
 }
 ```
 
@@ -175945,7 +185867,7 @@ files.release: contextPolicy=none
   "id": "run",
   "title": "run",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -176607,7 +186529,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:f1ba74aea4e81d1fed344735a7de406c6da99395d062cd339f17316ecbedfba5"
+  "docsHash": "sha256:b635143835e0a5445e74267775af57f313d65eba3b4443b3267fec155d572ebd"
 }
 ```
 
@@ -176618,7 +186540,7 @@ files.release: contextPolicy=none
   "id": "getPerformanceState",
   "title": "getPerformanceState",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -176750,7 +186672,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:d8e0dc98d20c6b28bc26de1d7dcdc57f570fe4dc83e5d037cd05537567c67afe"
+  "docsHash": "sha256:dc3f089f98e43f909b3a6244d3a8a17fe7f39aaf4200a075c51a693fb12a1714"
 }
 ```
 
@@ -176761,7 +186683,7 @@ files.release: contextPolicy=none
   "id": "configurePerformance",
   "title": "configurePerformance",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -176976,7 +186898,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2cabea5831c564fb99be5a1bd5413c54f40a72fae8fff707bbee5d377b65790d"
+  "docsHash": "sha256:7e724d386bf4981e9e9047c414cbc433d4fc23d3c7e2a34cad3e508a3494228d"
 }
 ```
 
@@ -176987,7 +186909,7 @@ files.release: contextPolicy=none
   "id": "acknowledgePerformanceAdvisory",
   "title": "acknowledgePerformanceAdvisory",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -177168,7 +187090,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8165c5db10f3738b03acb55d9c50f18f1f661a1ba1325f1a68ae725c4d26f31c"
+  "docsHash": "sha256:6657834fc144aea560ec7c56bddd38948ab49c7875c46ad928b185c3fd427bf5"
 }
 ```
 
@@ -177185,7 +187107,7 @@ files.release: contextPolicy=none
   "title": "材料密度与重量",
   "description": "设置参考密度g/cm³、默认材料和对象材料映射，保存工程、可撤销；新工程记住浏览器默认值，与电镀外观独立。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -177420,7 +187342,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:91d115dcdc77fee5626920dbd89d86c660bd075ff93fab11637cec5d6cfe3425"
+  "docsHash": "sha256:8c50e35a6cfb1ca89c86333e9fc1772a50c8efb1abd8524a8fc15d1070a5ff0f"
 }
 ```
 
@@ -177437,7 +187359,7 @@ files.release: contextPolicy=none
   "title": "Services 原特征编译",
   "description": "按服务能力执行世界坐标纯平移、均匀柱面凸雕层、多刀具 cut 或带一边旧R的矩形面完整边界 round。round 仅支持一个无孔矩形面、六个正交支撑面和一条完整同R旧圆角；四侧精确R，四角光滑自由曲面，保留4个孤立终止点。cut 的 refs 首项为目标，其余 1–32 项为刀具，各来源必须是已提交单实体，结果须为非空单实体；keepTools 保持原历史语义。全部来源按顺序校验，单项限 20 MiB、合计 64 MiB。浮雕通过几何意图匹配原宿主面，保留轮廓与孔，显式刀具策略不重试。验证精确结果后原子安装原特征，保留 op/参数/依赖。原生任务成功不等于工程提交。若修改来源会使下游复杂运算失效，先移除下游步骤、完成来源修改后重新执行，禁止转到本地偷算。失败保留真实错误码、jobId、stage、diagnosticsRef 和 commitState；等待中断保留原任务查询信息，不自动重算。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -177737,7 +187659,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:aa0c885d41e97585214d2abb66e30ba3f87787e70d6abe1738c956391dd5160e"
+  "docsHash": "sha256:254cbb1b080d175fe07086512f45ad4aa840001a7249d60ab493d81797ae1933"
 }
 ```
 
@@ -177754,7 +187676,7 @@ files.release: contextPolicy=none
   "title": "快速对齐",
   "description": "按世界轴平移对齐。与 planAlignment 共同按需读取参与对象的正式几何范围。完整例 args:{bodyIds:[移动实体ID],target:{kind:\"body\",bodyId:基准实体ID},axes:[\"Y\"],sourceSide:\"center\",targetSide:\"center\",group:true,gapMm:[0,0,0]}；axes为X/Y/Z数组，侧为min/center/max，group为布尔，gapMm必须是三个毫米数值的数组（不是标量）。基准实体不能同时在bodyIds内。默认 axes=[X,Y,Z]、两侧center、group=true、gapMm=[0,0,0]。group 语义必须先按用户意图确认：group=true 把全部 bodyIds 当作一个整体，按它们的联合包围盒对齐并保持彼此相对位置（整体平移）；group=false 每个实体分别按自身包围盒对齐到目标（例如多个件各自居中到同一中心线）。“分别/各自/每个都对齐”必须用 group:false，不要先 group:true 再补偏移。run 回执的 bodyBounds 给出移动后实体的 center/size，可直接核对，无需再读 getState。提交后移动件ID可能替换：用回执replacements中的{before,after}或createdBodyIds绑定后续measure，不能继续测量已替换的旧ID。no_change时保留原ID。一次原子历史操作。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -178223,7 +188145,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3bd9d9c9dea12a4feae126ba154b9714beada32949e7d19d031beb500fd110eb"
+  "docsHash": "sha256:1601f40162c4f421bd5ce2f0e85295364c7251e7eac573178c3ef452b6ca7b99"
 }
 ```
 
@@ -178240,7 +188162,7 @@ files.release: contextPolicy=none
   "title": "退回工程状态",
   "description": "用 getHistory 返回的状态 ID 恢复当时参数、显隐、外观和基准。导入来源只存一份，历史差异最多100状态/2MiB。恢复自身可撤销。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -178503,7 +188425,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:87479ef24e50b816be14b4352bdf2f6bafd5becfe9af1b6ad2eb5539c00bcda9"
+  "docsHash": "sha256:d2a17fd99321bbcef35a131957b31b3fd6700599b545ce251dcd67920395dafd"
 }
 ```
 
@@ -178520,7 +188442,7 @@ files.release: contextPolicy=none
   "title": "浮雕设计约束草稿",
   "description": "保存人工设计约束到当前工程，支持撤销、历史和工程重开。id最多64字符；新建expectedDraftRevision=0，编辑/删除传当前草稿revision；remove:true删除，不能同时传draft。draft完整替换：schemaVersion:1、name、support(circle/rect)、throughHoles/protectedZones各最多32区域、heightRangeMm:[min,max](-100..100)、points最多256项{id,pointMm:[x,y],heightMm}。区域均有centerMm，circle有radiusMm，rect有widthMm/heightMm。点须在支撑内、孔与保护区外。最多16草稿。heightSource可选{source,depthMm,edgeKeepoutMm?,edgeFadeMm?,weight?}：source为浏览器转换生成的高度来源记录（原图sha256、转换设置及哈希、u16le网格≤1025²）；照片须带derivedFrom及用户确认“我确认此结果为我制作的高度图”，否则MACHINING_SOURCE_CONFLICT；高度图覆盖支撑外接矩形，亮=高，按depthMm映射到最低高度之上，作为求解观测。fieldSettings可选servicesQuality:{mode:adaptive/off,maxControlSide:16–1025}（纯图像无人工点/局部编辑时默认adaptive/1025，Services自动选控制网，结果报告实际ladder和误差；off保留旧拟合），以及machiningPrecisionMm(0.01–0.5 mm，默认0.05，可调：小于该值的起伏/噪声/台阶以C1平滑方式去除，边缘与基线平齐，记入草稿指纹)、columns/rows(9–129)、smoothWeight、maxIterations(1–20000)、toleranceMm及edits笔刷数组(最多256笔，按顺序执行)。每笔显式mode:raise/lower/flatten/smooth、centerMm:[x,y]、radiusMm:0.001..10000；strength可选0..1默认1；raise/lower必填amountMm:0..100，flatten必填targetMm:-100..100，smooth为一次邻域平滑。坐标与草稿支撑同一毫米坐标系；孔、边缘固定节点及保护区保持基线，高度不超heightRangeMm。UI新增/更新/移除笔画会连同当前其他有效表单字段一次保存，Agent等价传整份draft并携带expectedDraftRevision；原图reference及其他既有设置必须保留。随工程保留可重算设计。使用reliefDesignField求解/残差回读和保留圆/矩形支撑、孔与作者保护基线的采样闭网格候选（边界近似，不是精确圆）；不从原图亮度推断设计高度。getState({include:[\"reliefDesigns\"]})读取。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -178845,7 +188767,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:030ba5efb7ba240bd8b42576c31a854d278b35c90a4ba76daf65c63c60e37afe"
+  "docsHash": "sha256:761648cf2b33f12e8fb352ee8e0b76088690e0a25e4383ca9b9543e45357def2"
 }
 ```
 
@@ -178862,7 +188784,7 @@ files.release: contextPolicy=none
   "title": "工程改名",
   "description": "修改工程名称，保留几何。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -179148,7 +189070,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:993e76fdd81c63ac07e19679c8e2801f6ad638a389975758481cf8fcd6d77a88"
+  "docsHash": "sha256:e9afe522aa8594bbd5c3a23dc224557e13938d13a0721baf827d2bd89f62b922"
 }
 ```
 
@@ -179165,7 +189087,7 @@ files.release: contextPolicy=none
   "title": "特征改名 实体名称",
   "description": "修改历史步骤及同 ID 实体名称，导入件也可使用。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -179461,7 +189383,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b6be2adf7b7b5122e88657fc07852df58b2bd720e879b1abe948dcc83ec3bbd8"
+  "docsHash": "sha256:818dbaa43b0589d6a2d3fcc71e1de06738f1f60367b40cc865944a22780c82c7"
 }
 ```
 
@@ -179478,7 +189400,7 @@ files.release: contextPolicy=none
   "title": "显示 隐藏实体",
   "description": "显隐指定当前实体，不删除几何。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -179748,7 +189670,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:59e6baf331560f15ad5143698b76ec35bf44fdac6b5e4865b357749ef1f66e7e"
+  "docsHash": "sha256:79b76d6e518750e56bdb87bbc0a0b1d59955527793321818300a1f899dd01b5e"
 }
 ```
 
@@ -179775,7 +189697,7 @@ files.release: contextPolicy=none
   "title": "实体原色 颜色 金属 材质",
   "description": "color 为 #RRGGBB 或 null 恢复默认；finish 为材质键或 null 跟随工程。仅改 color 不改变金属设置；需显示原色时同时设 finish:design。roughness 0–1（null 恢复 0.42 默认）只作用于 design 饰面的该实体，例如 0.9 做哑光漆，随工程保存；金属饰面忽略。opacity 0–1 为不透明度；transmission 0–1、ior 1–2.5、thicknessMm 0–10000 表达玻璃透射。texture 为 PNG/JPEG/WebP dataUrl（约4.5MiB以内、4096像素以内），或当前工程assetHash+mime；mapping box/xy/xz/yz、sizeMm二元毫米尺寸、offsetMm二元偏移、rotationDeg。平面投射可指定 side=positive|negative|both，按外法向与有限图幅贴花，negative 侧可用 backRotationDeg 独立定向。opacity 控制普通透明，transmission>0 开启额外场景绘制的折射通道。null清除对应覆盖。整实体投射只改外观；图片随工程保存且可撤销。任一可见实体用金属饰面时全场切到金属光照（ACES、较暗灯强），design 实体会变暗；回执警告 METAL_LIGHTING_GLOBAL，getState().display.metalRendering.sceneLighting 读回。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -180501,7 +190423,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:7c9a3ca59f4640c634edb3363a814e6b8a81657338e6fe9432c99d883d9a5c02"
+  "docsHash": "sha256:8756efb5968fcac76814c0d682d21ca67147d0420b13cc8ee5610a29b92b0bcc"
 }
 ```
 
@@ -180518,7 +190440,7 @@ files.release: contextPolicy=none
   "title": "工程渲染 金属色",
   "description": "设置当前工程材质覆盖，null 跟随全局默认，仅影响未单独指定材质的实体。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -180820,7 +190742,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:92b51fbc709436ff06ea03f94f9eacb917107f74ed5a027a875820a2a8a9e0d1"
+  "docsHash": "sha256:342ff7900ac18e5d7c360ce4a8e232b32ddb5dcff2b5673ee3a4b535cce445a1"
 }
 ```
 
@@ -180837,7 +190759,7 @@ files.release: contextPolicy=none
   "title": "组合拆散 多实体分解",
   "description": "将含 2–500 个封闭体的组合拆成独立实体；一个撤销步骤。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -181099,7 +191021,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:5715d30d40f733bcf252c26ed67aec6f6df8a6474b16dc7269624f7171b6f078"
+  "docsHash": "sha256:77bb64e016744fa57cca867ec7d9aff3a83e7ddecab257cb4d386f9672859dfb"
 }
 ```
 
@@ -181116,7 +191038,7 @@ files.release: contextPolicy=none
   "title": "设置参考锚点（工作基准）",
   "description": "args:{origin:[x,y,z],quaternion:[x,y,z,w],sourceLabel?}；修改唯一可见插入锚点，不修改固定世界坐标；单位四元数，锁定时拒绝。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -181378,7 +191300,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:152bc596b938c0bf2c2e124c5dc0e5bc46965dbfe4e56265253c8c701d61e496"
+  "docsHash": "sha256:9e5f288e427babf6a8db4180cb88e69fd15faeb91712b9d455b1e41d213f1f71"
 }
 ```
 
@@ -181395,7 +191317,7 @@ files.release: contextPolicy=none
   "title": "重置参考锚点（工作基准）",
   "description": "args:{scope:\"position\"|\"orientation\"|\"all\"}；只重置指定部分。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -181625,7 +191547,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5a48ead4cc4d414ab79530a9db526f4e234cd039f75a3a52e46b9ef5da15e7b0"
+  "docsHash": "sha256:5c0e01d49b9abec291bec388b6874f76db70f890152b1ed6c309a184c2e2ef17"
 }
 ```
 
@@ -181642,7 +191564,7 @@ files.release: contextPolicy=none
   "title": "锁定参考锚点（工作基准）",
   "description": "args:{locked:boolean}；可撤销的元数据操作。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -181872,7 +191794,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:fbd715dcace76bb979ca6c61fa5dacf780d59c6fea3a97566cb32472141caa2e"
+  "docsHash": "sha256:6f9d8f43fb085474b01cc0c3734428ae340e97b4d3d268a4ab87b5708b981ce8"
 }
 ```
 
@@ -181889,7 +191811,7 @@ files.release: contextPolicy=none
   "title": "保存具名基准",
   "description": "args:{name,frame:{origin,quaternion},frameId?,expectedFrameVersion?}；更新需版本匹配。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -182135,7 +192057,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:c1e51254ca1099c73dc114fa82b715d6bf303de1282736b60a40388ac5de4b97"
+  "docsHash": "sha256:078f7ea1eeef42b2fc5d7935c15032823a195b4e06d72e4a9b362263c7028794"
 }
 ```
 
@@ -182152,7 +192074,7 @@ files.release: contextPolicy=none
   "title": "激活具名基准",
   "description": "args:{frameId,expectedFrameVersion}；复制快照到当前工作基准。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -182390,7 +192312,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:799e8fb6a1fea2f67568c7f0b44cc20a2f0f55b5a78a99ce7b03b2c8cdcd17a5"
+  "docsHash": "sha256:32407fc36013a8a1d52ca5373a3b4a1d0ec274ec7c33c4e340073bd0045938ce"
 }
 ```
 
@@ -182407,7 +192329,7 @@ files.release: contextPolicy=none
   "title": "重命名具名基准",
   "description": "args:{frameId,expectedFrameVersion,name}。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -182653,7 +192575,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8d0fa958117df668a3b184cf1a9c96d983d832d930d6a205a3412814ea169249"
+  "docsHash": "sha256:72b567f70398004b87dcdb307cd48abd0749e5c8afefa908bffb0c08064f74d2"
 }
 ```
 
@@ -182670,7 +192592,7 @@ files.release: contextPolicy=none
   "title": "删除具名基准",
   "description": "args:{frameId,expectedFrameVersion}；已冻结特征不受影响。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -182908,7 +192830,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:0daf4765a2d15a7a7352b2287268254c0a2245e1007ad22dd2807919b198b63f"
+  "docsHash": "sha256:c5601d33abd1bbe2be4673ff3b497642289975486ab540a2f0ce6e431c30bce8"
 }
 ```
 
@@ -182925,7 +192847,7 @@ files.release: contextPolicy=none
   "title": "对象锚点",
   "description": "args:{bodyId,name,referenceId,quaternion,anchorId?,expectedAnchorVersion?}；referenceId 来自当前 queryReferences 精确点，绑定 B-Rep 指纹。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -183191,7 +193113,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1c8d991659d1de20df03e73945580913cfddc808b72caa3c055a2a4ed92bc298"
+  "docsHash": "sha256:2496a4db2826df38d4494fe7395152aa81ba19f9483a0bf57d28421f072c72ea"
 }
 ```
 
@@ -183208,7 +193130,7 @@ files.release: contextPolicy=none
   "title": "删除对象锚点",
   "description": "args:{bodyId,anchorId,expectedAnchorVersion}；仅删除元数据。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -183454,7 +193376,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b8722594c9b5f61c83657fced998f3cd95a83e64944a69f06b8958ac280c4391"
+  "docsHash": "sha256:674c32bf484c5169c6199aa0ae9b55a9c4edb32654627054aadbf98153db2e46"
 }
 ```
 
@@ -183471,7 +193393,7 @@ files.release: contextPolicy=none
   "title": "新增几何",
   "description": "args:{op,opVersion,schemaHash,params,refs,name?,placement?}；先 getTool 读取操作卡，按 placementPolicy 判断定位。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -183745,7 +193667,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:8847ee997c99b5e23be72ca914f983abd8ed002afabc3b383364590fb330dab1"
+  "docsHash": "sha256:efd2a5539caedc736785bf5d6a88dc75d0bb4d8b819ec07f58ea02db1f6f4bf1"
 }
 ```
 
@@ -184083,7 +194005,7 @@ files.release: contextPolicy=none
   "title": "一次提交多特征",
   "description": "args:{features:[{key,op,opVersion,schemaHash,params,refs,name?,placement?}]}；1–64项，前序引用{feature:key}。一次重建、一个撤销步骤；读api.feature-plan。api.run 里用 method:addMany（本卡 batchCapable=true，batchMethod=addMany），不要逐步 add。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -184754,7 +194676,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e98e26154a4f0e62613951dd5ae675b9c824bca4d43f4114758cd24270549cfa"
+  "docsHash": "sha256:0ae54cfddbed4b02cf5b943b2612819af94691ad7b8abd2ed9a3c4d30d6601de"
 }
 ```
 
@@ -184771,7 +194693,7 @@ files.release: contextPolicy=none
   "title": "修改参数",
   "description": "args:{featureId,params,name?,placement?,opVersion?,schemaHash?}；省略 opVersion/schemaHash 时按被编辑特征的 op 当前工具卡自动补齐，显式传入且不一致才报错。params 为补丁，placement 提供时完整替换。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -185033,7 +194955,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:b53091da14197c94835d76c6517102a15decd6c1417a08048f95ef4a7115bbcf"
+  "docsHash": "sha256:6f8d5a5bf6b02446e456cfd720feb352651d954842bbbaeae5ad5197f1b18eb0"
 }
 ```
 
@@ -185050,7 +194972,7 @@ files.release: contextPolicy=none
   "title": "删除实体",
   "description": "args:{bodyIds}，不可使用历史已替换 ID。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -185292,7 +195214,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.boolean",
-  "docsHash": "sha256:1127add621add1bc23b473c2f9a766b54c7189b5e3a74bdf5cb1a76a9d6fbfd0"
+  "docsHash": "sha256:c68038b1e9b937866764d425576a64429223d8d976f7f5ea315f301c48ecc556"
 }
 ```
 
@@ -185309,7 +195231,7 @@ files.release: contextPolicy=none
   "title": "撤销",
   "description": "args:{}；撤销一个已提交步骤。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -185531,7 +195453,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:36a47bc20089f91139faad84899146ab64bd8d9a5ab59c1b79c994682a76d263"
+  "docsHash": "sha256:48d0bacd6114733c2fe3b145413efc9f1be11b14b7082e3e85f007b0723b6049"
 }
 ```
 
@@ -185548,7 +195470,7 @@ files.release: contextPolicy=none
   "title": "重做",
   "description": "args:{}；重做一个步骤。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -185770,7 +195692,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:3355973e04457ab2f2555621b892f5a0a169d21acd7ab2c94c20a8ffa45e76ce"
+  "docsHash": "sha256:cdbb364c39478fe06ec9e3ef13019c2cdf7cd7a3c8cf69d7853cd5afffb0ff25"
 }
 ```
 
@@ -185787,7 +195709,7 @@ files.release: contextPolicy=none
   "title": "重建工程",
   "description": "args:{}；重建当前历史。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -186021,7 +195943,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:9c3ddbeacda49b9e0315c52419e3253e79987054461f25a38fb5af388eacd016"
+  "docsHash": "sha256:123bb0dedbccbff33716db17b6c405674146ec920059723228db345b22ed98e6"
 }
 ```
 
@@ -186038,7 +195960,7 @@ files.release: contextPolicy=none
   "title": "预览模型、原特征编辑或文件插入",
   "description": "普通特征 args 同 feature.add；原特征编辑 args:{featureEdit:{featureId,params,name?}}，保留原 ID/位置/引用，精确重建当前宿主及邻层；文件插入 args:{fileImport:{resourceId,placement}}。预览编号在 result.preview.previewId，同时在回执顶层提供 previewId、generation、baseRevision 别名。提交前工程 revision 不变。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -186276,7 +196198,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:46449d30e5ca18d30a5198e7408447eaa16a660a3d3fa7525d5aa169165106bd"
+  "docsHash": "sha256:75f5925c3b1766b4201fba3dc052cb326f111457f4d48cfc6eecc907ba9a96bd"
 }
 ```
 
@@ -186293,7 +196215,7 @@ files.release: contextPolicy=none
   "title": "更新预览",
   "description": "args:{previewId,expectedGeneration,patch:{params?,placement?}}；文件预览仅可更新 placement。旧代次拒绝，不修改工程 revision。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -186519,7 +196441,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:73187db3953a3534b71c29b678fe43744c914b687e6e3de177d59d64410456ed"
+  "docsHash": "sha256:6c0a917e2865dfcf230eab1a868cd000949940d14c6047f14250aee16c959c63"
 }
 ```
 
@@ -186536,7 +196458,7 @@ files.release: contextPolicy=none
   "title": "应用预览",
   "description": "新版 args:{previewId,expectedGeneration}。preview.start 回执的 generation 可作为 expectedGeneration 的别名。字段名错误时 error.details.unknownField 与 expected 会指出应使用的字段。仅旧版 UI 预览允许 args:{}。提交为一个撤销步骤，并复用预览已算出的形状。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -186754,7 +196676,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:2825966f33b3d13c34da334aac808aae92966e89601053c889dae3636e4066e4"
+  "docsHash": "sha256:7607038893593d1ca2d3a42c8e0431fc32760ef807dc1bcf44da90aff4549abf"
 }
 ```
 
@@ -186771,7 +196693,7 @@ files.release: contextPolicy=none
   "title": "取消预览",
   "description": "新版 args:{previewId,expectedGeneration}。generation 是 expectedGeneration 的别名。仅旧版 UI 预览允许 args:{}。取消不增加 revision。",
   "category": "command",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "implemented",
   "contractStatus": "page-command",
   "runtimeAvailability": "requires_ready_page",
@@ -186997,7 +196919,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cc004b03d38812354cd316a87eb05d0b04ec0044fd8ea93915eb6830a246d4a7"
+  "docsHash": "sha256:bb64c2362deb7edef303ee7b536d1fffb72b0740e2c3addb2523ca998443aa2f"
 }
 ```
 
@@ -187008,7 +196930,7 @@ files.release: contextPolicy=none
   "id": "document.parameters",
   "title": "命名参数与尺寸联动",
   "category": "document",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "mcpCall": {
     "tool": "webcad_submit",
     "method": "execute",
@@ -187284,7 +197206,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:5dacef9cbcde6b8be56d3e8dc65fa3a59bdb91cd4e580ce3906be13b7b30d06d"
+  "docsHash": "sha256:cc00eab2fa058f522cfaa594f0b230448c706e1cb0159f18a453ad34cf65e0f2"
 }
 ```
 
@@ -187300,7 +197222,7 @@ files.release: contextPolicy=none
   "id": "files.capabilities",
   "title": "files.capabilities",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "label": "文件能力",
   "synonyms": [
@@ -187423,7 +197345,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:e3fa7e7601dcefb0463a1839203cc68fd0643595e56f423d845b4e8b131837de"
+  "docsHash": "sha256:10a4bbc55555bb3745d9fbd99f6e3222047af14ac2e3647aadc01f7830937587"
 }
 ```
 
@@ -187440,7 +197362,7 @@ files.release: contextPolicy=none
   "id": "files.register",
   "title": "files.register",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "label": "登记文件资源",
   "synonyms": [
@@ -187585,7 +197507,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:a5e91132aa716cc6e98a663a73332900e992d16c1ce0a2ab71ee388d7c2f0089"
+  "docsHash": "sha256:9da359157b6f9ea305709d0fcd86c165463fabebe39d30521036f6841acec4c9"
 }
 ```
 
@@ -187602,7 +197524,7 @@ files.release: contextPolicy=none
   "id": "files.new",
   "title": "files.new",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "label": "新建工程",
   "synonyms": [
@@ -187811,7 +197733,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:09c86e7979b2d1e4ad6209822954d9dbf6c41227ed1b28941b41b0ecc4c7da48"
+  "docsHash": "sha256:19e3b110516ca2b06e0beab284893378451783da81222b0b681395a21b6b4ff1"
 }
 ```
 
@@ -187828,7 +197750,7 @@ files.release: contextPolicy=none
   "id": "files.open",
   "title": "files.open",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "label": "打开工程",
   "synonyms": [
@@ -188070,7 +197992,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:48966bbe8806296e7cede68867bcdeeed3fed67a688273cd69c2d81a74b2de03"
+  "docsHash": "sha256:7288a98f6a204530cae033e4b021b0dbc099311a4be592552ae947729ad31171"
 }
 ```
 
@@ -188086,7 +198008,7 @@ files.release: contextPolicy=none
   "id": "files.import",
   "title": "files.import",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "label": "导入",
   "synonyms": [
@@ -188342,7 +198264,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:2b22fba924850aef01e68cb6cf679a1443f8a80eeba542bd52ad7d66135fb583"
+  "docsHash": "sha256:646116bc93fb7fe464ee250d7b22c3008d4d92204126336f690ac4b80ca85755"
 }
 ```
 
@@ -188358,7 +198280,7 @@ files.release: contextPolicy=none
   "id": "files.inspectInsert",
   "title": "files.inspectInsert",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "label": "inspectInsert",
   "synonyms": [
@@ -188573,7 +198495,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:fe0b0bd7d5529b790a4fcb07d8ddc4f0f8f36b2c543049dc16b885d0e81bd0ae"
+  "docsHash": "sha256:1605c2ac8b6045eeacbdfcaa8394ccfd6da9b0b14ee70e4d1c20c5706911b722"
 }
 ```
 
@@ -188589,7 +198511,7 @@ files.release: contextPolicy=none
   "id": "files.save",
   "title": "files.save",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "label": "保存工程",
   "synonyms": [
@@ -188804,7 +198726,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:5934595510e95331e3dcd114ae50219b39396c70db98a90bf3f402c573c774e9"
+  "docsHash": "sha256:6eef3a4423fdab36d3cfa5c83d4fb5b097a2a52143f76815c1380dc211815c58"
 }
 ```
 
@@ -188820,7 +198742,7 @@ files.release: contextPolicy=none
   "id": "files.export",
   "title": "files.export",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "label": "导出文件",
   "synonyms": [
@@ -189030,7 +198952,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:371dc932e3524cd2b6e1d4ca45e31f9d34ea667c1784a3b1dec9516662f94bb2"
+  "docsHash": "sha256:ae97a54a2743a25723f15453b97b9644df228e2376da344ea7b7f71c00b73fae"
 }
 ```
 
@@ -189046,7 +198968,7 @@ files.release: contextPolicy=none
   "id": "files.reattach",
   "title": "files.reattach",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "label": "reattach",
   "synonyms": [
@@ -189253,7 +199175,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:f00b25eb647198238efc82fb2f5aebd5297aaeb798f412e402b3e926da2b6327"
+  "docsHash": "sha256:1d458752a60b07ec82e0339602a2f0abcbed7b466ecd27897e8fe1f9acc3f0be"
 }
 ```
 
@@ -189270,7 +199192,7 @@ files.release: contextPolicy=none
   "id": "files.read",
   "title": "files.read",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "label": "读取文件字节",
   "synonyms": [
@@ -189421,7 +199343,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:fd6b35c2690a74fc823cbff3617d02ad0711bc418d60ba750e979007f044ec99"
+  "docsHash": "sha256:3644bb3c3e0827d2ca76a51ee5072cc4f9986d556ea63d27c4d213ca706fb247"
 }
 ```
 
@@ -189438,7 +199360,7 @@ files.release: contextPolicy=none
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "label": "下载文件",
   "synonyms": [
@@ -189581,7 +199503,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:5b04d325cab83eb64733783d4a509d310995d8325317be3d2380fb173f166dbe"
+  "docsHash": "sha256:e9c8de012d8dfd7de744485d8bed153454478136b1ec7dd143a1badfbd992544"
 }
 ```
 
@@ -189598,7 +199520,7 @@ files.release: contextPolicy=none
   "id": "files.write",
   "title": "files.write",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "label": "写入文件",
   "synonyms": [
@@ -189750,7 +199672,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:ea7bf6dc12b1e100b3731f3ae35021d9d69bafd811711a11276a9a0344e8ae75"
+  "docsHash": "sha256:cf5a1b62251d95dfec4204e4758aeb8f51b80767b9303e77ecd8ac5e58d1c142"
 }
 ```
 
@@ -189767,7 +199689,7 @@ files.release: contextPolicy=none
   "id": "files.confirmWritten",
   "title": "files.confirmWritten",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "label": "confirmWritten",
   "synonyms": [
@@ -189923,7 +199845,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:7bcd6cae24cab746b51ca4591093cc0f445b82bd0f531ac8e0e78a47c8394c9b"
+  "docsHash": "sha256:2e48e30f9edbd9c9a85909c74413586ecc14cd353aafc627d0edec39bc9637a6"
 }
 ```
 
@@ -189940,7 +199862,7 @@ files.release: contextPolicy=none
   "id": "files.release",
   "title": "files.release",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "label": "释放文件资源",
   "synonyms": [
@@ -190079,7 +200001,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:b44c86c6aa99b812fcab068edba0838cf5f7c5cc0e78fe204120f6e29ce08ac1"
+  "docsHash": "sha256:366e13c44069546cc50ada07612efd362e8d5e951812b9e046b2dc73f66e6362"
 }
 ```
 
@@ -190091,7 +200013,7 @@ files.release: contextPolicy=none
   "title": "IGES/IGS 导入",
   "description": "当前静态版不含原本的本机 IGES 转换。可先在现有 CAD 工具中离线转 STEP。",
   "category": "unavailable",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -190154,7 +200076,7 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6a106894a2f464d9d8535f3e015cfed1c0e9f47b4439f774b06a5bd1dcb423b5"
+  "docsHash": "sha256:ceccbbe3b4901ceb5d240370285f1c8db14b1d08d026eafccb6704ad21b94e4e"
 }
 ```
 
@@ -190166,7 +200088,7 @@ files.release: contextPolicy=none
   "title": "SVG/DWG/DXF/PDF/AI 服务端矢量转换",
   "description": "当前静态版不含原本的本机矢量转换服务；浏览器已有的直接输入能力以运行时界面为准。",
   "category": "unavailable",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "implementationStatus": "unavailable",
   "contractStatus": "unavailable",
   "runtimeAvailability": "unavailable",
@@ -190229,6 +200151,6 @@ files.release: contextPolicy=none
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:1cfcc933e0a075443f75acbdc51f8178c97e2821db71afbb5c2e6a08c6e72de6"
+  "docsHash": "sha256:1c260b0ddf10799692ec73c1a0f7b54cf2c6520680538893a77f589d002a26ee"
 }
 ```

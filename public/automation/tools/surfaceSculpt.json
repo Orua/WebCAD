@@ -1,0 +1,1088 @@
+{
+  "id": "surfaceSculpt",
+  "version": "1.0.0",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "faceId",
+      "scope",
+      "direction",
+      "amountMm",
+      "influenceMm"
+    ],
+    "properties": {
+      "faceId": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Zero-based ID of the current exact B-spline face",
+        "unit": "1",
+        "quantityKind": "index",
+        "quantizationPolicy": "none"
+      },
+      "scope": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "pointMm": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": -10000,
+                  "maximum": 10000
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "kind",
+              "pointMm"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "region"
+              },
+              "pointsMm": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": -10000,
+                    "maximum": 10000
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                },
+                "minItems": 3,
+                "maxItems": 32,
+                "description": "Ordered vertices picked on the same face; the loop closes automatically"
+              }
+            },
+            "required": [
+              "kind",
+              "pointsMm"
+            ]
+          }
+        ]
+      },
+      "direction": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "normal"
+              }
+            },
+            "required": [
+              "kind"
+            ],
+            "unit": "1",
+            "quantityKind": "direction",
+            "quantizationPolicy": "none"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "angled"
+              },
+              "tiltDeg": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 90,
+                "description": "Tilt away from the outward face normal"
+              },
+              "azimuthDeg": {
+                "type": "number",
+                "minimum": -360,
+                "maximum": 360,
+                "description": "Azimuth from the U tangent towards normal cross U"
+              }
+            },
+            "required": [
+              "kind",
+              "tiltDeg",
+              "azimuthDeg"
+            ],
+            "unit": "1",
+            "quantityKind": "direction",
+            "quantizationPolicy": "none"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "vector"
+              },
+              "vector": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "minimum": -10000,
+                  "maximum": 10000
+                },
+                "minItems": 3,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "kind",
+              "vector"
+            ],
+            "unit": "1",
+            "quantityKind": "direction",
+            "quantizationPolicy": "none"
+          }
+        ],
+        "unit": "1",
+        "quantityKind": "direction",
+        "quantizationPolicy": "none"
+      },
+      "amountMm": {
+        "type": "number",
+        "minimum": -20,
+        "maximum": 20,
+        "not": {
+          "const": 0
+        },
+        "description": "Signed displacement along the resolved direction in mm"
+      },
+      "influenceMm": {
+        "type": "number",
+        "minimum": 0.15,
+        "maximum": 60,
+        "description": "Distance from the point, or decay width outside the selected region, in mm"
+      }
+    },
+    "$schema": "https://json-schema.org/draft/2020-12/schema"
+  },
+  "refsSchema": {
+    "type": "array",
+    "items": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 150
+    },
+    "uniqueItems": true,
+    "minItems": 1,
+    "maxItems": 1
+  },
+  "numericInputPolicy": {
+    "explicitValues": "exact",
+    "interactiveValues": "pointer-step",
+    "quantizationPolicy": "none",
+    "displayPreferencesAffectGeometry": false,
+    "kernelTolerance": "operation-specific; independent of display and pointer steps"
+  },
+  "defaults": {},
+  "selectionTokenSupport": {
+    "supported": false
+  },
+  "editRule": "Patch merges into prior params; complete merged params are validated; generic field deletion is unsupported.",
+  "units": {
+    "length": "mm",
+    "angle": "degrees",
+    "volume": "mm^3",
+    "scale": "dimensionless"
+  },
+  "coordinateConvention": "faceId, faceIds and edgeIds are zero-based indices of the CURRENT referenced body. body.faceCount/edgeCount define the range. Use current selectedTopology (when available) to identify user-picked face/edge/point. queryGeometry or measure returns exact BRep face type and measures. Counts alone do not identify spatial meaning. Do not guess face orientation. Rebuild may renumber topology; do not reuse IDs across revisions without reinspection. Unified logo accepts one exact planar or supported curved face; faceHole and faceExtrude require planar faces. 编辑一个有效实体或一张独立面上的非周期 B 样条。点或有序闭合区域以当前实体的世界坐标毫米输入，投影到精确选面。沿法线、带倾角与方位角或显式世界向量推压，位移在影响范围内向外平滑衰减。面外轮廓、所有内环、共边及邻面锁定。使用孤立样条控制点局部形变，保留真曲面与 STEP 导出。解析面、周期面、共享同一曲面支撑的多个面和超出容量的范围会明确拒绝。",
+  "title": "局部曲面变形 / Local soft deformation of an existing STEP face",
+  "category": "surface",
+  "synonyms": [
+    "surfaceSculpt",
+    "局部曲面变形",
+    "Local soft deformation of an existing STEP face",
+    "surface Sculpt operation",
+    "软编辑",
+    "定向推拉",
+    "STEP 曲面局部抬高",
+    "锁边雕刻",
+    "point deform",
+    "soft edit"
+  ],
+  "description": "局部曲面变形 / Local soft deformation of an existing STEP face",
+  "schemaHash": "sha256:faf87a29838e8152cd784836cfbada9b647e20eb50da82b0ead7b37868ab717b",
+  "apiCompatibility": [
+    "page-v2"
+  ],
+  "implementationStatus": "implemented",
+  "availability": "requires_browser",
+  "unavailableReason": null,
+  "strictContract": true,
+  "v2Executable": true,
+  "contractStatus": "migrated",
+  "outputSchema": {
+    "type": "object",
+    "description": "Operation runs through the shared command result envelope; see api.execute-v2. Shape geometry and history remain authoritative in the browser.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "committed",
+          "no_change",
+          "failed",
+          "unknown"
+        ]
+      }
+    }
+  },
+  "preconditions": [
+    "Use current referenced bodies in the same document instance and revision."
+  ],
+  "postconditions": [
+    "A successful modeling operation commits one undoable history transaction; invalid geometry must not commit."
+  ],
+  "resultShapeTypes": [
+    "solid",
+    "face"
+  ],
+  "consumesInputs": true,
+  "preservesInputs": false,
+  "createsResults": true,
+  "sideEffects": [
+    "Updates active document history and derived view on commit."
+  ],
+  "permissions": [
+    "Authorized local modeling session; no external upload."
+  ],
+  "undoBehavior": "One successful feature operation is one undo step. Legacy refresh is separately documented.",
+  "idempotency": "Current documentInstanceId in-memory receipts only; no cross-reload guarantee.",
+  "limits": [
+    {
+      "name": "maxFeatures",
+      "value": 2000,
+      "unit": "count",
+      "source": "src/limits.js#document.maxFeatures"
+    },
+    {
+      "name": "maxBytes",
+      "value": 20971520,
+      "unit": "count",
+      "source": "src/limits.js#document.maxBytes"
+    }
+  ],
+  "knownUnsupportedCases": [
+    "编辑一个有效实体或一张独立面上的非周期 B 样条。点或有序闭合区域以当前实体的世界坐标毫米输入，投影到精确选面。沿法线、带倾角与方位角或显式世界向量推压，位移在影响范围内向外平滑衰减。面外轮廓、所有内环、共边及邻面锁定。使用孤立样条控制点局部形变，保留真曲面与 STEP 导出。解析面、周期面、共享同一曲面支撑的多个面和超出容量的范围会明确拒绝。"
+  ],
+  "exampleNotes": {
+    "referenceInstructions": "Resolve body IDs from getState(). Topology indices are snapshot-local; use queryGeometry().",
+    "validation": "strict-parameter-schema"
+  },
+  "minimalExample": {
+    "op": "surfaceSculpt",
+    "params": {
+      "faceId": 0,
+      "scope": {
+        "kind": "point",
+        "pointMm": [
+          12,
+          5,
+          3
+        ]
+      },
+      "direction": {
+        "kind": "angled",
+        "tiltDeg": 30,
+        "azimuthDeg": 0
+      },
+      "amountMm": 0.8,
+      "influenceMm": 4
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "normalExample": {
+    "op": "surfaceSculpt",
+    "params": {
+      "faceId": 0,
+      "scope": {
+        "kind": "point",
+        "pointMm": [
+          12,
+          5,
+          3
+        ]
+      },
+      "direction": {
+        "kind": "angled",
+        "tiltDeg": 30,
+        "azimuthDeg": 0
+      },
+      "amountMm": 0.8,
+      "influenceMm": 4
+    },
+    "refs": [
+      "<current-bodyId-1>"
+    ]
+  },
+  "invalidExamples": [
+    {
+      "params": {
+        "faceId": 0,
+        "scope": {
+          "kind": "point",
+          "pointMm": [
+            12,
+            5,
+            3
+          ]
+        },
+        "direction": {
+          "kind": "angled",
+          "tiltDeg": 30,
+          "azimuthDeg": 0
+        },
+        "amountMm": 0.8,
+        "influenceMm": 4,
+        "__unknownField": true
+      },
+      "errorCode": "PARAM_SCHEMA_INVALID",
+      "explanation": "Rejected before kernel execution."
+    }
+  ],
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "PARAM_RANGE_INVALID",
+    "UNKNOWN_OPERATION",
+    "OPERATION_VERSION_UNSUPPORTED",
+    "SCHEMA_MISMATCH",
+    "CAPABILITY_UNAVAILABLE",
+    "GEOMETRY_INVALID",
+    "SIZE_LIMIT",
+    "SCULPT_UNSUPPORTED_FACE",
+    "SCULPT_OUTSIDE_FACE",
+    "SCULPT_INVALID_REGION",
+    "SCULPT_CAPACITY",
+    "SCULPT_BOUNDARY_CHANGED",
+    "SCULPT_FOLD",
+    "SCULPT_DISPLACEMENT_UNMET"
+  ],
+  "recoveryActions": [
+    "CORRECT_PARAMETERS",
+    "READ_STATE_AND_REPLAN",
+    "READ_TOOL_CONTRACT",
+    "NONE"
+  ],
+  "relatedTools": [
+    "getState",
+    "getTools",
+    "queryGeometry",
+    "run",
+    "feature.edit"
+  ],
+  "recipes": [],
+  "testIds": [
+    "tests/operation-registry.test.mjs"
+  ],
+  "verification": {
+    "contract": "covered-by-contract-tests",
+    "kernel": "See test run report; card generation is not proof of kernel execution."
+  },
+  "contract": {
+    "purpose": "局部曲面变形 / Local soft deformation of an existing STEP face",
+    "whenToUse": [
+      "编辑一个有效实体或一张独立面上的非周期 B 样条。点或有序闭合区域以当前实体的世界坐标毫米输入，投影到精确选面。沿法线、带倾角与方位角或显式世界向量推压，位移在影响范围内向外平滑衰减。面外轮廓、所有内环、共边及邻面锁定。使用孤立样条控制点局部形变，保留真曲面与 STEP 导出。解析面、周期面、共享同一曲面支撑的多个面和超出容量的范围会明确拒绝。"
+    ],
+    "whenNotToUse": [
+      {
+        "case": "输入是三角网格，需要网格加工",
+        "use": "meshBoolean"
+      }
+    ],
+    "params": {
+      "faceId": {
+        "meaning": "Zero-based ID of the current exact B-spline face",
+        "unit": "1",
+        "range": [
+          0,
+          null
+        ]
+      },
+      "scope": {
+        "meaning": "scope: 局部曲面变形 / Local soft deformation of an existing STEP face",
+        "unit": "none",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "direction": {
+        "meaning": "direction: 局部曲面变形 / Local soft deformation of an existing STEP face",
+        "unit": "1",
+        "range": [
+          null,
+          null
+        ]
+      },
+      "amountMm": {
+        "meaning": "Signed displacement along the resolved direction in mm",
+        "unit": "mm",
+        "range": [
+          -20,
+          20
+        ]
+      },
+      "influenceMm": {
+        "meaning": "Distance from the point, or decay width outside the selected region, in mm",
+        "unit": "mm",
+        "range": [
+          0.15,
+          60
+        ]
+      }
+    },
+    "refs": {
+      "min": 1,
+      "max": 1,
+      "meaning": "引用当前工程中的来源实体；数量和选择顺序按schema"
+    },
+    "limits": [
+      {
+        "name": "maxFeatures",
+        "value": 2000,
+        "unit": "count",
+        "source": "src/limits.js#document.maxFeatures"
+      },
+      {
+        "name": "maxBytes",
+        "value": 20971520,
+        "unit": "count",
+        "source": "src/limits.js#document.maxBytes"
+      }
+    ],
+    "outputs": {
+      "geometryType": "brep",
+      "exportFormats": [
+        "step",
+        "brep",
+        "stl"
+      ],
+      "consumesRefs": true,
+      "metrics": [
+        "bounds",
+        "area",
+        "volume (when available)"
+      ]
+    },
+    "errors": [
+      {
+        "code": "PARAM_SCHEMA_INVALID",
+        "when": "输入违反该操作源码的校验或几何约束",
+        "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+      },
+      {
+        "code": "PARAM_RANGE_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "UNKNOWN_OPERATION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "OPERATION_VERSION_UNSUPPORTED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCHEMA_MISMATCH",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "CAPABILITY_UNAVAILABLE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "GEOMETRY_INVALID",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SIZE_LIMIT",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_UNSUPPORTED_FACE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_OUTSIDE_FACE",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_INVALID_REGION",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_CAPACITY",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_BOUNDARY_CHANGED",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_FOLD",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      },
+      {
+        "code": "SCULPT_DISPLACEMENT_UNMET",
+        "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+        "recovery": "读取当前工具卡并修正参数或来源"
+      }
+    ],
+    "examples": {
+      "minimal": {
+        "op": "surfaceSculpt",
+        "params": {
+          "faceId": 0,
+          "scope": {
+            "kind": "point",
+            "pointMm": [
+              12,
+              5,
+              3
+            ]
+          },
+          "direction": {
+            "kind": "angled",
+            "tiltDeg": 30,
+            "azimuthDeg": 0
+          },
+          "amountMm": 0.8,
+          "influenceMm": 4
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "normal": {
+        "op": "surfaceSculpt",
+        "params": {
+          "faceId": 0,
+          "scope": {
+            "kind": "point",
+            "pointMm": [
+              12,
+              5,
+              3
+            ]
+          },
+          "direction": {
+            "kind": "angled",
+            "tiltDeg": 30,
+            "azimuthDeg": 0
+          },
+          "amountMm": 0.8,
+          "influenceMm": 4
+        },
+        "refs": [
+          "<current-bodyId-1>"
+        ]
+      },
+      "invalid": [
+        {
+          "params": {
+            "faceId": 0,
+            "scope": {
+              "kind": "point",
+              "pointMm": [
+                12,
+                5,
+                3
+              ]
+            },
+            "direction": {
+              "kind": "angled",
+              "tiltDeg": 30,
+              "azimuthDeg": 0
+            },
+            "amountMm": 0.8,
+            "influenceMm": 4,
+            "__unknownField": true
+          },
+          "errorCode": "PARAM_SCHEMA_INVALID",
+          "explanation": "Rejected before kernel execution."
+        }
+      ]
+    },
+    "routing": {
+      "class": "local-only",
+      "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+    },
+    "related": [
+      "sketchProfile",
+      "profileExtrude",
+      "queryGeometry",
+      "measure",
+      "files.export"
+    ],
+    "synonyms": [
+      "surfaceSculpt",
+      "局部曲面变形",
+      "Local soft deformation of an existing STEP face",
+      "surface Sculpt operation"
+    ],
+    "status": "experimental",
+    "sourcePaths": []
+  },
+  "purpose": "局部曲面变形 / Local soft deformation of an existing STEP face",
+  "whenToUse": [
+    "编辑一个有效实体或一张独立面上的非周期 B 样条。点或有序闭合区域以当前实体的世界坐标毫米输入，投影到精确选面。沿法线、带倾角与方位角或显式世界向量推压，位移在影响范围内向外平滑衰减。面外轮廓、所有内环、共边及邻面锁定。使用孤立样条控制点局部形变，保留真曲面与 STEP 导出。解析面、周期面、共享同一曲面支撑的多个面和超出容量的范围会明确拒绝。"
+  ],
+  "whenNotToUse": [
+    {
+      "case": "输入是三角网格，需要网格加工",
+      "use": "meshBoolean"
+    }
+  ],
+  "outputs": {
+    "geometryType": "brep",
+    "exportFormats": [
+      "step",
+      "brep",
+      "stl"
+    ],
+    "consumesRefs": true,
+    "metrics": [
+      "bounds",
+      "area",
+      "volume (when available)"
+    ]
+  },
+  "errors": [
+    {
+      "code": "PARAM_SCHEMA_INVALID",
+      "when": "输入违反该操作源码的校验或几何约束",
+      "recovery": "核对当前工具schema、来源和限制，修改参数后重试"
+    },
+    {
+      "code": "PARAM_RANGE_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "UNKNOWN_OPERATION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "OPERATION_VERSION_UNSUPPORTED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCHEMA_MISMATCH",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "CAPABILITY_UNAVAILABLE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "GEOMETRY_INVALID",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SIZE_LIMIT",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_UNSUPPORTED_FACE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_OUTSIDE_FACE",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_INVALID_REGION",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_CAPACITY",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_BOUNDARY_CHANGED",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_FOLD",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    },
+    {
+      "code": "SCULPT_DISPLACEMENT_UNMET",
+      "when": "该操作源码或共享执行流程拒绝输入；核对来源与参数限制",
+      "recovery": "读取当前工具卡并修正参数或来源"
+    }
+  ],
+  "routing": {
+    "class": "local-only",
+    "reason": "按共享 execution-routing.json 执行；Services 能力与输入规模另行校验"
+  },
+  "status": "experimental",
+  "availabilityGuidance": "implementationStatus describes implementation; status (including experimental) describes maturity, not executability. Discover on the current page and check canExecute/blockers. requires_browser means the browser kernel, not a missing Services operation.",
+  "label": "局部曲面变形",
+  "validationMode": "strict-normalization",
+  "documentLimits": {
+    "maxFeatures": 2000,
+    "maxBytes": 209715200,
+    "preflightReserveBytes": 4096
+  },
+  "placementPolicy": {
+    "mode": "not-applicable",
+    "placementSupported": false,
+    "notApplicableReason": "Operation acts on existing topology without relocating it",
+    "originUsage": "target-topology-unchanged",
+    "orientationUsage": "none",
+    "omittedPlacement": "legacy-world",
+    "legacyCoordinates": "world",
+    "newCoordinates": "not-applicable",
+    "sourceAnchorRequired": false,
+    "defaultInsertionAnchor": null,
+    "automaticArrangement": false,
+    "historyBinding": "legacy",
+    "previewSupported": true
+  },
+  "placementSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "version": {
+        "const": 1
+      },
+      "frame": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "world"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "snapshot"
+              },
+              "origin": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "quaternion": {
+                "type": "array",
+                "minItems": 4,
+                "maxItems": 4,
+                "items": {
+                  "type": "number"
+                },
+                "description": "Normalized quaternion [x,y,z,w]; runtime verifies unit length."
+              }
+            },
+            "required": [
+              "kind",
+              "origin",
+              "quaternion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "work"
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "expectedFrameVersion"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "saved"
+              },
+              "frameId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expectedFrameVersion": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "kind",
+              "frameId",
+              "expectedFrameVersion"
+            ]
+          }
+        ]
+      },
+      "sourceAnchor": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "model-origin",
+                  "bottom-center",
+                  "bounds-center"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "point"
+              },
+              "point": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "point"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "named"
+              },
+              "anchorId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "kind",
+              "anchorId"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "version",
+      "frame"
+    ]
+  },
+  "callSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "op": {
+        "const": "surfaceSculpt"
+      },
+      "params": {
+        "type": "object",
+        "description": "Use this card inputSchema"
+      },
+      "refs": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 120
+      },
+      "placement": {
+        "type": "object",
+        "description": "Use this card placementSchema"
+      }
+    },
+    "required": [
+      "op",
+      "params"
+    ]
+  },
+  "schemaRefs": {
+    "params": "inputSchema",
+    "placement": "placementSchema"
+  },
+  "mcpCall": {
+    "tool": "webcad_submit",
+    "method": "run",
+    "step": {
+      "method": "add",
+      "args": "Use callSchema; opVersion/schemaHash filled by run"
+    }
+  },
+  "docs": "api.surface-sculpt",
+  "relatedDocs": [
+    "api.freeform-modeling"
+  ],
+  "runtimeAvailability": "requires_ready_page",
+  "additionalDocs": [
+    "api.modeling-pitfalls",
+    "api.placement"
+  ],
+  "usage": "Prefer run steps with method:add and args:{op,params,refs,name?,placement?}; run fills version/schemaHash from this catalog. Placement is not enabled for this operation. Strict v2 validation applies.",
+  "batchCapable": false,
+  "preparation": {
+    "method": "prepareOperation",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareOperation({context,op,params})",
+    "example": {
+      "op": "surfaceSculpt",
+      "params": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "surfaces",
+    "groupTitle": "曲面、壳与厚度",
+    "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。",
+    "alternatives": [
+      {
+        "id": "fittedSurface",
+        "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
+      },
+      {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
+        "id": "subdBody",
+        "chooseWhen": "用封闭四边控制笼塑造不对称体块并生成缝合 B 样条实体。用法向笔刷做凹凸、用 move 与 deltaMm 做局部侧向拖拽；姿态和验收以当前实体回读为准。"
+      },
+      {
+        "id": "extractFaces",
+        "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
+      },
+      {
+        "id": "extractShell",
+        "chooseWhen": "按当前 shellIndex 复制一个壳；闭壳也不自动填为实体。"
+      },
+      {
+        "id": "sewFaces",
+        "chooseWhen": "按公差缝合已有面；makeSolid 要求闭合有效，不补缺面。"
+      },
+      {
+        "id": "thickenFace",
+        "chooseWhen": "一张来源面沿法向加厚成新实体。"
+      },
+      {
+        "id": "offsetSurface",
+        "chooseWhen": "复制一张面并做法向偏移，结果仍是面，保留源对象。"
+      },
+      {
+        "id": "offsetSolid",
+        "chooseWhen": "整体偏移一个实体的所有边界面；不是只移单面或抽空。"
+      },
+      {
+        "id": "shell",
+        "chooseWhen": "从实体移除指定面并抽壳；不是独立面的加厚。"
+      },
+      {
+        "id": "surfaceTrim",
+        "chooseWhen": "用实体刀具修剪指定面，按内部/外部保留；不是任意曲线剪面。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:ca7cf8cd2a3aed30eaaea383fb1d80386e14fc534c90d95d32a7d15232c0fa38"
+}

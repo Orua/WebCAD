@@ -2,7 +2,7 @@
   "id": "resolvePlacement",
   "title": "resolvePlacement",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -346,5 +346,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:cb84a662bbe6f55ca931f6ef80b22ef2456d7d4b360671cd4cae0b49ee483484"
+  "docsHash": "sha256:cf146bb098658b3a88b75ca92c7a5b6ed55d8c933882ea909a11efd2760a86ed"
 }

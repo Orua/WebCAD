@@ -2,7 +2,7 @@
   "id": "measureRelation",
   "title": "measureRelation",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -268,6 +268,10 @@
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -287,5 +291,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:44e2f23354db50cb49f904bf69243502e4e6d445bab1367218e9c23c5f97d93d"
+  "docsHash": "sha256:90041010d96b2b4af83efbe8532e4f40c1b5672e0162751a72f5ecd30fc48e10"
 }

@@ -19,6 +19,8 @@ methods.add('inspectDesign');
 methods.add('getMaterials');methods.add('measureMass');contextual.add('measureMass');
 methods.add('inspectRound');
 contextual.add('inspectRound');
+methods.add('surfaceAnalysis');
+contextual.add('surfaceAnalysis');
 methods.add('prepareReliefSculpt');
 contextual.add('prepareReliefSculpt');
 methods.add('sampleReliefHeight');

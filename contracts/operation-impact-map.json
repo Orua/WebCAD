@@ -1,4 +1,14 @@
 {
+  "freeformInspection": {
+    "localImpact":"Read exact edge curvature and sampled wall thickness; view-only stripe and sample overlays.",
+    "servicesImpact":"Local browser Worker and viewport; no Services capability is required.",
+    "nativeImpact":"No Native service change.",
+    "logoImpact":"None.",
+    "contractImpact":"Revision-bound surfaceAnalysis with four modes and measured results, plus the two corresponding UI entries.",
+    "documentImpact":"Temporary analysis follows the current geometry and adds no feature or saved data.",
+    "cacheImpact":"Regenerate tool cards, routing and the complete knowledge bundle.",
+    "requiredTests":["tests/freeform-tools.test.mjs"]
+  },
   "buttonQuickModels": {
     "localImpact": "Local WASM builds snap and sew-on button sets or individual parts using tangent-continuous revolved profiles, and builds magnetic snaps with dimensioned discs, folded legs and backing plates.",
     "servicesImpact": "None, quick models execute locally.",
@@ -1258,6 +1268,61 @@
     ]
   },
   "operations": [
+    {
+      "operation": "spatialSpline",
+      "sourcePaths": ["src/modeling/freeform/spatial-spline.js","src/modeling/freeform/freeform-contracts.js"],
+      "localImpact":"Construct an exact 3D B-spline edge from ordered points or current CAD vertices.",
+      "servicesImpact":"Fixed local; no Services or Native worker change.",
+      "logoImpact":"None.",
+      "contractImpact":"Strict point/vertex and open/closed modes with a fitted position report.",
+      "documentImpact":"Preserve referenced geometry and add one reusable exact edge.",
+      "cacheImpact":"Coordinates and current indexed references are part of rebuild identity.",
+      "requiredTests":["tests/freeform-tools.test.mjs"]
+    },
+    {
+      "operation": "networkSurface",
+      "sourcePaths": ["src/modeling/freeform/network-surface.js","src/modeling/freeform/freeform-contracts.js"],
+      "localImpact":"Bounded two-family interpolation checked against all selected network curves.",
+      "servicesImpact":"Fixed local; no Services or Native worker change.",
+      "logoImpact":"None.",
+      "contractImpact":"Two ordered lists of current edges, explicit tolerance and separate error readback.",
+      "documentImpact":"Add a separate exact face and retain input curves.",
+      "cacheImpact":"Both edge families and source geometry participate in rebuild identity.",
+      "requiredTests":["tests/freeform-tools.test.mjs"]
+    },
+    {
+      "operation": "projectCurveOnFace",
+      "sourcePaths": ["src/modeling/freeform/project-curve.js","src/modeling/freeform/freeform-contracts.js"],
+      "localImpact":"Intersect directional curve extrusions with one trimmed face, or divide that face into precise patches.",
+      "servicesImpact":"Fixed local; no Services or Native worker change.",
+      "logoImpact":"None; independent of logo curve preparation.",
+      "contractImpact":"Explicit target face, source edges, direction, reach and curve or face output.",
+      "documentImpact":"Add a separate result with source and original trimming preserved.",
+      "cacheImpact":"Pose and current topology are included in feature dependencies.",
+      "requiredTests":["tests/freeform-tools.test.mjs"]
+    },
+    {
+      "operation": "surfaceBridge",
+      "sourcePaths": ["src/modeling/freeform/surface-bridge.js","src/modeling/freeform/freeform-contracts.js"],
+      "localImpact":"Construct derivative-aware end connections and fit a bridge with measured seam continuity.",
+      "servicesImpact":"Fixed local; no Services or Native worker change.",
+      "logoImpact":"None.",
+      "contractImpact":"Two explicit supports, separate continuity and selected endpoint correspondence.",
+      "documentImpact":"Add a precise face and keep both sources.",
+      "cacheImpact":"Source edge and support topology participate in feature identity.",
+      "requiredTests":["tests/freeform-tools.test.mjs"]
+    },
+    {
+      "operation": "replaceSurfacePatch",
+      "sourcePaths": ["src/modeling/freeform/replace-patch.js","src/modeling/freeform/freeform-contracts.js"],
+      "localImpact":"Compare all free boundaries and check sewing to one valid exact solid.",
+      "servicesImpact":"Fixed local; no Services or Native worker change.",
+      "logoImpact":"None.",
+      "contractImpact":"Specify the original solid, removed face IDs, replacement faces and tolerance.",
+      "documentImpact":"Retain the original and create one closed result with retained-face and boundary readback.",
+      "cacheImpact":"Removal and replacement IDs are scoped to actual source topology.",
+      "requiredTests":["tests/freeform-tools.test.mjs"]
+    },
     {
       "operation": "badge",
       "semanticVersion": "badge-1",
@@ -2875,6 +2940,62 @@
         "tests/operation-contract.test.mjs"
       ],
       "manualChecks": []
+    },
+    {
+      "operation": "surfaceFill",
+      "sourcePaths": [
+        "src/modeling/manufacturing/surface-fill.js",
+        "src/modeling/manufacturing/surface-fill-contract.js",
+        "src/ui/forms/surface-fill-dialog.js",
+        "src/cad-kernel.js"
+      ],
+      "localImpact": "Solve one closed boundary with points, guide edges and adjacent face continuity in local OCCT WASM. Check the finished surface before optional normal thickening.",
+      "servicesImpact": "Fixed local execution for bounded input. No Services or Native worker dependency.",
+      "logoImpact": "None. The feature uses exact model topology and XYZ constraints.",
+      "contractImpact": "Strict world-space inputs and reference indices, UI and page API preview, measured residuals, and generated tool card.",
+      "documentImpact": "Creates a separate exact BRep feature; all source bodies remain available. History tracks upstream indexed topology.",
+      "cacheImpact": "Feature signatures bind parameters and source geometry. Regenerate the static catalog, docs and knowledge bundle together.",
+      "requiredTests": ["tests/operation-contract.test.mjs", "tests/surface-fill.test.mjs"],
+      "manualChecks": ["Use the localhost WebCAD tool to preview and apply samples driven by XYZ, guide edges and an adjacent face. Check precise geometry and rendered display."]
+    },
+    {
+      "operation": "surfaceSculpt",
+      "sourcePaths": [
+        "src/modeling/manufacturing/surface-sculpt.js",
+        "src/modeling/manufacturing/surface-sculpt-contract.js",
+        "src/ui/forms/surface-sculpt-dialog.js",
+        "src/ui.js",
+        "src/main.js",
+        "src/viewport.js",
+        "src/cad-kernel.js"
+      ],
+      "localImpact": "Point or polygon soft deformation of a trimmed B-spline face, with locked shared trim and local WASM execution.",
+      "servicesImpact": "Bounded local operation; no backend or Native worker algorithm change.",
+      "logoImpact": "None; no logo or extrusion preparation.",
+      "contractImpact": "Strict v2 operation with explicit face, spatial samples, signed displacement and direction; UI, preview and generated tool card.",
+      "documentImpact": "One undoable exact BRep feature; source remains readable for edit and undo, final geometry export and save use the repaired BRep.",
+      "cacheImpact": "Current face and displacement are part of the feature signature; static catalog, docs and knowledge hashes are regenerated together.",
+      "requiredTests": ["tests/operation-contract.test.mjs"],
+      "manualChecks": ["Use a repaired STEP in localhost WebCAD, select the exact freeform face, preview and commit a directional displacement, then export and independently verify the trim and closed solid."]
+    },
+    {
+      "operation": "surfaceFairing",
+      "sourcePaths": [
+        "src/modeling/manufacturing/surface-fairing.js",
+        "src/modeling/manufacturing/surface-fairing-step.js",
+        "src/modeling/manufacturing/surface-fairing-field.js",
+        "src/modeling/manufacturing/surface-fairing-contract.js",
+        "src/cad-kernel.js",
+        "src/ui.js"
+      ],
+      "localImpact": "Smooth a source-bound height displacement field and refit the original STEP faces, shared curves and vertices in the local worker.",
+      "servicesImpact": "Local-only bounded operation; no IIS Services, Logo or Native worker change.",
+      "logoImpact": "None; no logo, text or relief conversion.",
+      "contractImpact": "Strict v2 operation, file hash binding, fit and solid error receipts, menu and generated documentation.",
+      "documentImpact": "Source import and field recipe persist for editor rebuilds; final-state save uses the resulting exact BRep.",
+      "cacheImpact": "Field and source hash are part of the feature key; generated catalog, docs and knowledge package change together.",
+      "requiredTests": ["tests/operation-contract.test.mjs"],
+      "manualChecks": ["Use a source STEP in localhost WebCAD, inspect the physical curvature and preserved cylinders, then export and independently read the closed STEP."]
     },
     {
       "operation": "relief",

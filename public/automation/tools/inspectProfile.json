@@ -2,7 +2,7 @@
   "id": "inspectProfile",
   "title": "inspectProfile",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -172,6 +172,10 @@
         "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
       },
       {
+        "id": "surfaceAnalysis",
+        "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。"
+      },
+      {
         "id": "inspectDraft",
         "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
       },
@@ -195,5 +199,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:e3c8de712a0dd912c3810c04bf8ffbc03a6d9f85c68d0c4084db88c9f3a8c117"
+  "docsHash": "sha256:902cee5574893be010ccfdc3c0697b651240c1c771e8c07d61d0cec33f35e76d"
 }

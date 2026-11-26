@@ -22,7 +22,17 @@ export const ADD_STEP_SCHEMA=object({op:str,params:{type:'object'},refs:{type:'a
 const planFeature={...ADD_STEP_SCHEMA,required:['key','op','params'],properties:{key:{type:'string',pattern:'^[a-zA-Z][a-zA-Z0-9_-]{0,39}$'},...ADD_STEP_SCHEMA.properties,refs:{type:'array',items:{oneOf:[str,object({feature:str},['feature'])]}}}};
 const STEP_SCHEMA=object({id:{type:'string',pattern:'^[a-zA-Z][a-zA-Z0-9_-]{0,39}$'},method:str,args:{type:'object'},stage:{type:'string',minLength:1,maxLength:80}},['id','method']);
 const boolean={type:'boolean'},vector=vectorSchema;
+const surfaceAnalysisMode=(mode,fields,required=[])=>object({
+  context:IDENTITY_CONTEXT_SCHEMA,mode:{const:mode},bodyId:{...str,maxLength:150},showInView:boolean,...fields,
+},['context','mode','bodyId',...required]);
 export const PAGE_METHOD_SCHEMAS={
+ surfaceAnalysis:{oneOf:[
+   object({context:IDENTITY_CONTEXT_SCHEMA,mode:{const:'clear'}},['context','mode']),
+   surfaceAnalysisMode('zebra',{zebraDirection:{enum:['vertical','horizontal']},stripes:{type:'integer',minimum:6,maximum:36}}),
+   surfaceAnalysisMode('comb',{edgeId:{type:'integer',minimum:0},samples:{type:'integer',minimum:8,maximum:64}},['edgeId']),
+   surfaceAnalysisMode('thickness',{faceIds:{type:'array',items:{type:'integer',minimum:0},minItems:1,maxItems:4,uniqueItems:true},
+     direction:vector,grid:{type:'integer',minimum:2,maximum:10},thresholdMm:{type:'number',exclusiveMinimum:0,maximum:500}},['faceIds']),
+ ]},
  getPerformanceState:object({}),
  configurePerformance:object({context:IDENTITY_CONTEXT_SCHEMA,settings:PERFORMANCE_SETTINGS_SCHEMA},['context','settings']),
  acknowledgePerformanceAdvisory:object({context:IDENTITY_CONTEXT_SCHEMA,advisoryId:str,status:{enum:PERFORMANCE_RESPONSE_STATUSES}},['context','advisoryId','status']),
@@ -51,7 +61,7 @@ export const PAGE_METHOD_SCHEMAS={
  queryGeometry:object({context:IDENTITY_CONTEXT_SCHEMA,bodyId:str,kind:{enum:['face','edge']},filter:{type:'object'},requireUnique:boolean,expectedCount:{type:'integer',minimum:1,maximum:100000},limit:{type:'integer',minimum:1,maximum:100},cursor:{type:'string',minLength:1,maxLength:2048},fields:{type:'array',minItems:1,maxItems:32,items:{type:'string',pattern:'^[A-Za-z][A-Za-z0-9]{0,47}$'}},includeSpline:boolean},['context','bodyId','kind']),
  getState:object({featureIds:{type:'array',minItems:1,maxItems:50,uniqueItems:true,items:str},featureFields:{type:'array',minItems:1,maxItems:50,uniqueItems:true,items:str},bodyIds:{type:'array',minItems:1,maxItems:50,uniqueItems:true,items:str},bodyFields:{type:'array',minItems:1,maxItems:50,uniqueItems:true,items:str},include:{type:'array',items:{enum:['summary','features','bodies','bodiesLite','selection','capabilities','references','reliefDesigns']}},compact:boolean,fields:{type:'array',minItems:1,maxItems:32,items:{type:'string',minLength:1,maxLength:40}},sinceRevision:{type:'integer',minimum:0}})
 };
-export const METHOD_TOOL=name=>['run','applyPreparedOperation'].includes(name)?'webcad_submit':['capture','getEvidenceImage','setView','setMetalMaterials','setDebugPanel'].includes(name)?'webcad_view':['add','addMany'].includes(name)?'run-step':'webcad_read';
+export const METHOD_TOOL=name=>['run','applyPreparedOperation'].includes(name)?'webcad_submit':['capture','getEvidenceImage','setView','setMetalMaterials','setDebugPanel','surfaceAnalysis'].includes(name)?'webcad_view':['add','addMany'].includes(name)?'run-step':'webcad_read';
 export function validatePageInput(method,input,path='args'){
  const schema=PAGE_METHOD_SCHEMAS[method];if(schema)validateSchema(schema,input,path);
 }

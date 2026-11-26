@@ -1,0 +1,375 @@
+{
+  "id": "surfaceAnalysis",
+  "title": "surfaceAnalysis",
+  "category": "page-method",
+  "version": "1.75.25",
+  "contextPolicy": "revision",
+  "invocation": "page-or-batch",
+  "batchCapable": true,
+  "batchNote": "此方法可以放进 api.run，也可以页面直调。",
+  "inputSchema": {
+    "oneOf": [
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentInstanceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "expectedRevision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "sessionId",
+              "documentId",
+              "documentInstanceId"
+            ]
+          },
+          "mode": {
+            "const": "clear"
+          }
+        },
+        "required": [
+          "context",
+          "mode"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentInstanceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "expectedRevision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "sessionId",
+              "documentId",
+              "documentInstanceId"
+            ]
+          },
+          "mode": {
+            "const": "zebra"
+          },
+          "bodyId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150
+          },
+          "showInView": {
+            "type": "boolean"
+          },
+          "zebraDirection": {
+            "enum": [
+              "vertical",
+              "horizontal"
+            ]
+          },
+          "stripes": {
+            "type": "integer",
+            "minimum": 6,
+            "maximum": 36
+          }
+        },
+        "required": [
+          "context",
+          "mode",
+          "bodyId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentInstanceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "expectedRevision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "sessionId",
+              "documentId",
+              "documentInstanceId"
+            ]
+          },
+          "mode": {
+            "const": "comb"
+          },
+          "bodyId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150
+          },
+          "showInView": {
+            "type": "boolean"
+          },
+          "edgeId": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "samples": {
+            "type": "integer",
+            "minimum": 8,
+            "maximum": 64
+          }
+        },
+        "required": [
+          "context",
+          "mode",
+          "bodyId",
+          "edgeId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "context": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sessionId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentInstanceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "expectedRevision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "sessionId",
+              "documentId",
+              "documentInstanceId"
+            ]
+          },
+          "mode": {
+            "const": "thickness"
+          },
+          "bodyId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 150
+          },
+          "showInView": {
+            "type": "boolean"
+          },
+          "faceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 1,
+            "maxItems": 4,
+            "uniqueItems": true
+          },
+          "direction": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number"
+            }
+          },
+          "grid": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 10
+          },
+          "thresholdMm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 500
+          }
+        },
+        "required": [
+          "context",
+          "mode",
+          "bodyId",
+          "faceIds"
+        ]
+      }
+    ]
+  },
+  "mcpCall": {
+    "tool": "webcad_view",
+    "method": "surfaceAnalysis",
+    "args": "Same inputSchema; webcad_submit also takes requestKey outside args"
+  },
+  "description": "surfaceAnalysis({context,mode,bodyId,edgeId?,faceIds?,grid?,direction?,thresholdMm?,samples?,zebraDirection?,stripes?,showInView?})；mode=clear 仅发 context 与 mode。",
+  "synonyms": [
+    "surfaceAnalysis",
+    "斑马纹",
+    "曲率梳",
+    "壁厚色图",
+    "曲面光顺检查",
+    "zebra",
+    "curvature comb",
+    "thickness map"
+  ],
+  "inputContract": "surfaceAnalysis({context,mode,bodyId,edgeId?,faceIds?,grid?,direction?,thresholdMm?,samples?,zebraDirection?,stripes?,showInView?})；mode=clear 仅发 context 与 mode。",
+  "outputContract": "read、viewApplied、采样与最薄测点。按当前修订绑定对象与拓扑，显示层不参与几何提交。",
+  "implementationStatus": "implemented",
+  "contractStatus": "page-method",
+  "runtimeAvailability": "requires_page",
+  "errorModel": "Guarded page method returns {status:\"failed\",commitState:\"not_committed\",error:{code,message},context} on failure.",
+  "errorCodes": [
+    "PARAM_SCHEMA_INVALID",
+    "STALE_REFERENCE",
+    "REVISION_CONFLICT",
+    "FREEFORM_INSPECTION",
+    "FREEFORM_REFERENCE",
+    "CAPABILITY_UNAVAILABLE"
+  ],
+  "docs": "api.freeform-modeling",
+  "relatedTools": [
+    "queryGeometry",
+    "surfaceFill",
+    "surfaceSculpt",
+    "inspectThickness"
+  ],
+  "units": {
+    "length": "mm"
+  },
+  "preparation": {
+    "method": "prepareToolCall",
+    "readOnly": true,
+    "geometryComputed": false,
+    "missingParameters": "needs_input/questions/answerPath",
+    "callShape": "prepareToolCall({toolId,context,args})",
+    "example": {
+      "toolId": "surfaceAnalysis",
+      "context": "<live context>",
+      "args": {}
+    },
+    "docs": "api.prepare-tools",
+    "validation": "Published input structure only; original target retains source, permission, lifecycle and geometry checks."
+  },
+  "selectionGuide": {
+    "groupId": "inspection",
+    "groupTitle": "测量、拓扑与质量检查",
+    "chooseWhen": "用斑马纹查看反光、用曲率梳检查精确边或对所选面测绘壁厚样本。",
+    "alternatives": [
+      {
+        "id": "measure",
+        "chooseWhen": "读取一个体/面/边的尺寸面积体积，用 kind:region 读取轴对齐盒内的只读交集体积，或明确点间距离。"
+      },
+      {
+        "id": "measureRelation",
+        "chooseWhen": "读取两个目标的最短距、中心距、平行度、轴关系等相互关系。"
+      },
+      {
+        "id": "queryGeometry",
+        "chooseWhen": "按面/边类型和几何条件查询当前拓扑，取得当前编号；不是仅按名称选面。"
+      },
+      {
+        "id": "queryReferences",
+        "chooseWhen": "查询点、轴、标架等几何参考；不直接修改工作锚点。"
+      },
+      {
+        "id": "inspectDesign",
+        "chooseWhen": "按显式验收要求检查尺寸、材料点或实体数等；不猜产品合格标准。"
+      },
+      {
+        "id": "inspectFit",
+        "chooseWhen": "检查两体干涉/配合关系；不是单体壁厚。"
+      },
+      {
+        "id": "inspectThickness",
+        "chooseWhen": "沿明确射线测局部厚度；不代表整件最小壁厚证明。"
+      },
+      {
+        "id": "inspectDraft",
+        "chooseWhen": "按指定脱模方向检查拔模；不是修改斜度。"
+      },
+      {
+        "id": "inspectPrintability",
+        "chooseWhen": "按过程合同检查打印相关几何；不能替代一般产品验收。"
+      },
+      {
+        "id": "inspectProfile",
+        "chooseWhen": "只读解析轮廓的闭合、交点等情况，不修复图元。"
+      },
+      {
+        "id": "inspectConstraints",
+        "chooseWhen": "只读已有轮廓约束及自由度；求解修改用 profileConstraints。"
+      }
+    ],
+    "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
+  },
+  "readingGuide": "api.reading-map",
+  "docsHash": "sha256:21163af28c6bd39f5b0b76442d0cc2a2394a3d33d3312f1d2533e9c8df2b1441"
+}

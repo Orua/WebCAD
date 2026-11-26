@@ -2,7 +2,7 @@
   "id": "setView",
   "title": "setView",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "identity",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -391,5 +391,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:25d648a4baada2634a7fb1c5b6b8c285be01a1d8950fe51aa3c95ed22bca282d"
+  "docsHash": "sha256:d44b94cb91fc4b0c5307b38df4008152f54b8b776b31188db49e2922678e8a5c"
 }

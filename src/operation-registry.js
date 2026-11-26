@@ -80,8 +80,8 @@ function refsFor(refs) {
 
 function categoryFor(id) {
   if (['remove', 'import'].includes(id)) return 'document';
-  if (['planeSection', 'faceBoundary', 'extractFaces', 'extractShell', 'referenceExtrude', 'referenceLoft','sketchProfile','profileOffset','profileRepair','profileExtrude'].includes(id)) return 'reference';
-  if (['guidedLoft','subdBody','fittedSurface', 'thickenFace', 'sewFaces', 'surfaceTrim', 'curvedLogo', 'advancedLoft'].includes(id)) return 'surface';
+  if (['planeSection', 'faceBoundary', 'extractFaces', 'extractShell', 'referenceExtrude', 'referenceLoft','sketchProfile','profileOffset','profileRepair','profileExtrude','spatialSpline'].includes(id)) return 'reference';
+  if (['guidedLoft','subdBody','fittedSurface', 'thickenFace', 'sewFaces', 'surfaceTrim', 'surfaceFairing', 'surfaceSculpt', 'surfaceFill', 'curvedLogo', 'advancedLoft','networkSurface','projectCurveOnFace','surfaceBridge','replaceSurfacePatch'].includes(id)) return 'surface';
   if (['transform', 'copy', 'mirror', 'linearPattern', 'circularPattern', 'group', 'extractSolid', 'split'].includes(id)) return 'organization';
   return operationCatalog.operations[id].refs === 0 ? 'creation' : 'modification';
 }

@@ -2,7 +2,7 @@
   "id": "convertLogoPdf",
   "title": "convertLogoPdf",
   "category": "page-method",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "revision",
   "invocation": "page-method-only",
   "batchCapable": false,
@@ -152,5 +152,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:605fc4d251d7cca82c05b4375316fc05bc832bcda59caf06b9d69843cc1db070"
+  "docsHash": "sha256:050ae2b06b70859ba766246df9b145f79dc8ea208feb9b0d1d3b15cb4f301288"
 }

@@ -1427,6 +1427,38 @@
         "chooseWhen": "由结构化点阵拟合单张 B 样条面；不会自动生成封闭实体。"
       },
       {
+        "id": "surfaceFairing",
+        "chooseWhen": "用和源 STEP 绑定的高度位移场修顺现有样条面与共边，保留俯视轮廓并回读闭合实体。"
+      },
+      {
+        "id": "surfaceSculpt",
+        "chooseWhen": "点选或圈定现有 STEP 样条面的局部区域，沿设定方向软推拉，并锁定面边界。"
+      },
+      {
+        "id": "surfaceFill",
+        "chooseWhen": "用一圈坐标或现有边定外形，叠加内点、导向边和邻面连续性，生成 B 样条面或按厚度成体。"
+      },
+      {
+        "id": "networkSurface",
+        "chooseWhen": "用两组相交的精确边控制整个自由曲面，分别核对纵横各边的偏差。"
+      },
+      {
+        "id": "spatialSpline",
+        "chooseWhen": "从按序给出的世界坐标或精确边端点构造独立三维样条。"
+      },
+      {
+        "id": "surfaceBridge",
+        "chooseWhen": "在两条分开的开放边之间生成光顺过渡面，两端分别设置邻面连续性。"
+      },
+      {
+        "id": "projectCurveOnFace",
+        "chooseWhen": "用给定方向将空间边投影到指定面，得到实际面上线或拆分后的精确面。"
+      },
+      {
+        "id": "replaceSurfacePatch",
+        "chooseWhen": "核对待替换面的边和孔圈，用新面缝回有效的单一实体。"
+      },
+      {
         "id": "extractFaces",
         "chooseWhen": "复制明确选定面，保留孔及来源；不自动缝合或补洞。"
       },
@@ -1462,5 +1494,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:6ef91f90abc9cbe728707179f2041971a2e8082069ae3315bf67a08d5c01f889"
+  "docsHash": "sha256:37cc0c600a328804ce72cf6a67a08a8ed2345d332ca7450aae484252c8f02def"
 }

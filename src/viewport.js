@@ -20,6 +20,7 @@ import {ExactDisplayDetail} from './viewport/exact-detail.js';
 import {MetalOcclusionPass,metalEdgeOpacity} from './viewport/metal-occlusion.js';
 import {createViewCube} from './viewport/view-cube.js';
 import {captureEvidence,evidenceDisplaySignature} from './viewport/evidence-capture.js';
+import {installSurfaceAnalysis} from './viewport/surface-analysis-view.js';
 import {createPerformanceSampler} from './performance/sampling.js';
 import {createTechnicalEdgeBatch} from './viewport/edge-batching.js';
 const say=(zh,en)=>getLanguage()==='en'?en:zh;
@@ -90,6 +91,21 @@ export class CADViewport {
   rectangleCandidates(input){return rectangleCandidates(this,input);}
   clearRoundGuide(){this.roundGuide?.dispose();this.roundGuide=null;}
   setRoundGuide(report,handlers){this.clearRoundGuide();if(report)this.roundGuide=new RoundRangeGuide(this,report,handlers);}
+  setSurfaceSculptGuide(guide){
+    if(this.surfaceSculptGuide){this.modelRoot.remove(this.surfaceSculptGuide);this.disposeObject(this.surfaceSculptGuide);this.surfaceSculptGuide=null;}
+    if(!guide?.points.length){this.renderFrame(true);return;}
+    const group=new THREE.Group(),points=guide.points.map(p=>new THREE.Vector3(...p));
+    const color=0x0e7490;
+    for(const p of points){
+      const marker=new THREE.Mesh(new THREE.SphereGeometry(Math.max(.04,this.span*.0027),12,8),new THREE.MeshBasicMaterial({color,depthTest:false}));
+      marker.position.copy(p);marker.renderOrder=1000;group.add(marker);
+    }
+    if(points.length>1){
+      const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(guide.closed?[...points,points[0]]:points),new THREE.LineBasicMaterial({color,depthTest:false}));
+      line.renderOrder=999;group.add(line);
+    }
+    this.surfaceSculptGuide=group;this.modelRoot.add(group);this.renderFrame(true);
+  }
   clearReliefPlacement(){this.reliefGuide?.dispose();this.reliefGuide=null;}
   setReliefPlacement(input,handlers){this.clearReliefPlacement();if(input)this.reliefGuide=new ReliefPlacementGuide(this,input,handlers);return this.reliefGuide;}
   clearLogoPlacement(){this.logoGuide?.dispose();this.logoGuide=null;}
@@ -110,7 +126,12 @@ export class CADViewport {
   setAnchorVisible(visible){this.anchorVisible=!!visible;this.anchorMarker.hidden=!this.anchorVisible;localStorage.setItem('webcad.anchorVisible',String(this.anchorVisible));}
   setAnchorDrag(enabled){this.setModelingPrecision();this.anchorDragEnabled=!!enabled&&!this.interactionLocked;this.anchorGizmoHelper.visible=this.anchorDragEnabled;if(this.anchorDragEnabled){this.setGizmo('off');this.anchorGizmo.attach(this.anchorProxy);}else{this.anchorGizmo.detach();this.controls.enabled=true;}}
   cancelAnchorDrag(){if(this.anchorStart){this.anchorProxy.position.copy(this.anchorStart);this.anchorVisual.position.copy(this.anchorStart);this.anchorStart=null;}this.snapCandidates=[];this.setAnchorDrag(false);}
-  setBodies(bodies,hidden=[]){this.clearRoundGuide();this.clearProgressiveMesh();
+  setSurfaceAnalysis(report){
+    this.clearSurfaceAnalysis();this.surfaceAnalysis=installSurfaceAnalysis(this,report);
+    this.renderFrame(true);return this.surfaceAnalysis?.state??null;
+  }
+  clearSurfaceAnalysis(){this.surfaceAnalysis?.dispose();this.surfaceAnalysis=null;}
+  setBodies(bodies,hidden=[]){this.clearRoundGuide();this.clearProgressiveMesh();this.clearSurfaceAnalysis();
     this.clearScopeOverlay();
     // Keep unchanged GPU objects alive. Kernel render versions survive a rebuild
     // only when the exact geometry was reused (including undo/preview branches).
@@ -290,11 +311,11 @@ export class CADViewport {
     this.clipPlanes=enabled?[new THREE.Plane(normal,-Number(position))]:[];this.applyClipping();
   }
   isVisiblePoint(point){return this.clipPlanes.every(plane=>plane.distanceToPoint(point)>=-1e-7);}
-  findSnapCandidates(event,{constraint=null,start=null}={}){
-    if(!this.snapEnabled)return [];
+  findSnapCandidates(event,{constraint=null,start=null,verticesOnly=false}={}){
+    if(!this.snapEnabled&&!verticesOnly)return [];
     const rect=this.renderer.domElement.getBoundingClientRect(),radius=event.pointerType==='touch'?22:10,all=[];
     for(const entry of this.drawEntries()){if(!entry.root.visible)continue;
-      for(const item of entry.body.snapPoints||[]){const point=new THREE.Vector3(...item.point);if(!this.isVisiblePoint(point))continue;
+      for(const item of entry.body.snapPoints||[]){if(verticesOnly&&(item.type!=='endpoint'||entry.body.geometryType==='mesh'))continue;const point=new THREE.Vector3(...item.point);if(!this.isVisiblePoint(point))continue;
         if(start&&constraint&&['X','Y','Z','XY','XZ','YZ'].includes(constraint)&&[0,1,2].some(i=>!constraint.includes('XYZ'[i])&&Math.abs(point.getComponent(i)-start.getComponent(i))>1e-5))continue;
         const projected=point.clone().project(this.camera);if(projected.z<-1||projected.z>1)continue;
         const distancePx=Math.hypot((projected.x+1)*rect.width/2+rect.left-event.clientX,(1-projected.y)*rect.height/2+rect.top-event.clientY);
@@ -326,6 +347,11 @@ export class CADViewport {
   sketchWorldPoint(point){const frame=this.sketch.frameSnapshot;return new THREE.Vector3(point[0],point[1],0.04).applyQuaternion(new THREE.Quaternion(...frame.quaternion)).add(new THREE.Vector3(...frame.origin));}
   pick(e){
     if(this.interactionLocked&&!this.locationMarking)return;
+    if(this.surfaceFillVertexPicking&&!this.locationMarking){
+      const snap=this.findSnapCandidates(e,{verticesOnly:true})[0];
+      this.callbacks.onPick?.(snap?{type:'vertex',id:snap.bodyId,topologyId:snap.edgeId,point:snap.point.toArray()}:{type:'vertex'});
+      return;
+    }
     const ray=this.ray(e);
     if(this.locationMarking){const rect=this.renderer.domElement.getBoundingClientRect();try{const hit=this.pickLocation([(e.clientX-rect.left)/rect.width,(e.clientY-rect.top)/rect.height]);this.lastLocationClick=performance.now();this.cancelTask();this.callbacks.onLocationMark?.(hit);}catch(error){if(error.code!=='LOCATION_NO_HIT')this.callbacks.onRenderError?.(error);}return;}
     if(this.sketch){const p=this.sketchCoordinates(ray);if(p){
@@ -512,7 +538,7 @@ export class CADViewport {
     else this.frameSource=await new Promise(resolve=>{let timer=null;const done=source=>{if(timer!==null)clearTimeout(timer);timer=null;resolve(source);};
       requestAnimationFrame(()=>done('animation-frame'));timer=setTimeout(()=>done('timer-fallback'),fallbackMs);});
     this.renderFrame();return this.displayState();}
-  displayState(){return {model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,sceneLighting:this.sceneLighting?.mode||'design',designBodiesUnderMetalLighting:this.sceneLighting?.designBodiesUnderMetalLighting||0,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,submittedTriangles:this.lastRenderedTriangles??0,refractionBodies:[...this.drawEntries()].filter(entry=>entry.root.visible&&entry.mesh.material.transmission>0).length,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',...this.cameraPose(),near:this.camera.near,far:this.camera.far}};}
+  displayState(){return {surfaceAnalysis:this.surfaceAnalysis?.state??null,model:this.modelContext||null,rendered:this.renderedContext||null,frame:this.frameSequence,status:this.displayError?'failed':this.renderedContext?'rendered':'pending',error:this.displayError||null,detail:this.displayDetail||null,metalRendering:{...this.metalOcclusion?.state,sceneLighting:this.sceneLighting?.mode||'design',designBodiesUnderMetalLighting:this.sceneLighting?.designBodiesUnderMetalLighting||0,edgeStyle:'soft-metal-technical-selection',lighting:(METAL_FINISHES[this.finishKey]?.environmentMode==='inherit'?this.displayPreferences.environmentMode:METAL_FINISHES[this.finishKey]?.environmentMode||this.displayPreferences.environmentMode)==='studio'?'side-softbox-studio':'hdr-environment'},cachedFrameReused:!!this.cachedFrameReused,frameSource:this.frameSource||null,submittedTriangles:this.lastRenderedTriangles??0,refractionBodies:[...this.drawEntries()].filter(entry=>entry.root.visible&&entry.mesh.material.transmission>0).length,camera:{projection:this.camera.isOrthographicCamera?'orthographic':'perspective',...this.cameraPose(),near:this.camera.near,far:this.camera.far}};}
   evidenceSignature(){return evidenceDisplaySignature(this);}
   evidenceCapture(opts){return captureEvidence(this,opts);}
   screenshot(opts={}){

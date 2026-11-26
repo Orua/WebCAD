@@ -1,10 +1,10 @@
 # WebCAD 页面 API 索引
 
-API 1.75.21 · 操作目录 sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fefb67f50cf109890ac243
+API 1.75.25 · 操作目录 sha256:f4b85b1c8295f33213dbf9235c528e1db6ecdbda1ee8eb90c5bbacfc0f9f6bb5
 
 入口：`window.webcad.api.connect({queries:[能力关键词]})`，再批量 `getTools`。完整目录供按需查阅，页面 JS 执行取决于获授权的客户端能力。
 
-长度 mm、角度 degrees、体积 mm³。严格契约：ellipsoid、guidedLoft、subdBody、bumpSet、badge、meshHeightfieldRelief、meshBoolean、logo、union、cut、intersect、transform、copy、reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、tap、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、rodJunction、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、relief；其余操作为 advisory。
+长度 mm、角度 degrees、体积 mm³。严格契约：ellipsoid、guidedLoft、subdBody、bumpSet、badge、meshHeightfieldRelief、meshBoolean、logo、union、cut、intersect、transform、copy、reliefShoulder、meshReliefPlate、meshReliefEdit、box、cylinder、sphere、cone、torus、mirror、linearPattern、circularPattern、hole、holeWizard、draftFaces、multiHole、multiPocket、multiBoss、tap、faceHole、round、roundEnd、rounding、fillet、chamfer、shell、smoothTransition、autoRound、extractFaces、extractShell、sketchProfile、profileOffset、profileRepair、profileExtrude、profileRevolve、profileSweep、profileLoft、rodJunction、offsetSolid、offsetSurface、draftByPlane、helix、coil、thread、profileConstraints、faceGroove、innerTurn、outerTurn、refineShape、surfaceFairing、surfaceSculpt、surfaceFill、spatialSpline、networkSurface、projectCurveOnFace、surfaceBridge、replaceSurfacePatch、relief；其余操作为 advisory。
 
 ## 页面方法
 
@@ -77,6 +77,7 @@ API 1.75.21 · 操作目录 sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fef
 - `inspectConstraints`
 - `projectProfile`
 - `inspectFit`
+- `surfaceAnalysis`
 - `inspectThickness`
 - `inspectDraft`
 - `inspectRound`
@@ -176,6 +177,7 @@ API 1.75.21 · 操作目录 sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fef
 - `multiBoss` · migrated · Fuse multiple exact solid cylindrical bosses onto one body
 - `multiHole` · migrated · Cut cylindrical holes sequentially at multiple global start points
 - `multiPocket` · migrated · Cut multiple exact rectangular or rounded rectangular pockets
+- `networkSurface` · migrated · 双向曲线网格曲面 / B-spline surface constrained by two crossing families of exact curves
 - `offsetSolid` · migrated · Exact signed offset of all boundary faces of one solid
 - `offsetSurface` · migrated · Create one exact normal-offset face while preserving its source body
 - `outerTurn` · migrated · Turn the outside of a selected planar section to diameter
@@ -187,6 +189,7 @@ API 1.75.21 · 操作目录 sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fef
 - `profileRepair` · migrated · Derive a repaired analytic profile by moving one explicitly identified endpoint within the stated maximum displacement
 - `profileRevolve` · migrated · Rotate a saved exact planar section around an explicit world axis, with new-body, additive, subtractive or intersection result
 - `profileSweep` · migrated · Sweep a saved exact planar section, retaining Face holes, along one saved exact open or closed path, with explicit material result
+- `projectCurveOnFace` · migrated · 曲线投影与分面 / Directional projection onto a selected exact face
 - `projectedGroove` · advisory · 沿面法向的投影刻槽 / Surface-normal projected groove
 - `quickModel` · advisory · Parameterized product model; prefer getTool({id:"quickModel"}) then execute(request)
 - `referenceExtrude` · advisory · 选择一个闭合平面线框或单张平面面。直接复用精确圆弧/样条边，不离散成多边形。带孔请提供单张平面面；散边的多个闭环不会自动猜测内外关系。方向为世界 XYZ 向量，距离可正可负。保留来源；导出时选择新实体。不是自动修补或从零反求原件。
@@ -195,6 +198,7 @@ API 1.75.21 · 操作目录 sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fef
 - `relief` · migrated · 浮雕：分层矢量、开放刻线与平滑高度曲面 / Layered surface relief
 - `reliefShoulder` · migrated · 浮雕中央肩部 / Central relief shoulder
 - `remove` · advisory · Use dedicated webcad_remove tool with ids, not add_feature
+- `replaceSurfacePatch` · migrated · 局部换面并缝回实体 / Replace selected solid faces with exact compatible patches
 - `revolve` · advisory · Revolve a closed profile
 - `rodJunction` · migrated · Apply an independent rolling-ball radius to one selected equal-wire perpendicular T junction
 - `round` · migrated · 圆润 / Round
@@ -205,9 +209,14 @@ API 1.75.21 · 操作目录 sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fef
 - `sketchProfile` · migrated · Create an editable exact 2D wire or planar face from stable analytic entities
 - `slot` · advisory · Cut an exact capsule slot (two semicircles and two straight sides)
 - `smoothTransition` · migrated · 平滑过渡 / Smooth shared seams of adjacent faces together
+- `spatialSpline` · migrated · 空间样条曲线 / Interpolate ordered 3D points or fit them to tolerance
 - `sphere` · migrated · Sphere centered at the local origin before placement
 - `split` · advisory · Split body by an offset global plane
 - `subdBody` · migrated · 细分曲面体 / Catmull–Clark cage to sewn B-spline solid
+- `surfaceBridge` · migrated · 双边光顺过渡面 / Bridge two separate supported edges with positional, tangent or curvature constraints
+- `surfaceFairing` · migrated · 曲面保形修顺 / Fair a source-bound Z displacement field and refit STEP faces and seams
+- `surfaceFill` · migrated · 约束填充曲面 / Fill a closed boundary with a smooth constrained surface
+- `surfaceSculpt` · migrated · 局部曲面变形 / Local soft deformation of an existing STEP face
 - `surfaceTrim` · advisory · 按顺序选两个对象：第一个为待修剪面所在对象，第二个为实体刀具。填写第一对象的面编号；intersect 保留实体内部，cut 保留外部。保留源对象；不是任意曲线修剪或自动补面。
 - `sweep` · advisory · Sweep profile along a 3D polyline
 - `tap` · migrated · Tap a blind threaded hole perpendicular to a planar face
@@ -345,6 +354,7 @@ API 1.75.21 · 操作目录 sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fef
 - `inspectConstraints` · page-method · inspectConstraints({context,bodyId})；当前保存的 sketchProfile 或 profileConstraints 派生轮廓。只读诊断已有关系；矩形转换为明确四条解析边并保留形状关系。
 - `projectProfile` · page-method · projectProfile({context,bodyId,edgeIds:[当前边索引],frame?:{origin,quaternion}})；或用 pointWorld:[x,y,z] 投影明确坐标点。
 - `inspectFit` · page-method · inspectFit({context,bodyAId,bodyBId,toleranceMm?:0.00001,volumeThresholdMm3?:0.000001})；选择两个当前单一封闭实体。
+- `surfaceAnalysis` · page-method · surfaceAnalysis({context,mode,bodyId,edgeId?,faceIds?,grid?,direction?,thresholdMm?,samples?,zebraDirection?,stripes?,showInView?})；mode=clear 仅发 context 与 mode。
 - `inspectThickness` · page-method · inspectThickness({context,bodyId,mode:"ray",point:[x,y,z],direction:[dx,dy,dz]})；或 mode:"faces",faceAId,faceBId,point；两面须平行且射线穿过连续材料。
 - `inspectDraft` · page-method · inspectDraft({context,bodyId,pullDirection:[0,0,1],thresholdDeg:2})；用户决定阈值。
 - `inspectRound` · page-method · inspectRound({context,bodyId,params:{edgeIds:[0],mode:"edge",radiusMm:0.3}})；params 同 round 工具卡，亦可 faceIds 解析平面边界。

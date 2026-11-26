@@ -3,14 +3,14 @@
 import {ACTION_ICONS} from './action-icons.js';
 const tabs = [
   {id:'edit',label:'编辑',unfolded:true,groups:[['选择',['selectTool']],['复制粘贴',['copySelection','pasteSelection']],['变换',['moveTool','rotateTool','alignTool','resizeBody','copy','mirror']],['阵列',['linearPattern','circularPattern']],['组合与拆分',['group','explode','extractSolid']],['管理',['remove']]]},
-  {id:'path',label:'路径',unfolded:true,groups:[['导入与绘制',['vectorImport','sketchProfile','vectorProfile','helix']],['编辑曲线',['pathEdit','pathFillet','pathTrim','pathExtend','pathTrimCircle']],['闭合与尺寸',['profileRepair','profileConstraints','profileOffset']],['提取路径',['faceBoundary','planeSection']]]},
+  {id:'path',label:'路径',unfolded:true,groups:[['导入与绘制',['vectorImport','sketchProfile','spatialSpline','vectorProfile','helix']],['编辑曲线',['pathEdit','pathFillet','pathTrim','pathExtend','pathTrimCircle']],['闭合与尺寸',['profileRepair','profileConstraints','profileOffset']],['提取路径',['faceBoundary','planeSection']]]},
   {id:'create',label:'创建',groups:[['路径成型',['profileExtrude','sweep','revolve','loft'],{unfolded:true}],['直接成型',['badge','sketch','arcProfile','extrude','coil']],['高级成型',['referenceExtrude','curveSweep','referenceLoft','advancedLoft']]]},
   {id:'model',label:'实体',unfolded:true,groups:[['基本实体',['box','cylinder','cone','sphere','ellipsoid','torus']],['快捷模型',['quickModel']],['导入模型',['importAtFrame']]]},
   {id:'machine',label:'面加工',unfolded:true,groups:[['开槽与车削',['faceGroove','innerTurn','outerTurn']],['孔与凸台',['faceHole','faceExtrude']],['浮雕设计',['reliefDesign']],['精确浮雕（STEP 可导出）',['relief','reliefSculpt','reliefShoulder','logo']],['网格浮雕（STL）',['meshHeightfieldRelief','heightfieldSculpt','meshReliefPlate','meshReliefEdit']]]},
   {id:'solidMachine',label:'实体加工',groups:[['孔槽与螺纹',['hole','holeWizard','tap','slot','thread'],{unfolded:true}],['接头加工',['rodJunction']],['布尔与切分',['union','cut','intersect','meshBoolean','split'],{unfolded:true}],['批量加工',['multiHole','multiPocket','multiBoss','bumpSet'],{overflowActions:['multiHole','multiPocket','multiBoss','bumpSet']}]]},
-  {id:'surface',label:'曲面',groups:[['提取面与壳',['extractFaces','extractShell']],['曲面生成',['fittedSurface','subdBody','guidedLoft']],['曲面处理',['surfaceTrim','offsetSurface','sewFaces']],['增厚成体',['thickenFace']]]},
+ {id:'surface',label:'曲面',groups:[['提取面与壳',['extractFaces','extractShell']],['曲面生成',['fittedSurface','surfaceFill','networkSurface','surfaceBridge','subdBody','guidedLoft']],['曲面处理',['surfaceTrim','projectCurveOnFace','replaceSurfacePatch','offsetSurface','sewFaces','surfaceFairing','surfaceSculpt']],['增厚成体',['thickenFace']]]},
   {id:'finish',label:'修饰',groups:[['圆角与过渡',['round','chamfer','autoRound','smoothTransition','fillet','rounding'],{overflowActions:['autoRound','smoothTransition','fillet','rounding']}],['端部',['roundEnd']],['壳与偏置',['shell','offsetSolid']],['实体整理',['refineShape']],['拔模',['draftFaces','draftByPlane']]]},
-  {id:'inspect',label:'检查',groups:[['测量',['measure','measureRelation']],['几何检查',['inspectThickness','inspectFit','inspectDraft','inspectPrintability']],['出图与记录',['quickDrawing','screenshot']]]},
+  {id:'inspect',label:'检查',groups:[['测量',['measure','measureRelation']],['几何检查',['inspectSurfaceQuality','inspectWallThicknessMap','inspectThickness','inspectFit','inspectDraft','inspectPrintability']],['出图与记录',['quickDrawing','screenshot']]]},
   {id:'view',label:'视图',groups:[['剖切查看',['section']]],controls:['directions','projection','display','assists','quality']},
   {id:'settings',label:'设置',groups:[['交互',['precisionSettings','snapSettings']],['外观',['themeSettings','displayPreferences','languageSettings']],['工程',['parameters','materialSettings']],['导入设置',['servicesSettings']],['AGENT',['agentGuide']],['诊断',['debug']]]},
 ];
@@ -22,7 +22,7 @@ const controls={
   quality:{label:'显示精度 · 不改变精确几何',action:'renderQuality',key:'quality',setting:'quality',items:[['草稿','draft'],['标准','standard'],['精细','fine'],['高精','ultra']]},
 };
 function freeze(value){if(value&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}return value;}
-export const UI_LAYOUT=freeze({version:9,workspaces:[{id:'modeling',label:'建模'}],surfaces:{modelLibrary:{tab:'model',action:'quickModel',presentation:'floating-menu'},agentSettings:{tab:'settings',action:'agentGuide',presentation:'configuration'}},defaultTab:'edit',panels:{left:232,right:320},shortLabels:{reliefDesign:'设计草稿',pathEdit:'编辑路径',pathTrim:'修剪',pathExtend:'延伸',pathFillet:'二维圆角',pathTrimCircle:'整圆裁剪',vectorImport:'矢量取线成面',themeSettings:'风格',precisionSettings:'精度',snapSettings:'吸附',displayPreferences:'渲染设置',servicesSettings:'计算设置',languageSettings:'语言',parameters:'参数',agentGuide:'Agent 配置',revolve:'旋转成型',sketchProfile:'轮廓',sketch:'草图拉伸',arcProfile:'线弧拉伸',profileOffset:'等距偏移',profileRepair:'轮廓修复',profileExtrude:'轮廓加工',multiHole:'多点打孔',multiPocket:'批量凹槽',multiBoss:'批量凸台',smoothTransition:'平滑过渡',autoRound:'整件圆边',draftFaces:'拔模',measureRelation:'关系测量',inspectFit:'干涉间隙',inspectThickness:'壁厚',inspectDraft:'拔模检查',inspectPrintability:'成型检查',planeSection:'提取截面',faceBoundary:'提取边界',referenceExtrude:'轮廓拉伸',referenceLoft:'截面放样',advancedLoft:'高级放样',fittedSurface:'拟合曲面',extractFaces:'提取面',surfaceTrim:'曲面修剪',transparentEdges:'透视边线',edges:'实体边线'},ribbon:{visibleActions:3,minOverflow:2,overflowLabel:'更多 ▾',overflowMenuWidth:210},tabs,controls,
+export const UI_LAYOUT=freeze({version:9,workspaces:[{id:'modeling',label:'建模'}],surfaces:{modelLibrary:{tab:'model',action:'quickModel',presentation:'floating-menu'},agentSettings:{tab:'settings',action:'agentGuide',presentation:'configuration'}},defaultTab:'edit',panels:{left:232,right:320},shortLabels:{inspectSurfaceQuality:'曲面光顺检查',inspectWallThicknessMap:'壁厚色图',reliefDesign:'设计草稿',pathEdit:'编辑路径',pathTrim:'修剪',pathExtend:'延伸',pathFillet:'二维圆角',pathTrimCircle:'整圆裁剪',vectorImport:'矢量取线成面',themeSettings:'风格',precisionSettings:'精度',snapSettings:'吸附',displayPreferences:'渲染设置',servicesSettings:'计算设置',languageSettings:'语言',parameters:'参数',agentGuide:'Agent 配置',revolve:'旋转成型',sketchProfile:'轮廓',sketch:'草图拉伸',arcProfile:'线弧拉伸',profileOffset:'等距偏移',profileRepair:'轮廓修复',profileExtrude:'轮廓加工',multiHole:'多点打孔',multiPocket:'批量凹槽',multiBoss:'批量凸台',smoothTransition:'平滑过渡',autoRound:'整件圆边',draftFaces:'拔模',measureRelation:'关系测量',inspectFit:'干涉间隙',inspectThickness:'壁厚',inspectDraft:'拔模检查',inspectPrintability:'成型检查',planeSection:'提取截面',faceBoundary:'提取边界',referenceExtrude:'轮廓拉伸',referenceLoft:'截面放样',advancedLoft:'高级放样',fittedSurface:'拟合曲面',extractFaces:'提取面',surfaceTrim:'曲面修剪',transparentEdges:'透视边线',edges:'实体边线'},ribbon:{visibleActions:3,minOverflow:2,overflowLabel:'更多 ▾',overflowMenuWidth:210},tabs,controls,
   viewportActions:[{action:'gizmoRotate',label:'鼠标旋转'},{action:'gizmoTranslate',label:'鼠标移动'}],
   icons:{debug:['M8 3h8v5H8Z M6 10h12v10H6Z M3 12h3 M18 12h3 M3 17h3 M18 17h3 M9 13h.1 M15 13h.1 M9 17h6'],badge:['M4 3h16v18H4Z M8 7h8 M8 11h8 M8 15h5 M8 18h5'],
     relief:['M3 19h18 M3 15c3 0 3-10 6-10s3 8 6 8 3-5 6-5 M3 15v4 M21 8v11 M3 10c3 0 3-7 6-7s3 6 6 6 3-3 6-3'],
@@ -40,6 +40,16 @@ export const UI_LAYOUT=freeze({version:9,workspaces:[{id:'modeling',label:'建�
     meshBoolean:['M9 4a6 6 0 1 0 0 12 6 6 0 1 0 0-12 M15 8a6 6 0 1 0 0 12 6 6 0 1 0 0-12'],
     meshReliefEdit:['M3 19h18M4 17l5-5 4 2 7-7 M18 3v8M14 7h8'],
     reliefShoulder:['M3 20h18M5 17l2-8 3-4h4l3 4 2 8M7 9h10'],
+    surfaceFairing:['M3 18c4 0 5-10 9-10s5 10 9 10M3 12c4 0 5-7 9-7s5 7 9 7'],
+    surfaceSculpt:['M3 19c5-1 6-8 10-8s5 6 8 6M13 10V3m-3 3 3-3 3 3'],
+    spatialSpline:['M3 18c3 0 5-12 9-12s6 10 9 10','M4 18h.01M12 6h.01M21 16h.01'],
+    networkSurface:['M3 18C10 13 14 21 21 12M3 13C10 8 14 16 21 7M3 8C10 3 14 11 21 2','M8 6l0 10M15 7l0 10'],
+    surfaceBridge:['M2 16h4c4 0 5-8 10-8h6M2 20h4c4 0 5-8 10-8h6'],
+    projectCurveOnFace:['M2 15c6 5 14 5 20 0M6 4c4 4 8 4 12 0M8 8v6m8-6v6'],
+    replaceSurfacePatch:['M3 7l10-4 8 4v10l-10 4-8-4z','m3 7 8 4 10-4M11 11v10M7 9l10-4'],
+    inspectSurfaceQuality:['M4 19C4 9 10 5 20 5M9 19c0-6 4-9 11-9m-6 9c0-3 2-4 6-4'],
+    inspectWallThicknessMap:['M3 13c4-7 14-7 18 0M3 17c4-7 14-7 18 0M8 7v4m5-4v4m5-3v4'],
+    surfaceFill:['M3 15C7 8 14 7 21 10C17 17 10 19 3 15Z','M3 15C10 11 14 14 21 10M11 5h.01M14 19h.01'],
     new:['M14 2H5v20h14V7Z M14 2v5h5 M8 14h8 M12 10v8'],
     open:['M3 8V5h6l2 3h10l-3 12H3Z M3 10h16'],
     importAtFrame:['M4 3h10l5 5v12H4Z M14 3v5h5 M12 10v7 M9 14l3 3 3-3'],

@@ -16,6 +16,7 @@ READ_METHODS.add('getPerformanceState');
 VIEW_METHODS.add('configurePerformance');
 VIEW_METHODS.add('acknowledgePerformanceAdvisory');
 VIEW_METHODS.add('setDebugPanel');
+VIEW_METHODS.add('surfaceAnalysis');
 export const DISCOVERY_METHODS = new Set(['getBatchReceipt','connect','info','getState','getAgentPanel','getHistory','searchTools','getTools','getTool','readDocs','files.capabilities','getUILayout','getQuickModelUsage','getModelLibrary']);
 export const EDIT_ACTIONS = new Set(['feature.add','feature.addMany','feature.edit','feature.rename','document.rename',
   'document.materials','feature.compileServices','document.reliefDesign',
@@ -30,6 +31,7 @@ export const EDIT_METHODS = new Set(['execute','files.import','copySelection','p
 export const EXPORT_METHODS = new Set(['files.save','files.export','files.reattach','createDrawing','exportDrawing']);
 JOB_METHODS.add('recoverKernel');
 JOB_METHODS.add('measureMass');
+JOB_METHODS.add('surfaceAnalysis');
 READ_METHODS.add('probeBlendRadius');
 READ_METHODS.add('files.inspectInsert');
 JOB_METHODS.add('files.inspectInsert');

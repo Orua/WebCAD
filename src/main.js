@@ -212,6 +212,8 @@ const ui=createUI(document.getElementById('app'),{
   initialDocumentName:documentModel.name,
   onAction:(action,params)=>traceDebug('ui',action,params,()=>performAction(action,params)).catch(error=>{reportError(error);return false;}),
   onRoundGuide:(report,handlers)=>viewport.setRoundGuide(report,handlers),
+  onSurfaceSculptGuide:guide=>viewport.setSurfaceSculptGuide(guide),
+  onSurfaceFillVertexPicking:active=>{viewport.surfaceFillVertexPicking=active;},
   onReliefPlacement:async(input,handlers)=>{
     if(!input){viewport.clearReliefPlacement();return null;}
     const atRevision=revision;
@@ -346,14 +348,16 @@ function selectBody(id,additive=false){
 }
 function pick(hit,additive){
   if(busy)return;
-  if(hit?.id!==selectedIds[0])ui.discardForSelection();
+  const captured=ui.captureFreeform(hit)||ui.captureSurfaceFill(hit)||ui.captureSurfaceSculptPoint(hit);
+  if(captured==='ignored'||hit?.type==='vertex')return;
+  if(!captured&&hit?.id!==selectedIds[0])ui.discardForSelection();
   if(!hit){if(!additive)selectBody(null);return;}
   if(hit.type==='body'||hit.topologyId===undefined){selectBody(hit.id,additive);return;}
   selectedIds=[hit.id];
   if(additive&&selectedTopology?.bodyId===hit.id&&selectedTopology.type===hit.type){const ids=selectedTopology.ids;selectedTopology.ids=ids.includes(hit.topologyId)?ids.filter(i=>i!==hit.topologyId):[...ids,hit.topologyId];}
   else selectedTopology={bodyId:hit.id,type:hit.type,ids:[hit.topologyId],point:hit.point};
   viewport.setSelection(selectedIds,selectedTopology);refresh();
-  if(hit.type==='face'&&selectedTopology.ids.length===1){
+  if(!captured&&hit.type==='face'&&selectedTopology.ids.length===1){
     const target=selectedTopology,atRevision=revision;
     request('measure',{bodyId:hit.id,topologyType:'face',topologyId:hit.topologyId}).then(info=>{if(selectedTopology===target&&revision===atRevision){target.geomType=info.geomType;refresh();}}).catch(()=>{});
   }
@@ -762,10 +766,13 @@ async function previewFeature(op,params,explicitRefs,name,placement,identity=nul
   try{const routed=await routeChangedFeature(next,{expectedRevision:revision});next=routed.next;const result=await request('rebuild',{document:next});
     if(generation!==previewGeneration){await request('rebuild',{document:documentModel});previewNext=null;viewport.setBodies(bodies,documentModel.hidden);viewport.setSelection(selectedIds,selectedTopology);return false;}
     previewNext=next;previewIdentity=identity;previewKernelCache={signature:JSON.stringify({imports:next.imports||{},features:next.features.map(geometryFeatureRecord)}),result};const previewBody=result.bodies.find(body=>body.id===(editId??next.features.at(-1)?.id));previewScopeReport=op==='meshReliefEdit'?previewBody?.meshReport?.edit||null:['relief','reliefShoulder'].includes(op)?previewBody?.reliefReport||null:op==='refineShape'?previewBody?.refineReport||null:op==='round'?previewBody?.roundReport||null:op==='rounding'?previewBody?.roundingReport||null:op==='roundEnd'?previewBody?.endRoundingReport||null:null;
+    if(op==='surfaceSculpt')previewScopeReport=previewBody?.surfaceSculptReport||null;
+    if(op==='surfaceFill')previewScopeReport=previewBody?.surfaceFillReport||null;
+    if(previewBody?.freeformReport)previewScopeReport=previewBody.freeformReport;
     viewport.setBodies(result.bodies,next.hidden);viewport.setSelection([]);
     if(previewScopeReport&&op==='rounding'){const sourceBody=bodies.find(body=>body.id===refs[0]);viewport.setScopeOverlay(sourceBody?.edges,previewScopeReport.requestedSelection,previewScopeReport.expandedSelection);}
     if(op==='round'&&previewScopeReport){previewScopeReport={...previewScopeReport,previewBodyId:previewBody.id,sourceBodyId:refs[0]};viewport.setRoundGuide(previewScopeReport);if(previewScopeReport.mode==='edge')viewport.setScopeOverlay(bodies.find(b=>b.id===refs[0])?.edges,params.edgeIds||[],params.edgeIds||[]);}
-    if(!bodies.length)viewport.fit();setStatus('预览未保存 · 应用或取消 / Preview: apply or cancel');return previewScopeReport?{[['relief','reliefShoulder'].includes(op)?'reliefReport':op==='refineShape'?'refineReport':op==='round'?'roundReport':op==='roundEnd'?'endRoundingReport':'roundingReport']:clone(previewScopeReport)}:true;}
+    if(!bodies.length)viewport.fit();setStatus('预览未保存 · 应用或取消 / Preview: apply or cancel');return previewScopeReport?{[['relief','reliefShoulder'].includes(op)?'reliefReport':op==='refineShape'?'refineReport':op==='surfaceSculpt'?'surfaceSculptReport':op==='surfaceFill'?'surfaceFillReport':previewBody?.freeformReport?'freeformReport':op==='round'?'roundReport':op==='roundEnd'?'endRoundingReport':'roundingReport']:clone(previewScopeReport)}:true;}
   catch(error){previewKernelCache=null;if(error.code==='PREVIEW_CANCELLED')return false;previewScopeReport=null;if(previousPreview&&previousIdentity?.previewId===identity?.previewId){const restored=await request('rebuild',{document:previousPreview});previewNext=previousPreview;previewIdentity=previousIdentity;previewScopeReport=previousScopeReport;viewport.setBodies(restored.bodies,previousPreview.hidden);}else{previewNext=null;previewIdentity=null;await request('rebuild',{document:documentModel});viewport.setBodies(bodies,documentModel.hidden);}throw error;}
   finally{previewComputing=false;if(recoveryPromise)await recoveryPromise.catch(()=>{});setBusy(false);}
 }
@@ -1114,6 +1121,11 @@ async function performAction(action,params={}){
   if(action==='inspectThickness'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.inspectThickness({context:{...identity,expectedRevision:r},...params});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
   if(action==='inspectDraft'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.inspectDraft({context:{...identity,expectedRevision:r},...params});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
   if(action==='measureRelation'){const {revision:r,...identity}=pageAPI.getState().context;const result=await pageAPI.measureRelation({context:{...identity,expectedRevision:r},...params});if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);return result;}
+  if(action==='surfaceAnalysis'){
+    const result=await pageAPI.surfaceAnalysis({context:pageAPI.createRequestContext(),...params});
+    if(result.status==='failed')throw Object.assign(new Error(result.error.message),result.error);
+    return result;
+  }
   if(action==='materialSettings')return runEditorAction('document.materials',{settings:params});
   if(action==='fit'){viewport.fit();return;}
   if(action==='floorSelected'){
@@ -1573,6 +1585,13 @@ const pageAPI=createPageAPI({
   inspectDesign:input=>request('inspectDesign',{input}),
   inspectFit:(bodyAId,bodyBId,toleranceMm,volumeThresholdMm3)=>request('inspectFit',{bodyAId,bodyBId,toleranceMm,volumeThresholdMm3}),
   inspectThickness:input=>request('inspectThickness',{input}),
+  surfaceAnalysis:input=>request('surfaceAnalysis',{input}),
+  setSurfaceAnalysis:async report=>{
+    const receipt=viewport.setSurfaceAnalysis(report);
+    await viewport.frame();
+    refresh();
+    return receipt;
+  },
   inspectDraft:input=>request('inspectDraft',{input}),
   inspectRound:input=>request('inspectRound',{input}),
   probeBlendRadius:input=>request('probeBlendRadius',{input}),

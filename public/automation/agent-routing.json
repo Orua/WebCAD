@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "catalogHash": "sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fefb67f50cf109890ac243",
-  "docsHash": "sha256:6f7c6be5c7fd3d7f4e72b23861c7e1bc624162b5f1aa29901ab2f2b17bfbcb83",
+  "catalogHash": "sha256:f4b85b1c8295f33213dbf9235c528e1db6ecdbda1ee8eb90c5bbacfc0f9f6bb5",
+  "docsHash": "sha256:1699dd2da8221a9ef437582d45a013e691e51f7001376abe46a2b06f42bfeed3",
   "workflowDelivery": {
     "schemaVersion": 1,
     "coreDocIds": [
@@ -57,6 +57,42 @@
   },
   "selectionPolicy": "Read api.reading-map once; route by task; read only readFirst; compare selectionGuide; fetch selected complete cards. docs/tools are candidates, not mandatory bulk reads. Exact UI actions use routes.json. Live IDs come from the page.",
   "routes": [
+    {
+      "id": "freeform-modeling",
+      "title": "异形件曲线、曲面与验收",
+      "keywords": [
+        "异形件",
+        "花瓣",
+        "曲面",
+        "接顺",
+        "换面",
+        "曲线网",
+        "斑马纹",
+        "壁厚色图"
+      ],
+      "docs": [
+        "api.freeform-modeling",
+        "api.surface-fill",
+        "api.surface-sculpt",
+        "api.surface-fairing"
+      ],
+      "tools": [
+        "spatialSpline",
+        "networkSurface",
+        "surfaceFill",
+        "surfaceSculpt",
+        "surfaceBridge",
+        "projectCurveOnFace",
+        "replaceSurfacePatch",
+        "surfaceAnalysis",
+        "surfaceFairing",
+        "thickenFace",
+        "sewFaces"
+      ],
+      "note": "按当前精确来源选择建线、建面、接面或修面分支。先读取当前编号与公差，预览并查误差，再提交与验收。只读检查不改变几何。",
+      "readFirst": "api.freeform-modeling",
+      "readPlan": "Read readFirst; compare candidate selectionGuide; fetch only selected complete cards. Other docs are references, not a mandatory reading list."
+    },
     {
       "id": "adaptive-performance",
       "title": "交互性能与显示策略",

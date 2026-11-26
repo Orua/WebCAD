@@ -64,6 +64,16 @@ import { buildFittedSurface } from './fitted-surface.js';
 import { buildFaceThickness } from './surface-thickness.js';
 import { extractPlaneSection, extractFaceBoundary } from './reference-curves.js';
 import { sewFaces, surfaceTrim, diagnoseSurface } from './surface-repair.js';
+import {buildSurfaceFairing} from './modeling/manufacturing/surface-fairing.js';
+import {buildSurfaceSculpt} from './modeling/manufacturing/surface-sculpt.js';
+import {buildSurfaceFill} from './modeling/manufacturing/surface-fill.js';
+import {buildSpatialSpline} from './modeling/freeform/spatial-spline.js';
+import {buildNetworkSurface} from './modeling/freeform/network-surface.js';
+import {projectCurveOnFace} from './modeling/freeform/project-curve.js';
+import {buildSurfaceBridge} from './modeling/freeform/surface-bridge.js';
+import {replaceSurfacePatch} from './modeling/freeform/replace-patch.js';
+import {calculateSurfaceAnalysis} from './modeling/freeform/surface-analysis.js';
+import {freeformIds} from './modeling/freeform/freeform-contracts.js';
 import { queryShapeGeometry } from './geometry-query.js';
 import { logoFaceSignature, remapSignedFace } from './logo-face-signature.js';
 import { buildReferenceExtrude } from './reference-profile-extrude.js';
@@ -337,6 +347,28 @@ export class CadKernel {
       case 'offsetSolid': return buildOffsetSolid(source(),p,this.oc,cad);
       case 'rodJunction': return buildRodJunction(source(),p,this.oc,cad);
       case 'refineShape': return buildRefineShape(source());
+      case 'surfaceFill': return buildSurfaceFill(sources,p,cad);
+      case 'spatialSpline': return buildSpatialSpline(sources,p,cad);
+      case 'networkSurface': return buildNetworkSurface(sources,p,cad);
+      case 'projectCurveOnFace': return projectCurveOnFace(sources,p,cad);
+      case 'surfaceBridge': return buildSurfaceBridge(sources,p,cad);
+      case 'replaceSurfacePatch': return replaceSurfacePatch(sources,p,cad);
+      case 'surfaceSculpt': {
+        const input=source(),solids=input.solids,faces=input.faces;
+        try{
+          if(solids.length>1||(!solids.length&&faces.length!==1))throw Object.assign(new Error('请选择一个有效实体或一张独立曲面'),{code:'SCULPT_UNSUPPORTED_FACE'});
+        }finally{[...solids,...faces].forEach(dispose);}
+        return buildSurfaceSculpt(input,p,this.oc);
+      }
+      case 'surfaceFairing': {
+        const input=historyFeatures.find(item=>item.id===refs[0]);
+        const imported=input?.op==='import'?imports[input.params.key]:null;
+        const placement=input?.placement, frame=placement?.frameSnapshot;
+        const moved=frame&&(frame.origin.some(value=>Math.abs(value)>1e-9)||Math.abs(Math.abs(frame.quaternion[3])-1)>1e-9);
+        if(imported?.format!=='step'||imported.importTransform||moved||placement&&placement.sourceAnchor?.kind!=='model-origin')throw Object.assign(new Error('请选择按原坐标直接导入的 STEP 实体'),{code:'FAIRING_SOURCE_UNSUPPORTED'});
+        return buildSurfaceFairing(source(),exactSourceBytes(imported,this.binaryAssets),p,cad,this.oc,
+          label=>this.reportRebuildProgress('feature',label,{featureId:feature.id}));
+      }
       case 'offsetSurface': return buildOffsetSurface(source(),p,this.oc,cad);
       case 'draftByPlane': return buildDraftByPlane(source(),p,this.oc,cad);
       case 'helix': return buildHelix(p,cad);
@@ -1146,6 +1178,7 @@ export class CadKernel {
       metricsDeferred:true,volume:null,area:null,alignmentReport:shape.alignmentReport};
   }
   describe(shape,feature,deferMassProperties=false){
+    if(['surfaceFairing','surfaceSculpt'].includes(feature.op))deferMassProperties=true;
     this.shapeDisplays??=new WeakMap();const key=this.displayCacheKey(deferMassProperties),cached=this.shapeDisplays.get(shape);
     if(cached?.key===key)return {...cached.body,id:feature.id,name:feature.name||feature.id};
     if(isAssembly(shape)){
@@ -1227,6 +1260,10 @@ export class CadKernel {
       if(shape.sourceJunctionReport)measured.sourceJunctionReport=shape.sourceJunctionReport;
       if(shape.warnings)measured.warnings=shape.warnings;
       if(shape.subdApproximation)measured.subdApproximation=shape.subdApproximation;
+      if(shape.surfaceFairingReport)measured.surfaceFairingReport=shape.surfaceFairingReport;
+      if(shape.surfaceSculptReport)measured.surfaceSculptReport=shape.surfaceSculptReport;
+      if(shape.surfaceFillReport)measured.surfaceFillReport=shape.surfaceFillReport;
+      if(shape.freeformReport)measured.freeformReport=shape.freeformReport;
       measured.displayReport.missingAreaMm2=measured.displayReport.untriangulatedFaceIds.reduce((sum,i)=>sum+cad.measureArea(faces[i]),0);
       this.reportRebuildProgress('edge-polylines','生成显示边线');
       mappedEdges??=wire.edgeGroups.map(g => ({edgeId:edgeMap.get(g.edgeId),positions:Array.from(wire.lines.slice(g.start*3,(g.start+g.count)*3))}));
@@ -1320,7 +1357,8 @@ export class CadKernel {
                 const original=next.get(id);
                 if(isAssembly(original))throw Object.assign(new Error('此工具需要独立源件，使用分件插入模式。'),{code:'CAPABILITY_UNAVAILABLE'});
                 const copy=original.geometryType==='mesh'?original.clone():cad.deserializeShape(this.geometrySourceSnapshot(original));
-                if(original.geometryType!=='mesh')copyFaceOrigins(original,copy);
+                // Sculpt resolves the picked point on the current detached face without surface-area attribution.
+                if(original.geometryType!=='mesh'&&!['surfaceSculpt','surfaceFill',...freeformIds].includes(feature.op))copyFaceOrigins(original,copy);
                 if(copy.faceOrigins)copy.faceOrigins=copy.faceOrigins.map(row=>row?{...row,featureIds:[...new Set([...(row.featureIds||[row.featureId]),id])]}:null);
                 copies.push(copy);inputs.set(id,copy);
               }
@@ -1612,6 +1650,10 @@ export class CadKernel {
       if(mode==='faces'){const exitVertex=cad.makeVertex(exitPoint);try{if(cad.measureDistanceBetween(faces[input.faceBId],exitVertex)>toleranceMm)throw new Error('第一段连续材料没有到达指定第二壁面；可能跨越空腔或面不相对');}finally{dispose(exitVertex);}}
       return {method:mode,bodyId,entryPoint:[...point],exitPoint,direction,thicknessMm,toleranceMm,checkedScope:'single-contiguous-material-interval'};
     }finally{[...faces,...solids,startVertex,line,common,box].forEach(dispose);}
+  }
+  surfaceAnalysis(input){
+    const {bodyId}=input;
+    return calculateSurfaceAnalysis(this.activeShape(bodyId),input,cad,(point,direction)=>this.inspectThickness({bodyId,point,direction}));
   }
   measureRelation(input){return measureRelationExact(input,id=>this.activeShape(id),this.oc,cad);}
   inspectDraft(input){return inspectDraftExact(this.activeShape(input.bodyId),input);}

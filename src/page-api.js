@@ -3,6 +3,7 @@ import {getMetalMaterials,DEFAULT_METAL_CONFIG,validateMetalMaterials} from './m
 import {meshReliefSampleSchema} from './mesh/relief-sample.js';
 import {METAL_DENSITIES,materialWeight} from './material-density.js';
 import {validateSchema} from './contracts/operation-schema.js';
+import {analysisKeys} from './modeling/freeform/freeform-contracts.js';
 import {layoutDrawing} from './drawing/technical-layout.js';
 import {drawingSVG,drawingDXF,drawingPDF,drawingJPEG} from './drawing/drawing-export.js';
 import {infoMetadata,discoveryMetadata,searchTools,getTools,getTool,readDocs} from './page-api-docs.js';
@@ -449,6 +450,19 @@ export function createPageAPI(host){
       const result=await host.inspectFit(input.bodyAId,input.bodyBId,toleranceMm,volumeThresholdMm3);
       check(input,['context','bodyAId','bodyBId','toleranceMm','volumeThresholdMm3']);
       return {status:'read',source:'exact-brep',units:{length:'mm',volume:'mm^3'},context:current().context,bodyAId:input.bodyAId,bodyBId:input.bodyBId,...result};
+    }),
+    surfaceAnalysis:guarded(async input=>{
+      check(input,analysisKeys);
+      if(input.mode==='clear'){
+        await host.setSurfaceAnalysis(null);
+        return {status:'read',mode:'clear',viewApplied:true,context:current().context};
+      }
+      if(!current().bodies.some(body=>body.id===input.bodyId))fail('STALE_REFERENCE','请选择当前对象。');
+      const report=await host.surfaceAnalysis(input);
+      check(input,analysisKeys);
+      const view=input.showInView===false?null:await host.setSurfaceAnalysis(report);
+      return {status:'read',readOnly:true,context:current().context,source:input.mode==='zebra'?'display-normals':'exact-brep',
+        viewApplied:!!view,...report};
     }),
     inspectThickness:guarded(async input=>{
       check(input,['context','bodyId','mode','point','direction','faceAId','faceBId','toleranceMm']);

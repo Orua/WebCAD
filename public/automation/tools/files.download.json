@@ -8,7 +8,7 @@
   "id": "files.download",
   "title": "files.download",
   "category": "file",
-  "version": "1.75.21",
+  "version": "1.75.25",
   "contextPolicy": "none",
   "label": "下载文件",
   "synonyms": [
@@ -151,5 +151,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.files",
-  "docsHash": "sha256:5b04d325cab83eb64733783d4a509d310995d8325317be3d2380fb173f166dbe"
+  "docsHash": "sha256:e9c8de012d8dfd7de744485d8bed153454478136b1ec7dd143a1badfbd992544"
 }

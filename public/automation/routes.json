@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "src/ui-api-coverage.js",
-  "pageApiVersion": "1.75.21",
-  "buildId": "532558d031cf9817069759f95cbac67a5ab5fe18-src-7bc164b2a0f4f60a-working",
-  "catalogHash": "sha256:bbbe571b08e0fecb2ba6022ebedbf17668d0ffc772fefb67f50cf109890ac243",
-  "docsHash": "sha256:6f7c6be5c7fd3d7f4e72b23861c7e1bc624162b5f1aa29901ab2f2b17bfbcb83",
+  "pageApiVersion": "1.75.25",
+  "buildId": "1f94a028fa30ba2673576372465815530f94c0c2-src-d9ca0a6b7692744c-working",
+  "catalogHash": "sha256:f4b85b1c8295f33213dbf9235c528e1db6ecdbda1ee8eb90c5bbacfc0f9f6bb5",
+  "docsHash": "sha256:1699dd2da8221a9ef437582d45a013e691e51f7001376abe46a2b06f42bfeed3",
   "routes": {
     "advancedLoft": {
       "tools": [
@@ -564,12 +564,26 @@
       "method": "inspectProfile",
       "usage": "选定当前可编辑解析轮廓 bodyId；返回端点、零长、重线和直线相交问题，不修改工程。"
     },
+    "inspectSurfaceQuality": {
+      "tools": [
+        "surfaceAnalysis"
+      ],
+      "method": "surfaceAnalysis",
+      "usage": "通过 mode=zebra 显示指定对象的斑马纹，或 mode=comb 对当前 edgeId 取样曲率。mode=clear 清除视图分析。"
+    },
     "inspectThickness": {
       "tools": [
         "inspectThickness"
       ],
       "method": "inspectThickness",
       "usage": "选择单一封闭实体、表面点与向内方向，或两个平行面；只读精确连续材料厚度。"
+    },
+    "inspectWallThicknessMap": {
+      "tools": [
+        "surfaceAnalysis"
+      ],
+      "method": "surfaceAnalysis",
+      "usage": "通过 mode=thickness 在指定实体的面上采样，读取各测点与最薄测点，可设置薄壁阈值。"
     },
     "intersect": {
       "tools": [
@@ -803,6 +817,16 @@
       "method": "execute",
       "usage": "getTool({id:\"multiPocket\"}) 读取 strict v2 卡；feature.add 或 run add 传 depth/axis/direction/pockets、真实 refs；feature.edit 修改历史凹槽列表。"
     },
+    "networkSurface": {
+      "tools": [
+        "networkSurface",
+        "queryGeometry",
+        "preview.start",
+        "preview.commit"
+      ],
+      "method": "execute",
+      "usage": "分别提供按序选中的两组精确边，以 refs/refIndex 绑定来源。预览回读纵横偏差。"
+    },
     "new": {
       "tools": [
         "files.new"
@@ -991,6 +1015,16 @@
       ],
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "projectCurveOnFace": {
+      "tools": [
+        "projectCurveOnFace",
+        "queryGeometry",
+        "preview.start",
+        "preview.commit"
+      ],
+      "method": "execute",
+      "usage": "给定当前目标面、来源边、投影方向及结果为曲线或分面。"
     },
     "projectedGroove": {
       "tools": [
@@ -1204,6 +1238,16 @@
       ],
       "method": "setRenderQuality",
       "usage": "显式 quality=draft/standard/fine/ultra；getState().renderQuality 读公差、三角面数，不修改 BRep。"
+    },
+    "replaceSurfacePatch": {
+      "tools": [
+        "replaceSurfacePatch",
+        "queryGeometry",
+        "preview.start",
+        "preview.commit"
+      ],
+      "method": "execute",
+      "usage": "refs[0] 是原实体，选择待换面及独立替换面。校验外圈、孔圈及缝合后的有效封闭实体。"
     },
     "resizeBody": {
       "tools": [
@@ -1427,6 +1471,16 @@
       "method": "setDisplayPreferences",
       "usage": "全局 themeColor 与 snapThresholdMm 在当前浏览器持久化。"
     },
+    "spatialSpline": {
+      "tools": [
+        "spatialSpline",
+        "queryGeometry",
+        "preview.start",
+        "preview.commit"
+      ],
+      "method": "execute",
+      "usage": "用当前精确端点或世界 XYZ 明确过点曲线，显式指定开放/闭合、插值或公差拟合。"
+    },
     "sphere": {
       "tools": [
         "sphere"
@@ -1447,6 +1501,64 @@
       ],
       "method": "execute",
       "usage": "feature.add；按工具卡传显式 params/refs，或 run 的 add。"
+    },
+    "surfaceAnalysis": {
+      "tools": [
+        "surfaceAnalysis"
+      ],
+      "method": "surfaceAnalysis",
+      "usage": "用当前 revision 的 bodyId、edgeId 或 faceIds 调用显式检查模式。showInView:false 只回读数值；clear 清除图层。"
+    },
+    "surfaceBridge": {
+      "tools": [
+        "surfaceBridge",
+        "queryGeometry",
+        "preview.start",
+        "preview.commit"
+      ],
+      "method": "execute",
+      "usage": "分别给定两条边与所属邻面、端点配对和 G0/G1/G2。回读实际接缝误差。"
+    },
+    "surfaceFairing": {
+      "tools": [
+        "surfaceFairing",
+        "getState",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel",
+        "history.undo",
+        "files.export"
+      ],
+      "method": "execute",
+      "usage": "选择按原坐标直接导入的 STEP 闭合实体，载入源件 SHA-256 绑定的 Z 位移场 JSON。feature.add op=surfaceFairing，refs:[bodyId]，params 为修顺配方。可用 preview.start 预览并提交，getState.bodies[].surfaceFairingReport 读取拟合、圆柱孔柱与轮廓回执。"
+    },
+    "surfaceFill": {
+      "tools": [
+        "surfaceFill",
+        "getState",
+        "queryGeometry",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel",
+        "history.undo",
+        "files.export"
+      ],
+      "method": "execute",
+      "usage": "曲面 → 约束填充曲面。feature.add 的参数使用一个明确的坐标/顶点或模型边闭环、可选内点和导向边、G1/G2 支持面以及输出厚度。refs 按约束的 refIndex 对应当前对象。预览和 getState.bodies[].surfaceFillReport 都可回读实际误差。"
+    },
+    "surfaceSculpt": {
+      "tools": [
+        "surfaceSculpt",
+        "getState",
+        "queryGeometry",
+        "preview.start",
+        "preview.commit",
+        "preview.cancel",
+        "history.undo",
+        "files.export"
+      ],
+      "method": "execute",
+      "usage": "在当前 STEP 精确曲面上点选或依次圈区，feature.add op=surfaceSculpt，refs:[bodyId]，params 包含当前 faceId、scope 世界坐标、方向及带符号的位移和影响范围。预览后应用，getState.bodies[].surfaceSculptReport 读取实际位移和锁边核对。"
     },
     "surfaceTrim": {
       "tools": [
@@ -1633,6 +1745,7 @@
     "multiBoss": "批量圆柱凸台 / 批量凸台",
     "multiHole": "多位置打孔 / 多点打孔",
     "multiPocket": "批量矩形凹槽 / 批量凹槽",
+    "networkSurface": "双向曲线网格曲面 / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览",
     "offsetSolid": "实体偏置",
     "offsetSurface": "偏置面",
     "outerTurn": "外车",
@@ -1644,6 +1757,7 @@
     "profileRepair": "修复轮廓 / 轮廓修复",
     "profileRevolve": "轮廓旋转",
     "profileSweep": "轮廓扫掠",
+    "projectCurveOnFace": "曲线投影与分面 / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览",
     "projectedGroove": "沿面法向的投影刻槽 / Surface-normal projected groove",
     "quickModel": "快捷模型 / setView / getModelLibrary / resolveModelLibrary / run / 预览模型、原特征编辑或文件插入",
     "referenceExtrude": "参考轮廓拉伸 / 轮廓拉伸",
@@ -1652,15 +1766,21 @@
     "relief": "精确浮雕（矢量/小图） / reliefWizard / planPatternMachining / readRelief / 登记文件资源 / getState / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销",
     "reliefShoulder": "浮雕层肩部",
     "remove": "删除 / 删除实体",
+    "replaceSurfacePatch": "局部换面 / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览",
     "revolve": "旋转成型 / 轮廓旋转",
     "sewFaces": "曲面缝合",
     "shell": "抽壳",
     "sketchProfile": "绘制轮廓 / 轮廓",
     "slot": "长圆槽",
     "smoothTransition": "平滑过渡",
+    "spatialSpline": "空间样条曲线 / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览",
     "sphere": "球体",
     "split": "分割",
     "subdBody": "细分曲面体",
+    "surfaceBridge": "双边光顺过渡面 / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览",
+    "surfaceFairing": "曲面保形修顺 / getState / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销 / 导出文件",
+    "surfaceFill": "约束填充曲面 / getState / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销 / 导出文件",
+    "surfaceSculpt": "局部曲面变形 / getState / queryGeometry / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销 / 导出文件",
     "surfaceTrim": "实体修剪面 / 曲面修剪",
     "sweep": "扫掠 / 轮廓扫掠",
     "tap": "攻牙 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 修改参数 / 撤销 / 重做 / getState",
@@ -1710,6 +1830,9 @@
     "downloadResource": "下载文件",
     "reliefDesign": "设计草稿 / reliefDesignFit / prepareReliefDesignRelief / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / reliefDesignReference / 登记文件资源 / 读取文件字节 / 释放文件资源 / reliefDesignField / 高度图浮雕（网格） / 浮雕设计约束草稿 / getState / 撤销 / 重做 / 保存工程 / 打开工程",
     "reliefSculpt": "精确浮雕精修 / sampleReliefHeight / prepareReliefSculpt / 修改参数 / 预览模型、原特征编辑或文件插入 / 应用预览 / 取消预览 / 撤销",
+    "inspectSurfaceQuality": "曲面光顺检查 / surfaceAnalysis",
+    "inspectWallThicknessMap": "壁厚色图 / surfaceAnalysis",
+    "surfaceAnalysis": "surfaceAnalysis",
     "precisionSettings": "精度 / setDisplayPreferences",
     "themeSettings": "风格 / setDisplayPreferences",
     "snapSettings": "吸附 / setDisplayPreferences",
