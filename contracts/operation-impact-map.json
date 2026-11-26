@@ -2618,19 +2618,25 @@
       "operation": "sewFaces",
       "sourcePaths": [
         "src/cad-kernel.js",
+        "src/main.js",
+        "src/body-state.js",
+        "src/page-api-docs.js",
         "src/operation-catalog.js",
         "src/operation-registry.js"
       ],
-      "localImpact": "选择一个或多个含面的对象。公差控制边缝合，不自动补洞。勾选实体时必须闭合且有效，否则报错；未勾选可得到开放壳。",
-      "servicesImpact": "Shared Services routing and capability checks apply",
+      "localImpact": "选择一个或多个含面的对象。公差控制边缝合，可输出开放壳或经闭合和有效性校验的实体。缝合后的检查摘要显示在状态栏。",
+      "servicesImpact": "Shared Services routing and capability checks apply. Result presentation and state serialization are frontend-only.",
       "logoImpact": "none: unrelated to logo conversion",
-      "contractImpact": "Source operation schema, shared command execution and generated tool card",
+      "contractImpact": "getState exposes surfaceDiagnostics on full sewing-result objects, including face, edge, solid, free-edge and non-manifold counts with diagnostic tolerance.",
       "documentImpact": "Feature recipe and referenced source bodies retained by the document authority",
-      "cacheImpact": "Feature signature/render cache and static contract hashes",
+      "cacheImpact": "Regenerated static documentation and agent knowledge. Identical geometry recipe and cache key.",
       "requiredTests": [
-        "tests/operation-contract.test.mjs"
+        "tests/operation-contract.test.mjs",
+        "tests/surface-repair.test.mjs"
       ],
-      "manualChecks": []
+      "manualChecks": [
+        "On the isolated local WebCAD page, sew a single face as a shell via the page API, read surfaceDiagnostics, and confirm the status summary and unobstructed canvas."
+      ]
     },
     {
       "operation": "surfaceTrim",

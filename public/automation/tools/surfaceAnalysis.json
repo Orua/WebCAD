@@ -2,7 +2,7 @@
   "id": "surfaceAnalysis",
   "title": "surfaceAnalysis",
   "category": "page-method",
-  "version": "1.75.25",
+  "version": "1.75.26",
   "contextPolicy": "revision",
   "invocation": "page-or-batch",
   "batchCapable": true,
@@ -371,5 +371,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.reading-map",
-  "docsHash": "sha256:21163af28c6bd39f5b0b76442d0cc2a2394a3d33d3312f1d2533e9c8df2b1441"
+  "docsHash": "sha256:7bda283b1989df4bc09fe3764e1397a3db93b09ff377e434d5cf9902ed4afe74"
 }

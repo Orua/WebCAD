@@ -3,7 +3,7 @@
   "title": "精确浮雕精修",
   "label": "精确浮雕精修",
   "category": "command",
-  "version": "1.75.25",
+  "version": "1.75.26",
   "description": "发现入口；用feature.edit修改已选浮雕特征，不是独立建模操作。",
   "implementationStatus": "implemented",
   "runtimeAvailability": "requires_ready_page",
@@ -120,5 +120,5 @@
     "policy": "Discovery guidance only; compare input geometry, section/path, parameter meaning, result and side effects. Read the chosen full contract. These distinctions do not add execution blockers."
   },
   "readingGuide": "api.guide.pattern",
-  "docsHash": "sha256:b278b584044e8a5e97a27f15a75528eaf00017c23015a4316a8f89d93f9817c0"
+  "docsHash": "sha256:5a4ab7e82a4d2fe6ed16ab99558bf060048e56afd15d1bc598bf3ee36cca5084"
 }

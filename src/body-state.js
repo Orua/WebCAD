@@ -1,7 +1,7 @@
 const keys=['id','name','geometryType','triangleCount','vertexCount','meshReport','previewOrigin','metricsDeferred','measurementStatus','boundsSource','adaptiveDisplay','displayDeferred','bounds','volume','area','solidCount','shellCount','logoProjectionReport','projectedGrooveReport','transitionReport','blendReport','roundingReport','roundReport','endRoundingReport','repairReport','badgeReport','threadReport','chainReport','constraintReport','reliefReport','refineReport','displayReport','loftReport','variationReport','booleanReport','blendRadiusReport','radiusSearchReport','warnings'];
 keys.push('resizeReport','subdApproximation','guidedLoftReport','ellipsoidReport','alignmentReport','sourceFreeJunctionReport','sourceJunctionReport');
 keys.push('instanceDisplay','assembly');
-keys.push('surfaceFairingReport','surfaceSculptReport','surfaceFillReport','freeformReport');
+keys.push('surfaceFairingReport','surfaceSculptReport','surfaceFillReport','freeformReport','surfaceDiagnostics');
 // R7-009: a deferred exact measurement is never reported as volume 0.
 export function deferredMetricFields(body){
   if(body?.metricsDeferred!==true)return {};

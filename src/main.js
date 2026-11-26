@@ -630,7 +630,7 @@ async function addFeature(op,params={},options={}){
   // Agent and UI creation share the frozen placement; overlap is meaningful in CAD.
   const result=await rebuild(next,{...options,select,fit:!bodies.length||insertOps.includes(op)});
   const diagnostic=bodies.find(body=>body.id===id)?.surfaceDiagnostics;
-  if(diagnostic)ui.showInfo('缝合检查',`${diagnostic.faces} 面，${diagnostic.solids} 实体。以 ${diagnostic.tolerance} mm 再检查：${diagnostic.freeEdges} 条自由边，${diagnostic.multipleEdges} 条非流形边。未自动补洞。`);
+  if(diagnostic)setStatus(`缝合检查 · ${diagnostic.faces} 面 · ${diagnostic.solids} 实体 · 自由边 ${diagnostic.freeEdges} · 非流形边 ${diagnostic.multipleEdges} · 检查公差 ${diagnostic.tolerance} mm`);
   return result;
 }
 async function resolveLogoParams(op,params,refs,options={}){

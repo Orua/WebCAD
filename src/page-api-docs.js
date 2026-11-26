@@ -41,7 +41,7 @@ import {MACHINING_INTENT_SCHEMA,PATTERN_MACHINING_GUIDANCE} from './machining-in
 import {FEATURE_PLAN_GUIDANCE,FEATURE_PLAN_SCHEMA} from './feature-plan.js';
 import {LOGO_RASTER_SCHEMA} from './logo-raster-options.js';
 import {ERROR_RECOVERY_VERSION,errorRecoveryCatalogDoc,errorRecovery} from './error-recovery.js';
-const PAGE_DOC_VERSION = '1.75.25';
+const PAGE_DOC_VERSION = '1.75.26';
 const EXAMPLE_CONTEXT={sessionId:'<live sessionId>',documentId:'<live documentId>',documentInstanceId:'<live documentInstanceId>',expectedRevision:0};
 const RECTANGLE_PROFILE_EXAMPLE = {
   op:'sketchProfile',refs:[],params:{profileVersion:1,
@@ -841,7 +841,7 @@ export function readDocs(input) {
     if (Object.hasOwn(MODELING_DOCS, id)) return page(PAGE_DOCS[id], PAGE_DOC_VERSION);
     const policies=[...PAGE_METHODS,...FILE_METHODS.map(name=>'files.'+name)].map(name=>`${name}: contextPolicy=${contextPolicy(name)}`).join('\n');
     const viewOrder=id==='api.views'?'\n同次请求先应用display、selectedIds和temporaryDisplay，再按camera→projection→direction→fit顺序取景；后项优先。display未带selectedIds仍沿用清空选择的旧行为，显式selectedIds（含空数组）优先。selectedOnly空选择显示空场景，fit使用默认空场景范围。默认 fit 不含地坪网格，只框当前可见实体；远处还有对象时近处零件会显得很小，此时用 selectedIds 加 temporaryDisplay:"selectedOnly"。不改变几何revision。':'';
-    const facts=id==='api.state-facts'?'\nfacts.activeCreatedBodyIds/removedSinceStartBodyIds比较本批起点与结束时的实际对象集合，objectSet提供前后对象数和scope=this_batch；按coverage判断是否截断。跨批次要另记任务基线。delivery区分geometry/render revision，framing=not_verified、saved=not_asserted不代表已验收或保存。':'';
+    const facts=id==='api.state-facts'?'\nfacts.activeCreatedBodyIds/removedSinceStartBodyIds比较本批起点与结束时的实际对象集合，objectSet提供前后对象数和scope=this_batch；按coverage判断是否截断。跨批次要另记任务基线。delivery区分geometry/render revision，framing=not_verified、saved=not_asserted不代表已验收或保存。\nsewFaces 提交后，用 createdBodyIds[0] 在 getState({bodyIds:[id],bodyFields:["id","surfaceDiagnostics"]}) 中读取复查结果。surfaceDiagnostics 包含 faces、edges、solids、freeEdges、multipleEdges 和以毫米计的复查 tolerance。页面状态栏同时显示缝合检查摘要。':'';
     return page(PAGE_DOCS[id]+viewOrder+facts+'\n\nContext policy: none = no document context; identity = sessionId/documentId/documentInstanceId (revision ignored); revision = sessionId/documentId/documentInstanceId plus current expectedRevision. For writes use api.createRequestContext(), connect().requestContext or the last successful receipt nextContext/requestContext. getState().context contains revision; do not pass it unchanged as a revision-protected write context.\n'+policies, PAGE_DOC_VERSION);
   }
   if (LEGACY_READABLE.has(id)) {
